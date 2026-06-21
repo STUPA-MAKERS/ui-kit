@@ -1,0 +1,9 @@
+// @stupa-makers/ui-kit — design-system styles entry.
+// Order: Font face declarations → CD tokens (primitive + semantic) → base element reset.
+// Consume from an app's global stylesheet, e.g.:
+//   @use '@stupa-makers/ui-kit/styles' as uikit;
+// The @font-face rules reference '/assets/fonts/archivo-latin-*.woff2' (absolute) — copy the
+// kit's `assets/fonts` into the app's served `/assets/fonts` (see README).
+@use 'fonts';
+@use 'tokens';
+@use 'base';

@@ -1,0 +1,36 @@
+<div class="relative">
+  <app-button
+    variant="secondary"
+    size="sm"
+    [attr.aria-expanded]="open()"
+    (click)="toggle()"
+  >
+    <span class="inline-flex items-center gap-2">
+      <app-icon name="filter" [size]="16" />
+      {{ label() || ('filter.button' | uiKitT) }}
+      @if (activeCount() > 0) {
+        <span class="filter__count" aria-hidden="true">{{ activeCount() }}</span>
+      }
+    </span>
+  </app-button>
+
+  @if (open()) {
+    <div class="filter__panel" role="dialog" [attr.aria-label]="label() || ('filter.button' | uiKitT)">
+      <div class="flex flex-col gap-4">
+        <ng-content />
+      </div>
+      <div class="filter__actions">
+        @if (!live()) {
+          <app-button size="sm" (click)="emitApply()">
+            {{ applyLabel() || ('filter.apply' | uiKitT) }}
+          </app-button>
+        }
+        @if (live() ? activeCount() > 0 : true) {
+          <app-button variant="ghost" size="sm" (click)="emitReset()">
+            {{ resetLabel() || ('filter.reset' | uiKitT) }}
+          </app-button>
+        }
+      </div>
+    </div>
+  }
+</div>

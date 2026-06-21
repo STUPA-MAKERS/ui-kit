@@ -1,0 +1,11 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "outDir": "./out-tsc/lib",
+    "declaration": true,
+    "declarationMap": true,
+    "types": []
+  },
+  "exclude": ["**/*.spec.ts", "testing/**", "src/styles/**"],
+  "include": ["src/**/*.ts", "markdown-editor/**/*.ts"]
+}
