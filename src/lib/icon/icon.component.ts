@@ -37,6 +37,10 @@ export type IconName =
   | 'key'
   | 'handshake'
   | 'paperclip'
+  | 'link'
+  | 'link-slash'
+  | 'eye'
+  | 'eye-slash'
   | 'upload'
   | 'document'
   | 'chart-pie';
@@ -79,6 +83,10 @@ const FA: Record<IconName, string> = {
   key: 'fa-key',
   handshake: 'fa-handshake',
   paperclip: 'fa-paperclip',
+  link: 'fa-link',
+  'link-slash': 'fa-link-slash',
+  eye: 'fa-eye',
+  'eye-slash': 'fa-eye-slash',
   upload: 'fa-file-arrow-up',
   document: 'fa-file-lines',
   'chart-pie': 'fa-chart-pie',
