@@ -9,6 +9,7 @@
   width: 100%;
 }
 .btn {
+  position: relative;
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -122,13 +123,21 @@
      sonst schneidet overflow:hidden Unterlängen (g/p/ü) unten ab (#btn-clip). */
   line-height: 1.3;
 }
+/* Spinner liegt ÜBER dem (unsichtbaren) Inhalt statt daneben: der Button
+   behält beim Laden exakt seine Größe (kein Breiten-Sprung, #send-glitch). */
 .btn__spinner {
+  position: absolute;
+  inset: 0;
+  margin: auto;
   width: 1em;
   height: 1em;
   border: 2px solid currentColor;
   border-right-color: transparent;
   border-radius: var(--radius-pill);
   animation: btn-spin 0.6s linear infinite;
+}
+.btn__label--loading {
+  visibility: hidden;
 }
 @keyframes btn-spin {
   to {
