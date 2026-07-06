@@ -43,7 +43,9 @@
 }
 .dt__detail-row > td {
   padding: 0;
-  background: var(--color-surface-sunken);
+  /* Raised statt sunken: im Dark-Theme wäre sunken dunkler als die Surface —
+     das aufgeklappte Panel wirkt dann wie ein Loch (zu dunkel). */
+  background: var(--color-surface-raised, var(--color-surface-sunken));
 }
 .dt__empty {
   text-align: center;

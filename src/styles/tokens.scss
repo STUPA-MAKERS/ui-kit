@@ -127,6 +127,9 @@
   --color-bg-elevated: var(--c-neutral-0);
   --color-surface: var(--c-neutral-0);
   --color-surface-sunken: var(--c-neutral-100);
+  // Aufgeklappte Detail-Panels (Tabellen-Detailzeile): hell = wie sunken; dunkel
+  // heller als die Surface, damit das Panel nicht als "Loch" wirkt.
+  --color-surface-raised: var(--c-neutral-100);
   --color-border: var(--c-neutral-200);
   // Control-Rahmen (Inputs/Select/Button) — ≥3:1 ggü. Surface/bg für
   // WCAG 1.4.11 Non-Text-Contrast (T-43). Bewusst dunkler als der dekorative
@@ -170,6 +173,7 @@
   --color-bg-elevated: var(--c-neutral-900);
   --color-surface: var(--c-neutral-850);
   --color-surface-sunken: var(--c-neutral-900);
+  --color-surface-raised: var(--c-neutral-800);
   --color-border: #2c322d;
   // Control-Rahmen (Inputs/Select/Button) — ≥3:1 ggü. Surface/bg, WCAG 1.4.11 (T-43).
   --color-border-strong: #646f68;
