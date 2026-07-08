@@ -50,6 +50,9 @@
         shellHook = ''
           echo "ui-kit dev shell — node $(node --version), npm $(npm --version)"
           echo "Install deps with: npm ci   |   build: npm run build   |   test: npm test"
+          # Drop into the user's interactive zsh (loads ~/.zshrc); guarded so
+          # `nix develop -c <cmd>` and non-interactive uses still run in bash.
+          [[ $- == *i* ]] && exec ${pkgs.zsh}/bin/zsh
         '';
       };
     };
