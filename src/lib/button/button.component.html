@@ -3,6 +3,7 @@
   [disabled]="disabled || loading"
   [attr.aria-busy]="loading ? 'true' : null"
   [attr.aria-label]="ariaLabel || null"
+  [attr.aria-pressed]="ariaPressed === null ? null : ariaPressed"
   [attr.title]="tooltip()"
   [class]="'btn btn--' + variant + ' btn--' + size + (iconOnly ? ' btn--icon' : '')"
   [class.btn--custom]="!!color"

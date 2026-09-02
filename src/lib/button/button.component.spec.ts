@@ -125,4 +125,18 @@ describe('ButtonComponent', () => {
     await render(`<app-button color="#000000">C</app-button>`, { imports: [ButtonComponent] });
     expect(screen.getByRole('button').style.color).toBe('rgb(255, 255, 255)');
   });
+  it('reports its toggle state when it has one', async () => {
+    const { container } = await render(`<app-button [ariaPressed]="true">Alle</app-button>`, {
+      imports: [ButtonComponent],
+    });
+    expect(container.querySelector('button')).toHaveAttribute('aria-pressed', 'true');
+  });
+
+  it('carries no toggle state when it is not a toggle', async () => {
+    // `aria-pressed="false"` on an ordinary button announces it as an unpressed toggle.
+    const { container } = await render(`<app-button>Speichern</app-button>`, {
+      imports: [ButtonComponent],
+    });
+    expect(container.querySelector('button')).not.toHaveAttribute('aria-pressed');
+  });
 });

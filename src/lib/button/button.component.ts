@@ -25,6 +25,12 @@ export class ButtonComponent {
   @Input() @HostBinding('class.btn-block') block = false;
   /** Barrierefreier Name — Pflicht für Icon-Buttons ohne sichtbaren Text. */
   @Input() ariaLabel = '';
+  /**
+   * Toggle-Zustand für einen Button, der an/aus ist — etwa ein Segment in einer
+   * Filtergruppe. Ohne das unterscheidet nur die `variant`-Farbe den aktiven Eintrag,
+   * und eine Vorlesehilfe hört drei gleich benannte Buttons ohne Zustand.
+   */
+  @Input() ariaPressed: boolean | null = null;
   /** Hover-Tooltip; bei Icon-Buttons fällt er automatisch auf `ariaLabel` zurück (#47). */
   @Input() title = '';
 
