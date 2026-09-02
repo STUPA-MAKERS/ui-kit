@@ -55,7 +55,7 @@ export { DialogComponent } from './lib/dialog/dialog.component';
 export { TableComponent } from './lib/table/table.component';
 export type { Column } from './lib/table/table.component';
 export { DataTableComponent } from './lib/data-table/data-table.component';
-export type { ColumnDef } from './lib/data-table/data-table.component';
+export type { ColumnDef, SortState } from './lib/data-table/data-table.component';
 export { CellDirective } from './lib/data-table/cell.directive';
 export { RowDetailDirective } from './lib/data-table/row-detail.directive';
 export { CurrencyInputComponent } from './lib/currency-input/currency-input.component';

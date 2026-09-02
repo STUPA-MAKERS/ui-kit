@@ -201,4 +201,118 @@ describe('DataTableComponent', () => {
     view.fixture.detectChanges();
     expect(screen.getByText('Alpha!')).toBeInTheDocument();
   });
+  describe('loading', () => {
+    it('keeps the header and draws skeleton rows instead of collapsing', async () => {
+      // The whole point: a table that is merely refreshing must not read as "no
+      // results". The header and the box stay; the body becomes placeholders.
+      await render(`<app-data-table [columns]="cols" [rows]="[]" [loading]="true" />`, {
+        imports: [DataTableComponent],
+        componentProperties: { cols: COLS },
+      });
+      expect(screen.getByRole('columnheader', { name: 'Name' })).toBeInTheDocument();
+      expect(screen.queryByText('—')).not.toBeInTheDocument();
+    });
+
+    it('draws the requested number of skeleton rows', async () => {
+      const { container } = await render(
+        `<app-data-table [columns]="cols" [rows]="[]" [loading]="true" [skeletonRowCount]="3" />`,
+        { imports: [DataTableComponent], componentProperties: { cols: COLS } },
+      );
+      expect(container.querySelectorAll('.dt__skeleton-row')).toHaveLength(3);
+    });
+
+    it('announces the loading state, because the skeleton is aria-hidden', async () => {
+      await render(
+        `<app-data-table [columns]="cols" [rows]="[]" [loading]="true" loadingText="Wird geladen" />`,
+        { imports: [DataTableComponent], componentProperties: { cols: COLS } },
+      );
+      expect(screen.getByRole('status')).toHaveTextContent('Wird geladen');
+    });
+
+    it('shows the real rows again once loading ends', async () => {
+      const view = await render(
+        `<app-data-table [columns]="cols" [rows]="rows" [loading]="busy()" />`,
+        {
+          imports: [DataTableComponent],
+          componentProperties: { cols: COLS, rows: ROWS, busy: signal(true) },
+        },
+      );
+      expect(screen.queryByText('Alpha')).not.toBeInTheDocument();
+      (view.fixture.componentInstance as { busy: ReturnType<typeof signal<boolean>> }).busy.set(
+        false,
+      );
+      view.fixture.detectChanges();
+      expect(screen.getByText('Alpha')).toBeInTheDocument();
+    });
+
+    it('still shows the empty state when there is genuinely nothing', async () => {
+      await render(`<app-data-table [columns]="cols" [rows]="[]" emptyText="Nichts da" />`, {
+        imports: [DataTableComponent],
+        componentProperties: { cols: COLS },
+      });
+      expect(screen.getByText('Nichts da')).toBeInTheDocument();
+    });
+  });
+
+  describe('sorting', () => {
+    const SORTABLE: ColumnDef[] = [
+      { key: 'name', label: 'Name', sortable: true },
+      { key: 'status', label: 'Status' },
+    ];
+
+    it('renders a sortable header as a button and a plain one as text', async () => {
+      await render(`<app-data-table [columns]="cols" [rows]="rows" />`, {
+        imports: [DataTableComponent],
+        componentProperties: { cols: SORTABLE, rows: ROWS },
+      });
+      expect(screen.getByRole('button', { name: /Name/ })).toBeInTheDocument();
+      expect(screen.queryByRole('button', { name: /Status/ })).not.toBeInTheDocument();
+    });
+
+    it('starts a new column ascending', async () => {
+      const sortChange = jest.fn();
+      await render(`<app-data-table [columns]="cols" [rows]="rows" (sortChange)="onSort($event)" />`, {
+        imports: [DataTableComponent],
+        componentProperties: { cols: SORTABLE, rows: ROWS, onSort: sortChange },
+      });
+      await userEvent.click(screen.getByRole('button', { name: /Name/ }));
+      expect(sortChange).toHaveBeenCalledWith({ key: 'name', direction: 'asc' });
+    });
+
+    it('flips the direction on the column that is already sorted', async () => {
+      const sortChange = jest.fn();
+      await render(
+        `<app-data-table [columns]="cols" [rows]="rows" [sort]="sort" (sortChange)="onSort($event)" />`,
+        {
+          imports: [DataTableComponent],
+          componentProperties: {
+            cols: SORTABLE,
+            rows: ROWS,
+            sort: { key: 'name', direction: 'asc' },
+            onSort: sortChange,
+          },
+        },
+      );
+      await userEvent.click(screen.getByRole('button', { name: /Name/ }));
+      expect(sortChange).toHaveBeenCalledWith({ key: 'name', direction: 'desc' });
+    });
+
+    it('exposes the sort to assistive technology, not only to the eye', async () => {
+      const { container } = await render(
+        `<app-data-table [columns]="cols" [rows]="rows" [sort]="sort" />`,
+        {
+          imports: [DataTableComponent],
+          componentProperties: {
+            cols: SORTABLE,
+            rows: ROWS,
+            sort: { key: 'name', direction: 'desc' },
+          },
+        },
+      );
+      const [sorted, plain] = Array.from(container.querySelectorAll('th'));
+      expect(sorted.getAttribute('aria-sort')).toBe('descending');
+      // A non-sortable column carries no aria-sort at all.
+      expect(plain.getAttribute('aria-sort')).toBeNull();
+    });
+  });
 });
