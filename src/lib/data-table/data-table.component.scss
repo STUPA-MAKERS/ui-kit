@@ -1,6 +1,121 @@
+/* The scroll container owns the horizontal overflow, so a wide table scrolls inside
+   its own box and never pushes the page sideways. The fades sit on the wrapper rather
+   than the scroller, so they stay put while the content moves under them. */
+.dt {
+  position: relative;
+}
+.dt__scroll {
+  overflow-x: auto;
+  /* Momentum scrolling on touch, and a scrollbar that does not overlap the last row. */
+  scrollbar-gutter: stable;
+}
+.dt::before,
+.dt::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: var(--space-6);
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity var(--motion-fast, 120ms) var(--ease-standard, ease);
+  z-index: 1;
+}
+.dt::before {
+  left: 0;
+  background: linear-gradient(to right, var(--color-surface), transparent);
+}
+.dt::after {
+  right: 0;
+  background: linear-gradient(to left, var(--color-surface), transparent);
+}
+/* Only the edge that actually hides content gets a fade. A table that fits shows
+   neither, so nothing suggests content that is not there. */
+.dt--fade-start::before,
+.dt--fade-end::after {
+  opacity: 1;
+}
+
+/* A sortable header is a button, so it needs the header's own typography back. */
+.dt__sort {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: 0;
+  border: 0;
+  background: none;
+  font: inherit;
+  color: inherit;
+  text-transform: inherit;
+  letter-spacing: inherit;
+  cursor: pointer;
+}
+.dt__sort:hover .dt__sort-icon,
+.dt__sort:focus-visible .dt__sort-icon {
+  opacity: 1;
+}
+.dt__sort:focus-visible {
+  outline: 2px solid var(--color-focus);
+  outline-offset: 2px;
+}
+/* The inactive arrows stay faint: they mark the column as sortable without competing
+   with the one that is actually sorted. */
+.dt__sort-icon {
+  opacity: 0.35;
+  transition: opacity var(--motion-fast, 120ms) var(--ease-standard, ease);
+}
+.dt__sort-icon--on {
+  opacity: 1;
+  color: var(--color-primary);
+}
+
+/* Skeleton rows keep the header, the column widths and the box height while data
+   loads, so nothing shifts when the real rows arrive. */
+.dt__skeleton {
+  display: block;
+  height: 0.75rem;
+  width: 60%;
+  border-radius: var(--radius-sm, 4px);
+  background: var(--color-surface-sunken);
+  animation: dt-pulse 1.4s var(--ease-standard, ease) infinite;
+}
+.dt__skeleton-row td:first-child .dt__skeleton {
+  width: 80%;
+}
+@keyframes dt-pulse {
+  0%,
+  100% {
+    opacity: 0.5;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+/* Respect a reduced-motion preference: the skeleton still reads as a placeholder
+   without the pulse. */
+@media (prefers-reduced-motion: reduce) {
+  .dt__skeleton {
+    animation: none;
+  }
+}
+
+.dt__sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
 .dt--boxed {
-  /* etwas Luft zwischen Seiten-Beschreibung und Tabelle (#65). */
-  margin-top: var(--space-2);
+  /* No margin of its own. The table used to add `margin-top` on top of whatever the
+     page header already contributed, so a page whose content was a table sat lower than
+     one whose content was a card. Spacing belongs to the layout that arranges the
+     blocks, not to a block that cannot see its neighbours. */
   background: var(--color-surface);
   border: var(--border-width) solid var(--color-border);
   border-radius: var(--radius-lg);
@@ -43,7 +158,9 @@
 }
 .dt__detail-row > td {
   padding: 0;
-  background: var(--color-surface-sunken);
+  /* Raised statt sunken: im Dark-Theme wäre sunken dunkler als die Surface —
+     das aufgeklappte Panel wirkt dann wie ein Loch (zu dunkel). */
+  background: var(--color-surface-raised, var(--color-surface-sunken));
 }
 .dt__empty {
   text-align: center;

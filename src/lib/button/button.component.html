@@ -12,5 +12,5 @@
   @if (loading) {
     <span class="btn__spinner" aria-hidden="true"></span>
   }
-  <span class="btn__label"><ng-content /></span>
+  <span class="btn__label" [class.btn__label--loading]="loading"><ng-content /></span>
 </button>

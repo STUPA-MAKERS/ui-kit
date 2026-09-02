@@ -36,3 +36,9 @@
 .card__footer {
   padding: 0 var(--space-5) var(--space-5);
 }
+// Collapsed/empty body (e.g. a collapsible card whose content is behind an
+// `@if`): only the anchor comment remains, so `:empty` still matches — shrink
+// the body to a plain bottom inset instead of a full padded block.
+.card__body:empty {
+  padding: 0 0 var(--space-5);
+}
