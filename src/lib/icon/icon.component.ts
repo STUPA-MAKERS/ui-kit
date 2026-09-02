@@ -39,6 +39,7 @@ export type IconName =
   | 'paperclip'
   | 'link'
   | 'link-slash'
+  | 'search'
   | 'eye'
   | 'eye-slash'
   | 'upload'
@@ -85,6 +86,8 @@ const FA: Record<IconName, string> = {
   paperclip: 'fa-paperclip',
   link: 'fa-link',
   'link-slash': 'fa-link-slash',
+  // Suchen ist nicht Filtern: der Trichter ist der Filter-Button der Listenseiten.
+  search: 'fa-magnifying-glass',
   eye: 'fa-eye',
   'eye-slash': 'fa-eye-slash',
   upload: 'fa-file-arrow-up',
