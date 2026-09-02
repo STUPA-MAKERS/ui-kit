@@ -26,6 +26,12 @@ export interface ColumnDef {
   width?: string;
   /** Renders the header as a sort control and emits `sortChange` on click. */
   sortable?: boolean;
+  /**
+   * Direction a FIRST click on this column asks for. Defaults to ascending, which is
+   * what a name or a key wants; a date or an amount usually wants the largest first,
+   * so those columns set `desc`.
+   */
+  initialSort?: 'asc' | 'desc';
 }
 
 /** Which column a table is sorted by, and in which direction. */
@@ -125,13 +131,18 @@ export class DataTableComponent implements AfterContentInit {
   /**
    * Toggle the sort for one column.
    *
-   * Clicking a new column starts ascending, which is what a reader expects from a first
-   * click. Clicking the active column flips the direction.
+   * A new column starts at its own `initialSort`; clicking the active column flips it.
    */
   protected toggleSort(col: ColumnDef): void {
     if (!col.sortable) return;
+    const first = col.initialSort ?? 'asc';
+    // Clicking the active column flips it; a new column starts at its own default.
     const direction: SortState['direction'] =
-      this.sort?.key === col.key && this.sort.direction === 'asc' ? 'desc' : 'asc';
+      this.sort?.key === col.key
+        ? this.sort.direction === 'asc'
+          ? 'desc'
+          : 'asc'
+        : first;
     this.sortChange.emit({ key: col.key, direction });
   }
 

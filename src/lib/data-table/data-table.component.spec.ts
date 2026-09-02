@@ -269,6 +269,21 @@ describe('DataTableComponent', () => {
       expect(screen.queryByRole('button', { name: /Status/ })).not.toBeInTheDocument();
     });
 
+    it('starts a column at its own initialSort when it has one', async () => {
+      // A date or an amount usually wants the newest or largest first, so those columns
+      // opt out of the ascending default rather than every caller re-implementing it.
+      const sortChange = jest.fn();
+      const cols: ColumnDef[] = [
+        { key: 'created', label: 'Created', sortable: true, initialSort: 'desc' },
+      ];
+      await render(`<app-data-table [columns]="cols" [rows]="rows" (sortChange)="onSort($event)" />`, {
+        imports: [DataTableComponent],
+        componentProperties: { cols, rows: ROWS, onSort: sortChange },
+      });
+      await userEvent.click(screen.getByRole('button', { name: /Created/ }));
+      expect(sortChange).toHaveBeenCalledWith({ key: 'created', direction: 'desc' });
+    });
+
     it('starts a new column ascending', async () => {
       const sortChange = jest.fn();
       await render(`<app-data-table [columns]="cols" [rows]="rows" (sortChange)="onSort($event)" />`, {
