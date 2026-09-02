@@ -166,3 +166,25 @@ input[type='radio'] {
   border-radius: var(--radius-lg);
   background: var(--color-surface);
 }
+
+
+/* ---------------------------------------------------------------------------
+   Dialog body rhythm.
+
+   The body projects its content, so a rule on `.dialog__body > *` inside the
+   component never reaches it: projected nodes carry the CALLER's encapsulation
+   attribute. The spacing therefore has to live here, unscoped.
+
+   Without it every caller invents its own `margin-top` and the gaps come out
+   uneven — one block glued to the heading above, the next floating away from it.
+   The gap owns the rhythm; the reset stops a block's own margin adding to it.
+   --------------------------------------------------------------------------- */
+.dialog__body {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+.dialog__body > * {
+  margin-block: 0;
+}
+
