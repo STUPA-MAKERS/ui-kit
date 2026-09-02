@@ -57,6 +57,7 @@ export type { Column } from './lib/table/table.component';
 export { DataTableComponent } from './lib/data-table/data-table.component';
 export type { ColumnDef, SortState } from './lib/data-table/data-table.component';
 export { CellDirective } from './lib/data-table/cell.directive';
+export { FootCellDirective } from './lib/data-table/foot-cell.directive';
 export { RowDetailDirective } from './lib/data-table/row-detail.directive';
 export { CurrencyInputComponent } from './lib/currency-input/currency-input.component';
 export { LoadingOverlayComponent } from './lib/loading-overlay/loading-overlay.component';
