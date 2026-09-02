@@ -27,9 +27,15 @@
     color var(--motion-fast) var(--ease-standard),
     border-color var(--motion-fast) var(--ease-standard);
 }
+/* A disabled button has to LOOK unavailable. At 0.55 a secondary button still read as
+   clickable against a dark surface, so a pager sitting at its last page looked like it
+   had somewhere left to go. Dropping the contrast further and flattening the surface
+   makes the state legible without adding a second colour. */
 .btn:disabled {
-  opacity: 0.55;
+  opacity: 0.4;
   cursor: not-allowed;
+  box-shadow: none;
+  filter: grayscale(0.4);
 }
 .btn--sm {
   padding: var(--space-2) var(--space-3);
