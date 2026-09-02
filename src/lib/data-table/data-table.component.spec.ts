@@ -330,4 +330,44 @@ describe('DataTableComponent', () => {
       expect(plain.getAttribute('aria-sort')).toBeNull();
     });
   });
+
+  describe('sticky column', () => {
+    const STICKY: ColumnDef[] = [
+      { key: 'name', label: 'Name' },
+      { key: 'status', label: 'Aktionen', align: 'end', sticky: 'end' },
+    ];
+
+    it('pins the marked column in the header, the body and the skeleton', async () => {
+      const { container } = await render(
+        `<app-data-table [columns]="cols" [rows]="rows" />`,
+        { imports: [DataTableComponent], componentProperties: { cols: STICKY, rows: ROWS } },
+      );
+      const [plainHead, stickyHead] = Array.from(container.querySelectorAll('th'));
+      expect(stickyHead).toHaveClass('dt__cell--sticky');
+      expect(plainHead).not.toHaveClass('dt__cell--sticky');
+      // Every body row pins the same column, or the strip would break mid-table.
+      for (const row of Array.from(container.querySelectorAll('tbody tr'))) {
+        const cells = Array.from(row.querySelectorAll('td'));
+        expect(cells[1]).toHaveClass('dt__cell--sticky');
+        expect(cells[0]).not.toHaveClass('dt__cell--sticky');
+      }
+    });
+
+    it('pins the skeleton cells too, so the strip does not appear on load', async () => {
+      const { container } = await render(
+        `<app-data-table [columns]="cols" [rows]="rows" [loading]="true" />`,
+        { imports: [DataTableComponent], componentProperties: { cols: STICKY, rows: [] } },
+      );
+      const cells = Array.from(container.querySelectorAll('.dt__skeleton-row td'));
+      expect(cells[1]).toHaveClass('dt__cell--sticky');
+    });
+
+    it('pins nothing when no column asks for it', async () => {
+      const { container } = await render(`<app-data-table [columns]="cols" [rows]="rows" />`, {
+        imports: [DataTableComponent],
+        componentProperties: { cols: COLS, rows: ROWS },
+      });
+      expect(container.querySelector('.dt__cell--sticky')).toBeNull();
+    });
+  });
 });
