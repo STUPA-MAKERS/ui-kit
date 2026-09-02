@@ -6,7 +6,17 @@
 }
 .dt__scroll {
   overflow-x: auto;
-  /* Momentum scrolling on touch, and a scrollbar that does not overlap the last row. */
+  /* `overflow-y` must be stated. Setting only `overflow-x: auto` makes `overflow-y`
+     compute to `auto` as well, so the browser reserved a VERTICAL scrollbar gutter this
+     container can never use — the table grows the box, it never scrolls inside it. That
+     left a ~15px strip to the right of the table showing the box background. Next to the
+     body rows it is invisible, because both are the surface colour; next to the sunken
+     header it reads as the header stopping short of the edge. It only showed on a table
+     that fits, because a table that overflows scrolls its full width through the
+     viewport and covers the strip. */
+  overflow-y: hidden;
+  /* Keeps the block-end gutter, so the horizontal scrollbar does not overlap the last
+     row. That is what this reservation was always for. */
   scrollbar-gutter: stable;
 }
 .dt::before,
