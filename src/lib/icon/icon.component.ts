@@ -37,6 +37,8 @@ export type IconName =
   | 'key'
   | 'handshake'
   | 'paperclip'
+  | 'paperclip-slash'
+  | 'home'
   | 'link'
   | 'link-slash'
   | 'search'
@@ -84,6 +86,10 @@ const FA: Record<IconName, string> = {
   key: 'fa-key',
   handshake: 'fa-handshake',
   paperclip: 'fa-paperclip',
+  // Font Awesome Free hat kein `paperclip-slash` (nur Pro). Der Grundriss ist die
+  // Büroklammer; der Strich kommt aus OVERLAY.
+  'paperclip-slash': 'fa-paperclip',
+  home: 'fa-house',
   link: 'fa-link',
   'link-slash': 'fa-link-slash',
   // Suchen ist nicht Filtern: der Trichter ist der Filter-Button der Listenseiten.
@@ -93,6 +99,14 @@ const FA: Record<IconName, string> = {
   upload: 'fa-file-arrow-up',
   document: 'fa-file-lines',
   'chart-pie': 'fa-chart-pie',
+};
+
+/**
+ * Zweites, überlagertes Glyph für Icons, die Font Awesome Free nicht als eigenes Zeichen
+ * führt. Das Overlay liegt deckungsgleich über dem Grundriss.
+ */
+const OVERLAY: Partial<Record<IconName, string>> = {
+  'paperclip-slash': 'fa-slash',
 };
 
 /**
@@ -118,4 +132,6 @@ export class IconComponent {
   @Input() size = 18;
 
   protected readonly faClass = computed(() => FA[this._name()] ?? 'fa-circle-question');
+  /** Leer, wenn das Icon aus einem einzigen Glyph besteht. */
+  protected readonly overlayClass = computed(() => OVERLAY[this._name()] ?? '');
 }

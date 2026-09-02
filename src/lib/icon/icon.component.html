@@ -1,1 +1,11 @@
-<i class="fa-solid" [class]="faClass()" [style.fontSize.px]="size" aria-hidden="true"></i>
+<span class="icon__stack">
+  <i class="fa-solid" [class]="faClass()" [style.fontSize.px]="size" aria-hidden="true"></i>
+  @if (overlayClass()) {
+    <i
+      class="fa-solid icon__overlay"
+      [class]="overlayClass()"
+      [style.fontSize.px]="size"
+      aria-hidden="true"
+    ></i>
+  }
+</span>
