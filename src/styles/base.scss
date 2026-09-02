@@ -188,3 +188,18 @@ input[type='radio'] {
   margin-block: 0;
 }
 
+
+/* Card body rhythm — same reasoning as `.dialog__body` above: the body projects its
+   content, so the reset cannot live in the component. Without it a hint paragraph sits
+   far from the heading it explains and tight against the table below it, because the two
+   gaps come from different places (heading margin plus body padding above, the
+   paragraph's own margin below). */
+.card__body {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+.card__body > * {
+  margin-block: 0;
+}
+
