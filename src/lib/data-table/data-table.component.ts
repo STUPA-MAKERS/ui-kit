@@ -32,6 +32,18 @@ export interface ColumnDef {
    * so those columns set `desc`.
    */
   initialSort?: 'asc' | 'desc';
+  /**
+   * Pins the column to the trailing edge while the table scrolls sideways.
+   *
+   * For the actions column of a wide table: edit and delete stay reachable instead of
+   * sitting past the right edge, where a reader has to scroll to find them and scroll
+   * back to see which row they belong to. Below the mobile breakpoint the table stacks
+   * into cards and nothing scrolls sideways, so the pin lifts by itself.
+   *
+   * Pin ONE column at most, and pin it last: two pinned columns would overlap, because
+   * each one is offset from the same edge.
+   */
+  sticky?: 'end';
 }
 
 /** Which column a table is sorted by, and in which direction. */

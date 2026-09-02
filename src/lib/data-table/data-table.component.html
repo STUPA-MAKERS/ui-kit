@@ -14,6 +14,7 @@
             @for (col of columns; track col.key) {
               <th
                 scope="col"
+                [class.dt__cell--sticky]="col.sticky === 'end'"
                 [style.text-align]="col.align ?? 'start'"
                 [style.width]="col.width || null"
                 [attr.aria-sort]="ariaSort(col)"
@@ -49,7 +50,11 @@
             @for (row of skeletonRows(); track row) {
               <tr class="dt__skeleton-row" aria-hidden="true">
                 @for (col of columns; track col.key) {
-                  <td [style.text-align]="col.align ?? 'start'" [attr.data-label]="col.label">
+                  <td
+                    [class.dt__cell--sticky]="col.sticky === 'end'"
+                    [style.text-align]="col.align ?? 'start'"
+                    [attr.data-label]="col.label"
+                  >
                     <span class="dt__skeleton"></span>
                   </td>
                 }
@@ -64,7 +69,11 @@
                 (keydown.enter)="onRow(row)"
               >
                 @for (col of columns; track col.key) {
-                  <td [style.text-align]="col.align ?? 'start'" [attr.data-label]="col.label">
+                  <td
+                    [class.dt__cell--sticky]="col.sticky === 'end'"
+                    [style.text-align]="col.align ?? 'start'"
+                    [attr.data-label]="col.label"
+                  >
                     @if (cellFor(col.key); as tpl) {
                       <ng-container
                         [ngTemplateOutlet]="tpl"

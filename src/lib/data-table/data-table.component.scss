@@ -148,12 +148,38 @@
   border-bottom: var(--border-width) solid var(--color-border);
   vertical-align: middle;
 }
+/* A pinned column stays at the trailing edge while the rest of the table scrolls
+   under it, so the actions of a wide table never sit past the right edge. It needs its
+   own background: the cell would otherwise be transparent and the scrolling content
+   would show through it. The leading border marks it as a separate strip rather than
+   a cell that happens to sit last. */
+.dt__cell--sticky {
+  position: sticky;
+  right: 0;
+  border-inline-start: var(--border-width) solid var(--color-border);
+}
+.dt__table td.dt__cell--sticky {
+  background: var(--color-surface);
+  z-index: 1;
+}
+.dt__table th.dt__cell--sticky {
+  /* Above the body cells, so a pinned header is not overlapped while scrolling. */
+  z-index: 2;
+}
+
 .dt__row--clickable {
   cursor: pointer;
 }
 .dt__table tbody tr:hover td,
 .dt__row--clickable:focus-visible td,
 .dt__row--clickable:active td {
+  background: var(--color-surface-sunken);
+}
+/* The pinned cell sets its own opaque background, so it needs the hover colour
+   restated. Without this the row darkens and the pinned strip stays light. */
+.dt__table tbody tr:hover td.dt__cell--sticky,
+.dt__row--clickable:focus-visible td.dt__cell--sticky,
+.dt__row--clickable:active td.dt__cell--sticky {
   background: var(--color-surface-sunken);
 }
 .dt__detail-row > td {
@@ -245,5 +271,11 @@
   }
   .dt__detail-row {
     padding: 0;
+  }
+  /* Stacked cards do not scroll sideways, so a pinned column has nothing to pin to.
+     It would only draw a stray border inside the card. */
+  .dt__cell--sticky {
+    position: static;
+    border-inline-start: 0;
   }
 }
