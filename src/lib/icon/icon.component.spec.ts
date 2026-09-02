@@ -46,4 +46,22 @@ describe('IconComponent', () => {
     view.rerender({ componentProperties: { name: 'moon' as const } });
     expect(view.container.querySelector('i')).toHaveClass('fa-moon');
   });
+  it('stacks a second glyph for an icon Font Awesome Free has no single character for', async () => {
+    const { container } = await render(`<app-icon name="paperclip-slash" />`, {
+      imports: [IconComponent],
+    });
+    const glyphs = container.querySelectorAll('i');
+    expect(glyphs).toHaveLength(2);
+    expect(glyphs[0]).toHaveClass('fa-paperclip');
+    expect(glyphs[1]).toHaveClass('fa-slash');
+    // Both take the size, or the strike would not cover the shape it crosses out.
+    expect((glyphs[1] as HTMLElement).style.fontSize).toBe('18px');
+  });
+
+  it('renders a single glyph for every other icon', async () => {
+    const { container } = await render(`<app-icon name="paperclip" />`, {
+      imports: [IconComponent],
+    });
+    expect(container.querySelectorAll('i')).toHaveLength(1);
+  });
 });
