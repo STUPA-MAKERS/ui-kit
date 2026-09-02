@@ -177,6 +177,42 @@
   z-index: 2;
 }
 
+/* Selection. The column is narrow and fixed: it holds one control, and letting it size
+   itself would take width from the data. */
+.dt__selectCell {
+  width: 3rem;
+  text-align: center;
+}
+.dt__check {
+  cursor: pointer;
+  accent-color: var(--color-primary);
+}
+.dt__table tbody tr.dt__row--selected td {
+  background: var(--color-surface-sunken);
+}
+
+/* A child row belongs to the row above it. Indented at the first cell and tinted, so it
+   reads as subordinate without repeating the parent's identity in every column. */
+.dt__childRow > td {
+  background: var(--color-surface-raised, var(--color-surface-sunken));
+  font-size: var(--fs-xs);
+}
+.dt__childRow > td:first-child {
+  padding-inline-start: var(--space-6);
+}
+
+/* The totals row. Heavier rule above it, because it is a different KIND of row and not
+   the last of the data. */
+.dt__table tfoot td {
+  padding: var(--space-3) var(--space-4);
+  border-top: 2px solid var(--color-border-strong);
+  font-weight: var(--fw-semibold);
+  background: var(--color-surface);
+}
+.dt__table tfoot td.dt__cell--sticky {
+  background: var(--color-surface);
+}
+
 .dt__row--clickable {
   cursor: pointer;
 }
@@ -287,5 +323,17 @@
   .dt__cell--sticky {
     position: static;
     border-inline-start: 0;
+  }
+  /* The checkbox sits at the top of the card, not in a column of its own. */
+  .dt__selectCell {
+    width: auto;
+    justify-content: flex-start;
+  }
+  /* A child card indents as a whole rather than at one cell. */
+  .dt__childRow {
+    margin-inline-start: var(--space-4);
+  }
+  .dt__childRow > td:first-child {
+    padding-inline-start: 0;
   }
 }

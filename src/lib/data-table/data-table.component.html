@@ -11,6 +11,19 @@
       <table class="dt__table">
         <thead>
           <tr>
+            @if (selectable) {
+              <th scope="col" class="dt__selectCell">
+                <input
+                  type="checkbox"
+                  class="dt__check"
+                  [attr.aria-label]="selectAllLabel"
+                  [checked]="allSelected"
+                  [indeterminate]="someSelected"
+                  [disabled]="loading"
+                  (change)="toggleAll()"
+                />
+              </th>
+            }
             @for (col of columns; track col.key) {
               <th
                 scope="col"
@@ -49,6 +62,9 @@
                  "still loading". -->
             @for (row of skeletonRows(); track row) {
               <tr class="dt__skeleton-row" aria-hidden="true">
+                @if (selectable) {
+                  <td class="dt__selectCell"><span class="dt__skeleton"></span></td>
+                }
                 @for (col of columns; track col.key) {
                   <td
                     [class.dt__cell--sticky]="col.sticky === 'end'"
@@ -63,11 +79,28 @@
           } @else {
             @for (row of rows; track trackRow(row, $index); let i = $index) {
               <tr
+                [class]="classFor(row, false)"
                 [class.dt__row--clickable]="clickable"
+                [class.dt__row--selected]="selectable && isSelected(row, i)"
                 (click)="onRow(row)"
                 [attr.tabindex]="clickable ? 0 : null"
                 (keydown.enter)="onRow(row)"
               >
+                @if (selectable) {
+                  <td class="dt__selectCell">
+                    <!-- `click.stop`: a selectable table is often also clickable, and a
+                         checkbox that also opened the row would make the two impossible
+                         to tell apart. -->
+                    <input
+                      type="checkbox"
+                      class="dt__check"
+                      [attr.aria-label]="selectLabel(row, i)"
+                      [checked]="isSelected(row, i)"
+                      (click)="$event.stopPropagation()"
+                      (change)="toggleRow(row, i)"
+                    />
+                  </td>
+                }
                 @for (col of columns; track col.key) {
                   <td
                     [class.dt__cell--sticky]="col.sticky === 'end'"
@@ -77,7 +110,7 @@
                     @if (cellFor(col.key); as tpl) {
                       <ng-container
                         [ngTemplateOutlet]="tpl"
-                        [ngTemplateOutletContext]="{ $implicit: row, index: i }"
+                        [ngTemplateOutletContext]="{ $implicit: row, index: i, child: false }"
                       />
                     } @else {
                       {{ text(row, col.key) }}
@@ -85,9 +118,37 @@
                   </td>
                 }
               </tr>
+
+              <!-- Child rows repeat the parent's columns with the caller's own cell
+                   templates, so a sub-record lines up column for column instead of
+                   being a panel underneath. `child: true` lets one template render both. -->
+              @for (kid of childrenFor(row); track trackRow(kid, $index)) {
+                <tr class="dt__childRow" [class]="classFor(kid, true)">
+                  @if (selectable) {
+                    <td class="dt__selectCell"></td>
+                  }
+                  @for (col of columns; track col.key) {
+                    <td
+                      [class.dt__cell--sticky]="col.sticky === 'end'"
+                      [style.text-align]="col.align ?? 'start'"
+                      [attr.data-label]="col.label"
+                    >
+                      @if (cellFor(col.key); as tpl) {
+                        <ng-container
+                          [ngTemplateOutlet]="tpl"
+                          [ngTemplateOutletContext]="{ $implicit: kid, index: i, child: true }"
+                        />
+                      } @else {
+                        {{ text(kid, col.key) }}
+                      }
+                    </td>
+                  }
+                </tr>
+              }
+
               @if (rowDetail && isExpanded && isExpanded(row)) {
                 <tr class="dt__detail-row">
-                  <td [attr.colspan]="columns.length">
+                  <td [attr.colspan]="columnSpan">
                     <ng-container
                       [ngTemplateOutlet]="rowDetail.tpl"
                       [ngTemplateOutletContext]="{ $implicit: row }"
@@ -98,6 +159,29 @@
             }
           }
         </tbody>
+
+        <!-- A totals row belongs to the table, not below it: it has to keep the column
+             widths, or a sum stops sitting under the column it sums. -->
+        @if (hasFooter && !loading && rows.length > 0) {
+          <tfoot>
+            <tr>
+              @if (selectable) {
+                <td class="dt__selectCell"></td>
+              }
+              @for (col of columns; track col.key) {
+                <td
+                  [class.dt__cell--sticky]="col.sticky === 'end'"
+                  [style.text-align]="col.align ?? 'start'"
+                  [attr.data-label]="col.label"
+                >
+                  @if (footCellFor(col.key); as tpl) {
+                    <ng-container [ngTemplateOutlet]="tpl" />
+                  }
+                </td>
+              }
+            </tr>
+          </tfoot>
+        }
       </table>
     } @else {
       <div class="empty-state">{{ emptyText }}</div>

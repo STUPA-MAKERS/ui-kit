@@ -15,6 +15,7 @@ import {
   signal,
 } from '@angular/core';
 import { CellDirective } from './cell.directive';
+import { FootCellDirective } from './foot-cell.directive';
 import { RowDetailDirective } from './row-detail.directive';
 
 /** Column definition of the {@link DataTableComponent}. */
@@ -98,29 +99,130 @@ export class DataTableComponent implements AfterContentInit {
   /** Announced to a screen reader while `loading`, because the skeleton is hidden. */
   @Input() loadingText = 'Loading…';
 
+  /**
+   * Adds a leading checkbox column and makes rows selectable.
+   *
+   * The table owns the selection rather than the caller wiring a column of its own,
+   * because a hand-built checkbox column has to agree with `rowKey`, with the header's
+   * select-all, and with the skeleton — and every table that built one got at least one
+   * of those subtly different.
+   */
+  @Input() selectable = false;
+  /** The selected rows, as `rowKey` values. */
+  @Input() selected: ReadonlySet<unknown> = new Set();
+  /** Emits the next selection. The caller holds it; the table never mutates the input. */
+  @Output() selectedChange = new EventEmitter<Set<unknown>>();
+  /** Accessible name for the select-all checkbox in the header. */
+  @Input() selectAllLabel = 'Select all';
+  /** Accessible name for one row's checkbox. Falls back to the row's position. */
+  @Input() rowSelectLabel?: (row: unknown, index: number) => string;
+
+  /**
+   * Child rows of one row, rendered directly under it with the SAME columns.
+   *
+   * Different from `appRowDetail`, which renders one full-width cell for a panel. A
+   * child here is another record of the same shape — a sub-booking under its booking —
+   * so it reuses the caller's `appCell` templates and lines up with the parent column
+   * for column. The template context carries `child: true`, so a cell can render a child
+   * differently without the caller writing the column twice.
+   */
+  @Input() childrenOf?: (row: unknown) => readonly unknown[];
+
+  /** Extra class per row, for a state the table cannot know about. */
+  @Input() rowClass?: (row: unknown, child: boolean) => string | null;
+
   /** Current sort, or `undefined` when the table is unsorted. */
   @Input() sort?: SortState;
   /** Emits the next sort state when a sortable header is clicked. */
   @Output() sortChange = new EventEmitter<SortState>();
 
   @ContentChildren(CellDirective) private cellDirs!: QueryList<CellDirective>;
+  @ContentChildren(FootCellDirective) private footDirs!: QueryList<FootCellDirective>;
   @ContentChild(RowDetailDirective) protected rowDetail?: RowDetailDirective;
   @ViewChild('scroller') private scroller?: ElementRef<HTMLElement>;
   private readonly cellMap = signal<Map<string, TemplateRef<unknown>>>(new Map());
+  private readonly footMap = signal<Map<string, TemplateRef<unknown>>>(new Map());
 
   /** True while the scroll container has content hidden past that edge. */
   protected readonly fadeStart = signal(false);
   protected readonly fadeEnd = signal(false);
 
   ngAfterContentInit(): void {
-    const build = (): void =>
+    const build = (): void => {
       this.cellMap.set(new Map(this.cellDirs.map((c) => [c.key, c.tpl as TemplateRef<unknown>])));
+      this.footMap.set(new Map(this.footDirs.map((c) => [c.key, c.tpl as TemplateRef<unknown>])));
+    };
     build();
     this.cellDirs.changes.subscribe(build);
+    this.footDirs.changes.subscribe(build);
   }
 
   protected cellFor(key: string): TemplateRef<unknown> | null {
     return this.cellMap().get(key) ?? null;
+  }
+
+  protected footCellFor(key: string): TemplateRef<unknown> | null {
+    return this.footMap().get(key) ?? null;
+  }
+
+  /** True when any column contributes a footer, so `<tfoot>` stays out otherwise. */
+  protected get hasFooter(): boolean {
+    return this.footMap().size > 0;
+  }
+
+  protected childrenFor(row: unknown): readonly unknown[] {
+    return this.childrenOf ? this.childrenOf(row) : [];
+  }
+
+  protected classFor(row: unknown, child: boolean): string | null {
+    return this.rowClass ? this.rowClass(row, child) : null;
+  }
+
+  // -- selection --------------------------------------------------------------
+
+  protected isSelected(row: unknown, index: number): boolean {
+    return this.selected.has(this.trackRow(row, index));
+  }
+
+  /** True only when every row is selected. An empty table is not "all selected". */
+  protected get allSelected(): boolean {
+    return this.rows.length > 0 && this.rows.every((r, i) => this.isSelected(r, i));
+  }
+
+  /** True when some but not all are selected, for the header's indeterminate state. */
+  protected get someSelected(): boolean {
+    return !this.allSelected && this.rows.some((r, i) => this.isSelected(r, i));
+  }
+
+  protected toggleRow(row: unknown, index: number): void {
+    const next = new Set(this.selected);
+    const key = this.trackRow(row, index);
+    if (next.has(key)) next.delete(key);
+    else next.add(key);
+    this.selectedChange.emit(next);
+  }
+
+  /** Select-all applies to the rows ON SCREEN, which is what the checkbox sits above. */
+  protected toggleAll(): void {
+    if (this.allSelected) {
+      this.selectedChange.emit(new Set());
+      return;
+    }
+    this.selectedChange.emit(new Set(this.rows.map((r, i) => this.trackRow(r, i))));
+  }
+
+  protected selectLabel(row: unknown, index: number): string {
+    return this.rowSelectLabel ? this.rowSelectLabel(row, index) : `Row ${index + 1}`;
+  }
+
+  /**
+   * Total column count, for a `colspan` that has to span the whole table.
+   *
+   * The selection column is not in `columns`, so anything spanning the table has to add
+   * it back or the detail row comes up one cell short.
+   */
+  protected get columnSpan(): number {
+    return this.columns.length + (this.selectable ? 1 : 0);
   }
 
   protected text(row: unknown, key: string): unknown {
