@@ -577,4 +577,34 @@ describe('DataTableComponent', () => {
       expect(cell.getAttribute('colspan')).toBe(String(COLS.length + 1));
     });
   });
+  it('holds a declared column width instead of letting the browser shrink it', async () => {
+    // `width` alone is a suggestion under `table-layout: auto`. A name column asked for
+    // 22rem was measured at 107px and wrapped; the floor is what makes it stick.
+    const { container } = await render(
+      `<app-data-table [columns]="cols" [rows]="rows" />`,
+      {
+        imports: [DataTableComponent],
+        componentProperties: {
+          cols: [{ key: 'a', label: 'A', width: '22rem' }, { key: 'b', label: 'B' }],
+          rows: [{ a: '1', b: '2' }],
+        },
+      },
+    );
+    const th = container.querySelector('thead th') as HTMLElement;
+    expect(th.style.width).toBe('22rem');
+    expect(th.style.minWidth).toBe('22rem');
+  });
+
+  it('constrains nothing for a column that declares no width', async () => {
+    const { container } = await render(
+      `<app-data-table [columns]="cols" [rows]="rows" />`,
+      {
+        imports: [DataTableComponent],
+        componentProperties: { cols: [{ key: 'a', label: 'A' }], rows: [{ a: '1' }] },
+      },
+    );
+    const th = container.querySelector('thead th') as HTMLElement;
+    expect(th.style.width).toBe('');
+    expect(th.style.minWidth).toBe('');
+  });
 });

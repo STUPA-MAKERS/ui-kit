@@ -23,7 +23,15 @@ export interface ColumnDef {
   key: string;
   label: string;
   align?: 'start' | 'end';
-  /** CSS width (for example `12rem`); optional. */
+  /**
+   * Wie breit die Spalte sein soll, als UNTERGRENZE statt als Vorschlag.
+   *
+   * `width` allein ist bei `table-layout: auto` nur ein Wunsch: der Browser darf die
+   * Spalte kleiner rechnen, wenn andere mehr fordern. Eine mit `22rem` angeforderte
+   * Namensspalte landete gemessen bei 107px und brach um. Zusammen mit `min-width`
+   * bleibt die Breite stehen und die Tabelle scrollt stattdessen — wofür die
+   * Aktionsspalte `sticky: 'end'` bekommt.
+   */
   width?: string;
   /** Renders the header as a sort control and emits `sortChange` on click. */
   sortable?: boolean;
