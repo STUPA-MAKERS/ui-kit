@@ -203,3 +203,34 @@ input[type='radio'] {
   margin-block: 0;
 }
 
+
+/* ---------------------------------------------------------------------------
+   A table cell whose value is one line with an ellipsis.
+
+   Long values in a table row must not wrap: the rows are a fixed height, so a
+   wrapped value either makes one row twice as tall as its neighbours or breaks a
+   word mid-way. `overflow-wrap: anywhere` was reached for to stop values clipping
+   out of the cell, and it produced exactly that.
+
+   Stacked as a card the opposite is right: there is width for one value and no
+   column to keep, so the value wraps and `anywhere` breaks the unbreakable string
+   rather than pushing the card off screen.
+
+   Give the element a `title` with the full value — the ellipsis hides it otherwise.
+   --------------------------------------------------------------------------- */
+.dt__truncate {
+  display: block;
+  overflow: hidden;
+  min-width: 0;
+  max-width: 100%;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+@media (max-width: 768px) {
+  .dt__truncate {
+    overflow: visible;
+    overflow-wrap: anywhere;
+    white-space: normal;
+  }
+}
+
