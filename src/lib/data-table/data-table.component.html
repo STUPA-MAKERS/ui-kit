@@ -30,6 +30,7 @@
                 [class.dt__cell--sticky]="col.sticky === 'end'"
                 [style.text-align]="col.align ?? 'start'"
                 [style.width]="col.width || null"
+                [style.minWidth]="col.width || null"
                 [attr.aria-sort]="ariaSort(col)"
               >
                 <!-- A sortable header is a button, so it is reachable by keyboard and
