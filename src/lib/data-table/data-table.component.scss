@@ -268,6 +268,16 @@
     padding: var(--space-1) 0;
     border-bottom: 0;
     text-align: end !important;
+    /* The value is an ANONYMOUS flex item, so it carries `min-width: auto` and refuses to
+       shrink below its own content: a long description, a filename or a URL then pushes
+       the card wider than the screen and takes the page with it.
+
+       `overflow-wrap: anywhere` rather than `break-word` — only `anywhere` counts towards
+       the min-content size, which is the measurement that decides whether the item can
+       shrink at all. It still prefers ordinary word breaks; it just stops refusing to
+       break a string that has none. */
+    min-width: 0;
+    overflow-wrap: anywhere;
   }
   .dt__table td[data-label]::before {
     content: attr(data-label);
@@ -281,13 +291,24 @@
   .dt__table td[data-label='']::before {
     content: none;
   }
-  /* Erste Spalte als Karten-Kopf: Label klein darüber, Wert in voller
-     Breite linksbündig — statt rechtsbündigem Label/Wert-Paar. */
-  .dt__table td:first-child {
+  /* Card head: label small above, value full width and left aligned, rather than a
+     right-aligned label/value pair.
+
+     It is the first DATA cell, not the first cell. With `selectable` the first cell is
+     the checkbox, so the head landed on a checkbox in a column layout and no card had a
+     heading at all. */
+  .dt__table td:first-child:not(.dt__selectCell),
+  .dt__table .dt__selectCell + td {
     flex-direction: column;
     align-items: flex-start;
     gap: var(--space-1);
     text-align: start !important;
+  }
+  /* A cell whose content is a flex or grid row of its own (an actions group, a badge and
+     a label) needs the same freedom, or it re-introduces the overflow one level down. */
+  .dt__table td > * {
+    min-width: 0;
+    max-width: 100%;
   }
   .dt__detail-row,
   .dt__detail-row > td,
@@ -324,10 +345,23 @@
     position: static;
     border-inline-start: 0;
   }
-  /* The checkbox sits at the top of the card, not in a column of its own. */
+  /* The checkbox sits at the top of the card, not in a column of its own. It keeps the
+     row axis, so `justify-content` still means "to the left" here. */
   .dt__selectCell {
     width: auto;
+    flex-direction: row;
     justify-content: flex-start;
+    padding-block-end: var(--space-2);
+  }
+  /* A checkbox has no label of its own to print above it. */
+  .dt__selectCell::before {
+    content: none;
+  }
+  /* A child row and the totals row emit the select cell as an empty placeholder, to keep
+     the column count. Stacked as a card there are no columns to keep, so it would only
+     be an empty box taking its padding. */
+  .dt__selectCell:empty {
+    display: none;
   }
   /* A child card indents as a whole rather than at one cell. */
   .dt__childRow {
