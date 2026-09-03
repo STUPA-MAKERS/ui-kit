@@ -71,6 +71,7 @@
                     [class.dt__cell--sticky]="col.sticky === 'end'"
                     [style.text-align]="col.align ?? 'start'"
                     [attr.data-label]="col.label"
+                    [attr.data-card]="col.card ?? null"
                   >
                     <span class="dt__skeleton"></span>
                   </td>
@@ -107,6 +108,7 @@
                     [class.dt__cell--sticky]="col.sticky === 'end'"
                     [style.text-align]="col.align ?? 'start'"
                     [attr.data-label]="col.label"
+                    [attr.data-card]="col.card ?? null"
                   >
                     @if (cellFor(col.key); as tpl) {
                       <ng-container
@@ -133,6 +135,7 @@
                       [class.dt__cell--sticky]="col.sticky === 'end'"
                       [style.text-align]="col.align ?? 'start'"
                       [attr.data-label]="col.label"
+                      [attr.data-card]="col.card ?? null"
                     >
                       @if (cellFor(col.key); as tpl) {
                         <ng-container
@@ -174,6 +177,7 @@
                   [class.dt__cell--sticky]="col.sticky === 'end'"
                   [style.text-align]="col.align ?? 'start'"
                   [attr.data-label]="col.label"
+                  [attr.data-card]="col.card ?? null"
                 >
                   @if (footCellFor(col.key); as tpl) {
                     <ng-container [ngTemplateOutlet]="tpl" />

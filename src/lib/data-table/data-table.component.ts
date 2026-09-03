@@ -33,6 +33,26 @@ export interface ColumnDef {
    * Aktionsspalte `sticky: 'end'` bekommt.
    */
   width?: string;
+  /**
+   * What this column becomes when the table stacks into cards below the mobile
+   * breakpoint.
+   *
+   * A card is not a table row turned on its side. Stacking every column gives a label
+   * and a value per column, so a nine-column table becomes a nine-line card: the
+   * checkbox on a line of its own, a placeholder dash on a line of its own, and no
+   * heading a reader can scan. Declaring a role per column keeps the card to what
+   * identifies the record.
+   *
+   * * `title` — the card's heading: full width, left aligned, no label. Pick the column
+   *   that says WHICH record this is.
+   * * `hidden` — left out of the card. For a column that is redundant once the others
+   *   are visible, or is a placeholder on most rows.
+   * * `row` (the default) — the label/value pair.
+   *
+   * A table that declares nothing keeps the previous behaviour, where the first data
+   * column becomes the heading.
+   */
+  card?: 'title' | 'row' | 'hidden';
   /** Renders the header as a sort control and emits `sortChange` on click. */
   sortable?: boolean;
   /**
@@ -260,11 +280,7 @@ export class DataTableComponent implements AfterContentInit {
     const first = col.initialSort ?? 'asc';
     // Clicking the active column flips it; a new column starts at its own default.
     const direction: SortState['direction'] =
-      this.sort?.key === col.key
-        ? this.sort.direction === 'asc'
-          ? 'desc'
-          : 'asc'
-        : first;
+      this.sort?.key === col.key ? (this.sort.direction === 'asc' ? 'desc' : 'asc') : first;
     this.sortChange.emit({ key: col.key, direction });
   }
 

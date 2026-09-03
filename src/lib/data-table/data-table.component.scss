@@ -250,8 +250,12 @@
   .dt__table thead {
     display: none;
   }
+  /* A column, so the heading can be ordered first whatever its position in the table.
+     The table's column order answers "which column do I scan across rows"; the card's
+     answers "what do I read first", and those are different questions. */
   .dt__table tbody tr {
-    display: block;
+    display: flex;
+    flex-direction: column;
     height: auto;
     padding: var(--space-3) var(--space-4);
     border-bottom: var(--border-width) solid var(--color-border);
@@ -290,18 +294,49 @@
   .dt__table td[data-label='']::before {
     content: none;
   }
-  /* Card head: label small above, value full width and left aligned, rather than a
-     right-aligned label/value pair.
+  /* A column left out of the card. See `ColumnDef.card`. */
+  .dt__table td[data-card='hidden'] {
+    display: none;
+  }
+  /* Card head: value full width and left aligned, rather than a right-aligned
+     label/value pair.
 
-     It is the first DATA cell, not the first cell. With `selectable` the first cell is
-     the checkbox, so the head landed on a checkbox in a column layout and no card had a
-     heading at all. */
-  .dt__table td:first-child:not(.dt__selectCell),
-  .dt__table .dt__selectCell + td {
+     A column may claim the head with `card: 'title'`. Without one, the head falls to
+     the first DATA cell — not the first cell, because with `selectable` that is the
+     checkbox, and the head would land on a checkbox in a column layout, leaving the
+     card with no heading at all. `:has()` keeps the two from both applying. */
+  .dt__table td[data-card='title'],
+  .dt__table tbody tr:not(:has(td[data-card='title'])) td:first-child:not(.dt__selectCell),
+  .dt__table tbody tr:not(:has(td[data-card='title'])) .dt__selectCell + td {
     flex-direction: column;
     align-items: flex-start;
     gap: var(--space-1);
     text-align: start !important;
+  }
+  /* The heading names the record, so it carries no label of its own and reads as a
+     heading rather than as one more value. */
+  .dt__table td[data-card='title'] {
+    order: -1;
+    padding-block-end: var(--space-2);
+    font-weight: var(--fw-semibold);
+  }
+  .dt__table td[data-card='title']::before {
+    content: none;
+  }
+  /* The checkbox sits in the card's top corner instead of taking a line of its own,
+     where it read as an empty row above the heading. The heading keeps clear of it. */
+  .dt__table tbody tr:has(.dt__selectCell) {
+    position: relative;
+  }
+  .dt__table .dt__selectCell {
+    position: absolute;
+    inset-block-start: var(--space-3);
+    inset-inline-end: var(--space-4);
+    padding: 0;
+  }
+  .dt__table tbody tr:has(.dt__selectCell) td[data-card='title'],
+  .dt__table tbody tr:has(.dt__selectCell):not(:has(td[data-card='title'])) .dt__selectCell + td {
+    padding-inline-end: var(--space-6);
   }
   /* A cell whose content is a flex or grid row of its own (an actions group, a badge and
      a label) needs the same freedom, or it re-introduces the overflow one level down. */

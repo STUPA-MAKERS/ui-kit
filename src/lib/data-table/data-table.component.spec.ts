@@ -54,28 +54,37 @@ describe('DataTableComponent', () => {
   });
 
   it('shows the empty state (no table, no box) when there are no rows', async () => {
-    const { container } = await render(`<app-data-table [columns]="cols" [rows]="rows" emptyText="Nichts da" />`, {
-      imports: [DataTableComponent],
-      componentProperties: { cols: COLS, rows: [] as Row[] },
-    });
+    const { container } = await render(
+      `<app-data-table [columns]="cols" [rows]="rows" emptyText="Nichts da" />`,
+      {
+        imports: [DataTableComponent],
+        componentProperties: { cols: COLS, rows: [] as Row[] },
+      },
+    );
     expect(screen.queryByRole('table')).toBeNull();
     expect(screen.getByText('Nichts da')).toBeInTheDocument();
     expect(container.querySelector('.dt--boxed')).toBeNull();
   });
 
   it('applies the boxed class only when boxed and rows present', async () => {
-    const { container } = await render(`<app-data-table [columns]="cols" [rows]="rows" [boxed]="true" />`, {
-      imports: [DataTableComponent],
-      componentProperties: { cols: COLS, rows: ROWS },
-    });
+    const { container } = await render(
+      `<app-data-table [columns]="cols" [rows]="rows" [boxed]="true" />`,
+      {
+        imports: [DataTableComponent],
+        componentProperties: { cols: COLS, rows: ROWS },
+      },
+    );
     expect(container.querySelector('.dt--boxed')).not.toBeNull();
   });
 
   it('omits the boxed class when boxed is false', async () => {
-    const { container } = await render(`<app-data-table [columns]="cols" [rows]="rows" [boxed]="false" />`, {
-      imports: [DataTableComponent],
-      componentProperties: { cols: COLS, rows: ROWS },
-    });
+    const { container } = await render(
+      `<app-data-table [columns]="cols" [rows]="rows" [boxed]="false" />`,
+      {
+        imports: [DataTableComponent],
+        componentProperties: { cols: COLS, rows: ROWS },
+      },
+    );
     expect(container.querySelector('.dt--boxed')).toBeNull();
   });
 
@@ -100,10 +109,13 @@ describe('DataTableComponent', () => {
 
   it('is not clickable by default: no rowClick, no tabindex', async () => {
     const onRowClick = jest.fn();
-    await render(`<app-data-table [columns]="cols" [rows]="rows" (rowClick)="onRowClick($event)" />`, {
-      imports: [DataTableComponent],
-      componentProperties: { cols: COLS, rows: ROWS, onRowClick },
-    });
+    await render(
+      `<app-data-table [columns]="cols" [rows]="rows" (rowClick)="onRowClick($event)" />`,
+      {
+        imports: [DataTableComponent],
+        componentProperties: { cols: COLS, rows: ROWS, onRowClick },
+      },
+    );
     const firstRow = screen.getByText('Alpha').closest('tr') as HTMLElement;
     expect(firstRow.getAttribute('tabindex')).toBeNull();
     await userEvent.click(firstRow);
@@ -112,10 +124,13 @@ describe('DataTableComponent', () => {
 
   it('emits rowClick on click and Enter when clickable', async () => {
     const onRowClick = jest.fn();
-    await render(`<app-data-table [columns]="cols" [rows]="rows" [clickable]="true" (rowClick)="onRowClick($event)" />`, {
-      imports: [DataTableComponent],
-      componentProperties: { cols: COLS, rows: ROWS, onRowClick },
-    });
+    await render(
+      `<app-data-table [columns]="cols" [rows]="rows" [clickable]="true" (rowClick)="onRowClick($event)" />`,
+      {
+        imports: [DataTableComponent],
+        componentProperties: { cols: COLS, rows: ROWS, onRowClick },
+      },
+    );
     const firstRow = screen.getByText('Alpha').closest('tr') as HTMLElement;
     expect(firstRow).toHaveClass('dt__row--clickable');
     expect(firstRow.getAttribute('tabindex')).toBe('0');
@@ -202,6 +217,50 @@ describe('DataTableComponent', () => {
     view.fixture.detectChanges();
     expect(screen.getByText('Alpha!')).toBeInTheDocument();
   });
+  describe('card roles', () => {
+    /**
+     * A card is not a table row turned on its side. Stacking every column gives one
+     * label/value line per column: the checkbox on a line of its own, a placeholder
+     * dash on a line of its own, and no heading to scan. `ColumnDef.card` says what a
+     * column becomes, and the stylesheet reads it off `data-card`.
+     */
+    const cardCols: ColumnDef[] = [
+      { key: 'name', label: 'Name', card: 'title' },
+      { key: 'status', label: 'Status', card: 'hidden' },
+      { key: 'id', label: 'Id' },
+    ];
+
+    async function setup(cols: ColumnDef[] = cardCols) {
+      return render(`<app-data-table [columns]="cols" [rows]="rows" />`, {
+        imports: [DataTableComponent],
+        componentProperties: { cols, rows: ROWS },
+      });
+    }
+
+    it('marks each cell with the role its column declared', async () => {
+      const { container } = await setup();
+      const cells = [...container.querySelectorAll('tbody tr:first-child td')];
+      expect(cells.map((c) => c.getAttribute('data-card'))).toEqual(['title', 'hidden', null]);
+    });
+
+    it('leaves the attribute off when a column declares nothing', async () => {
+      // Absent rather than empty: the stylesheet selects on the value, and a table that
+      // declares no roles has to keep the layout it had.
+      const { container } = await setup(COLS);
+      const cells = [...container.querySelectorAll('tbody tr:first-child td')];
+      expect(cells.every((c) => !c.hasAttribute('data-card'))).toBe(true);
+    });
+
+    it('carries the role through skeleton rows, so the card does not reflow on load', async () => {
+      const { container } = await render(
+        `<app-data-table [columns]="cols" [rows]="[]" [loading]="true" />`,
+        { imports: [DataTableComponent], componentProperties: { cols: cardCols } },
+      );
+      const cells = [...container.querySelectorAll('tbody tr:first-child td')];
+      expect(cells.map((c) => c.getAttribute('data-card'))).toEqual(['title', 'hidden', null]);
+    });
+  });
+
   describe('loading', () => {
     it('keeps the header and draws skeleton rows instead of collapsing', async () => {
       // The whole point: a table that is merely refreshing must not read as "no
@@ -277,20 +336,26 @@ describe('DataTableComponent', () => {
       const cols: ColumnDef[] = [
         { key: 'created', label: 'Created', sortable: true, initialSort: 'desc' },
       ];
-      await render(`<app-data-table [columns]="cols" [rows]="rows" (sortChange)="onSort($event)" />`, {
-        imports: [DataTableComponent],
-        componentProperties: { cols, rows: ROWS, onSort: sortChange },
-      });
+      await render(
+        `<app-data-table [columns]="cols" [rows]="rows" (sortChange)="onSort($event)" />`,
+        {
+          imports: [DataTableComponent],
+          componentProperties: { cols, rows: ROWS, onSort: sortChange },
+        },
+      );
       await userEvent.click(screen.getByRole('button', { name: /Created/ }));
       expect(sortChange).toHaveBeenCalledWith({ key: 'created', direction: 'desc' });
     });
 
     it('starts a new column ascending', async () => {
       const sortChange = jest.fn();
-      await render(`<app-data-table [columns]="cols" [rows]="rows" (sortChange)="onSort($event)" />`, {
-        imports: [DataTableComponent],
-        componentProperties: { cols: SORTABLE, rows: ROWS, onSort: sortChange },
-      });
+      await render(
+        `<app-data-table [columns]="cols" [rows]="rows" (sortChange)="onSort($event)" />`,
+        {
+          imports: [DataTableComponent],
+          componentProperties: { cols: SORTABLE, rows: ROWS, onSort: sortChange },
+        },
+      );
       await userEvent.click(screen.getByRole('button', { name: /Name/ }));
       expect(sortChange).toHaveBeenCalledWith({ key: 'name', direction: 'asc' });
     });
@@ -339,10 +404,10 @@ describe('DataTableComponent', () => {
     ];
 
     it('pins the marked column in the header, the body and the skeleton', async () => {
-      const { container } = await render(
-        `<app-data-table [columns]="cols" [rows]="rows" />`,
-        { imports: [DataTableComponent], componentProperties: { cols: STICKY, rows: ROWS } },
-      );
+      const { container } = await render(`<app-data-table [columns]="cols" [rows]="rows" />`, {
+        imports: [DataTableComponent],
+        componentProperties: { cols: STICKY, rows: ROWS },
+      });
       const [plainHead, stickyHead] = Array.from(container.querySelectorAll('th'));
       expect(stickyHead).toHaveClass('dt__cell--sticky');
       expect(plainHead).not.toHaveClass('dt__cell--sticky');
@@ -468,7 +533,7 @@ describe('DataTableComponent', () => {
   });
 
   describe('child rows', () => {
-    it('repeats the parent columns for each child, with the caller\'s own cells', async () => {
+    it("repeats the parent columns for each child, with the caller's own cells", async () => {
       const { container } = await render(
         `<app-data-table [columns]="cols" [rows]="rows" [childrenOf]="childrenOf">
            <ng-template appCell="name" let-row let-child="child">
@@ -543,7 +608,7 @@ describe('DataTableComponent', () => {
   });
 
   describe('row class', () => {
-    it('puts the caller\'s class on the row and says whether it is a child', async () => {
+    it("puts the caller's class on the row and says whether it is a child", async () => {
       const { container } = await render(
         `<app-data-table [columns]="cols" [rows]="rows" [rowClass]="rowClass" [childrenOf]="childrenOf" />`,
         {
@@ -581,29 +646,26 @@ describe('DataTableComponent', () => {
     // `width` alone is a suggestion under `table-layout: auto`. A name column asked for
     // Under `table-layout: auto` a `width` is a suggestion and a 22rem column can be
     // squeezed to 107px and wrap. `min-width` is the floor that makes it stick.
-    const { container } = await render(
-      `<app-data-table [columns]="cols" [rows]="rows" />`,
-      {
-        imports: [DataTableComponent],
-        componentProperties: {
-          cols: [{ key: 'a', label: 'A', width: '22rem' }, { key: 'b', label: 'B' }],
-          rows: [{ a: '1', b: '2' }],
-        },
+    const { container } = await render(`<app-data-table [columns]="cols" [rows]="rows" />`, {
+      imports: [DataTableComponent],
+      componentProperties: {
+        cols: [
+          { key: 'a', label: 'A', width: '22rem' },
+          { key: 'b', label: 'B' },
+        ],
+        rows: [{ a: '1', b: '2' }],
       },
-    );
+    });
     const th = container.querySelector('thead th') as HTMLElement;
     expect(th.style.width).toBe('22rem');
     expect(th.style.minWidth).toBe('22rem');
   });
 
   it('constrains nothing for a column that declares no width', async () => {
-    const { container } = await render(
-      `<app-data-table [columns]="cols" [rows]="rows" />`,
-      {
-        imports: [DataTableComponent],
-        componentProperties: { cols: [{ key: 'a', label: 'A' }], rows: [{ a: '1' }] },
-      },
-    );
+    const { container } = await render(`<app-data-table [columns]="cols" [rows]="rows" />`, {
+      imports: [DataTableComponent],
+      componentProperties: { cols: [{ key: 'a', label: 'A' }], rows: [{ a: '1' }] },
+    });
     const th = container.querySelector('thead th') as HTMLElement;
     expect(th.style.width).toBe('');
     expect(th.style.minWidth).toBe('');
