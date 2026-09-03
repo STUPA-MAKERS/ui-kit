@@ -14,7 +14,7 @@ import { ButtonComponent } from '../button/button.component';
 import { IconComponent } from '../icon/icon.component';
 
 /**
- * Einheitlicher Filter-Balken für Listen (#filters). Ein sekundärer Button
+ * Einheitlicher Filter-Balken für Listen. Ein sekundärer Button
  * (Trichter-Icon + Label + Aktiv-Zähler) öffnet ein rechtsbündiges Popover; die
  * eigentlichen Filter-Felder werden projiziert (`<app-filter-field>` /
  * `<app-filter-range>`). Schließt bei Klick außerhalb und Escape.

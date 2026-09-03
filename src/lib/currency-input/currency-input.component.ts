@@ -9,7 +9,7 @@ import { NG_VALUE_ACCESSOR, type ControlValueAccessor } from '@angular/forms';
 import { UI_KIT_INTL } from '../intl/intl';
 
 /**
- * Einheitliches Währungs-Eingabefeld (#currency). Überall gleiche Optik:
+ * Einheitliches Währungs-Eingabefeld. Überall gleiche Optik:
  * rechtsbündig, Tausender-Gruppierung + 2 Nachkommastellen, „€"-Suffix.
  *
  * `ControlValueAccessor` → per `[(ngModel)]` nutzbar. Das **Modell** ist stets ein

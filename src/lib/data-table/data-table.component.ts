@@ -65,7 +65,7 @@ export interface SortState {
 const DEFAULT_SKELETON_ROWS = 5;
 
 /**
- * Shared, data-driven table (#26). Columns come as a {@link ColumnDef} list; a single
+ * Shared, data-driven table. Columns come as a {@link ColumnDef} list; a single
  * cell can be rendered freely with `<ng-template appCell="key" let-row>` (badges,
  * buttons, links). Without a template the cell shows `row[key]` as text. Boxed by
  * default, optionally with row clicks.

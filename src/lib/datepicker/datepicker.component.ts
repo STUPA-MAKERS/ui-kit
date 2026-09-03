@@ -16,7 +16,7 @@ import { UiKitTranslatePipe } from '../intl/translate.pipe';
 let nextId = 0;
 
 /**
- * Datumsfeld des UI-Kits (#79). **Lokalisiertes** Anzeigeformat (DE: `TT.MM.JJJJ`,
+ * Datumsfeld des UI-Kits. **Lokalisiertes** Anzeigeformat (DE: `TT.MM.JJJJ`,
  * EN: `MM/DD/YYYY`) — unabhängig von der Browser-Sprache, die das native
  * `<input type="date">` sonst erzwingt. Der Wert ist immer ISO (`YYYY-MM-DD`).
  *
@@ -61,7 +61,7 @@ export class DatepickerComponent implements ControlValueAccessor {
   onTouched: () => void = () => {};
 
   constructor() {
-    // Anzeige folgt der App-Sprache (#datepicker-locale): ein Sprachwechsel
+    // Anzeige folgt der App-Sprache: ein Sprachwechsel
     // formatiert den sichtbaren Wert sofort um (TT.MM.JJJJ ↔ MM/DD/YYYY) —
     // vorher blieb das alte Format bis zum nächsten writeValue/Commit stehen.
     effect(() => {

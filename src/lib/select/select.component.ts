@@ -11,7 +11,7 @@ export interface SelectOption {
 }
 
 /**
- * Dropdown des UI-Kits (#77). Ersetzt Freitext-Felder mit eingeschränkten
+ * Dropdown des UI-Kits. Ersetzt Freitext-Felder mit eingeschränkten
  * Optionen (Gremium, Budget, Status/Typ, Rollen). `ControlValueAccessor` →
  * Reactive Forms + `ngModel`. Token-basiert, eingebettetes Chevron, sichtbarer
  * Fokus-Ring, Label/`for`-Bindung + `aria-describedby` (a11y), Dark/Light.

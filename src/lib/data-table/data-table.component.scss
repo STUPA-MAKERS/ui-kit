@@ -122,10 +122,9 @@
 }
 
 .dt--boxed {
-  /* No margin of its own. The table used to add `margin-top` on top of whatever the
-     page header already contributed, so a page whose content was a table sat lower than
-     one whose content was a card. Spacing belongs to the layout that arranges the
-     blocks, not to a block that cannot see its neighbours. */
+  /* No margin of its own. Spacing belongs to the layout that arranges the blocks, not
+     to a block that cannot see its neighbours: a table that adds `margin-top` on top of
+     what the page header contributes sits lower than a card in the same slot. */
   background: var(--color-surface);
   border: var(--border-width) solid var(--color-border);
   border-radius: var(--radius-lg);

@@ -13,7 +13,7 @@ export type ButtonSize = 'sm' | 'md' | 'lg';
 })
 export class ButtonComponent {
   @Input() variant: ButtonVariant = 'primary';
-  /** Frei wählbare Hintergrundfarbe (Hex); überschreibt die Variante (#flow). */
+  /** Frei wählbare Hintergrundfarbe (Hex); überschreibt die Variante. */
   @Input() color: string | null = null;
   @Input() size: ButtonSize = 'md';
   @Input() type: 'button' | 'submit' | 'reset' = 'button';
@@ -31,7 +31,7 @@ export class ButtonComponent {
    * und eine Vorlesehilfe hört drei gleich benannte Buttons ohne Zustand.
    */
   @Input() ariaPressed: boolean | null = null;
-  /** Hover-Tooltip; bei Icon-Buttons fällt er automatisch auf `ariaLabel` zurück (#47). */
+  /** Hover-Tooltip; bei Icon-Buttons fällt er automatisch auf `ariaLabel` zurück. */
   @Input() title = '';
 
   /** Tooltip-Text: explizit gesetzt, sonst für Icon-Buttons der `ariaLabel`. */
