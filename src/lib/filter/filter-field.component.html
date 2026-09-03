@@ -1,4 +1,17 @@
-<label class="flex flex-col gap-1 min-w-0">
+<ng-template #body>
   <span class="text-sm font-medium text-muted">{{ label() }}</span>
   <ng-content />
-</label>
+</ng-template>
+
+@if (group()) {
+  <!-- Eine Gruppe von Controls, nicht eines: ein <label> würde sich mit dem ERSTEN
+       davon verbinden, und dessen eigener Name ginge verloren. `role="group"` benennt
+       das Set, ohne ein Mitglied zu verschlucken. -->
+  <div class="flex flex-col gap-1 min-w-0" role="group" [attr.aria-label]="label()">
+    <ng-container [ngTemplateOutlet]="body" />
+  </div>
+} @else {
+  <label class="flex flex-col gap-1 min-w-0">
+    <ng-container [ngTemplateOutlet]="body" />
+  </label>
+}

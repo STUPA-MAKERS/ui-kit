@@ -1,3 +1,4 @@
+import { NgTemplateOutlet } from '@angular/common';
 import { ChangeDetectionStrategy, Component, input } from '@angular/core';
 
 /**
@@ -9,6 +10,7 @@ import { ChangeDetectionStrategy, Component, input } from '@angular/core';
 @Component({
   selector: 'app-filter-field',
   standalone: true,
+  imports: [NgTemplateOutlet],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './filter-field.component.html',
   styleUrl: './filter-field.component.scss',
@@ -16,4 +18,13 @@ import { ChangeDetectionStrategy, Component, input } from '@angular/core';
 export class FilterFieldComponent {
   /** Sichtbares Label über dem Control. */
   readonly label = input('');
+  /**
+   * Der Inhalt ist eine GRUPPE von Controls statt eines einzelnen.
+   *
+   * Ein `<label>` verbindet sich mit dem ersten Control darin. Bei einem Segment-Filter
+   * heißt der erste Knopf dann wie das Feld statt wie er selbst — gemessen kam eine
+   * Gruppe als "Archiv Nur archivierte Alle" heraus, der eigene Name des ersten Knopfs
+   * fehlte. Mit `group` wird das Set über `role="group"` benannt.
+   */
+  readonly group = input(false);
 }
