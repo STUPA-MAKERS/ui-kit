@@ -33,6 +33,12 @@
 .card__header {
   padding: var(--space-5) var(--space-5) 0;
 }
+/* Die Überschrift bringt ihren eigenen Abstand nach unten mit, und der Body bringt sein
+   Padding — zusammen ein Abstand, den keine Seite steuert. Der Abstand kommt allein aus
+   dem Body-Padding. */
+.card__header > :first-child {
+  margin-block: 0;
+}
 .card__footer {
   padding: 0 var(--space-5) var(--space-5);
 }
