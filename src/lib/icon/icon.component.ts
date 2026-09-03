@@ -110,7 +110,7 @@ const OVERLAY: Partial<Record<IconName, string>> = {
 };
 
 /**
- * Icon-Komponente (#80). Rendert ein **Font-Awesome**-Solid-Icon (`fa-solid`),
+ * Icon-Komponente. Rendert ein **Font-Awesome**-Solid-Icon (`fa-solid`),
  * gesteuert über einen stabilen, semantischen `name`. Dekorativ
  * (`aria-hidden`) — der barrierefreie Name kommt vom umschließenden Control.
  * `currentColor` folgt der Text-/Theme-Farbe automatisch (Dark/Light).

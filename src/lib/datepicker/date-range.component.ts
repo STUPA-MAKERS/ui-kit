@@ -11,7 +11,7 @@ export interface DateRange {
 }
 
 /**
- * Zeitraum-Feld (#79): zwei gekoppelte native Datumsfelder (Start/Ende). Das Ende
+ * Zeitraum-Feld: zwei gekoppelte native Datumsfelder (Start/Ende). Das Ende
  * kann nicht vor dem Start liegen (`min`/`max`-Kopplung). Wert ist `{ start, end }`;
  * `ControlValueAccessor` → Reactive Forms + `ngModel`. a11y über `<fieldset>` +
  * `<legend>` und `<label for>`-Bindung je Feld; native Kalender-UI folgt dem Theme

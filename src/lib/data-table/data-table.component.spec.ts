@@ -579,7 +579,8 @@ describe('DataTableComponent', () => {
   });
   it('holds a declared column width instead of letting the browser shrink it', async () => {
     // `width` alone is a suggestion under `table-layout: auto`. A name column asked for
-    // 22rem was measured at 107px and wrapped; the floor is what makes it stick.
+    // Under `table-layout: auto` a `width` is a suggestion and a 22rem column can be
+    // squeezed to 107px and wrap. `min-width` is the floor that makes it stick.
     const { container } = await render(
       `<app-data-table [columns]="cols" [rows]="rows" />`,
       {

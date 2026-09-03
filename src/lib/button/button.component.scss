@@ -111,7 +111,7 @@
 .btn--success:active:not(:disabled) {
   filter: brightness(0.94);
 }
-/* Frei wählbare Farbe (#flow): Hintergrund kommt inline, Hover/Active wie danger/success. */
+/* Frei wählbare Farbe: Hintergrund kommt inline, Hover/Active wie danger/success. */
 .btn--custom:hover:not(:disabled) {
   filter: brightness(1.08);
 }

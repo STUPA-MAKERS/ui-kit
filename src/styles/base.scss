@@ -147,7 +147,7 @@ textarea {
 }
 
 // Native Checkboxen/Radios app-weit in CD-Primärfarbe (statt Browser-Blau) —
-// damit sie überall gleich aussehen wie das app-checkbox-UI-Kit (#checkboxes).
+// damit sie überall gleich aussehen wie das app-checkbox-UI-Kit.
 input[type='checkbox'],
 input[type='radio'] {
   accent-color: var(--color-primary);
@@ -157,7 +157,7 @@ input[type='radio'] {
 // EIGENSTÄNDIGE Karte gerendert (Tabelle wird im Leerfall ausgeblendet), damit alle
 // Seiten optisch identisch sind: gerahmte Box (Border + Radius + Surface) mit
 // zentriertem, gedämpftem Text — exakt der Look der shared DataTable (dt--boxed +
-// dt__empty). Desktop wie Mobil identisch (#empty-parity).
+// dt__empty). Desktop wie Mobil identisch.
 .empty-state {
   text-align: center;
   color: var(--color-text-muted);

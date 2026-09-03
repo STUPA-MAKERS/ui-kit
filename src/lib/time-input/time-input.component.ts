@@ -9,7 +9,7 @@ import { NG_VALUE_ACCESSOR, type ControlValueAccessor } from '@angular/forms';
 let nextId = 0;
 
 /**
- * Uhrzeit-Feld des UI-Kits (#time-input). Erzwingt **24h-Format** (`HH:MM`) —
+ * Uhrzeit-Feld des UI-Kits. Erzwingt **24h-Format** (`HH:MM`) —
  * das native `<input type="time">` rendert je nach Browser-/OS-Locale AM/PM,
  * unabhängig von der App-Sprache. Der Wert ist immer `HH:MM` (oder `''`).
  *
