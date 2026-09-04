@@ -1,6 +1,7 @@
 import { Component, signal } from '@angular/core';
 import { render, screen } from '@testing-library/angular';
 import userEvent from '@testing-library/user-event';
+import { UI_KIT_INTL, uiKitIntlFromLang } from '../intl/intl';
 import { CellDirective } from './cell.directive';
 import { type ColumnDef, DataTableComponent } from './data-table.component';
 import { FootCellDirective } from './foot-cell.directive';
@@ -728,11 +729,13 @@ describe('DataTableComponent', () => {
       clientHeight?: number;
     }): Promise<Cues> => {
       const { container, fixture } = await render(
-        `<app-data-table [columns]="cols" [rows]="rows"
-                         scrollStartLabel="Nach links" scrollEndLabel="Nach rechts" />`,
+        `<app-data-table [columns]="cols" [rows]="rows" />`,
         {
           imports: [DataTableComponent],
           componentProperties: { cols: opts.cols ?? CUE_COLS, rows: ROWS },
+          providers: [
+            { provide: UI_KIT_INTL, useValue: uiKitIntlFromLang(signal('de' as const)) },
+          ],
         },
       );
       const scroll = container.querySelector('.dt__scroll') as HTMLElement;
@@ -796,7 +799,7 @@ describe('DataTableComponent', () => {
       });
       expect(cues.box).toHaveClass('dt--cut-end');
       expect(cues.endTongue).toBeEnabled();
-      expect(cues.endTongue).toHaveAccessibleName('Nach rechts');
+      expect(cues.endTongue).toHaveAccessibleName('Tabelle nach rechts scrollen');
     });
 
     it('hides the start tongue at the start and shows it once scrolled away', async () => {
@@ -815,7 +818,7 @@ describe('DataTableComponent', () => {
 
       expect(cues.box).toHaveClass('dt--cut-start');
       expect(cues.startTongue).toBeEnabled();
-      expect(cues.startTongue).toHaveAccessibleName('Nach links');
+      expect(cues.startTongue).toHaveAccessibleName('Tabelle nach links scrollen');
     });
 
     it('scrolls one step per press, each tongue its own way', async () => {
@@ -1042,14 +1045,18 @@ describe('DataTableComponent', () => {
       }
     });
 
-    it('names both tongues in English until the host says otherwise', async () => {
+    it.each([
+      ['de' as const, 'Tabelle nach links scrollen', 'Tabelle nach rechts scrollen'],
+      ['en' as const, 'Scroll the table left', 'Scroll the table right'],
+    ])('names both tongues from the kit catalogue in %s', async (lang, left, right) => {
       const { container } = await render(`<app-data-table [columns]="cols" [rows]="rows" />`, {
         imports: [DataTableComponent],
         componentProperties: { cols: CUE_COLS, rows: ROWS },
+        providers: [{ provide: UI_KIT_INTL, useValue: uiKitIntlFromLang(signal(lang)) }],
       });
       const [start, end] = Array.from(container.querySelectorAll('.dt__tongue'));
-      expect(start).toHaveAttribute('aria-label', 'Scroll table left');
-      expect(end).toHaveAttribute('aria-label', 'Scroll table right');
+      expect(start).toHaveAttribute('aria-label', left);
+      expect(end).toHaveAttribute('aria-label', right);
     });
   });
 });

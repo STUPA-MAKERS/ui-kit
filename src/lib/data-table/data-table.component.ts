@@ -18,6 +18,7 @@ import {
   inject,
   signal,
 } from '@angular/core';
+import { UiKitTranslatePipe } from '../intl/translate.pipe';
 import { CellDirective } from './cell.directive';
 import { FootCellDirective } from './foot-cell.directive';
 import { RowDetailDirective } from './row-detail.directive';
@@ -121,7 +122,7 @@ const EDGE_SLACK = 1;
   selector: 'app-data-table',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [NgTemplateOutlet],
+  imports: [NgTemplateOutlet, UiKitTranslatePipe],
   templateUrl: './data-table.component.html',
   styleUrl: './data-table.component.scss',
 })
@@ -163,16 +164,6 @@ export class DataTableComponent implements AfterContentInit, AfterViewInit, OnDe
   @Input() selectAllLabel = 'Select all';
   /** Accessible name for one row's checkbox. Falls back to the row's position. */
   @Input() rowSelectLabel?: (row: unknown, index: number) => string;
-
-  /**
-   * Accessible name of the tongue that scrolls the table back towards its start.
-   *
-   * Passed in rather than translated here: the kit ships no copy of its own. See
-   * `selectAllLabel`.
-   */
-  @Input() scrollStartLabel = 'Scroll table left';
-  /** Accessible name of the tongue that scrolls the table on towards its end. */
-  @Input() scrollEndLabel = 'Scroll table right';
 
   /**
    * Child rows of one row, rendered directly under it with the SAME columns.

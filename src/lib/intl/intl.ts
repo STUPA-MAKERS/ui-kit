@@ -20,7 +20,9 @@ export type UiKitTextKey =
   | 'diff.none'
   | 'diff.changed'
   | 'diff.added'
-  | 'diff.removed';
+  | 'diff.removed'
+  | 'table.scrollStart'
+  | 'table.scrollEnd';
 
 export type UiKitMessages = Record<UiKitTextKey, string>;
 
@@ -37,6 +39,8 @@ export const UI_KIT_DEFAULT_MESSAGES: Record<UiLang, UiKitMessages> = {
     'diff.changed': 'Geändert',
     'diff.added': 'Hinzugefügt',
     'diff.removed': 'Entfernt',
+    'table.scrollStart': 'Tabelle nach links scrollen',
+    'table.scrollEnd': 'Tabelle nach rechts scrollen',
   },
   en: {
     'dialog.close': 'Close',
@@ -49,6 +53,8 @@ export const UI_KIT_DEFAULT_MESSAGES: Record<UiLang, UiKitMessages> = {
     'diff.changed': 'Changed',
     'diff.added': 'Added',
     'diff.removed': 'Removed',
+    'table.scrollStart': 'Scroll the table left',
+    'table.scrollEnd': 'Scroll the table right',
   },
 };
 
