@@ -11,9 +11,11 @@ import {
   EventEmitter,
   Input,
   NgZone,
+  type OnChanges,
   type OnDestroy,
   Output,
   type QueryList,
+  type SimpleChanges,
   type TemplateRef,
   ViewChild,
   inject,
@@ -128,7 +130,7 @@ const EDGE_SLACK = 1;
   styleUrl: './data-table.component.scss',
 })
 export class DataTableComponent
-  implements AfterContentInit, AfterViewInit, AfterViewChecked, OnDestroy
+  implements AfterContentInit, AfterViewInit, AfterViewChecked, OnChanges, OnDestroy
 {
   @Input() columns: ColumnDef[] = [];
   @Input() rows: readonly unknown[] = [];
@@ -218,21 +220,31 @@ export class DataTableComponent
   private readonly teardown: (() => void)[] = [];
 
   /**
-   * How far the reader had scrolled sideways, kept across a redraw of the rows.
-   *
-   * `.dt__scroll` survives an empty result, but the table inside it does not. With no
-   * table the content is no wider than the box, so the browser clamps `scrollLeft` to
-   * 0 — and a sort or a filter that briefly empties the list therefore threw away the
-   * columns the reader had scrolled to.
-   *
-   * Only written while the content really is wider than the box. Otherwise the clamp
-   * that comes with the empty state would overwrite this with the 0 it just caused.
+   * Last sideways position, for a redraw that empties the table. Written only while the
+   * content overflows: the clamp to 0 that comes with an empty table arrives as a scroll
+   * event and would otherwise store the 0 it caused.
    */
   private keptScrollLeft = 0;
   /** True between the rows coming back and the scroll position being put back. */
   private restorePending = false;
   /** Whether the table was in the DOM at the previous check. */
   private wasRendering = false;
+  /** Pixel fallback applies only after the table left the DOM, never on a row change. */
+  private restoreFromPixels = false;
+
+  /**
+   * Column at the left edge and how far it is cut off, taken before a redraw.
+   * `table-layout: auto` re-measures columns from the new rows, so a pixel offset lands
+   * on a different column.
+   */
+  private anchor: { index: number; cut: number } | null = null;
+
+  /** Runs before the redraw, so the geometry is still the old layout. */
+  ngOnChanges(changes: SimpleChanges): void {
+    if (!changes['rows'] && !changes['columns']) return;
+    this.captureAnchor();
+    this.restorePending = true;
+  }
 
   ngAfterContentInit(): void {
     const build = (): void => {
@@ -438,20 +450,33 @@ export class DataTableComponent
     box.style.setProperty('--cue-top', `${Math.round(this.visibleCentre(scroll))}px`);
     box.style.setProperty('--cut-bottom', `${this.gutter(scroll)}px`);
 
-    // Remember the position only while there is somewhere to scroll. An empty result
-    // leaves the box with nothing wider than itself, and the clamp to 0 that follows
-    // arrives here as an ordinary scroll event.
     if (scroll.scrollWidth - scroll.clientWidth > EDGE_SLACK) {
       this.keptScrollLeft = scroll.scrollLeft;
     }
   }
 
+  /** `cut` is how much of the column has passed the edge. */
+  private captureAnchor(): void {
+    const scroll = this.scroller?.nativeElement;
+    if (!scroll || scroll.scrollLeft <= EDGE_SLACK) {
+      this.anchor = null;
+      return;
+    }
+    const edge = scroll.getBoundingClientRect().left;
+    const cells = scroll.querySelectorAll('thead th');
+    for (let i = 0; i < cells.length; i++) {
+      const box = cells[i].getBoundingClientRect();
+      if (box.right > edge + EDGE_SLACK) {
+        this.anchor = { index: i, cut: Math.round(edge - box.left) };
+        return;
+      }
+    }
+    this.anchor = null;
+  }
+
   /**
-   * Put the reader back where they were, once the rows are on screen again.
-   *
-   * Runs a frame later and outside Angular: the width to scroll within only exists
-   * after layout, and writing the cue signals straight out of a lifecycle hook would
-   * report a value that changed after it was checked.
+   * A frame later and outside Angular: widths exist only after layout, and setting the
+   * cue signals from a lifecycle hook trips ExpressionChangedAfterItHasBeenChecked.
    */
   private restoreScroll(): void {
     this.zone.runOutsideAngular(() => {
@@ -459,11 +484,21 @@ export class DataTableComponent
         const scroll = this.scroller?.nativeElement;
         if (!scroll) return;
         const max = scroll.scrollWidth - scroll.clientWidth;
-        // Never move a reader who is already somewhere: only a position the browser
-        // clamped away is worth putting back.
-        if (max > EDGE_SLACK && this.keptScrollLeft > 0 && scroll.scrollLeft === 0) {
-          scroll.scrollLeft = Math.min(this.keptScrollLeft, max);
+        if (max > EDGE_SLACK) {
+          const cells = scroll.querySelectorAll('thead th');
+          const cell = this.anchor ? cells[this.anchor.index] : undefined;
+          if (cell && this.anchor) {
+            const edge = scroll.getBoundingClientRect().left;
+            const drift = cell.getBoundingClientRect().left - (edge - this.anchor.cut);
+            const target = scroll.scrollLeft + drift;
+            scroll.scrollLeft = Math.max(0, Math.min(target, max));
+            // One redraw, one anchor: a second pass would add the drift again.
+            this.anchor = null;
+          } else if (this.restoreFromPixels && this.keptScrollLeft > 0 && scroll.scrollLeft === 0) {
+            scroll.scrollLeft = Math.min(this.keptScrollLeft, max);
+          }
         }
+        this.restoreFromPixels = false;
         this.onScroll();
       });
     });
@@ -535,16 +570,13 @@ export class DataTableComponent
     });
   }
 
-  /**
-   * Watch the table come and go.
-   *
-   * The template draws it under `loading || rows.length`, so an empty result takes it
-   * out of the DOM and puts it back when rows return. Cheap enough to sit in a
-   * per-check hook: one boolean, and work only on the edge where it changes.
-   */
+  /** The template draws the table under `loading || rows.length`; watch that edge. */
   ngAfterViewChecked(): void {
     const rendering = this.loading || this.rows.length > 0;
-    if (rendering && !this.wasRendering) this.restorePending = true;
+    if (rendering && !this.wasRendering) {
+      this.restorePending = true;
+      this.restoreFromPixels = true;
+    }
     this.wasRendering = rendering;
     if (this.restorePending) {
       this.restorePending = false;
