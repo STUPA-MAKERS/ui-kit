@@ -1,6 +1,7 @@
 import { NgTemplateOutlet } from '@angular/common';
 import {
   type AfterContentInit,
+  type AfterViewInit,
   ChangeDetectionStrategy,
   Component,
   ContentChild,
@@ -8,10 +9,13 @@ import {
   ElementRef,
   EventEmitter,
   Input,
+  NgZone,
+  type OnDestroy,
   Output,
   type QueryList,
   type TemplateRef,
   ViewChild,
+  inject,
   signal,
 } from '@angular/core';
 import { CellDirective } from './cell.directive';
@@ -84,6 +88,21 @@ export interface SortState {
 /** How many skeleton rows to draw while loading, when the caller gives no hint. */
 const DEFAULT_SKELETON_ROWS = 5;
 
+/** How far one press of a scroll tongue moves the table, in px. */
+const SCROLL_STEP = 240;
+/** How long a tongue has to be held before it starts repeating. */
+const HOLD_DELAY_MS = 300;
+/** How often a held tongue scrolls once it repeats. */
+const HOLD_INTERVAL_MS = 90;
+/**
+ * Height of a tongue, for the first sync — before layout there is nothing to measure,
+ * and the centring needs a half-height to clamp against. Keep it equal to the height in
+ * the stylesheet.
+ */
+const TONGUE_HEIGHT = 54;
+/** Sub-pixel slack, so rounding at an edge does not read as hidden content. */
+const EDGE_SLACK = 1;
+
 /**
  * Shared, data-driven table. Columns come as a {@link ColumnDef} list; a single
  * cell can be rendered freely with `<ng-template appCell="key" let-row>` (badges,
@@ -106,7 +125,7 @@ const DEFAULT_SKELETON_ROWS = 5;
   templateUrl: './data-table.component.html',
   styleUrl: './data-table.component.scss',
 })
-export class DataTableComponent implements AfterContentInit {
+export class DataTableComponent implements AfterContentInit, AfterViewInit, OnDestroy {
   @Input() columns: ColumnDef[] = [];
   @Input() rows: readonly unknown[] = [];
   @Input() emptyText = '—';
@@ -146,6 +165,16 @@ export class DataTableComponent implements AfterContentInit {
   @Input() rowSelectLabel?: (row: unknown, index: number) => string;
 
   /**
+   * Accessible name of the tongue that scrolls the table back towards its start.
+   *
+   * Passed in rather than translated here: the kit ships no copy of its own. See
+   * `selectAllLabel`.
+   */
+  @Input() scrollStartLabel = 'Scroll table left';
+  /** Accessible name of the tongue that scrolls the table on towards its end. */
+  @Input() scrollEndLabel = 'Scroll table right';
+
+  /**
    * Child rows of one row, rendered directly under it with the SAME columns.
    *
    * Different from `appRowDetail`, which renders one full-width cell for a panel. A
@@ -168,12 +197,31 @@ export class DataTableComponent implements AfterContentInit {
   @ContentChildren(FootCellDirective) private footDirs!: QueryList<FootCellDirective>;
   @ContentChild(RowDetailDirective) protected rowDetail?: RowDetailDirective;
   @ViewChild('scroller') private scroller?: ElementRef<HTMLElement>;
+  @ViewChild('box') private box?: ElementRef<HTMLElement>;
+  @ViewChild('endTongue') private endTongue?: ElementRef<HTMLElement>;
+  private readonly zone = inject(NgZone);
   private readonly cellMap = signal<Map<string, TemplateRef<unknown>>>(new Map());
   private readonly footMap = signal<Map<string, TemplateRef<unknown>>>(new Map());
 
-  /** True while the scroll container has content hidden past that edge. */
-  protected readonly fadeStart = signal(false);
-  protected readonly fadeEnd = signal(false);
+  /**
+   * True while the scroll container still hides a column past that edge — the condition
+   * for showing the tongue that scrolls that way.
+   */
+  protected readonly hiddenStart = signal(false);
+  protected readonly hiddenEnd = signal(false);
+  /**
+   * True while the END tongue is hovered or focused, which lights the cut.
+   *
+   * Per side on purpose, and only for the end. The start edge has no rule of its own —
+   * the box border is already the boundary there — so one shared flag lit the cut at
+   * the far edge while the reader pointed at the near one.
+   */
+  protected readonly cutHot = signal(false);
+  /** Which tongue is held down, for its pressed colour. */
+  protected readonly held = signal<-1 | 0 | 1>(0);
+  private holdTimer?: ReturnType<typeof setTimeout>;
+  private holdTick?: ReturnType<typeof setInterval>;
+  private readonly teardown: (() => void)[] = [];
 
   ngAfterContentInit(): void {
     const build = (): void => {
@@ -291,19 +339,163 @@ export class DataTableComponent implements AfterContentInit {
     return this.sort.direction === 'asc' ? 'ascending' : 'descending';
   }
 
-  /** Recompute which edges have hidden content, so only real overflow gets a fade. */
+  // -- sideways scrolling -----------------------------------------------------
+
+  /** True when a column asks to be pinned, which is what puts a cut in the table. */
+  protected get hasSticky(): boolean {
+    return this.columns.some((c) => c.sticky === 'end');
+  }
+
+  /** Width of the pinned column, which is how far the cut sits in from the edge. */
+  private stickyWidth(scroll: HTMLElement): number {
+    const th = scroll.querySelector('thead .dt__cell--sticky');
+    return th ? Math.round(th.getBoundingClientRect().width) : 0;
+  }
+
+  /**
+   * Which edges still hide a column, measured rather than computed.
+   *
+   * NOT `scrollLeft < scrollWidth - clientWidth`. `.dt__scroll` sets
+   * `scrollbar-gutter: stable`, so `scrollWidth - clientWidth` overshoots the maximum
+   * the browser actually clamps `scrollLeft` to, by the width of the gutter: measured at
+   * 612 against a real maximum of 597 on an 820px viewport, a 15px overshoot that no
+   * one-pixel slack can absorb. The end cue then never switched off at full scroll.
+   *
+   * Geometry answers the question the cue really asks — does a column still stick out
+   * past the cut? — and asks it of the same boxes the reader is looking at.
+   */
+  private occluded(scroll: HTMLElement, cut: number): { start: boolean; end: boolean } {
+    const rect = scroll.getBoundingClientRect();
+    let firstLeft = Number.POSITIVE_INFINITY;
+    let lastRight = Number.NEGATIVE_INFINITY;
+    for (const cell of Array.from(scroll.querySelectorAll('thead th'))) {
+      if (cell.classList.contains('dt__cell--sticky')) continue;
+      const r = cell.getBoundingClientRect();
+      if (r.left < firstLeft) firstLeft = r.left;
+      if (r.right > lastRight) lastRight = r.right;
+    }
+    return { start: firstLeft < rect.left - EDGE_SLACK, end: lastRight > cut + EDGE_SLACK };
+  }
+
+  /**
+   * Height of the horizontal scrollbar, so nothing is drawn over it.
+   *
+   * Measured, never assumed: it is 0 on a table that fits, about 15px where a scrollbar
+   * shows, and a different number again on another platform.
+   */
+  private gutter(scroll: HTMLElement): number {
+    return Math.max(0, scroll.offsetHeight - scroll.clientHeight);
+  }
+
+  /**
+   * Centre of the VISIBLE slice of the scroller, in the scroller's own space.
+   *
+   * The middle of the box is the wrong place on a long table: it leaves the tongues off
+   * screen exactly while the reader needs them. Two corrections, both about the bottom
+   * edge — the area that counts is the ROWS, so the scrollbar gutter comes off before
+   * anything is measured, and the result is then clamped by half a tongue, so a thin
+   * visible slice can never push the tongue itself down onto the scrollbar.
+   */
+  private visibleCentre(scroll: HTMLElement): number {
+    const rect = scroll.getBoundingClientRect();
+    const rowsTop = rect.top;
+    const rowsBottom = rect.bottom - this.gutter(scroll);
+    const rowsHeight = Math.max(0, rowsBottom - rowsTop);
+
+    const top = Math.max(rowsTop, 0);
+    const bottom = Math.min(rowsBottom, window.innerHeight || 0);
+    const centre = bottom <= top ? rowsHeight / 2 : (top + bottom) / 2 - rowsTop;
+
+    // +1 keeps the tongue's own border clear of the gutter as well as its box.
+    const half = (this.endTongue?.nativeElement.offsetHeight || TONGUE_HEIGHT) / 2 + 1;
+    if (rowsHeight - half < half) return rowsHeight / 2; // shorter than the tongue
+    return Math.min(Math.max(centre, half), rowsHeight - half);
+  }
+
+  /** Recompute which edges hide content, and where the cut and the tongues belong. */
   protected onScroll(): void {
+    const scroll = this.scroller?.nativeElement;
+    const box = this.box?.nativeElement;
+    if (!scroll || !box) return;
+
+    const cueRight = this.stickyWidth(scroll);
+    const edges = this.occluded(scroll, scroll.getBoundingClientRect().right - cueRight);
+    this.hiddenStart.set(edges.start);
+    this.hiddenEnd.set(edges.end);
+
+    box.style.setProperty('--cue-right', `${cueRight}px`);
+    box.style.setProperty('--cue-top', `${Math.round(this.visibleCentre(scroll))}px`);
+    box.style.setProperty('--cut-bottom', `${this.gutter(scroll)}px`);
+  }
+
+  /** One step sideways. Instant where the reader asked for less motion. */
+  private step(direction: -1 | 1): void {
     const el = this.scroller?.nativeElement;
     if (!el) return;
-    const max = el.scrollWidth - el.clientWidth;
-    this.fadeStart.set(el.scrollLeft > 1);
-    // A one-pixel slack absorbs sub-pixel rounding at the far end, which would
-    // otherwise leave the fade on forever at full scroll.
-    this.fadeEnd.set(max > 1 && el.scrollLeft < max - 1);
+    const reduced = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches ?? false;
+    el.scrollBy({ left: direction * SCROLL_STEP, behavior: reduced ? 'auto' : 'smooth' });
+  }
+
+  /**
+   * Press to step, hold to keep going.
+   *
+   * A reader who does not know shift+scroll should not have to click fifteen times to
+   * cross a wide table.
+   */
+  protected onTonguePress(event: MouseEvent, direction: -1 | 1): void {
+    if (event.button !== 0) return;
+    this.stopHold();
+    this.step(direction);
+    this.held.set(direction);
+    this.holdTimer = setTimeout(() => {
+      this.holdTick = setInterval(() => this.step(direction), HOLD_INTERVAL_MS);
+    }, HOLD_DELAY_MS);
+  }
+
+  /** Release, leave or cancel: the repeat stops with the gesture that started it. */
+  protected stopHold(): void {
+    if (this.holdTimer !== undefined) clearTimeout(this.holdTimer);
+    if (this.holdTick !== undefined) clearInterval(this.holdTick);
+    this.holdTimer = undefined;
+    this.holdTick = undefined;
+    this.held.set(0);
+  }
+
+  /**
+   * Enter and Space step once and do not repeat: the key repeat of the platform already
+   * does that, and two repeats would race.
+   */
+  protected onTongueKey(event: KeyboardEvent, direction: -1 | 1): void {
+    if (event.key !== 'Enter' && event.key !== ' ') return;
+    event.preventDefault(); // Space would otherwise scroll the page
+    this.step(direction);
   }
 
   ngAfterViewInit(): void {
     // A table can already overflow before anyone scrolls it.
     this.onScroll();
+    // Outside Angular: a page scroll fires this for every table on the page, and none of
+    // that has to run change detection. The signals it sets schedule their own.
+    this.zone.runOutsideAngular(() => {
+      const resync = (): void => this.onScroll();
+      window.addEventListener('scroll', resync, { passive: true });
+      window.addEventListener('resize', resync);
+      this.teardown.push(() => {
+        window.removeEventListener('scroll', resync);
+        window.removeEventListener('resize', resync);
+      });
+      // The width all of this depends on changes without anyone scrolling: a cell
+      // template arrives, a sidebar opens, the font loads.
+      if (typeof ResizeObserver !== 'undefined' && this.scroller) {
+        const ro = new ResizeObserver(resync);
+        ro.observe(this.scroller.nativeElement);
+        this.teardown.push(() => ro.disconnect());
+      }
+    });
+  }
+
+  ngOnDestroy(): void {
+    this.stopHold();
+    for (const off of this.teardown) off();
   }
 }

@@ -1,10 +1,13 @@
-<!-- The scroll container carries the fade masks. A wide table scrolls inside its own
-     box instead of pushing the page sideways, and the mask shows which side has more. -->
+<!-- A wide table scrolls inside its own box instead of pushing the page sideways. The
+     cut and the tongues sit on this wrapper rather than on the scroller, so they stay
+     put while the content moves under them. -->
 <div
+  #box
   class="dt"
   [class.dt--boxed]="boxed && (loading || rows.length > 0)"
-  [class.dt--fade-start]="fadeStart()"
-  [class.dt--fade-end]="fadeEnd()"
+  [class.dt--cut-start]="hiddenStart()"
+  [class.dt--cut-end]="hiddenEnd()"
+  [class.dt--cut-hot]="cutHot()"
 >
   <div #scroller class="dt__scroll" (scroll)="onScroll()">
     @if (loading || rows.length > 0) {
@@ -192,6 +195,74 @@
       <div class="empty-state">{{ emptyText }}</div>
     }
   </div>
+
+  <!-- The cut: where the scrolling content passes beneath the pinned column. A rule with
+       a short shadow thrown left, stopping above the scrollbar. Only a pinned column
+       makes a cut — at the table's own outer edge the box border is already the
+       boundary, and a second rule there would be noise. -->
+  @if (hasSticky) {
+    <div class="dt__cutline" aria-hidden="true"></div>
+  }
+
+  <!-- The tongues: the sideways scroll control for a reader with a plain mouse. Shift+
+       scroll is invisible knowledge and a wheel alone moves nothing sideways, so without
+       these the hidden columns cannot be reached at all.
+
+       Both stay in the DOM and are disabled while their edge hides nothing, so the
+       opacity can carry the change and neither takes a tab stop while invisible. -->
+  <button
+    type="button"
+    class="dt__tongue dt__tongue--start"
+    [class.dt__tongue--held]="held() === -1"
+    [disabled]="!hiddenStart()"
+    [attr.aria-hidden]="hiddenStart() ? null : 'true'"
+    [attr.aria-label]="scrollStartLabel"
+    (pointerdown)="onTonguePress($event, -1)"
+    (pointerup)="stopHold()"
+    (pointerleave)="stopHold()"
+    (pointercancel)="stopHold()"
+    (keydown)="onTongueKey($event, -1)"
+  >
+    <svg viewBox="0 0 16 16" fill="none" aria-hidden="true">
+      <path
+        d="M10 3L5 8l5 5"
+        stroke="currentColor"
+        stroke-width="2"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+      />
+    </svg>
+  </button>
+
+  <!-- Only the END tongue lights the cut, and only the end side has one to light. -->
+  <button
+    #endTongue
+    type="button"
+    class="dt__tongue dt__tongue--end"
+    [class.dt__tongue--held]="held() === 1"
+    [disabled]="!hiddenEnd()"
+    [attr.aria-hidden]="hiddenEnd() ? null : 'true'"
+    [attr.aria-label]="scrollEndLabel"
+    (pointerdown)="onTonguePress($event, 1)"
+    (pointerup)="stopHold()"
+    (pointercancel)="stopHold()"
+    (mouseenter)="cutHot.set(true)"
+    (mouseleave)="cutHot.set(false)"
+    (pointerleave)="stopHold()"
+    (focus)="cutHot.set(true)"
+    (blur)="cutHot.set(false)"
+    (keydown)="onTongueKey($event, 1)"
+  >
+    <svg viewBox="0 0 16 16" fill="none" aria-hidden="true">
+      <path
+        d="M6 3l5 5-5 5"
+        stroke="currentColor"
+        stroke-width="2"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+      />
+    </svg>
+  </button>
 </div>
 
 <!-- Announced separately, because the skeleton rows are aria-hidden: a screen reader

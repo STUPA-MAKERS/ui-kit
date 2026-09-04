@@ -670,4 +670,386 @@ describe('DataTableComponent', () => {
     expect(th.style.width).toBe('');
     expect(th.style.minWidth).toBe('');
   });
+
+  /**
+   * The tongues and the cut are pure geometry, and jsdom lays nothing out: every box,
+   * every scroll offset and the scrollbar gutter are stated by hand here. The numbers
+   * are the ones measured on the running app at an 820px viewport.
+   */
+  describe('sideways scroll cues', () => {
+    const CUE_COLS: ColumnDef[] = [
+      { key: 'name', label: 'Name' },
+      { key: 'status', label: 'Status' },
+      { key: 'actions', label: 'Aktionen', sticky: 'end' },
+    ];
+    const PLAIN_COLS: ColumnDef[] = [
+      { key: 'name', label: 'Name' },
+      { key: 'status', label: 'Status' },
+    ];
+
+    const withBox = (el: Element, left: number, right: number, top = 0, bottom = 115): void => {
+      (el as HTMLElement).getBoundingClientRect = () =>
+        ({
+          left,
+          right,
+          top,
+          bottom,
+          width: right - left,
+          height: bottom - top,
+          x: left,
+          y: top,
+          toJSON: () => ({}),
+        }) as DOMRect;
+    };
+
+    const fix = (el: Element, prop: string, value: number): void => {
+      Object.defineProperty(el, prop, { value, configurable: true });
+    };
+
+    interface Cues {
+      box: HTMLElement;
+      scroll: HTMLElement;
+      startTongue: HTMLButtonElement;
+      endTongue: HTMLButtonElement;
+      resync: () => void;
+    }
+
+    /**
+     * Renders the table and gives it a layout.
+     *
+     * `heads` are the boxes of the header cells, the pinned one last. `scrollBox` is the
+     * scroller, 115px tall against a 100px client height — a 15px scrollbar gutter.
+     */
+    const layout = async (opts: {
+      cols?: ColumnDef[];
+      heads: [number, number][];
+      scrollBox?: [number, number, number, number];
+      offsetHeight?: number;
+      clientHeight?: number;
+    }): Promise<Cues> => {
+      const { container, fixture } = await render(
+        `<app-data-table [columns]="cols" [rows]="rows"
+                         scrollStartLabel="Nach links" scrollEndLabel="Nach rechts" />`,
+        {
+          imports: [DataTableComponent],
+          componentProperties: { cols: opts.cols ?? CUE_COLS, rows: ROWS },
+        },
+      );
+      const scroll = container.querySelector('.dt__scroll') as HTMLElement;
+      const [l, r, t, b] = opts.scrollBox ?? [0, 820, 0, 115];
+      withBox(scroll, l, r, t, b);
+      fix(scroll, 'offsetHeight', opts.offsetHeight ?? 115);
+      fix(scroll, 'clientHeight', opts.clientHeight ?? 100);
+      scroll.scrollBy = jest.fn();
+
+      const heads = Array.from(container.querySelectorAll('thead th'));
+      opts.heads.forEach(([hl, hr], i) => withBox(heads[i], hl, hr));
+
+      const resync = (): void => {
+        scroll.dispatchEvent(new Event('scroll'));
+        fixture.detectChanges();
+      };
+      resync();
+      return {
+        box: container.querySelector('.dt') as HTMLElement,
+        scroll,
+        startTongue: container.querySelector('.dt__tongue--start') as HTMLButtonElement,
+        endTongue: container.querySelector('.dt__tongue--end') as HTMLButtonElement,
+        resync,
+      };
+    };
+
+    /** A left mouse press. jsdom has no PointerEvent, and only the type name matters. */
+    const press = (el: Element): void => {
+      el.dispatchEvent(new MouseEvent('pointerdown', { bubbles: true, button: 0 }));
+    };
+
+    it('drops the end tongue at full scroll, where the old arithmetic overshot', async () => {
+      // Measured live at an 820px viewport: the gutter is 15px, the browser clamps
+      // scrollLeft at 597, and `scrollWidth - clientWidth` claims 612. Asserting against
+      // the real clamped offset is the point — the formula says there is 15px to go.
+      const cues = await layout({
+        heads: [
+          [-612, 108],
+          [108, 720],
+          [720, 820],
+        ],
+      });
+      fix(cues.scroll, 'scrollWidth', 1432);
+      fix(cues.scroll, 'clientWidth', 820);
+      fix(cues.scroll, 'scrollLeft', 597);
+      cues.resync();
+
+      expect(cues.scroll.scrollWidth - cues.scroll.clientWidth).toBe(612);
+      expect(cues.scroll.scrollLeft).toBe(597); // the browser will go no further
+      expect(cues.box).not.toHaveClass('dt--cut-end');
+      expect(cues.endTongue).toBeDisabled();
+    });
+
+    it('shows the end tongue while a column still sticks out past the cut', async () => {
+      const cues = await layout({
+        heads: [
+          [0, 720],
+          [720, 1332],
+          [720, 820],
+        ],
+      });
+      expect(cues.box).toHaveClass('dt--cut-end');
+      expect(cues.endTongue).toBeEnabled();
+      expect(cues.endTongue).toHaveAccessibleName('Nach rechts');
+    });
+
+    it('hides the start tongue at the start and shows it once scrolled away', async () => {
+      const cues = await layout({
+        heads: [
+          [0, 720],
+          [720, 1332],
+          [720, 820],
+        ],
+      });
+      expect(cues.box).not.toHaveClass('dt--cut-start');
+      expect(cues.startTongue).toBeDisabled();
+
+      withBox(cues.scroll.querySelectorAll('thead th')[0], -300, 420);
+      cues.resync();
+
+      expect(cues.box).toHaveClass('dt--cut-start');
+      expect(cues.startTongue).toBeEnabled();
+      expect(cues.startTongue).toHaveAccessibleName('Nach links');
+    });
+
+    it('scrolls one step per press, each tongue its own way', async () => {
+      const cues = await layout({
+        heads: [
+          [-300, 420],
+          [420, 1032],
+          [720, 820],
+        ],
+      });
+      press(cues.endTongue);
+      expect(cues.scroll.scrollBy).toHaveBeenCalledWith({ left: 240, behavior: 'smooth' });
+      press(cues.startTongue);
+      expect(cues.scroll.scrollBy).toHaveBeenCalledWith({ left: -240, behavior: 'smooth' });
+    });
+
+    it('keeps scrolling while a tongue is held, and stops on release', async () => {
+      jest.useFakeTimers();
+      try {
+        const cues = await layout({
+          heads: [
+            [0, 720],
+            [720, 1332],
+            [720, 820],
+          ],
+        });
+        press(cues.endTongue);
+        expect(cues.scroll.scrollBy).toHaveBeenCalledTimes(1);
+
+        // Nothing repeats before the hold delay, or a plain click would scroll twice.
+        jest.advanceTimersByTime(299);
+        expect(cues.scroll.scrollBy).toHaveBeenCalledTimes(1);
+
+        jest.advanceTimersByTime(1 + 90 * 3);
+        expect(cues.scroll.scrollBy).toHaveBeenCalledTimes(4);
+
+        cues.endTongue.dispatchEvent(new MouseEvent('pointerup', { bubbles: true }));
+        jest.advanceTimersByTime(90 * 5);
+        expect(cues.scroll.scrollBy).toHaveBeenCalledTimes(4);
+      } finally {
+        jest.useRealTimers();
+      }
+    });
+
+    it('steps once on Enter and on Space, without the hold', async () => {
+      jest.useFakeTimers();
+      try {
+        const cues = await layout({
+          heads: [
+            [0, 720],
+            [720, 1332],
+            [720, 820],
+          ],
+        });
+        cues.endTongue.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter', bubbles: true }));
+        cues.endTongue.dispatchEvent(new KeyboardEvent('keydown', { key: ' ', bubbles: true }));
+        jest.advanceTimersByTime(2000);
+        expect(cues.scroll.scrollBy).toHaveBeenCalledTimes(2);
+      } finally {
+        jest.useRealTimers();
+      }
+    });
+
+    it('ignores a press that is not the primary button', async () => {
+      const cues = await layout({
+        heads: [
+          [0, 720],
+          [720, 1332],
+          [720, 820],
+        ],
+      });
+      cues.endTongue.dispatchEvent(new MouseEvent('pointerdown', { bubbles: true, button: 2 }));
+      expect(cues.scroll.scrollBy).not.toHaveBeenCalled();
+    });
+
+    it('anchors the end cue at the width of the pinned column', async () => {
+      const cues = await layout({
+        heads: [
+          [0, 720],
+          [720, 1332],
+          [720, 820],
+        ],
+      });
+      expect(cues.box.style.getPropertyValue('--cue-right')).toBe('100px');
+    });
+
+    it('anchors the end cue at the edge when no column is pinned', async () => {
+      const cues = await layout({
+        cols: PLAIN_COLS,
+        heads: [
+          [0, 720],
+          [720, 1332],
+        ],
+      });
+      expect(cues.box.style.getPropertyValue('--cue-right')).toBe('0px');
+    });
+
+    it('draws the cut where a pinned column does the occluding', async () => {
+      const cues = await layout({
+        heads: [
+          [0, 720],
+          [720, 1332],
+          [720, 820],
+        ],
+      });
+      expect(cues.box.querySelector('.dt__cutline')).not.toBeNull();
+    });
+
+    it('draws no cut without a pinned column, where the box border is the boundary', async () => {
+      // A rule at the table's own edge would only be a second line beside the border.
+      const cues = await layout({
+        cols: PLAIN_COLS,
+        heads: [
+          [0, 720],
+          [720, 1332],
+        ],
+      });
+      expect(cues.box.querySelector('.dt__cutline')).toBeNull();
+    });
+
+    it('lights the cut from the end tongue only, never from the start tongue', async () => {
+      const cues = await layout({
+        heads: [
+          [-300, 420],
+          [420, 1032],
+          [720, 820],
+        ],
+      });
+      // The start edge has no rule of its own. A shared flag lit the far edge instead —
+      // the opposite one from where the reader was pointing.
+      cues.startTongue.dispatchEvent(new MouseEvent('mouseenter', { bubbles: false }));
+      cues.startTongue.dispatchEvent(new FocusEvent('focus', { bubbles: false }));
+      cues.resync();
+      expect(cues.box).not.toHaveClass('dt--cut-hot');
+
+      cues.endTongue.dispatchEvent(new MouseEvent('mouseenter', { bubbles: false }));
+      cues.resync();
+      expect(cues.box).toHaveClass('dt--cut-hot');
+
+      cues.endTongue.dispatchEvent(new MouseEvent('mouseleave', { bubbles: false }));
+      cues.resync();
+      expect(cues.box).not.toHaveClass('dt--cut-hot');
+    });
+
+    it('keeps the cut and the tongue clear of the scrollbar gutter', async () => {
+      // The table hangs off the top of the viewport, so its visible slice is the last
+      // few pixels — right where the scrollbar is. Unclamped, the centring puts the
+      // tongue at 97.5px of a 100px row area and half of it lands on the scrollbar.
+      const cues = await layout({
+        heads: [
+          [0, 720],
+          [720, 1332],
+          [720, 820],
+        ],
+        scrollBox: [0, 820, -95, 20],
+      });
+      expect(cues.box.style.getPropertyValue('--cut-bottom')).toBe('15px');
+
+      const top = Number.parseInt(cues.box.style.getPropertyValue('--cue-top'), 10);
+      expect(top).toBe(72);
+      // 54px tall and centred on `top`: its lower edge stays inside the 100px row area.
+      expect(top + 27).toBeLessThanOrEqual(100);
+    });
+
+    it('centres on the visible slice, not on the middle of the box', async () => {
+      const cues = await layout({
+        heads: [
+          [0, 720],
+          [720, 1332],
+          [720, 820],
+        ],
+        // A 300px row area whose first 100px are above the viewport. The middle of the
+        // box is at 150; the middle of what can actually be seen is at 200.
+        scrollBox: [0, 820, -100, 215],
+        offsetHeight: 315,
+        clientHeight: 300,
+      });
+      expect(cues.box.style.getPropertyValue('--cue-top')).toBe('200px');
+    });
+
+    it('shows no cue at all for a table that fits', async () => {
+      const cues = await layout({
+        cols: PLAIN_COLS,
+        heads: [
+          [0, 400],
+          [400, 820],
+        ],
+        offsetHeight: 100,
+        clientHeight: 100,
+      });
+      expect(cues.box).not.toHaveClass('dt--cut-start');
+      expect(cues.box).not.toHaveClass('dt--cut-end');
+      expect(cues.box.style.getPropertyValue('--cut-bottom')).toBe('0px');
+    });
+
+    it('measures nothing and shows nothing on the empty state', async () => {
+      const { container } = await render(`<app-data-table [columns]="cols" [rows]="rows" />`, {
+        imports: [DataTableComponent],
+        componentProperties: { cols: CUE_COLS, rows: [] as Row[] },
+      });
+      const box = container.querySelector('.dt') as HTMLElement;
+      expect(box).not.toHaveClass('dt--cut-end');
+      expect(box).not.toHaveClass('dt--cut-start');
+    });
+
+    it('scrolls without animation where the reader asked for less motion', async () => {
+      const matchMedia = window.matchMedia;
+      Object.defineProperty(window, 'matchMedia', {
+        writable: true,
+        value: (query: string) => ({ ...matchMedia(query), matches: true }),
+      });
+      try {
+        const cues = await layout({
+          heads: [
+            [0, 720],
+            [720, 1332],
+            [720, 820],
+          ],
+        });
+        press(cues.endTongue);
+        expect(cues.scroll.scrollBy).toHaveBeenCalledWith({ left: 240, behavior: 'auto' });
+      } finally {
+        Object.defineProperty(window, 'matchMedia', { writable: true, value: matchMedia });
+      }
+    });
+
+    it('names both tongues in English until the host says otherwise', async () => {
+      const { container } = await render(`<app-data-table [columns]="cols" [rows]="rows" />`, {
+        imports: [DataTableComponent],
+        componentProperties: { cols: CUE_COLS, rows: ROWS },
+      });
+      const [start, end] = Array.from(container.querySelectorAll('.dt__tongue'));
+      expect(start).toHaveAttribute('aria-label', 'Scroll table left');
+      expect(end).toHaveAttribute('aria-label', 'Scroll table right');
+    });
+  });
 });

@@ -1,6 +1,7 @@
 /* The scroll container owns the horizontal overflow, so a wide table scrolls inside
-   its own box and never pushes the page sideways. The fades sit on the wrapper rather
-   than the scroller, so they stay put while the content moves under them. */
+   its own box and never pushes the page sideways. The cut and the tongues sit on the
+   wrapper rather than the scroller, so they stay put while the content moves under
+   them. */
 .dt {
   position: relative;
 }
@@ -19,31 +20,118 @@
      row. That is what this reservation was always for. */
   scrollbar-gutter: stable;
 }
-.dt::before,
-.dt::after {
-  content: '';
+
+/* THE CUT — where the scrolling content passes beneath the pinned column.
+
+   A rule with a short shadow thrown left, not a gradient fade: a fade dissolves the
+   content into the background, which reads as "this row ends here". A shadow with an
+   edge reads as "this row continues under the column", which is what is happening.
+
+   `bottom: var(--cut-bottom)` stops it above the horizontal scrollbar. The gutter is
+   measured at runtime (`offsetHeight - clientHeight`): 0 on a table that fits, about
+   15px where a scrollbar shows, and platform-dependent, so it is never a constant.
+   Without it the rule draws a tick down through the scrollbar track. */
+.dt__cutline {
   position: absolute;
   top: 0;
-  bottom: 0;
-  width: var(--space-6);
-  pointer-events: none;
+  bottom: var(--cut-bottom, 0px);
+  right: var(--cue-right, 0px);
+  width: 1px;
+  background: var(--color-border);
+  box-shadow: var(--shadow-cut);
   opacity: 0;
-  transition: opacity var(--motion-fast, 120ms) var(--ease-standard, ease);
-  z-index: 1;
+  pointer-events: none;
+  z-index: 3;
+  transition:
+    opacity var(--motion-base, 200ms) var(--ease-standard, ease),
+    background var(--motion-fast, 120ms) var(--ease-standard, ease),
+    box-shadow var(--motion-fast, 120ms) var(--ease-standard, ease);
 }
-.dt::before {
-  left: 0;
-  background: linear-gradient(to right, var(--color-surface), transparent);
-}
-.dt::after {
-  right: 0;
-  background: linear-gradient(to left, var(--color-surface), transparent);
-}
-/* Only the edge that actually hides content gets a fade. A table that fits shows
-   neither, so nothing suggests content that is not there. */
-.dt--fade-start::before,
-.dt--fade-end::after {
+/* Only while something is actually hidden under the column. */
+.dt--cut-end .dt__cutline {
   opacity: 1;
+}
+/* Hovering or focusing the END tongue lights the cut it moves towards. The state is per
+   side, not on the host: one shared flag lit the right-hand cut while the reader pointed
+   at the LEFT tongue, marking the opposite edge from the one they were about to move to.
+   The start side has no rule of its own, so its tongue's own colour is its feedback. */
+.dt--cut-hot .dt__cutline {
+  background: var(--color-primary);
+  box-shadow: var(--shadow-cut-strong);
+}
+
+/* THE TONGUES — the sideways scroll control for a reader with a plain mouse. Flush to
+   the edge and clear of the cells, so they cover no data. */
+.dt__tongue {
+  position: absolute;
+  top: var(--cue-top, 50%);
+  transform: translateY(-50%);
+  width: 18px;
+  height: 54px;
+  z-index: 4;
+  display: grid;
+  place-items: center;
+  padding: 0;
+  cursor: pointer;
+  background: var(--color-surface-sunken);
+  color: var(--color-text-muted);
+  border: var(--border-width) solid var(--color-border);
+  box-shadow: var(--shadow-sm);
+  opacity: 0;
+  pointer-events: none;
+  transition:
+    opacity var(--motion-base, 200ms) var(--ease-standard, ease),
+    background var(--motion-fast, 120ms) var(--ease-standard, ease),
+    color var(--motion-fast, 120ms) var(--ease-standard, ease),
+    border-color var(--motion-fast, 120ms) var(--ease-standard, ease);
+}
+/* The width is FIXED on hover on purpose. This is a repeat-click target: a button that
+   grows under the cursor moves its own edge away mid-click, and the second press lands
+   on the table. Colour carries the hover state instead. */
+.dt__tongue:hover,
+.dt__tongue--held {
+  background: var(--color-primary);
+  color: var(--color-on-primary);
+  border-color: var(--color-primary);
+}
+.dt__tongue:focus-visible {
+  outline: 2px solid var(--color-focus-ring, var(--color-primary));
+  outline-offset: 2px;
+}
+.dt__tongue svg {
+  width: 13px;
+  height: 13px;
+  display: block;
+}
+/* Rounded on the INNER side only: the outer side is flush with the box edge (or with the
+   pinned column), so a radius there would leave a gap the background shows through. */
+.dt__tongue--end {
+  right: var(--cue-right, 0px);
+  border-right: 0;
+  border-radius: var(--radius-md) 0 0 var(--radius-md);
+}
+.dt__tongue--start {
+  left: 0;
+  border-left: 0;
+  border-radius: 0 var(--radius-md) var(--radius-md) 0;
+}
+.dt--cut-end .dt__tongue--end,
+.dt--cut-start .dt__tongue--start {
+  opacity: 1;
+  pointer-events: auto;
+}
+/* Stacked cards do not scroll sideways, so there is nothing for a tongue to scroll. */
+@media (max-width: 768px) {
+  .dt__cutline,
+  .dt__tongue {
+    display: none;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .dt__cutline,
+  .dt__tongue {
+    transition: none;
+  }
 }
 
 /* A sortable header is a button, so it needs the header's own typography back. */
