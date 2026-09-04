@@ -1059,4 +1059,135 @@ describe('DataTableComponent', () => {
       expect(end).toHaveAttribute('aria-label', right);
     });
   });
+  /**
+   * The scroller outlives the table inside it. An empty result therefore leaves a box
+   * with nothing wider than itself, the browser clamps `scrollLeft` to 0, and the
+   * columns the reader had scrolled to were gone when the rows came back.
+   */
+  describe('keeping the sideways position across a redraw', () => {
+    const fixProp = (el: Element, prop: string, value: number): void => {
+      Object.defineProperty(el, prop, { value, configurable: true });
+    };
+
+    /** Run the queued frame callbacks, so the restore does not need a real frame. */
+    const flushFrame = (): void => {
+      const queued = frames.splice(0, frames.length);
+      for (const cb of queued) cb(0);
+    };
+    let frames: FrameRequestCallback[] = [];
+    let realRaf: typeof requestAnimationFrame;
+
+    beforeEach(() => {
+      frames = [];
+      realRaf = window.requestAnimationFrame;
+      window.requestAnimationFrame = ((cb: FrameRequestCallback) => {
+        frames.push(cb);
+        return frames.length;
+      }) as typeof requestAnimationFrame;
+    });
+
+    afterEach(() => {
+      window.requestAnimationFrame = realRaf;
+    });
+
+    interface Harness {
+      scroll: HTMLElement;
+      setRows: (rows: readonly unknown[]) => Promise<void>;
+      wide: () => void;
+      collapsed: () => void;
+    }
+
+    const harness = async (): Promise<Harness> => {
+      const { container, fixture, rerender } = await render(
+        `<app-data-table [columns]="cols" [rows]="rows" />`,
+        { imports: [DataTableComponent], componentProperties: { cols: COLS, rows: ROWS } },
+      );
+      const scroll = container.querySelector('.dt__scroll') as HTMLElement;
+      const wide = (): void => {
+        fixProp(scroll, 'scrollWidth', 1200);
+        fixProp(scroll, 'clientWidth', 600);
+      };
+      // What an empty result leaves behind: no table, so nothing wider than the box.
+      const collapsed = (): void => {
+        fixProp(scroll, 'scrollWidth', 600);
+        fixProp(scroll, 'clientWidth', 600);
+        scroll.scrollLeft = 0;
+      };
+      const setRows = async (rows: readonly unknown[]): Promise<void> => {
+        await rerender({ componentProperties: { cols: COLS, rows } });
+        fixture.detectChanges();
+      };
+      return { scroll, setRows, wide, collapsed };
+    };
+
+    it('puts the reader back where they were when the rows return', async () => {
+      const h = await harness();
+      h.wide();
+      h.scroll.scrollLeft = 300;
+      h.scroll.dispatchEvent(new Event('scroll'));
+
+      await h.setRows([]);
+      h.collapsed();
+      expect(h.scroll.scrollLeft).toBe(0);
+
+      await h.setRows(ROWS);
+      h.wide();
+      flushFrame();
+
+      expect(h.scroll.scrollLeft).toBe(300);
+    });
+
+    it('does not overwrite the kept position with the clamp that empties the box', async () => {
+      const h = await harness();
+      h.wide();
+      h.scroll.scrollLeft = 300;
+      h.scroll.dispatchEvent(new Event('scroll'));
+
+      // The clamp arrives as an ordinary scroll event. Recording it would lose the 300.
+      h.collapsed();
+      h.scroll.dispatchEvent(new Event('scroll'));
+
+      await h.setRows([]);
+      await h.setRows(ROWS);
+      h.wide();
+      flushFrame();
+
+      expect(h.scroll.scrollLeft).toBe(300);
+    });
+
+    it('leaves a reader alone who has scrolled somewhere themselves', async () => {
+      const h = await harness();
+      h.wide();
+      h.scroll.scrollLeft = 300;
+      h.scroll.dispatchEvent(new Event('scroll'));
+
+      await h.setRows([]);
+      await h.setRows(ROWS);
+      h.wide();
+      // They moved before the frame ran. That position wins.
+      h.scroll.scrollLeft = 120;
+      flushFrame();
+
+      expect(h.scroll.scrollLeft).toBe(120);
+    });
+
+    it('caps the restored position at what there is to scroll', async () => {
+      const h = await harness();
+      h.wide();
+      h.scroll.scrollLeft = 500;
+      h.scroll.dispatchEvent(new Event('scroll'));
+
+      await h.setRows([]);
+      // jsdom keeps whatever number you assign, so the clamp a real browser performs
+      // has to be spelled out here.
+      h.collapsed();
+      await h.setRows(ROWS);
+      // Fewer columns came back, so there is less to scroll than before.
+      fixProp(h.scroll, 'scrollWidth', 800);
+      fixProp(h.scroll, 'clientWidth', 600);
+      flushFrame();
+
+      expect(h.scroll.scrollLeft).toBe(200);
+    });
+  });
 });
