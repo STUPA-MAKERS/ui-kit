@@ -1,6 +1,7 @@
 import { NgTemplateOutlet } from '@angular/common';
 import {
   type AfterContentInit,
+  type AfterViewChecked,
   type AfterViewInit,
   ChangeDetectionStrategy,
   Component,
@@ -126,7 +127,9 @@ const EDGE_SLACK = 1;
   templateUrl: './data-table.component.html',
   styleUrl: './data-table.component.scss',
 })
-export class DataTableComponent implements AfterContentInit, AfterViewInit, OnDestroy {
+export class DataTableComponent
+  implements AfterContentInit, AfterViewInit, AfterViewChecked, OnDestroy
+{
   @Input() columns: ColumnDef[] = [];
   @Input() rows: readonly unknown[] = [];
   @Input() emptyText = '—';
@@ -213,6 +216,23 @@ export class DataTableComponent implements AfterContentInit, AfterViewInit, OnDe
   private holdTimer?: ReturnType<typeof setTimeout>;
   private holdTick?: ReturnType<typeof setInterval>;
   private readonly teardown: (() => void)[] = [];
+
+  /**
+   * How far the reader had scrolled sideways, kept across a redraw of the rows.
+   *
+   * `.dt__scroll` survives an empty result, but the table inside it does not. With no
+   * table the content is no wider than the box, so the browser clamps `scrollLeft` to
+   * 0 — and a sort or a filter that briefly empties the list therefore threw away the
+   * columns the reader had scrolled to.
+   *
+   * Only written while the content really is wider than the box. Otherwise the clamp
+   * that comes with the empty state would overwrite this with the 0 it just caused.
+   */
+  private keptScrollLeft = 0;
+  /** True between the rows coming back and the scroll position being put back. */
+  private restorePending = false;
+  /** Whether the table was in the DOM at the previous check. */
+  private wasRendering = false;
 
   ngAfterContentInit(): void {
     const build = (): void => {
@@ -417,6 +437,36 @@ export class DataTableComponent implements AfterContentInit, AfterViewInit, OnDe
     box.style.setProperty('--cue-right', `${cueRight}px`);
     box.style.setProperty('--cue-top', `${Math.round(this.visibleCentre(scroll))}px`);
     box.style.setProperty('--cut-bottom', `${this.gutter(scroll)}px`);
+
+    // Remember the position only while there is somewhere to scroll. An empty result
+    // leaves the box with nothing wider than itself, and the clamp to 0 that follows
+    // arrives here as an ordinary scroll event.
+    if (scroll.scrollWidth - scroll.clientWidth > EDGE_SLACK) {
+      this.keptScrollLeft = scroll.scrollLeft;
+    }
+  }
+
+  /**
+   * Put the reader back where they were, once the rows are on screen again.
+   *
+   * Runs a frame later and outside Angular: the width to scroll within only exists
+   * after layout, and writing the cue signals straight out of a lifecycle hook would
+   * report a value that changed after it was checked.
+   */
+  private restoreScroll(): void {
+    this.zone.runOutsideAngular(() => {
+      requestAnimationFrame(() => {
+        const scroll = this.scroller?.nativeElement;
+        if (!scroll) return;
+        const max = scroll.scrollWidth - scroll.clientWidth;
+        // Never move a reader who is already somewhere: only a position the browser
+        // clamped away is worth putting back.
+        if (max > EDGE_SLACK && this.keptScrollLeft > 0 && scroll.scrollLeft === 0) {
+          scroll.scrollLeft = Math.min(this.keptScrollLeft, max);
+        }
+        this.onScroll();
+      });
+    });
   }
 
   /** One step sideways. Instant where the reader asked for less motion. */
@@ -483,6 +533,23 @@ export class DataTableComponent implements AfterContentInit, AfterViewInit, OnDe
         this.teardown.push(() => ro.disconnect());
       }
     });
+  }
+
+  /**
+   * Watch the table come and go.
+   *
+   * The template draws it under `loading || rows.length`, so an empty result takes it
+   * out of the DOM and puts it back when rows return. Cheap enough to sit in a
+   * per-check hook: one boolean, and work only on the edge where it changes.
+   */
+  ngAfterViewChecked(): void {
+    const rendering = this.loading || this.rows.length > 0;
+    if (rendering && !this.wasRendering) this.restorePending = true;
+    this.wasRendering = rendering;
+    if (this.restorePending) {
+      this.restorePending = false;
+      this.restoreScroll();
+    }
   }
 
   ngOnDestroy(): void {
