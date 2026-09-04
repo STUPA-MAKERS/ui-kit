@@ -1059,17 +1059,11 @@ describe('DataTableComponent', () => {
       expect(end).toHaveAttribute('aria-label', right);
     });
   });
-  /**
-   * The scroller outlives the table inside it. An empty result therefore leaves a box
-   * with nothing wider than itself, the browser clamps `scrollLeft` to 0, and the
-   * columns the reader had scrolled to were gone when the rows came back.
-   */
   describe('keeping the sideways position across a redraw', () => {
     const fixProp = (el: Element, prop: string, value: number): void => {
       Object.defineProperty(el, prop, { value, configurable: true });
     };
 
-    /** Run the queued frame callbacks, so the restore does not need a real frame. */
     const flushFrame = (): void => {
       const queued = frames.splice(0, frames.length);
       for (const cb of queued) cb(0);
@@ -1107,7 +1101,6 @@ describe('DataTableComponent', () => {
         fixProp(scroll, 'scrollWidth', 1200);
         fixProp(scroll, 'clientWidth', 600);
       };
-      // What an empty result leaves behind: no table, so nothing wider than the box.
       const collapsed = (): void => {
         fixProp(scroll, 'scrollWidth', 600);
         fixProp(scroll, 'clientWidth', 600);
@@ -1143,7 +1136,6 @@ describe('DataTableComponent', () => {
       h.scroll.scrollLeft = 300;
       h.scroll.dispatchEvent(new Event('scroll'));
 
-      // The clamp arrives as an ordinary scroll event. Recording it would lose the 300.
       h.collapsed();
       h.scroll.dispatchEvent(new Event('scroll'));
 
@@ -1164,7 +1156,6 @@ describe('DataTableComponent', () => {
       await h.setRows([]);
       await h.setRows(ROWS);
       h.wide();
-      // They moved before the frame ran. That position wins.
       h.scroll.scrollLeft = 120;
       flushFrame();
 
@@ -1178,8 +1169,7 @@ describe('DataTableComponent', () => {
       h.scroll.dispatchEvent(new Event('scroll'));
 
       await h.setRows([]);
-      // jsdom keeps whatever number you assign, so the clamp a real browser performs
-      // has to be spelled out here.
+      // jsdom does not clamp scrollLeft; spell the clamp out.
       h.collapsed();
       await h.setRows(ROWS);
       // Fewer columns came back, so there is less to scroll than before.
@@ -1188,6 +1178,116 @@ describe('DataTableComponent', () => {
       flushFrame();
 
       expect(h.scroll.scrollLeft).toBe(200);
+    });
+  });
+  describe('anchoring the sideways position to a column', () => {
+    const fixProp = (el: Element, prop: string, value: number): void => {
+      Object.defineProperty(el, prop, { value, configurable: true });
+    };
+    let frames: FrameRequestCallback[] = [];
+    let realRaf: typeof requestAnimationFrame;
+
+    beforeEach(() => {
+      frames = [];
+      realRaf = window.requestAnimationFrame;
+      window.requestAnimationFrame = ((cb: FrameRequestCallback) => {
+        frames.push(cb);
+        return frames.length;
+      }) as typeof requestAnimationFrame;
+    });
+    afterEach(() => {
+      window.requestAnimationFrame = realRaf;
+    });
+    const flushFrame = (): void => {
+      const queued = frames.splice(0, frames.length);
+      for (const cb of queued) cb(0);
+    };
+
+    const place = (scroll: HTMLElement, heads: [number, number][]): void => {
+      (scroll as HTMLElement).getBoundingClientRect = () =>
+        ({ left: 0, right: 600, top: 0, bottom: 115, width: 600, height: 115, x: 0, y: 0 }) as DOMRect;
+      const cells = Array.from(scroll.querySelectorAll('thead th'));
+      heads.forEach(([l, r], i) => {
+        if (!cells[i]) return;
+        (cells[i] as HTMLElement).getBoundingClientRect = () =>
+          ({ left: l, right: r, top: 0, bottom: 40, width: r - l, height: 40, x: l, y: 0 }) as DOMRect;
+      });
+    };
+
+    it('follows the anchored column when the widths change under it', async () => {
+      const { container, fixture, rerender } = await render(
+        `<app-data-table [columns]="cols" [rows]="rows" />`,
+        { imports: [DataTableComponent], componentProperties: { cols: COLS, rows: ROWS } },
+      );
+      const scroll = container.querySelector('.dt__scroll') as HTMLElement;
+      fixProp(scroll, 'scrollWidth', 1400);
+      fixProp(scroll, 'clientWidth', 600);
+      scroll.scrollLeft = 300;
+
+      // Column 1 is cut by 100.
+      place(scroll, [
+        [-400, -100],
+        [-100, 500],
+        [500, 900],
+      ]);
+      scroll.dispatchEvent(new Event('scroll'));
+
+      await rerender({ componentProperties: { cols: COLS, rows: [ROWS[0]] } });
+      fixture.detectChanges();
+
+      // Narrower content: every column moved right by 60.
+      place(scroll, [
+        [-340, -40],
+        [-40, 560],
+        [560, 960],
+      ]);
+      flushFrame();
+
+      expect(scroll.scrollLeft).toBe(360);
+    });
+
+    it('leaves the position alone when nothing shifted', async () => {
+      const { container, fixture, rerender } = await render(
+        `<app-data-table [columns]="cols" [rows]="rows" />`,
+        { imports: [DataTableComponent], componentProperties: { cols: COLS, rows: ROWS } },
+      );
+      const scroll = container.querySelector('.dt__scroll') as HTMLElement;
+      fixProp(scroll, 'scrollWidth', 1400);
+      fixProp(scroll, 'clientWidth', 600);
+      scroll.scrollLeft = 300;
+      place(scroll, [
+        [-400, -100],
+        [-100, 500],
+        [500, 900],
+      ]);
+      scroll.dispatchEvent(new Event('scroll'));
+
+      await rerender({ componentProperties: { cols: COLS, rows: [ROWS[0]] } });
+      fixture.detectChanges();
+      flushFrame();
+
+      expect(scroll.scrollLeft).toBe(300);
+    });
+
+    it('does not drag a reader who is at the start back to where they were', async () => {
+      const { container, fixture, rerender } = await render(
+        `<app-data-table [columns]="cols" [rows]="rows" />`,
+        { imports: [DataTableComponent], componentProperties: { cols: COLS, rows: ROWS } },
+      );
+      const scroll = container.querySelector('.dt__scroll') as HTMLElement;
+      fixProp(scroll, 'scrollWidth', 1400);
+      fixProp(scroll, 'clientWidth', 600);
+
+      scroll.scrollLeft = 300;
+      scroll.dispatchEvent(new Event('scroll'));
+      scroll.scrollLeft = 0;
+      scroll.dispatchEvent(new Event('scroll'));
+
+      await rerender({ componentProperties: { cols: COLS, rows: [ROWS[0]] } });
+      fixture.detectChanges();
+      flushFrame();
+
+      expect(scroll.scrollLeft).toBe(0);
     });
   });
 });
