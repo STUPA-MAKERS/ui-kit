@@ -152,8 +152,12 @@
 .dt__sort:focus-visible .dt__sort-icon {
   opacity: 1;
 }
+/* `--color-focus-ring` is the token that exists. `--color-focus` never did, which made
+   this whole declaration invalid at computed-value time — so `outline-style` fell back to
+   `none` and OVERRODE the browser's own ring. A sortable header is a button, and it had
+   no visible focus at all. */
 .dt__sort:focus-visible {
-  outline: 2px solid var(--color-focus);
+  outline: 2px solid var(--color-focus-ring);
   outline-offset: 2px;
 }
 /* The inactive arrows stay faint: they mark the column as sortable without competing
