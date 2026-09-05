@@ -369,9 +369,15 @@ export class DataTableComponent
     return this.columns.some((c) => c.sticky === 'end');
   }
 
-  /** Width of the pinned column, which is how far the cut sits in from the edge. */
+  /** Width of the trailing pinned column: how far the cut sits in from the edge. */
   private stickyWidth(scroll: HTMLElement): number {
-    const th = scroll.querySelector('thead .dt__cell--sticky');
+    const th = scroll.querySelector('thead .dt__cell--stickyEnd');
+    return th ? Math.round(th.getBoundingClientRect().width) : 0;
+  }
+
+  /** Width of the leading pinned column, if the table has one. */
+  private stickyStartWidth(scroll: HTMLElement): number {
+    const th = scroll.querySelector('thead .dt__cell--stickyStart');
     return th ? Math.round(th.getBoundingClientRect().width) : 0;
   }
 
@@ -389,15 +395,22 @@ export class DataTableComponent
    */
   private occluded(scroll: HTMLElement, cut: number): { start: boolean; end: boolean } {
     const rect = scroll.getBoundingClientRect();
+    const startEdge = rect.left + this.stickyStartWidth(scroll);
     let firstLeft = Number.POSITIVE_INFINITY;
     let lastRight = Number.NEGATIVE_INFINITY;
     for (const cell of Array.from(scroll.querySelectorAll('thead th'))) {
-      if (cell.classList.contains('dt__cell--sticky')) continue;
+      // A pinned cell never leaves the box, so it can never say something is hidden.
+      if (
+        cell.classList.contains('dt__cell--stickyEnd') ||
+        cell.classList.contains('dt__cell--stickyStart')
+      ) {
+        continue;
+      }
       const r = cell.getBoundingClientRect();
       if (r.left < firstLeft) firstLeft = r.left;
       if (r.right > lastRight) lastRight = r.right;
     }
-    return { start: firstLeft < rect.left - EDGE_SLACK, end: lastRight > cut + EDGE_SLACK };
+    return { start: firstLeft < startEdge - EDGE_SLACK, end: lastRight > cut + EDGE_SLACK };
   }
 
   /**
@@ -447,6 +460,7 @@ export class DataTableComponent
     this.hiddenEnd.set(edges.end);
 
     box.style.setProperty('--cue-right', `${cueRight}px`);
+    box.style.setProperty('--cue-left', `${this.stickyStartWidth(scroll)}px`);
     box.style.setProperty('--cue-top', `${Math.round(this.visibleCentre(scroll))}px`);
     box.style.setProperty('--cut-bottom', `${this.gutter(scroll)}px`);
 
@@ -462,9 +476,11 @@ export class DataTableComponent
       this.anchor = null;
       return;
     }
-    const edge = scroll.getBoundingClientRect().left;
+    const edge = scroll.getBoundingClientRect().left + this.stickyStartWidth(scroll);
     const cells = scroll.querySelectorAll('thead th');
     for (let i = 0; i < cells.length; i++) {
+      // The leading pin sits at that edge by definition; anchoring to it never moves.
+      if (cells[i].classList.contains('dt__cell--stickyStart')) continue;
       const box = cells[i].getBoundingClientRect();
       if (box.right > edge + EDGE_SLACK) {
         this.anchor = { index: i, cut: Math.round(edge - box.left) };
@@ -488,7 +504,7 @@ export class DataTableComponent
           const cells = scroll.querySelectorAll('thead th');
           const cell = this.anchor ? cells[this.anchor.index] : undefined;
           if (cell && this.anchor) {
-            const edge = scroll.getBoundingClientRect().left;
+            const edge = scroll.getBoundingClientRect().left + this.stickyStartWidth(scroll);
             const drift = cell.getBoundingClientRect().left - (edge - this.anchor.cut);
             const target = scroll.scrollLeft + drift;
             scroll.scrollLeft = Math.max(0, Math.min(target, max));

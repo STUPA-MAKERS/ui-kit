@@ -410,13 +410,13 @@ describe('DataTableComponent', () => {
         componentProperties: { cols: STICKY, rows: ROWS },
       });
       const [plainHead, stickyHead] = Array.from(container.querySelectorAll('th'));
-      expect(stickyHead).toHaveClass('dt__cell--sticky');
-      expect(plainHead).not.toHaveClass('dt__cell--sticky');
+      expect(stickyHead).toHaveClass('dt__cell--stickyEnd');
+      expect(plainHead).not.toHaveClass('dt__cell--stickyEnd');
       // Every body row pins the same column, or the strip would break mid-table.
       for (const row of Array.from(container.querySelectorAll('tbody tr'))) {
         const cells = Array.from(row.querySelectorAll('td'));
-        expect(cells[1]).toHaveClass('dt__cell--sticky');
-        expect(cells[0]).not.toHaveClass('dt__cell--sticky');
+        expect(cells[1]).toHaveClass('dt__cell--stickyEnd');
+        expect(cells[0]).not.toHaveClass('dt__cell--stickyEnd');
       }
     });
 
@@ -426,7 +426,7 @@ describe('DataTableComponent', () => {
         { imports: [DataTableComponent], componentProperties: { cols: STICKY, rows: [] } },
       );
       const cells = Array.from(container.querySelectorAll('.dt__skeleton-row td'));
-      expect(cells[1]).toHaveClass('dt__cell--sticky');
+      expect(cells[1]).toHaveClass('dt__cell--stickyEnd');
     });
 
     it('pins nothing when no column asks for it', async () => {
@@ -434,7 +434,7 @@ describe('DataTableComponent', () => {
         imports: [DataTableComponent],
         componentProperties: { cols: COLS, rows: ROWS },
       });
-      expect(container.querySelector('.dt__cell--sticky')).toBeNull();
+      expect(container.querySelector('.dt__cell--stickyEnd')).toBeNull();
     });
   });
 
@@ -1288,6 +1288,133 @@ describe('DataTableComponent', () => {
       flushFrame();
 
       expect(scroll.scrollLeft).toBe(0);
+    });
+  });
+  /**
+   * Selection pins a column to the LEADING edge. Four measurements assumed a single,
+   * trailing pin, and each would read the wrong cell with two of them.
+   */
+  describe('a pinned selection column', () => {
+    const fixProp = (el: Element, prop: string, value: number): void => {
+      Object.defineProperty(el, prop, { value, configurable: true });
+    };
+
+    /** Place the scroller and its header cells in page coordinates. */
+    const place = (scroll: HTMLElement, heads: [number, number][]): void => {
+      scroll.getBoundingClientRect = () =>
+        ({ left: 0, right: 600, top: 0, bottom: 115, width: 600, height: 115, x: 0, y: 0 }) as DOMRect;
+      const cells = Array.from(scroll.querySelectorAll('thead th'));
+      heads.forEach(([l, r], i) => {
+        if (!cells[i]) return;
+        (cells[i] as HTMLElement).getBoundingClientRect = () =>
+          ({ left: l, right: r, top: 0, bottom: 40, width: r - l, height: 40, x: l, y: 0 }) as DOMRect;
+      });
+    };
+
+    const SEL_COLS: ColumnDef[] = [
+      { key: 'name', label: 'Name' },
+      { key: 'status', label: 'Status' },
+      { key: 'actions', label: 'Aktionen', sticky: 'end' },
+    ];
+
+    it('marks the selection cell as pinned to the start, in every row kind', async () => {
+      const { container } = await render(
+        `<app-data-table [columns]="cols" [rows]="rows" [selectable]="true" />`,
+        { imports: [DataTableComponent], componentProperties: { cols: SEL_COLS, rows: ROWS } },
+      );
+      const head = container.querySelector('thead .dt__selectCell') as HTMLElement;
+      const body = container.querySelector('tbody .dt__selectCell') as HTMLElement;
+      expect(head).toHaveClass('dt__cell--stickyStart');
+      expect(body).toHaveClass('dt__cell--stickyStart');
+      // The two edges stay distinguishable: neither pin carries the other's class.
+      expect(head).not.toHaveClass('dt__cell--stickyEnd');
+      const actions = container.querySelector('thead .dt__cell--stickyEnd') as HTMLElement;
+      expect(actions).not.toHaveClass('dt__cell--stickyStart');
+    });
+
+    it('measures the cut from the END pin, not from whichever pin comes first', async () => {
+      const { container, fixture } = await render(
+        `<app-data-table [columns]="cols" [rows]="rows" [selectable]="true" />`,
+        { imports: [DataTableComponent], componentProperties: { cols: SEL_COLS, rows: ROWS } },
+      );
+      const scroll = container.querySelector('.dt__scroll') as HTMLElement;
+      fixProp(scroll, 'offsetHeight', 115);
+      fixProp(scroll, 'clientHeight', 100);
+      // select(48) | name | status | actions(100). The actions column is the cut.
+      place(scroll, [
+        [0, 48],
+        [48, 700],
+        [700, 1200],
+        [500, 600],
+      ]);
+      scroll.dispatchEvent(new Event('scroll'));
+      fixture.detectChanges();
+
+      const box = container.querySelector('.dt') as HTMLElement;
+      // 100 = the trailing pin's width. 48 would mean it measured the leading one.
+      expect(box.style.getPropertyValue('--cue-right')).toBe('100px');
+      expect(box.style.getPropertyValue('--cue-left')).toBe('48px');
+    });
+
+    it('shows the start tongue once a column hides behind the leading pin', async () => {
+      const { container, fixture } = await render(
+        `<app-data-table [columns]="cols" [rows]="rows" [selectable]="true" />`,
+        { imports: [DataTableComponent], componentProperties: { cols: SEL_COLS, rows: ROWS } },
+      );
+      const scroll = container.querySelector('.dt__scroll') as HTMLElement;
+      fixProp(scroll, 'offsetHeight', 115);
+      fixProp(scroll, 'clientHeight', 100);
+      const box = container.querySelector('.dt') as HTMLElement;
+
+      // `name` starts at 48: flush with the pin's inner edge, so nothing is hidden yet.
+      place(scroll, [
+        [0, 48],
+        [48, 700],
+        [700, 1200],
+        [500, 600],
+      ]);
+      scroll.dispatchEvent(new Event('scroll'));
+      fixture.detectChanges();
+      expect(box).not.toHaveClass('dt--cut-start');
+
+      // Scrolled on: `name` now runs under the pin.
+      place(scroll, [
+        [0, 48],
+        [-200, 450],
+        [450, 950],
+        [500, 600],
+      ]);
+      scroll.dispatchEvent(new Event('scroll'));
+      fixture.detectChanges();
+      expect(box).toHaveClass('dt--cut-start');
+    });
+
+    it('still works with a leading pin and no trailing one', async () => {
+      const noActions: ColumnDef[] = [
+        { key: 'name', label: 'Name' },
+        { key: 'status', label: 'Status' },
+      ];
+      const { container, fixture } = await render(
+        `<app-data-table [columns]="cols" [rows]="rows" [selectable]="true" />`,
+        { imports: [DataTableComponent], componentProperties: { cols: noActions, rows: ROWS } },
+      );
+      const scroll = container.querySelector('.dt__scroll') as HTMLElement;
+      fixProp(scroll, 'offsetHeight', 115);
+      fixProp(scroll, 'clientHeight', 100);
+      place(scroll, [
+        [0, 48],
+        [48, 700],
+        [700, 1200],
+      ]);
+      scroll.dispatchEvent(new Event('scroll'));
+      fixture.detectChanges();
+
+      const box = container.querySelector('.dt') as HTMLElement;
+      // No trailing pin: the cut sits at the box edge, and there is no cut line.
+      expect(box.style.getPropertyValue('--cue-right')).toBe('0px');
+      expect(box.style.getPropertyValue('--cue-left')).toBe('48px');
+      expect(box).toHaveClass('dt--cut-end');
+      expect(container.querySelector('.dt__cutline')).toBeNull();
     });
   });
 });
