@@ -111,7 +111,7 @@
   border-radius: var(--radius-md) 0 0 var(--radius-md);
 }
 .dt__tongue--start {
-  left: 0;
+  left: var(--cue-left, 0px);
   border-left: 0;
   border-radius: 0 var(--radius-md) var(--radius-md) 0;
 }
@@ -254,16 +254,27 @@
    own background: the cell would otherwise be transparent and the scrolling content
    would show through it. The leading border marks it as a separate strip rather than
    a cell that happens to sit last. */
-.dt__cell--sticky {
+/* Two pinned edges. The trailing one holds the row actions; the leading one holds the
+   selection checkbox, so a reader who scrolls a wide table sideways can still see which
+   rows they picked. Separate classes rather than one `--sticky`: the scroll cues measure
+   these cells, and they have to tell the two edges apart. */
+.dt__cell--stickyEnd {
   position: sticky;
   right: 0;
   border-inline-start: var(--border-width) solid var(--color-border);
 }
-.dt__table td.dt__cell--sticky {
+.dt__cell--stickyStart {
+  position: sticky;
+  left: 0;
+  border-inline-end: var(--border-width) solid var(--color-border);
+}
+.dt__table td.dt__cell--stickyEnd,
+.dt__table td.dt__cell--stickyStart {
   background: var(--color-surface);
   z-index: 1;
 }
-.dt__table th.dt__cell--sticky {
+.dt__table th.dt__cell--stickyEnd,
+.dt__table th.dt__cell--stickyStart {
   /* Above the body cells, so a pinned header is not overlapped while scrolling. */
   z-index: 2;
 }
@@ -300,7 +311,8 @@
   font-weight: var(--fw-semibold);
   background: var(--color-surface);
 }
-.dt__table tfoot td.dt__cell--sticky {
+.dt__table tfoot td.dt__cell--stickyEnd,
+.dt__table tfoot td.dt__cell--stickyStart {
   background: var(--color-surface);
 }
 
@@ -314,9 +326,12 @@
 }
 /* The pinned cell sets its own opaque background, so it needs the hover colour
    restated. Without this the row darkens and the pinned strip stays light. */
-.dt__table tbody tr:hover td.dt__cell--sticky,
-.dt__row--clickable:focus-visible td.dt__cell--sticky,
-.dt__row--clickable:active td.dt__cell--sticky {
+.dt__table tbody tr:hover td.dt__cell--stickyEnd,
+.dt__table tbody tr:hover td.dt__cell--stickyStart,
+.dt__row--clickable:focus-visible td.dt__cell--stickyEnd,
+.dt__row--clickable:focus-visible td.dt__cell--stickyStart,
+.dt__row--clickable:active td.dt__cell--stickyEnd,
+.dt__row--clickable:active td.dt__cell--stickyStart {
   background: var(--color-surface-sunken);
 }
 .dt__detail-row > td {
@@ -467,9 +482,11 @@
   }
   /* Stacked cards do not scroll sideways, so a pinned column has nothing to pin to.
      It would only draw a stray border inside the card. */
-  .dt__cell--sticky {
+  .dt__cell--stickyEnd,
+  .dt__cell--stickyStart {
     position: static;
     border-inline-start: 0;
+    border-inline-end: 0;
   }
   /* The checkbox sits at the top of the card, not in a column of its own. It keeps the
      row axis, so `justify-content` still means "to the left" here. */

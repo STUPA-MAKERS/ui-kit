@@ -15,7 +15,7 @@
         <thead>
           <tr>
             @if (selectable) {
-              <th scope="col" class="dt__selectCell">
+              <th scope="col" class="dt__selectCell dt__cell--stickyStart">
                 <input
                   type="checkbox"
                   class="dt__check"
@@ -30,7 +30,7 @@
             @for (col of columns; track col.key) {
               <th
                 scope="col"
-                [class.dt__cell--sticky]="col.sticky === 'end'"
+                [class.dt__cell--stickyEnd]="col.sticky === 'end'"
                 [style.text-align]="col.align ?? 'start'"
                 [style.width]="col.width || null"
                 [style.minWidth]="col.width || null"
@@ -67,11 +67,11 @@
             @for (row of skeletonRows(); track row) {
               <tr class="dt__skeleton-row" aria-hidden="true">
                 @if (selectable) {
-                  <td class="dt__selectCell"><span class="dt__skeleton"></span></td>
+                  <td class="dt__selectCell dt__cell--stickyStart"><span class="dt__skeleton"></span></td>
                 }
                 @for (col of columns; track col.key) {
                   <td
-                    [class.dt__cell--sticky]="col.sticky === 'end'"
+                    [class.dt__cell--stickyEnd]="col.sticky === 'end'"
                     [style.text-align]="col.align ?? 'start'"
                     [attr.data-label]="col.label"
                     [attr.data-card]="col.card ?? null"
@@ -92,7 +92,7 @@
                 (keydown.enter)="onRow(row)"
               >
                 @if (selectable) {
-                  <td class="dt__selectCell">
+                  <td class="dt__selectCell dt__cell--stickyStart">
                     <!-- `click.stop`: a selectable table is often also clickable, and a
                          checkbox that also opened the row would make the two impossible
                          to tell apart. -->
@@ -108,7 +108,7 @@
                 }
                 @for (col of columns; track col.key) {
                   <td
-                    [class.dt__cell--sticky]="col.sticky === 'end'"
+                    [class.dt__cell--stickyEnd]="col.sticky === 'end'"
                     [style.text-align]="col.align ?? 'start'"
                     [attr.data-label]="col.label"
                     [attr.data-card]="col.card ?? null"
@@ -131,11 +131,11 @@
               @for (kid of childrenFor(row); track trackRow(kid, $index)) {
                 <tr class="dt__childRow" [class]="classFor(kid, true)">
                   @if (selectable) {
-                    <td class="dt__selectCell"></td>
+                    <td class="dt__selectCell dt__cell--stickyStart"></td>
                   }
                   @for (col of columns; track col.key) {
                     <td
-                      [class.dt__cell--sticky]="col.sticky === 'end'"
+                      [class.dt__cell--stickyEnd]="col.sticky === 'end'"
                       [style.text-align]="col.align ?? 'start'"
                       [attr.data-label]="col.label"
                       [attr.data-card]="col.card ?? null"
@@ -173,11 +173,11 @@
           <tfoot>
             <tr>
               @if (selectable) {
-                <td class="dt__selectCell"></td>
+                <td class="dt__selectCell dt__cell--stickyStart"></td>
               }
               @for (col of columns; track col.key) {
                 <td
-                  [class.dt__cell--sticky]="col.sticky === 'end'"
+                  [class.dt__cell--stickyEnd]="col.sticky === 'end'"
                   [style.text-align]="col.align ?? 'start'"
                   [attr.data-label]="col.label"
                   [attr.data-card]="col.card ?? null"
