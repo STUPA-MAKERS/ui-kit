@@ -492,17 +492,24 @@
   .dt__detail-row {
     padding: 0;
   }
-  /* Stacked cards do not scroll sideways, so a pinned column has nothing to pin to.
-     It would only draw a stray border inside the card.
+  /* Stacked cards do not scroll sideways, so nothing here is pinned and every part of
+     the pin has to come off: the border, and — the one that shows — the opaque
+     background and stacking. A pinned cell paints its own background so the scrolling
+     content cannot be seen through it; in a card the selection cell is a full-width
+     absolute box in the corner, so that background became a band across the heading's
+     first line.
 
-     `position` is NOT reset for the selection cell: the card layout above puts it in the
-     card's corner absolutely, and setting it back to static dropped the checkbox into the
-     flow, on top of the heading. Only the borders come off. */
+     `position` stays alone: the card layout places the selection cell deliberately, and
+     resetting it dropped the checkbox into the flow. */
   .dt__cell--stickyEnd {
     position: static;
   }
+  .dt__table td.dt__cell--stickyEnd,
+  .dt__table td.dt__cell--stickyStart,
   .dt__cell--stickyEnd,
   .dt__cell--stickyStart {
+    background: none;
+    z-index: auto;
     border-inline-start: 0;
     border-inline-end: 0;
   }
