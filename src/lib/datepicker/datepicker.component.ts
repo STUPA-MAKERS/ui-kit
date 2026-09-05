@@ -54,7 +54,7 @@ export class DatepickerComponent implements ControlValueAccessor {
   readonly disabled = signal(false);
 
   readonly placeholder = computed(() =>
-    this.intl.lang() === 'de' ? 'TT.MM.JJJJ' : 'MM/DD/YYYY',
+    this.intl.lang() === 'de' ? 'TT.MM.JJJJ' : 'DD/MM/YYYY',
   );
 
   private onChange: (value: string) => void = () => {};
@@ -121,16 +121,20 @@ export class DatepickerComponent implements ControlValueAccessor {
     const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(iso ?? '');
     if (!m) return '';
     const [, y, mo, d] = m;
-    return this.intl.lang() === 'de' ? `${d}.${mo}.${y}` : `${mo}/${d}/${y}`;
+    // Both languages are day-first; only the separator differs.
+    return this.intl.lang() === 'de' ? `${d}.${mo}.${y}` : `${d}/${mo}/${y}`;
   }
 
-  /** Locale-Text → ISO (oder `''`). Akzeptiert `. / -` als Trenner; 2-stellige Jahre → 20xx. */
+  /**
+   * Locale-Text → ISO (oder `''`). Akzeptiert `. / -` als Trenner; 2-stellige Jahre → 20xx.
+   *
+   * Day first in BOTH languages. The host renders EN dates as en-GB, so a table showing
+   * 04/09/2026 means 4 September; reading it back as 9 April changed the date silently.
+   */
   private parse(text: string): string {
     const parts = text.trim().split(/[./\-\s]+/).filter(Boolean);
     if (parts.length !== 3) return '';
-    const [a, b, y] = parts;
-    const day = this.intl.lang() === 'de' ? a : b;
-    const month = this.intl.lang() === 'de' ? b : a;
+    const [day, month, y] = parts;
     let yyyy = Number(y);
     const dd = Number(day);
     const mm = Number(month);
