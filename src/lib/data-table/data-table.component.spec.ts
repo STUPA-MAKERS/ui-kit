@@ -1410,11 +1410,45 @@ describe('DataTableComponent', () => {
       fixture.detectChanges();
 
       const box = container.querySelector('.dt') as HTMLElement;
-      // No trailing pin: the cut sits at the box edge, and there is no cut line.
+      // No trailing pin: that cut sits at the box edge and draws no rule. The leading
+      // pin has one of its own, because content passes under it.
       expect(box.style.getPropertyValue('--cue-right')).toBe('0px');
       expect(box.style.getPropertyValue('--cue-left')).toBe('48px');
       expect(box).toHaveClass('dt--cut-end');
-      expect(container.querySelector('.dt__cutline')).toBeNull();
+      expect(container.querySelector('.dt__cutline:not(.dt__cutline--start)')).toBeNull();
+      expect(container.querySelector('.dt__cutline--start')).not.toBeNull();
+    });
+
+    it('draws the start cut only once content runs under the selection column', async () => {
+      const { container, fixture } = await render(
+        `<app-data-table [columns]="cols" [rows]="rows" [selectable]="true" />`,
+        { imports: [DataTableComponent], componentProperties: { cols: SEL_COLS, rows: ROWS } },
+      );
+      const scroll = container.querySelector('.dt__scroll') as HTMLElement;
+      fixProp(scroll, 'offsetHeight', 115);
+      fixProp(scroll, 'clientHeight', 100);
+      const box = container.querySelector('.dt') as HTMLElement;
+
+      place(scroll, [
+        [0, 48],
+        [48, 700],
+        [700, 1200],
+        [500, 600],
+      ]);
+      scroll.dispatchEvent(new Event('scroll'));
+      fixture.detectChanges();
+      expect(box).not.toHaveClass('dt--cut-start');
+
+      place(scroll, [
+        [0, 48],
+        [-200, 450],
+        [450, 950],
+        [500, 600],
+      ]);
+      scroll.dispatchEvent(new Event('scroll'));
+      fixture.detectChanges();
+      expect(box).toHaveClass('dt--cut-start');
+      expect(container.querySelector('.dt__cutline--start')).not.toBeNull();
     });
   });
 });
