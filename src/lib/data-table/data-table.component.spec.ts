@@ -1450,5 +1450,30 @@ describe('DataTableComponent', () => {
       expect(box).toHaveClass('dt--cut-start');
       expect(container.querySelector('.dt__cutline--start')).not.toBeNull();
     });
+
+    it('places the cut on a fractional column edge, not on the rounded one', async () => {
+      const { container, fixture } = await render(
+        `<app-data-table [columns]="cols" [rows]="rows" [selectable]="true" />`,
+        { imports: [DataTableComponent], componentProperties: { cols: SEL_COLS, rows: ROWS } },
+      );
+      const scroll = container.querySelector('.dt__scroll') as HTMLElement;
+      fixProp(scroll, 'offsetHeight', 115);
+      fixProp(scroll, 'clientHeight', 100);
+      // Real columns measure fractionally: 45.5 and 206.5 came off a running table.
+      place(scroll, [
+        [0, 45.5],
+        [45.5, 700],
+        [700, 1200],
+        [393.5, 600],
+      ]);
+      scroll.dispatchEvent(new Event('scroll'));
+      fixture.detectChanges();
+
+      const box = container.querySelector('.dt') as HTMLElement;
+      // Rounding these to 46 and 207 left the cut half a pixel off the column it marks,
+      // and a sliver of scrolling content showed through the join.
+      expect(box.style.getPropertyValue('--cue-left')).toBe('45.5px');
+      expect(box.style.getPropertyValue('--cue-right')).toBe('206.5px');
+    });
   });
 });

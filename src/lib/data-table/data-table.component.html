@@ -8,6 +8,7 @@
   [class.dt--cut-start]="hiddenStart()"
   [class.dt--cut-end]="hiddenEnd()"
   [class.dt--cut-hot]="cutHot()"
+  [class.dt--cut-hot-start]="cutHotStart()"
 >
   <div #scroller class="dt__scroll" (scroll)="onScroll()">
     @if (loading || rows.length > 0) {
@@ -222,8 +223,12 @@
     [attr.aria-label]="'table.scrollStart' | uiKitT"
     (pointerdown)="onTonguePress($event, -1)"
     (pointerup)="stopHold()"
+    (mouseenter)="cutHotStart.set(true)"
+    (mouseleave)="cutHotStart.set(false)"
     (pointerleave)="stopHold()"
     (pointercancel)="stopHold()"
+    (focus)="cutHotStart.set(true)"
+    (blur)="cutHotStart.set(false)"
     (keydown)="onTongueKey($event, -1)"
   >
     <svg viewBox="0 0 16 16" fill="none" aria-hidden="true">
@@ -237,7 +242,6 @@
     </svg>
   </button>
 
-  <!-- Only the END tongue lights the cut, and only the end side has one to light. -->
   <button
     #endTongue
     type="button"
