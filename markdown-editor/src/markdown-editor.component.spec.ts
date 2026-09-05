@@ -71,12 +71,31 @@ describe('MarkdownEditorComponent', () => {
     expect(pm.getAttribute('contenteditable')).toBe('true');
   });
 
-  it('passes the placeholder to the editor element attributes', async () => {
+  it('marks the first line of an empty document with the placeholder', async () => {
     const { container } = await render(`<app-markdown-editor [placeholder]="'Schreib was…'" />`, {
       imports: [MarkdownEditorComponent],
     });
+    const first = editorEl(container).querySelector('p.is-editor-empty');
+    expect(first?.getAttribute('data-placeholder')).toBe('Schreib was…');
+  });
+
+  it('marks the empty last line of a document with content with the hint', async () => {
+    const { container } = await render(
+      `<app-markdown-editor [value]="'# Titel'" [placeholder]="'Leer'" [hint]="'Weiter …'" />`,
+      { imports: [MarkdownEditorComponent] },
+    );
     const pm = editorEl(container);
-    expect(pm.getAttribute('data-placeholder')).toBe('Schreib was…');
+    expect(pm.querySelector('p.is-editor-empty')).toBeNull();
+    const last = pm.querySelector('p.is-empty:last-child');
+    expect(last?.getAttribute('data-placeholder')).toBe('Weiter …');
+  });
+
+  it('shows no hint while the editor is read-only', async () => {
+    const { container } = await render(
+      `<app-markdown-editor [value]="'# Titel'" [hint]="'Weiter …'" [disabled]="true" />`,
+      { imports: [MarkdownEditorComponent] },
+    );
+    expect(editorEl(container).querySelector('p.is-empty')).toBeNull();
   });
 
   it('emits serialized markdown on user edits (onUpdate)', async () => {
