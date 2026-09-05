@@ -47,15 +47,24 @@
     background var(--motion-fast, 120ms) var(--ease-standard, ease),
     box-shadow var(--motion-fast, 120ms) var(--ease-standard, ease);
 }
-/* Only while something is actually hidden under the column. */
-.dt--cut-end .dt__cutline {
+/* Mirrored for the leading pin: the shadow falls the other way, over the content that
+   passes under the selection column. */
+.dt__cutline--start {
+  right: auto;
+  left: var(--cue-left, 0px);
+  box-shadow: var(--shadow-cut-start);
+}
+/* Only while something is actually hidden under the column. Each side answers for its
+   own pin, so a table scrolled to one end shows one rule and not two. */
+.dt--cut-end .dt__cutline:not(.dt__cutline--start),
+.dt--cut-start .dt__cutline--start {
   opacity: 1;
 }
 /* Hovering or focusing the END tongue lights the cut it moves towards. The state is per
    side, not on the host: one shared flag lit the right-hand cut while the reader pointed
    at the LEFT tongue, marking the opposite edge from the one they were about to move to.
    The start side has no rule of its own, so its tongue's own colour is its feedback. */
-.dt--cut-hot .dt__cutline {
+.dt--cut-hot .dt__cutline:not(.dt__cutline--start) {
   background: var(--color-primary);
   box-shadow: var(--shadow-cut-strong);
 }

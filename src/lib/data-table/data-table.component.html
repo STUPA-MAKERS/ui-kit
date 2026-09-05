@@ -196,12 +196,15 @@
     }
   </div>
 
-  <!-- The cut: where the scrolling content passes beneath the pinned column. A rule with
-       a short shadow thrown left, stopping above the scrollbar. Only a pinned column
-       makes a cut — at the table's own outer edge the box border is already the
-       boundary, and a second rule there would be noise. -->
+  <!-- The cuts: where the scrolling content passes beneath a pinned column. A rule with
+       a short shadow thrown away from the pin, stopping above the scrollbar. Only a
+       pinned column makes a cut — at the table's own outer edge the box border is
+       already the boundary, and a second rule there would be noise. -->
   @if (hasSticky) {
     <div class="dt__cutline" aria-hidden="true"></div>
+  }
+  @if (selectable) {
+    <div class="dt__cutline dt__cutline--start" aria-hidden="true"></div>
   }
 
   <!-- The tongues: the sideways scroll control for a reader with a plain mouse. Shift+
