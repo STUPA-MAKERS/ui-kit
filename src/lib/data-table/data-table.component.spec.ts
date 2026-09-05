@@ -1476,4 +1476,120 @@ describe('DataTableComponent', () => {
       expect(box.style.getPropertyValue('--cue-right')).toBe('206.5px');
     });
   });
+  describe('long press to select on touch', () => {
+    const PRESS = 500;
+
+    /** A row of a selectable, clickable table, with the emissions it produces. */
+    const touchTable = async (selected: Set<unknown> = new Set()) => {
+      const picked: Set<unknown>[] = [];
+      const opened: unknown[] = [];
+      const { container, fixture } = await render(
+        `<app-data-table [columns]="cols" [rows]="rows" [selectable]="true" [clickable]="true"
+                         [selected]="selected" [rowKey]="rowKey"
+                         (selectedChange)="onSelect($event)" (rowClick)="onOpen($event)" />`,
+        {
+          imports: [DataTableComponent],
+          componentProperties: {
+            cols: COLS,
+            rows: ROWS,
+            selected,
+            // Without this the table tracks by index, and the emitted keys are positions.
+            rowKey: (r: unknown) => (r as Row).id,
+            onSelect: (s: Set<unknown>) => picked.push(s),
+            onOpen: (r: unknown) => opened.push(r),
+          },
+        },
+      );
+      const row = container.querySelectorAll('tbody tr')[0] as HTMLElement;
+      // jsdom has no PointerEvent, so the fields the component reads are set by hand.
+      const pointer = (name: string, type: string, x: number, y: number): Event => {
+        const e = new Event(name, { bubbles: true }) as Event & {
+          pointerType: string;
+          clientX: number;
+          clientY: number;
+        };
+        Object.assign(e, { pointerType: type, clientX: x, clientY: y });
+        return e;
+      };
+      const down = (type = 'touch', x = 10, y = 10): void => {
+        row.dispatchEvent(pointer('pointerdown', type, x, y));
+      };
+      const move = (x: number, y: number): void => {
+        row.dispatchEvent(pointer('pointermove', 'touch', x, y));
+      };
+      const up = (): void => {
+        row.dispatchEvent(pointer('pointerup', 'touch', 0, 0));
+      };
+      const click = (): void => row.dispatchEvent(new MouseEvent('click', { bubbles: true }));
+      return { row, down, move, up, click, picked, opened, fixture };
+    };
+
+    beforeEach(() => jest.useFakeTimers());
+    afterEach(() => jest.useRealTimers());
+
+    it('selects the row a finger rests on, and does not open it', async () => {
+      const t = await touchTable();
+      t.down();
+      jest.advanceTimersByTime(PRESS);
+      t.up();
+      t.click(); // the browser sends this after the press
+
+      expect(t.picked).toHaveLength(1);
+      expect([...t.picked[0]]).toEqual([ROWS[0].id]);
+      expect(t.opened).toHaveLength(0);
+    });
+
+    it('opens the row on a short tap while nothing is selected', async () => {
+      const t = await touchTable();
+      t.down();
+      jest.advanceTimersByTime(100);
+      t.up();
+      t.click();
+
+      expect(t.picked).toHaveLength(0);
+      expect(t.opened).toEqual([ROWS[0]]);
+    });
+
+    it('toggles on a tap once a selection exists, instead of opening', async () => {
+      const t = await touchTable(new Set([ROWS[1].id]));
+      t.down();
+      jest.advanceTimersByTime(100);
+      t.up();
+      t.click();
+
+      expect(t.opened).toHaveLength(0);
+      expect(t.picked).toHaveLength(1);
+      expect([...t.picked[0]].sort()).toEqual([ROWS[0].id, ROWS[1].id].sort());
+    });
+
+    it('does not select when the finger travels: that is a scroll', async () => {
+      const t = await touchTable();
+      t.down('touch', 10, 10);
+      t.move(10, 40);
+      jest.advanceTimersByTime(PRESS);
+      t.up();
+
+      expect(t.picked).toHaveLength(0);
+    });
+
+    it('leaves a mouse alone, which has the checkbox', async () => {
+      const t = await touchTable();
+      t.down('mouse');
+      jest.advanceTimersByTime(PRESS);
+      t.up();
+      t.click();
+
+      expect(t.picked).toHaveLength(0);
+      expect(t.opened).toEqual([ROWS[0]]);
+    });
+
+    it('opens rows again once the selection is empty', async () => {
+      const t = await touchTable(new Set());
+      t.down();
+      jest.advanceTimersByTime(100);
+      t.up();
+      t.click();
+      expect(t.opened).toEqual([ROWS[0]]);
+    });
+  });
 });

@@ -88,9 +88,13 @@
                 [class]="classFor(row, false)"
                 [class.dt__row--clickable]="clickable"
                 [class.dt__row--selected]="selectable && isSelected(row, i)"
-                (click)="onRow(row)"
+                (click)="onRow(row, i)"
                 [attr.tabindex]="clickable ? 0 : null"
-                (keydown.enter)="onRow(row)"
+                (keydown.enter)="onRow(row, i)"
+                (pointerdown)="onRowPressStart($event, row, i)"
+                (pointermove)="onRowPressMove($event)"
+                (pointerup)="cancelPress()"
+                (pointercancel)="cancelPress()"
               >
                 @if (selectable) {
                   <td class="dt__selectCell dt__cell--stickyStart">

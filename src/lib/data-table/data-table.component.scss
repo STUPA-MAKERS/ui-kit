@@ -526,3 +526,10 @@
     padding-inline-start: 0;
   }
 }
+
+/* A held row must not also start a text selection or the platform's own callout, or
+   the gesture ends in a highlight and a context menu instead of a selection. Rows are
+   only long-pressable while the table is selectable, so this stays off otherwise. */
+.dt__table tbody tr {
+  -webkit-touch-callout: none;
+}

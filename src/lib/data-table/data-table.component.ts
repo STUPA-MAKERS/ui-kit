@@ -107,6 +107,11 @@ const TONGUE_HEIGHT = 54;
 /** Sub-pixel slack, so rounding at an edge does not read as hidden content. */
 const EDGE_SLACK = 1;
 
+/** How long a finger must rest on a row before it starts a selection. */
+const LONG_PRESS_MS = 500;
+/** How far it may drift first. Beyond this the gesture is a scroll, not a press. */
+const LONG_PRESS_SLACK = 10;
+
 /**
  * Shared, data-driven table. Columns come as a {@link ColumnDef} list; a single
  * cell can be rendered freely with `<ng-template appCell="key" let-row>` (badges,
@@ -218,6 +223,12 @@ export class DataTableComponent
   private holdTimer?: ReturnType<typeof setTimeout>;
   private holdTick?: ReturnType<typeof setInterval>;
   private readonly teardown: (() => void)[] = [];
+
+  /** Long-press state. `pressSelected` swallows the click a completed press produces. */
+  private pressTimer?: ReturnType<typeof setTimeout>;
+  private pressOrigin: { x: number; y: number } | null = null;
+  private pressWasTouch = false;
+  private pressSelected = false;
 
   /**
    * Last sideways position, for a redraw that empties the table. Written only while the
@@ -332,8 +343,50 @@ export class DataTableComponent
     return this.rowKey ? this.rowKey(row, index) : index;
   }
 
-  protected onRow(row: unknown): void {
+  /**
+   * A tap opens the row, unless a selection is under way.
+   *
+   * Touch only: on a pointer device the checkbox is the way in, and a click that
+   * sometimes opened and sometimes selected would be unpredictable.
+   */
+  protected onRow(row: unknown, index: number): void {
+    if (this.pressSelected) {
+      // The long press already acted; swallow the click it produced.
+      this.pressSelected = false;
+      return;
+    }
+    if (this.selectable && this.pressWasTouch && this.selected.size > 0) {
+      this.toggleRow(row, index);
+      return;
+    }
     if (this.clickable) this.rowClick.emit(row);
+  }
+
+  /** Start the press timer. A mouse is left alone; it has the checkbox. */
+  protected onRowPressStart(event: PointerEvent, row: unknown, index: number): void {
+    this.pressWasTouch = event.pointerType !== 'mouse';
+    this.cancelPress();
+    if (!this.selectable || !this.pressWasTouch) return;
+    this.pressOrigin = { x: event.clientX, y: event.clientY };
+    this.pressTimer = setTimeout(() => {
+      this.pressTimer = undefined;
+      this.pressSelected = true;
+      this.toggleRow(row, index);
+    }, LONG_PRESS_MS);
+  }
+
+  /** A finger that travels is scrolling the list, not holding a row. */
+  protected onRowPressMove(event: PointerEvent): void {
+    if (!this.pressOrigin) return;
+    const dx = Math.abs(event.clientX - this.pressOrigin.x);
+    const dy = Math.abs(event.clientY - this.pressOrigin.y);
+    if (dx > LONG_PRESS_SLACK || dy > LONG_PRESS_SLACK) this.cancelPress();
+  }
+
+  protected cancelPress(): void {
+    if (this.pressTimer !== undefined) clearTimeout(this.pressTimer);
+    this.pressTimer = undefined;
+    this.pressOrigin = null;
   }
 
   /** A plain index list, so the template can repeat the skeleton row. */
@@ -608,6 +661,7 @@ export class DataTableComponent
 
   ngOnDestroy(): void {
     this.stopHold();
+    this.cancelPress();
     for (const off of this.teardown) off();
   }
 }
