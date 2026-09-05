@@ -206,13 +206,13 @@ export class DataTableComponent
   protected readonly hiddenStart = signal(false);
   protected readonly hiddenEnd = signal(false);
   /**
-   * True while the END tongue is hovered or focused, which lights the cut.
+   * True while a tongue is hovered or focused, which lights the cut it moves towards.
    *
-   * Per side on purpose, and only for the end. The start edge has no rule of its own —
-   * the box border is already the boundary there — so one shared flag lit the cut at
-   * the far edge while the reader pointed at the near one.
+   * One flag per side, not one shared: a shared flag lit the far cut while the reader
+   * pointed at the near tongue.
    */
   protected readonly cutHot = signal(false);
+  protected readonly cutHotStart = signal(false);
   /** Which tongue is held down, for its pressed colour. */
   protected readonly held = signal<-1 | 0 | 1>(0);
   private holdTimer?: ReturnType<typeof setTimeout>;
@@ -369,16 +369,22 @@ export class DataTableComponent
     return this.columns.some((c) => c.sticky === 'end');
   }
 
-  /** Width of the trailing pinned column: how far the cut sits in from the edge. */
+  /**
+   * Width of the trailing pinned column: how far the cut sits in from the edge.
+   *
+   * NOT rounded. A column is often a fractional width — 206.5px measured — and rounding
+   * moved the cut half a pixel off the column it marks, leaving a sliver of scrolling
+   * content between the two. CSS takes the fraction.
+   */
   private stickyWidth(scroll: HTMLElement): number {
     const th = scroll.querySelector('thead .dt__cell--stickyEnd');
-    return th ? Math.round(th.getBoundingClientRect().width) : 0;
+    return th ? th.getBoundingClientRect().width : 0;
   }
 
-  /** Width of the leading pinned column, if the table has one. */
+  /** Width of the leading pinned column, if the table has one. Not rounded, as above. */
   private stickyStartWidth(scroll: HTMLElement): number {
     const th = scroll.querySelector('thead .dt__cell--stickyStart');
-    return th ? Math.round(th.getBoundingClientRect().width) : 0;
+    return th ? th.getBoundingClientRect().width : 0;
   }
 
   /**
