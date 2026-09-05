@@ -493,10 +493,16 @@
     padding: 0;
   }
   /* Stacked cards do not scroll sideways, so a pinned column has nothing to pin to.
-     It would only draw a stray border inside the card. */
+     It would only draw a stray border inside the card.
+
+     `position` is NOT reset for the selection cell: the card layout above puts it in the
+     card's corner absolutely, and setting it back to static dropped the checkbox into the
+     flow, on top of the heading. Only the borders come off. */
+  .dt__cell--stickyEnd {
+    position: static;
+  }
   .dt__cell--stickyEnd,
   .dt__cell--stickyStart {
-    position: static;
     border-inline-start: 0;
     border-inline-end: 0;
   }
