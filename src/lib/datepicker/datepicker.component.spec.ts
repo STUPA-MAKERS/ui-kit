@@ -236,8 +236,8 @@ describe('DatepickerComponent', () => {
     const intl = view.fixture.debugElement.injector.get(UI_KIT_INTL) as DefaultUiKitIntl;
     intl.setLang('en');
     view.fixture.detectChanges();
-    expect(textInput().value).toBe('06/07/2026');
-    expect(textInput().placeholder).toBe('MM/DD/YYYY');
+    expect(textInput().value).toBe('07/06/2026');
+    expect(textInput().placeholder).toBe('DD/MM/YYYY');
   });
 
   it('links a hint via aria-describedby when there is no error', async () => {
@@ -282,7 +282,7 @@ describe('DatepickerComponent', () => {
     expect(textInput().value).toBe('');
   });
 
-  it('parses and formats in EN locale order (MM/DD/YYYY)', async () => {
+  it('parses and formats day first in EN too (DD/MM/YYYY)', async () => {
     @Component({
       standalone: true,
       imports: [DatepickerComponent, FormsModule],
@@ -296,11 +296,18 @@ describe('DatepickerComponent', () => {
     intl.setLang('en');
     fixture.detectChanges();
     const input = textInput();
-    // EN order: month/day/year.
+    // The host renders EN dates as en-GB, so the picker reads them the same way.
+    fireEvent.input(input, { target: { value: '24/12/2026' } });
+    fireEvent.blur(input);
+    expect(fixture.componentInstance.v).toBe('2026-12-24');
+    expect(input.value).toBe('24/12/2026');
+
+    // A month-first entry has an impossible month, so it is refused and the field snaps
+    // back to the last valid value instead of recording a different date.
     fireEvent.input(input, { target: { value: '12/24/2026' } });
     fireEvent.blur(input);
     expect(fixture.componentInstance.v).toBe('2026-12-24');
-    expect(input.value).toBe('12/24/2026');
+    expect(input.value).toBe('24/12/2026');
   });
 
   it('openPicker is a no-op without a native element reference', async () => {
