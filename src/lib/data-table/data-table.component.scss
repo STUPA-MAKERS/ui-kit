@@ -280,15 +280,39 @@
   left: 0;
   border-inline-end: var(--border-width) solid var(--color-border);
 }
+/* `--pin-bg` is the colour the pinned cell hides the scrolling content with. It is a
+   variable because the hover state changes it, and the overhang below has to change with
+   it or the seam shows the wrong colour under the pointer. */
 .dt__table td.dt__cell--stickyEnd,
 .dt__table td.dt__cell--stickyStart {
-  background: var(--color-surface);
+  --pin-bg: var(--color-surface);
+  background: var(--pin-bg);
   z-index: 1;
+}
+/* The overhang. A column edge lands on a fractional pixel — 286.5 measured — so the
+   cell's background and the 1px cut rule abut at half a pixel, and the content passing
+   underneath shows through the join as a hairline. Painting the same colour 2px past the
+   edge removes the join; the rule then draws on top of solid colour. What the overhang
+   covers is the occluded content itself, which is what the pin is for. */
+.dt__table td.dt__cell--stickyStart {
+  box-shadow: 2px 0 0 0 var(--pin-bg);
+}
+.dt__table td.dt__cell--stickyEnd {
+  box-shadow: -2px 0 0 0 var(--pin-bg);
 }
 .dt__table th.dt__cell--stickyEnd,
 .dt__table th.dt__cell--stickyStart {
-  /* Above the body cells, so a pinned header is not overlapped while scrolling. */
+  /* Above the body cells, so a pinned header is not overlapped while scrolling. The
+     header needs the same opaque treatment, or the content scrolls visibly under it. */
+  --pin-bg: var(--color-surface-sunken);
+  background: var(--pin-bg);
   z-index: 2;
+}
+.dt__table th.dt__cell--stickyStart {
+  box-shadow: 2px 0 0 0 var(--pin-bg);
+}
+.dt__table th.dt__cell--stickyEnd {
+  box-shadow: -2px 0 0 0 var(--pin-bg);
 }
 
 /* Selection. The column is narrow and fixed: it holds one control, and letting it size
@@ -325,7 +349,7 @@
 }
 .dt__table tfoot td.dt__cell--stickyEnd,
 .dt__table tfoot td.dt__cell--stickyStart {
-  background: var(--color-surface);
+  --pin-bg: var(--color-surface);
 }
 
 .dt__row--clickable {
@@ -344,7 +368,7 @@
 .dt__row--clickable:focus-visible td.dt__cell--stickyStart,
 .dt__row--clickable:active td.dt__cell--stickyEnd,
 .dt__row--clickable:active td.dt__cell--stickyStart {
-  background: var(--color-surface-sunken);
+  --pin-bg: var(--color-surface-sunken);
 }
 .dt__detail-row > td {
   padding: 0;
@@ -509,6 +533,7 @@
   .dt__cell--stickyEnd,
   .dt__cell--stickyStart {
     background: none;
+    box-shadow: none;
     z-index: auto;
     border-inline-start: 0;
     border-inline-end: 0;
