@@ -1,4 +1,4 @@
-:host {
+app-markdown-editor {
   display: block;
 }
 .mde__host {
@@ -58,11 +58,16 @@
   border-top: var(--border-width) solid var(--color-border);
   margin: var(--space-3) 0;
 }
-/* Platzhalter, wenn leer (Tiptap setzt is-editor-empty auf den ersten Knoten). */
-.mde__host .ProseMirror p.is-editor-empty:first-child::before {
+/* The placeholder of an empty document sits on its first line. The hint of a document
+   with content sits on its empty last line, so the eye finds the place to continue. */
+.mde__host .ProseMirror p.is-editor-empty:first-child::before,
+.mde__host .ProseMirror p.is-empty:last-child:not(:first-child)::before {
   content: attr(data-placeholder);
   color: var(--color-text-muted);
   float: left;
   height: 0;
   pointer-events: none;
+}
+.mde__host .ProseMirror p.is-empty:last-child:not(:first-child)::before {
+  font-style: italic;
 }
