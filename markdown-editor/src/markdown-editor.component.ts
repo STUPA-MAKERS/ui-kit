@@ -3,6 +3,7 @@ import {
   Component,
   type ElementRef,
   type OnDestroy,
+  ViewEncapsulation,
   effect,
   input,
   output,
@@ -26,6 +27,10 @@ import { Markdown } from 'tiptap-markdown';
   selector: 'app-markdown-editor',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
+  // Tiptap creates the editor nodes outside the Angular template, so the emulated
+  // scope attribute never reaches them. Every rule is prefixed with `.mde__host` or
+  // the element name instead.
+  encapsulation: ViewEncapsulation.None,
   templateUrl: './markdown-editor.component.html',
   styleUrl: './markdown-editor.component.scss',
 })
