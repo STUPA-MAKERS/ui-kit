@@ -13,6 +13,11 @@ import { Editor } from '@tiptap/core';
 import { Placeholder } from '@tiptap/extensions';
 import StarterKit from '@tiptap/starter-kit';
 import { Markdown } from 'tiptap-markdown';
+import { BlockMathMarkdown, InlineMathMarkdown } from './math.extension';
+import { VoteCallout } from './vote-callout.extension';
+
+// A formula with an error shows the source in red instead of failing the render.
+const KATEX_OPTIONS = { throwOnError: false };
 
 /**
  * WYSIWYG-Markdown-Editor (Tiptap) im Stil von Nextcloud Collectives: man tippt
@@ -76,6 +81,9 @@ export class MarkdownEditorComponent implements OnDestroy {
               showOnlyCurrent: false,
               placeholder: ({ editor }) => (editor.isEmpty ? this.placeholder() : this.hint()),
             }),
+            VoteCallout,
+            InlineMathMarkdown.configure({ katexOptions: KATEX_OPTIONS }),
+            BlockMathMarkdown.configure({ katexOptions: KATEX_OPTIONS }),
           ],
           content: this.value(),
           editable: !disabled,
