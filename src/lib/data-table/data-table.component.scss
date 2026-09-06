@@ -4,6 +4,11 @@
    them. */
 .dt {
   position: relative;
+  /* How far a pinned cell paints past its own edge (see "The overhang" below). The cut
+     rule reads the same value, so it draws AT that painted edge. Both must move
+     together: a rule that stops short of the overhang leaves a strip of the pin colour
+     beyond the line, and a rule inside the overhang shows the cell border next to it. */
+  --pin-overhang: 2px;
 }
 .dt__scroll {
   overflow-x: auto;
@@ -35,7 +40,7 @@
   position: absolute;
   top: 0;
   bottom: var(--cut-bottom, 0px);
-  right: var(--cue-right, 0px);
+  right: calc(var(--cue-right, 0px) + var(--pin-overhang));
   width: 1px;
   background: var(--color-border);
   box-shadow: var(--shadow-cut);
@@ -51,7 +56,7 @@
    passes under the selection column. */
 .dt__cutline--start {
   right: auto;
-  left: var(--cue-left, 0px);
+  left: calc(var(--cue-left, 0px) + var(--pin-overhang));
   box-shadow: var(--shadow-cut-start);
 }
 /* Only while something is actually hidden under the column. Each side answers for its
@@ -141,7 +146,9 @@
 }
 @media (prefers-reduced-motion: reduce) {
   .dt__cutline,
-  .dt__tongue {
+  .dt__tongue,
+  .dt__table .dt__cell--stickyStart,
+  .dt__table .dt__cell--stickyEnd {
     transition: none;
   }
 }
@@ -295,10 +302,10 @@
    edge removes the join; the rule then draws on top of solid colour. What the overhang
    covers is the occluded content itself, which is what the pin is for. */
 .dt__table td.dt__cell--stickyStart {
-  box-shadow: 2px 0 0 0 var(--pin-bg);
+  box-shadow: var(--pin-overhang) 0 0 0 var(--pin-bg);
 }
 .dt__table td.dt__cell--stickyEnd {
-  box-shadow: -2px 0 0 0 var(--pin-bg);
+  box-shadow: calc(-1 * var(--pin-overhang)) 0 0 0 var(--pin-bg);
 }
 .dt__table th.dt__cell--stickyEnd,
 .dt__table th.dt__cell--stickyStart {
@@ -309,10 +316,25 @@
   z-index: 2;
 }
 .dt__table th.dt__cell--stickyStart {
-  box-shadow: 2px 0 0 0 var(--pin-bg);
+  box-shadow: var(--pin-overhang) 0 0 0 var(--pin-bg);
 }
 .dt__table th.dt__cell--stickyEnd {
-  box-shadow: -2px 0 0 0 var(--pin-bg);
+  box-shadow: calc(-1 * var(--pin-overhang)) 0 0 0 var(--pin-bg);
+}
+/* One line at the edge of a pin, never two. The cell border marks the strip while the
+   table sits still. As soon as something hides under the pin, the cut rule takes that
+   job over, so the border steps back — otherwise the reader sees the border and the
+   rule side by side, which reads as a gap between the column and the line. The colour
+   goes, not the width, so no row moves. */
+.dt--cut-start .dt__table .dt__cell--stickyStart {
+  border-inline-end-color: transparent;
+}
+.dt--cut-end .dt__table .dt__cell--stickyEnd {
+  border-inline-start-color: transparent;
+}
+.dt__table .dt__cell--stickyStart,
+.dt__table .dt__cell--stickyEnd {
+  transition: border-color var(--motion-base, 200ms) var(--ease-standard, ease);
 }
 
 /* Selection. The column is narrow and fixed: it holds one control, and letting it size
