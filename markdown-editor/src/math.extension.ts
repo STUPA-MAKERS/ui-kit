@@ -1,3 +1,4 @@
+import { InputRule } from '@tiptap/core';
 import { BlockMath, InlineMath } from '@tiptap/extension-mathematics';
 
 /**
@@ -129,6 +130,16 @@ function mathPlugin(md: MarkdownIt): void {
 
 /** Inline math with the Markdown dollar syntax. */
 export const InlineMathMarkdown = InlineMath.extend({
+  addInputRules() {
+    return [
+      new InputRule({
+        find: /(?<!\$)\$([^\s$](?:[^$\n]*[^\s$])?)\$$/,
+        handler: ({ state, range, match }) => {
+          state.tr.replaceWith(range.from, range.to, this.type.create({ latex: match[1] }));
+        },
+      }),
+    ];
+  },
   addStorage() {
     return {
       markdown: {
@@ -147,6 +158,25 @@ export const InlineMathMarkdown = InlineMath.extend({
 
 /** Block math with the Markdown double-dollar syntax. The inline node registers the rules. */
 export const BlockMathMarkdown = BlockMath.extend({
+  addInputRules() {
+    return [
+      new InputRule({
+        find: /^\$\$([^$\n]+)\$\$$/,
+        handler: ({ state, range, match }) => {
+          const { tr } = state;
+          const from = state.doc.resolve(range.from);
+          const whole =
+            from.depth > 0 &&
+            from.parent.isTextblock &&
+            range.from === from.start() &&
+            range.to === from.end() &&
+            from.node(-1).canReplaceWith(from.index(-1), from.indexAfter(-1), this.type);
+          const target = whole ? { from: from.before(), to: from.after() } : range;
+          tr.replaceWith(target.from, target.to, this.type.create({ latex: match[1].trim() }));
+        },
+      }),
+    ];
+  },
   addStorage() {
     return {
       markdown: {
