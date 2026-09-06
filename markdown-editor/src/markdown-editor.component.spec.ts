@@ -160,6 +160,110 @@ describe('MarkdownEditorComponent', () => {
     expect(md).toBe('');
   });
 
+  describe('vote callout card', () => {
+    const md = '# TOP\n\nText davor.\n\n> [!abstimmung] **Wird der Antrag angenommen?**\n> yes: 3, no: 1, abstain: 0\n\nText danach.';
+
+    function markdownOf(view: { fixture: { debugElement: { children: { componentInstance: unknown }[] } } }): string {
+      const cmp = view.fixture.debugElement.children[0].componentInstance as {
+        editor: { storage: { markdown: { getMarkdown: () => string } } };
+      };
+      return cmp.editor.storage.markdown.getMarkdown();
+    }
+
+    it('renders the callout as a card with question and tally', async () => {
+      const { container } = await render(`<app-markdown-editor [value]="md" />`, {
+        imports: [MarkdownEditorComponent],
+        componentProperties: { md },
+      });
+      const card = container.querySelector('.mde__vote') as HTMLElement;
+      expect(card).toBeTruthy();
+      expect(card.dataset['result']).toBe('passed');
+      expect(card.querySelector('.mde__voteKind')?.textContent).toBe('Abstimmung');
+      expect(card.querySelector('.mde__voteQ')?.textContent).toBe('Wird der Antrag angenommen?');
+      expect(card.querySelector('.mde__voteTally')?.textContent).toBe('Ja 3 · Nein 1 · Enthaltung 0');
+      expect(container.querySelector('blockquote')).toBeNull();
+    });
+
+    it('writes the callout back line for line', async () => {
+      const view = await render(`<app-markdown-editor [value]="md" />`, {
+        imports: [MarkdownEditorComponent],
+        componentProperties: { md },
+      });
+      expect(markdownOf(view)).toBe(md);
+    });
+
+    it('marks a rejected vote, keeps other lines as body and leaves other callouts alone', async () => {
+      const { container } = await render(`<app-markdown-editor [value]="md" />`, {
+        imports: [MarkdownEditorComponent],
+        componentProperties: {
+          md: '> [!vote] Frage\n> Hinweis zur Abstimmung\n> ja 1, nein 2\n\n> [!beschluss] Beschlossen\n\n> Zitat',
+        },
+      });
+      const card = container.querySelector('.mde__vote') as HTMLElement;
+      expect(card.dataset['result']).toBe('rejected');
+      expect(card.querySelector('.mde__voteKind')?.textContent).toBe('Vote');
+      expect(card.querySelector('.mde__voteBody')?.textContent).toBe('Hinweis zur Abstimmung');
+      expect(container.querySelectorAll('blockquote')).toHaveLength(2);
+    });
+
+    it('treats a marker without a tally as open and a tie as a tie', async () => {
+      const { container } = await render(`<app-markdown-editor [value]="md" />`, {
+        imports: [MarkdownEditorComponent],
+        componentProperties: { md: '> [!abstimmung] Offen\n\n> [!abstimmung] Patt\n> ja: 2, nein: 2' },
+      });
+      const cards = container.querySelectorAll('.mde__vote');
+      expect((cards[0] as HTMLElement).dataset['result']).toBe('none');
+      expect(cards[0].querySelector('.mde__voteTally')).toBeNull();
+      expect((cards[1] as HTMLElement).dataset['result']).toBe('tie');
+    });
+  });
+
+  describe('math', () => {
+    function markdownOf(view: { fixture: { debugElement: { children: { componentInstance: unknown }[] } } }): string {
+      const cmp = view.fixture.debugElement.children[0].componentInstance as {
+        editor: { storage: { markdown: { getMarkdown: () => string } } };
+      };
+      return cmp.editor.storage.markdown.getMarkdown();
+    }
+
+    it('renders inline and block formulas with KaTeX and writes the dollars back', async () => {
+      const md = 'Die Fläche ist $a^2 + b^2$ groß.\n\n$$\nE = mc^2\n$$\n\nDanach.';
+      const view = await render(`<app-markdown-editor [value]="md" />`, {
+        imports: [MarkdownEditorComponent],
+        componentProperties: { md },
+      });
+      const pm = editorEl(view.container);
+      const inline = pm.querySelector('span.tiptap-mathematics-render') as HTMLElement;
+      expect(inline?.getAttribute('data-latex')).toBe('a^2 + b^2');
+      expect(inline.querySelector('.katex')).toBeTruthy();
+      const block = pm.querySelector('div.tiptap-mathematics-render') as HTMLElement;
+      expect(block?.getAttribute('data-latex')).toBe('E = mc^2');
+      expect(markdownOf(view)).toBe(md);
+    });
+
+    it('reads a one-line block and leaves prices alone', async () => {
+      const md = '$$ x = 1 $$\n\nKostet $5 und $6 pro Stück.';
+      const view = await render(`<app-markdown-editor [value]="md" />`, {
+        imports: [MarkdownEditorComponent],
+        componentProperties: { md },
+      });
+      const pm = editorEl(view.container);
+      expect(pm.querySelector('div.tiptap-mathematics-render')?.getAttribute('data-latex')).toBe('x = 1');
+      expect(pm.querySelectorAll('span.tiptap-mathematics-render')).toHaveLength(0);
+      expect(pm.textContent).toContain('Kostet $5 und $6 pro Stück.');
+      expect(markdownOf(view)).toBe('$$\nx = 1\n$$\n\nKostet $5 und $6 pro Stück.');
+    });
+
+    it('keeps an unclosed formula and a spaced dollar as text', async () => {
+      const md = 'Offen $a + b und $ x$ bleiben Text.';
+      const { container } = await render(`<app-markdown-editor [value]="md" />`, {
+        imports: [MarkdownEditorComponent],
+        componentProperties: { md },
+      });
+      expect(editorEl(container).querySelectorAll('.tiptap-mathematics-render')).toHaveLength(0);
+    });
+  });
+
   it('toMarkdown reads getMarkdown from the storage when present', async () => {
     const view = await render(Host);
     const cmp = view.fixture.debugElement.children[0]

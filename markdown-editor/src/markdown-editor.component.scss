@@ -71,3 +71,77 @@ app-markdown-editor {
 .mde__host .ProseMirror p.is-empty:last-child:not(:first-child)::before {
   font-style: italic;
 }
+
+/* TeX math, rendered by KaTeX. The consumer loads the KaTeX stylesheet and fonts. */
+.mde__host .ProseMirror .tiptap-mathematics-render {
+  cursor: pointer;
+  border-radius: var(--radius-sm);
+  padding: 0 var(--space-1);
+}
+.mde__host .ProseMirror .tiptap-mathematics-render:hover,
+.mde__host .ProseMirror .ProseMirror-selectednode.tiptap-mathematics-render {
+  background: var(--color-primary-subtle);
+}
+.mde__host .ProseMirror div.tiptap-mathematics-render {
+  display: block;
+  text-align: center;
+  margin: var(--space-3) 0;
+  padding: var(--space-2) 0;
+}
+
+/* The vote callout as a card. One atom: selected and deleted as a whole. */
+.mde__host .ProseMirror .mde__vote {
+  margin: var(--space-3) 0;
+  padding: var(--space-3) var(--space-4);
+  border-left: 3px solid var(--color-primary);
+  border-radius: var(--radius-md);
+  background: var(--color-surface-sunken);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+.mde__host .ProseMirror .ProseMirror-selectednode.mde__vote,
+.mde__host .ProseMirror .ProseMirror-selectednode > .mde__vote {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+}
+.mde__host .ProseMirror .mde__vote[data-result='rejected'] {
+  border-left-color: var(--color-danger);
+}
+.mde__host .ProseMirror .mde__vote[data-result='tie'],
+.mde__host .ProseMirror .mde__vote[data-result='none'] {
+  border-left-color: var(--color-border-strong);
+}
+.mde__host .ProseMirror .mde__voteHead {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  flex-wrap: wrap;
+}
+.mde__host .ProseMirror .mde__voteKind {
+  font-size: var(--fs-xs);
+  font-weight: var(--fw-bold);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+}
+.mde__host .ProseMirror .mde__voteTally {
+  margin-left: auto;
+  font-size: var(--fs-sm);
+  font-variant-numeric: tabular-nums;
+  color: var(--color-primary);
+  font-weight: var(--fw-semibold);
+}
+.mde__host .ProseMirror .mde__vote[data-result='rejected'] .mde__voteTally {
+  color: var(--color-danger);
+}
+.mde__host .ProseMirror .mde__vote[data-result='tie'] .mde__voteTally {
+  color: var(--color-text);
+}
+.mde__host .ProseMirror .mde__voteQ {
+  font-weight: var(--fw-semibold);
+}
+.mde__host .ProseMirror .mde__voteBody {
+  color: var(--color-text-muted);
+  font-size: var(--fs-sm);
+}
