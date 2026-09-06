@@ -262,6 +262,48 @@ describe('MarkdownEditorComponent', () => {
       });
       expect(editorEl(container).querySelectorAll('.tiptap-mathematics-render')).toHaveLength(0);
     });
+
+    interface TypingView {
+      state: { selection: { from: number }; tr: { insertText: (t: string, a: number, b: number) => unknown } };
+      dispatch: (tr: unknown) => void;
+      someProp: (
+        name: string,
+        fn: (handler: (v: unknown, from: number, to: number, text: string) => boolean) => boolean,
+      ) => boolean | undefined;
+    }
+
+    /** Type the text character by character, the way the browser feeds an editor. */
+    async function typeIntoEditor(text: string): Promise<HTMLElement> {
+      const view = await render(`<app-markdown-editor />`, { imports: [MarkdownEditorComponent] });
+      const cmp = view.fixture.debugElement.children[0].componentInstance as {
+        editor: { view: TypingView };
+      };
+      const ev = cmp.editor.view;
+      for (const char of text) {
+        const pos = ev.state.selection.from;
+        const handled = ev.someProp('handleTextInput', (handler) => handler(ev, pos, pos, char));
+        if (!handled) ev.dispatch(ev.state.tr.insertText(char, pos, pos));
+      }
+      return editorEl(view.container);
+    }
+
+    it('turns a typed $…$ into a formula', async () => {
+      const pm = await typeIntoEditor('Die Fläche ist $a^2$ groß.');
+      const inline = pm.querySelector('span.tiptap-mathematics-render') as HTMLElement;
+      expect(inline?.getAttribute('data-latex')).toBe('a^2');
+    });
+
+    it('turns a typed $$…$$ line into a block formula', async () => {
+      const pm = await typeIntoEditor('$$E = mc^2$$');
+      const block = pm.querySelector('div.tiptap-mathematics-render') as HTMLElement;
+      expect(block?.getAttribute('data-latex')).toBe('E = mc^2');
+      expect(pm.querySelectorAll('span.tiptap-mathematics-render')).toHaveLength(0);
+    });
+
+    it('does not turn a typed price into a formula', async () => {
+      const pm = await typeIntoEditor('Kostet $5 und $6 pro Stück.');
+      expect(pm.querySelectorAll('.tiptap-mathematics-render')).toHaveLength(0);
+    });
   });
 
   it('toMarkdown reads getMarkdown from the storage when present', async () => {
