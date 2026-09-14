@@ -91,16 +91,27 @@
   background: var(--color-primary-subtle);
   color: var(--color-primary-active);
 }
-/* Gefahr als Umriss: Fläche des Kartengrunds, Rand und Text in Gefahr-Farbe. */
 .btn--danger {
+  background: var(--color-danger);
+  color: var(--color-text-inverse);
+}
+.btn--danger:hover:not(:disabled) {
+  filter: brightness(1.08);
+}
+.btn--danger:active:not(:disabled) {
+  filter: brightness(0.94);
+}
+/* Gefahr als Umriss: Fläche des Kartengrunds, Rand und Text in Gefahr-Farbe. Für
+   eine zweite, seltenere Löschaktion neben anderen Knöpfen (z. B. im Fuß). */
+.btn--danger-outline {
   background: var(--color-surface);
   color: var(--color-danger);
   border-color: var(--color-danger);
 }
-.btn--danger:hover:not(:disabled) {
+.btn--danger-outline:hover:not(:disabled) {
   background: var(--color-danger-subtle);
 }
-.btn--danger:active:not(:disabled) {
+.btn--danger-outline:active:not(:disabled) {
   background: var(--color-danger-subtle);
   filter: brightness(0.94);
 }

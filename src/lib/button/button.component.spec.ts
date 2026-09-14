@@ -18,6 +18,13 @@ describe('ButtonComponent', () => {
     expect(screen.getByRole('button')).toHaveClass('btn--danger', 'btn--lg');
   });
 
+  it('applies the outline danger variant for a second delete action beside others', async () => {
+    await render(`<app-button variant="danger-outline">Faktor entfernen</app-button>`, {
+      imports: [ButtonComponent],
+    });
+    expect(screen.getByRole('button')).toHaveClass('btn--danger-outline');
+  });
+
   it('adds the icon modifier when iconOnly is set', async () => {
     await render(`<app-button [iconOnly]="true" variant="secondary" size="sm">✕</app-button>`, {
       imports: [ButtonComponent],

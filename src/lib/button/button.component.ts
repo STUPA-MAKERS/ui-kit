@@ -1,6 +1,6 @@
 import { ChangeDetectionStrategy, Component, HostBinding, Input } from '@angular/core';
 
-export type ButtonVariant = 'primary' | 'secondary' | 'ghost' | 'danger' | 'success';
+export type ButtonVariant = 'primary' | 'secondary' | 'ghost' | 'danger' | 'danger-outline' | 'success';
 export type ButtonSize = 'sm' | 'md' | 'lg';
 
 /** Basis-Button des UI-Kits. Clean/minimal, CD-Tokens, a11y-Fokus. */
