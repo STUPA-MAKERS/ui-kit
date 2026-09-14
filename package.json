@@ -1,6 +1,6 @@
 {
   "name": "@stupa-makers/ui-kit",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "STUPA-MAKERS design system + Angular UI component library (British Racing Green CD). Standalone, OnPush, themeable, i18n-decoupled.",
   "keywords": [
     "angular",

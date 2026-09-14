@@ -91,14 +91,17 @@
   background: var(--color-primary-subtle);
   color: var(--color-primary-active);
 }
+/* Gefahr als Umriss: Fläche des Kartengrunds, Rand und Text in Gefahr-Farbe. */
 .btn--danger {
-  background: var(--color-danger);
-  color: var(--color-text-inverse);
+  background: var(--color-surface);
+  color: var(--color-danger);
+  border-color: var(--color-danger);
 }
 .btn--danger:hover:not(:disabled) {
-  filter: brightness(1.08);
+  background: var(--color-danger-subtle);
 }
 .btn--danger:active:not(:disabled) {
+  background: var(--color-danger-subtle);
   filter: brightness(0.94);
 }
 .btn--success {
