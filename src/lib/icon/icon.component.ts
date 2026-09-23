@@ -46,7 +46,11 @@ export type IconName =
   | 'eye-slash'
   | 'upload'
   | 'document'
-  | 'chart-pie';
+  | 'chart-pie'
+  | 'info'
+  | 'cart'
+  | 'box'
+  | 'shield';
 
 /** Icon-Name → Font-Awesome-Solid-Klasse (#80, FA-Migration). */
 const FA: Record<IconName, string> = {
@@ -99,6 +103,10 @@ const FA: Record<IconName, string> = {
   upload: 'fa-file-arrow-up',
   document: 'fa-file-lines',
   'chart-pie': 'fa-chart-pie',
+  info: 'fa-circle-info',
+  cart: 'fa-cart-shopping',
+  box: 'fa-box',
+  shield: 'fa-shield-halved',
 };
 
 /**
