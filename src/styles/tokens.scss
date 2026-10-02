@@ -1,80 +1,113 @@
 // =============================================================================
-// CD-Tokens — Antragsplattform Design-System (T-03, requirements N1/N1a)
+// Design tokens — STUPA-MAKERS design system
 // -----------------------------------------------------------------------------
-// STUPA Corporate Design. Primärfarbe: British Racing Green.
-// Zwei Ebenen:
-//   1. PRIMITIVE  — rohe Palette (theme-unabhängig), Namen `--c-*`.
-//   2. SEMANTIC   — rollenbasierte Tokens (`--color-bg`, `--color-primary`, …),
-//      pro Theme (Light/Dark) neu gemappt. NUR Semantic-Tokens in Komponenten
-//      nutzen — nie Primitive direkt.
-// Theme-Schalter: `data-theme="light|dark"` auf <html> (ThemeService).
+// One accent colour (the STUPA-Cloud green #72a384), neutral grey surfaces and two
+// signal colours (warning, error). Everything else is grey.
+//
+// Two levels:
+//   1. PRIMITIVE — the raw palette, names `--c-*`. Theme-specific values carry the
+//      theme in the name (`--c-light-*`, `--c-dark-*`).
+//   2. SEMANTIC  — role tokens (`--color-bg`, `--color-primary`, …), mapped per theme.
+//      Components use ONLY semantic tokens, never primitives.
+// Theme switch: `data-theme="light|dark"` on <html> (ThemeService in the app).
+//
+// The semantic NAMES are stable. A redesign changes their values, so a page that uses
+// `--color-primary` keeps working and only changes its look.
 // =============================================================================
 
 :root {
-  // --- 1. PRIMITIVE: British Racing Green Scale ------------------------------
-  --c-brg-50: #e9f1ec;
-  --c-brg-100: #c8dccf;
-  --c-brg-200: #a0c1ac;
-  --c-brg-300: #72a384;
-  --c-brg-400: #4a8763;
-  --c-brg-500: #2c6e48;
-  --c-brg-600: #155a34;
-  --c-brg-700: #004225; // British Racing Green — Markenkern
-  --c-brg-800: #00351e;
-  --c-brg-900: #002615;
+  // --- 1. PRIMITIVE: accent (same in both themes) -----------------------------
+  --c-accent: #72a384;
+  --c-on-accent: #0b1d12;
 
-  // --- PRIMITIVE: Neutralskala (warm-neutral) -------------------------------
-  --c-neutral-0: #ffffff;
-  --c-neutral-50: #f7f8f7;
-  --c-neutral-100: #eef0ee;
-  --c-neutral-200: #e0e3e0;
-  --c-neutral-300: #c7ccc8;
-  --c-neutral-400: #9aa19c;
-  --c-neutral-450: #666c67; // muted-Text — WCAG AA ≥4.5 auf bg/surface/sunken (T-43)
-  --c-neutral-500: #6e756f;
-  --c-neutral-600: #515751;
-  --c-neutral-700: #3a3f3b;
-  --c-neutral-800: #232724;
-  --c-neutral-850: #1b1f1c;
-  --c-neutral-900: #141815;
-  --c-neutral-950: #0c0f0d;
+  // --- PRIMITIVE: light theme -------------------------------------------------
+  --c-light-bg: #f6f7f5;
+  --c-light-c1: #ffffff;
+  --c-light-c2: #f0f2ef;
+  --c-light-c3: #e6e9e5;
+  --c-light-c4: #d6dad5;
+  --c-light-on: #191c1a;
+  --c-light-onv: #4a504c;
+  --c-light-mut: #666c68;
+  --c-light-ol: #7a807c;
+  --c-light-olv: #dcdfdb;
+  --c-light-pt: #3c6a4d; // accent as text on light surfaces
+  --c-light-pt-hover: #2f5a3f;
+  --c-light-pt-active: #24482f;
+  --c-light-pc: #d6eadc; // accent container
+  --c-light-onpc: #0f2e1b;
+  --c-light-sel: #e1eee5; // selected row / item
+  --c-light-onsel: #11301d;
+  --c-light-warn: #8a5a00;
+  --c-light-warn-c: #f6ecd6;
+  --c-light-err: #b3261e;
+  --c-light-err-c: #f9e3e1;
+  --c-light-onerr: #ffffff;
 
-  // --- PRIMITIVE: Akzent (warm-bronze, sparsam) -----------------------------
-  --c-accent-400: #c8a25a;
-  --c-accent-500: #b08530;
-  --c-accent-600: #8c6820;
+  // --- PRIMITIVE: dark theme --------------------------------------------------
+  --c-dark-bg: #101211;
+  --c-dark-c1: #171a18;
+  --c-dark-c2: #1d201e;
+  --c-dark-c3: #262a27;
+  --c-dark-c4: #323633;
+  --c-dark-on: #e2e5e2;
+  --c-dark-onv: #b3b8b4;
+  --c-dark-mut: #878d89;
+  --c-dark-ol: #6f7571;
+  --c-dark-olv: #303431;
+  --c-dark-pt: #8dbb9d;
+  --c-dark-pt-hover: #a6cdb3;
+  --c-dark-pt-active: #c3e3cd;
+  --c-dark-pc: #21362a;
+  --c-dark-onpc: #c3e3cd;
+  --c-dark-sel: #243129;
+  --c-dark-onsel: #e2efe6;
+  --c-dark-warn: #dcb065;
+  --c-dark-warn-c: #2e2614;
+  --c-dark-err: #ee9b90;
+  --c-dark-err-c: #3a201d;
+  --c-dark-onerr: #3b0905;
 
-  // --- PRIMITIVE: Status -----------------------------------------------------
-  --c-success-500: #2c7a4b;
-  --c-success-600: #1f5d38;
-  --c-warning-500: #b5821a;
-  --c-warning-600: #876010; // ≥4.5:1 + Puffer auf warning-subtle (Badge), T-43
-  --c-danger-500: #b3261e;
-  --c-danger-600: #8c1c16;
-  --c-info-500: #1f6f8b;
-  --c-info-600: #185468;
-
-  // --- TYPOGRAPHIE -----------------------------------------------------------
-  --font-sans: 'Archivo', 'Segoe UI', system-ui, -apple-system, sans-serif;
-  --font-mono: ui-monospace, 'SFMono-Regular', 'Menlo', monospace;
+  // --- TYPOGRAPHY -------------------------------------------------------------
+  --font-sans: 'IBM Plex Sans', 'Segoe UI', system-ui, -apple-system, sans-serif;
+  --font-mono: 'IBM Plex Mono', ui-monospace, 'SFMono-Regular', 'Menlo', monospace;
   --fw-regular: 400;
   --fw-medium: 500;
   --fw-semibold: 600;
   --fw-bold: 700;
 
-  --fs-xs: 0.75rem; // 12
-  --fs-sm: 0.875rem; // 14
-  --fs-md: 1rem; // 16 (Basis)
-  --fs-lg: 1.125rem; // 18
-  --fs-xl: 1.375rem; // 22
-  --fs-2xl: 1.75rem; // 28
-  --fs-3xl: 2.25rem; // 36
+  // Generic scale. The values follow the role scale below, so `--fs-lg` is the size of
+  // an h2 and `--fs-sm` the size of body text.
+  --fs-xs: 0.78125rem; // 12.5 — small
+  --fs-sm: 0.875rem; // 14 — body
+  --fs-md: 0.9375rem; // 15 — h3, list title, field value
+  --fs-lg: 1.0625rem; // 17 — h2
+  --fs-xl: 1.375rem; // 22 — h1
+  --fs-2xl: 1.75rem; // 28 — d2 (page title)
+  --fs-3xl: 2.25rem; // 36 — beamer and display numbers
   --lh-tight: 1.2;
-  --lh-normal: 1.5;
+  --lh-normal: 1.45;
   --lh-relaxed: 1.7;
   --tracking-tight: -0.01em;
 
-  // --- SPACING (4px-Raster, viel Weißraum N1) --------------------------------
+  // Role scale (size / line height).
+  --fs-d2: 1.75rem; // 28
+  --lh-d2: 2.25rem; // 36
+  --fs-h1: 1.375rem; // 22
+  --lh-h1: 1.75rem; // 28
+  --fs-h2: 1.0625rem; // 17
+  --lh-h2: 1.5rem; // 24
+  --fs-h3: 0.9375rem; // 15
+  --lh-h3: 1.375rem; // 22
+  --fs-body: 0.875rem; // 14
+  --lh-body: 1.25rem; // 20
+  --fs-small: 0.78125rem; // 12.5
+  --lh-small: 1.125rem; // 18
+  --fs-cap: 0.71875rem; // 11.5, uppercase
+  --lh-cap: 1rem; // 16
+  --tracking-cap: 0.06em;
+
+  // --- SPACING (4px grid) -----------------------------------------------------
   --space-0: 0;
   --space-1: 0.25rem;
   --space-2: 0.5rem;
@@ -87,29 +120,35 @@
   --space-10: 4rem;
   --space-12: 6rem;
 
-  // --- RADIUS / BORDER / SHADOW ---------------------------------------------
-  --radius-sm: 4px;
-  --radius-md: 8px;
-  --radius-lg: 12px;
-  --radius-xl: 18px;
+  // --- RADIUS / BORDER --------------------------------------------------------
+  --radius-sm: 6px;
+  --radius-md: 8px; // chips, small controls
+  --radius-field: 14px; // filled input fields, menus
+  --radius-lg: 16px; // tables, grouped lists
+  --radius-xl: 20px; // cards, boxes
+  --radius-2xl: 24px; // dialogs and sheets
   --radius-pill: 999px;
   --border-width: 1px;
 
-  // --- LAYOUT ----------------------------------------------------------------
+  // --- LAYOUT -----------------------------------------------------------------
   --layout-max-width: 1180px;
   --layout-header-height: 64px;
   --layout-gutter: var(--space-5);
 
-  // Einheitliche Höhe interaktiver Steuerelemente (Buttons, Select, Toggle),
-  // damit Header-Controls auf einer Linie sitzen.
-  --control-height: 2.25rem; // 36px
+  // One height for interactive controls (buttons, selects, toggles), so header controls
+  // sit on one line. Matches the medium button.
+  --control-height: 2.5rem; // 40px
+  --control-height-sm: 2rem; // 32px
+  --control-height-lg: 3.25rem; // 52px
+  // Height of a filled field with a floating label.
+  --field-height: 3.5rem; // 56px
 
-  // --- MOTION ----------------------------------------------------------------
+  // --- MOTION -----------------------------------------------------------------
   --motion-fast: 120ms;
   --motion-base: 200ms;
   --ease-standard: cubic-bezier(0.2, 0, 0, 1);
 
-  // --- Z-INDEX ---------------------------------------------------------------
+  // --- Z-INDEX ----------------------------------------------------------------
   --z-dropdown: 1000;
   --z-sticky: 1020;
   --z-dialog: 1300;
@@ -117,57 +156,78 @@
 }
 
 // =============================================================================
-// 2. SEMANTIC TOKENS — LIGHT (Default)
+// 2. SEMANTIC TOKENS — LIGHT (default)
 // =============================================================================
 :root,
 :root[data-theme='light'] {
   color-scheme: light;
 
-  --color-bg: var(--c-neutral-50);
-  --color-bg-elevated: var(--c-neutral-0);
-  --color-surface: var(--c-neutral-0);
-  --color-surface-sunken: var(--c-neutral-100);
-  // Aufgeklappte Detail-Panels (Tabellen-Detailzeile): hell = wie sunken; dunkel
-  // heller als die Surface, damit das Panel nicht als "Loch" wirkt.
-  --color-surface-raised: var(--c-neutral-100);
-  --color-border: var(--c-neutral-200);
-  // Control-Rahmen (Inputs/Select/Button) — ≥3:1 ggü. Surface/bg für
-  // WCAG 1.4.11 Non-Text-Contrast (T-43). Bewusst dunkler als der dekorative
-  // --color-border (Divider/Karten), der unter 1.4.11 fällt.
-  --color-border-strong: #828a84;
+  --color-bg: var(--c-light-bg);
+  --color-bg-elevated: var(--c-light-c1);
+  --color-surface: var(--c-light-c1);
+  --color-surface-sunken: var(--c-light-c2);
+  // Opened detail panels (table detail row).
+  --color-surface-raised: var(--c-light-c2);
+  --color-surface-1: var(--c-light-c1);
+  --color-surface-2: var(--c-light-c2);
+  --color-surface-3: var(--c-light-c3);
+  --color-surface-4: var(--c-light-c4);
+  // Dividers and decorative edges.
+  --color-border: var(--c-light-olv);
+  // Control edges (outlined button, segmented control, checkbox). At least 3:1 against
+  // the surfaces for WCAG 1.4.11.
+  --color-border-strong: var(--c-light-ol);
 
-  --color-text: var(--c-neutral-900);
-  --color-text-muted: var(--c-neutral-450);
-  --color-text-inverse: var(--c-neutral-0);
+  --color-text: var(--c-light-on);
+  --color-text-muted: var(--c-light-onv);
+  // Captions, labels of filled fields, table headers.
+  --color-text-subtle: var(--c-light-mut);
+  --color-text-inverse: var(--c-light-c1);
 
-  --color-primary: var(--c-brg-700);
-  --color-primary-hover: var(--c-brg-800);
-  --color-primary-active: var(--c-brg-900);
-  --color-primary-subtle: var(--c-brg-50);
-  --color-on-primary: var(--c-neutral-0);
-  --color-focus-ring: var(--c-brg-500);
+  // The accent. `--color-accent` is the fill (main button, switch, progress) and
+  // `--color-on-accent` the text on it. `--color-primary` is the accent as TEXT (links,
+  // text buttons, selected labels), so it keeps AA contrast on every surface.
+  --color-accent: var(--c-accent);
+  --color-on-accent: var(--c-on-accent);
+  --color-accent-text: var(--c-light-pt);
+  --color-accent-container: var(--c-light-pc);
+  --color-on-accent-container: var(--c-light-onpc);
 
-  --color-accent: var(--c-accent-600);
+  --color-primary: var(--c-light-pt);
+  --color-primary-hover: var(--c-light-pt-hover);
+  --color-primary-active: var(--c-light-pt-active);
+  --color-primary-subtle: var(--c-light-sel);
+  --color-on-primary: var(--c-light-c1);
+  --color-focus-ring: var(--c-light-pt);
 
-  --color-success: var(--c-success-600);
-  --color-success-subtle: #e3f1e8;
-  --color-warning: var(--c-warning-600);
-  --color-warning-subtle: #f7eed8;
-  --color-danger: var(--c-danger-600);
-  --color-danger-subtle: #f7e1df;
-  --color-info: var(--c-info-600);
-  --color-info-subtle: #dfeef3;
+  --color-selected: var(--c-light-sel);
+  --color-on-selected: var(--c-light-onsel);
 
-  --shadow-sm: 0 1px 2px rgba(0, 38, 21, 0.06), 0 1px 3px rgba(0, 38, 21, 0.08);
-  --shadow-md: 0 2px 6px rgba(0, 38, 21, 0.08), 0 6px 16px rgba(0, 38, 21, 0.08);
-  --shadow-lg: 0 8px 28px rgba(0, 38, 21, 0.14);
+  // Status colours. Success is the accent: there is one green. Info is neutral.
+  --color-success: var(--c-light-pt);
+  --color-success-subtle: var(--c-light-pc);
+  --color-warning: var(--c-light-warn);
+  --color-warning-subtle: var(--c-light-warn-c);
+  --color-danger: var(--c-light-err);
+  --color-danger-subtle: var(--c-light-err-c);
+  --color-on-danger: var(--c-light-onerr);
+  --color-info: var(--c-light-onv);
+  --color-info-subtle: var(--c-light-c3);
+
+  --color-scrim: rgba(20, 24, 21, 0.4);
+
+  --shadow-sm: 0 1px 2px rgba(20, 40, 28, 0.06), 0 1px 3px rgba(20, 40, 28, 0.08);
+  --shadow-md: 0 2px 6px rgba(20, 40, 28, 0.08), 0 6px 16px rgba(20, 40, 28, 0.08);
+  --shadow-lg: 0 10px 30px rgba(20, 40, 28, 0.14), 0 2px 6px rgba(20, 40, 28, 0.08);
+  // Menus, popovers, the floating selection bar.
+  --shadow-elevated: 0 10px 30px rgba(20, 40, 28, 0.14), 0 2px 6px rgba(20, 40, 28, 0.08);
   // Cast BACKWARDS, over the content that passes beneath a pinned column. Short and
   // soft: it says "there is more under here", where a long shadow would say "this
   // column floats above the page".
-  --shadow-cut: -6px 0 9px -5px rgba(0, 38, 21, 0.3);
-  --shadow-cut-start: 6px 0 9px -5px rgba(0, 38, 21, 0.3);
-  --shadow-cut-strong: -8px 0 14px -5px rgba(0, 66, 37, 0.42);
-  --shadow-cut-start-strong: 8px 0 14px -5px rgba(0, 66, 37, 0.42);
+  --shadow-cut: -6px 0 9px -5px rgba(20, 40, 28, 0.3);
+  --shadow-cut-start: 6px 0 9px -5px rgba(20, 40, 28, 0.3);
+  --shadow-cut-strong: -8px 0 14px -5px rgba(60, 106, 77, 0.42);
+  --shadow-cut-start-strong: 8px 0 14px -5px rgba(60, 106, 77, 0.42);
 }
 
 // =============================================================================
@@ -176,40 +236,56 @@
 :root[data-theme='dark'] {
   color-scheme: dark;
 
-  --color-bg: var(--c-neutral-950);
-  --color-bg-elevated: var(--c-neutral-900);
-  --color-surface: var(--c-neutral-850);
-  --color-surface-sunken: var(--c-neutral-900);
-  --color-surface-raised: var(--c-neutral-800);
-  --color-border: #2c322d;
-  // Control-Rahmen (Inputs/Select/Button) — ≥3:1 ggü. Surface/bg, WCAG 1.4.11 (T-43).
-  --color-border-strong: #646f68;
+  --color-bg: var(--c-dark-bg);
+  --color-bg-elevated: var(--c-dark-c1);
+  --color-surface: var(--c-dark-c1);
+  --color-surface-sunken: var(--c-dark-c2);
+  // Lighter than the surface, so an opened panel does not read as a hole.
+  --color-surface-raised: var(--c-dark-c3);
+  --color-surface-1: var(--c-dark-c1);
+  --color-surface-2: var(--c-dark-c2);
+  --color-surface-3: var(--c-dark-c3);
+  --color-surface-4: var(--c-dark-c4);
+  --color-border: var(--c-dark-olv);
+  --color-border-strong: var(--c-dark-ol);
 
-  --color-text: var(--c-neutral-50);
-  --color-text-muted: var(--c-neutral-400);
-  --color-text-inverse: var(--c-neutral-950);
+  --color-text: var(--c-dark-on);
+  --color-text-muted: var(--c-dark-onv);
+  --color-text-subtle: var(--c-dark-mut);
+  --color-text-inverse: var(--c-dark-bg);
 
-  --color-primary: var(--c-brg-300);
-  --color-primary-hover: var(--c-brg-200);
-  --color-primary-active: var(--c-brg-100);
-  --color-primary-subtle: #10271b;
-  --color-on-primary: var(--c-neutral-950);
-  --color-focus-ring: var(--c-brg-300);
+  --color-accent: var(--c-accent);
+  --color-on-accent: var(--c-on-accent);
+  --color-accent-text: var(--c-dark-pt);
+  --color-accent-container: var(--c-dark-pc);
+  --color-on-accent-container: var(--c-dark-onpc);
 
-  --color-accent: var(--c-accent-400);
+  --color-primary: var(--c-dark-pt);
+  --color-primary-hover: var(--c-dark-pt-hover);
+  --color-primary-active: var(--c-dark-pt-active);
+  --color-primary-subtle: var(--c-dark-sel);
+  --color-on-primary: var(--c-on-accent);
+  --color-focus-ring: var(--c-accent);
 
-  --color-success: #5cba80;
-  --color-success-subtle: #122a1c;
-  --color-warning: #d6a548;
-  --color-warning-subtle: #2c2412;
-  --color-danger: #e0685f;
-  --color-danger-subtle: #2c1614;
-  --color-info: #5aa6c0;
-  --color-info-subtle: #122730;
+  --color-selected: var(--c-dark-sel);
+  --color-on-selected: var(--c-dark-onsel);
+
+  --color-success: var(--c-dark-pt);
+  --color-success-subtle: var(--c-dark-pc);
+  --color-warning: var(--c-dark-warn);
+  --color-warning-subtle: var(--c-dark-warn-c);
+  --color-danger: var(--c-dark-err);
+  --color-danger-subtle: var(--c-dark-err-c);
+  --color-on-danger: var(--c-dark-onerr);
+  --color-info: var(--c-dark-onv);
+  --color-info-subtle: var(--c-dark-c3);
+
+  --color-scrim: rgba(0, 0, 0, 0.62);
 
   --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.4);
   --shadow-md: 0 2px 8px rgba(0, 0, 0, 0.5);
-  --shadow-lg: 0 10px 32px rgba(0, 0, 0, 0.6);
+  --shadow-lg: 0 10px 30px rgba(0, 0, 0, 0.5), 0 2px 6px rgba(0, 0, 0, 0.35);
+  --shadow-elevated: 0 10px 30px rgba(0, 0, 0, 0.5), 0 2px 6px rgba(0, 0, 0, 0.35);
   --shadow-cut: -6px 0 9px -5px rgba(0, 0, 0, 0.65);
   --shadow-cut-start: 6px 0 9px -5px rgba(0, 0, 0, 0.65);
   --shadow-cut-strong: -8px 0 14px -5px rgba(114, 163, 132, 0.4);
