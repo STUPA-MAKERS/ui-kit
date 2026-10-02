@@ -1,67 +1,91 @@
 import { render } from '@testing-library/angular';
 import { IconComponent } from './icon.component';
+import { ICON_NAMES, iconShapes } from './icons';
 
 describe('IconComponent', () => {
-  it('renders a decorative Font Awesome solid glyph', async () => {
+  it('renders a decorative line icon as inline SVG', async () => {
     const { container } = await render(`<app-icon name="sun" />`, { imports: [IconComponent] });
-    const i = container.querySelector('i');
-    expect(i).toBeTruthy();
-    expect(i).toHaveAttribute('aria-hidden', 'true');
-    expect(i).toHaveClass('fa-solid');
-    expect(i).toHaveClass('fa-sun');
+    const svg = container.querySelector('svg');
+    expect(svg).toBeTruthy();
+    expect(svg).toHaveAttribute('aria-hidden', 'true');
+    expect(svg).toHaveAttribute('focusable', 'false');
+    expect(svg).toHaveAttribute('stroke', 'currentColor');
+    expect(svg).toHaveAttribute('data-icon', 'sun');
+    expect(svg?.querySelector('circle')).toBeTruthy();
   });
 
-  it('maps the icon name to its FA class', async () => {
-    const { container } = await render(`<app-icon name="webhook" />`, { imports: [IconComponent] });
-    expect(container.querySelector('i')).toHaveClass('fa-globe');
+  it('draws the shapes of the named icon', async () => {
+    const { container } = await render(`<app-icon name="search" />`, { imports: [IconComponent] });
+    expect(container.querySelector('circle')).toHaveAttribute('r', '7');
+    expect(container.querySelector('path')).toHaveAttribute('d', 'm20 20-3.5-3.5');
   });
 
-  it('honours the size input (font-size)', async () => {
-    const { container } = await render(`<app-icon name="sun" [size]="32" />`, {
+  it('draws ellipses', async () => {
+    const { container } = await render(`<app-icon name="db" />`, { imports: [IconComponent] });
+    expect(container.querySelector('ellipse')).toHaveAttribute('rx', '8');
+  });
+
+  it('draws rects with their corner radius', async () => {
+    const { container } = await render(`<app-icon name="cal" />`, { imports: [IconComponent] });
+    expect(container.querySelector('rect')).toHaveAttribute('rx', '2');
+  });
+
+  it('fills a shape that asks for it', async () => {
+    const { container } = await render(`<app-icon name="half" />`, { imports: [IconComponent] });
+    expect(container.querySelector('path')).toHaveAttribute('fill', 'currentColor');
+    expect(container.querySelector('circle')).not.toHaveAttribute('fill');
+  });
+
+  it('honours the size and stroke width inputs', async () => {
+    const { container } = await render(`<app-icon name="sun" [size]="32" [strokeWidth]="2" />`, {
       imports: [IconComponent],
     });
-    expect((container.querySelector('i') as HTMLElement).style.fontSize).toBe('32px');
+    const svg = container.querySelector('svg');
+    expect(svg).toHaveAttribute('width', '32');
+    expect(svg).toHaveAttribute('height', '32');
+    expect(svg).toHaveAttribute('stroke-width', '2');
   });
 
-  it('defaults the size to 18px when no size is given', async () => {
+  it('defaults the size to 18px', async () => {
     const { container } = await render(`<app-icon name="sun" />`, { imports: [IconComponent] });
-    expect((container.querySelector('i') as HTMLElement).style.fontSize).toBe('18px');
+    expect(container.querySelector('svg')).toHaveAttribute('width', '18');
   });
 
-  it('falls back to fa-circle-question for an unknown icon name', async () => {
-    // Cast an out-of-catalog value to exercise the FA[...] ?? fallback branch.
+  it('draws a plain circle for an unknown icon name', async () => {
     const { container } = await render(`<app-icon [name]="name" />`, {
       imports: [IconComponent],
       componentProperties: { name: 'does-not-exist' as never },
     });
-    expect(container.querySelector('i')).toHaveClass('fa-circle-question');
+    expect(container.querySelectorAll('svg > *')).toHaveLength(1);
+    expect(container.querySelector('circle')).toHaveAttribute('r', '9');
   });
 
-  it('updates the rendered glyph when the name input changes', async () => {
+  it('updates the drawing when the name input changes', async () => {
     const view = await render(`<app-icon [name]="name" />`, {
       imports: [IconComponent],
       componentProperties: { name: 'sun' as const },
     });
-    expect(view.container.querySelector('i')).toHaveClass('fa-sun');
+    expect(view.container.querySelector('svg')).toHaveAttribute('data-icon', 'sun');
     view.rerender({ componentProperties: { name: 'moon' as const } });
-    expect(view.container.querySelector('i')).toHaveClass('fa-moon');
-  });
-  it('stacks a second glyph for an icon Font Awesome Free has no single character for', async () => {
-    const { container } = await render(`<app-icon name="paperclip-slash" />`, {
-      imports: [IconComponent],
-    });
-    const glyphs = container.querySelectorAll('i');
-    expect(glyphs).toHaveLength(2);
-    expect(glyphs[0]).toHaveClass('fa-paperclip');
-    expect(glyphs[1]).toHaveClass('fa-slash');
-    // Both take the size, or the strike would not cover the shape it crosses out.
-    expect((glyphs[1] as HTMLElement).style.fontSize).toBe('18px');
+    expect(view.container.querySelector('svg')).toHaveAttribute('data-icon', 'moon');
+    expect(view.container.querySelector('circle')).toBeNull();
   });
 
-  it('renders a single glyph for every other icon', async () => {
-    const { container } = await render(`<app-icon name="paperclip" />`, {
-      imports: [IconComponent],
-    });
-    expect(container.querySelectorAll('i')).toHaveLength(1);
+  it('keeps the older names and draws them with the new set', async () => {
+    expect(iconShapes('delete')).toBe(iconShapes('trash'));
+    expect(iconShapes('chevron-down')).toBe(iconShapes('down'));
+    expect(iconShapes('paperclip-slash')?.length).toBe((iconShapes('clip')?.length ?? 0) + 1);
+  });
+
+  it('has a drawing for every name of the set', () => {
+    for (const name of ICON_NAMES) {
+      expect(iconShapes(name)?.length).toBeGreaterThan(0);
+    }
+  });
+
+  it('has the icons of the navigation rail and the boards', () => {
+    for (const name of ['home', 'file', 'tasks', 'users', 'vote', 'pie', 'swap', 'receipt', 'shield', 'more', 'tune']) {
+      expect(ICON_NAMES).toContain(name);
+    }
   });
 });
