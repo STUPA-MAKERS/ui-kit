@@ -20,14 +20,15 @@
       >
         <span class="dialog__grabber" aria-hidden="true"></span>
         <header class="dialog__header">
-          <h2 class="text-xl" [id]="titleId">{{ title }}</h2>
+          <h2 class="dialog__title" [id]="titleId">{{ title }}</h2>
           <button
             type="button"
             class="dialog__close"
             [attr.aria-label]="closeLabel"
+            [attr.title]="closeLabel"
             (click)="close()"
           >
-            ✕
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 6 6 18M6 6l12 12" /></svg>
           </button>
         </header>
       </div>

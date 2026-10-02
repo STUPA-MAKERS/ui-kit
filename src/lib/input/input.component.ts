@@ -3,7 +3,10 @@ import { NG_VALUE_ACCESSOR, type ControlValueAccessor } from '@angular/forms';
 
 let nextId = 0;
 
-/** Textfeld mit Label/Hinweis/Fehler. ControlValueAccessor → Reactive Forms. */
+/**
+ * Filled text field with the label inside the box, a hint and an error. Implements
+ * ControlValueAccessor for reactive forms and `ngModel`.
+ */
 @Component({
   selector: 'app-input',
   standalone: true,
@@ -19,6 +22,8 @@ export class InputComponent implements ControlValueAccessor {
   @Input() hint = '';
   @Input() error = '';
   @Input() required = false;
+  /** Accessible name when the field has no visible label (for example a search field). */
+  @Input() ariaLabel = '';
   @Input() id = `app-input-${nextId++}`;
 
   readonly value = signal('');

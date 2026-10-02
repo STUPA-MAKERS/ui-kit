@@ -5,7 +5,7 @@
   [attr.aria-label]="ariaLabel || null"
   [attr.aria-pressed]="ariaPressed === null ? null : ariaPressed"
   [attr.title]="tooltip()"
-  [class]="'btn btn--' + variant + ' btn--' + size + (iconOnly ? ' btn--icon' : '')"
+  [class]="classes()"
   [class.btn--custom]="!!color"
   [style.background]="color || null"
   [style.color]="color ? contrastColor() : null"

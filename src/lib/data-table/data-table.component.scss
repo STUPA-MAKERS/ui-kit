@@ -80,14 +80,14 @@
    one shared: a shared flag lit the right-hand cut while the reader pointed at the LEFT
    tongue, marking the opposite edge from the one they were about to move to. */
 .dt--cut-hot .dt__cutline:not(.dt__cutline--start) {
-  background: var(--color-primary);
+  background: var(--color-accent);
   box-shadow: var(--shadow-cut-strong);
 }
 .dt--cut-hot-start .dt__cutline--start {
   box-shadow: var(--shadow-cut-start-strong);
 }
 .dt--cut-hot-start {
-  --pin-line: var(--color-primary);
+  --pin-line: var(--color-accent);
 }
 
 /* THE TONGUES — the sideways scroll control for a reader with a plain mouse. Flush to
@@ -103,10 +103,10 @@
   place-items: center;
   padding: 0;
   cursor: pointer;
-  background: var(--color-surface-sunken);
+  background: var(--color-surface-3);
   color: var(--color-text-muted);
   border: var(--border-width) solid var(--color-border);
-  box-shadow: var(--shadow-sm);
+  box-shadow: var(--shadow-elevated);
   opacity: 0;
   pointer-events: none;
   transition:
@@ -120,9 +120,9 @@
    on the table. Colour carries the hover state instead. */
 .dt__tongue:hover,
 .dt__tongue--held {
-  background: var(--color-primary);
-  color: var(--color-on-primary);
-  border-color: var(--color-primary);
+  background: var(--color-accent);
+  color: var(--color-on-accent);
+  border-color: var(--color-accent);
 }
 .dt__tongue:focus-visible {
   outline: 2px solid var(--color-focus-ring, var(--color-primary));
@@ -138,12 +138,12 @@
 .dt__tongue--end {
   right: var(--cue-right, 0px);
   border-right: 0;
-  border-radius: var(--radius-md) 0 0 var(--radius-md);
+  border-radius: 10px 0 0 10px;
 }
 .dt__tongue--start {
   left: var(--cue-left, 0px);
   border-left: 0;
-  border-radius: 0 var(--radius-md) var(--radius-md) 0;
+  border-radius: 0 10px 10px 0;
 }
 .dt--cut-end .dt__tongue--end,
 .dt--cut-start .dt__tongue--start {
@@ -199,7 +199,7 @@
 }
 .dt__sort-icon--on {
   opacity: 1;
-  color: var(--color-primary);
+  color: var(--color-accent-text);
 }
 
 /* Skeleton rows keep the header, the column widths and the box height while data
@@ -247,9 +247,13 @@
 .dt--boxed {
   /* No margin of its own. Spacing belongs to the layout that arranges the blocks, not
      to a block that cannot see its neighbours: a table that adds `margin-top` on top of
-     what the page header contributes sits lower than a card in the same slot. */
+     what the page header contributes sits lower than a card in the same slot.
+
+     The frame of the design system: surface 1, radius 16, no visible edge. The border
+     keeps its width, so the pin and cut geometry stays the same; it only gives up its
+     colour. */
   background: var(--color-surface);
-  border: var(--border-width) solid var(--color-border);
+  border: var(--border-width) solid transparent;
   border-radius: var(--radius-lg);
   overflow: hidden;
 }
@@ -258,22 +262,24 @@
   border-collapse: collapse;
   font-size: var(--fs-sm);
 }
+/* Header: caption type (11.5px, uppercase), no surface of its own. */
 .dt__table th {
   text-align: start;
-  padding: var(--space-3) var(--space-4);
-  font-size: var(--fs-xs);
+  padding: 10px var(--space-4);
+  font-size: var(--fs-cap);
+  line-height: var(--lh-cap);
   font-weight: var(--fw-semibold);
   text-transform: uppercase;
-  letter-spacing: 0.04em;
-  color: var(--color-text-muted);
-  background: var(--color-surface-sunken);
+  letter-spacing: var(--tracking-cap);
+  color: var(--color-text-subtle);
+  background: var(--color-surface);
   border-bottom: var(--border-width) solid var(--color-border);
 }
-/* feste Zeilenhöhe auf der Zeile (zuverlässiger als height auf td) → alle
-   Zeilen gleich hoch, egal ob mit/ohne Aktions-Button. Vertikales Padding
-   auf 0, damit Button-Inhalt die Höhe nie über die 3rem hinaus drückt. */
+/* Fixed row height on the row (more reliable than a height on the td): every row is
+   56px high, with or without an action button. No vertical padding, so a button never
+   pushes a row past the 56px. */
 .dt__table tbody tr {
-  height: 3rem;
+  height: 3.5rem;
 }
 .dt__table td {
   padding: 0 var(--space-4);
@@ -342,7 +348,7 @@
 .dt__table th.dt__cell--stickyStart {
   /* Above the body cells, so a pinned header is not overlapped while scrolling. The
      header needs the same opaque treatment, or the content scrolls visibly under it. */
-  --pin-bg: var(--color-surface-sunken);
+  --pin-bg: var(--color-surface);
   background: var(--pin-bg);
   z-index: 2;
 }
@@ -358,10 +364,17 @@
 }
 .dt__check {
   cursor: pointer;
-  accent-color: var(--color-primary);
+  accent-color: var(--color-accent);
 }
+/* A selected row takes the selection colour, its pinned cells included. */
 .dt__table tbody tr.dt__row--selected td {
-  background: var(--color-surface-sunken);
+  background: var(--color-selected);
+}
+.dt__table tbody tr.dt__row--selected td.dt__cell--stickyEnd,
+.dt__table tbody tr.dt__row--selected td.dt__cell--stickyStart,
+.dt__table tbody tr.dt__row--selected:hover td.dt__cell--stickyEnd,
+.dt__table tbody tr.dt__row--selected:hover td.dt__cell--stickyStart {
+  --pin-bg: var(--color-selected);
 }
 
 /* A child row belongs to the row above it. Indented at the first cell and tinted, so it

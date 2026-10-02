@@ -1,16 +1,36 @@
-.ti__text {
-  height: var(--control-height);
-  box-sizing: border-box;
-  padding: 0 var(--space-4);
-  font: inherit;
-  font-size: var(--fs-md);
-  font-variant-numeric: tabular-nums;
-  color: var(--color-text);
-  background: var(--color-surface);
-  border: var(--border-width) solid var(--color-border-strong);
-  border-radius: var(--radius-md);
-  transition: border-color var(--motion-fast) var(--ease-standard);
+@use '../../styles/field' as f;
+
+:host {
+  display: block;
+  min-width: 0;
 }
-.ti__text:hover:not(:disabled) { border-color: var(--color-text-muted); }
-.ti__text:disabled { opacity: 0.6; cursor: not-allowed; }
-.ti__text:focus-visible { outline: 2px solid var(--color-primary); outline-offset: 1px; }
+.fld {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 0;
+}
+.fld__box {
+  @include f.box;
+}
+.fld__box--labelled {
+  @include f.box-labelled;
+}
+.fld__box--disabled {
+  @include f.box-disabled;
+}
+.fld__label {
+  @include f.label;
+}
+.fld__box:focus-within .fld__label {
+  @include f.label-focus;
+}
+.ti__text {
+  @include f.control;
+  & {
+    font-variant-numeric: tabular-nums;
+  }
+}
+.fld__box--labelled .ti__text {
+  @include f.control-labelled;
+}

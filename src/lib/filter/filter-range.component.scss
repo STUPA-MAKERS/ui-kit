@@ -3,19 +3,24 @@
   flex: 1 1 0;
   min-width: 0;
 }
-:host ::ng-deep input:not(.cur__input),
-:host ::ng-deep select {
+:host ::ng-deep input:not(.cur__input):not(.dp__text):not(.dp__native):not(.field__control):not(.ti__text),
+:host ::ng-deep select:not(.sel__control) {
   width: 100%;
   min-width: 0;
   flex: 1 1 0;
   height: var(--control-height);
-  padding: 0 var(--space-3);
-  background: var(--color-bg);
+  padding: 0 var(--space-4);
+  background: var(--color-surface-sunken);
   color: var(--color-text);
-  border: var(--border-width) solid var(--color-border-strong);
-  border-radius: var(--radius-md);
+  border: 0;
+  border-radius: var(--radius-field);
   font: inherit;
   font-size: var(--fs-md);
+  outline: none;
+}
+:host ::ng-deep input:not(.cur__input):not(.dp__text):not(.dp__native):not(.field__control):not(.ti__text):focus-visible,
+:host ::ng-deep select:not(.sel__control):focus-visible {
+  box-shadow: inset 0 0 0 2px var(--color-focus-ring);
 }
 /* Zahlen-Spinner ausblenden — wirkt im schmalen Popout unruhig. */
 :host ::ng-deep input[type='number'] {

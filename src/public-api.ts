@@ -23,13 +23,22 @@ export type {
   UiLang,
 } from './lib/intl';
 
+// --- layout breakpoints (same values as styles/_breakpoints.scss) ------------
+export { BREAKPOINTS, MEDIA, widthClass } from './lib/breakpoints/breakpoints';
+export type { WidthClass } from './lib/breakpoints/breakpoints';
+
 // --- loading overlay token --------------------------------------------------
 export { UI_KIT_LOADING } from './lib/loading/loading.token';
 export type { UiKitLoadingState } from './lib/loading/loading.token';
 
 // --- components -------------------------------------------------------------
-export { ButtonComponent } from './lib/button/button.component';
-export type { ButtonVariant, ButtonSize } from './lib/button/button.component';
+export { ButtonComponent, buttonLook } from './lib/button/button.component';
+export type { ButtonVariant, ButtonSize, ButtonLook } from './lib/button/button.component';
+export { SwitchComponent } from './lib/switch/switch.component';
+export { SegmentedComponent } from './lib/segmented/segmented.component';
+export type { SegmentedOption } from './lib/segmented/segmented.component';
+export { TabsComponent } from './lib/tabs/tabs.component';
+export type { TabItem } from './lib/tabs/tabs.component';
 export { InputComponent } from './lib/input/input.component';
 export { CheckboxComponent } from './lib/checkbox/checkbox.component';
 export { SelectComponent } from './lib/select/select.component';
@@ -39,7 +48,8 @@ export { TimeInputComponent } from './lib/time-input/time-input.component';
 export { DateRangeComponent } from './lib/datepicker/date-range.component';
 export type { DateRange } from './lib/datepicker/date-range.component';
 export { IconComponent } from './lib/icon/icon.component';
-export type { IconName } from './lib/icon/icon.component';
+export type { IconName, IconShape } from './lib/icon/icon.component';
+export { ICON_NAMES, iconShapes } from './lib/icon/icons';
 export { CardComponent } from './lib/card/card.component';
 export { BadgeComponent } from './lib/badge/badge.component';
 export type { BadgeVariant } from './lib/badge/badge.component';

@@ -1,9 +1,54 @@
 import { ChangeDetectionStrategy, Component, HostBinding, Input } from '@angular/core';
 
-export type ButtonVariant = 'primary' | 'secondary' | 'ghost' | 'danger' | 'danger-outline' | 'success';
+/**
+ * The looks of a button.
+ *
+ * - `fill`: the main action, accent surface. One per view.
+ * - `tonal`: a secondary action on a grey surface.
+ * - `outlined`: a secondary action with an edge and no surface.
+ * - `text`: a quiet action, accent text only. As an icon button: a grey glyph.
+ * - `danger`: a destructive action, outlined in the error colour.
+ * - `fab`: the floating main action of a page.
+ */
+export type ButtonLook = 'fill' | 'tonal' | 'outlined' | 'text' | 'danger' | 'fab';
+
+/**
+ * A look, or one of the older names that callers still use. The older names are aliases:
+ * `primary` and `success` are `fill`, `secondary` is `tonal`, `ghost` is `text` and
+ * `danger-outline` is `danger`.
+ */
+export type ButtonVariant =
+  | ButtonLook
+  | 'primary'
+  | 'secondary'
+  | 'ghost'
+  | 'danger-outline'
+  | 'success';
 export type ButtonSize = 'sm' | 'md' | 'lg';
 
-/** Basis-Button des UI-Kits. Clean/minimal, CD-Tokens, a11y-Fokus. */
+const LOOK: Record<ButtonVariant, ButtonLook> = {
+  fill: 'fill',
+  tonal: 'tonal',
+  outlined: 'outlined',
+  text: 'text',
+  danger: 'danger',
+  fab: 'fab',
+  primary: 'fill',
+  success: 'fill',
+  secondary: 'tonal',
+  ghost: 'text',
+  'danger-outline': 'danger',
+};
+
+/** The look of a variant name. An unknown name falls back to `fill`. */
+export function buttonLook(variant: ButtonVariant): ButtonLook {
+  return LOOK[variant] ?? 'fill';
+}
+
+/**
+ * Base button of the UI kit: pill shape, three sizes (32/40/52px), design tokens and a
+ * visible focus ring. With `iconOnly` it is a round icon button.
+ */
 @Component({
   selector: 'app-button',
   standalone: true,
@@ -33,6 +78,13 @@ export class ButtonComponent {
   @Input() ariaPressed: boolean | null = null;
   /** Hover-Tooltip; bei Icon-Buttons fällt er automatisch auf `ariaLabel` zurück. */
   @Input() title = '';
+
+  /** CSS classes of the native button: the look, the variant name and the size. */
+  protected classes(): string {
+    const look = buttonLook(this.variant);
+    const names = look === this.variant ? `btn--${look}` : `btn--${look} btn--${this.variant}`;
+    return `btn ${names} btn--${this.size}${this.iconOnly ? ' btn--icon' : ''}`;
+  }
 
   /** Tooltip-Text: explizit gesetzt, sonst für Icon-Buttons der `ariaLabel`. */
   protected tooltip(): string | null {

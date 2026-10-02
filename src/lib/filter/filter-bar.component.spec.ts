@@ -10,8 +10,10 @@ describe('FilterBarComponent', () => {
     const { container } = await render(`<app-filter-bar />`, { imports: [FilterBarComponent] });
     expect(screen.getByRole('button')).toBeInTheDocument();
     expect(screen.queryByRole('dialog')).toBeNull();
-    // aria-expanded is bound on the app-button host element.
-    expect(container.querySelector('app-button')).toHaveAttribute('aria-expanded', 'false');
+    // The trigger is a native button, so aria-expanded sits on the element with the role.
+    expect(screen.getByRole('button')).toHaveAttribute('aria-expanded', 'false');
+    expect(container.querySelector('.filter__trigger')).toHaveClass('chip');
+    expect(container.querySelector('.filter__trigger')).not.toHaveClass('chip--on');
   });
 
   it('uses a custom label when provided', async () => {
@@ -27,14 +29,16 @@ describe('FilterBarComponent', () => {
     expect(view.container.querySelector('.filter__count')).toBeNull();
     view.rerender({ componentProperties: { count: 3 } });
     expect(view.container.querySelector('.filter__count')?.textContent).toBe('3');
+    // An active filter turns the chip to the selection colour.
+    expect(view.container.querySelector('.filter__trigger')).toHaveClass('chip--on');
   });
 
   it('toggles the popover open and closed via the trigger', async () => {
-    const { container } = await render(`<app-filter-bar />`, { imports: [FilterBarComponent] });
+    await render(`<app-filter-bar />`, { imports: [FilterBarComponent] });
     const trigger = screen.getByRole('button', { name: /Filter/i });
     await userEvent.click(trigger);
     expect(screen.getByRole('dialog')).toBeInTheDocument();
-    expect(container.querySelector('app-button')).toHaveAttribute('aria-expanded', 'true');
+    expect(trigger).toHaveAttribute('aria-expanded', 'true');
     await userEvent.click(trigger);
     expect(screen.queryByRole('dialog')).toBeNull();
   });

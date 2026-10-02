@@ -1,22 +1,39 @@
+@use '../../styles/field' as f;
+
+:host {
+  display: block;
+  min-width: 0;
+}
+.fld {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 0;
+}
+.fld__box {
+  @include f.box;
+}
+.fld__box--labelled {
+  @include f.box-labelled;
+}
+.fld__box--invalid {
+  @include f.box-invalid;
+}
+.fld__box--disabled {
+  @include f.box-disabled;
+}
+.fld__label {
+  @include f.label;
+}
+.fld__box:focus-within .fld__label {
+  @include f.label-focus;
+}
 .field__control {
-  height: var(--control-height);
-  box-sizing: border-box;
-  padding: 0 var(--space-4);
-  font-size: var(--fs-md);
-  line-height: var(--lh-normal);
-  color: var(--color-text);
-  background: var(--color-surface);
-  border: var(--border-width) solid var(--color-border-strong);
-  border-radius: var(--radius-md);
-  transition: border-color var(--motion-fast) var(--ease-standard);
+  @include f.control;
 }
-.field__control:hover:not(:disabled) {
-  border-color: var(--color-text-muted);
+.fld__box--labelled .field__control {
+  @include f.control-labelled;
 }
-.field__control:disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
-}
-.field__control[aria-invalid='true'] {
-  border-color: var(--color-danger);
+.fld__msg {
+  @include f.message;
 }

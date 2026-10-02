@@ -1,16 +1,47 @@
-.filter__count {
+/* The trigger is a chip: 32px high, radius 8, a thin edge. It turns to the selection
+   colour while a filter is active. */
+.chip {
   display: inline-flex;
   align-items: center;
-  justify-content: center;
-  min-width: 1.25rem;
-  height: 1.25rem;
-  padding: 0 var(--space-1);
-  margin-left: var(--space-1);
-  border-radius: 999px;
-  background: var(--color-primary);
-  color: var(--color-on-primary, #fff);
-  font-size: var(--fs-xs);
+  gap: 6px;
+  height: var(--control-height-sm);
+  padding: 0 var(--space-3);
+  border: var(--border-width) solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: transparent;
+  color: var(--color-text-muted);
+  font: inherit;
+  font-size: 0.84375rem; /* 13.5px */
+  font-weight: var(--fw-medium);
+  white-space: nowrap;
+  cursor: pointer;
+  transition:
+    background-color var(--motion-fast) var(--ease-standard),
+    color var(--motion-fast) var(--ease-standard);
+}
+.chip:hover {
+  background: var(--color-surface-2);
+  color: var(--color-text);
+}
+.chip--on,
+.chip--on:hover {
+  background: var(--color-selected);
+  border-color: transparent;
+  color: var(--color-on-selected);
+}
+.filter__count {
+  display: inline-grid;
+  place-items: center;
+  min-width: 17px;
+  height: 17px;
+  padding: 0 4px;
+  margin-left: 2px;
+  border-radius: 9px;
+  background: var(--color-accent);
+  color: var(--color-on-accent);
+  font-size: 0.65625rem; /* 10.5px */
   font-weight: var(--fw-bold);
+  line-height: 1;
 }
 .filter__panel {
   position: absolute;
@@ -25,9 +56,8 @@
   gap: var(--space-4);
   padding: var(--space-4);
   background: var(--color-bg-elevated, var(--color-surface));
-  border: var(--border-width) solid var(--color-border);
-  border-radius: var(--radius-lg);
-  box-shadow: var(--shadow-lg);
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-elevated);
 }
 .filter__actions {
   display: flex;
@@ -44,8 +74,7 @@
     margin-top: 0;
     width: auto;
     max-height: 80dvh;
-    border-radius: var(--radius-lg) var(--radius-lg) 0 0;
-    border-bottom: 0;
+    border-radius: var(--radius-2xl) var(--radius-2xl) 0 0;
     z-index: var(--z-dialog);
   }
   .filter__actions app-button {

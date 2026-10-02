@@ -1,41 +1,55 @@
+@use '../../styles/field' as f;
+
 :host {
   display: block;
   width: 100%;
 }
-.cur {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--space-1);
-  width: 100%;
-  height: var(--control-height);
-  padding: 0 var(--space-3);
-  background: var(--color-bg, var(--color-surface));
-  border: var(--border-width) solid var(--color-border-strong);
-  border-radius: var(--radius-md);
+.fld {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 0;
 }
-.cur:focus-within {
-  outline: 2px solid var(--color-primary);
-  outline-offset: 1px;
+.cur {
+  @include f.box;
+  & {
+    gap: var(--space-1);
+    padding: 0 var(--space-4);
+  }
+}
+.cur--labelled {
+  @include f.box-labelled;
+  align-items: flex-end;
+  padding-bottom: 8px;
+}
+.cur--invalid {
+  @include f.box-invalid;
 }
 .cur--disabled {
-  opacity: 0.6;
+  @include f.box-disabled;
+}
+.cur__label {
+  @include f.label;
+}
+.cur:focus-within .cur__label {
+  @include f.label-focus;
 }
 .cur__input {
-  flex: 1 1 auto;
-  min-width: 0;
-  height: 100%;
-  border: 0;
-  background: transparent;
-  color: var(--color-text);
-  font: inherit;
-  font-variant-numeric: tabular-nums;
-  text-align: end;
-  padding: 0;
-}
-.cur__input:focus {
-  outline: none;
+  @include f.control;
+  & {
+    height: auto;
+    min-height: 1.375rem;
+    padding: 0;
+    font-family: var(--font-mono);
+    font-variant-numeric: tabular-nums;
+    text-align: end;
+  }
 }
 .cur__symbol {
   flex: 0 0 auto;
   color: var(--color-text-muted);
+  line-height: 1.375rem;
+}
+.cur__msg {
+  @include f.message;
 }

@@ -1,8 +1,24 @@
 import { ChangeDetectionStrategy, Component, Input } from '@angular/core';
 
-export type BadgeVariant = 'neutral' | 'primary' | 'success' | 'warning' | 'danger' | 'info';
+export type BadgeVariant =
+  | 'neutral'
+  | 'accent'
+  | 'primary'
+  | 'success'
+  | 'warning'
+  | 'danger'
+  | 'info';
 
-/** Status-Chip (z. B. Antrags-Status, Vote-Ergebnis). */
+/**
+ * A short label beside a name.
+ *
+ * - `neutral` and `accent` are tags: a feature of the thing, not its status (NÖ,
+ *   Stimmrecht, Pool, Pflichtrolle). They draw a small grey (or accent) plate.
+ * - `primary`, `success`, `warning`, `danger` and `info` are a STATUS. The design system
+ *   shows a status as text in its colour, without a plate, a dot or a pill.
+ * - `color` (a configured hex colour, for example of a flow state) draws a plate in that
+ *   colour with readable text.
+ */
 @Component({
   selector: 'app-badge',
   standalone: true,
@@ -12,6 +28,11 @@ export type BadgeVariant = 'neutral' | 'primary' | 'success' | 'warning' | 'dang
 })
 export class BadgeComponent {
   @Input() variant: BadgeVariant = 'neutral';
+
+  /** True for the variants that show a status as coloured text. */
+  get isStatus(): boolean {
+    return this.variant !== 'neutral' && this.variant !== 'accent';
+  }
 
   /**
    * Optionale, frei konfigurierte Hintergrundfarbe (Hex, z. B. Flow-State-Farbe).

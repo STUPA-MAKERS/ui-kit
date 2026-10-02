@@ -1,16 +1,25 @@
-/* Projizierte native Controls einheitlich stylen (app-currency-input bringt
-   eigenes Styling mit → ausnehmen). */
-:host ::ng-deep input:not([type='checkbox']):not([type='radio']):not(.cur__input),
-:host ::ng-deep select {
+/* Projected native controls get the filled field look of the kit. The kit's own field
+   components style themselves, so they are left out. */
+:host
+  ::ng-deep
+  input:not([type='checkbox']):not([type='radio']):not(.cur__input):not(.dp__text):not(.dp__native):not(.field__control):not(.ti__text),
+:host ::ng-deep select:not(.sel__control) {
   width: 100%;
   height: var(--control-height);
-  padding: 0 var(--space-3);
-  background: var(--color-bg);
+  padding: 0 var(--space-4);
+  background: var(--color-surface-sunken);
   color: var(--color-text);
-  border: var(--border-width) solid var(--color-border-strong);
-  border-radius: var(--radius-md);
+  border: 0;
+  border-radius: var(--radius-field);
   font: inherit;
   font-size: var(--fs-md);
+  outline: none;
+}
+:host
+  ::ng-deep
+  input:not([type='checkbox']):not([type='radio']):not(.cur__input):not(.dp__text):not(.dp__native):not(.field__control):not(.ti__text):focus-visible,
+:host ::ng-deep select:not(.sel__control):focus-visible {
+  box-shadow: inset 0 0 0 2px var(--color-focus-ring);
 }
 :host ::ng-deep input[type='date'] {
   min-width: 0;

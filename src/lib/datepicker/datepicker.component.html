@@ -1,13 +1,18 @@
 <div class="dp">
-  @if (label) {
-    <label class="text-sm font-medium text-text" [for]="id">
-      {{ label }}
-      @if (required) {
-        <span class="text-danger" aria-hidden="true">*</span>
-      }
-    </label>
-  }
-  <div class="relative flex">
+  <div
+    class="dp__box"
+    [class.dp__box--labelled]="!!label"
+    [class.dp__box--invalid]="!!error"
+    [class.dp__box--disabled]="disabled()"
+  >
+    @if (label) {
+      <label class="dp__label" [for]="id">
+        {{ label }}
+        @if (required) {
+          <span class="text-danger" aria-hidden="true">*</span>
+        }
+      </label>
+    }
     <input
       class="dp__text"
       type="text"
@@ -31,7 +36,7 @@
       [attr.aria-label]="'datepicker.openCalendar' | uiKitT"
       (click)="openPicker()"
     >
-      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
         <rect x="3" y="4" width="18" height="18" rx="2" /><path d="M16 2v4M8 2v4M3 10h18" />
       </svg>
     </button>
@@ -48,9 +53,9 @@
     />
   </div>
   @if (hint && !error) {
-    <p class="text-xs text-muted" [id]="id + '-hint'">{{ hint }}</p>
+    <p class="dp__msg text-muted" [id]="id + '-hint'">{{ hint }}</p>
   }
   @if (error) {
-    <p class="text-xs text-danger" [id]="id + '-error'" role="alert">{{ error }}</p>
+    <p class="dp__msg text-danger" [id]="id + '-error'" role="alert">{{ error }}</p>
   }
 </div>

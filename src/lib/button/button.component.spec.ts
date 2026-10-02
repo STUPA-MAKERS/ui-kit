@@ -1,14 +1,14 @@
 import { Component } from '@angular/core';
 import { render, screen } from '@testing-library/angular';
 import userEvent from '@testing-library/user-event';
-import { ButtonComponent } from './button.component';
+import { ButtonComponent, buttonLook, type ButtonVariant } from './button.component';
 
 describe('ButtonComponent', () => {
   it('renders projected label inside a native button', async () => {
     await render(`<app-button>Speichern</app-button>`, { imports: [ButtonComponent] });
     const btn = screen.getByRole('button', { name: 'Speichern' });
     expect(btn).toBeInTheDocument();
-    expect(btn).toHaveClass('btn--primary', 'btn--md');
+    expect(btn).toHaveClass('btn--primary', 'btn--fill', 'btn--md');
   });
 
   it('applies variant and size modifiers', async () => {
@@ -22,7 +22,7 @@ describe('ButtonComponent', () => {
     await render(`<app-button variant="danger-outline">Faktor entfernen</app-button>`, {
       imports: [ButtonComponent],
     });
-    expect(screen.getByRole('button')).toHaveClass('btn--danger-outline');
+    expect(screen.getByRole('button')).toHaveClass('btn--danger-outline', 'btn--danger');
   });
 
   it('adds the icon modifier when iconOnly is set', async () => {
@@ -145,5 +145,62 @@ describe('ButtonComponent', () => {
       imports: [ButtonComponent],
     });
     expect(container.querySelector('button')).not.toHaveAttribute('aria-pressed');
+  });
+
+  describe('looks', () => {
+    for (const look of ['fill', 'tonal', 'outlined', 'text', 'danger', 'fab'] as const) {
+      it(`renders the ${look} look with one class`, async () => {
+        await render(`<app-button variant="${look}">X</app-button>`, { imports: [ButtonComponent] });
+        const btn = screen.getByRole('button');
+        expect(btn).toHaveClass('btn', `btn--${look}`);
+        expect(btn.className.match(/btn--(fill|tonal|outlined|text|danger|fab)\b/g)).toHaveLength(1);
+      });
+    }
+
+    it('maps the older variant names onto the looks, so callers keep compiling', () => {
+      const cases: [ButtonVariant, string][] = [
+        ['primary', 'fill'],
+        ['success', 'fill'],
+        ['secondary', 'tonal'],
+        ['ghost', 'text'],
+        ['danger-outline', 'danger'],
+        ['danger', 'danger'],
+      ];
+      for (const [variant, look] of cases) {
+        expect(buttonLook(variant)).toBe(look);
+      }
+      expect(buttonLook('nope' as ButtonVariant)).toBe('fill');
+    });
+
+    it('keeps the alias class next to the look class', async () => {
+      await render(`<app-button variant="ghost" size="sm">Mehr</app-button>`, {
+        imports: [ButtonComponent],
+      });
+      expect(screen.getByRole('button')).toHaveClass('btn--ghost', 'btn--text', 'btn--sm');
+    });
+
+    it('draws a destructive action as an outlined danger button', async () => {
+      await render(`<app-button variant="danger">Löschen</app-button>`, { imports: [ButtonComponent] });
+      const btn = screen.getByRole('button', { name: 'Löschen' });
+      expect(btn).toHaveClass('btn--danger');
+      expect(btn).not.toHaveClass('btn--fill');
+    });
+
+    it('renders a round icon button and a pressed icon button', async () => {
+      await render(
+        `<app-button variant="text" [iconOnly]="true" [ariaPressed]="true" ariaLabel="Weitere Aktionen">⋮</app-button>`,
+        { imports: [ButtonComponent] },
+      );
+      const btn = screen.getByRole('button', { name: 'Weitere Aktionen' });
+      expect(btn).toHaveClass('btn--text', 'btn--icon', 'btn--md');
+      expect(btn).toHaveAttribute('aria-pressed', 'true');
+    });
+
+    it('renders the floating action button', async () => {
+      await render(`<app-button variant="fab">Antrag stellen</app-button>`, {
+        imports: [ButtonComponent],
+      });
+      expect(screen.getByRole('button', { name: 'Antrag stellen' })).toHaveClass('btn--fab');
+    });
   });
 });
