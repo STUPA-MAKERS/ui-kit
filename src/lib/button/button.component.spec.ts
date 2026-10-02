@@ -2,6 +2,7 @@ import { Component } from '@angular/core';
 import { render, screen } from '@testing-library/angular';
 import userEvent from '@testing-library/user-event';
 import { ButtonComponent, buttonLook, type ButtonVariant } from './button.component';
+import { IconComponent } from '../icon/icon.component';
 
 describe('ButtonComponent', () => {
   it('renders projected label inside a native button', async () => {
@@ -30,6 +31,17 @@ describe('ButtonComponent', () => {
       imports: [ButtonComponent],
     });
     expect(screen.getByRole('button')).toHaveClass('btn--icon', 'btn--secondary', 'btn--sm');
+  });
+
+  it('projects an icon and a text into one label', async () => {
+    await render(
+      `<app-button><span class="inline-flex items-center gap-2"><app-icon name="add" [size]="16" /> Buchung</span></app-button>`,
+      { imports: [ButtonComponent, IconComponent] },
+    );
+    const btn = screen.getByRole('button', { name: 'Buchung' });
+    const label = btn.querySelector('.btn__label');
+    expect(label?.querySelector('app-icon svg')).not.toBeNull();
+    expect(label?.textContent?.trim()).toBe('Buchung');
   });
 
   it('exposes an accessible name via ariaLabel for icon buttons', async () => {

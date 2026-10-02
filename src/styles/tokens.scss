@@ -12,7 +12,9 @@
 // Theme switch: `data-theme="light|dark"` on <html> (ThemeService in the app).
 //
 // The semantic NAMES are stable. A redesign changes their values, so a page that uses
-// `--color-primary` keeps working and only changes its look.
+// `--color-primary` keeps working and only changes its look. One exception: since the
+// redesign `--color-primary` is the accent as TEXT. A fill (button, bar, dot) uses
+// `--color-accent` with `--color-on-accent`, or it paints a second, darker green.
 // =============================================================================
 
 :root {
@@ -186,7 +188,8 @@
 
   // The accent. `--color-accent` is the fill (main button, switch, progress) and
   // `--color-on-accent` the text on it. `--color-primary` is the accent as TEXT (links,
-  // text buttons, selected labels), so it keeps AA contrast on every surface.
+  // text buttons, selected labels), so it keeps AA contrast on every surface. Never use
+  // `--color-primary` as a fill.
   --color-accent: var(--c-accent);
   --color-on-accent: var(--c-on-accent);
   --color-accent-text: var(--c-light-pt);

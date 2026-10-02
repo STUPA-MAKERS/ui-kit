@@ -9,6 +9,7 @@
       [attr.aria-selected]="tab.id === current()"
       [attr.aria-controls]="panelId(tab.id)"
       [attr.tabindex]="tab.id === current() ? 0 : -1"
+      [attr.aria-label]="accessibleName(tab)"
       [disabled]="!!tab.disabled"
       (click)="select(tab)"
       (keydown)="onKeydown($event, i)"

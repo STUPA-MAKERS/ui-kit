@@ -60,6 +60,15 @@ export class TabsComponent {
     return `${this.idPrefix()}-panel-${id ?? ''}`;
   }
 
+  /**
+   * The accessible name of a tab with a count, for example "Verlauf 4". The label and the
+   * count are two spans with only a CSS gap between them, so the name from the content
+   * would be "Verlauf4". A tab without a count takes its name from the content.
+   */
+  accessibleName(tab: TabItem): string | null {
+    return tab.count === null || tab.count === undefined ? null : `${tab.label} ${tab.count}`;
+  }
+
   select(tab: TabItem): void {
     if (tab.disabled || tab.id === this.active()) return;
     this.active.set(tab.id);

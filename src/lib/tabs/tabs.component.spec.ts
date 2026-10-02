@@ -41,6 +41,13 @@ describe('TabsComponent', () => {
     expect(screen.getByRole('tab', { name: 'Antrag' }).querySelector('.tabs__count')).toBeNull();
   });
 
+  it('names a tab with a count with a space before the count', async () => {
+    await render(Host);
+    expect(screen.getByRole('tab', { name: 'Verlauf 4' })).toHaveAttribute('aria-label', 'Verlauf 4');
+    expect(screen.getByRole('tab', { name: 'Kommentare 0' })).toHaveAttribute('aria-label', 'Kommentare 0');
+    expect(screen.getByRole('tab', { name: 'Antrag' })).not.toHaveAttribute('aria-label');
+  });
+
   it('links the tabs and the panel', async () => {
     await render(Host);
     const tab = screen.getByRole('tab', { name: 'Antrag' });

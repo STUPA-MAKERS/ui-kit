@@ -68,6 +68,23 @@ describe('design-system rules in the stylesheets', () => {
     expect(base).toMatch(/display: inline-flex/);
   });
 
+  it('centres a projected icon and text in the button label', () => {
+    const scss = read('../lib/button/button.component.scss');
+    expect(block(scss, '.btn__label ::ng-deep > * {')).toMatch(/vertical-align: top/);
+    expect(block(scss, '.btn__label ::ng-deep > app-icon {')).toMatch(/vertical-align: middle/);
+    const iconOnly = block(scss, '.btn--icon .btn__label {');
+    expect(iconOnly).toMatch(/display: inline-flex/);
+    expect(iconOnly).toMatch(/align-items: center/);
+  });
+
+  it('draws a configured badge colour as text, never as a plate', () => {
+    const scss = read('../lib/badge/badge.component.scss');
+    const custom = block(scss, '.badge--custom {');
+    expect(custom).toMatch(/color: var\(--badge-text-light/);
+    expect(custom).not.toMatch(/background/);
+    expect(scss).toMatch(/data-theme='dark'\]\) \.badge--custom \{\s*color: var\(--badge-text-dark/);
+  });
+
   it('draws the filter chip 32px high with radius 8, in the selection colour when on', () => {
     for (const scss of [read('base.scss'), read('../lib/filter/filter-bar.component.scss')]) {
       const chip = block(scss, '.chip {');
