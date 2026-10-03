@@ -492,6 +492,13 @@ describe('DataTableComponent', () => {
       expect(onChange).toHaveBeenCalledWith(new Set(ROWS.map((r) => r.id)));
     });
 
+    it('marks a selected row, so it takes the selection colour', async () => {
+      const { container } = await setup(new Set([ROWS[1].id]));
+      const rows = container.querySelectorAll('tbody tr');
+      expect(rows[1]).toHaveClass('dt__row--selected');
+      expect(rows[0]).not.toHaveClass('dt__row--selected');
+    });
+
     it('select-all clears the selection once everything is selected', async () => {
       const onChange = jest.fn();
       const { container } = await setup(new Set(ROWS.map((r) => r.id)), onChange);

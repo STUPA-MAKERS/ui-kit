@@ -1,18 +1,17 @@
 <div class="relative">
-  <app-button
-    variant="secondary"
-    size="sm"
+  <button
+    type="button"
+    class="chip filter__trigger"
+    [class.chip--on]="activeCount() > 0"
     [attr.aria-expanded]="open()"
     (click)="toggle()"
   >
-    <span class="inline-flex items-center gap-2">
-      <app-icon name="filter" [size]="16" />
-      {{ label() || ('filter.button' | uiKitT) }}
-      @if (activeCount() > 0) {
-        <span class="filter__count" aria-hidden="true">{{ activeCount() }}</span>
-      }
-    </span>
-  </app-button>
+    <app-icon name="tune" [size]="16" />
+    {{ label() || ('filter.button' | uiKitT) }}
+    @if (activeCount() > 0) {
+      <span class="filter__count" aria-hidden="true">{{ activeCount() }}</span>
+    }
+  </button>
 
   @if (open()) {
     <div class="filter__panel" role="dialog" [attr.aria-label]="label() || ('filter.button' | uiKitT)">

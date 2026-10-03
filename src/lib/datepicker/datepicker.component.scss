@@ -1,33 +1,54 @@
+@use '../../styles/field' as f;
+
 /* Block-Host, damit der Picker die Breite des (Flex-)Containers füllt statt
    über seine Intrinsic-Breite hinauszuwachsen (#6: Datums-Inputs im Dialog
    zu breit / horizontaler Scroll). */
-:host { display: block; min-width: 0; }
-.dp { display: flex; flex-direction: column; gap: var(--space-2); min-width: 0; }
-.dp__text {
-  flex: 1;
-  /* In Flex-Containern darf das Feld unter seine Intrinsic-Breite schrumpfen. */
+:host {
+  display: block;
   min-width: 0;
-  width: 100%;
-  height: var(--control-height);
-  box-sizing: border-box;
-  padding: 0 2.5rem 0 var(--space-4);
-  font: inherit;
-  font-size: var(--fs-md);
-  color: var(--color-text);
-  background: var(--color-surface);
-  border: var(--border-width) solid var(--color-border-strong);
-  border-radius: var(--radius-md);
-  transition: border-color var(--motion-fast) var(--ease-standard);
 }
-.dp__text:hover:not(:disabled) { border-color: var(--color-text-muted); }
-.dp__text:disabled { opacity: 0.6; cursor: not-allowed; }
-.dp__text[aria-invalid='true'] { border-color: var(--color-danger); }
+.dp {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 0;
+}
+.dp__box {
+  @include f.box;
+}
+.dp__box--labelled {
+  @include f.box-labelled;
+}
+.dp__box--invalid {
+  @include f.box-invalid;
+}
+.dp__box--disabled {
+  @include f.box-disabled;
+}
+.dp__label {
+  @include f.label;
+  right: 3rem;
+}
+.dp__box:focus-within .dp__label {
+  @include f.label-focus;
+}
+.dp__text {
+  @include f.control;
+  & {
+    padding-right: 3rem;
+    font-variant-numeric: tabular-nums;
+  }
+}
+.dp__box--labelled .dp__text {
+  @include f.control-labelled;
+}
 .dp__cal {
   position: absolute;
-  right: 0;
-  top: 0;
-  height: var(--control-height);
+  right: var(--space-1);
+  top: 50%;
+  transform: translateY(-50%);
   width: 2.5rem;
+  height: 2.5rem;
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -35,10 +56,15 @@
   border: 0;
   color: var(--color-text-muted);
   cursor: pointer;
-  border-radius: var(--radius-md);
+  border-radius: var(--radius-pill);
 }
-.dp__cal:hover:not(:disabled) { color: var(--color-text); }
-.dp__cal:disabled { opacity: 0.6; cursor: not-allowed; }
+.dp__cal:hover:not(:disabled) {
+  color: var(--color-text);
+  background: var(--color-surface-3);
+}
+.dp__cal:disabled {
+  cursor: not-allowed;
+}
 /* Natives Feld unsichtbar (nur sein Kalender-Popup erscheint via showPicker). */
 .dp__native {
   position: absolute;
@@ -50,4 +76,7 @@
   pointer-events: none;
   border: 0;
   padding: 0;
+}
+.dp__msg {
+  @include f.message;
 }

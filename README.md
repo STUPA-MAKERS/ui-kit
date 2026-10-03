@@ -3,9 +3,12 @@
 The STUPA-MAKERS **design system + Angular UI component library**. Extracted from the
 STUPA-Workflow platform so the same look & feel can be reused across projects.
 
-- **Design tokens** — British Racing Green corporate design as CSS custom properties, with
-  light/dark themes (`data-theme`).
-- **~20 standalone components** — `OnPush`, accessible (WCAG 2.1 AA, axe-tested), token-driven.
+- **Design tokens** — one accent colour (green `#72a384`), neutral grey surfaces and two
+  signal colours, as CSS custom properties with light/dark themes (`data-theme`). IBM Plex
+  Sans and IBM Plex Mono.
+- **Breakpoints** — phone (≤ 768px), narrow (769–1199px) and wide (≥ 1200px), as SCSS
+  mixins (`_breakpoints.scss`) and as TypeScript constants (`BREAKPOINTS`, `MEDIA`).
+- **~25 standalone components** — `OnPush`, accessible (WCAG 2.1 AA, axe-tested), token-driven.
 - **Framework-decoupled** — no hard dependency on any host app: i18n and the loading state
   are wired through injection tokens, with built-in DE/EN defaults so the kit works out of
   the box.
@@ -22,8 +25,6 @@ Peer dependencies: `@angular/common`, `@angular/core`, `@angular/forms`, `rxjs`.
 
 Optional:
 
-- **Font Awesome** — `IconComponent` renders `fa-*` classes. Include Font Awesome CSS in the
-  host app (e.g. `@fortawesome/fontawesome-free/css/all.min.css`).
 - **Tiptap** — only for the `markdown-editor` secondary entry point
   (`@tiptap/core`, `@tiptap/pm`, `@tiptap/starter-kit`, `tiptap-markdown`).
 
@@ -36,9 +37,10 @@ Import the design-system styles once in the app's global stylesheet:
 @use '@stupa-makers/ui-kit/styles' as uikit; // fonts + tokens + base reset
 ```
 
-The self-hosted **Archivo** font is referenced at the absolute path
-`/assets/fonts/archivo-latin-*.woff2`. Copy the kit's font assets into the app's served
-assets, e.g. in `angular.json`:
+The self-hosted **IBM Plex Sans** (400/500/600/700) and **IBM Plex Mono** (400/500) fonts
+are referenced at the absolute path `/assets/fonts/ibm-plex-*.woff2`, in a `latin` and a
+`latin-ext` subset. Copy the kit's font assets into the app's served assets, e.g. in
+`angular.json`:
 
 ```jsonc
 "assets": [
@@ -47,6 +49,22 @@ assets, e.g. in `angular.json`:
 ```
 
 Switch theme by setting `data-theme="light|dark"` on `<html>`.
+
+Use the breakpoints in a stylesheet with `@use 'breakpoints' as bp;` and
+`@include bp.phone { … }` (add `src/styles` to the Sass include paths), and in code with
+`window.matchMedia(MEDIA.phone)`.
+
+### Rules of the design system
+
+- One accent colour. `--color-accent` is the fill (main button, switch, progress) with
+  `--color-on-accent` on it; `--color-primary` / `--color-accent-text` is the accent as
+  text. Everything else is grey.
+- A status is coloured text (`app-badge` with a status variant), never a dot or a pill.
+  A tag (`app-badge` neutral or accent) is a feature of a thing, not its status.
+- A destructive action is an outlined red button (`variant="danger"`).
+- Input fields are filled (surface 2, radius 14), without an edge and without a shadow;
+  focus draws a 2px accent line inside the field.
+- A long name gets an ellipsis (`.ell`) and a `title` with the full text.
 
 ## i18n (decoupled)
 
@@ -93,9 +111,12 @@ providers: [{ provide: UI_KIT_LOADING, useFactory: () => ({ visible: inject(Load
 
 ## Components
 
-Buttons, inputs (text / select / checkbox / currency / time), date picker & range, icon,
-card, badge, stepper, dialog, table & sortable data-table (with filter bar), toast service,
-loading overlay, and a generic config/field diff renderer.
+Buttons (fill / tonal / outlined / text / danger / fab, round icon buttons; the older names
+primary / secondary / ghost / danger-outline / success stay as aliases), inputs (text /
+select / checkbox / currency / time), switch, segmented control, tabs, date picker & range,
+line icons (inline SVG), card, badge (tag or status text), stepper, dialog, table & sortable
+data-table (with filter bar), toast service, loading overlay, and a generic config/field diff
+renderer.
 
 ```ts
 import { ButtonComponent, DataTableComponent, ToastService } from '@stupa-makers/ui-kit';
@@ -119,5 +140,6 @@ npm run lint
 
 ## License
 
-[GPL-3.0-or-later](./LICENSE). The bundled Archivo font is under the SIL Open Font License
-(see `src/assets/fonts/Archivo-OFL-LICENSE.txt`).
+[GPL-3.0-or-later](./LICENSE). The bundled IBM Plex fonts are under the SIL Open Font
+License (see `src/assets/fonts/IBM-Plex-Sans-OFL-LICENSE.txt` and
+`src/assets/fonts/IBM-Plex-Mono-OFL-LICENSE.txt`).

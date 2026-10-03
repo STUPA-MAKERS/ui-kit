@@ -1,0 +1,64 @@
+// Breakpoints of the layout. Three classes of width:
+//
+//   phone   width <= 768px          bottom bar, stacked cards, near-fullscreen dialogs
+//   narrow  769px .. 1199px         navigation rail; a list and its detail are separate views
+//   wide    width >= 1200px         navigation rail; a list and its detail side by side
+//
+// The phone limit is the 768px rule the app has always used (`max-width: 768px`). Keep
+// it, so the old media queries and these mixins agree on the same pixel.
+//
+// The narrow boards of the design are 960px wide and show the list and the detail as
+// separate views, so the list-detail split needs at least 1200px.
+//
+// TypeScript code reads the same values from `breakpoints.ts` (BREAKPOINTS, MEDIA) for
+// `matchMedia`. Change both files together.
+//
+// Use in a component stylesheet:
+//   @use 'breakpoints' as bp;
+//   @include bp.phone { … }
+
+$phone-max: 768px;
+$wide-min: 1200px;
+
+// The fractional lower edge closes the gap between 768px and 769px at browser zoom
+// levels that give a fractional viewport width.
+$narrow-min: 768.02px;
+$narrow-max: 1199.98px;
+
+$phone: '(max-width: #{$phone-max})';
+$narrow: '(min-width: #{$narrow-min}) and (max-width: #{$narrow-max})';
+$wide: '(min-width: #{$wide-min})';
+// Rail layouts: everything above the phone limit.
+$not-phone: '(min-width: #{$narrow-min})';
+// Everything below the list-detail split.
+$below-wide: '(max-width: #{$narrow-max})';
+
+@mixin phone {
+  @media #{$phone} {
+    @content;
+  }
+}
+
+@mixin narrow {
+  @media #{$narrow} {
+    @content;
+  }
+}
+
+@mixin wide {
+  @media #{$wide} {
+    @content;
+  }
+}
+
+@mixin not-phone {
+  @media #{$not-phone} {
+    @content;
+  }
+}
+
+@mixin below-wide {
+  @media #{$below-wide} {
+    @content;
+  }
+}

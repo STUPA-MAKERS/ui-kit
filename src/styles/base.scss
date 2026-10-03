@@ -26,7 +26,7 @@ html {
 body {
   min-height: 100dvh;
   font-family: var(--font-sans);
-  font-size: var(--fs-md);
+  font-size: var(--fs-body);
   font-weight: var(--fw-regular);
   line-height: var(--lh-normal);
   color: var(--color-text);
@@ -43,22 +43,27 @@ h2,
 h3,
 h4 {
   font-weight: var(--fw-semibold);
-  line-height: var(--lh-tight);
-  letter-spacing: var(--tracking-tight);
   text-wrap: balance;
 }
 
+// Role scale: the page title (h1) is d2, a section heading (h2) is h1, and so on. The
+// heading LEVEL follows the document outline; the SIZE follows the role.
 h1 {
-  font-size: var(--fs-3xl);
+  font-size: var(--fs-d2);
+  line-height: var(--lh-d2);
+  letter-spacing: var(--tracking-tight);
 }
 h2 {
-  font-size: var(--fs-2xl);
+  font-size: var(--fs-h1);
+  line-height: var(--lh-h1);
 }
 h3 {
-  font-size: var(--fs-xl);
+  font-size: var(--fs-h2);
+  line-height: var(--lh-h2);
 }
 h4 {
-  font-size: var(--fs-lg);
+  font-size: var(--fs-h3);
+  line-height: var(--lh-h3);
 }
 
 p {
@@ -90,11 +95,10 @@ textarea {
   color: inherit;
 }
 
-// Sichtbarer, konsistenter Fokus-Ring (a11y, WCAG 2.1 AA).
+// Visible focus ring in the accent colour (a11y, WCAG 2.1 AA).
 :focus-visible {
   outline: 2px solid var(--color-focus-ring);
   outline-offset: 2px;
-  border-radius: var(--radius-sm);
 }
 
 :focus:not(:focus-visible) {
@@ -139,18 +143,15 @@ textarea {
     padding-inline: var(--space-4);
   }
   h1 {
-    font-size: var(--fs-2xl);
-  }
-  h2 {
-    font-size: var(--fs-xl);
+    font-size: var(--fs-h1);
+    line-height: var(--lh-h1);
   }
 }
 
-// Native Checkboxen/Radios app-weit in CD-Primärfarbe (statt Browser-Blau) —
-// damit sie überall gleich aussehen wie das app-checkbox-UI-Kit.
+// Native checkboxes and radios app-wide in the accent colour (instead of browser blue).
 input[type='checkbox'],
 input[type='radio'] {
-  accent-color: var(--color-primary);
+  accent-color: var(--color-accent);
 }
 
 // App-weiter Leerzustand für Listen/Tabellen — eine Quelle der Wahrheit. Wird als
@@ -162,7 +163,6 @@ input[type='radio'] {
   text-align: center;
   color: var(--color-text-muted);
   padding: var(--space-6);
-  border: var(--border-width) solid var(--color-border);
   border-radius: var(--radius-lg);
   background: var(--color-surface);
 }
@@ -234,3 +234,78 @@ input[type='radio'] {
   }
 }
 
+
+
+/* ---------------------------------------------------------------------------
+   Text utilities of the design system.
+   --------------------------------------------------------------------------- */
+
+/* Numbers that line up in a column: amounts, counts, dates. */
+.num {
+  font-variant-numeric: tabular-nums;
+}
+
+/* Amounts, short IDs and keys in the mono face. */
+.mono {
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+}
+
+/* One line with an ellipsis. Give the element a `title` with the full text. */
+.ell {
+  overflow: hidden;
+  min-width: 0;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Caption: table headers, group labels above a list. */
+.cap {
+  font-size: var(--fs-cap);
+  line-height: var(--lh-cap);
+  font-weight: var(--fw-semibold);
+  letter-spacing: var(--tracking-cap);
+  text-transform: uppercase;
+  color: var(--color-text-subtle);
+}
+
+/* A keyboard key, for example the shortcut of the search field. */
+.kbd {
+  display: inline-block;
+  padding: 5px 7px;
+  font: var(--fw-medium) 11px/1 var(--font-mono);
+  color: var(--color-text-subtle);
+  border: var(--border-width) solid var(--color-border);
+  border-radius: var(--radius-sm);
+  white-space: nowrap;
+}
+
+/* A filter chip (a button): 32px high, radius 8, a thin edge. `.on` marks an active
+   filter with the selection colour. The filter bar trigger has the same look. */
+.chip {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  gap: 6px;
+  height: var(--control-height-sm);
+  padding: 0 var(--space-3);
+  border: var(--border-width) solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: transparent;
+  color: var(--color-text-muted);
+  font: inherit;
+  font-size: 0.84375rem; /* 13.5px */
+  font-weight: var(--fw-medium);
+  white-space: nowrap;
+  cursor: pointer;
+}
+.chip:hover {
+  background: var(--color-surface-2);
+  color: var(--color-text);
+}
+.chip.on,
+.chip.on:hover {
+  background: var(--color-selected);
+  border-color: transparent;
+  color: var(--color-on-selected);
+}

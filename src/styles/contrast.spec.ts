@@ -44,16 +44,21 @@ function parsePrimitives(): Record<string, string> {
 
 const PRIMITIVES = parsePrimitives();
 
-/** Löst einen Token-Wert (`#hex` oder `var(--c-…)`) zu einem #hex auf. */
-function resolve(value: string): string {
+/**
+ * Löst einen Token-Wert (`#hex` oder `var(--c-…)`) zu einem #hex auf. Ein Wert, der
+ * keine deckende Farbe ist (etwa der Scrim `rgba(…)`), ergibt `null` und bleibt
+ * außerhalb der Prüfung.
+ */
+function resolve(value: string): string | null {
   const v = value.trim();
-  if (v.startsWith('#')) return v;
-  const varMatch = v.match(/var\((--[\w-]+)\)/);
+  if (/^#[0-9a-fA-F]{6}$/.test(v)) return v;
+  const varMatch = v.match(/^var\((--[\w-]+)\)$/);
   if (varMatch) {
     const ref = PRIMITIVES[varMatch[1]];
     if (!ref) throw new Error(`Unaufgelöste Token-Referenz: ${varMatch[1]}`);
     return ref;
   }
+  if (v.startsWith('rgba(')) return null;
   throw new Error(`Unerwarteter Token-Wert: ${value}`);
 }
 
@@ -65,7 +70,8 @@ function parseSemantic(theme: 'light' | 'dark'): Record<string, string> {
     theme === 'light' ? TOKENS.slice(lightIdx, darkIdx) : TOKENS.slice(darkIdx);
   const map: Record<string, string> = {};
   for (const m of block.matchAll(/(--color-[\w-]+):\s*([^;]+);/g)) {
-    map[m[1]] = resolve(m[2]);
+    const hex = resolve(m[2]);
+    if (hex) map[m[1]] = hex;
   }
   return map;
 }
@@ -113,11 +119,28 @@ function textPairs(t: Record<string, string>): Pair[] {
     p('badge warning / warning-subtle', '--color-warning', '--color-warning-subtle'),
     p('badge danger / danger-subtle', '--color-danger', '--color-danger-subtle'),
     p('badge info / info-subtle', '--color-info', '--color-info-subtle'),
+    // Redesign (one accent): accent text on the surfaces, text on the accent fill,
+    // signal colours on the surface, the selected row.
+    p('accent-text / bg', '--color-accent-text', '--color-bg'),
+    p('accent-text / surface', '--color-accent-text', '--color-surface'),
+    p('accent-text / surface-2', '--color-accent-text', '--color-surface-2'),
+    p('accent-text / selected (active tab, selected label)', '--color-accent-text', '--color-selected'),
+    p('on-accent / accent (fill button, switch)', '--color-on-accent', '--color-accent'),
+    p('on-accent-container / accent-container', '--color-on-accent-container', '--color-accent-container'),
+    p('danger / surface-1', '--color-danger', '--color-surface-1'),
+    p('warning / surface-1', '--color-warning', '--color-surface-1'),
+    p('on-selected / selected', '--color-on-selected', '--color-selected'),
+    p('text / surface-3 (tonal button, tag)', '--color-text', '--color-surface-3'),
+    p('text-muted / surface-2 (filled field)', '--color-text-muted', '--color-surface-2'),
+    p('text-subtle / surface (caption, table header)', '--color-text-subtle', '--color-surface'),
+    p('text-subtle / surface-2 (field label)', '--color-text-subtle', '--color-surface-2'),
     // Non-Text (1.4.11): Fokus-Ring + Control-Rahmen
     p('focus-ring / bg', '--color-focus-ring', '--color-bg', AA_NONTEXT),
     p('focus-ring / surface', '--color-focus-ring', '--color-surface', AA_NONTEXT),
     p('border-strong / surface', '--color-border-strong', '--color-surface', AA_NONTEXT),
     p('border-strong / bg', '--color-border-strong', '--color-bg', AA_NONTEXT),
+    p('focus-ring / surface-2 (field focus line)', '--color-focus-ring', '--color-surface-2', AA_NONTEXT),
+    p('border-strong / surface-2', '--color-border-strong', '--color-surface-2', AA_NONTEXT),
   ];
 }
 
@@ -127,6 +150,20 @@ describe('CD-Token-Kontraste (WCAG 2.1 AA)', () => {
     expect(LIGHT['--color-text']).toMatch(/^#/);
     expect(DARK['--color-text']).toMatch(/^#/);
     expect(LIGHT['--color-text-muted']).not.toBe(DARK['--color-text-muted']);
+  });
+
+  it('hat genau eine Akzentfarbe in beiden Themes', () => {
+    expect(LIGHT['--color-accent']).toBe('#72a384');
+    expect(DARK['--color-accent']).toBe('#72a384');
+    // Kein British-Racing-Green mehr in semantischer Verwendung.
+    for (const t of [LIGHT, DARK]) {
+      expect(Object.values(t)).not.toContain('#004225');
+    }
+  });
+
+  it('lässt den Scrim (rgba) aus der Kontrastprüfung', () => {
+    expect(LIGHT['--color-scrim']).toBeUndefined();
+    expect(TOKENS).toMatch(/--color-scrim:\s*rgba\(/);
   });
 
   for (const [theme, tokens] of [

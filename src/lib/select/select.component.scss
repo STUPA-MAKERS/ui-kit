@@ -1,30 +1,62 @@
+@use '../../styles/field' as f;
+
+:host {
+  display: block;
+  min-width: 0;
+}
+.fld {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 0;
+}
+.fld__box {
+  @include f.box;
+}
+.fld__box--labelled {
+  @include f.box-labelled;
+}
+.fld__box--invalid {
+  @include f.box-invalid;
+}
+.fld__box--disabled {
+  @include f.box-disabled;
+}
+.fld__label {
+  @include f.label;
+  right: 2.75rem;
+}
+.fld__box:focus-within .fld__label {
+  @include f.label-focus;
+}
 .sel__control {
-  appearance: none;
-  -webkit-appearance: none;
-  width: 100%;
-  height: var(--control-height);
-  box-sizing: border-box;
-  padding: 0 var(--space-7) 0 var(--space-4);
-  font-size: var(--fs-md);
-  line-height: var(--lh-normal);
+  @include f.control;
+  // After the mixin's nested states, so the plain declarations stay in one block.
+  & {
+    appearance: none;
+    -webkit-appearance: none;
+    padding-right: 2.75rem;
+    cursor: pointer;
+    text-overflow: ellipsis;
+  }
+}
+.fld__box--labelled .sel__control {
+  @include f.control-labelled;
+}
+/* The native options follow the theme through `color-scheme`; the field itself is
+   transparent, so give the list a surface of its own. */
+.sel__control option {
+  background: var(--color-bg-elevated);
   color: var(--color-text);
-  background-color: var(--color-surface);
-  background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 12 12"><path d="M2 4.5l4 4 4-4" fill="none" stroke="%236e756f" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>');
-  background-repeat: no-repeat;
-  background-position: right var(--space-3) center;
-  background-size: 0.7rem;
-  border: var(--border-width) solid var(--color-border-strong);
-  border-radius: var(--radius-md);
-  cursor: pointer;
-  transition: border-color var(--motion-fast) var(--ease-standard);
 }
-.sel__control:hover:not(:disabled) {
-  border-color: var(--color-text-muted);
+.fld__chevron {
+  position: absolute;
+  right: 14px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--color-text-muted);
+  pointer-events: none;
 }
-.sel__control:disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
-}
-.sel__control[aria-invalid='true'] {
-  border-color: var(--color-danger);
+.fld__msg {
+  @include f.message;
 }

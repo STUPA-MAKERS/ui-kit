@@ -19,9 +19,12 @@ import {
   DialogComponent,
   IconComponent,
   InputComponent,
+  SegmentedComponent,
   SelectComponent,
   StepperComponent,
+  SwitchComponent,
   TableComponent,
+  TabsComponent,
 } from '../public-api';
 import { ToastComponent } from './toast/toast.component';
 
@@ -45,6 +48,9 @@ interface Row {
     IconComponent,
     TableComponent,
     DialogComponent,
+    SwitchComponent,
+    SegmentedComponent,
+    TabsComponent,
   ],
   template: `
     <main>
@@ -67,6 +73,15 @@ interface Row {
       <app-date-range legend="Zeitraum" startLabel="Von" endLabel="Bis" />
 
       <app-badge variant="success">Aktiv</app-badge>
+      <app-badge>NÖ</app-badge>
+
+      <app-switch hint="Gilt sofort">E-Mail bei neuen Anträgen</app-switch>
+      <app-switch ariaLabel="Stimmrecht" [checked]="true" />
+      <app-segmented ariaLabel="Art" [options]="kinds" value="expense" />
+      <app-tabs #t ariaLabel="Antrag" [tabs]="tabs" active="app" />
+      <section role="tabpanel" [id]="t.panelId('app')" [attr.aria-labelledby]="t.tabId('app')">Antrag</section>
+      <app-button variant="danger">Löschen</app-button>
+      <app-button variant="text" [iconOnly]="true" ariaLabel="Bearbeiten"><app-icon name="edit" /></app-button>
 
       <h2>Karten</h2>
       <app-card heading="Karte"><p>Inhalt</p></app-card>
@@ -89,6 +104,14 @@ class PrimitivesHost {
     { key: 'amount' as const, label: 'Betrag' },
   ];
   readonly rows: Row[] = [{ name: 'Antrag A', amount: 100 }];
+  readonly kinds = [
+    { value: 'expense', label: 'Ausgabe' },
+    { value: 'income', label: 'Einnahme' },
+  ];
+  readonly tabs = [
+    { id: 'app', label: 'Antrag' },
+    { id: 'history', label: 'Verlauf', count: 4 },
+  ];
 }
 
 describe('UI-Primitive a11y (axe)', () => {

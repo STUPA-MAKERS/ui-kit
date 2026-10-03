@@ -1,3 +1,3 @@
-// Jest stub for *.css / *.scss imports (e.g. @fontsource/archivo) — styles are
+// Jest stub for *.css / *.scss imports (component stylesheets) — styles are
 // irrelevant in unit tests.
 module.exports = {};

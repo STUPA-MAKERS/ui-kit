@@ -8,19 +8,22 @@
   gap: var(--space-3);
   max-width: min(92vw, 24rem);
 }
+/* A raised plate (surface 3). The variant colours only the leading edge: the message
+   itself says what happened. */
 .toast {
   display: flex;
   align-items: center;
   gap: var(--space-3);
-  padding: var(--space-3) var(--space-4);
-  border-radius: var(--radius-md);
-  box-shadow: var(--shadow-md);
-  border-inline-start: 3px solid currentColor;
-  background: var(--color-bg-elevated);
+  min-height: 48px;
+  padding: var(--space-2) var(--space-2) var(--space-2) var(--space-4);
+  border-radius: var(--radius-field);
+  box-shadow: var(--shadow-elevated);
+  border-inline-start: 3px solid var(--color-border-strong);
+  background: var(--color-surface-3);
   color: var(--color-text);
 }
 .toast--success {
-  border-color: var(--color-success);
+  border-color: var(--color-accent);
 }
 .toast--warning {
   border-color: var(--color-warning);
@@ -29,15 +32,27 @@
   border-color: var(--color-danger);
 }
 .toast--info {
-  border-color: var(--color-info);
+  border-color: var(--color-border-strong);
 }
 .toast__msg {
   flex: 1;
-  font-size: var(--fs-sm);
+  font-size: var(--fs-body);
+  line-height: var(--lh-body);
 }
 .toast__close {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  padding: 0;
   background: transparent;
   border: 0;
+  border-radius: var(--radius-pill);
   cursor: pointer;
   color: var(--color-text-muted);
+}
+.toast__close:hover {
+  background: var(--color-surface-4);
+  color: var(--color-text);
 }

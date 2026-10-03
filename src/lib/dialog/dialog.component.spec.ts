@@ -1,5 +1,6 @@
 import { fireEvent, render, screen } from '@testing-library/angular';
 import userEvent from '@testing-library/user-event';
+import { ButtonComponent } from '../button/button.component';
 import { DialogComponent } from './dialog.component';
 
 function pane(): HTMLElement {
@@ -26,6 +27,36 @@ describe('DialogComponent', () => {
     const dialog = screen.getByRole('dialog');
     expect(dialog).toHaveAttribute('aria-modal', 'true');
     expect(dialog).toHaveAccessibleName('Antrag löschen?');
+  });
+
+  it('shows the title as a heading and a round close button with an icon', async () => {
+    await render(`<app-dialog title="Sitzung schließen?" [open]="true">B</app-dialog>`, {
+      imports: [DialogComponent],
+    });
+    expect(screen.getByRole('heading', { level: 2, name: 'Sitzung schließen?' })).toHaveClass('dialog__title');
+    const close = screen.getByRole('button', { name: 'Schließen' });
+    expect(close).toHaveAttribute('title', 'Schließen');
+    expect(close.querySelector('svg')).toHaveAttribute('aria-hidden', 'true');
+    expect(close.textContent?.trim()).toBe('');
+  });
+
+  it('puts the actions in the footer, the destructive one as an outlined danger button', async () => {
+    await render(
+      `<app-dialog title="Antrag löschen?" [open]="true">
+         <p>Der Antrag wird gelöscht.</p>
+         <app-button dialog-footer variant="text">Abbrechen</app-button>
+         <app-button dialog-footer variant="danger">Löschen</app-button>
+       </app-dialog>`,
+      { imports: [DialogComponent, ButtonComponent] },
+    );
+    const footer = document.querySelector('.dialog__footer') as HTMLElement;
+    const del = screen.getByRole('button', { name: 'Löschen' });
+    expect(footer).toContainElement(del);
+    expect(del).toHaveClass('btn--danger');
+    expect(del).not.toHaveClass('btn--fill');
+    // The destructive action comes last, at the trailing edge.
+    const buttons = Array.from(footer.querySelectorAll('button'));
+    expect(buttons[buttons.length - 1]).toBe(del);
   });
 
   it('emits closed when the close button is pressed', async () => {
