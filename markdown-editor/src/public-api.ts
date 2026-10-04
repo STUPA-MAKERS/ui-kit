@@ -4,3 +4,4 @@
  * the consumer's lazy chunk only where the editor is actually used.
  */
 export { MarkdownEditorComponent } from './markdown-editor.component';
+export type { MarkdownFormat } from './markdown-editor.component';
