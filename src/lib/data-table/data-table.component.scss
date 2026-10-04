@@ -586,6 +586,12 @@
     border-inline-start: 0;
     border-inline-end: 0;
   }
+  /* The line that marks the pinned start column is a child of the cell, so the reset
+     above does not reach it. In a card it stood as a short vertical stroke beside the
+     checkbox in the top corner. */
+  .dt__cell--stickyStart::after {
+    content: none;
+  }
   /* The checkbox sits at the top of the card, not in a column of its own. It keeps the
      row axis, so `justify-content` still means "to the left" here. */
   .dt__selectCell {
