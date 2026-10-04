@@ -33,12 +33,26 @@
   gap: var(--space-4);
   padding: var(--space-5) var(--space-4) var(--space-2) var(--space-5);
 }
+.dialog__heading {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  min-width: 0;
+}
 .dialog__title {
   min-width: 0;
   padding-top: 6px;
   font-size: var(--fs-h1);
   line-height: var(--lh-h1);
   font-weight: var(--fw-semibold);
+  overflow-wrap: anywhere;
+}
+/* The object of the dialog, below the title: body size, muted. */
+.dialog__subtitle {
+  margin: 0;
+  font-size: var(--fs-body);
+  line-height: var(--lh-body);
+  color: var(--color-text-muted);
   overflow-wrap: anywhere;
 }
 .dialog__close {
