@@ -5,3 +5,4 @@
  */
 export { MarkdownEditorComponent } from './markdown-editor.component';
 export type { MarkdownFormat } from './markdown-editor.component';
+export type { VoteCalloutInfo, VoteCalloutResolver } from './vote-callout.extension';

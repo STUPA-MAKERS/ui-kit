@@ -1,6 +1,7 @@
 import { Component, signal } from '@angular/core';
 import { render } from '@testing-library/angular';
 import { MarkdownEditorComponent } from './markdown-editor.component';
+import type { VoteCalloutResolver } from './vote-callout.extension';
 
 @Component({
   standalone: true,
@@ -248,8 +249,58 @@ describe('MarkdownEditorComponent', () => {
       expect(card.dataset['result']).toBe('passed');
       expect(card.querySelector('.mde__voteKind')?.textContent).toBe('Abstimmung');
       expect(card.querySelector('.mde__voteQ')?.textContent).toBe('Wird der Antrag angenommen?');
-      expect(card.querySelector('.mde__voteTally')?.textContent).toBe('Ja 3 · Nein 1 · Enthaltung 0');
+      const cells = [...card.querySelectorAll('.mde__voteCell')].map((c) => c.textContent);
+      expect(cells).toEqual(['Ja3', 'Nein1', 'Enthaltung0']);
+      // Without info the card names no result: only the consumer knows the majority rule.
+      expect(card.querySelector('.mde__voteResult')).toBeNull();
+      expect(card.querySelectorAll('.mde__voteSeg')).toHaveLength(2);
       expect(container.querySelector('blockquote')).toBeNull();
+    });
+
+    it('takes the caption, the labels and the result from the resolver', async () => {
+      const seen: string[] = [];
+      const resolve: VoteCalloutResolver = (question) => {
+        seen.push(question);
+        return {
+          caption: 'Beschluss · 18:52 · Einfache Mehrheit',
+          result: { label: 'Abgelehnt', tone: 'rejected' },
+          labels: { yes: 'Yes', no: 'No', abstain: 'Abstain', result: 'Result' },
+        };
+      };
+      const { container } = await render(`<app-markdown-editor [value]="md" [voteInfo]="resolve" />`, {
+        imports: [MarkdownEditorComponent],
+        componentProperties: { md, resolve },
+      });
+      const card = container.querySelector('.mde__vote') as HTMLElement;
+      expect(seen).toContain('Wird der Antrag angenommen?');
+      expect(card.dataset['result']).toBe('rejected');
+      expect(card.querySelector('.mde__voteKind')?.textContent).toBe('Beschluss · 18:52 · Einfache Mehrheit');
+      const cells = [...card.querySelectorAll('.mde__voteCell')].map((c) => c.textContent);
+      expect(cells).toEqual(['Yes3', 'No1', 'Abstain0', 'ResultAbgelehnt']);
+    });
+
+    it('renders the cards again when the resolver changes', async () => {
+      const view = await render(`<app-markdown-editor [value]="md" [voteInfo]="resolve" />`, {
+        imports: [MarkdownEditorComponent],
+        componentProperties: { md, resolve: null as VoteCalloutResolver | null },
+      });
+      expect(view.container.querySelector('.mde__voteResult')).toBeNull();
+      view.fixture.componentInstance.resolve = () => ({ result: { label: 'Angenommen', tone: 'passed' } });
+      view.fixture.detectChanges();
+      await view.fixture.whenStable();
+      expect(view.container.querySelector('.mde__voteResult')?.textContent).toBe('Angenommen');
+      expect((view.container.querySelector('.mde__vote') as HTMLElement).dataset['result']).toBe('passed');
+    });
+
+    it('shows the plain card when the resolver fails', async () => {
+      const resolve: VoteCalloutResolver = () => {
+        throw new Error('boom');
+      };
+      const { container } = await render(`<app-markdown-editor [value]="md" [voteInfo]="resolve" />`, {
+        imports: [MarkdownEditorComponent],
+        componentProperties: { md, resolve },
+      });
+      expect(container.querySelector('.mde__voteKind')?.textContent).toBe('Abstimmung');
     });
 
     it('writes the callout back line for line', async () => {
@@ -281,7 +332,7 @@ describe('MarkdownEditorComponent', () => {
       });
       const cards = container.querySelectorAll('.mde__vote');
       expect((cards[0] as HTMLElement).dataset['result']).toBe('none');
-      expect(cards[0].querySelector('.mde__voteTally')).toBeNull();
+      expect(cards[0].querySelector('.mde__voteCounts')).toBeNull();
       expect((cards[1] as HTMLElement).dataset['result']).toBe('tie');
     });
   });

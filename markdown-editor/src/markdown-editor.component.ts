@@ -15,7 +15,11 @@ import { Placeholder } from '@tiptap/extensions';
 import StarterKit from '@tiptap/starter-kit';
 import { Markdown } from 'tiptap-markdown';
 import { BlockMathMarkdown, InlineMathMarkdown } from './math.extension';
-import { VoteCallout } from './vote-callout.extension';
+import {
+  VoteCallout,
+  type VoteCalloutResolver,
+  type VoteCalloutView,
+} from './vote-callout.extension';
 
 // A formula with an error shows the source in red instead of failing the render.
 const KATEX_OPTIONS = { throwOnError: false };
@@ -69,6 +73,12 @@ export class MarkdownEditorComponent implements OnDestroy {
    * writing continues, the way Nextcloud Collectives does it. Empty means no hint.
    */
   readonly hint = input<string>('');
+  /**
+   * Find what the consumer knows about the vote of a vote callout, by its question: the
+   * caption, the result and the labels (`VoteCalloutInfo`). The cards render again when
+   * the resolver changes. `null` shows the plain card.
+   */
+  readonly voteInfo = input<VoteCalloutResolver | null>(null);
 
   /** Emittiert das serialisierte Markdown bei jeder Änderung. */
   readonly valueChange = output<string>();
@@ -83,6 +93,8 @@ export class MarkdownEditorComponent implements OnDestroy {
   private editor: Editor | null = null;
   private loadedKey: string | null = null;
   private emitting = false;
+  /** The vote cards on screen, to render them again with a new resolver. */
+  private readonly voteViews = new Set<VoteCalloutView>();
 
   constructor() {
     // Editor lazy aufbauen, sobald das Host-Element existiert, und auf
@@ -104,7 +116,10 @@ export class MarkdownEditorComponent implements OnDestroy {
               showOnlyCurrent: false,
               placeholder: ({ editor }) => (editor.isEmpty ? this.placeholder() : this.hint()),
             }),
-            VoteCallout,
+            VoteCallout.configure({
+              resolver: () => this.voteInfo(),
+              views: this.voteViews,
+            }),
             InlineMathMarkdown.configure({ katexOptions: KATEX_OPTIONS }),
             BlockMathMarkdown.configure({ katexOptions: KATEX_OPTIONS }),
           ],
@@ -131,6 +146,15 @@ export class MarkdownEditorComponent implements OnDestroy {
       }
     });
   }
+
+  /**
+   * A card reads the resolver when it renders. A new resolver (for example after a vote
+   * closed) renders the cards on screen again; the document does not change.
+   */
+  private readonly voteInfoEffect = effect(() => {
+    this.voteInfo();
+    for (const view of this.voteViews) view.render();
+  });
 
   /**
    * Switch a format at the cursor or on the selection, as the Markdown shortcuts do. The

@@ -135,6 +135,13 @@ The editor has no toolbar of its own. A consumer that shows one calls
 `'bulletList'`) and reads `activeFormats()` to show a format as pressed. The heading is
 level 2, because level 1 is the heading of the document.
 
+A vote callout (`> [!abstimmung] **Frage**` and a tally line) shows as one card: a
+caption, the question, the counts and a bar of the counts. The Markdown holds no time, no
+majority rule and no result, so the consumer can give them through the `voteInfo` input, a
+function from the question to `VoteCalloutInfo` (`caption`, `result` with `label` and
+`tone`, `labels` of the counts). The cards render again when the function changes. Without
+it the caption is the kind of the callout and the card names no result.
+
 ## Develop
 
 ```bash
