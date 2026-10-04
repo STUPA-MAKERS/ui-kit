@@ -130,6 +130,11 @@ main bundle:
 import { MarkdownEditorComponent } from '@stupa-makers/ui-kit/markdown-editor';
 ```
 
+The editor has no toolbar of its own. A consumer that shows one calls
+`toggleFormat(format)` on the component (`'heading'`, `'bold'`, `'italic'`,
+`'bulletList'`) and reads `activeFormats()` to show a format as pressed. The heading is
+level 2, because level 1 is the heading of the document.
+
 ## Develop
 
 ```bash

@@ -137,6 +137,74 @@ describe('MarkdownEditorComponent', () => {
     expect(pm.textContent).not.toContain('Ignoriert');
   });
 
+  describe('format commands for a toolbar', () => {
+    function editorOf(view: { fixture: { debugElement: { children: { componentInstance: unknown }[] } } }) {
+      return view.fixture.debugElement.children[0].componentInstance as MarkdownEditorComponent;
+    }
+
+    it('switches bold, italic, a heading and a bullet list and reports them as active', async () => {
+      const view = await render(Host);
+      const host = view.fixture.componentInstance;
+      const cmp = editorOf(view);
+      const editor = (
+        cmp as unknown as {
+          editor: {
+            commands: {
+              insertContent: (c: string) => void;
+              selectAll: () => void;
+              setTextSelection: (pos: number) => void;
+            };
+          };
+        }
+      ).editor;
+      editor.commands.insertContent('Rückfragen');
+      editor.commands.selectAll();
+
+      cmp.toggleFormat('bold');
+      expect(cmp.activeFormats().has('bold')).toBe(true);
+      expect(host.changes.at(-1)).toContain('**Rückfragen**');
+      cmp.toggleFormat('bold');
+      expect(cmp.activeFormats().has('bold')).toBe(false);
+
+      cmp.toggleFormat('italic');
+      expect(cmp.activeFormats().has('italic')).toBe(true);
+      cmp.toggleFormat('italic');
+
+      // A block format reads the block at the cursor; the whole document also holds the
+      // empty trailing line.
+      editor.commands.setTextSelection(3);
+      cmp.toggleFormat('heading');
+      expect(cmp.activeFormats().has('heading')).toBe(true);
+      expect(host.changes.at(-1)).toContain('## Rückfragen');
+      cmp.toggleFormat('heading');
+      expect(cmp.activeFormats().has('heading')).toBe(false);
+
+      cmp.toggleFormat('bulletList');
+      expect(cmp.activeFormats().has('bulletList')).toBe(true);
+      expect(host.changes.at(-1)).toContain('- Rückfragen');
+    });
+
+    it('does nothing while the editor is read-only', async () => {
+      const view = await render(Host);
+      const host = view.fixture.componentInstance;
+      host.disabled.set(true);
+      view.fixture.detectChanges();
+      await view.fixture.whenStable();
+      const cmp = editorOf(view);
+      const before = host.changes.length;
+      cmp.toggleFormat('bold');
+      expect(host.changes.length).toBe(before);
+      expect(cmp.activeFormats().size).toBe(0);
+    });
+
+    it('does nothing before the editor exists or after it is gone', async () => {
+      const view = await render(Host);
+      const cmp = editorOf(view);
+      view.fixture.destroy();
+      expect(() => cmp.toggleFormat('italic')).not.toThrow();
+    });
+  });
+
   it('destroys the editor on component teardown', async () => {
     const view = await render(Host);
     const cmp = view.fixture.debugElement.children[0]

@@ -7,6 +7,7 @@ import {
   effect,
   input,
   output,
+  signal,
   viewChild,
 } from '@angular/core';
 import { Editor } from '@tiptap/core';
@@ -18,6 +19,22 @@ import { VoteCallout } from './vote-callout.extension';
 
 // A formula with an error shows the source in red instead of failing the render.
 const KATEX_OPTIONS = { throwOnError: false };
+
+/**
+ * A format that a toolbar of the consumer can switch: a heading (level 2, because level 1
+ * is the heading of the document), bold, italic and a bullet list.
+ */
+export type MarkdownFormat = 'heading' | 'bold' | 'italic' | 'bulletList';
+
+const FORMATS: readonly MarkdownFormat[] = ['heading', 'bold', 'italic', 'bulletList'];
+
+/** The node or mark name and the attributes that `isActive` checks for a format. */
+const ACTIVE_CHECK: Record<MarkdownFormat, { name: string; attrs?: Record<string, unknown> }> = {
+  heading: { name: 'heading', attrs: { level: 2 } },
+  bold: { name: 'bold' },
+  italic: { name: 'italic' },
+  bulletList: { name: 'bulletList' },
+};
 
 /**
  * WYSIWYG-Markdown-Editor (Tiptap) im Stil von Nextcloud Collectives: man tippt
@@ -56,6 +73,12 @@ export class MarkdownEditorComponent implements OnDestroy {
   /** Emittiert das serialisierte Markdown bei jeder Änderung. */
   readonly valueChange = output<string>();
 
+  /**
+   * The formats at the cursor or on the selection. A toolbar of the consumer reads it to
+   * show a format button as pressed. It changes with every transaction of the editor.
+   */
+  readonly activeFormats = signal<ReadonlySet<MarkdownFormat>>(new Set());
+
   private readonly host = viewChild.required<ElementRef<HTMLDivElement>>('host');
   private editor: Editor | null = null;
   private loadedKey: string | null = null;
@@ -91,6 +114,7 @@ export class MarkdownEditorComponent implements OnDestroy {
             if (this.emitting) return;
             this.valueChange.emit(this.toMarkdown(editor));
           },
+          onTransaction: ({ editor }) => this.readFormats(editor),
         });
         this.loadedKey = key;
         this.ensureTrailingLine();
@@ -106,6 +130,41 @@ export class MarkdownEditorComponent implements OnDestroy {
         this.ensureTrailingLine();
       }
     });
+  }
+
+  /**
+   * Switch a format at the cursor or on the selection, as the Markdown shortcuts do. The
+   * edit goes through the normal update path, so `valueChange` emits the new Markdown. A
+   * read-only editor does nothing.
+   */
+  toggleFormat(format: MarkdownFormat): void {
+    const editor = this.editor;
+    if (!editor || !editor.isEditable) return;
+    const chain = editor.chain().focus();
+    switch (format) {
+      case 'heading':
+        chain.toggleHeading({ level: 2 }).run();
+        break;
+      case 'bold':
+        chain.toggleBold().run();
+        break;
+      case 'italic':
+        chain.toggleItalic().run();
+        break;
+      case 'bulletList':
+        chain.toggleBulletList().run();
+        break;
+    }
+  }
+
+  /** Read the formats at the cursor into `activeFormats`. */
+  private readFormats(editor: Editor): void {
+    const next = new Set(
+      FORMATS.filter((f) => editor.isActive(ACTIVE_CHECK[f].name, ACTIVE_CHECK[f].attrs ?? {})),
+    );
+    const prev = this.activeFormats();
+    if (FORMATS.every((f) => next.has(f) === prev.has(f))) return;
+    this.activeFormats.set(next);
   }
 
   /**
