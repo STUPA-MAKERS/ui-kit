@@ -32,6 +32,12 @@ let nextId = 0;
 export class DialogComponent implements OnChanges, OnDestroy {
   @Input() open = false;
   @Input() title = '';
+  /**
+   * A short line below the title that names the object of the dialog, for example
+   * the meeting a new agenda item goes to. Empty: no line. The dialog uses it as its
+   * description (`aria-describedby`).
+   */
+  @Input() subtitle = '';
   @Input() closeLabel = 'Schließen';
   /** Breite: 'md' (32rem, Default) oder 'lg' (44rem, z. B. Charts). */
   @Input() size: 'md' | 'lg' = 'md';
@@ -39,7 +45,9 @@ export class DialogComponent implements OnChanges, OnDestroy {
 
   @ViewChild('pane') private pane?: ElementRef<HTMLElement>;
 
-  readonly titleId = `app-dialog-title-${nextId++}`;
+  private readonly uid = nextId++;
+  readonly titleId = `app-dialog-title-${this.uid}`;
+  readonly subtitleId = `app-dialog-subtitle-${this.uid}`;
 
   /** Element, das vor dem Öffnen den Fokus hatte — für Restore beim Schließen. */
   private previouslyFocused: HTMLElement | null = null;

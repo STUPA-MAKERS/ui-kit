@@ -29,6 +29,25 @@ describe('DialogComponent', () => {
     expect(dialog).toHaveAccessibleName('Antrag löschen?');
   });
 
+  it('shows a subtitle below the title and uses it as the description', async () => {
+    await render(
+      `<app-dialog title="TOP hinzufügen" subtitle="34. Sitzung des Studierendenparlaments" [open]="true">B</app-dialog>`,
+      { imports: [DialogComponent] },
+    );
+    const sub = screen.getByText('34. Sitzung des Studierendenparlaments');
+    expect(sub).toHaveClass('dialog__subtitle');
+    expect(pane()).toHaveAccessibleDescription('34. Sitzung des Studierendenparlaments');
+    expect(pane()).toHaveAccessibleName('TOP hinzufügen');
+  });
+
+  it('renders no subtitle and no description without a subtitle', async () => {
+    await render(`<app-dialog title="X" [open]="true">B</app-dialog>`, {
+      imports: [DialogComponent],
+    });
+    expect(document.querySelector('.dialog__subtitle')).toBeNull();
+    expect(pane()).not.toHaveAttribute('aria-describedby');
+  });
+
   it('shows the title as a heading and a round close button with an icon', async () => {
     await render(`<app-dialog title="Sitzung schließen?" [open]="true">B</app-dialog>`, {
       imports: [DialogComponent],

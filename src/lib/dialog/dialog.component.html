@@ -8,6 +8,7 @@
       aria-modal="true"
       tabindex="-1"
       [attr.aria-labelledby]="titleId"
+      [attr.aria-describedby]="subtitle ? subtitleId : null"
       (click)="$event.stopPropagation()"
     >
       <!-- Mobile-Sheet: Greifleiste + Header sind die Drag-Zone zum
@@ -20,7 +21,12 @@
       >
         <span class="dialog__grabber" aria-hidden="true"></span>
         <header class="dialog__header">
-          <h2 class="dialog__title" [id]="titleId">{{ title }}</h2>
+          <div class="dialog__heading">
+            <h2 class="dialog__title" [id]="titleId">{{ title }}</h2>
+            @if (subtitle) {
+              <p class="dialog__subtitle" [id]="subtitleId">{{ subtitle }}</p>
+            }
+          </div>
           <button
             type="button"
             class="dialog__close"
