@@ -1,9 +1,11 @@
-/* Simple table: the same rows as the data table (56px, caption header, divider). */
+/* Simple table: the same rows as the data table (56px, caption header, divider). It
+   takes the same surface as the data table: one step above its container (`--table-bg`,
+   surface 1 on the page; see `styles/_surface.scss`). */
 .tbl {
   width: 100%;
   border-collapse: collapse;
   font-size: var(--fs-body);
-  background: var(--color-surface);
+  background: var(--table-bg, var(--color-surface-1));
   border-radius: var(--radius-lg);
   overflow: hidden;
 }
@@ -23,10 +25,10 @@ th {
   font-size: var(--fs-cap);
   line-height: var(--lh-cap);
   font-weight: var(--fw-semibold);
-  color: var(--color-text-subtle);
+  color: var(--table-head-fg, var(--color-text-subtle));
   text-transform: uppercase;
   letter-spacing: var(--tracking-cap);
 }
 tbody tr:hover {
-  background: var(--color-surface-sunken);
+  background: var(--table-hover-bg, var(--color-surface-sunken));
 }

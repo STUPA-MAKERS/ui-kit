@@ -1,3 +1,5 @@
+@use '../../styles/surface';
+
 .dialog__backdrop {
   position: fixed;
   inset: 0;
@@ -8,8 +10,9 @@
   padding: var(--space-5);
   background: var(--color-scrim);
 }
-/* The sheet: surface 1, radius 24, no edge. */
+/* The sheet: surface 1, radius 24, no edge. A table inside it steps up to surface 2. */
 .dialog {
+  @include surface.context(1);
   width: 100%;
   max-width: 35rem;
   background: var(--color-bg-elevated);
