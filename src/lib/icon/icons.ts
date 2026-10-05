@@ -25,6 +25,7 @@ export type IconName =
   | 'back'
   | 'bell'
   | 'bold'
+  | 'bolt'
   | 'building'
   | 'cal'
   | 'chat'
@@ -50,6 +51,7 @@ export type IconName =
   | 'gear'
   | 'globe'
   | 'grid'
+  | 'grip'
   | 'half'
   | 'handshake'
   | 'heading'
@@ -67,6 +69,7 @@ export type IconName =
   | 'logout'
   | 'mail'
   | 'menu'
+  | 'minus'
   | 'monitor'
   | 'moon'
   | 'more'
@@ -78,6 +81,7 @@ export type IconName =
   | 'plus'
   | 'power'
   | 'receipt'
+  | 'redo'
   | 'repeat'
   | 'right'
   | 'search'
@@ -91,6 +95,7 @@ export type IconName =
   | 'tasks'
   | 'trash'
   | 'tune'
+  | 'undo'
   | 'up'
   | 'upload'
   | 'user'
@@ -128,6 +133,7 @@ const SHAPES: Record<string, readonly IconShape[]> = {
   back: [{ t: 'path', d: 'M19 12H5M11 18l-6-6 6-6' }],
   bell: [{ t: 'path', d: 'M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9' }, { t: 'path', d: 'M10.3 21a1.94 1.94 0 0 0 3.4 0' }],
   bold: [{ t: 'path', d: 'M7 5h6a3.5 3.5 0 0 1 0 7H7zM7 12h7a3.5 3.5 0 0 1 0 7H7z' }],
+  bolt: [{ t: 'path', d: 'M13 2 4 14h7l-1 8 9-12h-7z' }],
   building: [{ t: 'path', d: 'M3 21h18M5 21V10M19 21V10M9 21v-7M15 21v-7M2 10 12 3l10 7z' }],
   cal: [{ t: 'rect', x: '3', y: '4', width: '18', height: '18', rx: '2' }, { t: 'path', d: 'M16 2v4M8 2v4M3 10h18' }],
   chat: [{ t: 'path', d: 'M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z' }],
@@ -153,6 +159,7 @@ const SHAPES: Record<string, readonly IconShape[]> = {
   gear: [{ t: 'circle', cx: '12', cy: '12', r: '3' }, { t: 'path', d: 'M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z' }],
   globe: [{ t: 'circle', cx: '12', cy: '12', r: '9' }, { t: 'path', d: 'M3 12h18M12 3a14 14 0 0 1 0 18M12 3a14 14 0 0 0 0 18' }],
   grid: [{ t: 'rect', x: '3', y: '3', width: '7', height: '7', rx: '2' }, { t: 'rect', x: '14', y: '3', width: '7', height: '7', rx: '2' }, { t: 'rect', x: '3', y: '14', width: '7', height: '7', rx: '2' }, { t: 'rect', x: '14', y: '14', width: '7', height: '7', rx: '2' }],
+  grip: [{ t: 'circle', cx: '9', cy: '6', r: '1.2' }, { t: 'circle', cx: '15', cy: '6', r: '1.2' }, { t: 'circle', cx: '9', cy: '12', r: '1.2' }, { t: 'circle', cx: '15', cy: '12', r: '1.2' }, { t: 'circle', cx: '9', cy: '18', r: '1.2' }, { t: 'circle', cx: '15', cy: '18', r: '1.2' }],
   half: [{ t: 'circle', cx: '12', cy: '12', r: '9' }, { t: 'path', d: 'M12 3a9 9 0 0 0 0 18z', fill: 'currentColor' }],
   handshake: [{ t: 'path', d: 'm11 17 2 2a1 1 0 1 0 3-3' }, { t: 'path', d: 'm14 14 2.5 2.5a1 1 0 1 0 3-3l-3.88-3.88a3 3 0 0 0-4.24 0l-.88.88a1 1 0 1 1-3-3l2.81-2.81a5.79 5.79 0 0 1 7.06-.87l.47.28a2 2 0 0 0 1.42.25L21 4' }, { t: 'path', d: 'm21 3 1 11h-2' }, { t: 'path', d: 'M3 3 2 14l6.5 6.5a1 1 0 1 0 3-3' }, { t: 'path', d: 'M3 4h8' }],
   heading: [{ t: 'path', d: 'M6 4v16M18 4v16M6 12h12' }],
@@ -170,6 +177,7 @@ const SHAPES: Record<string, readonly IconShape[]> = {
   logout: [{ t: 'path', d: 'M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4' }, { t: 'path', d: 'm16 17 5-5-5-5M21 12H9' }],
   mail: [{ t: 'rect', x: '2', y: '4', width: '20', height: '16', rx: '2' }, { t: 'path', d: 'm22 7-10 6L2 7' }],
   menu: [{ t: 'path', d: 'M4 6h16M4 12h16M4 18h16' }],
+  minus: [{ t: 'path', d: 'M5 12h14' }],
   monitor: [{ t: 'rect', x: '2', y: '3', width: '20', height: '14', rx: '2' }, { t: 'path', d: 'M8 21h8M12 17v4' }],
   moon: [{ t: 'path', d: 'M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z' }],
   more: [{ t: 'circle', cx: '12', cy: '5', r: '1.3' }, { t: 'circle', cx: '12', cy: '12', r: '1.3' }, { t: 'circle', cx: '12', cy: '19', r: '1.3' }],
@@ -182,6 +190,7 @@ const SHAPES: Record<string, readonly IconShape[]> = {
   plus: [{ t: 'path', d: 'M12 5v14M5 12h14' }],
   power: [{ t: 'path', d: 'M12 2v10' }, { t: 'path', d: 'M18.4 6.6a9 9 0 1 1-12.77.04' }],
   receipt: [{ t: 'path', d: 'M5 3v18l2.5-1.5L10 21l2-1.5 2 1.5 2.5-1.5L19 21V3l-2.5 1.5L14 3l-2 1.5L10 3 7.5 4.5z' }, { t: 'path', d: 'M9 9h6M9 13h6' }],
+  redo: [{ t: 'path', d: 'm15 14 5-5-5-5' }, { t: 'path', d: 'M20 9H9a5 5 0 0 0 0 10h3' }],
   repeat: [{ t: 'path', d: 'm17 2 4 4-4 4' }, { t: 'path', d: 'M3 11v-1a4 4 0 0 1 4-4h14' }, { t: 'path', d: 'm7 22-4-4 4-4' }, { t: 'path', d: 'M21 13v1a4 4 0 0 1-4 4H3' }],
   right: [{ t: 'path', d: 'm9 6 6 6-6 6' }],
   search: [{ t: 'circle', cx: '11', cy: '11', r: '7' }, { t: 'path', d: 'm20 20-3.5-3.5' }],
@@ -195,6 +204,7 @@ const SHAPES: Record<string, readonly IconShape[]> = {
   tasks: [{ t: 'path', d: 'm3 7 2 2 4-4' }, { t: 'path', d: 'm3 17 2 2 4-4' }, { t: 'path', d: 'M13 7h8M13 17h8' }],
   trash: [{ t: 'path', d: 'M3 6h18M8 6V4h8v2M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6' }],
   tune: [{ t: 'path', d: 'M4 6h9M17 6h3M4 12h3M11 12h9M4 18h11M19 18h1' }, { t: 'circle', cx: '15', cy: '6', r: '2' }, { t: 'circle', cx: '9', cy: '12', r: '2' }, { t: 'circle', cx: '17', cy: '18', r: '2' }],
+  undo: [{ t: 'path', d: 'M9 14 4 9l5-5' }, { t: 'path', d: 'M4 9h11a5 5 0 0 1 0 10h-3' }],
   up: [{ t: 'path', d: 'm6 15 6-6 6 6' }],
   upload: [{ t: 'path', d: 'M12 21V9' }, { t: 'path', d: 'm7 14 5-5 5 5' }, { t: 'path', d: 'M5 3h14' }],
   user: [{ t: 'circle', cx: '12', cy: '8', r: '4' }, { t: 'path', d: 'M4 21a8 8 0 0 1 16 0' }],
@@ -242,6 +252,7 @@ export const ICON_NAMES: readonly IconName[] = [
   'back',
   'bell',
   'bold',
+  'bolt',
   'building',
   'cal',
   'chat',
@@ -267,6 +278,7 @@ export const ICON_NAMES: readonly IconName[] = [
   'gear',
   'globe',
   'grid',
+  'grip',
   'half',
   'handshake',
   'heading',
@@ -284,6 +296,7 @@ export const ICON_NAMES: readonly IconName[] = [
   'logout',
   'mail',
   'menu',
+  'minus',
   'monitor',
   'moon',
   'more',
@@ -295,6 +308,7 @@ export const ICON_NAMES: readonly IconName[] = [
   'plus',
   'power',
   'receipt',
+  'redo',
   'repeat',
   'right',
   'search',
@@ -308,6 +322,7 @@ export const ICON_NAMES: readonly IconName[] = [
   'tasks',
   'trash',
   'tune',
+  'undo',
   'up',
   'upload',
   'user',

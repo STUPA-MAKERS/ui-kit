@@ -89,6 +89,15 @@ describe('IconComponent', () => {
     }
   });
 
+  it('has the icons of the form editor and the flow editor', () => {
+    for (const name of ['grip', 'undo', 'redo', 'minus', 'bolt']) {
+      expect(ICON_NAMES).toContain(name);
+      expect(iconShapes(name)?.length).toBeGreaterThan(0);
+    }
+    // The grip is six dots in two columns.
+    expect(iconShapes('grip')?.filter((s) => s.t === 'circle')).toHaveLength(6);
+  });
+
   it('has a pin and a crossed-out pin for the pinned backups', () => {
     expect(ICON_NAMES).toContain('pin');
     expect(ICON_NAMES).toContain('pinslash');
