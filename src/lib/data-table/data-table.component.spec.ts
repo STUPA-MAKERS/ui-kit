@@ -268,6 +268,15 @@ describe('DataTableComponent', () => {
       expect(cells.every((c) => !c.hasAttribute('data-card'))).toBe(true);
     });
 
+    it('marks the actions column, so the card puts it in its header', async () => {
+      const { container } = await setup([
+        { key: 'name', label: 'Name', card: 'title' },
+        { key: 'id', label: 'Aktionen', card: 'actions' },
+      ]);
+      const cells = [...container.querySelectorAll('tbody tr:first-child td')];
+      expect(cells.map((c) => c.getAttribute('data-card'))).toEqual(['title', 'actions']);
+    });
+
     it('carries the role through skeleton rows, so the card does not reflow on load', async () => {
       const { container } = await render(
         `<app-data-table [columns]="cols" [rows]="[]" [loading]="true" />`,
@@ -501,6 +510,15 @@ describe('DataTableComponent', () => {
       expect(selected).toEqual(new Set([ROWS[0].id]));
     });
 
+    it('wraps every checkbox, the select-all included, in the same centring label', async () => {
+      // One wrapper for the header and the rows, so the select-all box lines up with the
+      // row boxes and none of them sits on a text baseline.
+      const { container } = await setup();
+      const boxes = [...container.querySelectorAll('input[type=checkbox]')];
+      expect(boxes.length).toBe(ROWS.length + 1);
+      expect(boxes.every((b) => b.parentElement?.classList.contains('dt__checkHit'))).toBe(true);
+    });
+
     it('select-all covers the rows on screen', async () => {
       const onChange = jest.fn();
       const { container } = await setup(new Set(), onChange);
@@ -552,6 +570,33 @@ describe('DataTableComponent', () => {
         },
       );
       container.querySelectorAll<HTMLInputElement>('tbody input[type=checkbox]')[0].click();
+      expect(rowClick).not.toHaveBeenCalled();
+    });
+
+    it('toggles the row from the touch target around the box, without opening the row', async () => {
+      // In a card the label around the checkbox is the 44px touch target. A tap on it
+      // next to the box selects the row; it must not also open it.
+      const rowClick = jest.fn();
+      const onChange = jest.fn();
+      const { container } = await render(
+        `<app-data-table
+           [columns]="cols" [rows]="rows" [rowKey]="rowKey" [selectable]="true" [clickable]="true"
+           (rowClick)="onRow($event)" (selectedChange)="onChange($event)" />`,
+        {
+          imports: [DataTableComponent],
+          componentProperties: {
+            cols: COLS,
+            rows: ROWS,
+            rowKey: (r: unknown) => (r as Row).id,
+            onRow: rowClick,
+            onChange,
+          },
+        },
+      );
+      const hit = container.querySelectorAll<HTMLLabelElement>('tbody .dt__checkHit')[1];
+      expect(hit.querySelector('input[type=checkbox]')).not.toBeNull();
+      hit.click();
+      expect(onChange).toHaveBeenCalledWith(new Set([ROWS[1].id]));
       expect(rowClick).not.toHaveBeenCalled();
     });
   });

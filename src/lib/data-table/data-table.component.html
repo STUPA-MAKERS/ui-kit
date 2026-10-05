@@ -18,15 +18,17 @@
           <tr>
             @if (selectable) {
               <th scope="col" class="dt__selectCell dt__cell--stickyStart">
-                <input
-                  type="checkbox"
-                  class="dt__check"
-                  [attr.aria-label]="selectAllLabel"
-                  [checked]="allSelected"
-                  [indeterminate]="someSelected"
-                  [disabled]="loading"
-                  (change)="toggleAll()"
-                />
+                <label class="dt__checkHit">
+                  <input
+                    type="checkbox"
+                    class="dt__check"
+                    [attr.aria-label]="selectAllLabel"
+                    [checked]="allSelected"
+                    [indeterminate]="someSelected"
+                    [disabled]="loading"
+                    (change)="toggleAll()"
+                  />
+                </label>
               </th>
             }
             @for (col of columns; track col.key) {
@@ -101,15 +103,19 @@
                   <td class="dt__selectCell dt__cell--stickyStart">
                     <!-- `click.stop`: a selectable table is often also clickable, and a
                          checkbox that also opened the row would make the two impossible
-                         to tell apart. -->
-                    <input
-                      type="checkbox"
-                      class="dt__check"
-                      [attr.aria-label]="selectLabel(row, i)"
-                      [checked]="isSelected(row, i)"
-                      (click)="$event.stopPropagation()"
-                      (change)="toggleRow(row, i)"
-                    />
+                         to tell apart. The label is the touch target: in a card it is
+                         44px square around the box, and a tap on it must not open the
+                         row either. -->
+                    <label class="dt__checkHit" (click)="$event.stopPropagation()">
+                      <input
+                        type="checkbox"
+                        class="dt__check"
+                        [attr.aria-label]="selectLabel(row, i)"
+                        [checked]="isSelected(row, i)"
+                        (click)="$event.stopPropagation()"
+                        (change)="toggleRow(row, i)"
+                      />
+                    </label>
                   </td>
                 }
                 @for (col of columns; track col.key) {
