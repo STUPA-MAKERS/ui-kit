@@ -12,6 +12,14 @@
   /* The colour of the line at the leading pin. A lit tongue turns it, the way it turns
      the cut rule of the trailing pin. */
   --pin-line: var(--color-border);
+  /* The surface of the table. A container that is itself a surface sets the `--table-*`
+     properties to the next higher step (see `surface.context` in `styles/_surface.scss`);
+     without one, the table sits on the page and takes surface 1. One alias per role, so
+     every rule below reads the same value. */
+  --dt-bg: var(--table-bg, var(--color-surface-1));
+  --dt-hover: var(--table-hover-bg, var(--color-surface-sunken));
+  --dt-raised: var(--table-raised-bg, var(--color-surface-raised, var(--color-surface-sunken)));
+  --dt-head-fg: var(--table-head-fg, var(--color-text-subtle));
 }
 .dt__scroll {
   overflow-x: auto;
@@ -209,7 +217,7 @@
   height: 0.75rem;
   width: 60%;
   border-radius: var(--radius-sm, 4px);
-  background: var(--color-surface-sunken);
+  background: var(--dt-hover);
   animation: dt-pulse 1.4s var(--ease-standard, ease) infinite;
 }
 .dt__skeleton-row td:first-child .dt__skeleton {
@@ -249,20 +257,25 @@
      to a block that cannot see its neighbours: a table that adds `margin-top` on top of
      what the page header contributes sits lower than a card in the same slot.
 
-     The frame of the design system: surface 1, radius 16, no visible edge. The border
-     keeps its width, so the pin and cut geometry stays the same; it only gives up its
-     colour. */
-  background: var(--color-surface);
+     The frame of the design system: one surface step above its container (surface 1 on
+     the page, surface 2 on a pane), radius 16, no visible edge. The border keeps its
+     width, so the pin and cut geometry stays the same; it only gives up its colour. */
+  background: var(--dt-bg);
   border: var(--border-width) solid transparent;
   border-radius: var(--radius-lg);
   overflow: hidden;
+}
+/* The frame ends the last row, so the row needs no rule of its own. A rule there drew a
+   line one pixel above the round bottom edge of the frame. */
+.dt--boxed .dt__table tbody tr:last-child td {
+  border-bottom: 0;
 }
 .dt__table {
   width: 100%;
   border-collapse: collapse;
   font-size: var(--fs-sm);
 }
-/* Header: caption type (11.5px, uppercase), no surface of its own. */
+/* Header: caption type (11.5px, uppercase), on the surface of the table. */
 .dt__table th {
   text-align: start;
   padding: 10px var(--space-4);
@@ -271,8 +284,8 @@
   font-weight: var(--fw-semibold);
   text-transform: uppercase;
   letter-spacing: var(--tracking-cap);
-  color: var(--color-text-subtle);
-  background: var(--color-surface);
+  color: var(--dt-head-fg);
+  background: var(--dt-bg);
   border-bottom: var(--border-width) solid var(--color-border);
 }
 /* Fixed row height on the row (more reliable than a height on the td): every row is
@@ -332,7 +345,7 @@
    it or the seam shows the wrong colour under the pointer. */
 .dt__table td.dt__cell--stickyEnd,
 .dt__table td.dt__cell--stickyStart {
-  --pin-bg: var(--color-surface);
+  --pin-bg: var(--dt-bg);
   background: var(--pin-bg);
   z-index: 1;
 }
@@ -348,7 +361,7 @@
 .dt__table th.dt__cell--stickyStart {
   /* Above the body cells, so a pinned header is not overlapped while scrolling. The
      header needs the same opaque treatment, or the content scrolls visibly under it. */
-  --pin-bg: var(--color-surface);
+  --pin-bg: var(--dt-bg);
   background: var(--pin-bg);
   z-index: 2;
 }
@@ -431,7 +444,7 @@
 /* A child row belongs to the row above it. Indented at the first cell and tinted, so it
    reads as subordinate without repeating the parent's identity in every column. */
 .dt__childRow > td {
-  background: var(--color-surface-raised, var(--color-surface-sunken));
+  background: var(--dt-raised);
   font-size: var(--fs-xs);
 }
 .dt__childRow > td:first-child {
@@ -444,11 +457,11 @@
   padding: var(--space-3) var(--space-4);
   border-top: 2px solid var(--color-border-strong);
   font-weight: var(--fw-semibold);
-  background: var(--color-surface);
+  background: var(--dt-bg);
 }
 .dt__table tfoot td.dt__cell--stickyEnd,
 .dt__table tfoot td.dt__cell--stickyStart {
-  --pin-bg: var(--color-surface);
+  --pin-bg: var(--dt-bg);
 }
 
 .dt__row--clickable {
@@ -457,7 +470,7 @@
 .dt__table tbody tr:hover td,
 .dt__row--clickable:focus-visible td,
 .dt__row--clickable:active td {
-  background: var(--color-surface-sunken);
+  background: var(--dt-hover);
 }
 /* The pinned cell sets its own opaque background, so it needs the hover colour
    restated. Without this the row darkens and the pinned strip stays light. */
@@ -467,13 +480,13 @@
 .dt__row--clickable:focus-visible td.dt__cell--stickyStart,
 .dt__row--clickable:active td.dt__cell--stickyEnd,
 .dt__row--clickable:active td.dt__cell--stickyStart {
-  --pin-bg: var(--color-surface-sunken);
+  --pin-bg: var(--dt-hover);
 }
 .dt__detail-row > td {
   padding: 0;
   /* Raised statt sunken: im Dark-Theme wäre sunken dunkler als die Surface —
      das aufgeklappte Panel wirkt dann wie ein Loch (zu dunkel). */
-  background: var(--color-surface-raised, var(--color-surface-sunken));
+  background: var(--dt-raised);
 }
 .dt__empty {
   text-align: center;
@@ -650,7 +663,7 @@
   .dt__table tbody tr:hover,
   .dt__row--clickable:focus-visible,
   .dt__row--clickable:active {
-    background: var(--color-surface-sunken);
+    background: var(--dt-hover);
   }
   .dt__detail-row {
     padding: 0;
@@ -706,12 +719,13 @@
   -webkit-touch-callout: none;
 }
 
-/* THE ROW GROUP — `surface="rowgroup"`. The header and every row sit on surface 2, 2px
-   apart, with round outer corners: the row group of the boards. The colour between the
-   rows is `--dt-gap`, the surface behind the table (surface 1, a sheet, by default).
-   These rules come last, so they win over the rules above at the same weight. */
+/* THE ROW GROUP — `surface="rowgroup"`. The header and every row sit on the surface of
+   the table (surface 2 on a pane), 2px apart, with round outer corners: the row group of
+   the boards. The colour between the rows is `--dt-gap`, the surface behind the table:
+   the container sets it, and the page background is the default. These rules come last,
+   so they win over the rules above at the same weight. */
 .dt--rowgroup {
-  background: var(--color-surface-2);
+  background: var(--dt-bg);
   border-radius: var(--radius-lg);
   overflow: hidden;
 }
@@ -722,25 +736,25 @@
 }
 .dt--rowgroup .dt__table th,
 .dt--rowgroup .dt__table td {
-  border-bottom: 2px solid var(--dt-gap, var(--color-surface-1));
+  border-bottom: 2px solid var(--dt-gap, var(--color-bg));
 }
 .dt--rowgroup .dt__table th,
 .dt--rowgroup .dt__table th.dt__cell--stickyEnd,
 .dt--rowgroup .dt__table th.dt__cell--stickyStart,
 .dt--rowgroup .dt__table td.dt__cell--stickyEnd,
 .dt--rowgroup .dt__table td.dt__cell--stickyStart {
-  --pin-bg: var(--color-surface-2);
-  background: var(--color-surface-2);
+  --pin-bg: var(--dt-bg);
+  background: var(--dt-bg);
 }
 .dt--rowgroup .dt__table tbody tr:last-child td {
   border-bottom: 0;
 }
-/* The rows already sit on surface 2, so the hover takes surface 3. */
+/* The hover takes the next surface step above the rows. */
 .dt--rowgroup .dt__table tbody tr:hover td,
 .dt--rowgroup .dt__row--clickable:focus-visible td,
 .dt--rowgroup .dt__row--clickable:active td {
-  --pin-bg: var(--color-surface-3);
-  background: var(--color-surface-3);
+  --pin-bg: var(--dt-hover);
+  background: var(--dt-hover);
 }
 @media (max-width: 768px) {
   /* The cards: the gap goes between the cards, not between the fields of a card. */
@@ -748,13 +762,13 @@
     border-bottom: 0;
   }
   .dt--rowgroup .dt__table tbody tr {
-    border-bottom: 2px solid var(--dt-gap, var(--color-surface-1));
+    border-bottom: 2px solid var(--dt-gap, var(--color-bg));
   }
   .dt--rowgroup .dt__table tbody tr:last-child {
     border-bottom: 0;
   }
   .dt--rowgroup .dt__table tbody tr:hover {
-    background: var(--color-surface-3);
+    background: var(--dt-hover);
   }
   /* A cell that renders nothing gets no label line in the card. */
   .dt--rowgroup .dt__table td[data-label]:empty {

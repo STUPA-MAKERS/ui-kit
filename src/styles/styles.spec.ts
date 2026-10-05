@@ -156,4 +156,28 @@ describe('design-system rules in the stylesheets', () => {
       expect(fonts).toContain(`ibm-plex-mono-latin-${w}-normal.woff2`);
     }
   });
+
+  it('takes the table surface from the container context, never a fixed surface', () => {
+    const dt = read('../lib/data-table/data-table.component.scss');
+    // The aliases are the only place that names a surface; the tongue keeps its own.
+    const aliases = block(dt, '\n.dt {');
+    expect(aliases).toMatch(/--dt-bg: var\(--table-bg, var\(--color-surface-1\)\)/);
+    expect(aliases).toMatch(/--dt-hover: var\(--table-hover-bg, /);
+    expect(aliases).toMatch(/--dt-head-fg: var\(--table-head-fg, var\(--color-text-subtle\)\)/);
+    const rest = dt.replace(aliases, '').replace(block(dt, '.dt__tongue {'), '');
+    expect(rest).not.toMatch(/var\(--color-surface/);
+    expect(block(dt, '.dt--boxed {')).toMatch(/background: var\(--dt-bg\)/);
+    expect(block(dt, '.dt__table th {')).toMatch(/background: var\(--dt-bg\)/);
+    expect(block(dt, '.dt__table th {')).toMatch(/color: var\(--dt-head-fg\)/);
+    expect(block(dt, '.dt--rowgroup {')).toMatch(/background: var\(--dt-bg\)/);
+
+    const tbl = block(read('../lib/table/table.component.scss'), '.tbl {');
+    expect(tbl).toMatch(/background: var\(--table-bg, var\(--color-surface-1\)\)/);
+  });
+
+  it('steps a table up one surface inside a dialog', () => {
+    const scss = read('../lib/dialog/dialog.component.scss');
+    expect(scss).toContain("@use '../../styles/surface';");
+    expect(block(scss, '\n.dialog {')).toMatch(/@include surface\.context\(1\);/);
+  });
 });
