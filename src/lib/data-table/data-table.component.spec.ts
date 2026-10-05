@@ -78,6 +78,22 @@ describe('DataTableComponent', () => {
     expect(container.querySelector('.dt--boxed')).not.toBeNull();
   });
 
+  it('puts the rows on the row-group surface with surface="rowgroup"', async () => {
+    const { container } = await render(
+      `<app-data-table [columns]="cols" [rows]="rows" surface="rowgroup" />`,
+      { imports: [DataTableComponent], componentProperties: { cols: COLS, rows: ROWS } },
+    );
+    expect(container.querySelector('.dt--rowgroup')).not.toBeNull();
+  });
+
+  it('keeps the sheet surface by default', async () => {
+    const { container } = await render(`<app-data-table [columns]="cols" [rows]="rows" />`, {
+      imports: [DataTableComponent],
+      componentProperties: { cols: COLS, rows: ROWS },
+    });
+    expect(container.querySelector('.dt--rowgroup')).toBeNull();
+  });
+
   it('omits the boxed class when boxed is false', async () => {
     const { container } = await render(
       `<app-data-table [columns]="cols" [rows]="rows" [boxed]="false" />`,

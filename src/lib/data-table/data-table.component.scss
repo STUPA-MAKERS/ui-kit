@@ -625,3 +625,59 @@
 .dt__table tbody tr {
   -webkit-touch-callout: none;
 }
+
+/* THE ROW GROUP — `surface="rowgroup"`. The header and every row sit on surface 2, 2px
+   apart, with round outer corners: the row group of the boards. The colour between the
+   rows is `--dt-gap`, the surface behind the table (surface 1, a sheet, by default).
+   These rules come last, so they win over the rules above at the same weight. */
+.dt--rowgroup {
+  background: var(--color-surface-2);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+}
+/* No reserved scrollbar gutter: it left a strip at the end of every row, and the rows
+   must reach the edge of the box. */
+.dt--rowgroup .dt__scroll {
+  scrollbar-gutter: auto;
+}
+.dt--rowgroup .dt__table th,
+.dt--rowgroup .dt__table td {
+  border-bottom: 2px solid var(--dt-gap, var(--color-surface-1));
+}
+.dt--rowgroup .dt__table th,
+.dt--rowgroup .dt__table th.dt__cell--stickyEnd,
+.dt--rowgroup .dt__table th.dt__cell--stickyStart,
+.dt--rowgroup .dt__table td.dt__cell--stickyEnd,
+.dt--rowgroup .dt__table td.dt__cell--stickyStart {
+  --pin-bg: var(--color-surface-2);
+  background: var(--color-surface-2);
+}
+.dt--rowgroup .dt__table tbody tr:last-child td {
+  border-bottom: 0;
+}
+/* The rows already sit on surface 2, so the hover takes surface 3. */
+.dt--rowgroup .dt__table tbody tr:hover td,
+.dt--rowgroup .dt__row--clickable:focus-visible td,
+.dt--rowgroup .dt__row--clickable:active td {
+  --pin-bg: var(--color-surface-3);
+  background: var(--color-surface-3);
+}
+@media (max-width: 768px) {
+  /* The cards: the gap goes between the cards, not between the fields of a card. */
+  .dt--rowgroup .dt__table td {
+    border-bottom: 0;
+  }
+  .dt--rowgroup .dt__table tbody tr {
+    border-bottom: 2px solid var(--dt-gap, var(--color-surface-1));
+  }
+  .dt--rowgroup .dt__table tbody tr:last-child {
+    border-bottom: 0;
+  }
+  .dt--rowgroup .dt__table tbody tr:hover {
+    background: var(--color-surface-3);
+  }
+  /* A cell that renders nothing gets no label line in the card. */
+  .dt--rowgroup .dt__table td[data-label]:empty {
+    display: none;
+  }
+}

@@ -88,4 +88,12 @@ describe('IconComponent', () => {
       expect(ICON_NAMES).toContain(name);
     }
   });
+
+  it('has a pin and a crossed-out pin for the pinned backups', () => {
+    expect(ICON_NAMES).toContain('pin');
+    expect(ICON_NAMES).toContain('pinslash');
+    // The crossed-out pin is a pin with the slash, not the paperclip.
+    expect(iconShapes('pinslash')).not.toBe(iconShapes('clipslash'));
+    expect(iconShapes('pinslash')?.some((s) => s.d === 'm2 2 20 20')).toBe(true);
+  });
 });

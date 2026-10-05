@@ -72,6 +72,8 @@ export type IconName =
   | 'more'
   | 'palette'
   | 'pie'
+  | 'pin'
+  | 'pinslash'
   | 'play'
   | 'plus'
   | 'power'
@@ -174,6 +176,9 @@ const SHAPES: Record<string, readonly IconShape[]> = {
   palette: [{ t: 'circle', cx: '12', cy: '12', r: '9' }, { t: 'circle', cx: '7.5', cy: '10.5', r: '1' }, { t: 'circle', cx: '12', cy: '7.5', r: '1' }, { t: 'circle', cx: '16.5', cy: '10.5', r: '1' }, { t: 'path', d: 'M12 21a3 3 0 0 1 0-6h2a3 3 0 0 0 3-3' }],
   pie: [{ t: 'path', d: 'M21 12A9 9 0 1 1 12 3v9z' }, { t: 'path', d: 'M15 3.5A9 9 0 0 1 20.5 9H15z' }],
   play: [{ t: 'path', d: 'M7 4v16l13-8z' }],
+  // A pin: an archive or an entry that stays (it is never pruned or moved away).
+  pin: [{ t: 'path', d: 'M12 17v5' }, { t: 'path', d: 'M9 10.76a2 2 0 0 1-1.11 1.79l-1.78.9A2 2 0 0 0 5 15.24V17h14v-1.76a2 2 0 0 0-1.11-1.79l-1.78-.9A2 2 0 0 1 15 10.76V7a1 1 0 0 1 1-1 2 2 0 0 0 0-4H8a2 2 0 0 0 0 4 1 1 0 0 1 1 1z' }],
+  pinslash: [{ t: 'path', d: 'M12 17v5' }, { t: 'path', d: 'M15 9.34V7a1 1 0 0 1 1-1 2 2 0 0 0 0-4H7.89' }, { t: 'path', d: 'm2 2 20 20' }, { t: 'path', d: 'M9 9v1.76a2 2 0 0 1-1.11 1.79l-1.78.9A2 2 0 0 0 5 15.24V17h12' }],
   plus: [{ t: 'path', d: 'M12 5v14M5 12h14' }],
   power: [{ t: 'path', d: 'M12 2v10' }, { t: 'path', d: 'M18.4 6.6a9 9 0 1 1-12.77.04' }],
   receipt: [{ t: 'path', d: 'M5 3v18l2.5-1.5L10 21l2-1.5 2 1.5 2.5-1.5L19 21V3l-2.5 1.5L14 3l-2 1.5L10 3 7.5 4.5z' }, { t: 'path', d: 'M9 9h6M9 13h6' }],
@@ -284,6 +289,8 @@ export const ICON_NAMES: readonly IconName[] = [
   'more',
   'palette',
   'pie',
+  'pin',
+  'pinslash',
   'play',
   'plus',
   'power',
