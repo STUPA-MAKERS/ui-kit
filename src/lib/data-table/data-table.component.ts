@@ -141,6 +141,17 @@ export class DataTableComponent
   @Input() rows: readonly unknown[] = [];
   @Input() emptyText = '—';
   @Input() boxed = true;
+  /**
+   * The surface of the rows.
+   *
+   * * `sheet` (the default): the boxed frame with a rule under each row.
+   * * `rowgroup`: the rows of a row group (the dt() tables of the boards). The header and
+   *   each row sit on surface 2, 2px apart, with round outer corners, and reach the edge
+   *   of the box. The colour between the rows is `--dt-gap`, the surface behind the
+   *   table: surface 1 (a sheet) by default. A card on a phone leaves out a cell that
+   *   renders nothing, for example the actions of a closed row.
+   */
+  @Input() surface: 'sheet' | 'rowgroup' = 'sheet';
   /** Stable track key per row (index otherwise). */
   @Input() rowKey?: (row: unknown, index: number) => unknown;
   /** Makes rows clickable (cursor/tab/enter) and emits `rowClick`. */
