@@ -103,6 +103,40 @@ describe('design-system rules in the stylesheets', () => {
     expect(block(scss, '.dt__table tbody tr {')).toMatch(/height: 3\.5rem/);
   });
 
+  it('colours the whole card for a selected row on a phone, never a box of cells', () => {
+    const scss = read('../lib/data-table/data-table.component.scss');
+    const last = scss.slice(scss.lastIndexOf('@media (max-width: 768px)'));
+    // The cells go transparent and the row takes the colour, after every surface rule.
+    expect(block(last, '.dt .dt__table tbody tr > td,')).toMatch(/background: transparent/);
+    expect(block(last, '.dt .dt__table tbody tr.dt__row--selected,')).toMatch(
+      /background: var\(--color-selected\)/,
+    );
+  });
+
+  it('puts the card checkbox and actions in the card header with a 44px touch target', () => {
+    const scss = read('../lib/data-table/data-table.component.scss');
+    expect(block(scss, '.dt__table td.dt__selectCell {')).toMatch(/grid-column: 1;/);
+    expect(block(scss, "\n  .dt__table td[data-card='actions'] {\n    grid-column")).toMatch(/grid-column: 3;/);
+    const hit = block(scss, '.dt__table td.dt__selectCell .dt__checkHit {');
+    expect(hit).toMatch(/width: 2\.75rem/);
+    expect(hit).toMatch(/height: 2\.75rem/);
+  });
+
+  it('draws the table checkbox as the design-system checkbox, centred in its cell', () => {
+    const scss = read('../lib/data-table/data-table.component.scss');
+    const box = block(scss, '\n.dt__check {');
+    // No native box: it is a grey filled square in the dark theme.
+    expect(box).toMatch(/appearance: none/);
+    expect(box).toMatch(/box-shadow: inset 0 0 0 2px var\(--color-border-strong\)/);
+    expect(block(scss, '.dt__check:checked {')).toMatch(/background: var\(--color-accent\)/);
+    expect(block(scss, '.dt__check:indeterminate {')).toMatch(/background: var\(--color-accent\)/);
+    expect(block(scss, '.dt__check:focus-visible {')).toMatch(/outline: 2px solid var\(--color-focus-ring\)/);
+    // A flex label, so the box sits in the middle of the cell and not on a baseline.
+    const hit = block(scss, '\n.dt__checkHit {');
+    expect(hit).toMatch(/display: flex/);
+    expect(hit).toMatch(/align-items: center/);
+  });
+
   it('draws the dialog as a sheet with radius 24', () => {
     const scss = read('../lib/dialog/dialog.component.scss');
     expect(block(scss, '.dialog {')).toMatch(/border-radius: var\(--radius-2xl\)/);

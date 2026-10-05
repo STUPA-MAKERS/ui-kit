@@ -53,14 +53,18 @@ export interface ColumnDef {
    *
    * * `title` — the card's heading: full width, left aligned, no label. Pick the column
    *   that says WHICH record this is.
+   * * `actions` — the row actions in the card header, after the heading, with no label
+   *   line. For a compact control such as a row menu (⋮) or one or two icon buttons. A
+   *   wide group of text buttons squeezes the heading; keep that one a `row`.
    * * `hidden` — left out of the card. For a column that is redundant once the others
    *   are visible, or is a placeholder on most rows.
    * * `row` (the default) — the label/value pair.
    *
    * A table that declares nothing keeps the previous behaviour, where the first data
-   * column becomes the heading.
+   * column becomes the heading. With `selectable`, the checkbox always sits in the card
+   * header before the heading.
    */
-  card?: 'title' | 'row' | 'hidden';
+  card?: 'title' | 'row' | 'actions' | 'hidden';
   /** Renders the header as a sort control and emits `sortChange` on click. */
   sortable?: boolean;
   /**

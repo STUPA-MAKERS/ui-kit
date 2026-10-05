@@ -357,14 +357,65 @@
 }
 
 /* Selection. The column is narrow and fixed: it holds one control, and letting it size
-   itself would take width from the data. */
+   itself would take width from the data. The box is 18px; the cell gives it the same
+   inline padding as every other cell, so the gap to the first data column is the gap
+   between any two columns. */
 .dt__selectCell {
-  width: 3rem;
+  width: calc(1.125rem + 2 * var(--space-4));
+  padding-inline: var(--space-4);
   text-align: center;
 }
-.dt__check {
+/* The label around a checkbox. It holds no text: the checkbox names itself with
+   `aria-label`. It is a flex box, not an inline box, so the checkbox does not sit on a
+   text baseline: the cell centres the label in the row (`vertical-align: middle`), and
+   the label centres the box. In a card it is also the 44px touch target. */
+.dt__checkHit {
+  display: flex;
+  align-items: center;
+  justify-content: center;
   cursor: pointer;
-  accent-color: var(--color-accent);
+}
+/* The checkbox of the design system (`app-checkbox`): an 18px box with a 2px edge in
+   the control-edge colour; checked or mixed, an accent square with a dark mark. A native
+   checkbox draws a grey filled square in the dark theme, with no visible edge. The mark
+   colour is the on-accent colour, which is the same in both themes. */
+.dt__check {
+  flex: none;
+  appearance: none;
+  -webkit-appearance: none;
+  display: block;
+  width: 1.125rem;
+  height: 1.125rem;
+  margin: 0;
+  border: 0;
+  border-radius: 5px;
+  background: transparent;
+  box-shadow: inset 0 0 0 2px var(--color-border-strong);
+  cursor: pointer;
+  transition:
+    background-color var(--motion-fast, 120ms) var(--ease-standard, ease),
+    box-shadow var(--motion-fast, 120ms) var(--ease-standard, ease);
+}
+.dt__check:checked {
+  background: var(--color-accent)
+    url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="%230b1d12" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>')
+    center / 13px 13px no-repeat;
+  box-shadow: none;
+}
+/* "Some rows selected" on the select-all box: a dash instead of a tick. */
+.dt__check:indeterminate {
+  background: var(--color-accent)
+    url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="%230b1d12" stroke-width="3" stroke-linecap="round"><path d="M6 12h12"/></svg>')
+    center / 13px 13px no-repeat;
+  box-shadow: none;
+}
+.dt__check:focus-visible {
+  outline: 2px solid var(--color-focus-ring);
+  outline-offset: 2px;
+}
+.dt__check:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
 }
 /* A selected row takes the selection colour, its pinned cells included. */
 .dt__table tbody tr.dt__row--selected td {
@@ -441,20 +492,32 @@
   .dt__table thead {
     display: none;
   }
-  /* A column, so the heading can be ordered first whatever its position in the table.
-     The table's column order answers "which column do I scan across rows"; the card's
-     answers "what do I read first", and those are different questions. */
+  /* A grid of three columns. The first row is the card header: the checkbox, the
+     heading and the row actions. Every other cell takes a full row below it, so the
+     heading reads first whatever its position in the table. The table's column order
+     answers "which column do I scan across rows"; the card's answers "what do I read
+     first", and those are different questions.
+
+     The two outer columns are `auto`, so a table without a checkbox or without a
+     header action gives them no width. There is no column gap for the same reason: an
+     empty column would still get its gap. The cells space themselves. */
   .dt__table tbody tr {
-    display: flex;
-    flex-direction: column;
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr) auto;
+    align-items: start;
     height: auto;
     padding: var(--space-3) var(--space-4);
     border-bottom: var(--border-width) solid var(--color-border);
+    /* The height of the first line of the heading. The checkbox and the actions centre
+       on it, so they line up with the first line and not with the middle of a heading
+       that wraps. */
+    --dt-card-head-line: 1.75rem;
   }
   .dt__table tbody tr:last-child {
     border-bottom: 0;
   }
   .dt__table td {
+    grid-column: 1 / -1;
     display: flex;
     align-items: baseline;
     justify-content: space-between;
@@ -476,10 +539,10 @@
   .dt__table td[data-label]::before {
     content: attr(data-label);
     flex: none;
+    /* Sentence case. A card shows one label per line, and a column of capitals
+       reads louder than the values it names. */
     font-size: var(--fs-xs);
-    font-weight: var(--fw-semibold);
-    text-transform: uppercase;
-    letter-spacing: 0.04em;
+    font-weight: var(--fw-medium);
     color: var(--color-text-muted);
   }
   .dt__table td[data-label='']::before {
@@ -499,6 +562,8 @@
   .dt__table td[data-card='title'],
   .dt__table tbody tr:not(:has(td[data-card='title'])) td:first-child:not(.dt__selectCell),
   .dt__table tbody tr:not(:has(td[data-card='title'])) .dt__selectCell + td {
+    grid-column: 2;
+    grid-row: 1;
     flex-direction: column;
     align-items: flex-start;
     gap: var(--space-1);
@@ -507,27 +572,56 @@
   /* The heading names the record, so it carries no label of its own and reads as a
      heading rather than as one more value. */
   .dt__table td[data-card='title'] {
-    order: -1;
     padding-block-end: var(--space-2);
     font-weight: var(--fw-semibold);
   }
   .dt__table td[data-card='title']::before {
     content: none;
   }
-  /* The checkbox sits in the card's top corner instead of taking a line of its own,
-     where it read as an empty row above the heading. The heading keeps clear of it. */
-  .dt__table tbody tr:has(.dt__selectCell) {
-    position: relative;
-  }
-  .dt__table .dt__selectCell {
-    position: absolute;
-    inset-block-start: var(--space-3);
-    inset-inline-end: var(--space-4);
+  /* The card header: the checkbox before the heading, the actions after it, both on
+     the first line of the heading and inside the card padding. A checkbox in the corner
+     of the card, outside that line, read as a control of the list rather than of the
+     record. */
+  .dt__table td.dt__selectCell,
+  .dt__table td[data-card='actions'] {
+    grid-row: 1;
+    display: flex;
+    align-items: center;
+    height: var(--dt-card-head-line);
     padding: 0;
   }
-  .dt__table tbody tr:has(.dt__selectCell) td[data-card='title'],
-  .dt__table tbody tr:has(.dt__selectCell):not(:has(td[data-card='title'])) .dt__selectCell + td {
-    padding-inline-end: var(--space-6);
+  .dt__table td.dt__selectCell {
+    grid-column: 1;
+    width: auto;
+    justify-content: flex-start;
+    padding-inline-end: var(--space-3);
+  }
+  /* The actions are a header control, not a label/value pair: no "Aktionen" line. A
+     menu or an icon button is taller than the line; the cell centres it, so it overflows
+     the line evenly above and below and the line keeps its height. */
+  .dt__table td[data-card='actions'] {
+    grid-column: 3;
+    justify-content: flex-end;
+    gap: var(--space-1);
+    padding-inline-start: var(--space-2);
+    margin-inline-end: calc(-1 * var(--space-2));
+  }
+  .dt__table td[data-card='actions']::before {
+    content: none;
+  }
+  /* The touch target of the checkbox is 44px square. The box itself stays at the
+     padding edge, and the target reaches into the padding on the outside and into the
+     gap before the heading on the inside. The negative margins keep the cell at the
+     width of the box and the line at its height, so the cell is narrower than the
+     target: `max-width` has to let go of the cell width that `td > *` sets below. */
+  .dt__table td.dt__selectCell .dt__checkHit {
+    display: flex;
+    flex: none;
+    max-width: none;
+    width: 2.75rem;
+    height: 2.75rem;
+    margin-inline: calc((1.125rem - 2.75rem) / 2);
+    margin-block: calc((var(--dt-card-head-line) - 2.75rem) / 2);
   }
   /* A cell whose content is a flex or grid row of its own (an actions group, a badge and
      a label) needs the same freedom, or it re-introduces the overflow one level down. */
@@ -549,17 +643,14 @@
   .dt__empty {
     text-align: center !important;
   }
-  /* Tap/Hover färbt die GANZE Karte (das block-`tr`), nicht nur die inneren Zellen —
-     sonst entsteht ein dunkler Innen-Kasten im Karten-Padding (#card-tap). */
+  /* A tap or a hover colours the WHOLE card (the `tr`), not only its cells. The cells
+     do not reach into the card padding, so a colour on the cells reads as a dark box
+     inside the card (#card-tap). The cells go transparent in the last block of this
+     file, where they also beat the row-group rules. */
   .dt__table tbody tr:hover,
   .dt__row--clickable:focus-visible,
   .dt__row--clickable:active {
     background: var(--color-surface-sunken);
-  }
-  .dt__table tbody tr:hover td,
-  .dt__row--clickable:focus-visible td,
-  .dt__row--clickable:active td {
-    background: transparent;
   }
   .dt__detail-row {
     padding: 0;
@@ -567,13 +658,10 @@
   /* Stacked cards do not scroll sideways, so nothing here is pinned and every part of
      the pin has to come off: the border, and — the one that shows — the opaque
      background and stacking. A pinned cell paints its own background so the scrolling
-     content cannot be seen through it; in a card the selection cell is a full-width
-     absolute box in the corner, so that background became a band across the heading's
-     first line.
-
-     `position` stays alone: the card layout places the selection cell deliberately, and
-     resetting it dropped the checkbox into the flow. */
-  .dt__cell--stickyEnd {
+     content cannot be seen through it; in a card that background became a band across
+     the heading's first line. */
+  .dt__cell--stickyEnd,
+  .dt__cell--stickyStart {
     position: static;
   }
   .dt__table td.dt__cell--stickyEnd,
@@ -592,14 +680,6 @@
   .dt__cell--stickyStart::after {
     content: none;
   }
-  /* The checkbox sits at the top of the card, not in a column of its own. It keeps the
-     row axis, so `justify-content` still means "to the left" here. */
-  .dt__selectCell {
-    width: auto;
-    flex-direction: row;
-    justify-content: flex-start;
-    padding-block-end: var(--space-2);
-  }
   /* A checkbox has no label of its own to print above it. */
   .dt__selectCell::before {
     content: none;
@@ -607,7 +687,7 @@
   /* A child row and the totals row emit the select cell as an empty placeholder, to keep
      the column count. Stacked as a card there are no columns to keep, so it would only
      be an empty box taking its padding. */
-  .dt__selectCell:empty {
+  .dt__table td.dt__selectCell:empty {
     display: none;
   }
   /* A child card indents as a whole rather than at one cell. */
@@ -679,5 +759,23 @@
   /* A cell that renders nothing gets no label line in the card. */
   .dt--rowgroup .dt__table td[data-label]:empty {
     display: none;
+  }
+}
+
+/* THE SELECTED CARD. The selection colours the whole card: its padding and the corners
+   the box rounds, not only the cells. The rule comes last and its selectors are as
+   strong as the row-group rules, so neither surface paints a cell on top of the card:
+   a cell with a colour of its own reads as a box inside the card. The accent line on
+   the inside of the card edge marks the selection without the colour alone. */
+@media (max-width: 768px) {
+  .dt .dt__table tbody tr > td,
+  .dt .dt__table tbody tr:is(:hover, :focus-visible, :active) > td {
+    --pin-bg: transparent;
+    background: transparent;
+  }
+  .dt .dt__table tbody tr.dt__row--selected,
+  .dt .dt__table tbody tr.dt__row--selected:is(:hover, :focus-visible, :active) {
+    background: var(--color-selected);
+    box-shadow: inset 0 0 0 var(--border-width) var(--color-accent);
   }
 }
