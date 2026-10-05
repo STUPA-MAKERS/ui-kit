@@ -89,59 +89,104 @@ app-markdown-editor {
   padding: var(--space-2) 0;
 }
 
-/* The vote callout as a card. One atom: selected and deleted as a whole. */
+/* The vote callout as a card. One atom: selected and deleted as a whole. A caption
+   with the time and the rule, the question, the counts with the result, and a bar of
+   the counts (yes in the accent, no in red, abstentions in grey). */
 .mde__host .ProseMirror .mde__vote {
   margin: var(--space-3) 0;
-  padding: var(--space-3) var(--space-4);
-  border-left: 3px solid var(--color-primary);
-  border-radius: var(--radius-md);
-  background: var(--color-surface-sunken);
+  padding: var(--space-4) 18px 18px;
+  border-radius: var(--radius-lg);
+  background: var(--color-surface-2);
   display: flex;
   flex-direction: column;
   gap: var(--space-2);
 }
-.mde__host .ProseMirror .ProseMirror-selectednode.mde__vote,
-.mde__host .ProseMirror .ProseMirror-selectednode > .mde__vote {
-  outline: 2px solid var(--color-primary);
+/* The outline marks a selected card only while the editor has the focus; a loaded or
+   read-only document shows none. */
+.mde__host .ProseMirror-focused .ProseMirror-selectednode.mde__vote,
+.mde__host .ProseMirror-focused .ProseMirror-selectednode > .mde__vote {
+  outline: 2px solid var(--color-focus-ring);
   outline-offset: 2px;
-}
-.mde__host .ProseMirror .mde__vote[data-result='rejected'] {
-  border-left-color: var(--color-danger);
-}
-.mde__host .ProseMirror .mde__vote[data-result='tie'],
-.mde__host .ProseMirror .mde__vote[data-result='none'] {
-  border-left-color: var(--color-border-strong);
 }
 .mde__host .ProseMirror .mde__voteHead {
   display: flex;
   align-items: center;
-  gap: var(--space-3);
-  flex-wrap: wrap;
-}
-.mde__host .ProseMirror .mde__voteKind {
-  font-size: var(--fs-xs);
-  font-weight: var(--fw-bold);
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
+  gap: var(--space-2);
+  min-width: 0;
   color: var(--color-text-muted);
 }
-.mde__host .ProseMirror .mde__voteTally {
-  margin-left: auto;
-  font-size: var(--fs-sm);
-  font-variant-numeric: tabular-nums;
-  color: var(--color-primary);
+.mde__host .ProseMirror .mde__voteIcon {
+  flex: none;
+}
+.mde__host .ProseMirror .mde__voteKind {
+  min-width: 0;
+  font-size: var(--fs-xs);
+  line-height: 1rem;
   font-weight: var(--fw-semibold);
-}
-.mde__host .ProseMirror .mde__vote[data-result='rejected'] .mde__voteTally {
-  color: var(--color-danger);
-}
-.mde__host .ProseMirror .mde__vote[data-result='tie'] .mde__voteTally {
-  color: var(--color-text);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
 }
 .mde__host .ProseMirror .mde__voteQ {
   font-weight: var(--fw-semibold);
+  overflow-wrap: anywhere;
 }
 .mde__host .ProseMirror .mde__voteBody {
   color: var(--color-text-muted);
   font-size: var(--fs-sm);
+}
+.mde__host .ProseMirror .mde__voteCounts {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: var(--space-1) var(--space-6);
+  margin-top: var(--space-1);
+}
+.mde__host .ProseMirror .mde__voteCell {
+  display: flex;
+  flex-direction: column;
+  min-width: 3.5rem;
+}
+.mde__host .ProseMirror .mde__voteCell--result {
+  margin-left: auto;
+  align-items: flex-end;
+  text-align: right;
+}
+.mde__host .ProseMirror .mde__voteLabel {
+  font-size: var(--fs-sm);
+  line-height: 1.25rem;
+  color: var(--color-text-muted);
+}
+.mde__host .ProseMirror .mde__voteNum {
+  font-size: 1.25rem;
+  line-height: 1.75rem;
+  font-variant-numeric: tabular-nums;
+}
+.mde__host .ProseMirror .mde__voteResult {
+  font-size: 1.125rem;
+  line-height: 1.75rem;
+  font-weight: var(--fw-semibold);
+  color: var(--color-accent-text);
+}
+.mde__host .ProseMirror .mde__vote[data-result='rejected'] .mde__voteResult {
+  color: var(--color-danger);
+}
+.mde__host .ProseMirror .mde__voteBar {
+  display: flex;
+  gap: 3px;
+  height: 6px;
+  margin-top: var(--space-1);
+}
+.mde__host .ProseMirror .mde__voteSeg {
+  flex: 0 1 0;
+  min-width: 6px;
+  border-radius: var(--radius-pill);
+}
+.mde__host .ProseMirror .mde__voteSeg--yes {
+  background: var(--color-accent);
+}
+.mde__host .ProseMirror .mde__voteSeg--no {
+  background: var(--color-danger);
+}
+.mde__host .ProseMirror .mde__voteSeg--abstain {
+  background: var(--color-text-subtle);
 }
