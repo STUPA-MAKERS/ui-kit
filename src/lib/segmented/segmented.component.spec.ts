@@ -137,4 +137,55 @@ describe('SegmentedComponent', () => {
     fixture.detectChanges();
     expect(screen.getAllByRole('radio').every((r) => r.getAttribute('aria-checked') === 'false')).toBe(true);
   });
+
+  it('shows a count after the label and reads it as part of the name', async () => {
+    const counted: SegmentedOption[] = [
+      { value: 'all', label: 'Alle', count: 49 },
+      { value: 'paid', label: 'Bezahlt', count: 0 },
+      { value: 'none', label: 'Ohne', count: null },
+    ];
+    await render(Host, { componentProperties: { options: counted } });
+    expect(screen.getByRole('radio', { name: 'Alle 49' })).toBeInTheDocument();
+    // 0 is a count; null shows none.
+    expect(screen.getByRole('radio', { name: 'Bezahlt 0' })).toBeInTheDocument();
+    expect(screen.getByRole('radio', { name: 'Ohne' }).querySelector('.seg__count')).toBeNull();
+  });
+
+  it('leaves out the check mark of the chosen segment when asked to', async () => {
+    @Component({
+      standalone: true,
+      imports: [SegmentedComponent],
+      template: `<app-segmented ariaLabel="Art" [options]="opts" value="expense" [check]="check" />`,
+    })
+    class CheckHost {
+      opts = KINDS;
+      check = false;
+    }
+    const { container, fixture } = await render(CheckHost);
+    expect(container.querySelector('.seg__check')).toBeNull();
+    fixture.componentInstance.check = true;
+    fixture.detectChanges();
+    expect(container.querySelector('.seg__check')).not.toBeNull();
+  });
+
+  it.each([
+    ['auto', [] as string[]],
+    ['equal', ['seg-host--equal']],
+    ['fill', ['seg-host--fill']],
+  ] as const)('sets the width class of %s', async (width, classes) => {
+    @Component({
+      standalone: true,
+      imports: [SegmentedComponent],
+      template: `<app-segmented ariaLabel="Art" [options]="opts" [width]="width" />`,
+    })
+    class WidthHost {
+      opts = KINDS;
+      width = width;
+    }
+    const { container } = await render(WidthHost);
+    const host = container.querySelector('app-segmented') as HTMLElement;
+    for (const c of ['seg-host--equal', 'seg-host--fill']) {
+      expect(host.classList.contains(c)).toBe((classes as readonly string[]).includes(c));
+    }
+  });
 });
