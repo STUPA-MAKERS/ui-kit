@@ -1,0 +1,42 @@
+// The checkbox of the design system, shared by `app-checkbox` and the app's own
+// checkbox fields (the form engine). Component styles are encapsulated, so each
+// stylesheet includes this mixin on its native `input[type='checkbox']`.
+//
+// Look: an 18px box with a 2px edge; checked, an accent square with a dark tick. The
+// tick colour is the on-accent colour, which is the same in both themes.
+@mixin box {
+  flex: none;
+  appearance: none;
+  -webkit-appearance: none;
+  display: inline-grid;
+  place-content: center;
+  width: 18px;
+  height: 18px;
+  margin: 0;
+  border: 0;
+  border-radius: 5px;
+  background: transparent;
+  box-shadow: inset 0 0 0 2px var(--color-border-strong);
+  cursor: inherit;
+  transition:
+    background-color var(--motion-fast) var(--ease-standard),
+    box-shadow var(--motion-fast) var(--ease-standard);
+
+  &:checked {
+    background: var(--color-accent)
+      url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="%230b1d12" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>')
+      center / 13px 13px no-repeat;
+    box-shadow: none;
+  }
+  &:focus-visible {
+    outline: 2px solid var(--color-focus-ring);
+    outline-offset: 2px;
+  }
+}
+
+// The box in an error state: the edge in the error colour.
+@mixin box-invalid {
+  &:not(:checked) {
+    box-shadow: inset 0 0 0 2px var(--color-danger);
+  }
+}
