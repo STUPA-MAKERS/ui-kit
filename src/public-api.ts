@@ -60,7 +60,7 @@ export type {
   ConfigFieldChange,
 } from './lib/config-diff/config-diff.types';
 export { StepperComponent } from './lib/stepper/stepper.component';
-export type { Step } from './lib/stepper/stepper.component';
+export type { Step, StepperOrientation } from './lib/stepper/stepper.component';
 export { DialogComponent } from './lib/dialog/dialog.component';
 export { TableComponent } from './lib/table/table.component';
 export type { Column } from './lib/table/table.component';

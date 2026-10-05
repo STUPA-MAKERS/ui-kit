@@ -1,13 +1,40 @@
-<ol class="stepper" [attr.aria-label]="ariaLabel">
-  @for (step of steps; track step.label; let i = $index) {
+<ol
+  class="stepper"
+  [class.stepper--vertical]="orientation === 'vertical'"
+  [attr.aria-label]="ariaLabel"
+>
+  @for (step of steps; track $index; let i = $index) {
     <li
       class="stepper__item"
       [class.is-active]="i === activeIndex"
       [class.is-done]="i < activeIndex"
       [attr.aria-current]="i === activeIndex ? 'step' : null"
     >
-      <span class="stepper__marker">{{ i < activeIndex ? '✓' : i + 1 }}</span>
-      <span class="stepper__label">{{ step.label }}</span>
+      @if (navigable && i < activeIndex) {
+        <button type="button" class="stepper__body stepper__body--button" (click)="select(i)">
+          <ng-container *ngTemplateOutlet="content; context: { $implicit: step, i: i }" />
+        </button>
+      } @else {
+        <span class="stepper__body">
+          <ng-container *ngTemplateOutlet="content; context: { $implicit: step, i: i }" />
+        </span>
+      }
     </li>
   }
 </ol>
+
+<ng-template #content let-step let-i="i">
+  <span class="stepper__marker" aria-hidden="true">
+    @if (i < activeIndex) {
+      <app-icon name="check" [size]="15" [strokeWidth]="2.2" />
+    } @else {
+      {{ i + 1 }}
+    }
+  </span>
+  <span class="stepper__text">
+    <span class="stepper__label">{{ step.label }}</span>
+    @if (orientation === 'vertical' && step.hint) {
+      <span class="stepper__hint" [attr.title]="step.hint">{{ step.hint }}</span>
+    }
+  </span>
+</ng-template>
