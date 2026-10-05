@@ -104,6 +104,18 @@
     cursor: not-allowed;
   }
 
+  // A number field has no native spin buttons: they draw a browser widget with its own
+  // look inside the filled box. The arrow keys still step the value.
+  &[type='number'] {
+    -moz-appearance: textfield;
+    appearance: textfield;
+  }
+  &[type='number']::-webkit-inner-spin-button,
+  &[type='number']::-webkit-outer-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+  }
+
   // iOS zooms into a focused field with text under 16px. The viewport forbids zoom, but
   // older iOS versions still zoom on focus.
   @media (max-width: 768px) {
