@@ -15,7 +15,22 @@ export interface SegmentedOption {
   value: string;
   label: string;
   disabled?: boolean;
+  /**
+   * A count after the label, in a lighter weight (for example the number of invoices in
+   * a segment of a list). The screen reader reads it as part of the name.
+   */
+  count?: number | string | null;
 }
+
+/**
+ * The width of the segments.
+ *
+ * - `auto` (default): each segment is as wide as its label.
+ * - `equal`: every segment is as wide as the widest one. The control keeps its own width.
+ * - `fill`: the control fills the width of its container, and the segments share it in
+ *   equal parts. Use it in a form, where the control is as wide as the fields.
+ */
+export type SegmentedWidth = 'auto' | 'equal' | 'fill';
 
 /**
  * Segmented control: a small set of exclusive options in one row (Ausgabe/Einnahme,
@@ -24,11 +39,19 @@ export interface SegmentedOption {
  *
  * `<app-segmented ariaLabel="Art" [options]="kinds" [(value)]="kind" />`
  * Works with `ngModel` and reactive forms.
+ *
+ * `width` sets the width of the segments (see `SegmentedWidth`). An option can carry a
+ * `count`, which shows after its label. `check` false leaves out the check mark of the
+ * chosen segment.
  */
 @Component({
   selector: 'app-segmented',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
+  host: {
+    '[class.seg-host--equal]': "width() === 'equal'",
+    '[class.seg-host--fill]': "width() === 'fill'",
+  },
   providers: [{ provide: NG_VALUE_ACCESSOR, useExisting: SegmentedComponent, multi: true }],
   templateUrl: './segmented.component.html',
   styleUrl: './segmented.component.scss',
@@ -40,6 +63,13 @@ export class SegmentedComponent implements ControlValueAccessor {
   readonly value = model<string | null>(null);
   readonly ariaLabel = input('');
   readonly disabled = input(false);
+  /** The width of the segments: `auto`, `equal` or `fill`. */
+  readonly width = input<SegmentedWidth>('auto');
+  /**
+   * The check mark before the label of the chosen segment. False leaves it out, for
+   * segments with a count that must fit a narrow column.
+   */
+  readonly check = input(true);
 
   private readonly formDisabled = signal(false);
   protected readonly isDisabled = computed(() => this.disabled() || this.formDisabled());

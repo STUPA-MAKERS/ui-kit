@@ -53,3 +53,37 @@
   overflow: hidden;
   text-overflow: ellipsis;
 }
+
+/* A count after the label: the same size, a lighter weight and colour. */
+.seg__count {
+  flex: none;
+  color: var(--color-text-muted);
+  font-weight: var(--fw-regular);
+  font-variant-numeric: tabular-nums;
+}
+.seg__opt--on .seg__count {
+  color: inherit;
+}
+
+/* `equal`: every segment as wide as the widest one. A grid with columns of `1fr` sizes
+   all of them to the largest content. */
+:host(.seg-host--equal) .seg {
+  display: inline-grid;
+  grid-auto-columns: 1fr;
+  grid-auto-flow: column;
+}
+/* `fill`: the control takes the width of its container; the segments share it. */
+:host(.seg-host--fill) {
+  display: flex;
+  width: 100%;
+}
+:host(.seg-host--fill) .seg {
+  display: grid;
+  flex: 1 1 auto;
+  grid-auto-columns: minmax(0, 1fr);
+  grid-auto-flow: column;
+}
+:host(.seg-host--equal) .seg__opt,
+:host(.seg-host--fill) .seg__opt {
+  justify-content: center;
+}

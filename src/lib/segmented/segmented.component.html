@@ -12,7 +12,7 @@
       (keydown)="onKeydown($event, i)"
       (blur)="onTouched()"
     >
-      @if (opt.value === value()) {
+      @if (check() && opt.value === value()) {
         <svg
           class="seg__check"
           width="14"
@@ -29,6 +29,9 @@
         </svg>
       }
       <span class="seg__label">{{ opt.label }}</span>
+      @if (opt.count !== undefined && opt.count !== null && opt.count !== '') {
+        <span class="seg__count">{{ opt.count }}</span>
+      }
     </button>
   }
 </div>
