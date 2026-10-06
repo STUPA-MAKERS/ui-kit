@@ -106,8 +106,10 @@
   display: none;
 }
 
-/* Mobile (≤768px): Dialog als Sheet — volle Breite, am unteren Rand,
-   mehr nutzbare Höhe. Desktop unverändert. */
+/* Mobile (≤768px): Dialog als Sheet — volle Breite, am unteren Rand. Desktop
+   unverändert.
+   The sheet is at most 85dvh high, the same as the bottom sheet of the app. The page
+   stays visible above it. */
 @media (max-width: 768px) {
   .dialog__backdrop {
     align-items: flex-end;
@@ -115,7 +117,7 @@
   }
   .dialog {
     max-width: none;
-    max-height: 92dvh;
+    max-height: 85dvh;
     border-radius: var(--radius-2xl) var(--radius-2xl) 0 0;
     /* Flush am unteren Rand inkl. Safe-Area (Home-Indicator) füllen — keine
        Backdrop-Lücke unter dem Sheet (#14). */
