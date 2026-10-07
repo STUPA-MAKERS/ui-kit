@@ -213,11 +213,17 @@
 .btn__label ::ng-deep > app-icon {
   height: 1.3em;
 }
-/* An icon button holds no text to cut, so its label is a centred row. */
+/* An icon button holds no text to cut, so its label is a centred row. It does not clip:
+   a glyph that fills its em box (the calendar) lost its edge pixels to `overflow:
+   hidden`. Its icon keeps the glyph size instead of the one-line box of a label. */
 .btn--icon .btn__label {
   display: inline-flex;
   align-items: center;
   justify-content: center;
+  overflow: visible;
+}
+.btn--icon .btn__label ::ng-deep > app-icon {
+  height: auto;
 }
 /* Spinner liegt ÜBER dem (unsichtbaren) Inhalt statt daneben: der Button
    behält beim Laden exakt seine Größe (kein Breiten-Sprung, #send-glitch). */

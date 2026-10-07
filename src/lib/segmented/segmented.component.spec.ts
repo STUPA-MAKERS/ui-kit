@@ -35,6 +35,16 @@ describe('SegmentedComponent', () => {
     expect(radios[1]).toHaveAttribute('aria-checked', 'false');
   });
 
+  it('takes the button height with size="control" and stays compact by default', async () => {
+    const { container } = await render(Host);
+    expect(container.querySelector('app-segmented')).not.toHaveClass('seg-host--control');
+    const ctl = await render(
+      `<app-segmented ariaLabel="Ansicht" size="control" [options]="opts" value="a" />`,
+      { imports: [SegmentedComponent], componentProperties: { opts: KINDS } },
+    );
+    expect(ctl.container.querySelector('app-segmented')).toHaveClass('seg-host--control');
+  });
+
   it('has one tab stop: the checked option', async () => {
     await render(Host);
     const [a, b] = screen.getAllByRole('radio');

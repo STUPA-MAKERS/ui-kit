@@ -87,3 +87,9 @@
 :host(.seg-host--fill) .seg__opt {
   justify-content: center;
 }
+
+/* `size="control"`: as high as a medium button, so a header row has one height. */
+:host(.seg-host--control) .seg {
+  height: var(--control-height);
+  border-radius: calc(var(--control-height) / 2);
+}
