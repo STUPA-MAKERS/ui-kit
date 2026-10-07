@@ -78,6 +78,9 @@ describe('design-system rules in the stylesheets', () => {
     const iconOnly = block(scss, '.btn--icon .btn__label {');
     expect(iconOnly).toMatch(/display: inline-flex/);
     expect(iconOnly).toMatch(/align-items: center/);
+    // An icon button never clips its glyph and keeps the glyph height.
+    expect(iconOnly).toMatch(/overflow: visible/);
+    expect(block(scss, '.btn--icon .btn__label ::ng-deep > app-icon {')).toMatch(/height: auto/);
   });
 
   it('draws a configured badge colour as text, never as a plate', () => {

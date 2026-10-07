@@ -51,6 +51,7 @@ export type SegmentedWidth = 'auto' | 'equal' | 'fill';
   host: {
     '[class.seg-host--equal]': "width() === 'equal'",
     '[class.seg-host--fill]': "width() === 'fill'",
+    '[class.seg-host--control]': "size() === 'control'",
   },
   providers: [{ provide: NG_VALUE_ACCESSOR, useExisting: SegmentedComponent, multi: true }],
   templateUrl: './segmented.component.html',
@@ -70,6 +71,11 @@ export class SegmentedComponent implements ControlValueAccessor {
    * segments with a count that must fit a narrow column.
    */
   readonly check = input(true);
+  /**
+   * The height. `compact` (36px) fits a form or a toolbar. `control` takes the height of
+   * a medium button, for a switch that stands beside buttons, as in a page header.
+   */
+  readonly size = input<'compact' | 'control'>('compact');
 
   private readonly formDisabled = signal(false);
   protected readonly isDisabled = computed(() => this.disabled() || this.formDisabled());
