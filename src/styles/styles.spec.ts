@@ -71,7 +71,10 @@ describe('design-system rules in the stylesheets', () => {
   it('centres a projected icon and text in the button label', () => {
     const scss = read('../lib/button/button.component.scss');
     expect(block(scss, '.btn__label ::ng-deep > * {')).toMatch(/vertical-align: top/);
-    expect(block(scss, '.btn__label ::ng-deep > app-icon {')).toMatch(/vertical-align: middle/);
+    // One text line high at the top of the line box: the glyph centres on the capitals.
+    const icon = block(scss, '.btn__label ::ng-deep > app-icon {');
+    expect(icon).toMatch(/height: 1\.3em/);
+    expect(icon).not.toMatch(/vertical-align: middle/);
     const iconOnly = block(scss, '.btn--icon .btn__label {');
     expect(iconOnly).toMatch(/display: inline-flex/);
     expect(iconOnly).toMatch(/align-items: center/);

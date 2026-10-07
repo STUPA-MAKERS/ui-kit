@@ -203,12 +203,15 @@
    and a text, `inline-flex items-center`) takes its baseline from its first item; for an
    icon that is the lower edge of the SVG, so the text line moved up by about 3px. At the
    top of the line box such a row is exactly one text line high and its own `align-items`
-   centres it. A bare icon beside the text takes the middle of the lower-case letters. */
+   centres it. A bare icon beside the text is one text line high and also sits at the
+   top of the line box, so it centres its glyph on the middle of the capital letters.
+   `vertical-align: middle` took the middle of the lower-case letters, about 1.5px too
+   low next to a capitalized label. */
 .btn__label ::ng-deep > * {
   vertical-align: top;
 }
 .btn__label ::ng-deep > app-icon {
-  vertical-align: middle;
+  height: 1.3em;
 }
 /* An icon button holds no text to cut, so its label is a centred row. */
 .btn--icon .btn__label {
