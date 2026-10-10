@@ -22,7 +22,8 @@ export type UiKitTextKey =
   | 'diff.added'
   | 'diff.removed'
   | 'table.scrollStart'
-  | 'table.scrollEnd';
+  | 'table.scrollEnd'
+  | 'currency.invalid';
 
 export type UiKitMessages = Record<UiKitTextKey, string>;
 
@@ -41,6 +42,7 @@ export const UI_KIT_DEFAULT_MESSAGES: Record<UiLang, UiKitMessages> = {
     'diff.removed': 'Entfernt',
     'table.scrollStart': 'Tabelle nach links scrollen',
     'table.scrollEnd': 'Tabelle nach rechts scrollen',
+    'currency.invalid': 'Kein gültiger Betrag. Beispiel: 1.234,56 (höchstens 2 Nachkommastellen).',
   },
   en: {
     'dialog.close': 'Close',
@@ -55,6 +57,7 @@ export const UI_KIT_DEFAULT_MESSAGES: Record<UiLang, UiKitMessages> = {
     'diff.removed': 'Removed',
     'table.scrollStart': 'Scroll the table left',
     'table.scrollEnd': 'Scroll the table right',
+    'currency.invalid': 'Not a valid amount. Example: 1,234.56 (at most 2 decimals).',
   },
 };
 

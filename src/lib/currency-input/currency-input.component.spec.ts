@@ -1,5 +1,5 @@
 import { Component, signal } from '@angular/core';
-import { FormsModule } from '@angular/forms';
+import { FormControl, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { fireEvent, render, screen } from '@testing-library/angular';
 import { DefaultUiKitIntl, UI_KIT_INTL } from '../intl/intl';
 import { CurrencyInputComponent } from './currency-input.component';
@@ -46,7 +46,7 @@ describe('CurrencyInputComponent', () => {
 
   it('formats with grouping + 2 decimals on blur (de)', async () => {
     const { input } = await setup();
-    fireEvent.input(input, { target: { value: '1234.5' } });
+    fireEvent.input(input, { target: { value: '1234,5' } });
     fireEvent.blur(input);
     expect(input.value).toBe('1.234,50');
   });
@@ -73,7 +73,7 @@ describe('CurrencyInputComponent', () => {
     expect(input.value).toBe('1.000,00');
   });
 
-  it('parses thousand groupings: last separator is the decimal point', async () => {
+  it('parses thousand groupings in groups of 3 (de)', async () => {
     const { input, host } = await setup();
     fireEvent.input(input, { target: { value: '1.234.567,89' } });
     expect(host.value()).toBe('1234567.89');
@@ -210,7 +210,139 @@ describe('CurrencyInputComponent', () => {
   });
 });
 
+describe('CurrencyInputComponent (typing and invalid text)', () => {
+  beforeEach(() => localStorage.setItem('ap.locale', 'de'));
+
+  it.each([
+    ['12,', '12'],
+    ['1,5', '1.5'],
+    ['1.234,56', '1234.56'],
+    ['-5', '-5'],
+  ])('keeps the typed text %p while focused and writes %p', async (raw, model) => {
+    const { input, host, fixture } = await setup();
+    fireEvent.focus(input);
+    fireEvent.input(input, { target: { value: raw } });
+    fixture.detectChanges();
+    await fixture.whenStable();
+    fixture.detectChanges();
+    expect(host.value()).toBe(model);
+    expect(input.value).toBe(raw);
+    expect(screen.queryByRole('alert')).toBeNull();
+  });
+
+  it.each([['abc'], ['12,345'], ['1,999'], ['1234.5']])(
+    'keeps invalid text %p, writes an empty model and shows the error',
+    async (raw) => {
+      const { input, host, fixture } = await setup('10');
+      fireEvent.focus(input);
+      fireEvent.input(input, { target: { value: raw } });
+      fixture.detectChanges();
+      expect(host.value()).toBe('');
+      expect(input.value).toBe(raw);
+      expect(input).toHaveAttribute('aria-invalid', 'true');
+      expect(screen.getByRole('alert')).toHaveTextContent('Kein gültiger Betrag');
+      fireEvent.blur(input);
+      fixture.detectChanges();
+      expect(input.value).toBe(raw); // not cleared, not rounded
+      fireEvent.focus(input);
+      expect(input.value).toBe(raw);
+    },
+  );
+
+  it('clears the error when the text becomes valid again', async () => {
+    const { input, host, fixture } = await setup();
+    fireEvent.input(input, { target: { value: 'abc' } });
+    fixture.detectChanges();
+    expect(screen.getByRole('alert')).toBeInTheDocument();
+    fireEvent.input(input, { target: { value: '12,5' } });
+    fixture.detectChanges();
+    expect(host.value()).toBe('12.5');
+    expect(screen.queryByRole('alert')).toBeNull();
+  });
+
+  it('does not rewrite the text when the model echoes back while focused', async () => {
+    const view = await render(`<app-currency-input ariaLabel="amount" />`, {
+      imports: [CurrencyInputComponent],
+    });
+    const cmp = view.fixture.debugElement.children[0]
+      .componentInstance as CurrencyInputComponent;
+    const input = screen.getByLabelText('amount') as HTMLInputElement;
+    fireEvent.focus(input);
+    fireEvent.input(input, { target: { value: '12,' } });
+    cmp.writeValue('12');
+    view.fixture.detectChanges();
+    expect(input.value).toBe('12,');
+    // Invalid text: the echo of the empty model keeps it too.
+    fireEvent.input(input, { target: { value: 'abc' } });
+    cmp.writeValue('');
+    view.fixture.detectChanges();
+    expect(input.value).toBe('abc');
+  });
+
+  it('shows a non-numeric model value with the error and resets on a valid one', async () => {
+    const view = await render(`<app-currency-input ariaLabel="amount" />`, {
+      imports: [CurrencyInputComponent],
+    });
+    const cmp = view.fixture.debugElement.children[0]
+      .componentInstance as CurrencyInputComponent;
+    cmp.writeValue('abc');
+    view.fixture.detectChanges();
+    const input = screen.getByLabelText('amount') as HTMLInputElement;
+    expect(input.value).toBe('abc');
+    expect(cmp.validate()).toEqual({ currency: true });
+    cmp.writeValue(12.5);
+    view.fixture.detectChanges();
+    expect(input.value).toBe('12,50');
+    expect(cmp.validate()).toBeNull();
+  });
+
+  it('makes a reactive form control invalid for invalid text', async () => {
+    @Component({
+      standalone: true,
+      imports: [CurrencyInputComponent, ReactiveFormsModule],
+      template: `<app-currency-input [formControl]="ctrl" ariaLabel="amount" />`,
+    })
+    class FormHost {
+      readonly ctrl = new FormControl('5');
+    }
+    const view = await render(FormHost);
+    const input = screen.getByLabelText('amount') as HTMLInputElement;
+    fireEvent.input(input, { target: { value: '1,234' } });
+    expect(view.fixture.componentInstance.ctrl.errors).toEqual({ currency: true });
+    fireEvent.input(input, { target: { value: '1,23' } });
+    expect(view.fixture.componentInstance.ctrl.value).toBe('1.23');
+    expect(view.fixture.componentInstance.ctrl.errors).toBeNull();
+  });
+
+  it('prefers the error input over the invalid-text message', async () => {
+    await render(`<app-currency-input ariaLabel="amount" error="Pflicht" />`, {
+      imports: [CurrencyInputComponent],
+    });
+    fireEvent.input(screen.getByLabelText('amount'), { target: { value: 'abc' } });
+    expect(screen.getByRole('alert')).toHaveTextContent('Pflicht');
+  });
+});
+
 describe('CurrencyInputComponent (EN locale)', () => {
+  it('reads "12,345" as twelve thousand and rejects 3 decimals', async () => {
+    @Component({
+      standalone: true,
+      imports: [CurrencyInputComponent, FormsModule],
+      template: `<app-currency-input [ngModel]="value()" (ngModelChange)="value.set($event)" ariaLabel="amount" />`,
+    })
+    class EnHost {
+      readonly value = signal('');
+    }
+    const view = await render(EnHost, { providers: [intlProvider('en')] });
+    const input = screen.getByLabelText('amount') as HTMLInputElement;
+    fireEvent.input(input, { target: { value: '12,345' } });
+    expect(view.fixture.componentInstance.value()).toBe('12345');
+    fireEvent.input(input, { target: { value: '12.345' } });
+    view.fixture.detectChanges();
+    expect(view.fixture.componentInstance.value()).toBe('');
+    expect(screen.getByRole('alert')).toHaveTextContent('Not a valid amount');
+  });
+
   it('uses a dot decimal separator for editing and en-US grouping for display', async () => {
     @Component({
       standalone: true,
