@@ -22,6 +22,15 @@ describe('parseMoney (de)', () => {
     ['  12,3 ', '12.3'],
     ['12,30 €', '12.30'],
     ['€12', '12'],
+    // One dot with at most 2 digits after it is a decimal, not a group of thousands.
+    ['12.50', '12.50'],
+    ['12.5', '12.5'],
+    ['1.23', '1.23'],
+    ['1234.5', '1234.5'],
+    ['12.', '12'],
+    ['-0.5', '-0.5'],
+    ['.5', '0.5'],
+    ['12.50 €', '12.50'],
   ])('reads %p as %p', (raw, canonical) => {
     expect(parseMoney(raw, 'de')).toEqual(valid(canonical));
   });
@@ -31,10 +40,11 @@ describe('parseMoney (de)', () => {
     ['1,999'],
     ['abc'],
     ['12a'],
-    ['1.23'], // a group of 2
     ['1.2345'], // a group of 4
-    ['1234.5'], // dot is not the decimal separator in de
     ['0.123'], // a grouped integer cannot start with 0
+    ['1.234.5'], // a group of 1 after a group of 3
+    ['1.5,5'], // a dot and a comma: the dot must be a group of thousands
+    ['.'],
     [',,5'],
     ['1,2,3'],
     [','],

@@ -35,6 +35,11 @@ function amountPattern(lang: UiLang): RegExp {
 
 const PATTERNS: Record<UiLang, RegExp> = { de: amountPattern('de'), en: amountPattern('en') };
 
+/** A DE amount with one dot and at most 2 digits after it (`12.50`, `12.`). Users often
+ *  type the decimal as a dot. A group of thousands has 3 digits, so this text cannot be
+ *  one, and the dot is read as the decimal comma. */
+const DE_DOT_DECIMAL = /^\d*\.\d{0,2}$/;
+
 /**
  * Parse an amount of money that a user typed in the locale `lang`.
  *
@@ -44,6 +49,10 @@ const PATTERNS: Record<UiLang, RegExp> = { de: amountPattern('de'), en: amountPa
  * while the user types. More than {@link MONEY_MAX_DECIMALS} decimals and any other text
  * give `invalid`; the parser never rounds and never drops characters. A leading `-` and
  * a `€` sign at either end are allowed.
+ *
+ * In DE, a text with exactly one dot, no comma and at most 2 digits after the dot
+ * (`12.50`) is read as a decimal (`12,50`), because it cannot be a group of thousands.
+ * `1.234` stays one thousand two hundred thirty-four.
  */
 export function parseMoney(raw: string | null | undefined, lang: UiLang): MoneyParseResult {
   let s = (raw ?? '').trim();
@@ -52,6 +61,7 @@ export function parseMoney(raw: string | null | undefined, lang: UiLang): MoneyP
   const neg = s.startsWith('-');
   if (neg) s = s.slice(1);
   if (!s) return { status: 'empty' };
+  if (lang === 'de' && DE_DOT_DECIMAL.test(s)) s = s.replace('.', ',');
   const match = PATTERNS[lang].exec(s);
   if (!match) return { status: 'invalid' };
   const intRaw = match[1] ?? '';

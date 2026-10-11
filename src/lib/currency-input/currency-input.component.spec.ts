@@ -217,6 +217,7 @@ describe('CurrencyInputComponent (typing and invalid text)', () => {
     ['12,', '12'],
     ['1,5', '1.5'],
     ['1.234,56', '1234.56'],
+    ['12.50', '12.50'],
     ['-5', '-5'],
   ])('keeps the typed text %p while focused and writes %p', async (raw, model) => {
     const { input, host, fixture } = await setup();
@@ -230,7 +231,7 @@ describe('CurrencyInputComponent (typing and invalid text)', () => {
     expect(screen.queryByRole('alert')).toBeNull();
   });
 
-  it.each([['abc'], ['12,345'], ['1,999'], ['1234.5']])(
+  it.each([['abc'], ['12,345'], ['1,999'], ['1.2345']])(
     'keeps invalid text %p, writes an empty model and shows the error',
     async (raw) => {
       const { input, host, fixture } = await setup('10');
