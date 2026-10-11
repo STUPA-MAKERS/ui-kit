@@ -1,12 +1,20 @@
 import {
   ChangeDetectionStrategy,
   Component,
+  computed,
   inject,
   input,
   signal,
 } from '@angular/core';
-import { NG_VALUE_ACCESSOR, type ControlValueAccessor } from '@angular/forms';
+import {
+  NG_VALIDATORS,
+  NG_VALUE_ACCESSOR,
+  type ControlValueAccessor,
+  type ValidationErrors,
+  type Validator,
+} from '@angular/forms';
 import { UI_KIT_INTL } from '../intl/intl';
+import { type MoneyParseResult, parseMoney, parseMoneyModel } from './parse-money';
 
 /**
  * Einheitliches Währungs-Eingabefeld. Überall gleiche Optik:
@@ -16,6 +24,12 @@ import { UI_KIT_INTL } from '../intl/intl';
  * kanonischer Dezimal-String mit Punkt (`"1234.56"`, parsebar fürs Backend) bzw.
  * `''` für leer. Die **Anzeige** ist lokalisiert (de `1.234,56`, en `1,234.56`):
  * beim Fokus editierbar (ohne Gruppierung), beim Verlassen formatiert.
+ *
+ * The parser is {@link parseMoney}: locale-aware, thousands only in groups of 3, at most
+ * 2 decimals. Invalid text stays on screen, the model becomes `''`, the field shows the
+ * message `currency.invalid` and the validator reports `{ currency: true }`. The field
+ * never rounds and never clears the text of the user. While the field has focus, a
+ * `writeValue` with the current model value does not rewrite the text.
  */
 @Component({
   selector: 'app-currency-input',
@@ -23,11 +37,12 @@ import { UI_KIT_INTL } from '../intl/intl';
   changeDetection: ChangeDetectionStrategy.OnPush,
   providers: [
     { provide: NG_VALUE_ACCESSOR, useExisting: CurrencyInputComponent, multi: true },
+    { provide: NG_VALIDATORS, useExisting: CurrencyInputComponent, multi: true },
   ],
   templateUrl: './currency-input.component.html',
   styleUrl: './currency-input.component.scss',
 })
-export class CurrencyInputComponent implements ControlValueAccessor {
+export class CurrencyInputComponent implements ControlValueAccessor, Validator {
   private readonly intl = inject(UI_KIT_INTL);
 
   readonly placeholder = input('');
@@ -43,6 +58,12 @@ export class CurrencyInputComponent implements ControlValueAccessor {
   /** Sichtbarer Text (formatiert oder beim Tippen roh). */
   protected readonly text = signal('');
   protected readonly disabled = signal(false);
+  /** The text is not a valid amount. */
+  protected readonly invalid = signal(false);
+  /** The error to show: the `error` input first, else the message for invalid text. */
+  protected readonly shownError = computed(
+    () => this.error() || (this.invalid() ? this.intl.translate('currency.invalid') : ''),
+  );
 
   /** Kanonischer Wert (Punkt-Dezimal, ohne Gruppierung) — das Modell. */
   private canonical = '';
@@ -53,8 +74,19 @@ export class CurrencyInputComponent implements ControlValueAccessor {
 
   // --- ControlValueAccessor ---------------------------------------------------
   writeValue(value: string | number | null): void {
-    this.canonical = this.toCanonical(value == null ? '' : String(value));
-    this.text.set(this.focused ? this.toEditable(this.canonical) : this.format(this.canonical));
+    const result = parseMoneyModel(value, this.intl.lang());
+    const canonical = result.status === 'valid' ? result.canonical : '';
+    // An echo of the current model while the user types must not rewrite the text,
+    // because that drops a trailing separator and moves the caret.
+    if (this.focused && canonical === this.canonical) return;
+    this.canonical = canonical;
+    if (result.status === 'invalid') {
+      this.invalid.set(true);
+      this.text.set(String(value));
+      return;
+    }
+    this.invalid.set(false);
+    this.text.set(this.focused ? this.toEditable(canonical) : this.format(canonical));
   }
   registerOnChange(fn: (value: string) => void): void {
     this.onChange = fn;
@@ -66,56 +98,35 @@ export class CurrencyInputComponent implements ControlValueAccessor {
     this.disabled.set(isDisabled);
   }
 
+  // --- Validator ----------------------------------------------------------------
+  validate(): ValidationErrors | null {
+    return this.invalid() ? { currency: true } : null;
+  }
+
   // --- Interaktion ------------------------------------------------------------
   protected onFocus(): void {
     this.focused = true;
-    this.text.set(this.toEditable(this.canonical));
+    if (!this.invalid()) this.text.set(this.toEditable(this.canonical));
   }
 
   protected onInput(raw: string): void {
     this.text.set(raw); // roh stehen lassen (kein Cursor-Springen)
-    this.canonical = this.parse(raw);
+    const result: MoneyParseResult = parseMoney(raw, this.intl.lang());
+    this.invalid.set(result.status === 'invalid');
+    this.canonical = result.status === 'valid' ? result.canonical : '';
     this.onChange(this.canonical);
   }
 
   protected onBlur(): void {
     this.focused = false;
-    this.text.set(this.format(this.canonical));
+    // Invalid text stays as typed, so the user can correct it.
+    if (!this.invalid()) this.text.set(this.format(this.canonical));
     this.onTouched();
   }
 
-  // --- Parsen / Formatieren ---------------------------------------------------
+  // --- Formatieren --------------------------------------------------------------
   private get decimalSep(): string {
     return this.intl.lang() === 'en' ? '.' : ',';
-  }
-
-  /** Roh-Eingabe → kanonischer Punkt-Dezimal-String (oder ''). */
-  private parse(raw: string): string {
-    const trimmed = (raw ?? '').trim();
-    if (!trimmed) return '';
-    // Alles außer Ziffern und Separatoren entfernen; letzter Separator = Dezimaltrenner.
-    let s = trimmed.replace(/[^\d.,-]/g, '');
-    const neg = s.startsWith('-');
-    s = s.replace(/-/g, '');
-    const lastSep = Math.max(s.lastIndexOf(','), s.lastIndexOf('.'));
-    let intPart: string;
-    let fracPart: string;
-    if (lastSep === -1) {
-      intPart = s;
-      fracPart = '';
-    } else {
-      intPart = s.slice(0, lastSep).replace(/[.,]/g, '');
-      fracPart = s.slice(lastSep + 1).replace(/[.,]/g, '');
-    }
-    intPart = intPart.replace(/^0+(?=\d)/, '');
-    if (!intPart && !fracPart) return '';
-    const canonical = fracPart ? `${intPart || '0'}.${fracPart}` : intPart || '0';
-    return neg ? `-${canonical}` : canonical;
-  }
-
-  /** Beliebigen Wert (Backend-Punkt oder lokal) → kanonisch. */
-  private toCanonical(value: string): string {
-    return this.parse(value);
   }
 
   /** Kanonisch → editierbarer Text (lokaler Dezimaltrenner, keine Gruppierung). */
@@ -127,12 +138,10 @@ export class CurrencyInputComponent implements ControlValueAccessor {
   /** Kanonisch → lokalisiert formatiert (1.234,56) mit 2 Nachkommastellen. */
   private format(canonical: string): string {
     if (!canonical) return '';
-    const n = Number(canonical);
-    if (Number.isNaN(n)) return '';
     const locale = this.intl.lang() === 'en' ? 'en-US' : 'de-DE';
     return new Intl.NumberFormat(locale, {
       minimumFractionDigits: 2,
       maximumFractionDigits: 2,
-    }).format(n);
+    }).format(Number(canonical));
   }
 }

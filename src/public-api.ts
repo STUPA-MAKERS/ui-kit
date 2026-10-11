@@ -70,6 +70,12 @@ export { CellDirective } from './lib/data-table/cell.directive';
 export { FootCellDirective } from './lib/data-table/foot-cell.directive';
 export { RowDetailDirective } from './lib/data-table/row-detail.directive';
 export { CurrencyInputComponent } from './lib/currency-input/currency-input.component';
+export {
+  MONEY_MAX_DECIMALS,
+  type MoneyParseResult,
+  parseMoney,
+  parseMoneyModel,
+} from './lib/currency-input/parse-money';
 export { LoadingOverlayComponent } from './lib/loading-overlay/loading-overlay.component';
 export { FilterBarComponent } from './lib/filter/filter-bar.component';
 export { FilterFieldComponent } from './lib/filter/filter-field.component';
