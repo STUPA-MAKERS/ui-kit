@@ -91,6 +91,36 @@ describe('MarkdownEditorComponent', () => {
     expect(last?.getAttribute('data-placeholder')).toBe('Weiter …');
   });
 
+  it('marks the line of the cursor while focused, so the hint follows the cursor', async () => {
+    const view = await render(
+      `<app-markdown-editor [value]="'# Titel'" [placeholder]="'Leer'" [hint]="'Weiter …'" />`,
+      { imports: [MarkdownEditorComponent] },
+    );
+    const cmp = view.fixture.debugElement.children[0].componentInstance as unknown as {
+      editor: {
+        commands: {
+          setContent(doc: unknown): void;
+          focus(pos: number): void;
+        };
+      };
+    };
+    const p = (text?: string): unknown => ({
+      type: 'paragraph',
+      ...(text ? { content: [{ type: 'text', text }] } : {}),
+    });
+    cmp.editor.commands.setContent({ type: 'doc', content: [p('A'), p(), p('B'), p()] });
+    // Inside the empty second paragraph: A takes 0..3, the empty paragraph 3..5.
+    cmp.editor.commands.focus(4);
+    // The focus command moves the DOM focus in the next animation frame.
+    await new Promise((resolve) => setTimeout(resolve, 50));
+    const pm = editorEl(view.container);
+    const lines = Array.from(pm.querySelectorAll('p'));
+    expect(pm.classList.contains('ProseMirror-focused')).toBe(true);
+    expect(lines.map((l) => l.classList.contains('has-focus'))).toEqual([false, true, false, false]);
+    expect(lines[1].classList.contains('is-empty')).toBe(true);
+    expect(lines[1].getAttribute('data-placeholder')).toBe('Weiter …');
+  });
+
   it('shows no hint while the editor is read-only', async () => {
     const { container } = await render(
       `<app-markdown-editor [value]="'# Titel'" [hint]="'Weiter …'" [disabled]="true" />`,
