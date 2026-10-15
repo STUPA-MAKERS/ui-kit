@@ -11,7 +11,7 @@ import {
   viewChild,
 } from '@angular/core';
 import { Editor } from '@tiptap/core';
-import { Placeholder } from '@tiptap/extensions';
+import { Focus, Placeholder } from '@tiptap/extensions';
 import StarterKit from '@tiptap/starter-kit';
 import { Markdown } from 'tiptap-markdown';
 import { BlockMathMarkdown, InlineMathMarkdown } from './math.extension';
@@ -110,12 +110,18 @@ export class MarkdownEditorComponent implements OnDestroy {
             StarterKit,
             Markdown.configure({ html: false }),
             // Every empty paragraph gets the text as `data-placeholder`. The styles
-            // show it on the first line of an empty document and on the last line
-            // of a document with content, and only while the editor is editable.
+            // show the text on the first line of an empty document. In a document
+            // with content they show the hint on the empty line of the cursor while
+            // the editor has the focus (`has-focus`), else on the empty last line.
+            // All only while editable.
             Placeholder.configure({
               showOnlyCurrent: false,
               placeholder: ({ editor }) => (editor.isEmpty ? this.placeholder() : this.hint()),
             }),
+            // The top-level block of the cursor, while the editor has the focus. The
+            // class of the placeholder cannot carry it: the placeholder updates only
+            // the changed range and keeps the class of the line the cursor left.
+            Focus.configure({ mode: 'shallowest' }),
             VoteCallout.configure({
               resolver: () => this.voteInfo(),
               views: this.voteViews,

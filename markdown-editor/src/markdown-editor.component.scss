@@ -59,16 +59,20 @@ app-markdown-editor {
   margin: var(--space-3) 0;
 }
 /* The placeholder of an empty document sits on its first line. The hint of a document
-   with content sits on its empty last line, so the eye finds the place to continue. */
+   with content follows the cursor: it sits on the empty line of the cursor while the
+   editor has the focus, else on the empty last line, so the eye finds the place to
+   continue. */
 .mde__host .ProseMirror p.is-editor-empty:first-child::before,
-.mde__host .ProseMirror p.is-empty:last-child:not(:first-child)::before {
+.mde__host .ProseMirror.ProseMirror-focused p.is-empty.has-focus:not(.is-editor-empty)::before,
+.mde__host .ProseMirror:not(.ProseMirror-focused) p.is-empty:last-child:not(:first-child)::before {
   content: attr(data-placeholder);
   color: var(--color-text-muted);
   float: left;
   height: 0;
   pointer-events: none;
 }
-.mde__host .ProseMirror p.is-empty:last-child:not(:first-child)::before {
+.mde__host .ProseMirror.ProseMirror-focused p.is-empty.has-focus:not(.is-editor-empty)::before,
+.mde__host .ProseMirror:not(.ProseMirror-focused) p.is-empty:last-child:not(:first-child)::before {
   font-style: italic;
 }
 
