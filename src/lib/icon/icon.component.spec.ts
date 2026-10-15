@@ -105,4 +105,14 @@ describe('IconComponent', () => {
     expect(iconShapes('pinslash')).not.toBe(iconShapes('clipslash'));
     expect(iconShapes('pinslash')?.some((s) => s.d === 'm2 2 20 20')).toBe(true);
   });
+
+  it('has the icons of the to-dos, the help menu and the tickets', () => {
+    for (const name of ['circle', 'circleok', 'box', 'boxok', 'kanban', 'tag', 'help', 'ticket', 'bug', 'bulb', 'book', 'image']) {
+      expect(ICON_NAMES).toContain(name);
+      expect(iconShapes(name)?.length).toBeGreaterThan(0);
+    }
+    // The checked forms add the check to the empty form.
+    expect(iconShapes('circleok')?.length).toBe((iconShapes('circle')?.length ?? 0) + 1);
+    expect(iconShapes('boxok')?.length).toBe((iconShapes('box')?.length ?? 0) + 1);
+  });
 });
