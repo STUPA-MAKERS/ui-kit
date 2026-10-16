@@ -1,7 +1,7 @@
 import { Component, signal } from '@angular/core';
 import { render } from '@testing-library/angular';
 import { MarkdownEditorComponent } from './markdown-editor.component';
-import type { VoteCalloutResolver } from './vote-callout.extension';
+import { parseElection, type VoteCalloutResolver } from './vote-callout.extension';
 
 @Component({
   standalone: true,
@@ -364,6 +364,77 @@ describe('MarkdownEditorComponent', () => {
       expect((cards[0] as HTMLElement).dataset['result']).toBe('none');
       expect(cards[0].querySelector('.mde__voteCounts')).toBeNull();
       expect((cards[1] as HTMLElement).dataset['result']).toBe('tie');
+    });
+
+    const election =
+      '> [!abstimmung] **Wahl des Vorsitzes**\n> Wahl · 2 Posten\n' +
+      '> Mara: 9 · Ben: 4 · Selin: 7 · Enthaltungen: 1\n> Gewählt: Mara, Selin';
+
+    it('shows an election as a ranking with the seat line', async () => {
+      const resolve: VoteCalloutResolver = () => ({
+        caption: 'Wahl · 2 Posten · 12:05',
+        result: { label: 'Gewählt', tone: 'passed' },
+      });
+      const view = await render(`<app-markdown-editor [value]="md" [voteInfo]="resolve" />`, {
+        imports: [MarkdownEditorComponent],
+        componentProperties: { md: election, resolve },
+      });
+      const card = view.container.querySelector('.mde__vote') as HTMLElement;
+      expect(card.querySelector('.mde__voteKind')?.textContent).toBe('Wahl · 2 Posten · 12:05');
+      expect(card.querySelector('.mde__voteStatus')?.textContent).toBe('Gewählt');
+      const names = [...card.querySelectorAll('.mde__elName')].map((n) => n.textContent);
+      expect(names).toEqual(['Mara', 'Selin', 'Ben', 'Enthaltungen']);
+      const elected = [...card.querySelectorAll('.mde__elRow--elected .mde__elName')];
+      expect(elected.map((n) => n.textContent)).toEqual(['Mara', 'Selin']);
+      expect(card.querySelectorAll('.mde__elLine')).toHaveLength(1);
+      const fills = [...card.querySelectorAll<HTMLElement>('.mde__elFill')].map((f) => f.style.width);
+      expect(fills[0]).toBe('100%');
+      expect(card.querySelector('.mde__voteBody')).toBeNull();
+      expect(markdownOf(view)).toBe(election);
+    });
+
+    it('shows the public form and a pending lot', async () => {
+      const { container } = await render(`<app-markdown-editor [value]="md" />`, {
+        imports: [MarkdownEditorComponent],
+        componentProperties: {
+          md:
+            '> [!abstimmung] **A**\n> Wahl · 1 Posten\n> Gewählt: Hannah\n> 3 weitere Kandidierende\n\n' +
+            '> [!abstimmung] **B**\n> Wahl · 1 Posten\n> Ben: 6 · Amira: 6 · Enthaltungen: 0\n' +
+            '> Gewählt: niemand\n> Gleichstand: das Los steht aus.',
+        },
+      });
+      const [pub, lot] = [...container.querySelectorAll('.mde__vote')];
+      expect(pub.querySelector('.mde__voteKind')?.textContent).toBe('Wahl · 1 Posten');
+      expect(pub.querySelector('.mde__elRow--public .mde__elName')?.textContent).toBe('Hannah');
+      expect(pub.querySelector('.mde__voteBody')?.textContent).toBe('3 weitere Kandidierende');
+      expect(lot.querySelector('.mde__elTag--warn')?.textContent).toBe('Los steht aus');
+      expect(lot.querySelectorAll('.mde__elRow--elected')).toHaveLength(0);
+      expect(lot.querySelector('.mde__elLine')).toBeNull();
+    });
+  });
+
+  describe('parseElection', () => {
+    it('keeps a name with a comma whole and the elected first within a tie', () => {
+      const card = parseElection([
+        'Wahl · 2 Posten',
+        'Krüger, Ben: 6 · Amira: 6 · Finn: 3 · Enthaltungen: 0',
+        'Gewählt: Amira, Krüger, Ben',
+        'Durch Los entschieden.',
+        'Stichwahl (2. Wahlgang) um 1 Posten: X, Y',
+      ]);
+      expect(card?.rows.map((r) => [r.name, r.elected])).toEqual([
+        ['Krüger, Ben', true],
+        ['Amira', true],
+        ['Finn', false],
+      ]);
+      expect(card?.lot).toBe('drawn');
+      expect(card?.notes).toEqual(['Stichwahl (2. Wahlgang) um 1 Posten: X, Y']);
+    });
+
+    it('reads no ranking without the seat line or with a single candidate', () => {
+      expect(parseElection(['Anna: 3'])).toBeNull();
+      expect(parseElection(['Wahl · 1 Posten', 'Kandidatur: Anna'])).toBeNull();
+      expect(parseElection(['Wahl · 1 Posten', 'Gewählt: niemand'])?.elected).toEqual([]);
     });
   });
 

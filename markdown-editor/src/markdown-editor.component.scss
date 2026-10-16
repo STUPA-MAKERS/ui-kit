@@ -194,3 +194,105 @@ app-markdown-editor {
 .mde__host .ProseMirror .mde__voteSeg--abstain {
   background: var(--color-text-subtle);
 }
+
+/* An election as a ranking: one row per candidate, best first, with a bar scaled to
+   the best count. The elected rows carry a check and the accent, a dashed line ends
+   them, the abstentions come last and muted. */
+.mde__host .ProseMirror .mde__voteStatus {
+  margin-left: auto;
+  font-size: var(--fs-sm);
+  font-weight: var(--fw-semibold);
+  white-space: nowrap;
+  color: var(--color-accent-text);
+}
+.mde__host .ProseMirror .mde__vote[data-result='rejected'] .mde__voteStatus {
+  color: var(--color-text-muted);
+}
+.mde__host .ProseMirror .mde__elRows {
+  display: grid;
+  grid-template-columns: 18px minmax(6rem, 14rem) minmax(0, 1fr) 2.25rem;
+  gap: 7px 10px;
+  align-items: center;
+  margin-top: var(--space-1);
+}
+.mde__host .ProseMirror .mde__elRow {
+  display: contents;
+}
+.mde__host .ProseMirror .mde__elMark {
+  display: grid;
+  place-items: center;
+  color: var(--color-accent-text);
+}
+.mde__host .ProseMirror .mde__elName {
+  min-width: 0;
+  font-size: var(--fs-sm);
+  color: var(--color-text-muted);
+  overflow-wrap: anywhere;
+}
+.mde__host .ProseMirror .mde__elRow--elected .mde__elName {
+  color: var(--color-text);
+  font-weight: var(--fw-semibold);
+}
+.mde__host .ProseMirror .mde__elRow--public .mde__elName {
+  grid-column: 2 / -1;
+}
+.mde__host .ProseMirror .mde__elTrack {
+  display: block;
+  height: 8px;
+  border-radius: var(--radius-pill);
+  background: var(--color-surface-3, var(--color-surface-1));
+  overflow: hidden;
+}
+.mde__host .ProseMirror .mde__elTrack--none {
+  visibility: hidden;
+}
+.mde__host .ProseMirror .mde__elFill {
+  display: block;
+  height: 100%;
+  border-radius: var(--radius-pill);
+  background: color-mix(in srgb, var(--color-text-subtle) 60%, transparent);
+}
+.mde__host .ProseMirror .mde__elRow--elected .mde__elFill {
+  background: var(--color-accent);
+}
+.mde__host .ProseMirror .mde__elNum {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+  font-weight: var(--fw-semibold);
+  color: var(--color-text-muted);
+}
+.mde__host .ProseMirror .mde__elRow--elected .mde__elNum {
+  color: var(--color-text);
+}
+.mde__host .ProseMirror .mde__elRow--abstain .mde__elName,
+.mde__host .ProseMirror .mde__elRow--abstain .mde__elNum {
+  color: var(--color-text-subtle);
+  font-weight: var(--fw-regular, 400);
+}
+.mde__host .ProseMirror .mde__elLine {
+  grid-column: 1 / -1;
+  border-top: 1.5px dashed var(--color-border);
+  margin: 1px 0;
+}
+.mde__host .ProseMirror .mde__elTags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 2px;
+}
+.mde__host .ProseMirror .mde__elTag {
+  display: inline-flex;
+  align-items: center;
+  height: 26px;
+  padding: 0 10px;
+  border-radius: var(--radius-pill);
+  font-size: var(--fs-xs);
+  font-weight: var(--fw-medium);
+  background: var(--color-surface-3, var(--color-surface-1));
+  color: var(--color-text);
+}
+.mde__host .ProseMirror .mde__elTag--warn {
+  background: transparent;
+  box-shadow: inset 0 0 0 1px var(--color-warning);
+  color: var(--color-warning);
+}
