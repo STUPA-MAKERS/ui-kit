@@ -73,6 +73,92 @@ export function parseVoteCallout(raw: string): VoteCard {
   return { kind, question, tally, body, result };
 }
 
+/** One candidate row of an election callout. */
+export interface ElectionRow {
+  name: string;
+  votes: number;
+  elected: boolean;
+}
+
+/**
+ * A personnel election in a callout. The protocol writes it as
+ *
+ *     > [!abstimmung] **Frage**
+ *     > Wahl · 2 Posten
+ *     > Anna: 5 · Ben: 3 · Cem: 3 · Enthaltungen: 1
+ *     > Gewählt: Anna, Ben
+ *     > Durch Los entschieden.
+ *
+ * The public protocol writes only the elected people and "3 weitere Kandidierende".
+ */
+export interface ElectionCard {
+  /** The line "Wahl · 2 Posten". */
+  meta: string;
+  /** The candidates, best first, the elected first within equal votes. */
+  rows: ElectionRow[];
+  abstentions: number | null;
+  /** The elected people of the public form, which has no counts. */
+  elected: string[];
+  others: number;
+  lot: 'drawn' | 'pending' | null;
+  /** Lines the card does not read (a runoff note of an older election). */
+  notes: string[];
+}
+
+const ELECTION_META = /^(?:Wahl|Stichwahl)\b.*·\s*\d+\s+Posten/;
+
+/**
+ * Read an election from the lines after the question. A callout without the line
+ * "Wahl · n Posten", or with a single candidate (its Ja/Nein line), is no ranking.
+ */
+export function parseElection(lines: readonly string[]): ElectionCard | null {
+  const metaIndex = lines.findIndex((l) => ELECTION_META.test(l));
+  if (metaIndex < 0 || lines.some((l) => /^Kandidatur:/.test(l))) return null;
+  const card: ElectionCard = {
+    meta: lines[metaIndex],
+    rows: [],
+    abstentions: null,
+    elected: [],
+    others: 0,
+    lot: null,
+    notes: [],
+  };
+  let electedRaw: string | null = null;
+  for (const [i, line] of lines.entries()) {
+    if (i === metaIndex) continue;
+    const elected = /^Gewählt:\s*(.*)$/.exec(line);
+    const others = /^(\d+) weitere Kandidierende$/.exec(line);
+    if (elected) electedRaw = elected[1];
+    else if (others) card.others = Number(others[1]);
+    else if (line === 'Durch Los entschieden.') card.lot = 'drawn';
+    else if (/^Gleichstand: das Los steht aus\.?$/.test(line)) card.lot = 'pending';
+    else if (/^.+:\s*\d+(\s+·\s+.+:\s*\d+)*$/.test(line) && !card.rows.length) {
+      for (const part of line.split(/\s+·\s+/)) {
+        const match = /^(.*):\s*(\d+)$/.exec(part);
+        if (!match) continue;
+        if (match[1] === 'Enthaltungen') card.abstentions = Number(match[2]);
+        else card.rows.push({ name: match[1], votes: Number(match[2]), elected: false });
+      }
+    } else card.notes.push(line);
+  }
+  if (electedRaw !== null && electedRaw !== 'niemand') {
+    // Match the known names first, so a name with ", " stays whole.
+    let rest = electedRaw;
+    const known = [...card.rows].sort((a, b) => b.name.length - a.name.length);
+    for (const row of known) {
+      if (rest.includes(row.name)) {
+        row.elected = true;
+        rest = rest.replace(row.name, '');
+      }
+    }
+    if (!card.rows.length) {
+      card.elected = electedRaw.split(',').map((n) => n.trim()).filter((n) => n);
+    }
+  }
+  card.rows.sort((a, b) => b.votes - a.votes || Number(b.elected) - Number(a.elected));
+  return card;
+}
+
 /**
  * What the consumer knows about the vote of a callout. The Markdown holds only the
  * question and the counts; the time, the majority rule and the result under that rule
@@ -154,13 +240,19 @@ function fillCard(root: HTMLElement, raw: string, info: VoteCalloutInfo | null):
   root.className = 'mde__vote';
   root.dataset['result'] = info?.result ? info.result.tone : card.result;
 
+  const election = card.tally ? null : parseElection(card.body);
   const head = el('div', 'mde__voteHead');
   head.appendChild(voteIcon());
   const kind = card.kind.charAt(0).toUpperCase() + card.kind.slice(1);
-  head.appendChild(el('span', 'mde__voteKind', info?.caption || kind));
+  head.appendChild(el('span', 'mde__voteKind', info?.caption || election?.meta || kind));
   root.appendChild(head);
 
   if (card.question) root.appendChild(el('div', 'mde__voteQ', card.question));
+  if (election) {
+    if (info?.result) head.appendChild(el('span', 'mde__voteStatus', info.result.label));
+    fillElection(root, election);
+    return;
+  }
   for (const line of card.body) root.appendChild(el('div', 'mde__voteBody', line));
 
   if (!card.tally) return;
@@ -193,6 +285,92 @@ function fillCard(root: HTMLElement, raw: string, info: VoteCalloutInfo | null):
     }
     root.appendChild(bar);
   }
+}
+
+/** The check mark of an elected candidate. */
+function checkIcon(): SVGElement {
+  const svg = document.createElementNS(SVG_NS, 'svg');
+  svg.setAttribute('width', '16');
+  svg.setAttribute('height', '16');
+  svg.setAttribute('viewBox', '0 0 24 24');
+  svg.setAttribute('fill', 'none');
+  svg.setAttribute('stroke', 'currentColor');
+  svg.setAttribute('stroke-width', '2.2');
+  svg.setAttribute('stroke-linecap', 'round');
+  svg.setAttribute('stroke-linejoin', 'round');
+  svg.setAttribute('aria-hidden', 'true');
+  const path = document.createElementNS(SVG_NS, 'path');
+  path.setAttribute('d', 'M20 6 9 17l-5-5');
+  svg.appendChild(path);
+  return svg;
+}
+
+function markCell(elected: boolean): HTMLElement {
+  const cell = el('span', 'mde__elMark');
+  if (elected) cell.appendChild(checkIcon());
+  return cell;
+}
+
+/**
+ * The ranking of an election: one row per candidate, best first, with a bar scaled to
+ * the best count. A dashed line ends the elected rows. The abstentions come last. The
+ * public form has no counts and lists the elected people only.
+ */
+function fillElection(root: HTMLElement, election: ElectionCard): void {
+  root.dataset['election'] = '';
+  const list = el('div', 'mde__elRows');
+  if (election.rows.length) {
+    const top = Math.max(1, ...election.rows.map((r) => r.votes));
+    let lineDone = false;
+    for (const [i, row] of election.rows.entries()) {
+      if (!row.elected && !lineDone && i > 0 && election.rows[i - 1].elected) {
+        list.appendChild(el('div', 'mde__elLine'));
+        lineDone = true;
+      }
+      const tone = row.elected ? ' mde__elRow--elected' : '';
+      const line = el('div', `mde__elRow${tone}`);
+      line.appendChild(markCell(row.elected));
+      line.appendChild(el('span', 'mde__elName', row.name));
+      const track = el('span', 'mde__elTrack');
+      track.setAttribute('aria-hidden', 'true');
+      const fill = el('span', 'mde__elFill');
+      fill.style.width = `${(row.votes / top) * 100}%`;
+      track.appendChild(fill);
+      line.appendChild(track);
+      line.appendChild(el('span', 'mde__elNum', String(row.votes)));
+      list.appendChild(line);
+    }
+    if (election.abstentions !== null) {
+      const line = el('div', 'mde__elRow mde__elRow--abstain');
+      line.appendChild(markCell(false));
+      line.appendChild(el('span', 'mde__elName', 'Enthaltungen'));
+      line.appendChild(el('span', 'mde__elTrack mde__elTrack--none'));
+      line.appendChild(el('span', 'mde__elNum', String(election.abstentions)));
+      list.appendChild(line);
+    }
+  } else {
+    for (const name of election.elected) {
+      const line = el('div', 'mde__elRow mde__elRow--elected mde__elRow--public');
+      line.appendChild(markCell(true));
+      line.appendChild(el('span', 'mde__elName', name));
+      list.appendChild(line);
+    }
+  }
+  root.appendChild(list);
+  if (election.others > 0) {
+    root.appendChild(el('div', 'mde__voteBody', `${election.others} weitere Kandidierende`));
+  }
+  const tags: HTMLElement[] = [];
+  if (election.lot === 'drawn') tags.push(el('span', 'mde__elTag', 'Durch Los entschieden'));
+  if (election.lot === 'pending') {
+    tags.push(el('span', 'mde__elTag mde__elTag--warn', 'Los steht aus'));
+  }
+  if (tags.length) {
+    const box = el('div', 'mde__elTags');
+    for (const tag of tags) box.appendChild(tag);
+    root.appendChild(box);
+  }
+  for (const note of election.notes) root.appendChild(el('div', 'mde__voteBody', note));
 }
 
 /** Read the info of a callout from the resolver; a failing resolver gives none. */
