@@ -26,10 +26,17 @@ export type IconName =
   | 'bell'
   | 'bold'
   | 'bolt'
+  | 'book'
+  | 'box'
+  | 'boxok'
+  | 'bug'
   | 'building'
+  | 'bulb'
   | 'cal'
   | 'chat'
   | 'check'
+  | 'circle'
+  | 'circleok'
   | 'clip'
   | 'clipcheck'
   | 'clipslash'
@@ -55,10 +62,13 @@ export type IconName =
   | 'half'
   | 'handshake'
   | 'heading'
+  | 'help'
   | 'history'
   | 'home'
+  | 'image'
   | 'info'
   | 'italic'
+  | 'kanban'
   | 'key'
   | 'landmark'
   | 'left'
@@ -92,7 +102,9 @@ export type IconName =
   | 'square'
   | 'sun'
   | 'swap'
+  | 'tag'
   | 'tasks'
+  | 'ticket'
   | 'trash'
   | 'tune'
   | 'undo'
@@ -134,10 +146,17 @@ const SHAPES: Record<string, readonly IconShape[]> = {
   bell: [{ t: 'path', d: 'M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9' }, { t: 'path', d: 'M10.3 21a1.94 1.94 0 0 0 3.4 0' }],
   bold: [{ t: 'path', d: 'M7 5h6a3.5 3.5 0 0 1 0 7H7zM7 12h7a3.5 3.5 0 0 1 0 7H7z' }],
   bolt: [{ t: 'path', d: 'M13 2 4 14h7l-1 8 9-12h-7z' }],
+  book: [{ t: 'path', d: 'M4 4.5A2.5 2.5 0 0 1 6.5 2H20v17H6.5A2.5 2.5 0 0 0 4 21.5z' }, { t: 'path', d: 'M4 21.5A2.5 2.5 0 0 1 6.5 19H20v3H6.5' }],
+  box: [{ t: 'rect', x: '4', y: '4', width: '16', height: '16', rx: '4' }],
+  boxok: [{ t: 'rect', x: '4', y: '4', width: '16', height: '16', rx: '4' }, { t: 'path', d: 'm8 12 3 3 5-6' }],
+  bug: [{ t: 'rect', x: '7', y: '7', width: '10', height: '14', rx: '5' }, { t: 'path', d: 'M12 11v10M7 13H3M21 13h-4M7 17l-3 2M17 17l3 2M7 9 4 7M17 9l3-2M9 7a3 3 0 0 1 6 0' }],
   building: [{ t: 'path', d: 'M3 21h18M5 21V10M19 21V10M9 21v-7M15 21v-7M2 10 12 3l10 7z' }],
+  bulb: [{ t: 'path', d: 'M9 18h6M10 21h4' }, { t: 'path', d: 'M12 3a6 6 0 0 0-3.5 10.9c.6.5 1 1.2 1 2V16h5v-.1c0-.8.4-1.5 1-2A6 6 0 0 0 12 3z' }],
   cal: [{ t: 'rect', x: '3', y: '4', width: '18', height: '18', rx: '2' }, { t: 'path', d: 'M16 2v4M8 2v4M3 10h18' }],
   chat: [{ t: 'path', d: 'M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z' }],
   check: [{ t: 'path', d: 'M20 6 9 17l-5-5' }],
+  circle: [{ t: 'circle', cx: '12', cy: '12', r: '8.5' }],
+  circleok: [{ t: 'circle', cx: '12', cy: '12', r: '8.5' }, { t: 'path', d: 'm8.5 12 2.5 2.5 4.5-5' }],
   clip: [{ t: 'path', d: 'm21.4 11.1-9.2 9.2a6 6 0 0 1-8.5-8.5l9.2-9.2a4 4 0 0 1 5.7 5.7l-9.2 9.2a2 2 0 0 1-2.8-2.8l8.5-8.5' }],
   clipcheck: [{ t: 'rect', x: '8', y: '2', width: '8', height: '4', rx: '1' }, { t: 'path', d: 'M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2' }, { t: 'path', d: 'm9 14 2 2 4-4' }],
   clipslash: [{ t: 'path', d: 'm21.4 11.1-9.2 9.2a6 6 0 0 1-8.5-8.5l9.2-9.2a4 4 0 0 1 5.7 5.7l-9.2 9.2a2 2 0 0 1-2.8-2.8l8.5-8.5' }, { t: 'path', d: 'M3 3l18 18' }],
@@ -163,10 +182,13 @@ const SHAPES: Record<string, readonly IconShape[]> = {
   half: [{ t: 'circle', cx: '12', cy: '12', r: '9' }, { t: 'path', d: 'M12 3a9 9 0 0 0 0 18z', fill: 'currentColor' }],
   handshake: [{ t: 'path', d: 'm11 17 2 2a1 1 0 1 0 3-3' }, { t: 'path', d: 'm14 14 2.5 2.5a1 1 0 1 0 3-3l-3.88-3.88a3 3 0 0 0-4.24 0l-.88.88a1 1 0 1 1-3-3l2.81-2.81a5.79 5.79 0 0 1 7.06-.87l.47.28a2 2 0 0 0 1.42.25L21 4' }, { t: 'path', d: 'm21 3 1 11h-2' }, { t: 'path', d: 'M3 3 2 14l6.5 6.5a1 1 0 1 0 3-3' }, { t: 'path', d: 'M3 4h8' }],
   heading: [{ t: 'path', d: 'M6 4v16M18 4v16M6 12h12' }],
+  help: [{ t: 'circle', cx: '12', cy: '12', r: '9' }, { t: 'path', d: 'M9.1 9a3 3 0 0 1 5.8 1c0 2-3 3-3 3' }, { t: 'path', d: 'M12 17h.01' }],
   history: [{ t: 'path', d: 'M3 12a9 9 0 1 0 3-6.7L3 8' }, { t: 'path', d: 'M3 3v5h5' }, { t: 'path', d: 'M12 7v5l4 2' }],
   home: [{ t: 'path', d: 'M3 10.5 12 3l9 7.5' }, { t: 'path', d: 'M5 9.5V20a1 1 0 0 0 1 1h4v-6h4v6h4a1 1 0 0 0 1-1V9.5' }],
+  image: [{ t: 'rect', x: '3', y: '3', width: '18', height: '18', rx: '2' }, { t: 'circle', cx: '9', cy: '9', r: '2' }, { t: 'path', d: 'm21 15-5-5L5 21' }],
   info: [{ t: 'circle', cx: '12', cy: '12', r: '9' }, { t: 'path', d: 'M12 16v-4M12 8h.01' }],
   italic: [{ t: 'path', d: 'M19 4h-9M14 20H5M15 4 9 20' }],
+  kanban: [{ t: 'rect', x: '3', y: '4', width: '5', height: '15', rx: '1.5' }, { t: 'rect', x: '10', y: '4', width: '5', height: '10', rx: '1.5' }, { t: 'rect', x: '17', y: '4', width: '4', height: '12', rx: '1.5' }],
   key: [{ t: 'circle', cx: '7.5', cy: '15.5', r: '4.5' }, { t: 'path', d: 'm10.7 12.3 9.3-9.3M17 6l3 3M14 9l2 2' }],
   landmark: [{ t: 'path', d: 'M3 22h18M6 18v-7M10 18v-7M14 18v-7M18 18v-7' }, { t: 'path', d: 'M12 2 20 7H4z' }],
   left: [{ t: 'path', d: 'm15 6-6 6 6 6' }],
@@ -201,7 +223,9 @@ const SHAPES: Record<string, readonly IconShape[]> = {
   square: [{ t: 'rect', x: '5', y: '5', width: '14', height: '14', rx: '2' }],
   sun: [{ t: 'circle', cx: '12', cy: '12', r: '4' }, { t: 'path', d: 'M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41' }],
   swap: [{ t: 'path', d: 'M4 7h15l-3-3' }, { t: 'path', d: 'M20 17H5l3 3' }],
+  tag: [{ t: 'path', d: 'M20.6 13.4 13.4 20.6a2 2 0 0 1-2.8 0L3 13V3h10l7.6 7.6a2 2 0 0 1 0 2.8z' }, { t: 'circle', cx: '7.5', cy: '7.5', r: '1.3' }],
   tasks: [{ t: 'path', d: 'm3 7 2 2 4-4' }, { t: 'path', d: 'm3 17 2 2 4-4' }, { t: 'path', d: 'M13 7h8M13 17h8' }],
+  ticket: [{ t: 'path', d: 'M3 8a2 2 0 0 0 2-2h14a2 2 0 0 0 2 2v2a2 2 0 0 0 0 4v2a2 2 0 0 0-2 2H5a2 2 0 0 0-2-2v-2a2 2 0 0 0 0-4z' }, { t: 'path', d: 'M14 6v2M14 11v2M14 16v2' }],
   trash: [{ t: 'path', d: 'M3 6h18M8 6V4h8v2M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6' }],
   tune: [{ t: 'path', d: 'M4 6h9M17 6h3M4 12h3M11 12h9M4 18h11M19 18h1' }, { t: 'circle', cx: '15', cy: '6', r: '2' }, { t: 'circle', cx: '9', cy: '12', r: '2' }, { t: 'circle', cx: '17', cy: '18', r: '2' }],
   undo: [{ t: 'path', d: 'M9 14 4 9l5-5' }, { t: 'path', d: 'M4 9h11a5 5 0 0 1 0 10h-3' }],
@@ -253,10 +277,17 @@ export const ICON_NAMES: readonly IconName[] = [
   'bell',
   'bold',
   'bolt',
+  'book',
+  'box',
+  'boxok',
+  'bug',
   'building',
+  'bulb',
   'cal',
   'chat',
   'check',
+  'circle',
+  'circleok',
   'clip',
   'clipcheck',
   'clipslash',
@@ -282,10 +313,13 @@ export const ICON_NAMES: readonly IconName[] = [
   'half',
   'handshake',
   'heading',
+  'help',
   'history',
   'home',
+  'image',
   'info',
   'italic',
+  'kanban',
   'key',
   'landmark',
   'left',
@@ -319,7 +353,9 @@ export const ICON_NAMES: readonly IconName[] = [
   'square',
   'sun',
   'swap',
+  'tag',
   'tasks',
+  'ticket',
   'trash',
   'tune',
   'undo',
