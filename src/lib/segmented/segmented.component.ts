@@ -77,7 +77,8 @@ export class SegmentedComponent implements ControlValueAccessor {
    * a medium button, for a switch that stands beside buttons, as in a page header.
    *
    * A `control` switch with the check mark keeps one width when the selection changes:
-   * each segment reserves the room of the mark, so the buttons beside it do not move.
+   * a segment without the mark pads itself by the room of the mark, so the buttons beside it
+   * do not move. The label moves to make room for the mark.
    * A `compact` switch does not reserve it, because a phone dialog has no width to spare.
    */
   readonly size = input<'compact' | 'control'>('compact');

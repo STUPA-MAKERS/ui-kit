@@ -106,14 +106,11 @@
   border-radius: calc(var(--control-height) / 2);
 }
 
-/* A `control` switch keeps one width: every segment reserves the room of the check mark
-   (14px) on both sides of its label, so the label does not move when the mark appears. */
-:host(.seg-host--control.seg-host--check:not(.seg-host--fill)) .seg__opt {
-  padding-inline: var(--space-3);
-}
-:host(.seg-host--control.seg-host--check:not(.seg-host--fill)) .seg__opt:not(.seg__opt--on)::before,
-:host(.seg-host--control.seg-host--check:not(.seg-host--fill)) .seg__opt::after {
-  content: '';
-  flex: none;
-  width: 14px;
+/* A `control` switch keeps one width: a segment without the check mark adds the room
+   of the mark (14px) and its gap (6px) to its padding, half on each side. The label
+   moves when the mark appears, but the switch does not change its width, so the buttons
+   beside it do not move. */
+:host(.seg-host--control.seg-host--check:not(.seg-host--fill)) .seg__opt:not(.seg__opt--on) {
+  justify-content: center;
+  padding-inline: calc(var(--space-4) + 10px);
 }
