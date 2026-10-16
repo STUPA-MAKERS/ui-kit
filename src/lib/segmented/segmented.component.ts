@@ -52,6 +52,7 @@ export type SegmentedWidth = 'auto' | 'equal' | 'fill';
     '[class.seg-host--equal]': "width() === 'equal'",
     '[class.seg-host--fill]': "width() === 'fill'",
     '[class.seg-host--control]': "size() === 'control'",
+    '[class.seg-host--check]': 'check()',
   },
   providers: [{ provide: NG_VALUE_ACCESSOR, useExisting: SegmentedComponent, multi: true }],
   templateUrl: './segmented.component.html',
@@ -74,6 +75,10 @@ export class SegmentedComponent implements ControlValueAccessor {
   /**
    * The height. `compact` (36px) fits a form or a toolbar. `control` takes the height of
    * a medium button, for a switch that stands beside buttons, as in a page header.
+   *
+   * A `control` switch with the check mark keeps one width when the selection changes:
+   * each segment reserves the room of the mark, so the buttons beside it do not move.
+   * A `compact` switch does not reserve it, because a phone dialog has no width to spare.
    */
   readonly size = input<'compact' | 'control'>('compact');
 

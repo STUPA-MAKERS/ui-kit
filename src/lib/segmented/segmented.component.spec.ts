@@ -48,6 +48,25 @@ describe('SegmentedComponent', () => {
     expect(container.querySelector('app-segmented')).toHaveClass('seg-host--control');
   });
 
+  it('keeps one width with size="control": the host marks the check, each label carries its bold copy', async () => {
+    const { container } = await render(
+      `<app-segmented ariaLabel="Ansicht" size="control" [options]="opts" value="expense" />`,
+      { imports: [SegmentedComponent], componentProperties: { opts: KINDS } },
+    );
+    expect(container.querySelector('app-segmented')).toHaveClass('seg-host--check');
+    const labels = [...container.querySelectorAll('.seg__label')].map((l) => l.getAttribute('data-label'));
+    expect(labels).toEqual(['Ausgabe', 'Einnahme']);
+    expect(screen.getByRole('radio', { name: 'Einnahme' })).toBeInTheDocument();
+  });
+
+  it('does not mark the check when check is false', async () => {
+    const { container } = await render(
+      `<app-segmented ariaLabel="Ansicht" size="control" [check]="false" [options]="opts" value="expense" />`,
+      { imports: [SegmentedComponent], componentProperties: { opts: KINDS } },
+    );
+    expect(container.querySelector('app-segmented')).not.toHaveClass('seg-host--check');
+  });
+
   it('has one tab stop: the checked option', async () => {
     await render(Host);
     const [a, b] = screen.getAllByRole('radio');

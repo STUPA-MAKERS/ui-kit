@@ -53,6 +53,18 @@
   overflow: hidden;
   text-overflow: ellipsis;
 }
+/* A hidden copy of the label in the weight of the chosen segment. The label is then as
+   wide as its bold form, and the selection does not change the width of a segment.
+   The empty alternative text keeps the copy out of the accessible name. */
+.seg__label::after {
+  content: attr(data-label);
+  content: attr(data-label) / '';
+  display: block;
+  height: 0;
+  overflow: hidden;
+  visibility: hidden;
+  font-weight: var(--fw-semibold);
+}
 
 /* A count after the label: the same size, a lighter weight and colour. */
 .seg__count {
@@ -92,4 +104,16 @@
 :host(.seg-host--control) .seg {
   height: var(--control-height);
   border-radius: calc(var(--control-height) / 2);
+}
+
+/* A `control` switch keeps one width: every segment reserves the room of the check mark
+   (14px) on both sides of its label, so the label does not move when the mark appears. */
+:host(.seg-host--control.seg-host--check:not(.seg-host--fill)) .seg__opt {
+  padding-inline: var(--space-3);
+}
+:host(.seg-host--control.seg-host--check:not(.seg-host--fill)) .seg__opt:not(.seg__opt--on)::before,
+:host(.seg-host--control.seg-host--check:not(.seg-host--fill)) .seg__opt::after {
+  content: '';
+  flex: none;
+  width: 14px;
 }

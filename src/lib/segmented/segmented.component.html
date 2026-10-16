@@ -28,7 +28,7 @@
           <path d="M20 6 9 17l-5-5" />
         </svg>
       }
-      <span class="seg__label">{{ opt.label }}</span>
+      <span class="seg__label" [attr.data-label]="opt.label">{{ opt.label }}</span>
       @if (opt.count !== undefined && opt.count !== null && opt.count !== '') {
         <span class="seg__count">{{ opt.count }}</span>
       }
