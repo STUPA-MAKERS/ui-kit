@@ -42,17 +42,20 @@
 
 /* --- Sizes: 32 / 40 / 52px, pill radius. -------------------------------- */
 .btn--sm {
-  height: var(--control-height-sm);
+  --btn-h: var(--control-height-sm);
+  height: var(--btn-h);
   padding: 0 14px;
   font-size: 0.8125rem; /* 13px */
 }
 .btn--md {
-  height: var(--control-height);
+  --btn-h: var(--control-height);
+  height: var(--btn-h);
   padding: 0 var(--space-5);
   font-size: var(--fs-body);
 }
 .btn--lg {
-  height: var(--control-height-lg);
+  --btn-h: var(--control-height-lg);
+  height: var(--btn-h);
   padding: 0 26px;
   font-size: var(--fs-md);
 }
@@ -212,6 +215,24 @@
 }
 .btn__label ::ng-deep > app-icon {
   height: 1.3em;
+}
+/* A leading icon has its centre on the centre of the left end cap: half the button height
+   from the outer left edge, so the glyph sits in the round end like a dot in a capsule. The
+   inset then follows from the height and the icon size, not from the padding of the label.
+   The button drops its start padding and the icon takes the inset as a margin; a negative
+   margin would be cut by the `overflow: hidden` of the label. A wrapper that holds the icon
+   and the text in one row counts as a leading icon too. `:first-child` does not see text,
+   so a label that ends with its only icon puts the text in an element. The fab has a
+   rounded rectangle, not a pill, and keeps its padding. */
+:host ::ng-deep .btn:not(.btn--icon):not(.btn--fab):has(> .btn__label > app-icon:first-child),
+:host
+  ::ng-deep
+  .btn:not(.btn--icon):not(.btn--fab):has(> .btn__label > :first-child > app-icon:first-child) {
+  padding-inline-start: 0;
+}
+.btn:not(.btn--icon):not(.btn--fab) .btn__label ::ng-deep > app-icon:first-child,
+.btn:not(.btn--icon):not(.btn--fab) .btn__label ::ng-deep > :first-child > app-icon:first-child {
+  margin-inline-start: calc(var(--btn-h) / 2 - var(--icon-size, 18px) / 2 - var(--border-width));
 }
 /* An icon button holds no text to cut, so its label is a centred row. It does not clip:
    a glyph that fills its em box (the calendar) lost its edge pixels to `overflow:

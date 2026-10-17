@@ -36,6 +36,14 @@ describe('IconComponent', () => {
     expect(container.querySelector('circle')).not.toHaveAttribute('fill');
   });
 
+  it('puts its edge length on the host as --icon-size', async () => {
+    const { container } = await render(`<app-icon name="send" [size]="17" />`, {
+      imports: [IconComponent],
+    });
+    const host = container.querySelector('app-icon') as HTMLElement;
+    expect(host.style.getPropertyValue('--icon-size')).toBe('17px');
+  });
+
   it('honours the size and stroke width inputs', async () => {
     const { container } = await render(`<app-icon name="sun" [size]="32" [strokeWidth]="2" />`, {
       imports: [IconComponent],
