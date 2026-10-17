@@ -218,34 +218,49 @@
 }
 /* A leading icon has its centre on the centre of the left end cap: half the button height
    from the outer left edge, so the glyph sits in the round end like a dot in a capsule. The
-   inset then follows from the height and the icon size, not from the padding of the label.
-   The button drops its start padding and the icon takes the inset as a margin; a negative
+   inset follows from the height and the icon size, not from the padding of the label. The
+   button drops its start padding and the icon takes the inset as a margin; a negative
    margin would be cut by the `overflow: hidden` of the label. A wrapper that holds the icon
-   and the text in one row counts as a leading icon too. `:first-child` does not see text,
-   so a label that ends with its only icon puts the text in an element. The fab has a
-   rounded rectangle, not a pill, and keeps its padding. */
+   and the text counts as a leading icon too. `:first-child` does not see text, so a label
+   that ends with its only icon puts the text in an element. The fab has a rounded
+   rectangle, not a pill, and keeps its padding. */
 :host ::ng-deep .btn:not(.btn--icon):not(.btn--fab):has(> .btn__label > app-icon:first-child),
 :host
   ::ng-deep
   .btn:not(.btn--icon):not(.btn--fab):has(> .btn__label > :first-child > app-icon:first-child) {
   padding-inline-start: 0;
 }
+/* The icon floats at the start of the label with the gap of the design (8px) after it.
+   A float drops the white space of the template that follows it, because that space now
+   starts the line: inline, the gap was that space (about 3px, or none when the icon and
+   the text touch in the markup). The text stays inline, so a long label still ends in an
+   ellipsis; a flex row would make the text a flex item that is cut without one. */
 .btn:not(.btn--icon):not(.btn--fab) .btn__label ::ng-deep > app-icon:first-child,
 .btn:not(.btn--icon):not(.btn--fab) .btn__label ::ng-deep > :first-child > app-icon:first-child {
-  margin-inline-start: calc(var(--btn-h) / 2 - var(--icon-size, 18px) / 2 - var(--border-width));
+  float: inline-start;
+  margin-inline: calc(var(--btn-h) / 2 - var(--icon-size, 18px) / 2 - var(--border-width))
+    var(--space-2);
 }
-/* The row of a leading icon and its text is a flex row with the gap of the design (8px).
-   Inline, the gap was the white space of the template: about 3px, or none when the icon
-   and the text touch in the markup. A flex row drops that white space. */
+/* A button wider than its content (a block button, a stretched action) keeps the icon on
+   the end cap and centres the text in the room after it. */
 :host ::ng-deep .btn:not(.btn--icon):not(.btn--fab) > .btn__label:has(> app-icon:first-child),
+:host
+  ::ng-deep
+  .btn:not(.btn--icon):not(.btn--fab)
+  > .btn__label:has(> :first-child > app-icon:first-child) {
+  flex: 1 1 auto;
+  text-align: center;
+}
+/* A wrapper of the icon and the text is a flex row by its own page styles. As a block it
+   holds the floating icon and cuts its text with an ellipsis like the label. */
 :host
   ::ng-deep
   .btn:not(.btn--icon):not(.btn--fab)
   > .btn__label
   > :first-child:has(> app-icon:first-child) {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--space-2);
+  display: block;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 /* An icon button holds no text to cut, so its label is a centred row. It does not clip:
    a glyph that fills its em box (the calendar) lost its edge pixels to `overflow:
