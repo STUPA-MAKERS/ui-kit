@@ -102,6 +102,7 @@ export type IconName =
   | 'square'
   | 'sun'
   | 'swap'
+  | 'table'
   | 'tag'
   | 'tasks'
   | 'ticket'
@@ -223,6 +224,7 @@ const SHAPES: Record<string, readonly IconShape[]> = {
   square: [{ t: 'rect', x: '5', y: '5', width: '14', height: '14', rx: '2' }],
   sun: [{ t: 'circle', cx: '12', cy: '12', r: '4' }, { t: 'path', d: 'M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41' }],
   swap: [{ t: 'path', d: 'M4 7h15l-3-3' }, { t: 'path', d: 'M20 17H5l3 3' }],
+  table: [{ t: 'rect', x: '3', y: '3', width: '18', height: '18', rx: '2' }, { t: 'path', d: 'M3 9h18M3 15h18M12 3v18' }],
   tag: [{ t: 'path', d: 'M20.6 13.4 13.4 20.6a2 2 0 0 1-2.8 0L3 13V3h10l7.6 7.6a2 2 0 0 1 0 2.8z' }, { t: 'circle', cx: '7.5', cy: '7.5', r: '1.3' }],
   tasks: [{ t: 'path', d: 'm3 7 2 2 4-4' }, { t: 'path', d: 'm3 17 2 2 4-4' }, { t: 'path', d: 'M13 7h8M13 17h8' }],
   ticket: [{ t: 'path', d: 'M3 8a2 2 0 0 0 2-2h14a2 2 0 0 0 2 2v2a2 2 0 0 0 0 4v2a2 2 0 0 0-2 2H5a2 2 0 0 0-2-2v-2a2 2 0 0 0 0-4z' }, { t: 'path', d: 'M14 6v2M14 11v2M14 16v2' }],
@@ -353,6 +355,7 @@ export const ICON_NAMES: readonly IconName[] = [
   'square',
   'sun',
   'swap',
+  'table',
   'tag',
   'tasks',
   'ticket',

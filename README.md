@@ -26,7 +26,9 @@ Peer dependencies: `@angular/common`, `@angular/core`, `@angular/forms`, `rxjs`.
 Optional:
 
 - **Tiptap** — only for the `markdown-editor` secondary entry point
-  (`@tiptap/core`, `@tiptap/pm`, `@tiptap/starter-kit`, `tiptap-markdown`).
+  (`@tiptap/core`, `@tiptap/pm`, `@tiptap/starter-kit`, `@tiptap/extensions`,
+  `@tiptap/extension-mathematics`, `@tiptap/extension-table`, `@tiptap/extension-image`,
+  `katex`, `tiptap-markdown`).
 
 ## Styles
 
@@ -136,6 +138,23 @@ The editor has no toolbar of its own. A consumer that shows one calls
 `toggleFormat(format)` on the component (`'heading'`, `'bold'`, `'italic'`,
 `'bulletList'`) and reads `activeFormats()` to show a format as pressed. The heading is
 level 2, because level 1 is the heading of the document.
+
+GFM tables round-trip through the editor with their column alignment (`:--`, `:-:`,
+`--:`). A cell holds one line of inline text: a line break in a cell is saved as a space,
+and a merged cell is saved as its text plus empty cells. `insertTable(rows, cols)` and
+`tableCommand('addRowAfter' | 'addColumnAfter' | 'deleteRow' | 'deleteColumn' |
+'deleteTable')` serve a toolbar; `inTable()` says whether the cursor is in a table.
+
+An image shows only with the canonical path `![alt](/api/media/images/<uuid>)`. Any other
+image reference stays unchanged in the Markdown and shows its alt text; the editor never
+loads another source. With the `imageUpload` input (`(file) => Promise<{ src, alt }>`), a
+paste or a drop of PNG, JPEG, GIF or WebP files uploads them and inserts the images;
+`pickImage()` opens the file dialog and `insertImage(src, alt)` inserts a stored image.
+The uploader reports its own errors; a rejected promise inserts nothing.
+
+Links `[label](target)` keep their target. `setLink(href)` and `unsetLink()` serve a
+toolbar; `setLink` accepts only `http:`, `https:`, `mailto:`, a path (`/antraege/123`)
+and an anchor (`#top`).
 
 A vote callout (`> [!abstimmung] **Frage**` and a tally line) shows as one card: a
 caption, the question, the counts and a bar of the counts. The Markdown holds no time, no

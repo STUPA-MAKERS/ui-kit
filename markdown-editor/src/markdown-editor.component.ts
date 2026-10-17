@@ -11,10 +11,21 @@ import {
   viewChild,
 } from '@angular/core';
 import { Editor } from '@tiptap/core';
+import type { EditorView } from '@tiptap/pm/view';
 import { Focus, Placeholder } from '@tiptap/extensions';
 import StarterKit from '@tiptap/starter-kit';
 import { Markdown } from 'tiptap-markdown';
 import { BlockMathMarkdown, InlineMathMarkdown } from './math.extension';
+import {
+  IMAGE_UPLOAD_TYPES,
+  MarkdownImage,
+  MarkdownTable,
+  MarkdownTableCell,
+  MarkdownTableHeader,
+  MarkdownTableRow,
+  isMediaImageSrc,
+  stripForeignImages,
+} from './media.extension';
 import {
   VoteCallout,
   type VoteCalloutResolver,
@@ -32,6 +43,40 @@ export type MarkdownFormat = 'heading' | 'bold' | 'italic' | 'bulletList';
 
 const FORMATS: readonly MarkdownFormat[] = ['heading', 'bold', 'italic', 'bulletList'];
 
+/** An image that an upload stored: its canonical path and its alt text. */
+export interface MarkdownImageRef {
+  src: string;
+  alt: string;
+}
+
+/**
+ * Upload one image file and resolve to its reference. The uploader reports its own
+ * errors to the user; a rejected promise inserts nothing.
+ */
+export type MarkdownImageUploader = (file: File) => Promise<MarkdownImageRef>;
+
+/** An edit of the table at the cursor, for a toolbar of the consumer. */
+export type MarkdownTableCommand =
+  | 'addRowAfter'
+  | 'addColumnAfter'
+  | 'deleteRow'
+  | 'deleteColumn'
+  | 'deleteTable';
+
+/**
+ * A link target that the editor sets: `http:`, `https:`, `mailto:`, a path of the
+ * platform or an anchor. A protocol-relative `//host` is not a path.
+ */
+function isSafeHref(href: string): boolean {
+  if (/^(https?:\/\/|mailto:)\S+$/i.test(href)) return true;
+  return /^(\/(?!\/)|#)\S*$/.test(href);
+}
+
+/** The image files of a paste or a drop. Other files are ignored. */
+function imageFiles(list: FileList | null | undefined): File[] {
+  return Array.from(list ?? []).filter((f) => IMAGE_UPLOAD_TYPES.includes(f.type));
+}
+
 /** The node or mark name and the attributes that `isActive` checks for a format. */
 const ACTIVE_CHECK: Record<MarkdownFormat, { name: string; attrs?: Record<string, unknown> }> = {
   heading: { name: 'heading', attrs: { level: 2 } },
@@ -48,6 +93,15 @@ const ACTIVE_CHECK: Record<MarkdownFormat, { name: string; attrs?: Record<string
  * Imperativ angebunden: Tiptap mountet in das Host-`div`. ``docKey`` identifiziert
  * das aktuell editierte Dokument (z. B. ein TOP); ändert es sich, wird der Inhalt
  * neu geladen, ohne die Eingabe während des Tippens zu überschreiben.
+ *
+ * GFM tables and images are part of the document (`media.extension.ts`). A table
+ * keeps its column alignment; a cell holds one line of inline text. An image shows only
+ * with the canonical path `/api/media/images/<uuid>`; any other image reference stays
+ * unchanged in the Markdown and shows its alt text. Links `[label](target)` keep their
+ * target (web, `mailto:`, a path of the platform); markdown-it keeps a `javascript:` or
+ * `data:` target as plain text. With `imageUpload`, a paste or a drop of image files
+ * uploads them; `insertImage`, `insertTable`, `tableCommand`, `pickImage`, `setLink` and
+ * `unsetLink` serve a toolbar of the consumer.
  */
 @Component({
   selector: 'app-markdown-editor',
@@ -79,6 +133,11 @@ export class MarkdownEditorComponent implements OnDestroy {
    * the resolver changes. `null` shows the plain card.
    */
   readonly voteInfo = input<VoteCalloutResolver | null>(null);
+  /**
+   * Upload an image file. When set, a paste or a drop of PNG, JPEG, GIF or WebP files
+   * uploads each file and inserts the image. `null` ignores image files.
+   */
+  readonly imageUpload = input<MarkdownImageUploader | null>(null);
 
   /** Emittiert das serialisierte Markdown bei jeder Änderung. */
   readonly valueChange = output<string>();
@@ -88,6 +147,10 @@ export class MarkdownEditorComponent implements OnDestroy {
    * show a format button as pressed. It changes with every transaction of the editor.
    */
   readonly activeFormats = signal<ReadonlySet<MarkdownFormat>>(new Set());
+  /** The cursor is in a table, so a toolbar can show the table edits. */
+  readonly inTable = signal(false);
+  /** The number of image uploads that still run. */
+  readonly uploading = signal(0);
 
   private readonly host = viewChild.required<ElementRef<HTMLDivElement>>('host');
   private editor: Editor | null = null;
@@ -128,7 +191,17 @@ export class MarkdownEditorComponent implements OnDestroy {
             }),
             InlineMathMarkdown.configure({ katexOptions: KATEX_OPTIONS }),
             BlockMathMarkdown.configure({ katexOptions: KATEX_OPTIONS }),
+            MarkdownTable,
+            MarkdownTableRow,
+            MarkdownTableHeader,
+            MarkdownTableCell,
+            MarkdownImage,
           ],
+          editorProps: {
+            transformPastedHTML: (html) => stripForeignImages(html),
+            handlePaste: (_view, event) => this.onPasteFiles(event),
+            handleDrop: (view, event, _slice, moved) => this.onDropFiles(view, event, moved),
+          },
           content: this.value(),
           editable: !disabled,
           onUpdate: ({ editor }) => {
@@ -187,8 +260,146 @@ export class MarkdownEditorComponent implements OnDestroy {
     }
   }
 
+  /**
+   * Insert an image at the cursor. Only the canonical path `/api/media/images/<uuid>`
+   * is accepted; any other source inserts nothing and returns false.
+   */
+  insertImage(src: string, alt = ''): boolean {
+    const editor = this.editor;
+    if (!editor || !editor.isEditable || !isMediaImageSrc(src)) return false;
+    return editor
+      .chain()
+      .focus()
+      .insertContent({ type: 'image', attrs: { src, alt } })
+      .run();
+  }
+
+  /**
+   * Make the selection a link to `href`, or change the link at the cursor. Only
+   * `http:`, `https:`, `mailto:`, a path of the platform (`/antraege/123`) and an anchor
+   * (`#top`) are accepted; any other target (`javascript:`, `data:`, `//host`) changes
+   * nothing and returns false. An empty selection outside a link inserts the target as
+   * its own label.
+   */
+  setLink(href: string): boolean {
+    const editor = this.editor;
+    const target = href.trim();
+    if (!editor || !editor.isEditable || !isSafeHref(target)) return false;
+    const chain = editor.chain().focus();
+    if (editor.state.selection.empty && !editor.isActive('link')) {
+      return chain
+        .insertContent({ type: 'text', text: target, marks: [{ type: 'link', attrs: { href: target } }] })
+        .run();
+    }
+    return chain.extendMarkRange('link').setLink({ href: target }).run();
+  }
+
+  /** Remove the link at the cursor or on the selection; the text stays. */
+  unsetLink(): boolean {
+    const editor = this.editor;
+    if (!editor || !editor.isEditable) return false;
+    return editor.chain().focus().extendMarkRange('link').unsetLink().run();
+  }
+
+  /** Insert a table with a header row at the cursor. */
+  insertTable(rows = 3, cols = 3): boolean {
+    const editor = this.editor;
+    if (!editor || !editor.isEditable) return false;
+    return editor.chain().focus().insertTable({ rows, cols, withHeaderRow: true }).run();
+  }
+
+  /** Edit the table at the cursor. Outside a table it does nothing and returns false. */
+  tableCommand(command: MarkdownTableCommand): boolean {
+    const editor = this.editor;
+    if (!editor || !editor.isEditable) return false;
+    const chain = editor.chain().focus();
+    switch (command) {
+      case 'addRowAfter':
+        return chain.addRowAfter().run();
+      case 'addColumnAfter':
+        return chain.addColumnAfter().run();
+      case 'deleteRow':
+        return chain.deleteRow().run();
+      case 'deleteColumn':
+        return chain.deleteColumn().run();
+      case 'deleteTable':
+        return chain.deleteTable().run();
+    }
+  }
+
+  /** Open the file dialog of the browser and upload the chosen images (`imageUpload`). */
+  pickImage(): void {
+    if (!this.imageUpload() || !this.editor?.isEditable) return;
+    const picker = document.createElement('input');
+    picker.type = 'file';
+    picker.accept = IMAGE_UPLOAD_TYPES.join(',');
+    picker.multiple = true;
+    picker.addEventListener('change', () => void this.uploadImages(imageFiles(picker.files)));
+    picker.click();
+  }
+
+  /**
+   * Upload image files one after the other and insert each image when its upload ends:
+   * at `pos`, or at the cursor. Files of another type are ignored. Resolves to the
+   * number of inserted images.
+   */
+  async uploadImages(files: readonly File[], pos?: number): Promise<number> {
+    const upload = this.imageUpload();
+    const images = files.filter((f) => IMAGE_UPLOAD_TYPES.includes(f.type));
+    if (!upload || !images.length) return 0;
+    let at = pos;
+    let inserted = 0;
+    this.uploading.update((n) => n + images.length);
+    for (const file of images) {
+      try {
+        const ref = await upload(file);
+        const editor = this.editor;
+        if (!editor || !editor.isEditable || !isMediaImageSrc(ref.src)) continue;
+        const node = { type: 'image', attrs: { src: ref.src, alt: ref.alt } };
+        if (at === undefined) {
+          if (editor.chain().focus().insertContent(node).run()) inserted++;
+        } else {
+          at = Math.min(at, editor.state.doc.content.size);
+          const before = editor.state.doc.content.size;
+          if (editor.chain().insertContentAt(at, node).run()) {
+            inserted++;
+            at += editor.state.doc.content.size - before;
+          }
+        }
+      } catch {
+        // The uploader reported the error; the image is not inserted.
+      } finally {
+        this.uploading.update((n) => n - 1);
+      }
+    }
+    return inserted;
+  }
+
+  /** A paste with image files uploads them instead of the pasted content. */
+  private onPasteFiles(event: ClipboardEvent): boolean {
+    if (!this.imageUpload()) return false;
+    const files = imageFiles(event.clipboardData?.files);
+    if (!files.length) return false;
+    event.preventDefault();
+    void this.uploadImages(files);
+    return true;
+  }
+
+  /** A drop of image files from outside uploads them at the drop position. */
+  private onDropFiles(view: EditorView, event: DragEvent, moved: boolean): boolean {
+    if (moved || !this.imageUpload()) return false;
+    const files = imageFiles(event.dataTransfer?.files);
+    if (!files.length) return false;
+    event.preventDefault();
+    const pos = view.posAtCoords({ left: event.clientX, top: event.clientY })?.pos;
+    void this.uploadImages(files, pos);
+    return true;
+  }
+
   /** Read the formats at the cursor into `activeFormats`. */
   private readFormats(editor: Editor): void {
+    const inTable = editor.isActive('table');
+    if (inTable !== this.inTable()) this.inTable.set(inTable);
     const next = new Set(
       FORMATS.filter((f) => editor.isActive(ACTIVE_CHECK[f].name, ACTIVE_CHECK[f].attrs ?? {})),
     );
