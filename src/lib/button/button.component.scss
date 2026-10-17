@@ -234,6 +234,19 @@
 .btn:not(.btn--icon):not(.btn--fab) .btn__label ::ng-deep > :first-child > app-icon:first-child {
   margin-inline-start: calc(var(--btn-h) / 2 - var(--icon-size, 18px) / 2 - var(--border-width));
 }
+/* The row of a leading icon and its text is a flex row with the gap of the design (8px).
+   Inline, the gap was the white space of the template: about 3px, or none when the icon
+   and the text touch in the markup. A flex row drops that white space. */
+:host ::ng-deep .btn:not(.btn--icon):not(.btn--fab) > .btn__label:has(> app-icon:first-child),
+:host
+  ::ng-deep
+  .btn:not(.btn--icon):not(.btn--fab)
+  > .btn__label
+  > :first-child:has(> app-icon:first-child) {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+}
 /* An icon button holds no text to cut, so its label is a centred row. It does not clip:
    a glyph that fills its em box (the calendar) lost its edge pixels to `overflow:
    hidden`. Its icon keeps the glyph size instead of the one-line box of a label. */
