@@ -217,7 +217,10 @@ const SHAPES: Record<string, readonly IconShape[]> = {
   repeat: [{ t: 'path', d: 'm17 2 4 4-4 4' }, { t: 'path', d: 'M3 11v-1a4 4 0 0 1 4-4h14' }, { t: 'path', d: 'm7 22-4-4 4-4' }, { t: 'path', d: 'M21 13v1a4 4 0 0 1-4 4H3' }],
   right: [{ t: 'path', d: 'm9 6 6 6-6 6' }],
   search: [{ t: 'circle', cx: '11', cy: '11', r: '7' }, { t: 'path', d: 'm20 20-3.5-3.5' }],
-  send: [{ t: 'path', d: 'M22 2 11 13' }, { t: 'path', d: 'M22 2 15 22l-4-9-9-4z' }],
+  // The plane is drawn 0.9 times its full size and moved down and left, so its area
+  // centroid sits on the middle of the box. At full size the centroid was 1.8 units right
+  // of and above the middle, and the plane looked raised next to a label.
+  send: [{ t: 'path', d: 'M19.5 4.5 9.6 14.4' }, { t: 'path', d: 'M19.5 4.5 13.2 22.5l-3.6-8.1-8.1-3.6z' }],
   shield: [{ t: 'path', d: 'M12 3 4 6v6c0 5 3.5 8 8 9 4.5-1 8-4 8-9V6z' }],
   shieldok: [{ t: 'path', d: 'M12 3 4 6v6c0 5 3.5 8 8 9 4.5-1 8-4 8-9V6z' }, { t: 'path', d: 'm9 12 2 2 4-4' }],
   sort: [{ t: 'path', d: 'M3 6h18M6 12h12M10 18h4' }],
