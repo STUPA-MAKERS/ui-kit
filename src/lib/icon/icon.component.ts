@@ -12,7 +12,8 @@ const UNKNOWN: readonly IconShape[] = [{ t: 'circle', cx: '12', cy: '12', r: '9'
  * accessible name comes from the control around it. `currentColor` follows the text
  * colour, so the icon follows the theme.
  *
- * The rendered `<svg>` carries `data-icon="<name>"` for tests and styles.
+ * The rendered `<svg>` carries `data-icon="<name>"` for tests and styles. The host carries
+ * the edge length as `--icon-size`, so a container can place the icon by its centre.
  */
 @Component({
   selector: 'app-icon',
@@ -20,6 +21,7 @@ const UNKNOWN: readonly IconShape[] = [{ t: 'circle', cx: '12', cy: '12', r: '9'
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './icon.component.html',
   styleUrl: './icon.component.scss',
+  host: { '[style.--icon-size.px]': 'size' },
 })
 export class IconComponent {
   private readonly _name = signal<IconName>('sun');
