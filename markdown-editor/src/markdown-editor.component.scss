@@ -58,6 +58,66 @@ app-markdown-editor {
   border-top: var(--border-width) solid var(--color-border);
   margin: var(--space-3) 0;
 }
+/* A GFM table. The wrapper of Tiptap scrolls a wide table sideways inside the editor.
+   The selected cells of a cell selection carry the accent tint. */
+.mde__host .ProseMirror .tableWrapper {
+  margin: var(--space-3) 0;
+  overflow-x: auto;
+}
+.mde__host .ProseMirror table {
+  border-collapse: collapse;
+  table-layout: auto;
+  min-width: 50%;
+  font-size: var(--fs-sm);
+}
+.mde__host .ProseMirror th,
+.mde__host .ProseMirror td {
+  position: relative;
+  min-width: 4rem;
+  padding: var(--space-1) var(--space-2);
+  border: var(--border-width) solid var(--color-border);
+  vertical-align: top;
+  text-align: left;
+}
+.mde__host .ProseMirror th {
+  background: var(--color-surface-2);
+  font-weight: var(--fw-semibold);
+}
+.mde__host .ProseMirror th > p,
+.mde__host .ProseMirror td > p {
+  margin: 0;
+}
+.mde__host .ProseMirror .selectedCell::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: var(--color-primary-subtle);
+  opacity: 0.6;
+  pointer-events: none;
+}
+
+/* An image from the media store, as wide as the text at most. An image with another
+   source shows its alt text only, in a muted frame. */
+.mde__host .ProseMirror img.mde__img {
+  display: inline-block;
+  max-width: 100%;
+  max-height: 32rem;
+  height: auto;
+  vertical-align: bottom;
+  border-radius: var(--radius-md);
+}
+.mde__host .ProseMirror-focused img.mde__img.ProseMirror-selectednode {
+  outline: 2px solid var(--color-focus-ring);
+  outline-offset: 2px;
+}
+.mde__host .ProseMirror .mde__imgAlt {
+  padding: 0 var(--space-1);
+  border: var(--border-width) dashed var(--color-border-strong);
+  border-radius: var(--radius-sm);
+  color: var(--color-text-muted);
+  font-style: italic;
+}
+
 /* The placeholder of an empty document sits on its first line. The hint of a document
    with content follows the cursor: it sits on the empty line of the cursor while the
    editor has the focus, else on the empty last line, so the eye finds the place to

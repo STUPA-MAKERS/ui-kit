@@ -106,6 +106,13 @@ describe('IconComponent', () => {
     expect(iconShapes('pinslash')?.some((s) => s.d === 'm2 2 20 20')).toBe(true);
   });
 
+  it('has the icons of the editor toolbar', () => {
+    for (const name of ['heading', 'bold', 'italic', 'list', 'table', 'image']) {
+      expect(ICON_NAMES).toContain(name);
+      expect(iconShapes(name)?.length).toBeGreaterThan(0);
+    }
+  });
+
   it('has the icons of the to-dos, the help menu and the tickets', () => {
     for (const name of ['circle', 'circleok', 'box', 'boxok', 'kanban', 'tag', 'help', 'ticket', 'bug', 'bulb', 'book', 'image']) {
       expect(ICON_NAMES).toContain(name);

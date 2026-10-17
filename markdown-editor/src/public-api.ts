@@ -4,5 +4,11 @@
  * the consumer's lazy chunk only where the editor is actually used.
  */
 export { MarkdownEditorComponent } from './markdown-editor.component';
-export type { MarkdownFormat } from './markdown-editor.component';
+export type {
+  MarkdownFormat,
+  MarkdownImageRef,
+  MarkdownImageUploader,
+  MarkdownTableCommand,
+} from './markdown-editor.component';
+export { IMAGE_UPLOAD_TYPES, MEDIA_IMAGE_PATH, isMediaImageSrc } from './media.extension';
 export type { VoteCalloutInfo, VoteCalloutResolver } from './vote-callout.extension';
