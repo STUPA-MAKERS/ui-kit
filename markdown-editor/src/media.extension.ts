@@ -56,8 +56,6 @@ function markForeignImages(root: HTMLElement): void {
     span.setAttribute(FOREIGN_ATTR, '');
     span.setAttribute('data-src', src);
     span.setAttribute('data-alt', img.getAttribute('alt') ?? '');
-    const title = img.getAttribute('title');
-    if (title) span.setAttribute('data-title', title);
     img.replaceWith(span);
   }
 }
@@ -80,8 +78,9 @@ function destination(src: string): string {
 }
 
 /**
- * The image node, inline as in Markdown. `src`, `alt` and `title` come from the
- * Markdown and go back to it unchanged.
+ * The image node, inline as in Markdown. `src` and `alt` come from the Markdown and go
+ * back to it unchanged. A title is dropped on a load and never written: the app accepts
+ * only the plain form `![alt](src)`, so every renderer reads the same image.
  */
 export const MarkdownImage = Image.extend({
   addOptions() {
@@ -96,7 +95,7 @@ export const MarkdownImage = Image.extend({
             ? {
                 src: el.getAttribute('src'),
                 alt: el.getAttribute('alt'),
-                title: el.getAttribute('title'),
+                title: null,
               }
             : false,
       },
@@ -105,15 +104,15 @@ export const MarkdownImage = Image.extend({
         getAttrs: (el: HTMLElement) => ({
           src: el.getAttribute('data-src') ?? '',
           alt: el.getAttribute('data-alt'),
-          title: el.getAttribute('data-title'),
+          title: null,
         }),
       },
     ];
   },
   renderHTML({ node }) {
-    const { src, alt, title } = node.attrs as { src: string | null; alt: string | null; title: string | null };
+    const { src, alt } = node.attrs as { src: string | null; alt: string | null };
     if (isMediaImageSrc(src)) {
-      return ['img', { src, alt: alt ?? '', ...(title ? { title } : {}), class: 'mde__img' }];
+      return ['img', { src, alt: alt ?? '', class: 'mde__img' }];
     }
     return [
       'span',
@@ -121,7 +120,6 @@ export const MarkdownImage = Image.extend({
         [FOREIGN_ATTR]: '',
         'data-src': src ?? '',
         'data-alt': alt ?? '',
-        ...(title ? { 'data-title': title } : {}),
         class: 'mde__imgAlt',
       },
       alt || src || '',
@@ -131,9 +129,8 @@ export const MarkdownImage = Image.extend({
     return {
       markdown: {
         serialize(state: SerializerState, node: PmNode) {
-          const { src, alt, title } = node.attrs as { src: string | null; alt: string | null; title: string | null };
-          const t = title ? ` "${title.replace(/"/g, '\\"')}"` : '';
-          state.write(`![${state.esc(alt ?? '')}](${destination(src ?? '')}${t})`);
+          const { src, alt } = node.attrs as { src: string | null; alt: string | null };
+          state.write(`![${state.esc(alt ?? '')}](${destination(src ?? '')})`);
         },
         parse: {
           updateDOM(element: HTMLElement) {

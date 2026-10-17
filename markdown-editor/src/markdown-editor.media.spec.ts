@@ -157,7 +157,7 @@ describe('MarkdownEditorComponent images', () => {
     expect(md()).toBe(src);
   });
 
-  it('never loads another source and writes the reference back unchanged', async () => {
+  it('never loads another source and writes the reference back without a title', async () => {
     const src =
       '![Pixel](https://tracker.example/p.gif) und ![Rel](bild.png "Titel") und ' +
       `![Groß](/api/media/images/${ID.toUpperCase()})`;
@@ -165,7 +165,16 @@ describe('MarkdownEditorComponent images', () => {
     expect(pm.querySelectorAll('img.mde__img')).toHaveLength(0);
     const alts = Array.from(pm.querySelectorAll('.mde__imgAlt')).map((e) => e.textContent);
     expect(alts).toEqual(['Pixel', 'Rel', 'Groß']);
-    expect(md()).toBe(src);
+    expect(pm.querySelector('[data-title]')).toBeNull();
+    expect(md()).toBe(src.replace(' "Titel"', ''));
+  });
+
+  it('drops the title of a canonical image and writes the plain form', async () => {
+    const { pm, md } = await setup(`a ![Plan](${SRC} "Titel") b`);
+    const img = pm.querySelector('img.mde__img');
+    expect(img?.getAttribute('src')).toBe(SRC);
+    expect(img?.hasAttribute('title')).toBe(false);
+    expect(md()).toBe(`a ![Plan](${SRC}) b`);
   });
 
   it('keeps a data or javascript destination as text', async () => {
