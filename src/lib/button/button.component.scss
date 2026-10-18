@@ -170,18 +170,6 @@
 .btn--fab:hover:not(:disabled) {
   filter: brightness(1.08);
 }
-/* The fab holds its icon and its text in one row, 12px apart (the gap of `.btn--fab`).
-   The label is that row: the gap of the button reaches only the label itself. The icon
-   is larger than the text line, so the label does not clip it. */
-.btn--fab .btn__label {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--space-3);
-  overflow: visible;
-}
-.btn--fab .btn__label ::ng-deep > app-icon {
-  height: auto;
-}
 
 /* A toggle that is on: the selection colour, as a selected list row. A filled button
    already reads as on, so it keeps its look. */
@@ -306,4 +294,17 @@
   to {
     transform: rotate(360deg);
   }
+}
+
+/* The fab holds its icon and its text in one row, 12px apart (the gap of `.btn--fab`).
+   The label is that row: the gap of the button reaches only the label itself. The icon
+   is larger than the text line, so the label does not clip it. */
+.btn--fab .btn__label {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-3);
+  overflow: visible;
+}
+.btn--fab .btn__label ::ng-deep > app-icon {
+  height: auto;
 }
