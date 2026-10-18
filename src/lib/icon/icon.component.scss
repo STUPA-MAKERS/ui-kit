@@ -7,4 +7,6 @@
 }
 svg {
   display: block;
+  width: var(--icon-size, 18px);
+  height: var(--icon-size, 18px);
 }

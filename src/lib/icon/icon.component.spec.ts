@@ -54,9 +54,12 @@ describe('IconComponent', () => {
     expect(svg).toHaveAttribute('stroke-width', '2');
   });
 
-  it('defaults the size to 18px', async () => {
+  it('leaves the size to its container without a size input', async () => {
     const { container } = await render(`<app-icon name="sun" />`, { imports: [IconComponent] });
-    expect(container.querySelector('svg')).toHaveAttribute('width', '18');
+    const host = container.querySelector('app-icon') as HTMLElement;
+    expect(host.style.getPropertyValue('--icon-size')).toBe('');
+    expect(container.querySelector('svg')).not.toHaveAttribute('width');
+    expect(container.querySelector('svg')).not.toHaveAttribute('height');
   });
 
   it('draws a plain circle for an unknown icon name', async () => {
