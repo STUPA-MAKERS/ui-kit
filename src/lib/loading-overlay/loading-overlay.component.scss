@@ -9,7 +9,7 @@
   justify-content: center;
   background: color-mix(in srgb, var(--color-bg, #000) 55%, transparent);
   backdrop-filter: blur(1px);
-  animation: lo-fade 120ms ease-out;
+  animation: lo-fade var(--motion-fast) var(--ease-enter);
 }
 .lo__spinner {
   width: 2.25rem;

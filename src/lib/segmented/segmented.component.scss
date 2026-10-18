@@ -97,7 +97,29 @@
 }
 :host(.seg-host--equal) .seg__opt,
 :host(.seg-host--fill) .seg__opt {
+  position: relative;
   justify-content: center;
+}
+
+/* Equal segments: the selection is an indicator that slides to the chosen segment. It
+   lies under the labels, so the chosen segment paints no background of its own. */
+:host(.seg-host--equal) .seg,
+:host(.seg-host--fill) .seg {
+  position: relative;
+}
+.seg__ind {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  width: calc(100% / var(--seg-n));
+  background: var(--color-selected);
+  transform: translateX(calc(var(--seg-i) * 100%));
+  transition: transform var(--motion-base) var(--ease-standard);
+}
+:host(.seg-host--equal) .seg__opt--on,
+:host(.seg-host--fill) .seg__opt--on {
+  background: transparent;
 }
 
 /* `size="control"`: as high as a medium button, so a header row has one height. */

@@ -93,6 +93,14 @@ export class SegmentedComponent implements ControlValueAccessor {
     return (current ?? opts.find((o) => !o.disabled))?.value ?? null;
   });
 
+  /**
+   * The position of the selected segment, for the sliding indicator of an `equal` or
+   * `fill` control. -1: nothing is selected, the indicator is hidden.
+   */
+  protected readonly selectedIndex = computed(() =>
+    this.options().findIndex((o) => o.value === this.value()),
+  );
+
   private onChange: (value: string) => void = () => {};
   onTouched: () => void = () => {};
 

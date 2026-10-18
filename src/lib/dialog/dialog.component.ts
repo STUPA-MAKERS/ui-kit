@@ -155,8 +155,7 @@ export class DialogComponent implements OnChanges, OnDestroy {
 
   close(): void {
     this.open = false;
-    const pane = this.pane?.nativeElement;
-    if (pane) pane.style.transform = '';
+    // The pane keeps a swipe offset: the exit animation runs on from where the finger left it.
     this.restoreFocus();
     this.unlockScroll();
     this.closed.emit();

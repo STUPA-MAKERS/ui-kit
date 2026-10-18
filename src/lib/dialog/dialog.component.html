@@ -1,5 +1,10 @@
 @if (open) {
-  <div class="dialog__backdrop" (click)="onBackdrop($event)">
+  <div
+    class="dialog__backdrop"
+    animate.enter="dialog--entering"
+    animate.leave="dialog--leaving"
+    (click)="onBackdrop($event)"
+  >
     <div
       #pane
       class="dialog"
