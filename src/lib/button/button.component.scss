@@ -75,6 +75,27 @@
   width: var(--control-height-lg);
 }
 
+/* --- Icon size: set by the button size, never by the page. A leading icon sits on the end
+   cap by its `--icon-size` (see below), so an icon of a different size moves off the centre
+   of the cap. An icon without `size` takes the value from here. An icon button has no text
+   beside its glyph and draws it larger. */
+.btn--sm,
+.btn--md {
+  --icon-size: 16px;
+}
+.btn--lg {
+  --icon-size: 18px;
+}
+.btn--icon.btn--sm {
+  --icon-size: 18px;
+}
+.btn--icon.btn--md {
+  --icon-size: 20px;
+}
+.btn--icon.btn--lg {
+  --icon-size: 24px;
+}
+
 /* --- Looks ---------------------------------------------------------------- */
 .btn--fill {
   background: var(--color-accent);
@@ -166,6 +187,10 @@
 .btn--fab.btn--icon {
   width: 56px;
   padding: 0;
+}
+.btn--fab,
+.btn--fab.btn--icon {
+  --icon-size: 20px;
 }
 .btn--fab:hover:not(:disabled) {
   filter: brightness(1.08);

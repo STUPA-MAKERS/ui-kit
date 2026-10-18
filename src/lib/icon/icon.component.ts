@@ -12,8 +12,10 @@ const UNKNOWN: readonly IconShape[] = [{ t: 'circle', cx: '12', cy: '12', r: '9'
  * accessible name comes from the control around it. `currentColor` follows the text
  * colour, so the icon follows the theme.
  *
- * The rendered `<svg>` carries `data-icon="<name>"` for tests and styles. The host carries
- * the edge length as `--icon-size`, so a container can place the icon by its centre.
+ * The rendered `<svg>` carries `data-icon="<name>"` for tests and styles. A given `size`
+ * goes on the host as `--icon-size`, so a container can place the icon by its centre.
+ * Without `size` the icon takes `--icon-size` from its container, and 18px outside one:
+ * a button sets the size of its icons, so every button of one size has the same glyph.
  */
 @Component({
   selector: 'app-icon',
@@ -32,8 +34,8 @@ export class IconComponent {
   get name(): IconName {
     return this._name();
   }
-  /** Edge length in px. */
-  @Input() size = 18;
+  /** Edge length in px. Without it, the `--icon-size` of the container, else 18px. */
+  @Input() size: number | null = null;
   /** Line width on the 24px grid. */
   @Input() strokeWidth = 1.7;
 
