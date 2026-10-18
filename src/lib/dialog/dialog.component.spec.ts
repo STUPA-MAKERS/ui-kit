@@ -129,6 +129,14 @@ describe('DialogComponent', () => {
     expect(pane()).toHaveClass('dialog--lg');
   });
 
+  it('applies the form size modifier', async () => {
+    await render(`<app-dialog title="X" [open]="true" size="form">B</app-dialog>`, {
+      imports: [DialogComponent],
+    });
+    expect(pane()).toHaveClass('dialog--form');
+    expect(pane()).not.toHaveClass('dialog--lg');
+  });
+
   it('closes on a backdrop click but not on a click inside the pane', async () => {
     const closed = jest.fn();
     await render(`<app-dialog title="X" [open]="true" (closed)="onClosed()">B</app-dialog>`, {
