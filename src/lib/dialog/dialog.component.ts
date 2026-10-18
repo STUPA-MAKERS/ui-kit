@@ -39,8 +39,11 @@ export class DialogComponent implements OnChanges, OnDestroy {
    */
   @Input() subtitle = '';
   @Input() closeLabel = 'Schließen';
-  /** Breite: 'md' (32rem, Default) oder 'lg' (44rem, z. B. Charts). */
-  @Input() size: 'md' | 'lg' = 'md';
+  /**
+   * Breite: 'md' (35rem, Default), 'form' (40rem, Formulare mit zwei Feldern
+   * nebeneinander) oder 'lg' (44rem, z. B. Charts).
+   */
+  @Input() size: 'md' | 'form' | 'lg' = 'md';
   @Output() closed = new EventEmitter<void>();
 
   @ViewChild('pane') private pane?: ElementRef<HTMLElement>;
