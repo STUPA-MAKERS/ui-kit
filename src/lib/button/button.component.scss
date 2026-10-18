@@ -290,6 +290,23 @@
 .btn__label--loading {
   visibility: hidden;
 }
+/* A text button has no surface, so a spinner over its hidden label is only a faint glyph
+   and does not say what loads ("Mehr laden"). While it loads, a text button with a label
+   keeps the label, and the spinner stands before it in the gap of the button. It keeps
+   the full contrast, because the spinner already shows that it is busy. */
+.btn--text:not(.btn--icon) .btn__spinner {
+  position: static;
+  flex: none;
+  margin: 0;
+}
+.btn--text:not(.btn--icon) .btn__label--loading {
+  visibility: visible;
+}
+.btn--text:not(.btn--icon)[aria-busy='true'] {
+  opacity: 1;
+  filter: none;
+  cursor: progress;
+}
 @keyframes btn-spin {
   to {
     transform: rotate(360deg);

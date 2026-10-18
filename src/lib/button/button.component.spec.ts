@@ -58,6 +58,17 @@ describe('ButtonComponent', () => {
     expect(btn).toHaveAttribute('aria-busy', 'true');
   });
 
+  it('keeps the label of a loading text button beside the spinner', async () => {
+    const { container } = await render(`<app-button variant="text" [loading]="true">Mehr laden</app-button>`, {
+      imports: [ButtonComponent],
+    });
+    const btn = screen.getByRole('button', { name: 'Mehr laden' });
+    expect(btn).toHaveAttribute('aria-busy', 'true');
+    expect(btn).toHaveClass('btn--text');
+    expect(container.querySelector('.btn__spinner')).toBeTruthy();
+    expect(container.querySelector('.btn__label')).toHaveTextContent('Mehr laden');
+  });
+
   it('does not emit click when disabled', async () => {
     @Component({
       standalone: true,
