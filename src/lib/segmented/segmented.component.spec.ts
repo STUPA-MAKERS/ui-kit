@@ -40,6 +40,30 @@ describe('SegmentedComponent', () => {
     expect(container.querySelector('app-segmented')).not.toHaveClass('seg-host--control');
   });
 
+  it('slides an indicator to the chosen segment when the segments are equal', async () => {
+    const { container } = await render(
+      `<app-segmented ariaLabel="Regel" width="fill" [options]="opts" value="two_thirds" />`,
+      { imports: [SegmentedComponent], componentProperties: { opts: RULES } },
+    );
+    const group = container.querySelector<HTMLElement>('.seg')!;
+    expect(container.querySelector('.seg__ind')).not.toBeNull();
+    expect(group.style.getPropertyValue('--seg-n')).toBe('3');
+    expect(group.style.getPropertyValue('--seg-i')).toBe('2');
+  });
+
+  it('shows no indicator for auto widths', async () => {
+    const { container } = await render(Host);
+    expect(container.querySelector('.seg__ind')).toBeNull();
+  });
+
+  it('shows no indicator without a selection', async () => {
+    const none = await render(
+      `<app-segmented ariaLabel="Regel" width="equal" [options]="opts" [value]="null" />`,
+      { imports: [SegmentedComponent], componentProperties: { opts: RULES } },
+    );
+    expect(none.container.querySelector('.seg__ind')).toBeNull();
+  });
+
   it('takes the button height with size="control"', async () => {
     const { container } = await render(
       `<app-segmented ariaLabel="Ansicht" size="control" [options]="opts" value="a" />`,
@@ -54,7 +78,9 @@ describe('SegmentedComponent', () => {
       { imports: [SegmentedComponent], componentProperties: { opts: KINDS } },
     );
     expect(container.querySelector('app-segmented')).toHaveClass('seg-host--check');
-    const labels = [...container.querySelectorAll('.seg__label')].map((l) => l.getAttribute('data-label'));
+    const labels = [...container.querySelectorAll('.seg__label')].map((l) =>
+      l.getAttribute('data-label'),
+    );
     expect(labels).toEqual(['Ausgabe', 'Einnahme']);
     expect(screen.getByRole('radio', { name: 'Einnahme' })).toBeInTheDocument();
   });
@@ -167,7 +193,9 @@ describe('SegmentedComponent', () => {
     expect(fixture.componentInstance.ctrl.value).toBe('present');
     fixture.componentInstance.ctrl.setValue(null);
     fixture.detectChanges();
-    expect(screen.getAllByRole('radio').every((r) => r.getAttribute('aria-checked') === 'false')).toBe(true);
+    expect(
+      screen.getAllByRole('radio').every((r) => r.getAttribute('aria-checked') === 'false'),
+    ).toBe(true);
   });
 
   it('shows a count after the label and reads it as part of the name', async () => {
@@ -187,7 +215,12 @@ describe('SegmentedComponent', () => {
     @Component({
       standalone: true,
       imports: [SegmentedComponent],
-      template: `<app-segmented ariaLabel="Art" [options]="opts" value="expense" [check]="check" />`,
+      template: `<app-segmented
+        ariaLabel="Art"
+        [options]="opts"
+        value="expense"
+        [check]="check"
+      />`,
     })
     class CheckHost {
       opts = KINDS;

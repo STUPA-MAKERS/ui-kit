@@ -125,8 +125,8 @@
     /* Flush am unteren Rand inkl. Safe-Area (Home-Indicator) füllen — keine
        Backdrop-Lücke unter dem Sheet (#14). */
     padding-bottom: env(safe-area-inset-bottom, 0px);
-    /* Sanftes Zurückschnappen / Schließen beim Wischen. */
-    transition: transform 0.22s var(--ease-standard);
+    /* Snap back after a short swipe. */
+    transition: transform var(--motion-fast) var(--ease-standard);
   }
   /* Drag-Zone: native Scroll-Geste hier unterdrücken, damit das Sheet dem
      Finger folgt statt den Inhalt zu scrollen. */
@@ -151,5 +151,62 @@
   .dialog__footer {
     padding: var(--space-4);
     flex-wrap: wrap;
+  }
+}
+
+/* Motion. The dialog grows from the centre, the scrim fades with it. Leaving runs faster
+   (exit curve). Both parts of a leave take --motion-base, so the element stays until both end.
+   On a phone the dialog is a sheet: it comes up from the bottom edge and goes back down. */
+.dialog--entering {
+  animation: dialog-scrim-in var(--motion-base) var(--ease-standard);
+}
+.dialog--entering .dialog {
+  animation: dialog-in var(--motion-base) var(--ease-enter);
+}
+.dialog--leaving {
+  pointer-events: none;
+  animation: dialog-scrim-out var(--motion-base) var(--ease-exit) forwards;
+}
+.dialog--leaving .dialog {
+  animation: dialog-out var(--motion-base) var(--ease-exit) forwards;
+}
+@media (max-width: 768px) {
+  .dialog--entering .dialog {
+    animation: dialog-sheet-in var(--motion-slow) var(--ease-enter);
+  }
+  .dialog--leaving .dialog {
+    animation: dialog-sheet-out var(--motion-base) var(--ease-exit) forwards;
+  }
+}
+@keyframes dialog-scrim-in {
+  from {
+    background-color: transparent;
+  }
+}
+@keyframes dialog-scrim-out {
+  to {
+    background-color: transparent;
+  }
+}
+@keyframes dialog-in {
+  from {
+    opacity: 0;
+    transform: scale(var(--motion-scale-in));
+  }
+}
+@keyframes dialog-out {
+  to {
+    opacity: 0;
+    transform: scale(var(--motion-scale-in));
+  }
+}
+@keyframes dialog-sheet-in {
+  from {
+    transform: translateY(100%);
+  }
+}
+@keyframes dialog-sheet-out {
+  to {
+    transform: translateY(100%);
   }
 }

@@ -1,6 +1,12 @@
 <div class="toasts" aria-live="polite" aria-atomic="false">
   @for (toast of toastService.toasts(); track toast.id) {
-    <div class="toast" [class]="'toast--' + toast.variant" role="status">
+    <div
+      class="toast"
+      [class]="'toast--' + toast.variant"
+      role="status"
+      animate.enter="toast--entering"
+      animate.leave="toast--leaving"
+    >
       <span class="toast__msg">{{ toast.message }}</span>
       <button
         type="button"

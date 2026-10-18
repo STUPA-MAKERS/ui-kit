@@ -56,3 +56,24 @@
   background: var(--color-surface-4);
   color: var(--color-text);
 }
+
+/* Motion: a toast rises from the corner and fades in; it sinks a little and fades out. */
+.toast--entering {
+  animation: toast-in var(--motion-base) var(--ease-enter);
+}
+.toast--leaving {
+  pointer-events: none;
+  animation: toast-out var(--motion-base) var(--ease-exit) forwards;
+}
+@keyframes toast-in {
+  from {
+    opacity: 0;
+    transform: translateY(calc(2 * var(--motion-shift-sm)));
+  }
+}
+@keyframes toast-out {
+  to {
+    opacity: 0;
+    transform: translateY(var(--motion-shift-sm));
+  }
+}

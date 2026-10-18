@@ -146,9 +146,23 @@
   --field-height: 3.5rem; // 56px
 
   // --- MOTION -----------------------------------------------------------------
-  --motion-fast: 120ms;
-  --motion-base: 200ms;
+  // Durations: an exit is shorter than its entry, nothing runs longer than 400ms.
+  --motion-xs: 90ms; // exit fades, the old content of a fade-through
+  --motion-fast: 120ms; // hover, press, switches, a menu opens
+  --motion-base: 200ms; // dialogs, pane content, indicators, expand, toasts
+  --motion-slow: 280ms; // sheets and side panels open, the phone push
+  --motion-slower: 400ms; // vote result bars, large surfaces
+  // Curves: standard moves on screen, enter comes in, exit goes out.
   --ease-standard: cubic-bezier(0.2, 0, 0, 1);
+  --ease-enter: cubic-bezier(0.05, 0.7, 0.1, 1);
+  --ease-exit: cubic-bezier(0.3, 0, 0.8, 0.15);
+  // Distances: content rises by sm, tab content comes from the side by md,
+  // dialogs and menus grow from scale-in to 1.
+  --motion-shift-sm: 8px;
+  --motion-shift-md: 24px;
+  --motion-scale-in: 0.96;
+  // A skeleton shows only after this delay, so a fast load shows no flash.
+  --skeleton-delay: 300ms;
 
   // --- Z-INDEX ----------------------------------------------------------------
   --z-dropdown: 1000;

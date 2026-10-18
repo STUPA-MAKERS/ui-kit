@@ -1,4 +1,14 @@
-<div class="seg" role="radiogroup" [attr.aria-label]="ariaLabel() || null" [attr.aria-disabled]="isDisabled() ? 'true' : null">
+<div
+  class="seg"
+  role="radiogroup"
+  [attr.aria-label]="ariaLabel() || null"
+  [attr.aria-disabled]="isDisabled() ? 'true' : null"
+  [style.--seg-n]="options().length"
+  [style.--seg-i]="selectedIndex()"
+>
+  @if (width() !== 'auto' && selectedIndex() >= 0) {
+    <span class="seg__ind" aria-hidden="true"></span>
+  }
   @for (opt of options(); track opt.value; let i = $index) {
     <button
       type="button"
