@@ -378,4 +378,14 @@ describe('CurrencyInputComponent (EN locale)', () => {
     const input = screen.getByLabelText('amount') as HTMLInputElement;
     expect(input.value).toBe('12,34,567.50'); // en-IN groups lakhs, so the tag is used
   });
+
+  it('draws the large amount with size lg', async () => {
+    const { container } = await render(
+      `<app-currency-input label="Betrag" size="lg" /><app-currency-input label="Betrag" />`,
+      { imports: [CurrencyInputComponent] },
+    );
+    const boxes = container.querySelectorAll('.cur');
+    expect(boxes[0]).toHaveClass('cur--lg');
+    expect(boxes[1]).not.toHaveClass('cur--lg');
+  });
 });

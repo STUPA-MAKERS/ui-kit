@@ -31,3 +31,17 @@
   color: var(--color-text);
   overflow-wrap: anywhere;
 }
+
+/* A value taken from elsewhere: the selection surface, no edge, the label in the accent
+   text. */
+.lfld--filled {
+  border-color: transparent;
+  box-shadow: none;
+  background: var(--color-selected);
+}
+.lfld--filled .lfld__label {
+  color: var(--color-accent-text);
+}
+.lfld--filled .lfld__value {
+  color: var(--color-on-selected);
+}

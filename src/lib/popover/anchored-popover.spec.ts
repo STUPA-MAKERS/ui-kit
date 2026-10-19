@@ -1,6 +1,12 @@
 import { Component, ElementRef, inject } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
-import { anchorOutOfView, placeBelow, showInTopLayer, watchAnchoredPopover } from './anchored-popover';
+import {
+  anchorOutOfView,
+  placeAtField,
+  placeBelow,
+  showInTopLayer,
+  watchAnchoredPopover,
+} from './anchored-popover';
 
 const rect = (left: number, top: number, width: number, height: number): DOMRect =>
   ({ left, top, width, height, right: left + width, bottom: top + height }) as DOMRect;
@@ -36,6 +42,43 @@ describe('placeBelow', () => {
     expect(anchorOutOfView(rect(0, -50, 10, 20))).toBe(true);
     expect(anchorOutOfView(rect(0, 900, 10, 20))).toBe(true);
     expect(anchorOutOfView(rect(0, 100, 10, 20))).toBe(false);
+  });
+});
+
+describe('placeAtField', () => {
+  beforeEach(() => {
+    Object.defineProperty(window, 'innerWidth', { configurable: true, value: 1000 });
+    Object.defineProperty(window, 'innerHeight', { configurable: true, value: 800 });
+  });
+
+  it('puts the list under the field, as wide as the field, as tall as its content allows', () => {
+    expect(placeAtField(rect(100, 100, 300, 56), 200, { gap: 4, maxHeight: 384 })).toEqual({
+      top: 160,
+      left: 100,
+      width: 300,
+      maxHeight: 384,
+    });
+  });
+
+  it('takes the least width and moves in from the right edge', () => {
+    expect(placeAtField(rect(700, 100, 200, 56), 200, { gap: 4, maxHeight: 384, minWidth: 520 })).toEqual({
+      top: 160,
+      left: 472,
+      width: 520,
+      maxHeight: 384,
+    });
+    // A list that its content makes wider than the field moves in by its own width.
+    expect(placeAtField(rect(700, 100, 200, 56), 200, { gap: 4, maxHeight: 384, ownWidth: 400 }).left).toBe(592);
+  });
+
+  it('goes above the field when the room below is too small, its height stops at the room', () => {
+    expect(placeAtField(rect(100, 700, 300, 56), 300, { gap: 4, edge: 8, maxHeight: 480 })).toEqual({
+      top: 396,
+      left: 100,
+      width: 300,
+      maxHeight: 480,
+    });
+    expect(placeAtField(rect(100, 300, 300, 56), 1000, { gap: 4, maxHeight: 480 }).maxHeight).toBe(432);
   });
 });
 

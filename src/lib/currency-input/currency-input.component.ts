@@ -54,6 +54,8 @@ export class CurrencyInputComponent implements ControlValueAccessor, Validator {
   readonly hint = input('');
   readonly error = input('');
   readonly required = input(false);
+  /** `lg`: the amount of a booking form, large and in the medium weight. */
+  readonly size = input<'md' | 'lg'>('md');
 
   /** Sichtbarer Text (formatiert oder beim Tippen roh). */
   protected readonly text = signal('');

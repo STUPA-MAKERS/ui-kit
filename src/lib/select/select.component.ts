@@ -15,7 +15,12 @@ import {
 } from '@angular/core';
 import { NgTemplateOutlet } from '@angular/common';
 import { NG_VALUE_ACCESSOR, type ControlValueAccessor } from '@angular/forms';
-import { anchorOutOfView, showInTopLayer, watchAnchoredPopover } from '../popover/anchored-popover';
+import {
+  anchorOutOfView,
+  placeAtField,
+  showInTopLayer,
+  watchAnchoredPopover,
+} from '../popover/anchored-popover';
 import { IconComponent } from '../icon/icon.component';
 import { MEDIA } from '../breakpoints/breakpoints';
 import { mediaQuery } from '../signals/media-query';
@@ -499,18 +504,14 @@ export class SelectFieldComponent implements ControlValueAccessor {
    * when the room below is too small and the room above is larger.
    */
   private place(menu: HTMLElement): void {
-    const field = this.box().nativeElement.getBoundingClientRect();
-    const below = window.innerHeight - field.bottom - GAP - EDGE;
-    const above = field.top - GAP - EDGE;
-    const natural = Math.min(menu.scrollHeight, MAX_HEIGHT);
-    const up = natural > below && above > below;
-    const maxHeight = Math.max(0, Math.min(MAX_HEIGHT, up ? above : below));
-    const height = Math.min(natural, maxHeight);
-    const width = Math.min(field.width, window.innerWidth - 2 * EDGE);
-    const own = Math.max(width, menu.getBoundingClientRect().width);
-    const left = Math.max(EDGE, Math.min(field.left, window.innerWidth - EDGE - own));
-    const top = up ? field.top - GAP - height : field.bottom + GAP;
-    this.position.set({ top, left, width, maxHeight });
+    this.position.set(
+      placeAtField(this.box().nativeElement.getBoundingClientRect(), menu.scrollHeight, {
+        gap: GAP,
+        edge: EDGE,
+        maxHeight: MAX_HEIGHT,
+        ownWidth: menu.getBoundingClientRect().width,
+      }),
+    );
   }
 
   /** The page scrolled or resized: keep the list at its field; close it when it leaves. */

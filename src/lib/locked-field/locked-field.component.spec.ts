@@ -12,4 +12,15 @@ describe('LockedFieldComponent', () => {
     expect(screen.getByText('HHJ 2026')).toHaveClass('lfld__value');
     expect(container.querySelector('input, button, [tabindex]')).toBeNull();
   });
+
+  it('shows a value taken from elsewhere on the selection surface', async () => {
+    const { container } = await render(
+      `<app-locked-field label="Belegnummer" filled>RE-1</app-locked-field>
+       <app-locked-field label="Haushaltsjahr">2026</app-locked-field>`,
+      { imports: [LockedFieldComponent] },
+    );
+    const boxes = container.querySelectorAll('.lfld');
+    expect(boxes[0]).toHaveClass('lfld--filled');
+    expect(boxes[1]).not.toHaveClass('lfld--filled');
+  });
 });

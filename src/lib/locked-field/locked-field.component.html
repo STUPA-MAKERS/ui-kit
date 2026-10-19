@@ -1,4 +1,4 @@
-<div class="lfld">
+<div class="lfld" [class.lfld--filled]="filled()">
   <span class="lfld__label"><app-icon name="lock" [size]="12" />{{ label() }}</span>
   <span class="lfld__value"><ng-content /></span>
 </div>

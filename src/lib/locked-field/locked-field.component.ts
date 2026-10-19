@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, input } from '@angular/core';
+import { booleanAttribute, ChangeDetectionStrategy, Component, input } from '@angular/core';
 import { IconComponent } from '../icon/icon.component';
 
 /**
@@ -7,6 +7,9 @@ import { IconComponent } from '../icon/icon.component';
  * in front of the label. The value is the content; a long value wraps.
  *
  * `<app-locked-field [label]="'Haushaltsjahr'">2026</app-locked-field>`
+ *
+ * `filled` is a value that the form took from elsewhere (the invoice a booking reads):
+ * the selection surface without an edge, the label in the accent text.
  *
  * The label and the value are plain text, not a form control, so a screen reader reads
  * them in order and the Tab key passes over them.
@@ -21,4 +24,6 @@ import { IconComponent } from '../icon/icon.component';
 })
 export class LockedFieldComponent {
   readonly label = input.required<string>();
+  /** The selection surface instead of the dashed edge: a value taken from elsewhere. */
+  readonly filled = input(false, { transform: booleanAttribute });
 }
