@@ -27,7 +27,13 @@ export type UiKitTextKey =
   | 'diff.noneCompact'
   | 'table.scrollStart'
   | 'table.scrollEnd'
-  | 'currency.invalid';
+  | 'currency.invalid'
+  | 'viewer.close'
+  | 'viewer.previous'
+  | 'viewer.next'
+  | 'viewer.position'
+  | 'viewer.error'
+  | 'viewer.noPreview';
 
 export type UiKitMessages = Record<UiKitTextKey, string>;
 
@@ -51,6 +57,12 @@ export const UI_KIT_DEFAULT_MESSAGES: Record<UiLang, UiKitMessages> = {
     'table.scrollStart': 'Tabelle nach links scrollen',
     'table.scrollEnd': 'Tabelle nach rechts scrollen',
     'currency.invalid': 'Kein gültiger Betrag. Beispiel: 1.234,56 (höchstens 2 Nachkommastellen).',
+    'viewer.close': 'Vorschau schließen',
+    'viewer.previous': 'Vorherige Datei',
+    'viewer.next': 'Nächste Datei',
+    'viewer.position': '{n} von {total}',
+    'viewer.error': 'Die Datei kann nicht angezeigt werden.',
+    'viewer.noPreview': 'Für diese Datei gibt es keine Vorschau.',
   },
   en: {
     'dialog.close': 'Close',
@@ -70,6 +82,12 @@ export const UI_KIT_DEFAULT_MESSAGES: Record<UiLang, UiKitMessages> = {
     'table.scrollStart': 'Scroll the table left',
     'table.scrollEnd': 'Scroll the table right',
     'currency.invalid': 'Not a valid amount. Example: 1,234.56 (at most 2 decimals).',
+    'viewer.close': 'Close preview',
+    'viewer.previous': 'Previous file',
+    'viewer.next': 'Next file',
+    'viewer.position': '{n} of {total}',
+    'viewer.error': 'The file cannot be displayed.',
+    'viewer.noPreview': 'There is no preview for this file.',
   },
 };
 
