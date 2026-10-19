@@ -8,7 +8,7 @@ STUPA-Workflow platform so the same look & feel can be reused across projects.
   Sans and IBM Plex Mono.
 - **Breakpoints** — phone (≤ 768px), narrow (769–1199px) and wide (≥ 1200px), as SCSS
   mixins (`_breakpoints.scss`) and as TypeScript constants (`BREAKPOINTS`, `MEDIA`).
-- **~35 standalone components** — `OnPush`, accessible (WCAG 2.1 AA, axe-tested), token-driven.
+- **~60 standalone components** — `OnPush`, accessible (WCAG 2.1 AA, axe-tested), token-driven.
 - **Framework-decoupled** — no hard dependency on any host app: i18n and the loading state
   are wired through injection tokens, with built-in DE/EN defaults so the kit works out of
   the box.
@@ -21,7 +21,8 @@ STUPA-Workflow platform so the same look & feel can be reused across projects.
 npm install @stupa-makers/ui-kit
 ```
 
-Peer dependencies: `@angular/common`, `@angular/core`, `@angular/forms`, `rxjs`.
+Peer dependencies: `@angular/common`, `@angular/core`, `@angular/forms`, `@angular/router`
+(the link of `app-list-item`), `rxjs`.
 
 Optional:
 
@@ -57,7 +58,11 @@ Use the breakpoints in a stylesheet with `@use 'breakpoints' as bp;` and
 `mediaQuery(MEDIA.phone)` (a signal) or `matchesMedia(MEDIA.coarse)` (one read).
 
 The styles entry also holds the global loading placeholders (`.skel`, `.skel-text`,
-`.skel-box`, `.skel-progress`) and the layout box `.page-shell`. These partials emit no CSS
+`.skel-box`, `.skel-progress`), the layout box `.page-shell`, the row groups and click rows
+(`rowgroup.scss`: `.rowgroup`, `.rowgroup--bg1`, `.rowgroup--bg3`, `.hitrow`) and the
+list/detail geometry (`list-detail.scss`: `--ld-list-width`, `--ld-gap`, `.ld-pane`). An app
+that loads the partials one by one adds `@include meta.load-css('rowgroup')` and
+`@include meta.load-css('list-detail')` at the place in its cascade where they belong. These partials emit no CSS
 and are for component stylesheets: `option-menu` (popover and rows of an option list),
 `scroll-fade` (`fade-y`, `fade-x` for the `is-fade-start` and `is-fade-end` classes),
 `dot-parts` (a meta line "A · B · C" without a dot at a line start) and `field`.
@@ -76,7 +81,9 @@ and are for component stylesheets: `option-menu` (popover and rows of an option 
 
 ## i18n (decoupled)
 
-The kit renders a handful of strings (dialog close, loading, datepicker, diff). It
+The kit renders a handful of strings (dialog close, loading, datepicker, diff, the control
+names of the patterns, such as "Weitere Aktionen" or "Zur Liste"). A visible text of a
+page (a title, a label) is always an input. It
 ships **built-in DE/EN defaults** via the `UI_KIT_INTL` injection token, so nothing is
 required to get started.
 
@@ -133,6 +140,20 @@ with a hint per step and done steps as buttons), dialog (title and an
 optional subtitle that names the object), table & sortable
 data-table, toast service, loading overlay, and a generic config/field diff
 renderer.
+
+Patterns of the pages: list row (`app-list-item`, a router link or a button), list/detail
+layout (`app-list-detail`), side sheet and phone bottom sheet (`app-side-sheet`), sheet bar,
+row menu (⋮), selection bar, confirm dialog, empty state with ghost rows, skeleton, note,
+status text (`StatusKind`), share bar (`app-seg-bar`), sticky bar, field group and field
+row, date block, person avatar and avatar stack, select field (`app-select`, the kit's own
+option list with a popover or a bottom sheet, never the native list), filter chip
+(`app-filter-select`), range chip (`app-range-chip`, `currency` input), search pill with
+`liveSearch()`, file drop zone, drop overlay and `appFileDrop`. Directives `appScrollFade`,
+`appTruncated`, `appLongPress`, `appPressSelect`; helpers `downloadBlob`, `formatBytes`,
+`keyParts` and the `capitalize` pipe.
+
+The avatar draws initials. A host app with person images provides `UI_KIT_AVATAR_SOURCE`
+(`url(principal, px)`, `markFailed(principal)`), for example a Gravatar proxy.
 
 Building blocks: a link in the button look (`a[appButton]`), copy button (`copyText`), chip
 with an × and a chip group (radio group), move buttons (`moveItem`), file picker, autocomplete

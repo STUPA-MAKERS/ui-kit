@@ -308,3 +308,10 @@
   --shadow-cut-strong: -8px 0 14px -5px rgba(114, 163, 132, 0.4);
   --shadow-cut-start-strong: 8px 0 14px -5px rgba(114, 163, 132, 0.4);
 }
+
+// The text button of `app-row-menu` (a "…" in a breadcrumb): its minimum size and its
+// side padding. A breadcrumb that fits its items reads the same tokens.
+:root {
+  --row-menu-text-min: 1.75rem;
+  --row-menu-text-pad: var(--space-2);
+}
