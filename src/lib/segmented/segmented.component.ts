@@ -14,7 +14,13 @@ import { NG_VALUE_ACCESSOR, type ControlValueAccessor } from '@angular/forms';
 export interface SegmentedOption {
   value: string;
   label: string;
+  /** A disabled option cannot be chosen: a click and the arrow keys skip it. */
   disabled?: boolean;
+  /**
+   * A tooltip (the native `title`), for example the reason why the option is disabled.
+   * It does not change the accessible name, which stays the label.
+   */
+  title?: string;
   /**
    * A count after the label, in a lighter weight (for example the number of invoices in
    * a segment of a list). The screen reader reads it as part of the name.

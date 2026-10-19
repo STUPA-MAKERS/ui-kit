@@ -68,6 +68,7 @@ interface Row {
       />
 
       <app-checkbox hint="Optional">Einverstanden</app-checkbox>
+      <app-checkbox indeterminate>Alle auswählen</app-checkbox>
 
       <app-datepicker label="Frist" [required]="true" />
       <app-date-range legend="Zeitraum" startLabel="Von" endLabel="Bis" />

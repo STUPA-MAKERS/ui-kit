@@ -239,4 +239,16 @@ describe('SegmentedComponent', () => {
       expect(host.classList.contains(c)).toBe((classes as readonly string[]).includes(c));
     }
   });
+
+  it('gives an option a tooltip, and the name stays the label', async () => {
+    const titled: SegmentedOption[] = [
+      { value: 'simple', label: 'Einfach' },
+      { value: 'absolute', label: 'Absolut', disabled: true, title: 'Nur bei geheimer Wahl' },
+    ];
+    await render(Host, { componentProperties: { options: titled, value: signal('simple') } });
+    const off = screen.getByRole('radio', { name: 'Absolut' });
+    expect(off).toHaveAttribute('title', 'Nur bei geheimer Wahl');
+    expect(off).toBeDisabled();
+    expect(screen.getByRole('radio', { name: 'Einfach' })).not.toHaveAttribute('title');
+  });
 });

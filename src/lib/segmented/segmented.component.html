@@ -12,6 +12,7 @@
       [class.seg__opt--on]="opt.value === value()"
       [attr.aria-checked]="opt.value === value()"
       [attr.tabindex]="opt.value === focusValue() ? 0 : -1"
+      [attr.title]="opt.title || null"
       [disabled]="isDisabled() || !!opt.disabled"
       (click)="select(opt)"
       (keydown)="onKeydown($event, i)"

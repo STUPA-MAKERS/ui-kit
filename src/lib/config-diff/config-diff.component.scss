@@ -67,3 +67,48 @@ ins.cfg-diff__val {
 .cfg-diff__none {
   font-size: var(--fs-sm, 0.875rem);
 }
+
+/* `compact`: one dense code block, for a row of a log (the audit log). */
+.cfg-diff-code {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  padding: var(--space-3) var(--space-4);
+  border-radius: var(--radius-lg);
+  background: var(--color-surface-3);
+  font-family: var(--font-mono, monospace);
+  font-variant-numeric: tabular-nums;
+  font-size: var(--fs-small);
+  line-height: var(--lh-small);
+}
+.cfg-diff-code__key {
+  color: var(--color-text-muted);
+}
+/* Keys and values wrap; they are never cut. */
+.cfg-diff-code__key,
+.cfg-diff-code__del,
+.cfg-diff-code__ins {
+  overflow-wrap: anywhere;
+}
+.cfg-diff-code__del {
+  color: var(--color-danger);
+}
+.cfg-diff-code__ins {
+  color: var(--color-success);
+}
+.cfg-diff-code__none {
+  margin: 0;
+  color: var(--color-text-muted);
+}
+/* "before:" and "after:" for the screen reader; the eye reads the `-` and the `+`. */
+.cfg-diff-code__sr {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
