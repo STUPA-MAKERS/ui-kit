@@ -57,7 +57,13 @@ export type UiKitTextKey =
   | 'selection.count'
   | 'listDetail.back'
   | 'search.clear'
-  | 'avatar.more';
+  | 'avatar.more'
+  | 'viewer.close'
+  | 'viewer.previous'
+  | 'viewer.next'
+  | 'viewer.position'
+  | 'viewer.error'
+  | 'viewer.noPreview';
 
 export type UiKitMessages = Record<UiKitTextKey, string>;
 
@@ -103,6 +109,12 @@ export const UI_KIT_DEFAULT_MESSAGES: Record<UiLang, UiKitMessages> = {
     'listDetail.back': 'Zur Liste',
     'search.clear': 'Suche leeren',
     'avatar.more': '{count} weitere',
+    'viewer.close': 'Vorschau schließen',
+    'viewer.previous': 'Vorherige Datei',
+    'viewer.next': 'Nächste Datei',
+    'viewer.position': '{n} von {total}',
+    'viewer.error': 'Die Datei kann nicht angezeigt werden.',
+    'viewer.noPreview': 'Für diese Datei gibt es keine Vorschau.',
   },
   en: {
     'dialog.close': 'Close',
@@ -144,6 +156,12 @@ export const UI_KIT_DEFAULT_MESSAGES: Record<UiLang, UiKitMessages> = {
     'listDetail.back': 'Back to list',
     'search.clear': 'Clear search',
     'avatar.more': '{count} more',
+    'viewer.close': 'Close preview',
+    'viewer.previous': 'Previous file',
+    'viewer.next': 'Next file',
+    'viewer.position': '{n} of {total}',
+    'viewer.error': 'The file cannot be displayed.',
+    'viewer.noPreview': 'There is no preview for this file.',
   },
 };
 

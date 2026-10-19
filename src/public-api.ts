@@ -42,6 +42,8 @@ export * from './lib/config-diff/config-diff.component';
 export * from './lib/config-diff/config-diff.types';
 export * from './lib/stepper/stepper.component';
 export * from './lib/dialog/dialog.component';
+export * from './lib/file-viewer/file-viewer.component';
+export * from './lib/file-viewer/file-viewer.types';
 export * from './lib/table/table.component';
 export * from './lib/data-table/data-table.component';
 export * from './lib/data-table/cell.directive';
