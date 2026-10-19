@@ -27,6 +27,7 @@ import {
   DatepickerComponent,
   DateRangeComponent,
   DialogComponent,
+  FileViewerComponent,
   IconComponent,
   InputComponent,
   SegmentedComponent,
@@ -175,6 +176,28 @@ class BuildingBlocksHost {
   readonly hits = ['Lastenrad', 'Laptop'];
 }
 
+@Component({
+  standalone: true,
+  imports: [FileViewerComponent],
+  template: `
+    <main>
+      <h1>Anhänge</h1>
+      <app-file-viewer [items]="files" [index]="index" [open]="true">
+        <a viewerActions href="/api/attachments/1/download">Herunterladen</a>
+        <a viewerFallback href="/api/attachments/3/download">Datei herunterladen</a>
+      </app-file-viewer>
+    </main>
+  `,
+})
+class FileViewerHost {
+  index = 0;
+  readonly files = [
+    { name: 'logo.png', url: '/api/attachments/1/download' },
+    { name: 'Haushaltsplan.pdf', url: '/api/attachments/2/download' },
+    { name: 'tabelle.xlsx', url: '/api/attachments/3/download' },
+  ];
+}
+
 describe('UI-Primitive a11y (axe)', () => {
   it('has no axe violations across the building blocks', async () => {
     const { container } = await render(BuildingBlocksHost);
@@ -184,6 +207,14 @@ describe('UI-Primitive a11y (axe)', () => {
   it('has no axe violations across the primitive kit', async () => {
     const { container } = await render(PrimitivesHost);
     expect(await runAxe(container)).toHaveNoViolations();
+  });
+
+  it.each([0, 1, 2])('file viewer has no axe violations (image, pdf, other: %i)', async (index) => {
+    const { container, fixture } = await render(FileViewerHost);
+    fixture.componentInstance.index = index;
+    fixture.detectChanges();
+    expect(await runAxe(container)).toHaveNoViolations();
+    document.body.style.overflow = '';
   });
 
   it('toast live-region has no axe violations', async () => {

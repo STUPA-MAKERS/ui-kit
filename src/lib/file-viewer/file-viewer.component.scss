@@ -1,0 +1,329 @@
+/* The viewer is dark in both themes, like the Nextcloud viewer: the file is the only
+   bright surface. The colours are local, so they do not follow the light theme. */
+.fv {
+  --fv-backdrop: rgba(8, 10, 9, 0.94);
+  --fv-bar: rgba(0, 0, 0, 0.72);
+  --fv-text: #ffffff;
+  --fv-text-muted: var(--c-dark-onv, #b3b8b4);
+  --fv-hover: rgba(255, 255, 255, 0.12);
+  --fv-press: rgba(255, 255, 255, 0.2);
+  --fv-image-surface: var(--c-dark-c3, #262a27);
+  --fv-focus: var(--c-accent, #72a384);
+  --fv-bar-height: 3rem; /* 48px */
+  --fv-nav-size: 3rem;
+
+  position: fixed;
+  inset: 0;
+  /* Above dialogs: the viewer can open from inside one. Toasts stay on top. */
+  z-index: calc(var(--z-dialog, 1300) + 50);
+  display: flex;
+  flex-direction: column;
+  background: var(--fv-backdrop);
+  color: var(--fv-text);
+  color-scheme: dark;
+  outline: none;
+}
+
+.fv :focus-visible {
+  outline: 2px solid var(--fv-focus);
+  outline-offset: 2px;
+}
+
+.fv__sentinel {
+  position: fixed;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  opacity: 0;
+}
+
+.fv__sr {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* --- Top bar: name in the centre, actions and close at the right ------------------ */
+.fv__bar {
+  flex: none;
+  display: grid;
+  /* Two equal side columns keep the name in the centre of the viewport. A side column
+     never shrinks below its buttons, so a long name is cut instead of the close button. */
+  grid-template-columns: 1fr minmax(0, max-content) 1fr;
+  align-items: center;
+  gap: var(--space-2, 0.5rem);
+  height: var(--fv-bar-height);
+  padding: 0 var(--space-2, 0.5rem) 0 var(--space-4, 1rem);
+  background: var(--fv-bar);
+  padding-top: env(safe-area-inset-top, 0px);
+  box-sizing: content-box;
+}
+.fv__name {
+  min-width: 0;
+  margin: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  text-align: center;
+  font-size: var(--fs-md, 0.9375rem);
+  line-height: 1.4;
+  font-weight: var(--fw-semibold, 600);
+  color: var(--fv-text);
+}
+.fv__bar-end {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: var(--space-1, 0.25rem);
+}
+.fv__actions {
+  display: flex;
+  align-items: center;
+  gap: var(--space-1, 0.25rem);
+  min-width: 0;
+}
+.fv__actions:empty {
+  display: none;
+}
+
+/* --- Icon buttons on the dark backdrop -------------------------------------------- */
+/* A projected action with the class `fv__btn` gets the same look. */
+.fv__btn,
+.fv__actions ::ng-deep .fv__btn {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 2.5rem;
+  height: 2.5rem;
+  padding: 0;
+  border: 0;
+  border-radius: var(--radius-pill, 999px);
+  background: transparent;
+  color: var(--fv-text);
+  cursor: pointer;
+  transition: background-color var(--motion-fast, 120ms) var(--ease-standard, ease),
+    opacity var(--motion-fast, 120ms) var(--ease-standard, ease);
+}
+.fv__btn:hover:not(:disabled),
+.fv__actions ::ng-deep .fv__btn:hover:not(:disabled) {
+  background: var(--fv-hover);
+}
+.fv__btn:active:not(:disabled),
+.fv__actions ::ng-deep .fv__btn:active:not(:disabled) {
+  background: var(--fv-press);
+}
+.fv__btn:disabled,
+.fv__actions ::ng-deep .fv__btn:disabled {
+  cursor: default;
+  opacity: 0.3;
+}
+
+/* --- Stage: the area under the bar ------------------------------------------------ */
+.fv__stage {
+  position: relative;
+  flex: 1 1 auto;
+  min-height: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-5, 1.5rem) calc(var(--fv-nav-size) + var(--space-5, 1.5rem));
+  padding-bottom: calc(var(--space-5, 1.5rem) + env(safe-area-inset-bottom, 0px));
+  touch-action: pan-y pinch-zoom;
+}
+/* A PDF fills the stage edge to edge; the browser draws its own toolbar. */
+.fv__stage--pdf {
+  padding: 0;
+}
+
+.fv__image {
+  display: block;
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+  /* A neutral surface behind transparent images. */
+  background: var(--fv-image-surface);
+  user-select: none;
+  transition: opacity var(--motion-base, 200ms) var(--ease-standard, ease);
+}
+.fv__image--loading {
+  opacity: 0;
+}
+
+.fv__pdf {
+  display: block;
+  width: 100%;
+  height: 100%;
+  border: 0;
+  background: var(--fv-image-surface);
+}
+.fv__pdf--loading {
+  visibility: hidden;
+}
+
+/* --- Loading, error and the fallback for other files ------------------------------ */
+.fv__loading {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  pointer-events: none;
+}
+.fv__spinner {
+  width: 2.25rem;
+  height: 2.25rem;
+  border-radius: 999px;
+  border: 3px solid rgba(255, 255, 255, 0.18);
+  border-top-color: var(--fv-focus);
+  /* A fast load shows no flash. */
+  opacity: 0;
+  animation-name: fv-spin, fv-appear;
+  animation-duration: 0.7s, var(--motion-fast, 120ms);
+  animation-delay: 0s, var(--skeleton-delay, 300ms);
+  animation-iteration-count: infinite, 1;
+  animation-timing-function: linear, var(--ease-enter, ease-out);
+  animation-fill-mode: none, forwards;
+}
+
+.fv__message {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-2, 0.5rem);
+  max-width: 32rem;
+  text-align: center;
+  color: var(--fv-text-muted);
+}
+.fv__stage--pdf .fv__message {
+  position: absolute;
+  inset: 0;
+  margin: auto;
+  justify-content: center;
+}
+.fv__message-name {
+  margin: var(--space-2, 0.5rem) 0 0;
+  font-size: var(--fs-h2, 1.0625rem);
+  font-weight: var(--fw-semibold, 600);
+  color: var(--fv-text);
+  overflow-wrap: anywhere;
+}
+.fv__message-text {
+  margin: 0;
+  font-size: var(--fs-body, 0.875rem);
+}
+.fv__message-action {
+  margin-top: var(--space-3, 0.75rem);
+}
+.fv__message-action:empty {
+  display: none;
+}
+
+/* --- Prev / next at the vertical centre of the edges ------------------------------ */
+.fv__nav {
+  position: absolute;
+  top: 50%;
+  width: var(--fv-nav-size);
+  height: var(--fv-nav-size);
+  margin-top: calc(var(--fv-nav-size) / -2);
+  --icon-size: 28px;
+  /* Over a PDF the arrows need their own ground. */
+  background: rgba(0, 0, 0, 0.35);
+}
+.fv__nav--prev {
+  left: var(--space-2, 0.5rem);
+}
+.fv__nav--next {
+  right: var(--space-2, 0.5rem);
+}
+.fv__nav:hover:not(:disabled) {
+  background: rgba(0, 0, 0, 0.6);
+}
+
+/* Phone: the bar stays, the arrows are smaller and the image gets more room. */
+@media (max-width: 768px) {
+  .fv {
+    --fv-nav-size: 2.25rem;
+  }
+  .fv__bar {
+    padding-left: var(--space-2, 0.5rem);
+    padding-right: var(--space-1, 0.25rem);
+  }
+  .fv__stage {
+    padding: var(--space-3, 0.75rem);
+    padding-bottom: calc(var(--space-3, 0.75rem) + env(safe-area-inset-bottom, 0px));
+  }
+  .fv__stage--pdf {
+    padding: 0;
+  }
+  .fv__nav {
+    --icon-size: 22px;
+  }
+  .fv__nav--prev {
+    left: var(--space-1, 0.25rem);
+  }
+  .fv__nav--next {
+    right: var(--space-1, 0.25rem);
+  }
+}
+
+/* --- Motion: the backdrop fades, the file grows from scale-in. ------------------- */
+.fv--entering {
+  animation: fv-fade-in var(--motion-base, 200ms) var(--ease-standard, ease);
+}
+.fv--entering .fv__stage > .fv__image,
+.fv--entering .fv__stage > .fv__message {
+  animation: fv-grow-in var(--motion-base, 200ms) var(--ease-enter, ease-out);
+}
+.fv--leaving {
+  pointer-events: none;
+  animation: fv-fade-out var(--motion-base, 200ms) var(--ease-exit, ease-in) forwards;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .fv--entering,
+  .fv--leaving,
+  .fv--entering .fv__stage > .fv__image,
+  .fv--entering .fv__stage > .fv__message {
+    animation-duration: 0.01ms;
+  }
+  .fv__image,
+  .fv__btn,
+  .fv__actions ::ng-deep .fv__btn {
+    transition: none;
+  }
+  .fv__spinner {
+    animation-duration: 1.5s, 0.01ms;
+  }
+}
+
+@keyframes fv-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+@keyframes fv-appear {
+  to {
+    opacity: 1;
+  }
+}
+@keyframes fv-fade-in {
+  from {
+    opacity: 0;
+  }
+}
+@keyframes fv-fade-out {
+  to {
+    opacity: 0;
+  }
+}
+@keyframes fv-grow-in {
+  from {
+    opacity: 0;
+    transform: scale(var(--motion-scale-in, 0.96));
+  }
+}

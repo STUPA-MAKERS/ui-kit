@@ -36,7 +36,13 @@ export type UiKitTextKey =
   | 'copy.copy'
   | 'copy.copied'
   | 'move.up'
-  | 'move.down';
+  | 'move.down'
+  | 'viewer.close'
+  | 'viewer.previous'
+  | 'viewer.next'
+  | 'viewer.position'
+  | 'viewer.error'
+  | 'viewer.noPreview';
 
 export type UiKitMessages = Record<UiKitTextKey, string>;
 
@@ -61,6 +67,12 @@ export const UI_KIT_DEFAULT_MESSAGES: Record<UiLang, UiKitMessages> = {
     'copy.copied': 'Kopiert',
     'move.up': 'Nach oben',
     'move.down': 'Nach unten',
+    'viewer.close': 'Vorschau schließen',
+    'viewer.previous': 'Vorherige Datei',
+    'viewer.next': 'Nächste Datei',
+    'viewer.position': '{n} von {total}',
+    'viewer.error': 'Die Datei kann nicht angezeigt werden.',
+    'viewer.noPreview': 'Für diese Datei gibt es keine Vorschau.',
   },
   en: {
     'dialog.close': 'Close',
@@ -81,6 +93,12 @@ export const UI_KIT_DEFAULT_MESSAGES: Record<UiLang, UiKitMessages> = {
     'copy.copied': 'Copied',
     'move.up': 'Move up',
     'move.down': 'Move down',
+    'viewer.close': 'Close preview',
+    'viewer.previous': 'Previous file',
+    'viewer.next': 'Next file',
+    'viewer.position': '{n} of {total}',
+    'viewer.error': 'The file cannot be displayed.',
+    'viewer.noPreview': 'There is no preview for this file.',
   },
 };
 
