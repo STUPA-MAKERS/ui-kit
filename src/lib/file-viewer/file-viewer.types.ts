@@ -6,7 +6,8 @@ export type FileViewerKind = 'image' | 'pdf' | 'other';
  *
  * `url` is trusted: the viewer puts it into `<img src>` and `<iframe src>` as it is.
  * Pass only same-origin API URLs (for example `/api/attachments/<id>/download`), never
- * a URL that a user typed or that comes from file content.
+ * a URL that a user typed or that comes from file content. An empty `url` means that the
+ * caller still fetches it: the viewer shows the loading state and no `<img>` or `<iframe>`.
  *
  * Without `kind`, the viewer derives it from `mime`, then from the extension of `name`,
  * then from the extension of the path of `url`.

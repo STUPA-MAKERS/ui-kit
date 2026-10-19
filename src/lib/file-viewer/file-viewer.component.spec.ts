@@ -155,6 +155,26 @@ describe('FileViewerComponent', () => {
     expect(screen.queryByRole('status')).toBeNull();
   });
 
+  it.each([0, 1])('shows the loading state without img or iframe while the url is empty (item %i)', async (index) => {
+    const { host, fixture } = await setup({
+      items: [
+        { name: 'logo.png', url: '' },
+        { name: 'Haushaltsplan.pdf', url: '' },
+      ],
+      index,
+    });
+    expect(dialog()).toHaveAccessibleName(index === 0 ? 'logo.png' : 'Haushaltsplan.pdf');
+    expect(document.querySelector('img, iframe')).toBeNull();
+    expect(screen.getByRole('status')).toHaveTextContent('Wird geladen…');
+    host.items.set([
+      { name: 'logo.png', url: '/api/attachments/1/download' },
+      { name: 'Haushaltsplan.pdf', url: '/api/attachments/2/download' },
+    ]);
+    fixture.detectChanges();
+    expect(document.querySelector('img, iframe')).not.toBeNull();
+    expect(screen.getByRole('status')).toBeInTheDocument();
+  });
+
   it('shows a fallback with icon, name and the projected action for other files', async () => {
     await setup({ index: 2 });
     expect(document.querySelector('iframe, img')).toBeNull();

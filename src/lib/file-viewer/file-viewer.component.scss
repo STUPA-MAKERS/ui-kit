@@ -93,7 +93,9 @@
 }
 
 /* --- Icon buttons on the dark backdrop -------------------------------------------- */
-.fv__btn {
+/* A projected action with the class `fv__btn` gets the same look. */
+.fv__btn,
+.fv__actions ::ng-deep .fv__btn {
   flex: none;
   display: grid;
   place-items: center;
@@ -108,13 +110,16 @@
   transition: background-color var(--motion-fast, 120ms) var(--ease-standard, ease),
     opacity var(--motion-fast, 120ms) var(--ease-standard, ease);
 }
-.fv__btn:hover:not(:disabled) {
+.fv__btn:hover:not(:disabled),
+.fv__actions ::ng-deep .fv__btn:hover:not(:disabled) {
   background: var(--fv-hover);
 }
-.fv__btn:active:not(:disabled) {
+.fv__btn:active:not(:disabled),
+.fv__actions ::ng-deep .fv__btn:active:not(:disabled) {
   background: var(--fv-press);
 }
-.fv__btn:disabled {
+.fv__btn:disabled,
+.fv__actions ::ng-deep .fv__btn:disabled {
   cursor: default;
   opacity: 0.3;
 }
@@ -287,7 +292,8 @@
     animation-duration: 0.01ms;
   }
   .fv__image,
-  .fv__btn {
+  .fv__btn,
+  .fv__actions ::ng-deep .fv__btn {
     transition: none;
   }
   .fv__spinner {

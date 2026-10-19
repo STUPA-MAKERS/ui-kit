@@ -55,7 +55,11 @@ const FOCUSABLE = [
  * Escape and the close button close the viewer.
  *
  * Content with the attribute `viewerActions` goes into the top bar, left of the close
- * button (for example a download button).
+ * button (for example a download button). An action with the class `fv__btn` gets the
+ * look of the bar buttons.
+ *
+ * An item with an empty `url` is not ready yet: the viewer shows its name and the loading
+ * state until the caller sets the URL.
  *
  * **Trusted URLs.** The viewer does not sanitize. It gives `url` to `<img>` as it is and
  * marks it as a trusted resource URL for the `<iframe>` (`bypassSecurityTrustResourceUrl`).

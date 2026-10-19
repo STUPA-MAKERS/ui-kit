@@ -43,7 +43,7 @@
       @if (current(); as item) {
         @switch (kind()) {
           @case ('image') {
-            @if (state() !== 'error') {
+            @if (state() !== 'error' && item.url) {
               <img
                 class="fv__image"
                 [class.fv__image--loading]="state() === 'loading'"
@@ -55,13 +55,15 @@
             }
           }
           @case ('pdf') {
-            <iframe
-              class="fv__pdf"
-              [class.fv__pdf--loading]="state() === 'loading'"
-              [src]="pdfUrl()"
-              [title]="item.name"
-              (load)="onLoad()"
-            ></iframe>
+            @if (item.url) {
+              <iframe
+                class="fv__pdf"
+                [class.fv__pdf--loading]="state() === 'loading'"
+                [src]="pdfUrl()"
+                [title]="item.name"
+                (load)="onLoad()"
+              ></iframe>
+            }
           }
           @default {
             <div class="fv__message">
