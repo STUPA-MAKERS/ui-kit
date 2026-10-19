@@ -50,6 +50,23 @@
   color: var(--color-text-muted);
   line-height: 1.375rem;
 }
+/* The large amount: a taller box, the digits and the sign in 28px and 20px. */
+.cur--lg.cur--labelled {
+  min-height: 4.5rem;
+  padding-bottom: 10px;
+}
+.cur--lg .cur__input {
+  min-height: 2.25rem;
+  font-size: 1.75rem;
+  line-height: 2.25rem;
+  font-weight: var(--fw-medium);
+}
+.cur--lg .cur__symbol {
+  font-family: var(--font-mono);
+  font-size: 1.25rem;
+  line-height: 2.25rem;
+  font-weight: var(--fw-medium);
+}
 .cur__msg {
   @include f.message;
 }
