@@ -10,6 +10,7 @@
 export {
   UI_KIT_INTL,
   UI_KIT_DEFAULT_MESSAGES,
+  UI_KIT_FORMAT_LOCALES,
   DefaultUiKitIntl,
   provideUiKit,
   uiKitIntlFromLang,
@@ -34,6 +35,7 @@ export type { UiKitLoadingState } from './lib/loading/loading.token';
 // --- components -------------------------------------------------------------
 export { ButtonComponent, buttonLook } from './lib/button/button.component';
 export type { ButtonVariant, ButtonSize, ButtonLook } from './lib/button/button.component';
+export { ButtonLinkComponent } from './lib/button/button-link.component';
 export { SwitchComponent } from './lib/switch/switch.component';
 export { SegmentedComponent } from './lib/segmented/segmented.component';
 export type { SegmentedOption } from './lib/segmented/segmented.component';
@@ -77,9 +79,45 @@ export {
   parseMoneyModel,
 } from './lib/currency-input/parse-money';
 export { LoadingOverlayComponent } from './lib/loading-overlay/loading-overlay.component';
-export { FilterBarComponent } from './lib/filter/filter-bar.component';
-export { FilterFieldComponent } from './lib/filter/filter-field.component';
-export { FilterRangeComponent } from './lib/filter/filter-range.component';
+export { ChipComponent } from './lib/chip/chip.component';
+export type { ChipRemoveSize } from './lib/chip/chip.component';
+export { ChipGroupComponent } from './lib/chip/chip-group.component';
+export type { ChipOption } from './lib/chip/chip-group.component';
+export { CopyButtonComponent } from './lib/copy/copy-button.component';
+export { HighlightComponent } from './lib/highlight/highlight.component';
+export { highlight, type TextPart } from './lib/highlight/highlight';
+export { LockedFieldComponent } from './lib/locked-field/locked-field.component';
+export { InfiniteScrollDirective } from './lib/infinite-scroll/infinite-scroll.directive';
+export { AutocompleteComponent } from './lib/autocomplete/autocomplete.component';
+export { TextareaComponent } from './lib/textarea/textarea.component';
+export { FilePickerComponent } from './lib/file-picker/file-picker.component';
+export { MoveButtonsComponent } from './lib/move-buttons/move-buttons.component';
+export { moveItem } from './lib/move-buttons/move-item';
+export {
+  FOCUSABLE_SELECTOR,
+  focusableIn,
+  lockBodyScroll,
+  trapTab,
+  type TrapTabOptions,
+} from './lib/focus/focus-trap';
+export {
+  anchorOutOfView,
+  placeBelow,
+  showInTopLayer,
+  watchAnchoredPopover,
+  type AnchoredPopoverWatch,
+  type PlaceBelowOptions,
+  type PopoverPlace,
+} from './lib/popover/anchored-popover';
+export { nowSignal } from './lib/signals/now-signal';
+export { matchesMedia, mediaQuery } from './lib/signals/media-query';
+export {
+  elementSize,
+  observeElementSize,
+  type ElementSize,
+  type ElementSizeBox,
+} from './lib/signals/element-size';
+export { copyText } from './lib/copy/copy-text';
 export { ToastComponent } from './lib/toast/toast.component';
 export { ToastService } from './lib/toast/toast.service';
 export type { Toast, ToastVariant } from './lib/toast/toast.service';

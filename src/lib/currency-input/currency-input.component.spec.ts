@@ -1,7 +1,7 @@
 import { Component, signal } from '@angular/core';
 import { FormControl, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { fireEvent, render, screen } from '@testing-library/angular';
-import { DefaultUiKitIntl, UI_KIT_INTL } from '../intl/intl';
+import { DefaultUiKitIntl, UI_KIT_INTL, uiKitIntlFromLang } from '../intl/intl';
 import { CurrencyInputComponent } from './currency-input.component';
 
 /** A UI_KIT_INTL provider pinned to a language, used to drive locale-dependent formatting. */
@@ -344,7 +344,7 @@ describe('CurrencyInputComponent (EN locale)', () => {
     expect(screen.getByRole('alert')).toHaveTextContent('Not a valid amount');
   });
 
-  it('uses a dot decimal separator for editing and en-US grouping for display', async () => {
+  it('uses a dot decimal separator for editing and en-GB grouping for display', async () => {
     @Component({
       standalone: true,
       imports: [CurrencyInputComponent, FormsModule],
@@ -357,8 +357,25 @@ describe('CurrencyInputComponent (EN locale)', () => {
     await view.fixture.whenStable();
     view.fixture.detectChanges();
     const input = screen.getByLabelText('amount') as HTMLInputElement;
-    expect(input.value).toBe('1,234.50'); // en-US grouping
+    expect(input.value).toBe('1,234.50'); // en-GB grouping
     fireEvent.focus(input);
     expect(input.value).toBe('1234.5'); // editable keeps the dot separator
+  });
+
+  it('formats with the format locale of the host app', async () => {
+    @Component({
+      standalone: true,
+      imports: [CurrencyInputComponent, FormsModule],
+      template: `<app-currency-input [ngModel]="value()" (ngModelChange)="value.set($event)" ariaLabel="amount" />`,
+    })
+    class EnHost {
+      readonly value = signal('1234567.5');
+    }
+    const intl = uiKitIntlFromLang(signal('en' as const), undefined, signal('en-IN'));
+    const view = await render(EnHost, { providers: [{ provide: UI_KIT_INTL, useValue: intl }] });
+    await view.fixture.whenStable();
+    view.fixture.detectChanges();
+    const input = screen.getByLabelText('amount') as HTMLInputElement;
+    expect(input.value).toBe('12,34,567.50'); // en-IN groups lakhs, so the tag is used
   });
 });

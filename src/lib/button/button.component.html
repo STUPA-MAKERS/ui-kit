@@ -4,6 +4,8 @@
   [attr.aria-busy]="loading ? 'true' : null"
   [attr.aria-label]="ariaLabel || null"
   [attr.aria-pressed]="ariaPressed === null ? null : ariaPressed"
+  [attr.aria-expanded]="ariaExpanded === null ? null : ariaExpanded"
+  [attr.aria-controls]="ariaControls || null"
   [attr.title]="tooltip()"
   [class]="classes()"
   [class.btn--custom]="!!color"

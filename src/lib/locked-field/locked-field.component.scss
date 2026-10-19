@@ -1,0 +1,29 @@
+@use '../../styles/field' as f;
+
+:host {
+  display: block;
+  min-width: 0;
+}
+
+.lfld {
+  @include f.box;
+  @include f.box-labelled;
+  flex-direction: column;
+  align-items: stretch;
+  padding: 26px var(--space-4) 8px;
+  background: transparent;
+  box-shadow: inset 0 0 0 1px var(--color-border);
+  border: 1px dashed var(--color-border);
+}
+
+.lfld__label {
+  @include f.label;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.lfld__value {
+  color: var(--color-text);
+  overflow-wrap: anywhere;
+}

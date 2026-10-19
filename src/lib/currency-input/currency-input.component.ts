@@ -138,8 +138,7 @@ export class CurrencyInputComponent implements ControlValueAccessor, Validator {
   /** Kanonisch → lokalisiert formatiert (1.234,56) mit 2 Nachkommastellen. */
   private format(canonical: string): string {
     if (!canonical) return '';
-    const locale = this.intl.lang() === 'en' ? 'en-US' : 'de-DE';
-    return new Intl.NumberFormat(locale, {
+    return new Intl.NumberFormat(this.intl.formatLocale(), {
       minimumFractionDigits: 2,
       maximumFractionDigits: 2,
     }).format(Number(canonical));

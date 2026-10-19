@@ -1,3 +1,5 @@
+@use '../../styles/skeleton-bar' as bar;
+
 /* The scroll container owns the horizontal overflow, so a wide table scrolls inside
    its own box and never pushes the page sideways. The cut and the tongues sit on the
    wrapper rather than the scroller, so they stay put while the content moves under
@@ -214,14 +216,14 @@
    loads, so nothing shifts when the real rows arrive. */
 .dt__skeleton {
   display: block;
-  height: 0.75rem;
-  width: 60%;
+  height: bar.$height;
+  width: bar.$width;
   border-radius: var(--radius-sm, 4px);
   background: var(--dt-hover);
   animation: dt-pulse 1.4s var(--ease-standard, ease) infinite;
 }
 .dt__skeleton-row td:first-child .dt__skeleton {
-  width: 80%;
+  width: bar.$first-width;
 }
 @keyframes dt-pulse {
   0%,

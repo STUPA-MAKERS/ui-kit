@@ -1,0 +1,7 @@
+:host {
+  display: contents;
+}
+// The page's own button opens the dialog; the input itself is never seen.
+.fpick__input {
+  display: none;
+}

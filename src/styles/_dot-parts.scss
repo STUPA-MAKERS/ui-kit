@@ -1,0 +1,48 @@
+// A meta line: parts with a middle dot between two of them ("Offen · 19.10. · AStA").
+// Emits no CSS.
+//   @use 'dot-parts' as dots;
+//
+// `list` and `part` never put a dot at a line start, also after a wrap. Every part draws
+// its dot before it, in a box of `$sep`. The list starts `$sep` before the clip box (an
+// ancestor with `overflow-x: clip`, which leaves the line height alone), so the dot of
+// the first part on each line falls outside it. A part does not break inside by default,
+// so a wrap takes its dot to the line start.
+//
+// `between` is the plain form for an inline line: a dot only between two parts, with
+// `$space` on each side. After a wrap a line can start with a dot.
+
+@mixin list($sep) {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  margin-inline-start: calc(-1 * #{$sep});
+  min-width: 0;
+}
+
+// `$wrap: normal` lets a long part break inside. `$font` sets the font of the dot, for
+// example the sans font beside a mono part.
+@mixin part($sep, $wrap: nowrap, $font: null) {
+  min-width: 0;
+  white-space: $wrap;
+
+  &::before {
+    display: inline-block;
+    width: $sep;
+    color: var(--color-text-subtle);
+    font-family: $font;
+    text-align: center;
+    content: '·';
+    content: '·' / '';
+  }
+}
+
+// `$next` is the selector of the following part when `$part` holds a combinator
+// (`'.counts > span'`, `$next: 'span'`).
+@mixin between($part, $space: 6px, $next: $part) {
+  #{$part} + #{$next}::before {
+    content: '·';
+    content: '·' / '';
+    margin-inline: $space;
+    color: var(--color-text-subtle);
+  }
+}

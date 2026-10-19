@@ -8,7 +8,7 @@ STUPA-Workflow platform so the same look & feel can be reused across projects.
   Sans and IBM Plex Mono.
 - **Breakpoints** — phone (≤ 768px), narrow (769–1199px) and wide (≥ 1200px), as SCSS
   mixins (`_breakpoints.scss`) and as TypeScript constants (`BREAKPOINTS`, `MEDIA`).
-- **~25 standalone components** — `OnPush`, accessible (WCAG 2.1 AA, axe-tested), token-driven.
+- **~35 standalone components** — `OnPush`, accessible (WCAG 2.1 AA, axe-tested), token-driven.
 - **Framework-decoupled** — no hard dependency on any host app: i18n and the loading state
   are wired through injection tokens, with built-in DE/EN defaults so the kit works out of
   the box.
@@ -54,7 +54,13 @@ Switch theme by setting `data-theme="light|dark"` on `<html>`.
 
 Use the breakpoints in a stylesheet with `@use 'breakpoints' as bp;` and
 `@include bp.phone { … }` (add `src/styles` to the Sass include paths), and in code with
-`window.matchMedia(MEDIA.phone)`.
+`mediaQuery(MEDIA.phone)` (a signal) or `matchesMedia(MEDIA.coarse)` (one read).
+
+The styles entry also holds the global loading placeholders (`.skel`, `.skel-text`,
+`.skel-box`, `.skel-progress`) and the layout box `.page-shell`. These partials emit no CSS
+and are for component stylesheets: `option-menu` (popover and rows of an option list),
+`scroll-fade` (`fade-y`, `fade-x` for the `is-fade-start` and `is-fade-end` classes),
+`dot-parts` (a meta line "A · B · C" without a dot at a line start) and `field`.
 
 ### Rules of the design system
 
@@ -70,7 +76,7 @@ Use the breakpoints in a stylesheet with `@use 'breakpoints' as bp;` and
 
 ## i18n (decoupled)
 
-The kit renders a handful of strings (dialog close, loading, datepicker, filter, diff). It
+The kit renders a handful of strings (dialog close, loading, datepicker, diff). It
 ships **built-in DE/EN defaults** via the `UI_KIT_INTL` injection token, so nothing is
 required to get started.
 
@@ -91,6 +97,11 @@ export const appConfig: ApplicationConfig = {
   ],
 };
 ```
+
+Numbers and dates format with `formatLocale()` of the intl, an `Intl` tag. By default it
+maps `de` to `de-DE` and `en` to `en-GB` (`UI_KIT_FORMAT_LOCALES`), because bare `en`
+gives US order. A host app with its own tag passes it as the third argument:
+`uiKitIntlFromLang(locale, undefined, formatLocale)`.
 
 Or override individual strings without writing a service:
 
@@ -120,8 +131,16 @@ segments, an optional count per segment), tabs, date picker & range,
 line icons (inline SVG), card, badge (tag or status text), stepper (horizontal, or vertical
 with a hint per step and done steps as buttons), dialog (title and an
 optional subtitle that names the object), table & sortable
-data-table (with filter bar), toast service, loading overlay, and a generic config/field diff
+data-table, toast service, loading overlay, and a generic config/field diff
 renderer.
+
+Building blocks: a link in the button look (`a[appButton]`), copy button (`copyText`), chip
+with an × and a chip group (radio group), move buttons (`moveItem`), file picker, autocomplete
+(combobox), textarea box, locked field, highlight (`highlight`), and an infinite-scroll
+sentinel (`appInfiniteScroll`). Helpers for code: `trapTab`, `focusableIn` and
+`lockBodyScroll` for an overlay; `watchAnchoredPopover`, `placeBelow`, `anchorOutOfView`
+and `showInTopLayer` for a popover at an anchor; the signals `nowSignal`, `elementSize`
+(`observeElementSize`) and `mediaQuery`.
 
 ```ts
 import { ButtonComponent, DataTableComponent, ToastService } from '@stupa-makers/ui-kit';

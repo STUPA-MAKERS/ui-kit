@@ -1,6 +1,7 @@
 export {
   UI_KIT_INTL,
   UI_KIT_DEFAULT_MESSAGES,
+  UI_KIT_FORMAT_LOCALES,
   DefaultUiKitIntl,
   provideUiKit,
   uiKitIntlFromLang,

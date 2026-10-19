@@ -1,0 +1,16 @@
+:host {
+  display: block;
+  min-width: 0;
+}
+// The chips take the global `.chip` look of the kit (base.scss); the row wraps.
+.cgrp {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+.cgrp__chip {
+  height: var(--chip-group-height, var(--control-height-sm));
+}
+.cgrp__chip app-icon {
+  pointer-events: none;
+}

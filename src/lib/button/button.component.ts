@@ -48,6 +48,10 @@ export function buttonLook(variant: ButtonVariant): ButtonLook {
 /**
  * Base button of the UI kit: pill shape, three sizes (32/40/52px), design tokens and a
  * visible focus ring. With `iconOnly` it is a round icon button.
+ *
+ * A page that needs a denser button sets custom properties on the host:
+ * `--button-height`, `--button-padding-inline`, `--button-font-size` and, for the text
+ * look, `--button-hover-bg`.
  */
 @Component({
   selector: 'app-button',
@@ -76,6 +80,13 @@ export class ButtonComponent {
    * und eine Vorlesehilfe hört drei gleich benannte Buttons ohne Zustand.
    */
   @Input() ariaPressed: boolean | null = null;
+  /**
+   * Disclosure state for a button that shows or hides a region ("Alle anzeigen",
+   * "Änderungen ansehen"). `null` renders no `aria-expanded`.
+   */
+  @Input() ariaExpanded: boolean | null = null;
+  /** The id of the region that the button controls (`aria-controls`). */
+  @Input() ariaControls: string | null = null;
   /** Hover-Tooltip; bei Icon-Buttons fällt er automatisch auf `ariaLabel` zurück. */
   @Input() title = '';
 

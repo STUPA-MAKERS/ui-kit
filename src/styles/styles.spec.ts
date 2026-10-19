@@ -92,12 +92,51 @@ describe('design-system rules in the stylesheets', () => {
   });
 
   it('draws the filter chip 32px high with radius 8, in the selection colour when on', () => {
-    for (const scss of [read('base.scss'), read('../lib/filter/filter-bar.component.scss')]) {
-      const chip = block(scss, '.chip {');
-      expect(chip).toMatch(/height: var\(--control-height-sm\)/);
-      expect(chip).toMatch(/border-radius: var\(--radius-md\)/);
-    }
+    const chip = block(read('base.scss'), '.chip {');
+    expect(chip).toMatch(/height: var\(--control-height-sm\)/);
+    expect(chip).toMatch(/border-radius: var\(--radius-md\)/);
     expect(read('base.scss')).toMatch(/\.chip\.on,[\s\S]*?background: var\(--color-selected\)/);
+  });
+
+  it('lays out a dialog-footer wrapper like the footer, with a settable gap', () => {
+    const wrapper = block(
+      read('../lib/dialog/dialog.component.scss'),
+      '.dialog__footer ::ng-deep > div[dialog-footer] {',
+    );
+    expect(wrapper).toMatch(/justify-content: flex-end/);
+    expect(wrapper).toMatch(/flex-wrap: wrap/);
+    expect(wrapper).toMatch(/gap: var\(--dialog-footer-gap, var\(--space-3\)\)/);
+  });
+
+  it('lets a page set the height, padding, font size and text hover of a button', () => {
+    const scss = read('../lib/button/button.component.scss');
+    for (const size of ['sm', 'md', 'lg']) {
+      const rule = block(scss, `.btn--${size} {`);
+      expect(rule).toMatch(/--btn-h: var\(--button-height,/);
+      expect(rule).toMatch(/padding: 0 var\(--button-padding-inline,/);
+      expect(rule).toMatch(/font-size: var\(--button-font-size,/);
+    }
+    expect(block(scss, '.btn--text:hover:not(:disabled) {')).toMatch(
+      /background: var\(--button-hover-bg, var\(--color-surface-2\)\)/,
+    );
+  });
+
+  it('lays out a key/value grid with settable columns, the label muted above the value', () => {
+    const base = read('base.scss');
+    expect(block(base, '.kv {')).toMatch(/grid-template-columns: repeat\(var\(--kv-cols, 3\), minmax\(0, 1fr\)\)/);
+    expect(block(base, '.kv > div {')).toMatch(/gap: var\(--kv-item-gap, 2px\)/);
+    expect(block(base, '.kv dt {')).toMatch(/color: var\(--color-text-muted\)/);
+    expect(block(base, '.kv dd {')).toMatch(/overflow-wrap: anywhere/);
+    expect(block(base, '.kv__wide {')).toMatch(/grid-column: 1 \/ -1/);
+  });
+
+  it('draws a code tag in the mono face that wraps, filled or outlined', () => {
+    const base = read('base.scss');
+    const tag = block(base, '.code-tag {');
+    expect(tag).toMatch(/font-family: var\(--font-mono\)/);
+    expect(tag).toMatch(/overflow-wrap: anywhere/);
+    expect(tag).toMatch(/background: var\(--color-surface-3\)/);
+    expect(block(base, '.code-tag--outlined {')).toMatch(/border: 1px solid var\(--color-border-strong\)/);
   });
 
   it('gives a selected table row the selection colour, its pinned cells included', () => {

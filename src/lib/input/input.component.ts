@@ -24,6 +24,11 @@ export class InputComponent implements ControlValueAccessor {
   @Input() required = false;
   /** Accessible name when the field has no visible label (for example a search field). */
   @Input() ariaLabel = '';
+  /**
+   * A unit at the end of the box, on the line of the value ("Tage", "Minuten"). The
+   * control names it in its description, so a screen reader reads "30, Tage".
+   */
+  @Input() suffix = '';
   @Input() id = `app-input-${nextId++}`;
 
   readonly value = signal('');
@@ -33,9 +38,11 @@ export class InputComponent implements ControlValueAccessor {
   onTouched: () => void = () => {};
 
   get describedBy(): string | null {
-    if (this.error) return `${this.id}-error`;
-    if (this.hint) return `${this.id}-hint`;
-    return null;
+    const ids: string[] = [];
+    if (this.suffix) ids.push(`${this.id}-suffix`);
+    if (this.error) ids.push(`${this.id}-error`);
+    else if (this.hint) ids.push(`${this.id}-hint`);
+    return ids.length ? ids.join(' ') : null;
   }
 
   onInput(event: Event): void {

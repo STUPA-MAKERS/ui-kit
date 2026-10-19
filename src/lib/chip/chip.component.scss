@@ -1,0 +1,45 @@
+:host {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--chip-gap, var(--space-2));
+  max-width: 100%;
+  min-height: var(--chip-min-height, 32px);
+  box-sizing: border-box;
+  padding: var(--chip-padding, 4px 4px 4px var(--space-3));
+  border: var(--chip-border, 0);
+  border-radius: var(--chip-radius, var(--radius-pill));
+  background: var(--chip-bg, var(--color-surface-2));
+  font-size: var(--chip-font-size, var(--fs-small));
+  font-weight: var(--chip-font-weight, inherit);
+}
+
+/* The remove button: round, a muted glyph that darkens on hover. */
+.rmchip__x {
+  display: grid;
+  flex: none;
+  place-items: center;
+  width: 26px;
+  height: 26px;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: transparent;
+  color: var(--color-text-muted);
+  cursor: pointer;
+}
+.rmchip__x--sm {
+  width: 22px;
+  height: 22px;
+}
+.rmchip__x--lg {
+  width: 32px;
+  height: 32px;
+}
+.rmchip__x:hover {
+  background: var(--chip-x-hover-bg, var(--color-surface-3));
+  color: var(--color-text);
+}
+.rmchip__x:focus-visible {
+  outline: 2px solid var(--color-focus-ring);
+  outline-offset: 1px;
+}

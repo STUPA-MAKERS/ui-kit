@@ -1,0 +1,63 @@
+<div class="ac">
+  <div class="ac__box">
+    <label class="ac__label" [for]="inputId()">{{ label() }}</label>
+    @if (picked() !== null) {
+      <span class="ac__picked">
+        <ng-content select="[acPickedIcon]" />
+        <span class="ac__pickedText" [class.ac__pickedText--wrap]="wrapPicked()" [attr.title]="wrapPicked() ? null : picked()">{{
+          picked()
+        }}</span>
+        <button
+          type="button"
+          class="ac__clear"
+          [attr.aria-label]="clearLabel()"
+          [attr.title]="clearLabel()"
+          (click)="cleared.emit()"
+        >
+          <app-icon name="x" [size]="16" />
+        </button>
+      </span>
+    } @else {
+      <input
+        class="ac__control"
+        type="search"
+        autocomplete="off"
+        role="combobox"
+        aria-autocomplete="list"
+        [id]="inputId()"
+        [attr.name]="name() || null"
+        [attr.aria-controls]="listId"
+        [attr.aria-expanded]="shown()"
+        [attr.aria-activedescendant]="shown() && active() >= 0 ? optionId(active()) : null"
+        [placeholder]="placeholder()"
+        [value]="query()"
+        (input)="onInput($event)"
+        (keydown)="onKey($event)"
+      />
+      <app-icon class="ac__icon" name="search" [size]="18" />
+    }
+  </div>
+  @if (shown()) {
+    <ul class="ac__list" role="listbox" [id]="listId" [attr.aria-label]="label()">
+      @for (option of options(); track $index; let i = $index) {
+        <li role="presentation">
+          <button
+            type="button"
+            role="option"
+            class="ac__option"
+            [id]="optionId(i)"
+            [class.ac__option--active]="i === active()"
+            [attr.aria-selected]="i === active()"
+            (click)="pick(option)"
+          >
+            @if (optionTemplate(); as tpl) {
+              <ng-container [ngTemplateOutlet]="tpl" [ngTemplateOutletContext]="{ $implicit: option }" />
+            } @else {
+              <span class="ac__optionText" [attr.title]="optionLabel()(option)">{{ optionLabel()(option) }}</span>
+            }
+          </button>
+        </li>
+      }
+    </ul>
+  }
+</div>
