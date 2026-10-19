@@ -40,28 +40,14 @@ describe('SegmentedComponent', () => {
     expect(container.querySelector('app-segmented')).not.toHaveClass('seg-host--control');
   });
 
-  it('slides an indicator to the chosen segment when the segments are equal', async () => {
+  it('fades the selection instead of sliding an indicator', async () => {
     const { container } = await render(
       `<app-segmented ariaLabel="Regel" width="fill" [options]="opts" value="two_thirds" />`,
       { imports: [SegmentedComponent], componentProperties: { opts: RULES } },
     );
-    const group = container.querySelector<HTMLElement>('.seg')!;
-    expect(container.querySelector('.seg__ind')).not.toBeNull();
-    expect(group.style.getPropertyValue('--seg-n')).toBe('3');
-    expect(group.style.getPropertyValue('--seg-i')).toBe('2');
-  });
-
-  it('shows no indicator for auto widths', async () => {
-    const { container } = await render(Host);
     expect(container.querySelector('.seg__ind')).toBeNull();
-  });
-
-  it('shows no indicator without a selection', async () => {
-    const none = await render(
-      `<app-segmented ariaLabel="Regel" width="equal" [options]="opts" [value]="null" />`,
-      { imports: [SegmentedComponent], componentProperties: { opts: RULES } },
-    );
-    expect(none.container.querySelector('.seg__ind')).toBeNull();
+    const radios = container.querySelectorAll('[role="radio"]');
+    expect(radios[2]).toHaveClass('seg__opt--on');
   });
 
   it('takes the button height with size="control"', async () => {
