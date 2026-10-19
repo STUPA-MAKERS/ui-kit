@@ -62,6 +62,9 @@ export type {
 export { StepperComponent } from './lib/stepper/stepper.component';
 export type { Step, StepperOrientation } from './lib/stepper/stepper.component';
 export { DialogComponent } from './lib/dialog/dialog.component';
+export { FileViewerComponent } from './lib/file-viewer/file-viewer.component';
+export { fileViewerKind } from './lib/file-viewer/file-viewer.types';
+export type { FileViewerItem, FileViewerKind } from './lib/file-viewer/file-viewer.types';
 export { TableComponent } from './lib/table/table.component';
 export type { Column } from './lib/table/table.component';
 export { DataTableComponent } from './lib/data-table/data-table.component';
