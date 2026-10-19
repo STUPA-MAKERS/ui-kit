@@ -13,13 +13,18 @@ export const BREAKPOINTS = {
   wideMin: 1200,
 } as const;
 
-/** Media queries for the three width classes. */
+/**
+ * Media queries for the three width classes, and for the device: `coarse` is a
+ * touch-first pointer, `reducedMotion` the system wish for less motion.
+ */
 export const MEDIA = {
   phone: '(max-width: 768px)',
   narrow: '(min-width: 768.02px) and (max-width: 1199.98px)',
   wide: '(min-width: 1200px)',
   notPhone: '(min-width: 768.02px)',
   belowWide: '(max-width: 1199.98px)',
+  coarse: '(pointer: coarse)',
+  reducedMotion: '(prefers-reduced-motion: reduce)',
 } as const;
 
 export type WidthClass = 'phone' | 'narrow' | 'wide';

@@ -78,6 +78,25 @@ describe('DialogComponent', () => {
     expect(buttons[buttons.length - 1]).toBe(del);
   });
 
+  it('projects a wrapper of switching actions into the footer', async () => {
+    await render(
+      `<app-dialog title="Konto zusammenführen" [open]="true">
+         <p>Schritt 1</p>
+         <div dialog-footer>
+           @if (true) {
+             <app-button variant="text">Abbrechen</app-button>
+             <app-button variant="fill">Weiter</app-button>
+           }
+         </div>
+       </app-dialog>`,
+      { imports: [DialogComponent, ButtonComponent] },
+    );
+    const footer = document.querySelector('.dialog__footer') as HTMLElement;
+    const wrapper = footer.querySelector(':scope > div[dialog-footer]');
+    expect(wrapper).not.toBeNull();
+    expect(wrapper).toContainElement(screen.getByRole('button', { name: 'Weiter' }));
+  });
+
   it('emits closed when the close button is pressed', async () => {
     const closed = jest.fn();
     await render(`<app-dialog title="X" [open]="true" (closed)="onClosed()">B</app-dialog>`, {

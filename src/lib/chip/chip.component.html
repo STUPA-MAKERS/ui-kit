@@ -1,0 +1,14 @@
+<ng-content />
+@if (removable()) {
+  <button
+    type="button"
+    class="rmchip__x"
+    [class.rmchip__x--sm]="removeSize() === 'sm'"
+    [class.rmchip__x--lg]="removeSize() === 'lg'"
+    [attr.aria-label]="removeLabel() || null"
+    [attr.title]="removeLabel() || null"
+    (click)="remove.emit()"
+  >
+    <app-icon name="x" [size]="iconSize()" />
+  </button>
+}

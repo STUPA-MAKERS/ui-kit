@@ -128,8 +128,9 @@ textarea {
   border: 0;
 }
 
-// Layout-Container.
-.container {
+// The layout box of a page. Not `.container`: Tailwind emits a `.container` utility with
+// breakpoint max-widths, which comes later in an app and wins over `--layout-max-width`.
+.page-shell {
   width: 100%;
   max-width: var(--layout-max-width);
   margin-inline: auto;
@@ -139,7 +140,7 @@ textarea {
 // Mobile-Baseline (≤768px): engerer Seitenrand, kompaktere Headings.
 // Desktop bleibt unverändert — alle Mobile-Regeln sind additiv per max-width.
 @media (max-width: 768px) {
-  .container {
+  .page-shell {
     padding-inline: var(--space-4);
   }
   h1 {
@@ -269,6 +270,54 @@ input[type='radio'] {
   color: var(--color-text-subtle);
 }
 
+/* A code tag: a token, a scope, an event name or a group in the mono face (`<code
+   class="code-tag">`). A filled plate on surface 3, or `.code-tag--outlined` with an edge.
+   It wraps anywhere, so a long scope is never cut. `--code-tag-padding` sets the padding
+   (default 1px 8px), `--code-tag-font-size` the size (default 12.5px). */
+.code-tag {
+  max-width: 100%;
+  padding: var(--code-tag-padding, 1px var(--space-2));
+  border-radius: var(--radius-sm);
+  background: var(--color-surface-3);
+  font-family: var(--font-mono);
+  font-size: var(--code-tag-font-size, var(--fs-xs));
+  overflow-wrap: anywhere;
+}
+.code-tag--outlined {
+  border: 1px solid var(--color-border-strong);
+  border-radius: var(--radius-md);
+  background: transparent;
+}
+
+/* A key/value grid of facts (`<dl class="kv">`): each fact is a `<div>` with the muted
+   label (`dt`) above the value (`dd`). A value wraps anywhere, so an address or an id is
+   never cut. `.kv__wide` takes a whole line. A page sets the columns with `--kv-cols`
+   (default 3, in a container query for a narrow sheet), the gaps with `--kv-gap` and the
+   space between label and value with `--kv-item-gap` (default 2px). */
+.kv {
+  display: grid;
+  grid-template-columns: repeat(var(--kv-cols, 3), minmax(0, 1fr));
+  gap: var(--kv-gap, var(--space-3) var(--space-5));
+  margin: 0;
+}
+.kv > div {
+  display: flex;
+  flex-direction: column;
+  gap: var(--kv-item-gap, 2px);
+  min-width: 0;
+}
+.kv dt {
+  font-size: var(--fs-sm);
+  color: var(--color-text-muted);
+}
+.kv dd {
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+.kv__wide {
+  grid-column: 1 / -1;
+}
+
 /* A keyboard key, for example the shortcut of the search field. */
 .kbd {
   display: inline-block;
@@ -281,7 +330,7 @@ input[type='radio'] {
 }
 
 /* A filter chip (a button): 32px high, radius 8, a thin edge. `.on` marks an active
-   filter with the selection colour. The filter bar trigger has the same look. */
+   filter with the selection colour. */
 .chip {
   display: inline-flex;
   flex: none;

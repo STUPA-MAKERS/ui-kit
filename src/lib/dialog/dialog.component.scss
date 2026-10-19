@@ -108,6 +108,16 @@
 .dialog__footer:empty {
   display: none;
 }
+/* A wrapper `<div dialog-footer>` holds actions that switch with a state (a step, a
+   failure). It lays them out like the footer itself, so a page needs no CSS of its own.
+   `--dialog-footer-gap` sets the space between the actions (default 12px). */
+.dialog__footer ::ng-deep > div[dialog-footer] {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  align-items: center;
+  gap: var(--dialog-footer-gap, var(--space-3));
+}
 
 /* Mobile (≤768px): Dialog als Sheet — volle Breite, am unteren Rand. Desktop
    unverändert.

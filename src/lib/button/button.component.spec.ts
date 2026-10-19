@@ -170,6 +170,26 @@ describe('ButtonComponent', () => {
     expect(container.querySelector('button')).not.toHaveAttribute('aria-pressed');
   });
 
+  it('reports a disclosure state and the region it controls', async () => {
+    await render(
+      `<app-button variant="text" [ariaExpanded]="false" ariaControls="more">Alle anzeigen</app-button>
+       <app-button variant="text" [ariaExpanded]="true">Weniger</app-button>`,
+      { imports: [ButtonComponent] },
+    );
+    const closed = screen.getByRole('button', { name: 'Alle anzeigen' });
+    expect(closed).toHaveAttribute('aria-expanded', 'false');
+    expect(closed).toHaveAttribute('aria-controls', 'more');
+    const open = screen.getByRole('button', { name: 'Weniger' });
+    expect(open).toHaveAttribute('aria-expanded', 'true');
+    expect(open).not.toHaveAttribute('aria-controls');
+  });
+
+  it('carries no disclosure state by default', async () => {
+    await render(`<app-button>Speichern</app-button>`, { imports: [ButtonComponent] });
+    expect(screen.getByRole('button')).not.toHaveAttribute('aria-expanded');
+    expect(screen.getByRole('button')).not.toHaveAttribute('aria-controls');
+  });
+
   describe('looks', () => {
     for (const look of ['fill', 'tonal', 'outlined', 'text', 'danger', 'fab'] as const) {
       it(`renders the ${look} look with one class`, async () => {

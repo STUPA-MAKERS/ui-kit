@@ -37,3 +37,17 @@
 .fld__msg {
   @include f.message;
 }
+
+// The unit sits at the end of the box, on the line of the value. The control leaves room
+// for it, so a long value never runs under it.
+.fld__box--suffix .field__control {
+  padding-inline-end: 5rem;
+}
+.fld__suffix {
+  position: absolute;
+  inset-inline-end: var(--space-4);
+  top: 1.5rem;
+  font-size: var(--fs-sm);
+  color: var(--color-text-muted);
+  pointer-events: none;
+}

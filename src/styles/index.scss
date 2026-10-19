@@ -1,5 +1,6 @@
 // @stupa-makers/ui-kit — design-system styles entry.
-// Order: font face declarations → tokens (primitive + semantic) → base element reset.
+// Order: font face declarations → tokens (primitive + semantic) → base element reset →
+// loading placeholders (`.skel*`).
 // Consume from an app's global stylesheet, e.g.:
 //   @use '@stupa-makers/ui-kit/styles' as uikit;
 // The @font-face rules reference '/assets/fonts/ibm-plex-*.woff2' (absolute) — copy the
@@ -8,3 +9,4 @@
 @use 'fonts';
 @use 'tokens';
 @use 'base';
+@use 'skeleton';

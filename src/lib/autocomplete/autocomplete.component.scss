@@ -1,0 +1,129 @@
+@use '../../styles/field' as f;
+
+:host {
+  display: block;
+  min-width: 0;
+}
+
+.ac {
+  position: relative;
+  min-width: 0;
+}
+
+.ac__box {
+  @include f.box;
+  @include f.box-labelled;
+}
+.ac__label {
+  @include f.label;
+}
+.ac__box:focus-within .ac__label {
+  @include f.label-focus;
+}
+
+.ac__control {
+  @include f.control;
+  @include f.control-labelled;
+  padding-inline-end: 2.5rem;
+}
+.ac__control::-webkit-search-cancel-button {
+  display: none;
+}
+.ac__icon {
+  position: absolute;
+  right: var(--space-4);
+  bottom: 14px;
+  color: var(--color-text-muted);
+  pointer-events: none;
+}
+
+/* The choice in place of the field, with the × that unlinks it. */
+.ac__picked {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  width: 100%;
+  min-width: 0;
+  padding: 26px var(--space-2) 8px var(--space-4);
+  color: var(--color-text);
+}
+.ac__picked ::ng-deep [acPickedIcon] {
+  flex: none;
+  color: var(--color-text-muted);
+}
+.ac__pickedText {
+  flex: 1 1 auto;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.ac__pickedText--wrap {
+  overflow: visible;
+  white-space: normal;
+  overflow-wrap: anywhere;
+}
+.ac__clear {
+  display: inline-grid;
+  flex: none;
+  place-items: center;
+  width: 1.75rem;
+  height: 1.75rem;
+  padding: 0;
+  border: 0;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: var(--color-text-muted);
+  cursor: pointer;
+}
+.ac__clear:hover {
+  background: var(--color-surface-3);
+  color: var(--color-text);
+}
+.ac__clear:focus-visible {
+  outline: 2px solid var(--color-focus-ring);
+}
+
+/* The hits: in the flow of the form, under the field, over what follows. */
+.ac__list {
+  position: absolute;
+  z-index: 10;
+  inset-inline: 0;
+  top: calc(100% + var(--space-1));
+  max-height: 14rem;
+  margin: 0;
+  padding: var(--space-1);
+  overflow-y: auto;
+  list-style: none;
+  border-radius: var(--radius-md);
+  background: var(--color-surface-3);
+  box-shadow: var(--shadow-elevated);
+}
+.ac__option {
+  display: block;
+  width: 100%;
+  padding: var(--space-2) var(--space-3);
+  border: 0;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: var(--color-text);
+  font: inherit;
+  text-align: start;
+  cursor: pointer;
+}
+.ac__optionText {
+  display: block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.ac__option:hover,
+.ac__option:focus-visible,
+.ac__option--active {
+  background: var(--color-surface-4);
+  outline: 0;
+}
+.ac__option:focus-visible,
+.ac__option--active {
+  box-shadow: inset 0 0 0 2px var(--color-focus-ring);
+}

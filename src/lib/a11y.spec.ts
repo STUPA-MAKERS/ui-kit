@@ -10,7 +10,17 @@ import { Component } from '@angular/core';
 import { render } from '@testing-library/angular';
 import { runAxe } from '../../testing/a11y';
 import {
+  AutocompleteComponent,
   BadgeComponent,
+  ButtonLinkComponent,
+  ChipComponent,
+  ChipGroupComponent,
+  CopyButtonComponent,
+  FilePickerComponent,
+  HighlightComponent,
+  LockedFieldComponent,
+  MoveButtonsComponent,
+  TextareaComponent,
   ButtonComponent,
   CardComponent,
   CheckboxComponent,
@@ -118,6 +128,56 @@ class PrimitivesHost {
 
 @Component({
   standalone: true,
+  imports: [
+    AutocompleteComponent,
+    ButtonComponent,
+    ButtonLinkComponent,
+    ChipComponent,
+    ChipGroupComponent,
+    CopyButtonComponent,
+    FilePickerComponent,
+    HighlightComponent,
+    InputComponent,
+    LockedFieldComponent,
+    MoveButtonsComponent,
+    TextareaComponent,
+  ],
+  template: `
+    <main>
+      <h1>Bausteine</h1>
+      <app-input label="Dauer" suffix="Minuten" />
+      <a appButton="outlined" href="/status">Status ansehen</a>
+      <app-copy-button text="https://example.org/ics" label="Kopieren" />
+      <app-chip [removable]="true" removeLabel="Entfernen: Haushalt">Haushalt</app-chip>
+      <app-chip-group ariaLabel="Zahlungsart" [options]="pay" value="cash" />
+      <ul>
+        <li>Spalte 1 <app-move-buttons [upDisabled]="true" /></li>
+      </ul>
+      <app-file-picker #picker accept=".pdf" />
+      <app-button (click)="picker.open()">Datei wählen</app-button>
+      <p><app-highlight text="Lastenrad im Radhaus" query="rad" /></p>
+      <app-locked-field label="Haushaltsjahr">2026</app-locked-field>
+      <app-autocomplete
+        inputId="a11y-ac"
+        label="Antrag"
+        [options]="hits"
+        [open]="true"
+        query="La"
+      />
+      <app-textarea label="Notiz" [invalid]="true"><textarea aria-invalid="true"></textarea></app-textarea>
+    </main>
+  `,
+})
+class BuildingBlocksHost {
+  readonly pay = [
+    { value: 'cash', label: 'Bar' },
+    { value: 'card', label: 'Karte' },
+  ];
+  readonly hits = ['Lastenrad', 'Laptop'];
+}
+
+@Component({
+  standalone: true,
   imports: [FileViewerComponent],
   template: `
     <main>
@@ -139,6 +199,11 @@ class FileViewerHost {
 }
 
 describe('UI-Primitive a11y (axe)', () => {
+  it('has no axe violations across the building blocks', async () => {
+    const { container } = await render(BuildingBlocksHost);
+    expect(await runAxe(container)).toHaveNoViolations();
+  });
+
   it('has no axe violations across the primitive kit', async () => {
     const { container } = await render(PrimitivesHost);
     expect(await runAxe(container)).toHaveNoViolations();

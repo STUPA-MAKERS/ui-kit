@@ -11,6 +11,7 @@ import {
   SimpleChanges,
   ViewChild,
 } from '@angular/core';
+import { focusableIn, lockBodyScroll, trapTab } from '../focus/focus-trap';
 
 let nextId = 0;
 
@@ -55,8 +56,8 @@ export class DialogComponent implements OnChanges, OnDestroy {
   /** Element, das vor dem Öffnen den Fokus hatte — für Restore beim Schließen. */
   private previouslyFocused: HTMLElement | null = null;
 
-  /** Body-Scroll-Sperre: gemerkter vorheriger overflow-Wert für den Restore. */
-  private prevBodyOverflow: string | null = null;
+  /** Body-Scroll-Sperre: gibt den vorherigen overflow-Wert zurück. */
+  private releaseScroll: (() => void) | null = null;
   // Drag-to-dismiss (Mobile-Sheet, #14).
   private dragStartY = 0;
   private dragStartT = 0;
@@ -94,25 +95,9 @@ export class DialogComponent implements OnChanges, OnDestroy {
   /** Tab/Shift+Tab im Dialog halten (Focus-Trap). */
   @HostListener('document:keydown', ['$event'])
   onKeydown(event: KeyboardEvent): void {
-    if (!this.open || event.key !== 'Tab') return;
+    if (!this.open) return;
     const pane = this.pane?.nativeElement;
-    if (!pane) return;
-    const focusables = this.focusable(pane);
-    if (focusables.length === 0) {
-      event.preventDefault();
-      pane.focus();
-      return;
-    }
-    const first = focusables[0];
-    const last = focusables[focusables.length - 1];
-    const active = document.activeElement;
-    if (event.shiftKey && (active === first || active === pane)) {
-      event.preventDefault();
-      last.focus();
-    } else if (!event.shiftKey && active === last) {
-      event.preventDefault();
-      first.focus();
-    }
+    if (pane) trapTab(event, pane);
   }
 
   onBackdrop(_event: MouseEvent): void {
@@ -162,15 +147,12 @@ export class DialogComponent implements OnChanges, OnDestroy {
   }
 
   private lockScroll(): void {
-    if (this.prevBodyOverflow !== null) return;
-    this.prevBodyOverflow = document.body.style.overflow;
-    document.body.style.overflow = 'hidden';
+    this.releaseScroll ??= lockBodyScroll();
   }
 
   private unlockScroll(): void {
-    if (this.prevBodyOverflow === null) return;
-    document.body.style.overflow = this.prevBodyOverflow;
-    this.prevBodyOverflow = null;
+    this.releaseScroll?.();
+    this.releaseScroll = null;
   }
 
   /** Vorherigen Fokus merken und Fokus in den Dialog setzen (nach Render). */
@@ -179,8 +161,7 @@ export class DialogComponent implements OnChanges, OnDestroy {
     queueMicrotask(() => {
       const pane = this.pane?.nativeElement;
       if (!pane) return;
-      const focusables = this.focusable(pane);
-      (focusables[0] ?? pane).focus();
+      (focusableIn(pane)[0] ?? pane).focus();
     });
   }
 
@@ -188,17 +169,5 @@ export class DialogComponent implements OnChanges, OnDestroy {
     const target = this.previouslyFocused;
     this.previouslyFocused = null;
     if (target && typeof target.focus === 'function') target.focus();
-  }
-
-  private focusable(root: HTMLElement): HTMLElement[] {
-    const selector = [
-      'a[href]',
-      'button:not([disabled])',
-      'input:not([disabled])',
-      'select:not([disabled])',
-      'textarea:not([disabled])',
-      '[tabindex]:not([tabindex="-1"])',
-    ].join(',');
-    return Array.from(root.querySelectorAll<HTMLElement>(selector));
   }
 }

@@ -4,6 +4,7 @@
     [class.fld__box--labelled]="!!label"
     [class.fld__box--invalid]="!!error"
     [class.fld__box--disabled]="disabled()"
+    [class.fld__box--suffix]="!!suffix"
   >
     @if (label) {
       <label class="fld__label" [for]="id">
@@ -27,6 +28,9 @@
       (input)="onInput($event)"
       (blur)="onTouched()"
     />
+    @if (suffix) {
+      <span class="fld__suffix" [id]="id + '-suffix'">{{ suffix }}</span>
+    }
   </div>
   @if (hint && !error) {
     <p class="fld__msg text-muted" [id]="id + '-hint'">{{ hint }}</p>

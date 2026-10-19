@@ -8,6 +8,13 @@
 :host(.btn-block) .btn {
   width: 100%;
 }
+/* A link in the button look (`a[appButton]`): the link is the focus target, the pill
+   inside it draws the look. The link takes the pill radius, so the focus ring is a pill. */
+:host(.btn-link) {
+  border-radius: var(--radius-pill);
+  color: inherit;
+  text-decoration: none;
+}
 .btn {
   position: relative;
   display: inline-flex;
@@ -42,22 +49,22 @@
 
 /* --- Sizes: 32 / 40 / 52px, pill radius. -------------------------------- */
 .btn--sm {
-  --btn-h: var(--control-height-sm);
+  --btn-h: var(--button-height, var(--control-height-sm));
   height: var(--btn-h);
-  padding: 0 14px;
-  font-size: 0.8125rem; /* 13px */
+  padding: 0 var(--button-padding-inline, 14px);
+  font-size: var(--button-font-size, 0.8125rem); /* 13px */
 }
 .btn--md {
-  --btn-h: var(--control-height);
+  --btn-h: var(--button-height, var(--control-height));
   height: var(--btn-h);
-  padding: 0 var(--space-5);
-  font-size: var(--fs-body);
+  padding: 0 var(--button-padding-inline, var(--space-5));
+  font-size: var(--button-font-size, var(--fs-body));
 }
 .btn--lg {
-  --btn-h: var(--control-height-lg);
+  --btn-h: var(--button-height, var(--control-height-lg));
   height: var(--btn-h);
-  padding: 0 26px;
-  font-size: var(--fs-md);
+  padding: 0 var(--button-padding-inline, 26px);
+  font-size: var(--button-font-size, var(--fs-md));
 }
 
 /* --- Icon button: round, as wide as it is high. -------------------------- */
@@ -138,13 +145,14 @@
   color: var(--color-accent-text);
 }
 .btn--text.btn--md {
-  padding: 0 var(--space-3);
+  padding: 0 var(--button-padding-inline, var(--space-3));
 }
 .btn--text.btn--sm {
-  padding: 0 10px;
+  padding: 0 var(--button-padding-inline, 10px);
 }
+/* `--button-hover-bg` lets a text button on a surface-2 card hover one surface up. */
 .btn--text:hover:not(:disabled) {
-  background: var(--color-surface-2);
+  background: var(--button-hover-bg, var(--color-surface-2));
 }
 .btn--text:active:not(:disabled) {
   background: var(--color-surface-3);
