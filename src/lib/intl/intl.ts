@@ -21,6 +21,10 @@ export type UiKitTextKey =
   | 'diff.changed'
   | 'diff.added'
   | 'diff.removed'
+  | 'diff.label'
+  | 'diff.before'
+  | 'diff.after'
+  | 'diff.noneCompact'
   | 'table.scrollStart'
   | 'table.scrollEnd'
   | 'currency.invalid';
@@ -40,6 +44,10 @@ export const UI_KIT_DEFAULT_MESSAGES: Record<UiLang, UiKitMessages> = {
     'diff.changed': 'Geändert',
     'diff.added': 'Hinzugefügt',
     'diff.removed': 'Entfernt',
+    'diff.label': 'Änderungen',
+    'diff.before': 'vorher',
+    'diff.after': 'nachher',
+    'diff.noneCompact': 'Keine Änderungen',
     'table.scrollStart': 'Tabelle nach links scrollen',
     'table.scrollEnd': 'Tabelle nach rechts scrollen',
     'currency.invalid': 'Kein gültiger Betrag. Beispiel: 1.234,56 (höchstens 2 Nachkommastellen).',
@@ -55,6 +63,10 @@ export const UI_KIT_DEFAULT_MESSAGES: Record<UiLang, UiKitMessages> = {
     'diff.changed': 'Changed',
     'diff.added': 'Added',
     'diff.removed': 'Removed',
+    'diff.label': 'Changes',
+    'diff.before': 'before',
+    'diff.after': 'after',
+    'diff.noneCompact': 'No changes',
     'table.scrollStart': 'Scroll the table left',
     'table.scrollEnd': 'Scroll the table right',
     'currency.invalid': 'Not a valid amount. Example: 1,234.56 (at most 2 decimals).',

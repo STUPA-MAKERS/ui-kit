@@ -4,6 +4,7 @@
     type="checkbox"
     [id]="id"
     [checked]="checked()"
+    [indeterminate]="indeterminate()"
     [disabled]="disabled()"
     [attr.aria-describedby]="hint ? id + '-hint' : null"
     (change)="onToggle($event)"
