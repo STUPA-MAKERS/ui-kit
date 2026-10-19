@@ -48,7 +48,11 @@ describe('design-system rules in the stylesheets', () => {
     const scss = read(path);
     expect(scss).toContain("@use '../../styles/field' as f;");
     expect(scss).toContain('@include f.box;');
-    expect(scss).not.toMatch(/box-shadow\s*:/);
+    // No shadow of its own: only the focus line, which the select also draws while its
+    // list is open and the focus is in the list.
+    for (const m of scss.matchAll(/box-shadow\s*:([^;]*);/g)) {
+      expect(m[1].trim()).toBe('inset 0 0 0 2px var(--color-focus-ring)');
+    }
     expect(scss).not.toMatch(/border: var\(--border-width\) solid/);
   });
 

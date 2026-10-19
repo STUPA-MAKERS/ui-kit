@@ -4,120 +4,100 @@
  * The MarkdownEditorComponent is deliberately NOT re-exported here — it pulls Tiptap
  * (hundreds of kB). Import it from the secondary entry point instead, so it stays in the
  * consumer's lazy chunk:  import { MarkdownEditorComponent } from '@stupa-makers/ui-kit/markdown-editor';
+ *
+ * Every line is `export *`. esbuild splits a barrel of star exports by use: a block that
+ * only a lazy page imports stays in the lazy chunk of that page. One named re-export
+ * (`export { X } from`) makes it put every module of the barrel into the chunk of the
+ * first importer, so the whole kit lands in the initial bundle of an app.
  */
 
 // --- i18n decoupling (token + built-in DE/EN defaults + pipe) ---------------
-export {
-  UI_KIT_INTL,
-  UI_KIT_DEFAULT_MESSAGES,
-  UI_KIT_FORMAT_LOCALES,
-  DefaultUiKitIntl,
-  provideUiKit,
-  uiKitIntlFromLang,
-  UiKitTranslatePipe,
-} from './lib/intl';
-export type {
-  UiKitIntl,
-  UiKitIntlOptions,
-  UiKitMessages,
-  UiKitTextKey,
-  UiLang,
-} from './lib/intl';
+export * from './lib/intl';
 
 // --- layout breakpoints (same values as styles/_breakpoints.scss) ------------
-export { BREAKPOINTS, MEDIA, widthClass } from './lib/breakpoints/breakpoints';
-export type { WidthClass } from './lib/breakpoints/breakpoints';
+export * from './lib/breakpoints/breakpoints';
 
 // --- loading overlay token --------------------------------------------------
-export { UI_KIT_LOADING } from './lib/loading/loading.token';
-export type { UiKitLoadingState } from './lib/loading/loading.token';
+export * from './lib/loading/loading.token';
 
 // --- components -------------------------------------------------------------
-export { ButtonComponent, buttonLook } from './lib/button/button.component';
-export type { ButtonVariant, ButtonSize, ButtonLook } from './lib/button/button.component';
-export { ButtonLinkComponent } from './lib/button/button-link.component';
-export { SwitchComponent } from './lib/switch/switch.component';
-export { SegmentedComponent } from './lib/segmented/segmented.component';
-export type { SegmentedOption } from './lib/segmented/segmented.component';
-export { TabsComponent } from './lib/tabs/tabs.component';
-export type { TabItem } from './lib/tabs/tabs.component';
-export { InputComponent } from './lib/input/input.component';
-export { CheckboxComponent } from './lib/checkbox/checkbox.component';
-export { SelectComponent } from './lib/select/select.component';
-export type { SelectOption } from './lib/select/select.component';
-export { DatepickerComponent } from './lib/datepicker/datepicker.component';
-export { TimeInputComponent } from './lib/time-input/time-input.component';
-export { DateRangeComponent } from './lib/datepicker/date-range.component';
-export type { DateRange } from './lib/datepicker/date-range.component';
-export { IconComponent } from './lib/icon/icon.component';
-export type { IconName, IconShape } from './lib/icon/icon.component';
-export { ICON_NAMES, iconShapes } from './lib/icon/icons';
-export { CardComponent } from './lib/card/card.component';
-export { BadgeComponent } from './lib/badge/badge.component';
-export type { BadgeVariant } from './lib/badge/badge.component';
-export { ConfigDiffComponent } from './lib/config-diff/config-diff.component';
-export type {
-  ConfigDiffData,
-  ConfigDiffEntry,
-  ConfigFieldChange,
-} from './lib/config-diff/config-diff.types';
-export { StepperComponent } from './lib/stepper/stepper.component';
-export type { Step, StepperOrientation } from './lib/stepper/stepper.component';
-export { DialogComponent } from './lib/dialog/dialog.component';
-export { TableComponent } from './lib/table/table.component';
-export type { Column } from './lib/table/table.component';
-export { DataTableComponent } from './lib/data-table/data-table.component';
-export type { ColumnDef, SortState } from './lib/data-table/data-table.component';
-export { CellDirective } from './lib/data-table/cell.directive';
-export { FootCellDirective } from './lib/data-table/foot-cell.directive';
-export { RowDetailDirective } from './lib/data-table/row-detail.directive';
-export { CurrencyInputComponent } from './lib/currency-input/currency-input.component';
-export {
-  MONEY_MAX_DECIMALS,
-  type MoneyParseResult,
-  parseMoney,
-  parseMoneyModel,
-} from './lib/currency-input/parse-money';
-export { LoadingOverlayComponent } from './lib/loading-overlay/loading-overlay.component';
-export { ChipComponent } from './lib/chip/chip.component';
-export type { ChipRemoveSize } from './lib/chip/chip.component';
-export { ChipGroupComponent } from './lib/chip/chip-group.component';
-export type { ChipOption } from './lib/chip/chip-group.component';
-export { CopyButtonComponent } from './lib/copy/copy-button.component';
-export { HighlightComponent } from './lib/highlight/highlight.component';
-export { highlight, type TextPart } from './lib/highlight/highlight';
-export { LockedFieldComponent } from './lib/locked-field/locked-field.component';
-export { InfiniteScrollDirective } from './lib/infinite-scroll/infinite-scroll.directive';
-export { AutocompleteComponent } from './lib/autocomplete/autocomplete.component';
-export { TextareaComponent } from './lib/textarea/textarea.component';
-export { FilePickerComponent } from './lib/file-picker/file-picker.component';
-export { MoveButtonsComponent } from './lib/move-buttons/move-buttons.component';
-export { moveItem } from './lib/move-buttons/move-item';
-export {
-  FOCUSABLE_SELECTOR,
-  focusableIn,
-  lockBodyScroll,
-  trapTab,
-  type TrapTabOptions,
-} from './lib/focus/focus-trap';
-export {
-  anchorOutOfView,
-  placeBelow,
-  showInTopLayer,
-  watchAnchoredPopover,
-  type AnchoredPopoverWatch,
-  type PlaceBelowOptions,
-  type PopoverPlace,
-} from './lib/popover/anchored-popover';
-export { nowSignal } from './lib/signals/now-signal';
-export { matchesMedia, mediaQuery } from './lib/signals/media-query';
-export {
-  elementSize,
-  observeElementSize,
-  type ElementSize,
-  type ElementSizeBox,
-} from './lib/signals/element-size';
-export { copyText } from './lib/copy/copy-text';
-export { ToastComponent } from './lib/toast/toast.component';
-export { ToastService } from './lib/toast/toast.service';
-export type { Toast, ToastVariant } from './lib/toast/toast.service';
+export * from './lib/button/button.component';
+export * from './lib/button/button-link.component';
+export * from './lib/switch/switch.component';
+export * from './lib/segmented/segmented.component';
+export * from './lib/tabs/tabs.component';
+export * from './lib/input/input.component';
+export * from './lib/checkbox/checkbox.component';
+export * from './lib/select/select.component';
+export * from './lib/filter-select/filter-select.component';
+export * from './lib/range-chip/range-chip.component';
+export * from './lib/datepicker/datepicker.component';
+export * from './lib/time-input/time-input.component';
+export * from './lib/datepicker/date-range.component';
+export * from './lib/icon/icon.component';
+export * from './lib/icon/icons';
+export * from './lib/card/card.component';
+export * from './lib/badge/badge.component';
+export * from './lib/config-diff/config-diff.component';
+export * from './lib/config-diff/config-diff.types';
+export * from './lib/stepper/stepper.component';
+export * from './lib/dialog/dialog.component';
+export * from './lib/table/table.component';
+export * from './lib/data-table/data-table.component';
+export * from './lib/data-table/cell.directive';
+export * from './lib/data-table/foot-cell.directive';
+export * from './lib/data-table/row-detail.directive';
+export * from './lib/currency-input/currency-input.component';
+export * from './lib/currency-input/parse-money';
+export * from './lib/loading-overlay/loading-overlay.component';
+export * from './lib/chip/chip.component';
+export * from './lib/chip/chip-group.component';
+export * from './lib/copy/copy-button.component';
+export * from './lib/highlight/highlight.component';
+export * from './lib/highlight/highlight';
+export * from './lib/locked-field/locked-field.component';
+export * from './lib/infinite-scroll/infinite-scroll.directive';
+export * from './lib/autocomplete/autocomplete.component';
+export * from './lib/textarea/textarea.component';
+export * from './lib/file-picker/file-picker.component';
+export * from './lib/move-buttons/move-buttons.component';
+export * from './lib/move-buttons/move-item';
+export * from './lib/focus/focus-trap';
+export * from './lib/popover/anchored-popover';
+export * from './lib/signals/now-signal';
+export * from './lib/signals/media-query';
+export * from './lib/signals/element-size';
+export * from './lib/copy/copy-text';
+export * from './lib/avatar/avatar.component';
+export * from './lib/avatar/avatar-source';
+export * from './lib/side-sheet/side-sheet.component';
+export * from './lib/sheet-bar/sheet-bar.component';
+export * from './lib/row-menu/row-menu.component';
+export * from './lib/skeleton/skeleton.component';
+export * from './lib/empty-state/empty-state.component';
+export * from './lib/note/note.component';
+export * from './lib/confirm-dialog/confirm-dialog.component';
+export * from './lib/selection-bar/selection-bar.component';
+export * from './lib/list-item/list-item.component';
+export * from './lib/list-detail/list-detail-layout.component';
+export * from './lib/search-pill/search-pill.component';
+export * from './lib/search-pill/shortcut';
+export * from './lib/live-search/live-search';
+export * from './lib/status-text/status-text.component';
+export * from './lib/seg-bar/seg-bar.component';
+export * from './lib/sticky-bar/sticky-bar.component';
+export * from './lib/file-drop/drop-overlay.component';
+export * from './lib/file-drop/file-drop-zone.component';
+export * from './lib/file-drop/file-drop.directive';
+export * from './lib/field-group/field-group.component';
+export * from './lib/date-block/date-block.component';
+export * from './lib/scroll-fade/scroll-fade.directive';
+export * from './lib/truncated/truncated.directive';
+export * from './lib/long-press/long-press.directive';
+export * from './lib/press-select/press-select.directive';
+export * from './lib/util/download.util';
+export * from './lib/util/format-bytes';
+export * from './lib/util/key-parts.util';
+export * from './lib/util/capitalize.pipe';
+export * from './lib/toast/toast.component';
+export * from './lib/toast/toast.service';

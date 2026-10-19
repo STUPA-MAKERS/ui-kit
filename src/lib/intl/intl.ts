@@ -36,7 +36,28 @@ export type UiKitTextKey =
   | 'copy.copy'
   | 'copy.copied'
   | 'move.up'
-  | 'move.down';
+  | 'move.down'
+  | 'options.empty'
+  | 'range.from'
+  | 'range.to'
+  | 'range.fromOnly'
+  | 'range.toOnly'
+  | 'range.apply'
+  | 'range.reset'
+  | 'range.invalid'
+  | 'rowMenu.trigger'
+  | 'rowMenu.empty'
+  | 'rowMenu.loading'
+  | 'note.retry'
+  | 'confirm.cancel'
+  | 'confirm.delete'
+  | 'selection.toolbar'
+  | 'selection.selectAll'
+  | 'selection.clear'
+  | 'selection.count'
+  | 'listDetail.back'
+  | 'search.clear'
+  | 'avatar.more';
 
 export type UiKitMessages = Record<UiKitTextKey, string>;
 
@@ -61,6 +82,27 @@ export const UI_KIT_DEFAULT_MESSAGES: Record<UiLang, UiKitMessages> = {
     'copy.copied': 'Kopiert',
     'move.up': 'Nach oben',
     'move.down': 'Nach unten',
+    'options.empty': 'Keine Auswahl möglich',
+    'range.from': 'von',
+    'range.to': 'bis',
+    'range.fromOnly': 'ab {value}',
+    'range.toOnly': 'bis {value}',
+    'range.apply': 'Anwenden',
+    'range.reset': 'Zurücksetzen',
+    'range.invalid': 'Der Anfang liegt nach dem Ende.',
+    'rowMenu.trigger': 'Weitere Aktionen',
+    'rowMenu.empty': 'Keine Aktionen möglich',
+    'rowMenu.loading': 'Wird geladen …',
+    'note.retry': 'Erneut versuchen',
+    'confirm.cancel': 'Abbrechen',
+    'confirm.delete': 'Löschen',
+    'selection.toolbar': 'Auswahl',
+    'selection.selectAll': 'Alle wählen',
+    'selection.clear': 'Auswahl aufheben',
+    'selection.count': '{count} ausgewählt',
+    'listDetail.back': 'Zur Liste',
+    'search.clear': 'Suche leeren',
+    'avatar.more': '{count} weitere',
   },
   en: {
     'dialog.close': 'Close',
@@ -81,6 +123,27 @@ export const UI_KIT_DEFAULT_MESSAGES: Record<UiLang, UiKitMessages> = {
     'copy.copied': 'Copied',
     'move.up': 'Move up',
     'move.down': 'Move down',
+    'options.empty': 'No options available',
+    'range.from': 'from',
+    'range.to': 'to',
+    'range.fromOnly': 'from {value}',
+    'range.toOnly': 'up to {value}',
+    'range.apply': 'Apply',
+    'range.reset': 'Reset',
+    'range.invalid': 'The start is after the end.',
+    'rowMenu.trigger': 'More actions',
+    'rowMenu.empty': 'No actions available',
+    'rowMenu.loading': 'Loading …',
+    'note.retry': 'Try again',
+    'confirm.cancel': 'Cancel',
+    'confirm.delete': 'Delete',
+    'selection.toolbar': 'Selection',
+    'selection.selectAll': 'Select all',
+    'selection.clear': 'Clear selection',
+    'selection.count': '{count} selected',
+    'listDetail.back': 'Back to list',
+    'search.clear': 'Clear search',
+    'avatar.more': '{count} more',
   },
 };
 
