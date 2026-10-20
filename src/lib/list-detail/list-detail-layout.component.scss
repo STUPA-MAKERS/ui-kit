@@ -179,3 +179,50 @@
 :host(.ld--split) .ld__detail {
   @include surface.context(1);
 }
+
+/* Swipe back (one view at a time, a phone). The detail moves with `left`
+   (`SwipeBackDirective`), so the host is the containing block of the list, which shows
+   under the detail. The list keeps its width and is one screen high; the directive moves
+   it in from the left and fades its scrim out (`--swipe-back-scrim`). It takes no touch,
+   because the finger acts on the detail. */
+:host(.ld--swiping) {
+  position: relative;
+}
+.ld__list--under {
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 0;
+  width: 100%;
+  height: 100dvh;
+  overflow: hidden;
+  pointer-events: none;
+}
+.ld__list--under::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: var(--color-scrim);
+  opacity: calc(var(--swipe-back-scrim, 1) * 0.5);
+  transition: opacity var(--swipe-back-duration, 0ms) var(--ease-enter);
+  pointer-events: none;
+}
+/* The detail lies on the page without a surface of its own, so while it moves it gets the
+   page background from window edge to window edge and at least one screen down, with the
+   short shadow of an edge on its left side. The layer is behind the content of the
+   detail: the detail is a stacking context while it moves. */
+.ld__detail--swiping {
+  z-index: 1;
+}
+.ld__detail--swiping::before {
+  content: '';
+  position: absolute;
+  z-index: -1;
+  top: calc(-1 * var(--main-pad-top, 0px));
+  bottom: 0;
+  inset-inline: calc(-1 * var(--space-4));
+  min-height: 100dvh;
+  background: var(--color-bg);
+  box-shadow: var(--shadow-cut);
+  pointer-events: none;
+}
