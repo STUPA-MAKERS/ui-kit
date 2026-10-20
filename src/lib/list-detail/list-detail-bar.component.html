@@ -8,7 +8,7 @@
 >
   <app-icon name="back" />
 </button>
-<span class="ld__barTitle" aria-hidden="true">{{ nav.title() }}</span>
+<span class="ld__barTitle" aria-hidden="true">{{ title() ?? nav.title() }}</span>
 @if (nav.owner(); as owner) {
   <div class="ld__barActions"><ng-container *ngTemplateOutlet="owner.actions" /></div>
 }
