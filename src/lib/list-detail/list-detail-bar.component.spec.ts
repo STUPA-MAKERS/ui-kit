@@ -45,4 +45,14 @@ describe('ListDetailBarComponent with appListDetailNav', () => {
     expect(sheet).not.toHaveClass('sheet-bar--docked');
     expect(sheet.querySelector('.sheet-bar__actions button')?.textContent).toBe('Menü');
   });
+
+  it('shows a fixed title compact from the start', async () => {
+    const view = await render(
+      `<div appListDetailNav><app-list-detail-bar title="Antrag stellen" /></div>`,
+      { imports: [ListDetailBarComponent, ListDetailNavDirective] },
+    );
+    const bar = view.container.querySelector('app-list-detail-bar') as HTMLElement;
+    expect(bar).toHaveClass('ld__bar--condensed');
+    expect(bar.querySelector('.ld__barTitle')?.textContent).toBe('Antrag stellen');
+  });
 });

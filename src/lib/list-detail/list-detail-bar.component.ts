@@ -37,7 +37,7 @@ import { ListDetailNav } from './list-detail-nav';
   imports: [IconComponent, NgTemplateOutlet, UiKitTranslatePipe],
   host: {
     class: 'ld__bar',
-    '[class.ld__bar--condensed]': 'nav.condensed()',
+    '[class.ld__bar--condensed]': 'nav.condensed() || title() !== null',
   },
   templateUrl: './list-detail-bar.component.html',
   styleUrl: './list-detail-bar.component.scss',
@@ -49,6 +49,13 @@ export class ListDetailBarComponent {
 
   /** The name of the back arrow; "Zur Liste" by default. */
   readonly label = input<string | null>(null);
+
+  /**
+   * A fixed title: the bar shows it compact from the start, for a page without a big
+   * title below (the wizard "Antrag stellen"). The page keeps its heading for screen
+   * readers, because the title in the bar is hidden from them.
+   */
+  readonly title = input<string | null>(null);
 
   /** The back arrow was pressed. */
   readonly back = output<void>();
