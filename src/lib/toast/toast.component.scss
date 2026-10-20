@@ -55,7 +55,29 @@
   color: var(--color-text-muted);
   @include press.press;
 }
+/* The one action of a toast ("Rückgängig"): a text button in the text colour. */
+.toast__action {
+  flex: none;
+  min-height: 32px;
+  padding: 0 var(--space-3);
+  border: 0;
+  border-radius: var(--radius-pill);
+  background: transparent;
+  color: var(--color-text);
+  font: inherit;
+  font-weight: var(--fw-semibold);
+  cursor: pointer;
+  @include press.press;
+}
+.toast__action:focus-visible,
+.toast__close:focus-visible {
+  outline: 2px solid var(--color-focus-ring);
+  outline-offset: 2px;
+}
 @media (hover: hover) {
+  .toast__action:hover {
+    background: var(--color-surface-4);
+  }
   .toast__close:hover {
     background: var(--color-surface-4);
     color: var(--color-text);

@@ -37,4 +37,16 @@ describe('ToastComponent + ToastService', () => {
     fixture.detectChanges();
     expect(screen.getByRole('button', { name: 'Close' })).toBeInTheDocument();
   });
+
+  it('shows the action of a toast, and a press closes it with "action"', async () => {
+    const { fixture } = await render(ToastComponent);
+    const svc = fixture.debugElement.injector.get(ToastService);
+    const closed = jest.fn();
+    svc.showAction({ message: 'Archiviert', action: 'Rückgängig', timeout: 0, closed });
+    fixture.detectChanges();
+    await userEvent.click(screen.getByRole('button', { name: 'Rückgängig' }));
+    fixture.detectChanges();
+    expect(closed).toHaveBeenCalledWith('action');
+    expect(screen.queryByRole('status')).toBeNull();
+  });
 });
