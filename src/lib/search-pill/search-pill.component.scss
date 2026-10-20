@@ -45,6 +45,7 @@
 }
 .sp__button {
   cursor: pointer;
+  transition: scale var(--motion-xs) var(--ease-standard);
   @include press.press;
 }
 .sp__button:focus-visible {
@@ -90,6 +91,7 @@
   background: transparent;
   color: var(--color-text-muted);
   cursor: pointer;
+  transition: scale var(--motion-xs) var(--ease-standard);
   @include press.press;
 }
 @media (hover: hover) {

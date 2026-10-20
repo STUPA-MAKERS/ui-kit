@@ -1,3 +1,4 @@
+@use '../../styles/press';
 /* The viewer is dark in both themes, like the Nextcloud viewer: the file is the only
    bright surface. The colours are local, so they do not follow the light theme. */
 .fv {
@@ -108,7 +109,8 @@
   color: var(--fv-text);
   cursor: pointer;
   transition: background-color var(--motion-fast, 120ms) var(--ease-standard, ease),
-    opacity var(--motion-fast, 120ms) var(--ease-standard, ease);
+    opacity var(--motion-fast, 120ms) var(--ease-standard, ease),
+    scale var(--motion-xs) var(--ease-standard);
 }
 @media (hover: hover) {
   .fv__btn:hover:not(:disabled),
@@ -119,6 +121,7 @@
 .fv__btn:active:not(:disabled),
 .fv__actions ::ng-deep .fv__btn:active:not(:disabled) {
   background: var(--fv-press);
+  @include press.press-scale;
 }
 .fv__btn:disabled,
 .fv__actions ::ng-deep .fv__btn:disabled {

@@ -13,13 +13,12 @@ import {
   untracked,
   viewChild,
 } from '@angular/core';
-import { NgTemplateOutlet } from '@angular/common';
 import { BREAKPOINTS, MEDIA } from '../breakpoints/breakpoints';
-import { IconComponent } from '../icon/icon.component';
 import { mediaQuery } from '../signals/media-query';
 import { observeElementSize } from '../signals/element-size';
-import { UiKitTranslatePipe } from '../intl/translate.pipe';
 import { ListDetailNav } from './list-detail-nav';
+import { ListDetailBarComponent } from './list-detail-bar.component';
+import { SwipeBackDirective } from '../swipe-back/swipe-back.directive';
 
 /** The width of the navigation rail of the shell, in px. */
 export const NAV_RAIL_WIDTH = 96;
@@ -62,6 +61,13 @@ export const LIST_DETAIL_SPLIT_MIN = BREAKPOINTS.wideMin - NAV_RAIL_WIDTH - 2 * 
  * list that had it (normally the row), if that element is still in the DOM, else to the
  * list itself. A keyboard or screen-reader user so stays at the same place in the list.
  *
+ * Swipe back (a phone with a touch screen, one view at a time, a detail open): a swipe from
+ * the left screen edge moves the detail with the finger, and the list comes out under it
+ * (`SwipeBackDirective`). A swipe that goes back emits `back`, the same output as the
+ * back arrow, so the page closes the detail in its own way. The list shows under the
+ * detail at the top of the page, because the navigation back scrolls the page to the
+ * top (the router restores the scroll only on a history step).
+ *
  * Slots: `[list]` and `[detail]`. In the wide layout with no detail open the page puts its
  * own empty state into the detail slot.
  */
@@ -69,11 +75,12 @@ export const LIST_DETAIL_SPLIT_MIN = BREAKPOINTS.wideMin - NAV_RAIL_WIDTH - 2 * 
   selector: 'app-list-detail',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [IconComponent, NgTemplateOutlet, UiKitTranslatePipe],
+  imports: [ListDetailBarComponent, SwipeBackDirective],
   providers: [ListDetailNav],
   host: {
     '[class.ld--split]': '!collapsed()',
     '[class.ld--collapsed]': 'collapsed()',
+    '[class.ld--swiping]': 'swiping()',
   },
   templateUrl: './list-detail-layout.component.html',
   styleUrl: './list-detail-layout.component.scss',
@@ -104,10 +111,12 @@ export class ListDetailLayoutComponent {
 
   private readonly listPane = viewChild.required<ElementRef<HTMLElement>>('listPane');
   private readonly detailPane = viewChild.required<ElementRef<HTMLElement>>('detailPane');
-  private readonly backControl = viewChild<ElementRef<HTMLButtonElement>>('backButton');
-  private readonly bar = viewChild<ElementRef<HTMLElement>>('bar');
+  private readonly bar = viewChild(ListDetailBarComponent);
   /** The element in the list that had the focus when the detail opened. */
   private returnFocus: HTMLElement | null = null;
+
+  /** A swipe back runs: the list shows under the detail. */
+  protected readonly swiping = signal(false);
 
   /** True while the viewport or the content is too narrow for two panes. */
   readonly collapsed = computed(() => {
@@ -119,12 +128,36 @@ export class ListDetailLayoutComponent {
   constructor() {
     this.manageFocus();
     effect(() => this.nav.active.set(this.collapsed() && this.backButton()));
-    this.nav.barBottom = () => this.bar()?.nativeElement.getBoundingClientRect().bottom ?? 0;
 
     observeElementSize(
       () => this.host.nativeElement,
       (size) => this.width.set(size.width),
     );
+  }
+
+  /**
+   * The swipe took the move. The list goes under the detail, with its top where the top of
+   * the page is when the window is not scrolled: the list is absolute in this host, so it
+   * moves down by the scroll of the window.
+   */
+  protected onSwipeStart(): void {
+    this.listPane().nativeElement.style.top = `${window.scrollY}px`;
+    this.swiping.set(true);
+  }
+
+  /**
+   * The detail is out. The window goes to the top first, with the list, so the page that
+   * shows after the back looks as the list under the detail did.
+   */
+  protected onSwipeBack(): void {
+    this.listPane().nativeElement.style.top = '0px';
+    window.scrollTo(0, 0);
+    this.back.emit();
+  }
+
+  protected onSwipeEnd(): void {
+    this.listPane().nativeElement.style.removeProperty('top');
+    this.swiping.set(false);
   }
 
   /**
@@ -152,8 +185,8 @@ export class ListDetailLayoutComponent {
           afterNextRender(
             () => {
               if (this.returnFocus !== null || focusIsLost(null)) {
-                const back = this.backControl()?.nativeElement;
-                if (back) back.focus();
+                const bar = this.bar();
+                if (bar) bar.focus();
                 else this.detailPane().nativeElement.focus();
               }
             },

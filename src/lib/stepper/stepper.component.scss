@@ -29,6 +29,7 @@
   text-align: start;
   cursor: pointer;
   border-radius: var(--radius-lg);
+  transition: scale var(--motion-xs) var(--ease-standard);
   @include press.press;
 }
 @media (hover: hover) {

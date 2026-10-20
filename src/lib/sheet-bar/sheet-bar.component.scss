@@ -70,8 +70,11 @@
 }
 
 /* Docked in the list/detail layout (one view at a time): the bar of the layout holds the
-   actions, so the title opens the sheet at the top, without the line of the actions. */
+   actions, so the title opens the sheet at the top, without the line of the actions. The
+   bar is as tall as the title: the 60px of the action line would leave an empty band
+   under a one-line title, before the line that follows it. */
 :host(.sheet-bar--docked) {
+  min-height: 0;
   padding-top: 0;
 }
 :host(.sheet-bar--docked) .sheet-bar__title {

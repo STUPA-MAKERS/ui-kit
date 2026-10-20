@@ -36,9 +36,11 @@
     background-color var(--motion-fast) var(--ease-standard),
     color var(--motion-fast) var(--ease-standard),
     border-color var(--motion-fast) var(--ease-standard),
-    filter var(--motion-fast) var(--ease-standard);
-  /* The press of every look is a tint of the text colour over the fill (`_press.scss`).
-     It is the only feedback of a tap, because a touch screen shows no hover. */
+    filter var(--motion-fast) var(--ease-standard),
+    scale var(--motion-xs) var(--ease-standard);
+  /* The press of every look and size is a tint of the text colour over the fill and a
+     shrink to --press-scale-control (`_press.scss`). It is the only feedback of a tap,
+     because a touch screen shows no hover. */
   @include press.press;
   @include press.chrome-text;
 }

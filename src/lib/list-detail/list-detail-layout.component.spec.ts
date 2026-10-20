@@ -1,8 +1,12 @@
+import { readFileSync } from 'node:fs';
+import { join } from 'node:path';
 import { Component, signal } from '@angular/core';
 import { render, screen } from '@testing-library/angular';
 import userEvent from '@testing-library/user-event';
 import { BREAKPOINTS } from '../breakpoints/breakpoints';
 import { runAxe } from '../../../testing/a11y';
+import { drag, mediaMatching } from '../../../testing/touch';
+import { MEDIA } from '../breakpoints/breakpoints';
 import { SheetBarComponent, SheetBarTitleDirective } from '../sheet-bar/sheet-bar.component';
 import {
   LAYOUT_GUTTER,
@@ -394,5 +398,71 @@ describe('ListDetailLayoutComponent', () => {
     view.fixture.destroy();
     expect(disconnects).toBe(1);
     expect(mediaChange).toBeNull();
+  });
+
+  describe('swipe back on a phone', () => {
+    beforeEach(() => {
+      jest.useFakeTimers();
+      mediaMatching([MEDIA.phone, MEDIA.coarse]);
+      Object.defineProperty(window, 'innerWidth', { value: 400, configurable: true });
+      Object.defineProperty(window, 'scrollY', { value: 120, configurable: true });
+    });
+    afterEach(() => jest.useRealTimers());
+
+    it('shows the list under the detail and goes back like "Zur Liste"', async () => {
+      const scroll = jest.spyOn(window, 'scrollTo').mockImplementation(() => undefined);
+      const view = await render(HostComponent);
+      view.fixture.componentInstance.open.set(true);
+      view.fixture.detectChanges();
+      const pane = view.container.querySelector('.ld__list') as HTMLElement;
+      const det = view.container.querySelector('.ld__detail') as HTMLElement;
+      expect(pane.hidden).toBe(true);
+
+      drag(det, { x: 6, y: 300 }, [{ x: 40, y: 300 }, { x: 260, y: 300 }], { release: false });
+      view.fixture.detectChanges();
+      expect(host(view.container)).toHaveClass('ld--swiping');
+      expect(pane.hidden).toBe(false);
+      expect(pane).toHaveClass('ld__list--under');
+      expect(pane).toHaveAttribute('inert');
+      expect(pane.style.top).toBe('120px');
+      expect(det).toHaveClass('ld__detail--swiping');
+
+      drag(det, { x: 0, y: 0 }, [], { release: true });
+      jest.advanceTimersByTime(280);
+      expect(scroll).toHaveBeenCalledWith(0, 0);
+      expect(pane.style.top).toBe('0px');
+      expect(view.fixture.componentInstance.open()).toBe(false);
+      view.fixture.detectChanges();
+      expect(host(view.container)).not.toHaveClass('ld--swiping');
+      expect(pane.style.top).toBe('');
+      expect(pane).not.toHaveAttribute('inert');
+      expect(list()).toBeVisible();
+    });
+
+    it('springs back without a back on a short swipe', async () => {
+      const view = await render(HostComponent);
+      view.fixture.componentInstance.open.set(true);
+      view.fixture.detectChanges();
+      const det = view.container.querySelector('.ld__detail') as HTMLElement;
+      drag(det, { x: 6, y: 300 }, [{ x: 40, y: 300 }, { x: 60, y: 300 }], { dt: 400 });
+      jest.advanceTimersByTime(280);
+      view.fixture.detectChanges();
+      expect(view.fixture.componentInstance.open()).toBe(true);
+      expect(host(view.container)).not.toHaveClass('ld--swiping');
+      expect(list()).not.toBeVisible();
+    });
+  });
+});
+
+describe('ListDetailLayoutComponent bar styles', () => {
+  // jsdom applies no component styles, so this reads the SCSS.
+  const scss = readFileSync(join(__dirname, 'list-detail-layout.component.scss'), 'utf8');
+  const bar = readFileSync(join(__dirname, 'list-detail-bar.component.scss'), 'utf8');
+
+  it('gives the phone bar room above the buttons and keeps them off the screen edges', () => {
+    expect(scss).toContain('--ld-bar-height: 60px;');
+    expect(bar).toContain('min-height: calc(var(--ld-bar-height, 60px) + env(safe-area-inset-top, 0px));');
+    expect(bar).toContain('padding: env(safe-area-inset-top, 0px) calc(var(--ld-bar-gutter) - var(--space-1)) 0;');
+    expect(scss).toContain('--ld-sticky-top: calc(var(--ld-bar-height) + env(safe-area-inset-top, 0px));');
   });
 });

@@ -9,6 +9,7 @@
 // menu) sit above the stretched area and keep their own click.
 .hitrow {
   position: relative;
+  transition: scale var(--motion-xs) var(--ease-standard);
   @include press.press-on('.hitrow__open');
 }
 @media (hover: hover) {

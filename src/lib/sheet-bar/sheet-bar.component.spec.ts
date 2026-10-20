@@ -1,3 +1,5 @@
+import { readFileSync } from 'node:fs';
+import { join } from 'node:path';
 import { Component, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { SheetBarComponent, SheetBarKickerDirective, SheetBarTitleDirective } from './sheet-bar.component';
@@ -116,5 +118,22 @@ describe('SheetBarComponent', () => {
     expect(bar.firstElementChild?.classList).toContain('sheet-bar__title');
     expect(bar.querySelector('.sheet-bar__title h2')?.textContent).toBe('Sitzung des STUPA');
     expect(bar.querySelector('.sheet-bar__actions button')?.textContent).toBe('Menü');
+  });
+});
+
+describe('SheetBarComponent styles', () => {
+  // jsdom applies no component styles, so this reads the SCSS.
+  const scss = readFileSync(join(__dirname, 'sheet-bar.component.scss'), 'utf8');
+  const rule = (selector: string): string => {
+    const start = scss.indexOf(`${selector} {`);
+    return scss.slice(start, scss.indexOf('}', start));
+  };
+
+  it('keeps the 60px action line, but a docked bar is only as tall as its title', () => {
+    expect(rule(':host')).toContain('min-height: 60px;');
+    const docked = rule(':host(.sheet-bar--docked)');
+    expect(docked).toContain('min-height: 0;');
+    expect(docked).toContain('padding-top: 0;');
+    expect(rule(':host(.sheet-bar--docked) .sheet-bar__title')).toContain('min-height: 0;');
   });
 });

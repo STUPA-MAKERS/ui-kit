@@ -10,30 +10,49 @@
 // The press tint: a layer of the text colour over the surface of the control. It is a
 // background image, so it lies on top of any background colour (accent, selected, surface
 // 2 to 4) and needs no step per variant. The token is `--press-tint` (`tokens.scss`).
-// `$scale` also shrinks a row or a card a little (`--press-scale`); never with reduced
-// motion. Add `scale var(--motion-xs) var(--ease-standard)` to the `transition` of the
-// element, so the release eases back.
-@mixin press($scale: false) {
+//
+// Every press also shrinks the element while the finger is down, never with reduced
+// motion. `$scale` picks the amount by the size of the element:
+//   control (default)  a button, a chip, a tab, an icon: `--press-scale-control` (0.94),
+//                      because 0.98 of a 40 px pill is less than one pixel and nobody sees it;
+//   row                a list row, a menu row, a card, a tile or a full-width bar:
+//                      `--press-scale` (0.98), because 0.94 moves the far edges of a wide
+//                      element by several pixels and the layout seems to jump;
+//   none               no scale, for a text field only.
+// Add `scale var(--motion-xs) var(--ease-standard)` to the `transition` of the element, so
+// the release eases back. `touch.spec.ts` checks both rules for every use.
+@function amount-of($scale) {
+  @if $scale == control {
+    @return var(--press-scale-control);
+  } @else if $scale == row {
+    @return var(--press-scale);
+  }
+  @error "press: $scale is control, row or none, not #{$scale}";
+}
+
+// The scale alone, for a press state that paints its own tint (a table row, a pill of
+// the navigation). Use it inside the `:active` rule.
+@mixin press-scale($scale: control) {
+  @if $scale != none {
+    @media (prefers-reduced-motion: no-preference) {
+      scale: amount-of($scale);
+    }
+  }
+}
+
+@mixin press($scale: control) {
   &:active:not(:disabled):not([aria-disabled='true']) {
     background-image: linear-gradient(var(--press-tint), var(--press-tint));
-    @if $scale {
-      @media (prefers-reduced-motion: no-preference) {
-        scale: var(--press-scale);
-      }
-    }
+    @include press-scale($scale);
   }
 }
 
 // The same press for a row whose control is a child (a title with a stretched `::after`):
 // the row tints while that child is pressed, but not while a button in its trail is.
-@mixin press-on($child, $scale: false) {
+@mixin press-on($child, $scale: row) {
   &:has(#{$child}:active) {
     background-image: linear-gradient(var(--press-tint), var(--press-tint));
-    @if $scale {
-      @media (prefers-reduced-motion: no-preference) {
-        scale: var(--press-scale);
-      }
-    }
+    @include press-scale($scale);
   }
 }
 
@@ -44,4 +63,12 @@
   -webkit-user-select: none;
   user-select: none;
   -webkit-touch-callout: none;
+}
+
+// Content that a long press may select and copy again (a value, a message, a text field),
+// inside the interface that a touch screen keeps unselectable (`base.scss`).
+@mixin selectable {
+  -webkit-user-select: text;
+  user-select: text;
+  -webkit-touch-callout: default;
 }

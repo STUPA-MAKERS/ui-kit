@@ -15,6 +15,50 @@
   -webkit-tap-highlight-color: transparent;
 }
 
+// A touch screen: a press and hold on the interface (a heading, a label, a row title, a
+// tab, a status line) selects nothing and opens no callout, as in a native app, because a
+// selection there reads as a broken control. Only content stays selectable: the text
+// fields, the field values of a detail (`.kv dd`, `.fld__value`, `.lfld__value`) and
+// every element with `.selectable` (an app puts it on its Markdown and chat texts). An
+// element that sets its own `user-select` (`all` for a join link) keeps it. A fine
+// pointer keeps the selection of the browser everywhere. The callout rule does nothing on
+// Android: the app stops the link menu of a long press there with a `contextmenu` handler.
+@media (hover: none) and (pointer: coarse) {
+  html {
+    @include press.chrome-text;
+  }
+  // A link or an image does not start a drag under the finger.
+  a,
+  img {
+    -webkit-user-drag: none;
+  }
+  // A touch screen shows no scroll bar, as a native app does: the content moves under the
+  // finger, and Android draws a classic grey bar for a styled or thin one. No reserved
+  // gutter either, because it would leave an empty strip at the edge. `!important`,
+  // because a component rule (`scrollbar-width: thin`) would win over the universal
+  // selector.
+  *,
+  *::before,
+  *::after {
+    scrollbar-width: none !important;
+    scrollbar-gutter: auto !important;
+  }
+  *::-webkit-scrollbar {
+    display: none;
+    width: 0;
+    height: 0;
+  }
+  input,
+  textarea,
+  [contenteditable]:not([contenteditable='false']),
+  .selectable,
+  .kv dd,
+  .fld__value,
+  .lfld__value {
+    @include press.selectable;
+  }
+}
+
 html {
   font-size: 100%;
   -webkit-text-size-adjust: 100%;
@@ -349,6 +393,7 @@ input[type='radio'] {
   font-weight: var(--fw-medium);
   white-space: nowrap;
   cursor: pointer;
+  transition: scale var(--motion-xs) var(--ease-standard);
   @include press.press;
 }
 @media (hover: hover) {

@@ -5,6 +5,84 @@
   min-width: 0;
 }
 
+/* The frame of the swipe: the plates and the row in the corners of the host (a row group
+   gives the first row its round top corners). It clips only while a swipe runs, so the
+   focus ring of a calm row is never cut. */
+.li-sw {
+  position: relative;
+  border-radius: inherit;
+}
+.li-sw.row-swipe--drag {
+  overflow: hidden;
+}
+/* A row that the finger moves sideways is no press: it keeps its size and loses the
+   tint. The doubled class beats the press rule below. */
+.li-sw.row-swipe--drag .li.li {
+  scale: none;
+  background-image: none;
+}
+.li-sw__plate {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 0 var(--space-5);
+  border-radius: inherit;
+  font-size: var(--fs-sm);
+  font-weight: var(--fw-semibold);
+  opacity: 0;
+  pointer-events: none;
+  transition:
+    background-color var(--motion-fast) var(--ease-standard),
+    color var(--motion-fast) var(--ease-standard);
+}
+.li-sw__plate--on {
+  opacity: 1;
+}
+/* The swipe to the right: the plate at the left, in the accent container colours. */
+.li-sw__plate--right {
+  justify-content: flex-start;
+  background: var(--color-accent-container);
+  color: var(--color-on-accent-container);
+}
+.li-sw__plate--right.li-sw__plate--armed {
+  background: var(--color-accent);
+  color: var(--color-on-accent);
+}
+/* The swipe to the left: the plate at the right, neutral; armed it turns over. */
+.li-sw__plate--left {
+  justify-content: flex-end;
+  background: var(--color-surface-4);
+  color: var(--color-text);
+}
+.li-sw__plate--left.li-sw__plate--armed {
+  background: var(--color-text);
+  color: var(--color-bg);
+}
+.li-sw__label {
+  min-width: 0;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+.li-sw__icon {
+  flex: none;
+  transition: transform var(--motion-fast) var(--ease-enter);
+}
+.li-sw__plate--armed .li-sw__icon {
+  transform: scale(1.3);
+}
+@media (prefers-reduced-motion: reduce) {
+  .li-sw__plate,
+  .li-sw__icon {
+    transition: none;
+  }
+  .li-sw__plate--armed .li-sw__icon {
+    transform: none;
+  }
+}
+
 /* `--li-pad-x` and `--li-gap` let a narrow list give more width to the text.
    `--li-min-height` and `--li-pad-y` make a dense list (a side list of short names). */
 .li {
@@ -22,7 +100,7 @@
     scale var(--motion-xs) var(--ease-standard);
   /* The title is the control (its ::after covers the row), so the row tints and shrinks a
      little while the title is pressed, not while a button in the trail is. */
-  @include press.press-on('.li__title', $scale: true);
+  @include press.press-on('.li__title');
 }
 /* `--li-hover` lets a list on surface 2 pick a hover that differs from its rows. */
 @media (hover: hover) {

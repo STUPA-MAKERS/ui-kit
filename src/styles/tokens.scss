@@ -162,10 +162,13 @@
   --motion-shift-md: 24px;
   --motion-scale-in: 0.96;
   // Press: the tint of a pressed control is its own text colour at 10 %, so it darkens a
-  // light surface and lightens a dark one in both themes; a pressed row or card also
-  // shrinks to press-scale (`_press.scss`).
+  // light surface and lightens a dark one in both themes. A pressed element also shrinks
+  // (`_press.scss`): a row, a card or a wide bar to press-scale, a button, a chip or an
+  // icon to press-scale-control, because 0.98 of a 40 px pill moves its edge by less than
+  // one pixel.
   --press-tint: color-mix(in srgb, currentColor 10%, transparent);
   --press-scale: 0.98;
+  --press-scale-control: 0.94;
   // A skeleton shows only after this delay, so a fast load shows no flash.
   --skeleton-delay: 300ms;
 

@@ -1,24 +1,31 @@
-<div #listPane class="ld__list" tabindex="-1" [hidden]="collapsed() && detailOpen()">
+<!-- While a swipe back runs, the list shows under the detail (`ld__list--under`): inert,
+     because the finger acts on the detail. -->
+<div
+  #listPane
+  class="ld__list"
+  [class.ld__list--under]="swiping()"
+  tabindex="-1"
+  [hidden]="collapsed() && detailOpen() && !swiping()"
+  [attr.inert]="swiping() ? '' : null"
+>
   <ng-content select="[list]" />
 </div>
-<div #detailPane class="ld__detail" [class.ld__detail--bar]="nav.active()" tabindex="-1" [hidden]="collapsed() && !detailOpen()">
+<div
+  #detailPane
+  class="ld__detail"
+  [class.ld__detail--bar]="nav.active()"
+  [class.ld__detail--swiping]="swiping()"
+  tabindex="-1"
+  [hidden]="collapsed() && !detailOpen()"
+  appSwipeBack
+  [appSwipeBackOff]="!collapsed() || !detailOpen()"
+  [appSwipeBackUnder]="listPane"
+  (appSwipeBackStart)="onSwipeStart()"
+  (appSwipeBack)="onSwipeBack()"
+  (appSwipeBackEnd)="onSwipeEnd()"
+>
   @if (nav.active()) {
-    <div #bar class="ld__bar" [class.ld__bar--condensed]="nav.condensed()">
-      <button
-        #backButton
-        type="button"
-        class="ld__back"
-        [attr.aria-label]="'listDetail.back' | uiKitT"
-        [title]="'listDetail.back' | uiKitT"
-        (click)="back.emit()"
-      >
-        <app-icon name="back" />
-      </button>
-      <span class="ld__barTitle" aria-hidden="true">{{ nav.title() }}</span>
-      @if (nav.owner(); as owner) {
-        <div class="ld__barActions"><ng-container *ngTemplateOutlet="owner.actions" /></div>
-      }
-    </div>
+    <app-list-detail-bar (back)="back.emit()" />
   }
   <ng-content select="[detail]" />
 </div>

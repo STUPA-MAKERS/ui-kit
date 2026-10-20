@@ -1,0 +1,14 @@
+<button
+  #backButton
+  type="button"
+  class="ld__back"
+  [attr.aria-label]="label() ?? ('listDetail.back' | uiKitT)"
+  [title]="label() ?? ('listDetail.back' | uiKitT)"
+  (click)="back.emit()"
+>
+  <app-icon name="back" />
+</button>
+<span class="ld__barTitle" aria-hidden="true">{{ nav.title() }}</span>
+@if (nav.owner(); as owner) {
+  <div class="ld__barActions"><ng-container *ngTemplateOutlet="owner.actions" /></div>
+}
