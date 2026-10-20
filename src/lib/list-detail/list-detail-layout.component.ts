@@ -13,13 +13,11 @@ import {
   untracked,
   viewChild,
 } from '@angular/core';
-import { NgTemplateOutlet } from '@angular/common';
 import { BREAKPOINTS, MEDIA } from '../breakpoints/breakpoints';
-import { IconComponent } from '../icon/icon.component';
 import { mediaQuery } from '../signals/media-query';
 import { observeElementSize } from '../signals/element-size';
-import { UiKitTranslatePipe } from '../intl/translate.pipe';
 import { ListDetailNav } from './list-detail-nav';
+import { ListDetailBarComponent } from './list-detail-bar.component';
 import { SwipeBackDirective } from '../swipe-back/swipe-back.directive';
 
 /** The width of the navigation rail of the shell, in px. */
@@ -77,7 +75,7 @@ export const LIST_DETAIL_SPLIT_MIN = BREAKPOINTS.wideMin - NAV_RAIL_WIDTH - 2 * 
   selector: 'app-list-detail',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [IconComponent, NgTemplateOutlet, SwipeBackDirective, UiKitTranslatePipe],
+  imports: [ListDetailBarComponent, SwipeBackDirective],
   providers: [ListDetailNav],
   host: {
     '[class.ld--split]': '!collapsed()',
@@ -113,8 +111,7 @@ export class ListDetailLayoutComponent {
 
   private readonly listPane = viewChild.required<ElementRef<HTMLElement>>('listPane');
   private readonly detailPane = viewChild.required<ElementRef<HTMLElement>>('detailPane');
-  private readonly backControl = viewChild<ElementRef<HTMLButtonElement>>('backButton');
-  private readonly bar = viewChild<ElementRef<HTMLElement>>('bar');
+  private readonly bar = viewChild(ListDetailBarComponent);
   /** The element in the list that had the focus when the detail opened. */
   private returnFocus: HTMLElement | null = null;
 
@@ -131,7 +128,6 @@ export class ListDetailLayoutComponent {
   constructor() {
     this.manageFocus();
     effect(() => this.nav.active.set(this.collapsed() && this.backButton()));
-    this.nav.barBottom = () => this.bar()?.nativeElement.getBoundingClientRect().bottom ?? 0;
 
     observeElementSize(
       () => this.host.nativeElement,
@@ -189,8 +185,8 @@ export class ListDetailLayoutComponent {
           afterNextRender(
             () => {
               if (this.returnFocus !== null || focusIsLost(null)) {
-                const back = this.backControl()?.nativeElement;
-                if (back) back.focus();
+                const bar = this.bar();
+                if (bar) bar.focus();
                 else this.detailPane().nativeElement.focus();
               }
             },

@@ -30,10 +30,15 @@ export function motionReduced(): boolean {
 
 /**
  * A dialog, a side sheet or another modal layer is open. A gesture of the page under it
- * must not start, because the finger acts on the layer on top.
+ * must not start, because the finger acts on the layer on top. A layer that holds
+ * `inside` (the element of the gesture) does not count: the gesture is then on the layer
+ * itself, for example the swipe back of the card drawer of a to-do board.
  */
-export function modalOpen(doc: Document = document): boolean {
-  return doc.querySelector('[aria-modal="true"], dialog[open]') !== null;
+export function modalOpen(doc: Document = document, inside: Element | null = null): boolean {
+  for (const layer of Array.from(doc.querySelectorAll('[aria-modal="true"], dialog[open]'))) {
+    if (!inside || !layer.contains(inside)) return true;
+  }
+  return false;
 }
 
 /**

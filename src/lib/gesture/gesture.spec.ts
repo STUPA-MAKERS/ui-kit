@@ -33,6 +33,24 @@ describe('gesture helpers', () => {
     dialog.setAttribute('open', '');
     document.body.appendChild(dialog);
     expect(modalOpen()).toBe(true);
+    dialog.remove();
+  });
+
+  it('does not count the modal layer that holds the element of the gesture', () => {
+    const drawer = document.createElement('aside');
+    drawer.setAttribute('aria-modal', 'true');
+    const panel = document.createElement('div');
+    drawer.appendChild(panel);
+    document.body.appendChild(drawer);
+    expect(modalOpen(document, panel)).toBe(false);
+    expect(modalOpen(document, document.body)).toBe(true);
+    // A second layer over the drawer (a sheet opened from it) blocks again.
+    const sheet = document.createElement('div');
+    sheet.setAttribute('aria-modal', 'true');
+    document.body.appendChild(sheet);
+    expect(modalOpen(document, panel)).toBe(true);
+    drawer.remove();
+    sheet.remove();
   });
 
   it('reads a motion token in ms or s, else the fallback', () => {

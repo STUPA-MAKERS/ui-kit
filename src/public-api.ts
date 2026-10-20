@@ -84,6 +84,7 @@ export * from './lib/selection-bar/selection-bar.component';
 export * from './lib/list-item/list-item.component';
 export * from './lib/list-detail/list-detail-layout.component';
 export * from './lib/list-detail/list-detail-nav';
+export * from './lib/list-detail/list-detail-bar.component';
 export * from './lib/search-pill/search-pill.component';
 export * from './lib/search-pill/shortcut';
 export * from './lib/live-search/live-search';

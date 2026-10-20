@@ -25,22 +25,7 @@
   (appSwipeBackEnd)="onSwipeEnd()"
 >
   @if (nav.active()) {
-    <div #bar class="ld__bar" [class.ld__bar--condensed]="nav.condensed()">
-      <button
-        #backButton
-        type="button"
-        class="ld__back"
-        [attr.aria-label]="'listDetail.back' | uiKitT"
-        [title]="'listDetail.back' | uiKitT"
-        (click)="back.emit()"
-      >
-        <app-icon name="back" />
-      </button>
-      <span class="ld__barTitle" aria-hidden="true">{{ nav.title() }}</span>
-      @if (nav.owner(); as owner) {
-        <div class="ld__barActions"><ng-container *ngTemplateOutlet="owner.actions" /></div>
-      }
-    </div>
+    <app-list-detail-bar (back)="back.emit()" />
   }
   <ng-content select="[detail]" />
 </div>

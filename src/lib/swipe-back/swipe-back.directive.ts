@@ -125,7 +125,7 @@ export class SwipeBackDirective {
   private onStart(e: TouchEvent): void {
     if (this.off() || this.phase !== 'idle' || e.touches.length !== 1) return;
     const t = e.touches[0];
-    if (t.clientX > SWIPE_BACK_EDGE || !touchGesturesOn() || modalOpen()) return;
+    if (t.clientX > SWIPE_BACK_EDGE || !touchGesturesOn() || modalOpen(document, this.el)) return;
     const velocity = new VelocityTracker();
     velocity.add(t.clientX, e.timeStamp);
     this.track = {

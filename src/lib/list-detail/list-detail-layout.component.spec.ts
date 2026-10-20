@@ -457,11 +457,12 @@ describe('ListDetailLayoutComponent', () => {
 describe('ListDetailLayoutComponent bar styles', () => {
   // jsdom applies no component styles, so this reads the SCSS.
   const scss = readFileSync(join(__dirname, 'list-detail-layout.component.scss'), 'utf8');
+  const bar = readFileSync(join(__dirname, 'list-detail-bar.component.scss'), 'utf8');
 
   it('gives the phone bar room above the buttons and keeps them off the screen edges', () => {
     expect(scss).toContain('--ld-bar-height: 60px;');
-    expect(scss).toContain('min-height: calc(var(--ld-bar-height) + env(safe-area-inset-top, 0px));');
-    expect(scss).toContain('padding: env(safe-area-inset-top, 0px) calc(var(--ld-bar-gutter) - var(--space-1)) 0;');
+    expect(bar).toContain('min-height: calc(var(--ld-bar-height, 60px) + env(safe-area-inset-top, 0px));');
+    expect(bar).toContain('padding: env(safe-area-inset-top, 0px) calc(var(--ld-bar-gutter) - var(--space-1)) 0;');
     expect(scss).toContain('--ld-sticky-top: calc(var(--ld-bar-height) + env(safe-area-inset-top, 0px));');
   });
 });

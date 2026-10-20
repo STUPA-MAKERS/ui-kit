@@ -125,7 +125,7 @@ export class RowSwipeDirective {
   private onStart(e: TouchEvent): void {
     if (this.busy || e.touches.length !== 1) return;
     if (!this.right() && !this.left()) return;
-    if (!touchGesturesOn() || modalOpen()) return;
+    if (!touchGesturesOn() || modalOpen(document, this.el)) return;
     const t = e.touches[0];
     this.track = { x: t.clientX, y: t.clientY, lock: null, dx: 0 };
   }
