@@ -124,8 +124,10 @@
   color: var(--color-text);
   cursor: pointer;
 }
-.ld__back:hover {
-  background: var(--color-selected);
+@media (hover: hover) {
+  .ld__back:hover {
+    background: var(--color-selected);
+  }
 }
 .ld__back:focus-visible {
   outline: 2px solid var(--color-focus-ring);

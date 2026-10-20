@@ -9,11 +9,13 @@
 .hitrow {
   position: relative;
 }
-.hitrow:hover {
-  background: var(--color-surface-3);
-}
-.rowgroup--bg3 > .hitrow:hover {
-  background: var(--color-surface-4);
+@media (hover: hover) {
+  .hitrow:hover {
+    background: var(--color-surface-3);
+  }
+  .rowgroup--bg3 > .hitrow:hover {
+    background: var(--color-surface-4);
+  }
 }
 .hitrow__open {
   min-width: 0;

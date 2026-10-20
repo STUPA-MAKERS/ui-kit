@@ -348,13 +348,21 @@ input[type='radio'] {
   white-space: nowrap;
   cursor: pointer;
 }
-.chip:hover {
-  background: var(--color-surface-2);
-  color: var(--color-text);
+@media (hover: hover) {
+  .chip:hover {
+    background: var(--color-surface-2);
+    color: var(--color-text);
+  }
 }
-.chip.on,
-.chip.on:hover {
+.chip.on {
   background: var(--color-selected);
   border-color: transparent;
   color: var(--color-on-selected);
+}
+@media (hover: hover) {
+  .chip.on:hover {
+    background: var(--color-selected);
+    border-color: transparent;
+    color: var(--color-on-selected);
+  }
 }

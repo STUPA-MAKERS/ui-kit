@@ -29,14 +29,21 @@
   font: inherit;
   line-height: inherit;
 }
-.rm__trigger:hover {
-  background: var(--color-surface-3);
-  color: var(--color-text);
+@media (hover: hover) {
+  .rm__trigger:hover {
+    background: var(--color-surface-3);
+    color: var(--color-text);
+  }
 }
-.rm__trigger--on,
-.rm__trigger--on:hover {
+.rm__trigger--on {
   background: var(--color-selected);
   color: var(--color-accent-text);
+}
+@media (hover: hover) {
+  .rm__trigger--on:hover {
+    background: var(--color-selected);
+    color: var(--color-accent-text);
+  }
 }
 
 /* Fixed to the viewport, below the trigger and aligned to its end. In the top layer
@@ -95,9 +102,13 @@
   text-align: start;
   cursor: pointer;
 }
-.rm__item:hover,
 .rm__item:focus-visible {
   background: var(--color-surface-4);
+}
+@media (hover: hover) {
+  .rm__item:hover {
+    background: var(--color-surface-4);
+  }
 }
 /* Surface 4 on surface 3 is only about 1.2:1, too weak to show the focus (WCAG 2.4.7).
    The focused item also gets an inset ring in the focus colour. */
@@ -154,8 +165,10 @@
   color: var(--color-text-muted);
   white-space: normal;
 }
-.rm__item[aria-disabled='true']:hover {
-  background: transparent;
+@media (hover: hover) {
+  .rm__item[aria-disabled='true']:hover {
+    background: transparent;
+  }
 }
 
 .rm__loading {

@@ -33,8 +33,10 @@
 .seg__opt + .seg__opt {
   border-left: var(--border-width) solid var(--color-border-strong);
 }
-.seg__opt:hover:not(:disabled):not(.seg__opt--on) {
-  background: var(--color-surface-2);
+@media (hover: hover) {
+  .seg__opt:hover:not(:disabled):not(.seg__opt--on) {
+    background: var(--color-surface-2);
+  }
 }
 .seg__opt--on {
   background: var(--color-selected);

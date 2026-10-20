@@ -14,8 +14,10 @@
 .card--interactive {
   transition: background-color var(--motion-fast) var(--ease-standard);
 }
-.card--interactive:hover {
-  background: var(--color-surface-sunken);
+@media (hover: hover) {
+  .card--interactive:hover {
+    background: var(--color-surface-sunken);
+  }
 }
 // Tap/Klick: ganze gerundete Kachel tönt sich (statt rechteckigem Tap-Kasten).
 .card--interactive:active {

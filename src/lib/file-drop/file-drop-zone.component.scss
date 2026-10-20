@@ -59,8 +59,10 @@
   font-weight: var(--fw-semibold);
   cursor: pointer;
 }
-.fdz__button:hover:not(:disabled) {
-  background: var(--color-surface-2);
+@media (hover: hover) {
+  .fdz__button:hover:not(:disabled) {
+    background: var(--color-surface-2);
+  }
 }
 .fdz__button:disabled {
   cursor: not-allowed;

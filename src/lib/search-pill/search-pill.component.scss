@@ -88,9 +88,11 @@
   color: var(--color-text-muted);
   cursor: pointer;
 }
-.sp__clear:hover {
-  background: var(--color-surface-3, var(--color-surface-2));
-  color: var(--color-text);
+@media (hover: hover) {
+  .sp__clear:hover {
+    background: var(--color-surface-3, var(--color-surface-2));
+    color: var(--color-text);
+  }
 }
 .sp__clear:focus-visible {
   outline: 2px solid var(--color-accent);

@@ -60,9 +60,11 @@
   color: var(--color-text-muted);
   cursor: pointer;
 }
-.selbar__clear:hover {
-  background: var(--color-surface-3);
-  color: var(--color-text);
+@media (hover: hover) {
+  .selbar__clear:hover {
+    background: var(--color-surface-3);
+    color: var(--color-text);
+  }
 }
 
 /* Inline: a row in the flow of the page, in the place of the row it stands for (the

@@ -52,9 +52,11 @@
   cursor: pointer;
   color: var(--color-text-muted);
 }
-.toast__close:hover {
-  background: var(--color-surface-4);
-  color: var(--color-text);
+@media (hover: hover) {
+  .toast__close:hover {
+    background: var(--color-surface-4);
+    color: var(--color-text);
+  }
 }
 
 /* Motion: a toast rises from the corner and fades in; it sinks a little and fades out. */

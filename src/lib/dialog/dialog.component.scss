@@ -75,9 +75,11 @@
   cursor: pointer;
   transition: background-color var(--motion-fast) var(--ease-standard);
 }
-.dialog__close:hover {
-  background: var(--color-surface-2);
-  color: var(--color-text);
+@media (hover: hover) {
+  .dialog__close:hover {
+    background: var(--color-surface-2);
+    color: var(--color-text);
+  }
 }
 .dialog__body {
   /* Vertikales Padding reserviert die Fade-Zone als Leerraum: im Ruhezustand wird

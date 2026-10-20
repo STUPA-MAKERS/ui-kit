@@ -99,7 +99,7 @@ describe('design-system rules in the stylesheets', () => {
     const chip = block(read('base.scss'), '.chip {');
     expect(chip).toMatch(/height: var\(--control-height-sm\)/);
     expect(chip).toMatch(/border-radius: var\(--radius-md\)/);
-    expect(read('base.scss')).toMatch(/\.chip\.on,[\s\S]*?background: var\(--color-selected\)/);
+    expect(read('base.scss')).toMatch(/\.chip\.on \{[\s\S]*?background: var\(--color-selected\)/);
   });
 
   it('lays out a dialog-footer wrapper like the footer, with a settable gap', () => {

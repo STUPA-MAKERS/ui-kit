@@ -70,8 +70,10 @@
 .fs__option {
   @include om.option;
 }
-.fs__option:hover {
-  @include om.option-hover;
+@media (hover: hover) {
+  .fs__option:hover {
+    @include om.option-hover;
+  }
 }
 .fs__option:focus-visible {
   @include om.option-focus;
@@ -82,8 +84,10 @@
 .fs__option--sheet {
   @include om.option-sheet;
 }
-.fs__option--sheet:hover {
-  @include om.option-hover;
+@media (hover: hover) {
+  .fs__option--sheet:hover {
+    @include om.option-hover;
+  }
 }
 
 .fs__optAv {
@@ -136,9 +140,13 @@
   text-align: start;
   cursor: pointer;
 }
-.fs__reset:hover,
 .fs__reset:focus-visible {
   background: var(--color-surface-4);
+}
+@media (hover: hover) {
+  .fs__reset:hover {
+    background: var(--color-surface-4);
+  }
 }
 .fs__reset:focus-visible {
   outline: none;
@@ -151,8 +159,10 @@
   padding: 0 var(--space-3);
   border-radius: var(--radius-md);
 }
-.fs__reset--head:hover {
-  background: var(--color-surface-3);
+@media (hover: hover) {
+  .fs__reset--head:hover {
+    background: var(--color-surface-3);
+  }
 }
 
 .fs__empty {

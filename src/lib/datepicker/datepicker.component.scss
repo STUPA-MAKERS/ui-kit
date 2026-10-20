@@ -58,9 +58,11 @@
   cursor: pointer;
   border-radius: var(--radius-pill);
 }
-.dp__cal:hover:not(:disabled) {
-  color: var(--color-text);
-  background: var(--color-surface-3);
+@media (hover: hover) {
+  .dp__cal:hover:not(:disabled) {
+    color: var(--color-text);
+    background: var(--color-surface-3);
+  }
 }
 .dp__cal:disabled {
   cursor: not-allowed;

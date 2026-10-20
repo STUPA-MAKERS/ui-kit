@@ -117,8 +117,10 @@
     overflow-wrap: anywhere;
   }
 }
-.sel__option:hover {
-  @include om.option-hover;
+@media (hover: hover) {
+  .sel__option:hover {
+    @include om.option-hover;
+  }
 }
 // The active row while the keyboard moves: the ring of a focused row.
 .sel__option.sel__option--active {
@@ -127,18 +129,22 @@
 .sel__option--sheet {
   @include om.option-sheet;
 }
-.sel__option--sheet:hover {
-  @include om.option-hover;
+@media (hover: hover) {
+  .sel__option--sheet:hover {
+    @include om.option-hover;
+  }
 }
 .sel__option[aria-disabled='true'] {
   color: var(--color-text-subtle);
   cursor: not-allowed;
 }
-.sel__option[aria-disabled='true']:hover {
-  background: transparent;
-}
-.sel__option--sheet[aria-disabled='true']:hover {
-  background: var(--color-surface-3);
+@media (hover: hover) {
+  .sel__option[aria-disabled='true']:hover {
+    background: transparent;
+  }
+  .sel__option--sheet[aria-disabled='true']:hover {
+    background: var(--color-surface-3);
+  }
 }
 .sel__option[aria-selected='true'] .sel__label {
   font-weight: var(--fw-semibold);
