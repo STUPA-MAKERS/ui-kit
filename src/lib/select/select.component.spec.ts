@@ -245,6 +245,18 @@ describe('SelectFieldComponent', () => {
       expect(host.changes).toEqual([]);
     });
 
+    it('opens on the first click when the change detection of the click runs after its timers', async () => {
+      // With event coalescing (the app) the change detection of a click runs after a timer
+      // that the click handler started. The list is in the DOM only after that render.
+      const view = await render(ModelHost, { autoDetectChanges: false });
+      view.fixture.detectChanges();
+      screen.getByRole('combobox').click();
+      await new Promise((r) => setTimeout(r));
+      view.fixture.detectChanges();
+      view.fixture.detectChanges();
+      expect(document.querySelector('.sel__menu')).toHaveClass('sel__menu--placed');
+    });
+
     it('closes again on a second click on the field', async () => {
       const { field, tick } = await setup();
       await userEvent.click(field());

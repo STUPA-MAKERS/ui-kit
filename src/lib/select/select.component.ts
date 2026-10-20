@@ -3,7 +3,10 @@ import {
   Component,
   DestroyRef,
   ElementRef,
+  Injector,
+  afterNextRender,
   booleanAttribute,
+  type AfterRenderRef,
   computed,
   effect,
   inject,
@@ -104,6 +107,7 @@ const PAGE = 10;
 })
 export class SelectFieldComponent implements ControlValueAccessor {
   private readonly host = inject<ElementRef<HTMLElement>>(ElementRef);
+  private readonly injector = inject(Injector);
 
   /** The visible label inside the field. */
   readonly label = input('');
@@ -198,6 +202,7 @@ export class SelectFieldComponent implements ControlValueAccessor {
   private onChange: (value: string) => void = () => undefined;
   private onTouched: () => void = () => undefined;
   private timer: ReturnType<typeof setTimeout> | null = null;
+  private rendered: AfterRenderRef | null = null;
   private typed = '';
   private typedAt = 0;
 
@@ -462,7 +467,7 @@ export class SelectFieldComponent implements ControlValueAccessor {
     this.open.set(true);
     if (this.phone()) {
       // The sheet focuses its first control after its render; the listbox goes after.
-      this.later(() => {
+      this.afterRender(() => {
         showInTopLayer(this.layer()?.nativeElement);
         this.later(() => {
           document.getElementById(this.listId())?.focus();
@@ -472,7 +477,7 @@ export class SelectFieldComponent implements ControlValueAccessor {
       return;
     }
     this.placed.set(false);
-    this.later(() => {
+    this.afterRender(() => {
       const menu = this.menu()?.nativeElement;
       if (!menu) return;
       showInTopLayer(menu);
@@ -532,8 +537,26 @@ export class SelectFieldComponent implements ControlValueAccessor {
     });
   }
 
+  /**
+   * Run `fn` after the next render, when the list that `open` adds is in the DOM. A timer
+   * from the click handler is not enough: with event coalescing the change detection of
+   * the click runs after that timer, so the timer finds no list and the list stays shut.
+   */
+  private afterRender(fn: () => void): void {
+    this.clearTimer();
+    this.rendered = afterNextRender(
+      () => {
+        this.rendered = null;
+        fn();
+      },
+      { injector: this.injector },
+    );
+  }
+
   private clearTimer(): void {
     if (this.timer) clearTimeout(this.timer);
     this.timer = null;
+    this.rendered?.destroy();
+    this.rendered = null;
   }
 }
