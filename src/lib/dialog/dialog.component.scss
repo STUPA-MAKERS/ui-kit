@@ -139,6 +139,8 @@
     /* Flush am unteren Rand inkl. Safe-Area (Home-Indicator) füllen — keine
        Backdrop-Lücke unter dem Sheet (#14). */
     padding-bottom: env(safe-area-inset-bottom, 0px);
+    /* In landscape the sheet keeps its content clear of the notch. */
+    padding-inline: env(safe-area-inset-left, 0px) env(safe-area-inset-right, 0px);
     /* Snap back after a short swipe. */
     transition: transform var(--motion-fast) var(--ease-standard);
   }

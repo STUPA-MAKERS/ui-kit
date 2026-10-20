@@ -99,6 +99,19 @@ describe('touch rules in the stylesheets', () => {
     if (chrome) expect(scss).toContain('@include press.chrome-text;');
   });
 
+  it('keeps the sheets clear of the status bar, the home bar and the notch', () => {
+    const sheet = read('../lib/side-sheet/side-sheet.component.scss');
+    for (const side of ['top', 'bottom']) {
+      expect(sheet).toContain(`${side}: calc(12px + env(safe-area-inset-${side}, 0px));`);
+      expect(sheet).toContain(`${side}: calc(8px + env(safe-area-inset-${side}, 0px));`);
+    }
+    expect(sheet).toContain('right: calc(12px + env(safe-area-inset-right, 0px));');
+    expect(sheet).toContain('left: calc(12px + env(safe-area-inset-left, 0px));');
+    expect(read('../lib/dialog/dialog.component.scss')).toContain(
+      'padding-inline: env(safe-area-inset-left, 0px) env(safe-area-inset-right, 0px);',
+    );
+  });
+
   it('tints a list row while its title is pressed, not while a trail button is', () => {
     expect(read('../lib/list-item/list-item.component.scss')).toContain(
       "@include press.press-on('.li__title', $scale: true);",
