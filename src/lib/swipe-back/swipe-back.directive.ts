@@ -48,8 +48,8 @@ type Phase = 'idle' | 'drag' | 'settle' | 'gone';
  * while `appSwipeBackOff` is false and while no modal layer is open. `appSwipeBackStart`
  * fires when the swipe takes the move (the page shows the under layer), and
  * `appSwipeBackEnd` when the host is back in place, or after a back when `appSwipeBackOff`
- * turns true (the page closed the detail). A back that the page does not carry out
- * within a second springs back.
+ * turns true (the page closed the detail) or the page calls `done()`. A back that the
+ * page does not carry out within a second springs back.
  */
 @Directive({
   selector: '[appSwipeBack]',
@@ -111,6 +111,15 @@ export class SwipeBackDirective {
       this.el.removeEventListener('touchcancel', cancel);
       this.clearTimer();
     });
+  }
+
+  /**
+   * The page carried out the back without turning `appSwipeBackOff` on (it stays, with
+   * other content, for example a parent page in the same frame): the host goes back to
+   * its place at once.
+   */
+  done(): void {
+    if (this.phase === 'gone') this.finish();
   }
 
   private onStart(e: TouchEvent): void {

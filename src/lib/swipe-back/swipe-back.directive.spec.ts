@@ -93,6 +93,17 @@ describe('SwipeBackDirective', () => {
     expect(under.style.getPropertyValue('--swipe-back-scrim')).toBe('');
   });
 
+  it('goes back to its place when the page calls done() after a back', async () => {
+    const { page, host, view } = await setup();
+    const dir = view.fixture.debugElement.children[1].injector.get(SwipeBackDirective);
+    dir.done();
+    drag(page, { x: 5, y: 300 }, [{ x: 300, y: 300 }]);
+    jest.advanceTimersByTime(280);
+    dir.done();
+    expect(host.events).toEqual(['start', 'back', 'end']);
+    expect(page.style.left).toBe('');
+  });
+
   it('goes back on a fast flick below the distance', async () => {
     const { page, host } = await setup();
     drag(page, { x: 5, y: 300 }, [{ x: 20, y: 300 }, { x: 60, y: 300 }, { x: 100, y: 300 }], { dt: 20 });
