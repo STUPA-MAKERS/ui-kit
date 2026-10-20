@@ -95,6 +95,19 @@ describe('FilterSelectComponent', () => {
     expect(view.container.querySelector('select')).toBeNull();
   });
 
+  it('opens on the first click when the change detection of the click runs after its timers', async () => {
+    // With event coalescing (the app) the change detection of a click runs after a timer
+    // that the click handler started. The list is in the DOM only after that render.
+    mockPhone(false);
+    const view = await render(HostComponent, { autoDetectChanges: false });
+    view.fixture.detectChanges();
+    (view.container.querySelector('app-filter-select button') as HTMLButtonElement).click();
+    await new Promise((r) => setTimeout(r));
+    view.fixture.detectChanges();
+    view.fixture.detectChanges();
+    expect(document.activeElement).toHaveAttribute('role', 'option');
+  });
+
   it('shows only the icon in a square chip, named by its label', async () => {
     const { chip, host, view } = await setup();
     host.iconOnly.set(true);

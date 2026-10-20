@@ -3,7 +3,10 @@ import {
   Component,
   DestroyRef,
   ElementRef,
+  Injector,
+  afterNextRender,
   computed,
+  type AfterRenderRef,
   inject,
   input,
   output,
@@ -94,7 +97,9 @@ export class RangeChipComponent {
   private readonly trigger = viewChild.required<ElementRef<HTMLButtonElement>>('trigger');
   private readonly pop = viewChild<ElementRef<HTMLElement>>('pop');
   private readonly layer = viewChild<ElementRef<HTMLElement>>('layer');
-  private timer: ReturnType<typeof setTimeout> | null = null;
+  private readonly injector = inject(Injector);
+  /** The pending step after the next render (top layer, focus). */
+  private rendered: AfterRenderRef | null = null;
   /** The frame that checks the place of the chip while the popover is open. */
   private frame: number | null = null;
   /** The place of the chip at the last check: `left,bottom`. */
@@ -110,7 +115,7 @@ export class RangeChipComponent {
       follow: () => this.follow(),
     });
     inject(DestroyRef).onDestroy(() => {
-      if (this.timer) clearTimeout(this.timer);
+      this.cancelRender();
       this.stopTracking();
     });
   }
@@ -155,16 +160,12 @@ export class RangeChipComponent {
     if (this.phone()) {
       // The sheet renders in the next change detection; then it goes to the top layer.
       // The sheet moves the focus into itself.
-      this.timer = setTimeout(() => {
-        this.timer = null;
-        showInTopLayer(this.layer()?.nativeElement);
-      });
+      this.afterRender(() => showInTopLayer(this.layer()?.nativeElement));
       return;
     }
     this.placeBelow();
     // The popover renders in the next change detection; then it goes to the top layer.
-    this.timer = setTimeout(() => {
-      this.timer = null;
+    this.afterRender(() => {
       const pop = this.pop()?.nativeElement;
       if (!pop) return;
       showInTopLayer(pop);
@@ -206,8 +207,7 @@ export class RangeChipComponent {
     if (!this.open()) return;
     const wasPopover = this.popoverOpen();
     this.open.set(false);
-    if (this.timer) clearTimeout(this.timer);
-    this.timer = null;
+    this.cancelRender();
     this.stopTracking();
     // The sheet returns the focus itself.
     if (returnFocus && wasPopover) this.trigger().nativeElement.focus();
@@ -233,6 +233,27 @@ export class RangeChipComponent {
       this.frame = requestAnimationFrame(tick);
     };
     this.frame = requestAnimationFrame(tick);
+  }
+
+  /**
+   * Run `fn` after the next render, when the popover or the sheet that `open` adds is in
+   * the DOM. A timer from the click handler is not enough: with event coalescing the change
+   * detection of the click runs after that timer, so the timer finds nothing to show.
+   */
+  private afterRender(fn: () => void): void {
+    this.cancelRender();
+    this.rendered = afterNextRender(
+      () => {
+        this.rendered = null;
+        fn();
+      },
+      { injector: this.injector },
+    );
+  }
+
+  private cancelRender(): void {
+    this.rendered?.destroy();
+    this.rendered = null;
   }
 
   private stopTracking(): void {

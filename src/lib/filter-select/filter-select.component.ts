@@ -4,7 +4,10 @@ import {
   Component,
   DestroyRef,
   ElementRef,
+  Injector,
+  afterNextRender,
   computed,
+  type AfterRenderRef,
   inject,
   input,
   model,
@@ -162,7 +165,9 @@ export class FilterSelectComponent {
   private readonly list = viewChild<ElementRef<HTMLElement>>('list');
   private readonly layer = viewChild<ElementRef<HTMLElement>>('layer');
 
+  private readonly injector = inject(Injector);
   private timer: ReturnType<typeof setTimeout> | null = null;
+  private rendered: AfterRenderRef | null = null;
   private typed = '';
   private typedAt = 0;
 
@@ -265,14 +270,14 @@ export class FilterSelectComponent {
     this.opened.emit();
     if (this.phone()) {
       // The sheet focuses its first control after its render; the current value goes after.
-      this.later(() => {
+      this.afterRender(() => {
         showInTopLayer(this.layer()?.nativeElement);
         this.later(() => this.focusItem(focus));
       });
       return;
     }
     this.placeBelow();
-    this.later(() => {
+    this.afterRender(() => {
       const list = this.list()!.nativeElement;
       showInTopLayer(list);
       this.fit(list);
@@ -353,8 +358,26 @@ export class FilterSelectComponent {
     });
   }
 
+  /**
+   * Run `fn` after the next render, when the list that `open` adds is in the DOM. A timer
+   * from the click handler is not enough: with event coalescing the change detection of
+   * the click runs after that timer, so the timer finds no list and the list stays shut.
+   */
+  private afterRender(fn: () => void): void {
+    this.clearTimer();
+    this.rendered = afterNextRender(
+      () => {
+        this.rendered = null;
+        fn();
+      },
+      { injector: this.injector },
+    );
+  }
+
   private clearTimer(): void {
     if (this.timer) clearTimeout(this.timer);
     this.timer = null;
+    this.rendered?.destroy();
+    this.rendered = null;
   }
 }
