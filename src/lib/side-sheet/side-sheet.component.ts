@@ -16,6 +16,7 @@ import { ButtonComponent } from '../button/button.component';
 import { focusableIn, lockBodyScroll, trapTab } from '../focus/focus-trap';
 import { IconComponent } from '../icon/icon.component';
 import { UiKitTranslatePipe } from '../intl/translate.pipe';
+import { haptic } from '../util/haptic';
 
 /**
  * Where the sheet comes from: `end` (the attendance sheet), `start` (the agenda drawer)
@@ -97,7 +98,8 @@ export class SideSheetComponent {
   /** A swipe runs: the sheet follows the finger without a transition. */
   protected readonly dragging = signal(false);
 
-  private drag: { pointerId: number; startY: number; startTime: number } | null = null;
+  private drag: { pointerId: number; startY: number; startTime: number; past: boolean } | null =
+    null;
   private bodyObserver: ResizeObserver | null = null;
 
   private returnFocus: HTMLElement | null = null;
@@ -154,7 +156,12 @@ export class SideSheetComponent {
   protected dragStart(event: PointerEvent): void {
     if (this.side() !== 'bottom' || !event.isPrimary || event.button !== 0) return;
     if ((event.target as Element | null)?.closest(NO_DRAG)) return;
-    this.drag = { pointerId: event.pointerId, startY: event.clientY, startTime: event.timeStamp };
+    this.drag = {
+      pointerId: event.pointerId,
+      startY: event.clientY,
+      startTime: event.timeStamp,
+      past: false,
+    };
     this.dragging.set(true);
     (event.currentTarget as HTMLElement).setPointerCapture?.(event.pointerId);
   }
@@ -162,7 +169,13 @@ export class SideSheetComponent {
   protected dragMove(event: PointerEvent): void {
     if (event.pointerId !== this.drag?.pointerId) return;
     // The sheet follows the finger down, never up past its place.
-    this.dragY.set(Math.max(0, event.clientY - this.drag.startY));
+    const distance = Math.max(0, event.clientY - this.drag.startY);
+    this.dragY.set(distance);
+    // A tick when the sheet passes the way that closes it, so the finger feels the point
+    // where a release closes. A drag back above it and down again ticks again.
+    const past = distance > SWIPE_CLOSE_PX;
+    if (past && !this.drag.past) haptic('tick');
+    this.drag.past = past;
   }
 
   /** End a swipe: a long or quick way down closes the sheet, else it snaps back. */

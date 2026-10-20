@@ -12,6 +12,10 @@ import {
   ViewChild,
 } from '@angular/core';
 import { focusableIn, lockBodyScroll, trapTab } from '../focus/focus-trap';
+import { haptic } from '../util/haptic';
+
+/** A drag down by more than this many pixels closes the phone sheet. */
+const DRAG_CLOSE_PX = 120;
 
 let nextId = 0;
 
@@ -63,6 +67,8 @@ export class DialogComponent implements OnChanges, OnDestroy {
   private dragStartT = 0;
   private dragging = false;
   private dragDy = 0;
+  /** The drag is past the way that closes the sheet; the crossing gives one haptic tick. */
+  private pastClose = false;
 
   ngOnChanges(changes: SimpleChanges): void {
     const c = changes['open'];
@@ -111,6 +117,7 @@ export class DialogComponent implements OnChanges, OnDestroy {
     this.dragStartY = event.touches[0].clientY;
     this.dragStartT = event.timeStamp;
     this.dragDy = 0;
+    this.pastClose = false;
     const pane = this.pane?.nativeElement;
     if (pane) pane.style.transition = 'none';
   }
@@ -119,6 +126,11 @@ export class DialogComponent implements OnChanges, OnDestroy {
     if (!this.dragging) return;
     // Nur nach unten ziehen (kein „Hochziehen").
     this.dragDy = Math.max(0, event.touches[0].clientY - this.dragStartY);
+    // A tick when the sheet passes the way that closes it, so the finger feels the point
+    // where a release closes. A drag back above it and down again ticks again.
+    const past = this.dragDy > DRAG_CLOSE_PX;
+    if (past && !this.pastClose) haptic('tick');
+    this.pastClose = past;
     const pane = this.pane?.nativeElement;
     if (pane) pane.style.transform = `translateY(${this.dragDy}px)`;
   }
@@ -131,7 +143,7 @@ export class DialogComponent implements OnChanges, OnDestroy {
     const dt = event.timeStamp - this.dragStartT;
     const velocity = this.dragDy / Math.max(1, dt); // px/ms
     // Flick (schnelle Abwärtsbewegung) ODER deutlicher Weg → schließen.
-    if (velocity > 0.5 || this.dragDy > 120) {
+    if (velocity > 0.5 || this.dragDy > DRAG_CLOSE_PX) {
       this.close();
     } else if (pane) {
       pane.style.transform = '';

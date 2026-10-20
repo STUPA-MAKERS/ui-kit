@@ -100,6 +100,7 @@ export * from './lib/long-press/long-press.directive';
 export * from './lib/press-select/press-select.directive';
 export * from './lib/util/download.util';
 export * from './lib/util/format-bytes';
+export * from './lib/util/haptic';
 export * from './lib/util/key-parts.util';
 export * from './lib/util/capitalize.pipe';
 export * from './lib/toast/toast.component';

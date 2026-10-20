@@ -280,6 +280,25 @@ describe('SideSheetComponent', () => {
       expect(host.closes).toBe(1);
     });
 
+    it('ticks once when the swipe passes the way that closes the sheet', async () => {
+      const vibrate = jest.fn(() => true);
+      Object.defineProperty(navigator, 'vibrate', { value: vibrate, configurable: true });
+      try {
+        const { top } = await openBottom();
+        firePointer(top, 'pointerdown', pointer(100, 0));
+        firePointer(top, 'pointermove', pointer(180, 100));
+        expect(vibrate).not.toHaveBeenCalled();
+        firePointer(top, 'pointermove', pointer(220, 200));
+        firePointer(top, 'pointermove', pointer(260, 300));
+        expect(vibrate).toHaveBeenCalledTimes(1);
+        firePointer(top, 'pointermove', pointer(150, 400));
+        firePointer(top, 'pointermove', pointer(230, 500));
+        expect(vibrate).toHaveBeenCalledTimes(2);
+      } finally {
+        delete (navigator as { vibrate?: unknown }).vibrate;
+      }
+    });
+
     it('closes on a quick flick and snaps back after a slow short pull', async () => {
       const { dialog, top, host, view } = await openBottom();
       firePointer(top, 'pointerdown', pointer(100, 0));

@@ -1,6 +1,7 @@
 import { Directive, input, output } from '@angular/core';
 import { matchesMedia } from '../signals/media-query';
 import { MEDIA } from '../breakpoints/breakpoints';
+import { haptic } from '../util/haptic';
 
 /**
  * Press and hold select mode for a mobile card list.
@@ -56,7 +57,7 @@ export class PressSelectDirective {
       this.timer = null;
       this.suppressNextClick = true;
       this.toggled.emit();
-      navigator.vibrate?.(10);
+      haptic('tick');
     }, 450);
   }
 
