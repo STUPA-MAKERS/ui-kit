@@ -153,6 +153,22 @@ describe('touch rules in the stylesheets', () => {
     if (chrome) expect(scss).toContain('@include press.chrome-text;');
   });
 
+  it('keeps the interface unselectable on a touch screen, and the content selectable', () => {
+    const base = read('base.scss');
+    const start = base.indexOf('@media (hover: none) and (pointer: coarse) {');
+    expect(start).toBeGreaterThan(-1);
+    const rule = base.slice(start, base.indexOf('\n}\n', start));
+    expect(rule).toMatch(/html \{\s*@include press\.chrome-text;/);
+    for (const content of ['input,', 'textarea,', "[contenteditable]:not([contenteditable='false']),", '.selectable,', '.kv dd,', '.fld__value,', '.lfld__value {']) {
+      expect(rule).toContain(content);
+    }
+    expect(rule).toMatch(/\.lfld__value \{\s*@include press\.selectable;/);
+    expect(rule).toMatch(/img \{\s*-webkit-user-drag: none;/);
+    expect(read('_press.scss')).toMatch(
+      /@mixin selectable \{\s*-webkit-user-select: text;\s*user-select: text;\s*-webkit-touch-callout: default;/,
+    );
+  });
+
   it('keeps the sheets clear of the status bar, the home bar and the notch', () => {
     const sheet = read('../lib/side-sheet/side-sheet.component.scss');
     for (const side of ['top', 'bottom']) {

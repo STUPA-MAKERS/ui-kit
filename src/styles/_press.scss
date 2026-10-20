@@ -64,3 +64,11 @@
   user-select: none;
   -webkit-touch-callout: none;
 }
+
+// Content that a long press may select and copy again (a value, a message, a text field),
+// inside the interface that a touch screen keeps unselectable (`base.scss`).
+@mixin selectable {
+  -webkit-user-select: text;
+  user-select: text;
+  -webkit-touch-callout: default;
+}
