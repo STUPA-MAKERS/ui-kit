@@ -60,19 +60,18 @@
   outline-offset: 2px;
 }
 
-/* At most two lines; the full title stays in the sheet below. */
+/* The small title: one line at the size of a phone page title (22px, as the title of a
+   native top app bar), cut with an ellipsis. The full title stays in the sheet below. */
 .ld__barTitle {
-  display: -webkit-box;
   flex: 1 1 auto;
   min-width: 0;
   overflow: hidden;
   padding-inline: var(--space-1);
-  font-size: var(--fs-h3);
-  line-height: var(--lh-h3);
+  font-size: var(--fs-h1);
+  line-height: var(--lh-h1);
   font-weight: var(--fw-semibold);
-  overflow-wrap: anywhere;
-  -webkit-box-orient: vertical;
-  -webkit-line-clamp: 2;
+  white-space: nowrap;
+  text-overflow: ellipsis;
   opacity: 0;
   transform: translateY(var(--space-1));
   transition:
