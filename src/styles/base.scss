@@ -1,4 +1,5 @@
 // Reset + Basis-Element-Styles. Nutzt ausschließlich Semantic-Tokens.
+@use 'press';
 
 *,
 *::before,
@@ -332,6 +333,7 @@ input[type='radio'] {
 /* A filter chip (a button): 32px high, radius 8, a thin edge. `.on` marks an active
    filter with the selection colour. */
 .chip {
+  @include press.chrome-text;
   display: inline-flex;
   flex: none;
   align-items: center;
@@ -347,14 +349,23 @@ input[type='radio'] {
   font-weight: var(--fw-medium);
   white-space: nowrap;
   cursor: pointer;
+  @include press.press;
 }
-.chip:hover {
-  background: var(--color-surface-2);
-  color: var(--color-text);
+@media (hover: hover) {
+  .chip:hover {
+    background: var(--color-surface-2);
+    color: var(--color-text);
+  }
 }
-.chip.on,
-.chip.on:hover {
+.chip.on {
   background: var(--color-selected);
   border-color: transparent;
   color: var(--color-on-selected);
+}
+@media (hover: hover) {
+  .chip.on:hover {
+    background: var(--color-selected);
+    border-color: transparent;
+    color: var(--color-on-selected);
+  }
 }

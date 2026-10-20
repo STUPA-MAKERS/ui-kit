@@ -1,4 +1,5 @@
 @use '../../styles/breakpoints' as bp;
+@use '../../styles/press';
 
 /* Sticks to the bottom of the scroll area of its container and centres the bar over it.
    The host lets clicks through, so it does not block the rows under the empty sides. */
@@ -59,10 +60,13 @@
   background: transparent;
   color: var(--color-text-muted);
   cursor: pointer;
+  @include press.press;
 }
-.selbar__clear:hover {
-  background: var(--color-surface-3);
-  color: var(--color-text);
+@media (hover: hover) {
+  .selbar__clear:hover {
+    background: var(--color-surface-3);
+    color: var(--color-text);
+  }
 }
 
 /* Inline: a row in the flow of the page, in the place of the row it stands for (the

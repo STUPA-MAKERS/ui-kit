@@ -316,6 +316,29 @@ describe('DialogComponent', () => {
     expect(paneEl.style.transform).toBe('');
   });
 
+  it('ticks once when the drag passes the way that closes the sheet', async () => {
+    const vibrate = jest.fn(() => true);
+    Object.defineProperty(navigator, 'vibrate', { value: vibrate, configurable: true });
+    try {
+      const view = await render(`<app-dialog title="X" [open]="true">B</app-dialog>`, {
+        imports: [DialogComponent],
+      });
+      const cmp = view.fixture.debugElement.children[0].componentInstance as DialogComponent;
+      cmp.onDragStart(makeTouch(0, 0));
+      cmp.onDragMove(makeTouch(100, 10));
+      expect(vibrate).not.toHaveBeenCalled();
+      cmp.onDragMove(makeTouch(130, 20));
+      cmp.onDragMove(makeTouch(160, 30));
+      expect(vibrate).toHaveBeenCalledTimes(1);
+      // Back above the line and down again: a second tick.
+      cmp.onDragMove(makeTouch(90, 40));
+      cmp.onDragMove(makeTouch(140, 50));
+      expect(vibrate).toHaveBeenCalledTimes(2);
+    } finally {
+      delete (navigator as { vibrate?: unknown }).vibrate;
+    }
+  });
+
   it('only drags down, never up (clamped at 0)', async () => {
     const view = await render(`<app-dialog title="X" [open]="true">B</app-dialog>`, {
       imports: [DialogComponent],

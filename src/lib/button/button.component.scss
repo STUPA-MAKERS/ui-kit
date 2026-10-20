@@ -1,3 +1,5 @@
+@use '../../styles/press';
+
 :host {
   display: inline-flex;
 }
@@ -35,6 +37,10 @@
     color var(--motion-fast) var(--ease-standard),
     border-color var(--motion-fast) var(--ease-standard),
     filter var(--motion-fast) var(--ease-standard);
+  /* The press of every look is a tint of the text colour over the fill (`_press.scss`).
+     It is the only feedback of a tap, because a touch screen shows no hover. */
+  @include press.press;
+  @include press.chrome-text;
 }
 /* A disabled button has to LOOK unavailable. At 0.55 a secondary button still read as
    clickable against a dark surface, so a pager sitting at its last page looked like it
@@ -108,23 +114,20 @@
   background: var(--color-accent);
   color: var(--color-on-accent);
 }
-.btn--fill:hover:not(:disabled) {
-  filter: brightness(1.08);
-}
-.btn--fill:active:not(:disabled) {
-  filter: brightness(0.94);
+@media (hover: hover) {
+  .btn--fill:hover:not(:disabled) {
+    filter: brightness(1.08);
+  }
 }
 
 .btn--tonal {
   background: var(--color-surface-3);
   color: var(--color-text);
 }
-.btn--tonal:hover:not(:disabled) {
-  background: var(--color-surface-4);
-}
-.btn--tonal:active:not(:disabled) {
-  background: var(--color-surface-4);
-  filter: brightness(0.96);
+@media (hover: hover) {
+  .btn--tonal:hover:not(:disabled) {
+    background: var(--color-surface-4);
+  }
 }
 
 .btn--outlined {
@@ -132,11 +135,10 @@
   color: var(--color-text);
   border-color: var(--color-border-strong);
 }
-.btn--outlined:hover:not(:disabled) {
-  background: var(--color-surface-2);
-}
-.btn--outlined:active:not(:disabled) {
-  background: var(--color-surface-3);
+@media (hover: hover) {
+  .btn--outlined:hover:not(:disabled) {
+    background: var(--color-surface-2);
+  }
 }
 
 /* Quiet action: accent text and a tighter inset. */
@@ -151,19 +153,20 @@
   padding: 0 var(--button-padding-inline, 10px);
 }
 /* `--button-hover-bg` lets a text button on a surface-2 card hover one surface up. */
-.btn--text:hover:not(:disabled) {
-  background: var(--button-hover-bg, var(--color-surface-2));
-}
-.btn--text:active:not(:disabled) {
-  background: var(--color-surface-3);
+@media (hover: hover) {
+  .btn--text:hover:not(:disabled) {
+    background: var(--button-hover-bg, var(--color-surface-2));
+  }
 }
 /* As an icon button the text look is a grey glyph, so a row of tools stays quiet. */
 .btn--text.btn--icon {
   color: var(--color-text-muted);
   padding: 0;
 }
-.btn--text.btn--icon:hover:not(:disabled) {
-  color: var(--color-text);
+@media (hover: hover) {
+  .btn--text.btn--icon:hover:not(:disabled) {
+    color: var(--color-text);
+  }
 }
 
 /* Destructive: outlined in the error colour, never filled. */
@@ -172,13 +175,11 @@
   color: var(--color-danger);
   border-color: color-mix(in srgb, var(--color-danger) 60%, transparent);
 }
-.btn--danger:hover:not(:disabled) {
-  background: var(--color-danger-subtle);
-  border-color: var(--color-danger);
-}
-.btn--danger:active:not(:disabled) {
-  background: var(--color-danger-subtle);
-  filter: brightness(0.94);
+@media (hover: hover) {
+  .btn--danger:hover:not(:disabled) {
+    background: var(--color-danger-subtle);
+    border-color: var(--color-danger);
+  }
 }
 
 /* Floating main action of a page. */
@@ -200,8 +201,10 @@
 .btn--fab.btn--icon {
   --icon-size: 20px;
 }
-.btn--fab:hover:not(:disabled) {
-  filter: brightness(1.08);
+@media (hover: hover) {
+  .btn--fab:hover:not(:disabled) {
+    filter: brightness(1.08);
+  }
 }
 
 /* A toggle that is on: the selection colour, as a selected list row. A filled button
@@ -218,11 +221,10 @@
 }
 
 /* Frei wählbare Farbe: Hintergrund kommt inline, Hover/Active wie danger/success. */
-.btn--custom:hover:not(:disabled) {
-  filter: brightness(1.08);
-}
-.btn--custom:active:not(:disabled) {
-  filter: brightness(0.94);
+@media (hover: hover) {
+  .btn--custom:hover:not(:disabled) {
+    filter: brightness(1.08);
+  }
 }
 /* Überlange Beschriftungen (z. B. Flow-Transition-Labels) laufen nicht aus dem
    Button heraus, sondern werden mit … abgeschnitten. */

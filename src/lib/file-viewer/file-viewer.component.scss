@@ -110,9 +110,11 @@
   transition: background-color var(--motion-fast, 120ms) var(--ease-standard, ease),
     opacity var(--motion-fast, 120ms) var(--ease-standard, ease);
 }
-.fv__btn:hover:not(:disabled),
-.fv__actions ::ng-deep .fv__btn:hover:not(:disabled) {
-  background: var(--fv-hover);
+@media (hover: hover) {
+  .fv__btn:hover:not(:disabled),
+  .fv__actions ::ng-deep .fv__btn:hover:not(:disabled) {
+    background: var(--fv-hover);
+  }
 }
 .fv__btn:active:not(:disabled),
 .fv__actions ::ng-deep .fv__btn:active:not(:disabled) {
@@ -240,8 +242,10 @@
 .fv__nav--next {
   right: var(--space-2, 0.5rem);
 }
-.fv__nav:hover:not(:disabled) {
-  background: rgba(0, 0, 0, 0.6);
+@media (hover: hover) {
+  .fv__nav:hover:not(:disabled) {
+    background: rgba(0, 0, 0, 0.6);
+  }
 }
 
 /* Phone: the bar stays, the arrows are smaller and the image gets more room. */

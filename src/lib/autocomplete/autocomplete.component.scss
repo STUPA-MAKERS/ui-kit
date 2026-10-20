@@ -1,4 +1,5 @@
 @use '../../styles/field' as f;
+@use '../../styles/press';
 
 :host {
   display: block;
@@ -75,10 +76,13 @@
   background: transparent;
   color: var(--color-text-muted);
   cursor: pointer;
+  @include press.press;
 }
-.ac__clear:hover {
-  background: var(--color-surface-3);
-  color: var(--color-text);
+@media (hover: hover) {
+  .ac__clear:hover {
+    background: var(--color-surface-3);
+    color: var(--color-text);
+  }
 }
 .ac__clear:focus-visible {
   outline: 2px solid var(--color-focus-ring);
@@ -100,6 +104,7 @@
   box-shadow: var(--shadow-elevated);
 }
 .ac__option {
+  @include press.chrome-text;
   display: block;
   width: 100%;
   padding: var(--space-2) var(--space-3);
@@ -110,6 +115,7 @@
   font: inherit;
   text-align: start;
   cursor: pointer;
+  @include press.press;
 }
 .ac__optionText {
   display: block;
@@ -117,11 +123,16 @@
   text-overflow: ellipsis;
   white-space: nowrap;
 }
-.ac__option:hover,
 .ac__option:focus-visible,
 .ac__option--active {
   background: var(--color-surface-4);
   outline: 0;
+}
+@media (hover: hover) {
+  .ac__option:hover {
+    background: var(--color-surface-4);
+    outline: 0;
+  }
 }
 .ac__option:focus-visible,
 .ac__option--active {

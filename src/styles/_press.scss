@@ -1,0 +1,47 @@
+// The press state of a control on a touch screen, and the chrome text that a long press
+// must not select. One partial, so every tappable element of the kit reacts the same way.
+// Emits no CSS.
+//   @use 'press';
+//
+// A tap gives no hover on a touch screen (every `:hover` rule of the kit sits behind
+// `@media (hover: hover)`, so it does not stick after the tap), and the browser tap flash
+// is off (`base.scss`). The press is the only feedback of a tap, so it must show at once.
+
+// The press tint: a layer of the text colour over the surface of the control. It is a
+// background image, so it lies on top of any background colour (accent, selected, surface
+// 2 to 4) and needs no step per variant. The token is `--press-tint` (`tokens.scss`).
+// `$scale` also shrinks a row or a card a little (`--press-scale`); never with reduced
+// motion. Add `scale var(--motion-xs) var(--ease-standard)` to the `transition` of the
+// element, so the release eases back.
+@mixin press($scale: false) {
+  &:active:not(:disabled):not([aria-disabled='true']) {
+    background-image: linear-gradient(var(--press-tint), var(--press-tint));
+    @if $scale {
+      @media (prefers-reduced-motion: no-preference) {
+        scale: var(--press-scale);
+      }
+    }
+  }
+}
+
+// The same press for a row whose control is a child (a title with a stretched `::after`):
+// the row tints while that child is pressed, but not while a button in its trail is.
+@mixin press-on($child, $scale: false) {
+  &:has(#{$child}:active) {
+    background-image: linear-gradient(var(--press-tint), var(--press-tint));
+    @if $scale {
+      @media (prefers-reduced-motion: no-preference) {
+        scale: var(--press-scale);
+      }
+    }
+  }
+}
+
+// The label of a control. A long press on it selects the text and opens the iOS callout
+// (copy, look up), which reads as a broken button. Use it on controls only: a content text
+// (a URL, an IBAN, a name in a row) stays selectable.
+@mixin chrome-text {
+  -webkit-user-select: none;
+  user-select: none;
+  -webkit-touch-callout: none;
+}

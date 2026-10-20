@@ -29,6 +29,8 @@ th {
   text-transform: uppercase;
   letter-spacing: var(--tracking-cap);
 }
-tbody tr:hover {
-  background: var(--table-hover-bg, var(--color-surface-sunken));
+@media (hover: hover) {
+  tbody tr:hover {
+    background: var(--table-hover-bg, var(--color-surface-sunken));
+  }
 }

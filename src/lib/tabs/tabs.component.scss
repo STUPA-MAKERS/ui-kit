@@ -1,3 +1,5 @@
+@use '../../styles/press';
+
 :host {
   display: block;
   min-width: 0;
@@ -13,6 +15,7 @@
   display: none;
 }
 .tabs__tab {
+  @include press.chrome-text;
   display: inline-flex;
   align-items: center;
   gap: 6px;
@@ -20,6 +23,8 @@
   height: 44px;
   padding: 0 var(--space-1);
   border: 0;
+  /* The top corners round the press tint; the indicator at the bottom stays straight. */
+  border-radius: var(--radius-sm) var(--radius-sm) 0 0;
   background: none;
   color: var(--color-text-muted);
   font: inherit;
@@ -28,15 +33,24 @@
   white-space: nowrap;
   cursor: pointer;
   transition: color var(--motion-fast) var(--ease-standard);
+  @include press.press;
 }
-.tabs__tab:hover:not(:disabled) {
-  color: var(--color-text);
+@media (hover: hover) {
+  .tabs__tab:hover:not(:disabled) {
+    color: var(--color-text);
+  }
 }
-.tabs__tab--on,
-.tabs__tab--on:hover:not(:disabled) {
+.tabs__tab--on {
   color: var(--color-accent-text);
   font-weight: var(--fw-semibold);
   box-shadow: inset 0 -3px 0 var(--color-accent);
+}
+@media (hover: hover) {
+  .tabs__tab--on:hover:not(:disabled) {
+    color: var(--color-accent-text);
+    font-weight: var(--fw-semibold);
+    box-shadow: inset 0 -3px 0 var(--color-accent);
+  }
 }
 .tabs__tab:disabled {
   opacity: 0.4;

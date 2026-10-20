@@ -1,3 +1,5 @@
+@use '../../styles/press';
+
 .stepper {
   display: flex;
   flex-wrap: wrap;
@@ -27,9 +29,12 @@
   text-align: start;
   cursor: pointer;
   border-radius: var(--radius-lg);
+  @include press.press;
 }
-.stepper__body--button:hover .stepper__label {
-  text-decoration: underline;
+@media (hover: hover) {
+  .stepper__body--button:hover .stepper__label {
+    text-decoration: underline;
+  }
 }
 .stepper__marker {
   display: inline-flex;
@@ -81,11 +86,13 @@
   padding: var(--space-2) 14px;
   border-radius: var(--radius-lg);
 }
-.stepper--vertical .stepper__body--button:hover {
-  background: var(--color-surface-2);
-}
-.stepper--vertical .stepper__body--button:hover .stepper__label {
-  text-decoration: none;
+@media (hover: hover) {
+  .stepper--vertical .stepper__body--button:hover {
+    background: var(--color-surface-2);
+  }
+  .stepper--vertical .stepper__body--button:hover .stepper__label {
+    text-decoration: none;
+  }
 }
 .stepper--vertical .stepper__marker {
   width: 2rem;

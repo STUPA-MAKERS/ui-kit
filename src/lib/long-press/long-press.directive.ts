@@ -1,4 +1,5 @@
 import { DestroyRef, Directive, ElementRef, inject, input, output } from '@angular/core';
+import { haptic } from '../util/haptic';
 
 /** A press this long opens the menu of the host. */
 export const LONG_PRESS_MS = 450;
@@ -117,7 +118,7 @@ export class LongPressDirective {
   private fire(): void {
     this.cancel();
     this.fired = true;
-    navigator.vibrate?.(10);
+    haptic('tick');
     this.pressed.emit();
   }
 }

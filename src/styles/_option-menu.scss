@@ -2,6 +2,7 @@
 // its rows in the phone bottom sheet. One partial, so every popover shows the same menu.
 // Component styles are encapsulated, so each component includes the mixins. Emits no CSS.
 //   @use 'option-menu' as om;
+@use 'press';
 
 // The popover: fixed to the viewport, in the top layer, with the surface and the shadow
 // of the row menu. In the top layer the UA styles would centre it, so the reset comes
@@ -70,6 +71,7 @@
 
 // One row of the list.
 @mixin option {
+  @include press.chrome-text;
   display: flex;
   align-items: center;
   gap: 12px;
@@ -84,6 +86,7 @@
   font-weight: var(--fw-medium);
   text-align: start;
   cursor: pointer;
+  @include press.press;
 }
 
 // The hover and the active row: surface 4 on the surface-3 menu.

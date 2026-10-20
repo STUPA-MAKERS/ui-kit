@@ -1,3 +1,5 @@
+@use '../../styles/press';
+
 :host {
   display: inline-flex;
   align-items: center;
@@ -26,6 +28,7 @@
   background: transparent;
   color: var(--color-text-muted);
   cursor: pointer;
+  @include press.press;
 }
 .rmchip__x--sm {
   width: 22px;
@@ -35,9 +38,11 @@
   width: 32px;
   height: 32px;
 }
-.rmchip__x:hover {
-  background: var(--chip-x-hover-bg, var(--color-surface-3));
-  color: var(--color-text);
+@media (hover: hover) {
+  .rmchip__x:hover {
+    background: var(--chip-x-hover-bg, var(--color-surface-3));
+    color: var(--color-text);
+  }
 }
 .rmchip__x:focus-visible {
   outline: 2px solid var(--color-focus-ring);

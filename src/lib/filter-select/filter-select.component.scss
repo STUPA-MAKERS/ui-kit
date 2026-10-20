@@ -1,4 +1,5 @@
 @use '../../styles/option-menu' as om;
+@use '../../styles/press';
 
 :host {
   display: inline-flex;
@@ -70,8 +71,10 @@
 .fs__option {
   @include om.option;
 }
-.fs__option:hover {
-  @include om.option-hover;
+@media (hover: hover) {
+  .fs__option:hover {
+    @include om.option-hover;
+  }
 }
 .fs__option:focus-visible {
   @include om.option-focus;
@@ -82,8 +85,10 @@
 .fs__option--sheet {
   @include om.option-sheet;
 }
-.fs__option--sheet:hover {
-  @include om.option-hover;
+@media (hover: hover) {
+  .fs__option--sheet:hover {
+    @include om.option-hover;
+  }
 }
 
 .fs__optAv {
@@ -122,6 +127,7 @@
   background: var(--color-border);
 }
 .fs__reset {
+  @include press.chrome-text;
   display: flex;
   align-items: center;
   width: 100%;
@@ -135,10 +141,15 @@
   font-weight: var(--fw-semibold);
   text-align: start;
   cursor: pointer;
+  @include press.press;
 }
-.fs__reset:hover,
 .fs__reset:focus-visible {
   background: var(--color-surface-4);
+}
+@media (hover: hover) {
+  .fs__reset:hover {
+    background: var(--color-surface-4);
+  }
 }
 .fs__reset:focus-visible {
   outline: none;
@@ -151,8 +162,10 @@
   padding: 0 var(--space-3);
   border-radius: var(--radius-md);
 }
-.fs__reset--head:hover {
-  background: var(--color-surface-3);
+@media (hover: hover) {
+  .fs__reset--head:hover {
+    background: var(--color-surface-3);
+  }
 }
 
 .fs__empty {

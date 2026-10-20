@@ -15,6 +15,7 @@ import { ButtonComponent, type ButtonSize, type ButtonVariant } from '../button/
 import { IconComponent } from '../icon/icon.component';
 import { UI_KIT_INTL } from '../intl/intl';
 import { copyText } from './copy-text';
+import { shareOrCopy } from './share-or-copy';
 
 /**
  * A button that copies a text ("Kopieren" → "Kopiert"). After a successful write the label
@@ -26,6 +27,10 @@ import { copyText } from './copy-text';
  * `label` and `copiedLabel` replace the built-in texts (`copy.copy`, `copy.copied`).
  * `ariaLabel` names the button when the visible text is short ("Kopieren" for "MCP-
  * Konfiguration kopieren"); in the copied state the name is the copied label.
+ *
+ * `share` is for a link (a share link, a join link): on a touch device with the Web Share
+ * API the click opens the native share sheet with the link (and `shareTitle`), and the
+ * button keeps its look; elsewhere it copies as above (`shareOrCopy`).
  */
 @Component({
   selector: 'app-copy-button',
@@ -50,6 +55,10 @@ export class CopyButtonComponent {
   readonly icon = input(true);
   /** How long the copied state shows, in ms. 0 keeps it until `text` changes. */
   readonly resetMs = input(2000);
+  /** The text is a link: open the native share sheet where the device has one. */
+  readonly share = input(false);
+  /** The title of the link in the share sheet. */
+  readonly shareTitle = input('');
 
   /** The result of each click: true when the text is on the clipboard. */
   readonly copiedChange = output<boolean>();
@@ -77,7 +86,15 @@ export class CopyButtonComponent {
   protected async copy(): Promise<void> {
     const text = this.text();
     if (!text) return;
-    const ok = await copyText(text);
+    let ok: boolean;
+    if (this.share()) {
+      const outcome = await shareOrCopy({ url: text, title: this.shareTitle() || undefined });
+      // The share sheet was the feedback; a cancel is no failure. Neither is a copy.
+      if (outcome === 'shared' || outcome === 'cancelled') return;
+      ok = outcome === 'copied';
+    } else {
+      ok = await copyText(text);
+    }
     this.clearTimer();
     this.copied.set(ok);
     this.copiedChange.emit(ok);

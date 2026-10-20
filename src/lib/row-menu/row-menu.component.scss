@@ -1,10 +1,12 @@
 @use '../../styles/option-menu' as om;
+@use '../../styles/press';
 :host {
   display: inline-flex;
   flex: none;
 }
 
 .rm__trigger {
+  @include press.chrome-text;
   display: grid;
   place-items: center;
   width: var(--control-height);
@@ -15,6 +17,7 @@
   background: transparent;
   color: var(--color-text-muted);
   cursor: pointer;
+  @include press.press;
 }
 /* A text button (`text`), for example the "…" of a breadcrumb: the height of a line,
    the width of its text. The size comes from global tokens, because the budget
@@ -29,14 +32,21 @@
   font: inherit;
   line-height: inherit;
 }
-.rm__trigger:hover {
-  background: var(--color-surface-3);
-  color: var(--color-text);
+@media (hover: hover) {
+  .rm__trigger:hover {
+    background: var(--color-surface-3);
+    color: var(--color-text);
+  }
 }
-.rm__trigger--on,
-.rm__trigger--on:hover {
+.rm__trigger--on {
   background: var(--color-selected);
   color: var(--color-accent-text);
+}
+@media (hover: hover) {
+  .rm__trigger--on:hover {
+    background: var(--color-selected);
+    color: var(--color-accent-text);
+  }
 }
 
 /* Fixed to the viewport, below the trigger and aligned to its end. In the top layer
@@ -80,6 +90,7 @@
 }
 
 .rm__item {
+  @include press.chrome-text;
   display: flex;
   align-items: center;
   gap: 14px;
@@ -94,10 +105,15 @@
   font-weight: var(--fw-medium);
   text-align: start;
   cursor: pointer;
+  @include press.press;
 }
-.rm__item:hover,
 .rm__item:focus-visible {
   background: var(--color-surface-4);
+}
+@media (hover: hover) {
+  .rm__item:hover {
+    background: var(--color-surface-4);
+  }
 }
 /* Surface 4 on surface 3 is only about 1.2:1, too weak to show the focus (WCAG 2.4.7).
    The focused item also gets an inset ring in the focus colour. */
@@ -154,8 +170,10 @@
   color: var(--color-text-muted);
   white-space: normal;
 }
-.rm__item[aria-disabled='true']:hover {
-  background: transparent;
+@media (hover: hover) {
+  .rm__item[aria-disabled='true']:hover {
+    background: transparent;
+  }
 }
 
 .rm__loading {

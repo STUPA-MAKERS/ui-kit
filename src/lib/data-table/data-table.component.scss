@@ -1,4 +1,5 @@
 @use '../../styles/skeleton-bar' as bar;
+@use '../../styles/press';
 
 /* The scroll container owns the horizontal overflow, so a wide table scrolls inside
    its own box and never pushes the page sideways. The cut and the tongues sit on the
@@ -124,15 +125,22 @@
     background var(--motion-fast, 120ms) var(--ease-standard, ease),
     color var(--motion-fast, 120ms) var(--ease-standard, ease),
     border-color var(--motion-fast, 120ms) var(--ease-standard, ease);
+  @include press.press;
 }
 /* The width is FIXED on hover on purpose. This is a repeat-click target: a button that
    grows under the cursor moves its own edge away mid-click, and the second press lands
    on the table. Colour carries the hover state instead. */
-.dt__tongue:hover,
 .dt__tongue--held {
   background: var(--color-accent);
   color: var(--color-on-accent);
   border-color: var(--color-accent);
+}
+@media (hover: hover) {
+  .dt__tongue:hover {
+    background: var(--color-accent);
+    color: var(--color-on-accent);
+    border-color: var(--color-accent);
+  }
 }
 .dt__tongue:focus-visible {
   outline: 2px solid var(--color-focus-ring, var(--color-primary));
@@ -177,6 +185,7 @@
 
 /* A sortable header is a button, so it needs the header's own typography back. */
 .dt__sort {
+  @include press.chrome-text;
   display: inline-flex;
   align-items: center;
   gap: var(--space-2);
@@ -188,10 +197,15 @@
   text-transform: inherit;
   letter-spacing: inherit;
   cursor: pointer;
+  @include press.press;
 }
-.dt__sort:hover .dt__sort-icon,
 .dt__sort:focus-visible .dt__sort-icon {
   opacity: 1;
+}
+@media (hover: hover) {
+  .dt__sort:hover .dt__sort-icon {
+    opacity: 1;
+  }
 }
 /* `--color-focus-ring` is the token that exists. `--color-focus` never did, which made
    this whole declaration invalid at computed-value time — so `outline-style` fell back to
@@ -437,10 +451,14 @@
   background: var(--color-selected);
 }
 .dt__table tbody tr.dt__row--selected td.dt__cell--stickyEnd,
-.dt__table tbody tr.dt__row--selected td.dt__cell--stickyStart,
-.dt__table tbody tr.dt__row--selected:hover td.dt__cell--stickyEnd,
-.dt__table tbody tr.dt__row--selected:hover td.dt__cell--stickyStart {
+.dt__table tbody tr.dt__row--selected td.dt__cell--stickyStart {
   --pin-bg: var(--color-selected);
+}
+@media (hover: hover) {
+  .dt__table tbody tr.dt__row--selected:hover td.dt__cell--stickyEnd,
+  .dt__table tbody tr.dt__row--selected:hover td.dt__cell--stickyStart {
+    --pin-bg: var(--color-selected);
+  }
 }
 
 /* A child row belongs to the row above it. Indented at the first cell and tinted, so it
@@ -469,20 +487,28 @@
 .dt__row--clickable {
   cursor: pointer;
 }
-.dt__table tbody tr:hover td,
 .dt__row--clickable:focus-visible td,
 .dt__row--clickable:active td {
   background: var(--dt-hover);
 }
+@media (hover: hover) {
+  .dt__table tbody tr:hover td {
+    background: var(--dt-hover);
+  }
+}
 /* The pinned cell sets its own opaque background, so it needs the hover colour
    restated. Without this the row darkens and the pinned strip stays light. */
-.dt__table tbody tr:hover td.dt__cell--stickyEnd,
-.dt__table tbody tr:hover td.dt__cell--stickyStart,
 .dt__row--clickable:focus-visible td.dt__cell--stickyEnd,
 .dt__row--clickable:focus-visible td.dt__cell--stickyStart,
 .dt__row--clickable:active td.dt__cell--stickyEnd,
 .dt__row--clickable:active td.dt__cell--stickyStart {
   --pin-bg: var(--dt-hover);
+}
+@media (hover: hover) {
+  .dt__table tbody tr:hover td.dt__cell--stickyEnd,
+  .dt__table tbody tr:hover td.dt__cell--stickyStart {
+    --pin-bg: var(--dt-hover);
+  }
 }
 .dt__detail-row > td {
   padding: 0;
@@ -662,10 +688,14 @@
      do not reach into the card padding, so a colour on the cells reads as a dark box
      inside the card (#card-tap). The cells go transparent in the last block of this
      file, where they also beat the row-group rules. */
-  .dt__table tbody tr:hover,
   .dt__row--clickable:focus-visible,
   .dt__row--clickable:active {
     background: var(--dt-hover);
+  }
+  @media (hover: hover) {
+    .dt__table tbody tr:hover {
+      background: var(--dt-hover);
+    }
   }
   .dt__detail-row {
     padding: 0;
@@ -752,11 +782,16 @@
   border-bottom: 0;
 }
 /* The hover takes the next surface step above the rows. */
-.dt--rowgroup .dt__table tbody tr:hover td,
 .dt--rowgroup .dt__row--clickable:focus-visible td,
 .dt--rowgroup .dt__row--clickable:active td {
   --pin-bg: var(--dt-hover);
   background: var(--dt-hover);
+}
+@media (hover: hover) {
+  .dt--rowgroup .dt__table tbody tr:hover td {
+    --pin-bg: var(--dt-hover);
+    background: var(--dt-hover);
+  }
 }
 @media (max-width: 768px) {
   /* The cards: the gap goes between the cards, not between the fields of a card. */
@@ -769,8 +804,10 @@
   .dt--rowgroup .dt__table tbody tr:last-child {
     border-bottom: 0;
   }
-  .dt--rowgroup .dt__table tbody tr:hover {
-    background: var(--dt-hover);
+  @media (hover: hover) {
+    .dt--rowgroup .dt__table tbody tr:hover {
+      background: var(--dt-hover);
+    }
   }
   /* A cell that renders nothing gets no label line in the card. */
   .dt--rowgroup .dt__table td[data-label]:empty {
@@ -785,13 +822,23 @@
    the inside of the card edge marks the selection without the colour alone. */
 @media (max-width: 768px) {
   .dt .dt__table tbody tr > td,
-  .dt .dt__table tbody tr:is(:hover, :focus-visible, :active) > td {
+  .dt .dt__table tbody tr:is(:focus-visible, :active) > td {
     --pin-bg: transparent;
     background: transparent;
   }
   .dt .dt__table tbody tr.dt__row--selected,
-  .dt .dt__table tbody tr.dt__row--selected:is(:hover, :focus-visible, :active) {
+  .dt .dt__table tbody tr.dt__row--selected:is(:focus-visible, :active) {
     background: var(--color-selected);
     box-shadow: inset 0 0 0 var(--border-width) var(--color-accent);
+  }
+  @media (hover: hover) {
+    .dt .dt__table tbody tr:hover > td {
+      --pin-bg: transparent;
+      background: transparent;
+    }
+    .dt .dt__table tbody tr.dt__row--selected:hover {
+      background: var(--color-selected);
+      box-shadow: inset 0 0 0 var(--border-width) var(--color-accent);
+    }
   }
 }

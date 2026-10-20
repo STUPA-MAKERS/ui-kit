@@ -142,9 +142,13 @@ app-markdown-editor {
   border-radius: var(--radius-sm);
   padding: 0 var(--space-1);
 }
-.mde__host .ProseMirror .tiptap-mathematics-render:hover,
 .mde__host .ProseMirror .ProseMirror-selectednode.tiptap-mathematics-render {
   background: var(--color-primary-subtle);
+}
+@media (hover: hover) {
+  .mde__host .ProseMirror .tiptap-mathematics-render:hover {
+    background: var(--color-primary-subtle);
+  }
 }
 .mde__host .ProseMirror div.tiptap-mathematics-render {
   display: block;
