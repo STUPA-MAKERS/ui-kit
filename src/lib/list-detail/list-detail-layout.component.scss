@@ -1,9 +1,12 @@
 @use '../../styles/surface';
+@use '../../styles/breakpoints' as bp;
 
 /* The host fills the height its parent gives it; each pane scrolls on its own. The width
    of the list (`--ld-list-width`) and the gap (`--ld-gap`) are global tokens in
    `styles/list-detail.scss`: every list column of the app has the same width. */
 :host {
+  /* The height of the bar of the one-view layout, without the top safe area. */
+  --ld-bar-height: 56px;
   display: flex;
   min-width: 0;
   min-height: 0;
@@ -73,25 +76,97 @@
   outline: none;
 }
 
-.ld__back {
-  display: inline-flex;
-  align-self: flex-start;
+/* One view at a time: the bar at the top of the detail. It stays at the top of the
+   window while the page scrolls under it, so the way back and the actions are always in
+   reach. It pulls into the top padding of the page (`--main-pad-top` of the shell) and
+   reaches over the page gutter to the window edges, so nothing shows above or beside it.
+   The arrow and the actions keep their 40px boxes; the glyphs line up with the content
+   edges. The small title fades in once the big title has scrolled under the bar, and a
+   rule then closes the bar. */
+.ld__bar {
+  --ld-bar-gutter: var(--layout-gutter);
+  position: sticky;
+  top: 0;
+  z-index: var(--z-sticky);
+  display: flex;
   align-items: center;
-  gap: var(--space-1);
-  height: var(--control-height-sm);
-  margin: 0 0 var(--space-2) calc(-1 * var(--space-2));
-  padding: 0 var(--space-2);
+  gap: 2px;
+  min-height: var(--ld-bar-height);
+  margin: calc(-1 * var(--main-pad-top, 0px)) calc(-1 * var(--ld-bar-gutter)) 0;
+  padding: env(safe-area-inset-top, 0px) calc(var(--ld-bar-gutter) - var(--space-2)) 0;
+  border-bottom: var(--border-width) solid transparent;
+  background: var(--color-bg);
+  transition: border-color var(--motion-fast, 120ms) var(--ease-standard, ease);
+}
+@include bp.phone {
+  .ld__bar {
+    --ld-bar-gutter: var(--space-4);
+  }
+}
+/* A sticky element of the detail (the edit bar of an application) sticks below the bar. */
+.ld__detail--bar {
+  --ld-sticky-top: calc(var(--ld-bar-height) + env(safe-area-inset-top, 0px));
+}
+.ld__bar--condensed {
+  border-bottom-color: var(--color-border);
+}
+
+.ld__back {
+  display: grid;
+  flex: none;
+  place-items: center;
+  width: var(--control-height);
+  height: var(--control-height);
+  padding: 0;
   border: 0;
-  border-radius: var(--radius-pill);
+  border-radius: 50%;
   background: transparent;
-  color: var(--color-accent-text);
-  font: inherit;
-  font-size: var(--fs-small);
-  font-weight: var(--fw-semibold);
+  color: var(--color-text);
   cursor: pointer;
 }
 .ld__back:hover {
   background: var(--color-selected);
+}
+.ld__back:focus-visible {
+  outline: 2px solid var(--color-focus-ring);
+  outline-offset: 2px;
+}
+
+/* At most two lines; the full title stays in the sheet below. */
+.ld__barTitle {
+  display: -webkit-box;
+  flex: 1 1 auto;
+  min-width: 0;
+  overflow: hidden;
+  padding-inline: var(--space-1);
+  font-size: var(--fs-h3);
+  line-height: var(--lh-h3);
+  font-weight: var(--fw-semibold);
+  overflow-wrap: anywhere;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  opacity: 0;
+  transform: translateY(var(--space-1));
+  transition:
+    opacity var(--motion-base, 200ms) var(--ease-standard, ease),
+    transform var(--motion-base, 200ms) var(--ease-standard, ease);
+}
+.ld__bar--condensed .ld__barTitle {
+  opacity: 1;
+  transform: none;
+}
+@media (prefers-reduced-motion: reduce) {
+  .ld__bar,
+  .ld__barTitle {
+    transition: none;
+  }
+}
+
+.ld__barActions {
+  display: flex;
+  flex: none;
+  align-items: center;
+  gap: 2px;
 }
 
 /* Wide: the detail is a sheet on surface 1 beside the list, so a table in it steps up

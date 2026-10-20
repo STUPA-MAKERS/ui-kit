@@ -68,3 +68,15 @@
   overflow-wrap: anywhere;
   padding-block: max(0px, calc((60px - 1lh) / 2));
 }
+
+/* Docked in the list/detail layout (one view at a time): the bar of the layout holds the
+   actions, so the title opens the sheet at the top, without the line of the actions. */
+:host(.sheet-bar--docked) {
+  padding-top: 0;
+}
+:host(.sheet-bar--docked) .sheet-bar__title {
+  min-height: 0;
+}
+:host(.sheet-bar--docked) .sheet-bar__title > ::ng-deep * {
+  padding-block: 0;
+}

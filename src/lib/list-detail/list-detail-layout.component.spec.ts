@@ -3,6 +3,7 @@ import { render, screen } from '@testing-library/angular';
 import userEvent from '@testing-library/user-event';
 import { BREAKPOINTS } from '../breakpoints/breakpoints';
 import { runAxe } from '../../../testing/a11y';
+import { SheetBarComponent, SheetBarTitleDirective } from '../sheet-bar/sheet-bar.component';
 import {
   LAYOUT_GUTTER,
   LIST_DETAIL_SPLIT_MIN,
@@ -58,6 +59,29 @@ class FocusHostComponent {
 })
 class OwnBackHostComponent {
   readonly open = signal<string | null>(null);
+}
+
+/** A detail whose sheet bar has a title and an action, as every detail sheet of the app. */
+@Component({
+  standalone: true,
+  imports: [ListDetailLayoutComponent, SheetBarComponent, SheetBarTitleDirective],
+  template: `
+    <app-list-detail [detailOpen]="open()" (back)="open.set(false)">
+      <ul list aria-label="Anträge"><li>Druckkosten</li></ul>
+      <article detail aria-label="Detail">
+        @if (titled()) {
+          <app-sheet-bar>
+            <h2 appSheetBarTitle>Druckkosten</h2>
+            <button type="button">Menü</button>
+          </app-sheet-bar>
+        }
+      </article>
+    </app-list-detail>
+  `,
+})
+class SheetHostComponent {
+  readonly open = signal(true);
+  readonly titled = signal(true);
 }
 
 /** Drives the ResizeObserver of the layout: the last observer created gets the width. */
@@ -194,6 +218,44 @@ describe('ListDetailLayoutComponent', () => {
       expect(list()).toBeVisible();
       expect(detail()).not.toBeVisible();
       expect(await runAxe(view.container)).toHaveNoViolations();
+    });
+  });
+
+  describe('the bar of the one-view layout', () => {
+    const bar = (c: Element) => c.querySelector('.ld__bar');
+    const menu = () => screen.getByRole('button', { name: 'Menü' });
+
+    it('holds the way back and the actions of the sheet bar; the title stays in the sheet', async () => {
+      viewport(390, 358);
+      const view = await render(SheetHostComponent);
+      view.fixture.detectChanges();
+      const b = bar(view.container);
+      expect(b).not.toBeNull();
+      expect(b?.contains(screen.getByRole('button', { name: 'Zur Liste' }))).toBe(true);
+      expect(b?.contains(menu())).toBe(true);
+      const sheetBar = view.container.querySelector('app-sheet-bar') as HTMLElement;
+      expect(sheetBar).toHaveClass('sheet-bar--docked');
+      expect(sheetBar.contains(screen.getByRole('heading', { name: 'Druckkosten' }))).toBe(true);
+      expect(await runAxe(view.container)).toHaveNoViolations();
+    });
+
+    it('gives the actions back to the sheet bar side by side', async () => {
+      viewport(1440);
+      const view = await render(SheetHostComponent);
+      view.fixture.detectChanges();
+      expect(bar(view.container)).toBeNull();
+      const sheetBar = view.container.querySelector('app-sheet-bar') as HTMLElement;
+      expect(sheetBar).not.toHaveClass('sheet-bar--docked');
+      expect(sheetBar.contains(menu())).toBe(true);
+    });
+
+    it('keeps the way back when the sheet bar goes away', async () => {
+      viewport(390, 358);
+      const view = await render(SheetHostComponent);
+      view.fixture.componentInstance.titled.set(false);
+      view.fixture.detectChanges();
+      expect(bar(view.container)?.querySelector('.ld__barActions')).toBeNull();
+      expect(screen.getByRole('button', { name: 'Zur Liste' })).toBeInTheDocument();
     });
   });
 

@@ -1,4 +1,21 @@
-import { ChangeDetectionStrategy, Component, Directive, contentChild, input } from '@angular/core';
+import { NgTemplateOutlet } from '@angular/common';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  DestroyRef,
+  Directive,
+  ElementRef,
+  TemplateRef,
+  computed,
+  contentChild,
+  effect,
+  inject,
+  input,
+  signal,
+  untracked,
+  viewChild,
+} from '@angular/core';
+import { ListDetailBarClient, ListDetailNav } from '../list-detail/list-detail-nav';
 
 /**
  * Marks the element that a page projects as the kicker of `app-sheet-bar`, for a kicker
@@ -54,6 +71,11 @@ export class SheetBarTitleDirective {}
  * </app-sheet-bar>
  * ```
  *
+ * In the detail of `app-list-detail`, one view at a time, a bar with a title hands its
+ * actions to the bar of the layout (`ListDetailNav`), which stays at the top with the way
+ * back. The title then opens the sheet without the bar line, and the bar of the layout
+ * shows it in small type once it has scrolled under that bar.
+ *
  * A kicker with controls in it (the budget breadcrumb) is projected with
  * `appSheetBarKicker` instead of `[kicker]`. It takes the same place and font:
  *
@@ -68,8 +90,10 @@ export class SheetBarTitleDirective {}
   selector: 'app-sheet-bar',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
+  imports: [NgTemplateOutlet],
   host: {
     class: 'sheet-bar',
+    '[class.sheet-bar--docked]': 'docked()',
     '[class.sheet-bar--bleed]': 'bleed()',
     '[class.sheet-bar--title]': '!!slotTitle()',
   },
@@ -95,4 +119,63 @@ export class SheetBarComponent {
 
   /** The projected title (`appSheetBarTitle`), which replaces the kicker. */
   protected readonly slotTitle = contentChild(SheetBarTitleDirective);
+
+  private readonly host = inject<ElementRef<HTMLElement>>(ElementRef);
+  private readonly nav = inject(ListDetailNav, { optional: true });
+  private readonly actions = viewChild.required<TemplateRef<unknown>>('actions');
+  private readonly client = signal<ListDetailBarClient | null>(null);
+
+  /** The bar of the list/detail layout shows the actions of this bar. */
+  protected readonly docked = computed(
+    () => !!this.nav?.active() && this.client() !== null && this.nav.owner() === this.client(),
+  );
+
+  constructor() {
+    const nav = this.nav;
+    if (!nav) return;
+    // A bar with a title registers once its actions template exists.
+    effect(() => {
+      const actions = this.actions();
+      const titled = !!this.slotTitle();
+      untracked(() => {
+        const client = this.client();
+        if (titled && !client) {
+          const next = { actions };
+          this.client.set(next);
+          nav.register(next);
+        } else if (!titled && client) {
+          nav.unregister(client);
+          this.client.set(null);
+        }
+      });
+    });
+    const check = () => this.checkCondensed(nav);
+    let frame = 0;
+    const onScroll = () => {
+      if (frame) return;
+      frame = requestAnimationFrame(() => {
+        frame = 0;
+        check();
+      });
+    };
+    effect(() => {
+      if (this.docked()) requestAnimationFrame(check);
+    });
+    window.addEventListener('scroll', onScroll, { capture: true, passive: true });
+    inject(DestroyRef).onDestroy(() => {
+      window.removeEventListener('scroll', onScroll, { capture: true });
+      if (frame) cancelAnimationFrame(frame);
+      const client = this.client();
+      if (client) nav.unregister(client);
+    });
+  }
+
+  /** The title has scrolled under the bar of the layout: the bar shows it in small type. */
+  private checkCondensed(nav: ListDetailNav): void {
+    if (!this.docked()) return;
+    const title = this.host.nativeElement.querySelector('.sheet-bar__title');
+    if (!title) return;
+    nav.title.set(title.textContent?.trim() ?? '');
+    nav.condensed.set(title.getBoundingClientRect().bottom <= nav.barBottom());
+  }
 }
