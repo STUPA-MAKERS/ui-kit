@@ -100,6 +100,7 @@ export * from './lib/truncated/truncated.directive';
 export * from './lib/long-press/long-press.directive';
 export * from './lib/press-select/press-select.directive';
 export * from './lib/swipe-back/swipe-back.directive';
+export * from './lib/row-swipe/row-swipe.directive';
 export * from './lib/gesture/gesture';
 export * from './lib/util/download.util';
 export * from './lib/util/format-bytes';

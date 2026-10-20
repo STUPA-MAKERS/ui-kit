@@ -1,4 +1,36 @@
-<div class="li" [class.li--on]="selected()" [class.li--wrap]="wrap()" [class.li--subWrap]="subWrap()" (pointerenter)="measure()">
+<!-- The swipe of a phone (`appRowSwipe`): the plates of the two directions lie under the
+     row, and the row (`#fg`) moves with the finger. The plates are for the eye only; the
+     row menu is the way to the same actions for every other input. -->
+<div
+  class="li-sw"
+  appRowSwipe
+  #sw="appRowSwipe"
+  [rowSwipeRight]="swipeRight()"
+  [rowSwipeLeft]="swipeLeft()"
+  [rowSwipeFg]="fg"
+  (rowSwiped)="swiped.emit($event)"
+>
+  @if (swipeRight(); as a) {
+    <div
+      class="li-sw__plate li-sw__plate--right"
+      [class.li-sw__plate--on]="sw.dir() === 'right'"
+      [class.li-sw__plate--armed]="sw.dir() === 'right' && sw.armed()"
+      aria-hidden="true"
+    >
+      <app-icon class="li-sw__icon" [name]="a.icon" [size]="22" /><span class="li-sw__label">{{ a.label }}</span>
+    </div>
+  }
+  @if (swipeLeft(); as a) {
+    <div
+      class="li-sw__plate li-sw__plate--left"
+      [class.li-sw__plate--on]="sw.dir() === 'left'"
+      [class.li-sw__plate--armed]="sw.dir() === 'left' && sw.armed()"
+      aria-hidden="true"
+    >
+      <span class="li-sw__label">{{ a.label }}</span><app-icon class="li-sw__icon" [name]="a.icon" [size]="22" />
+    </div>
+  }
+<div #fg class="li" [class.li--on]="selected()" [class.li--wrap]="wrap()" [class.li--subWrap]="subWrap()" (pointerenter)="measure()">
   <span class="li__lead"><ng-content select="[lead]" /></span>
   <span class="li__body">
     <span class="li__head">
@@ -34,4 +66,5 @@
     </span>
   </span>
   <span class="li__trail"><ng-content select="[trail]" /></span>
+</div>
 </div>

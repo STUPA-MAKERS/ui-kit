@@ -10,6 +10,8 @@ import {
   viewChild,
 } from '@angular/core';
 import { type Params, RouterLink, type QueryParamsHandling } from '@angular/router';
+import { IconComponent } from '../icon/icon.component';
+import { type RowSwipeAction, RowSwipeDirective } from '../row-swipe/row-swipe.directive';
 
 /**
  * One row of a list: a lead, a title with a sub line, and a trailing slot.
@@ -41,12 +43,18 @@ import { type Params, RouterLink, type QueryParamsHandling } from '@angular/rout
  * text colour (for example a muted row of the past), `--li-sub-color` to change the colour
  * of the sub line, `--li-radius` to match the corners of a row group and `--li-bg` to give
  * the row a surface of its own (for example a checked row of a multiple selection).
+ *
+ * On a phone with a touch screen, `swipeRight` and `swipeLeft` give the row a full swipe
+ * to the side (`RowSwipeDirective`): each one is an item of the row menu, and `swiped`
+ * emits it after the release past 40 % of the row width. The swipe to the right shows a
+ * plate in the accent container colours, the swipe to the left a neutral one; both take
+ * the corners of the row.
  */
 @Component({
   selector: 'app-list-item',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [RouterLink],
+  imports: [IconComponent, RouterLink, RowSwipeDirective],
   templateUrl: './list-item.component.html',
   styleUrl: './list-item.component.scss',
 })
@@ -83,6 +91,12 @@ export class ListItemComponent {
    */
   readonly subWrap = input(false, { transform: booleanAttribute });
 
+  /** The row menu item that a swipe to the right carries out, if any. */
+  readonly swipeRight = input<RowSwipeAction | null>(null);
+  /** The row menu item that a swipe to the left carries out, if any. */
+  readonly swipeLeft = input<RowSwipeAction | null>(null);
+  /** A swipe carried out one of the two items. */
+  readonly swiped = output<RowSwipeAction>();
   /** The row was opened by a click, Enter or Space. Also emitted for a link. */
   readonly activate = output<void>();
 
