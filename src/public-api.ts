@@ -70,6 +70,7 @@ export * from './lib/signals/now-signal';
 export * from './lib/signals/media-query';
 export * from './lib/signals/element-size';
 export * from './lib/copy/copy-text';
+export * from './lib/copy/share-or-copy';
 export * from './lib/avatar/avatar.component';
 export * from './lib/avatar/avatar-source';
 export * from './lib/side-sheet/side-sheet.component';
