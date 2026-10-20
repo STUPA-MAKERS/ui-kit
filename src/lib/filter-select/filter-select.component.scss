@@ -141,6 +141,7 @@
   font-weight: var(--fw-semibold);
   text-align: start;
   cursor: pointer;
+  transition: scale var(--motion-xs) var(--ease-standard);
   @include press.press;
 }
 .fs__reset:focus-visible {

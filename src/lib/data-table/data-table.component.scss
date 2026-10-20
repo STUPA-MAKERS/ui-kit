@@ -124,7 +124,8 @@
     opacity var(--motion-base, 200ms) var(--ease-standard, ease),
     background var(--motion-fast, 120ms) var(--ease-standard, ease),
     color var(--motion-fast, 120ms) var(--ease-standard, ease),
-    border-color var(--motion-fast, 120ms) var(--ease-standard, ease);
+    border-color var(--motion-fast, 120ms) var(--ease-standard, ease),
+    scale var(--motion-xs) var(--ease-standard);
   @include press.press;
 }
 /* The width is FIXED on hover on purpose. This is a repeat-click target: a button that
@@ -197,6 +198,7 @@
   text-transform: inherit;
   letter-spacing: inherit;
   cursor: pointer;
+  transition: scale var(--motion-xs) var(--ease-standard);
   @include press.press;
 }
 .dt__sort:focus-visible .dt__sort-icon {
@@ -486,6 +488,11 @@
 
 .dt__row--clickable {
   cursor: pointer;
+  transition: scale var(--motion-xs) var(--ease-standard);
+}
+/* A pressed row shrinks a little, as a list row does; the cells take the tint below. */
+.dt__row--clickable:active {
+  @include press.press-scale(row);
 }
 .dt__row--clickable:focus-visible td,
 .dt__row--clickable:active td {

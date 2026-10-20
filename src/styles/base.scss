@@ -349,6 +349,7 @@ input[type='radio'] {
   font-weight: var(--fw-medium);
   white-space: nowrap;
   cursor: pointer;
+  transition: scale var(--motion-xs) var(--ease-standard);
   @include press.press;
 }
 @media (hover: hover) {

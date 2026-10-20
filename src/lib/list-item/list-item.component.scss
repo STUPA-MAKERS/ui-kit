@@ -15,6 +15,12 @@
 .li-sw.row-swipe--drag {
   overflow: hidden;
 }
+/* A row that the finger moves sideways is no press: it keeps its size and loses the
+   tint. The doubled class beats the press rule below. */
+.li-sw.row-swipe--drag .li.li {
+  scale: none;
+  background-image: none;
+}
 .li-sw__plate {
   position: absolute;
   inset: 0;
@@ -94,7 +100,7 @@
     scale var(--motion-xs) var(--ease-standard);
   /* The title is the control (its ::after covers the row), so the row tints and shrinks a
      little while the title is pressed, not while a button in the trail is. */
-  @include press.press-on('.li__title', $scale: true);
+  @include press.press-on('.li__title');
 }
 /* `--li-hover` lets a list on surface 2 pick a hover that differs from its rows. */
 @media (hover: hover) {

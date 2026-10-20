@@ -32,7 +32,7 @@
   font-weight: var(--fw-medium);
   white-space: nowrap;
   cursor: pointer;
-  transition: color var(--motion-fast) var(--ease-standard);
+  transition: color var(--motion-fast) var(--ease-standard), scale var(--motion-xs) var(--ease-standard);
   @include press.press;
 }
 @media (hover: hover) {

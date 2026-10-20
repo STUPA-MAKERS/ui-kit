@@ -61,6 +61,7 @@
   font-size: 0.8125rem;
   font-weight: var(--fw-semibold);
   cursor: pointer;
+  transition: scale var(--motion-xs) var(--ease-standard);
   @include press.press;
 }
 @media (hover: hover) {

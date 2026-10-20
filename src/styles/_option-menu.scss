@@ -86,7 +86,8 @@
   font-weight: var(--fw-medium);
   text-align: start;
   cursor: pointer;
-  @include press.press;
+  transition: scale var(--motion-xs) var(--ease-standard);
+  @include press.press($scale: row);
 }
 
 // The hover and the active row: surface 4 on the surface-3 menu.
