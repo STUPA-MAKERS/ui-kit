@@ -164,6 +164,9 @@ describe('touch rules in the stylesheets', () => {
     }
     expect(rule).toMatch(/\.lfld__value \{\s*@include press\.selectable;/);
     expect(rule).toMatch(/img \{\s*-webkit-user-drag: none;/);
+    // No scroll bar and no reserved gutter on a touch screen.
+    expect(rule).toMatch(/scrollbar-width: none !important;\s*scrollbar-gutter: auto !important;/);
+    expect(rule).toMatch(/\*::-webkit-scrollbar \{\s*display: none;\s*width: 0;\s*height: 0;/);
     expect(read('_press.scss')).toMatch(
       /@mixin selectable \{\s*-webkit-user-select: text;\s*user-select: text;\s*-webkit-touch-callout: default;/,
     );

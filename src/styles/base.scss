@@ -32,6 +32,22 @@
   img {
     -webkit-user-drag: none;
   }
+  // A touch screen shows no scroll bar, as a native app does: the content moves under the
+  // finger, and Android draws a classic grey bar for a styled or thin one. No reserved
+  // gutter either, because it would leave an empty strip at the edge. `!important`,
+  // because a component rule (`scrollbar-width: thin`) would win over the universal
+  // selector.
+  *,
+  *::before,
+  *::after {
+    scrollbar-width: none !important;
+    scrollbar-gutter: auto !important;
+  }
+  *::-webkit-scrollbar {
+    display: none;
+    width: 0;
+    height: 0;
+  }
   input,
   textarea,
   [contenteditable]:not([contenteditable='false']),
