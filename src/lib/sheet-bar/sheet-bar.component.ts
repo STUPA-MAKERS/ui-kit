@@ -2,20 +2,15 @@ import { NgTemplateOutlet } from '@angular/common';
 import {
   ChangeDetectionStrategy,
   Component,
-  DestroyRef,
   Directive,
   ElementRef,
   TemplateRef,
-  computed,
   contentChild,
-  effect,
   inject,
   input,
-  signal,
-  untracked,
   viewChild,
 } from '@angular/core';
-import { ListDetailBarClient, ListDetailNav } from '../list-detail/list-detail-nav';
+import { dockInListDetailBar } from '../list-detail/list-detail-nav';
 
 /**
  * Marks the element that a page projects as the kicker of `app-sheet-bar`, for a kicker
@@ -121,61 +116,12 @@ export class SheetBarComponent {
   protected readonly slotTitle = contentChild(SheetBarTitleDirective);
 
   private readonly host = inject<ElementRef<HTMLElement>>(ElementRef);
-  private readonly nav = inject(ListDetailNav, { optional: true });
   private readonly actions = viewChild.required<TemplateRef<unknown>>('actions');
-  private readonly client = signal<ListDetailBarClient | null>(null);
 
   /** The bar of the list/detail layout shows the actions of this bar. */
-  protected readonly docked = computed(
-    () => !!this.nav?.active() && this.client() !== null && this.nav.owner() === this.client(),
-  );
-
-  constructor() {
-    const nav = this.nav;
-    if (!nav) return;
-    // A bar with a title registers once its actions template exists.
-    effect(() => {
-      const actions = this.actions();
-      const titled = !!this.slotTitle();
-      untracked(() => {
-        const client = this.client();
-        if (titled && !client) {
-          const next = { actions };
-          this.client.set(next);
-          nav.register(next);
-        } else if (!titled && client) {
-          nav.unregister(client);
-          this.client.set(null);
-        }
-      });
-    });
-    const check = () => this.checkCondensed(nav);
-    let frame = 0;
-    const onScroll = () => {
-      if (frame) return;
-      frame = requestAnimationFrame(() => {
-        frame = 0;
-        check();
-      });
-    };
-    effect(() => {
-      if (this.docked()) requestAnimationFrame(check);
-    });
-    window.addEventListener('scroll', onScroll, { capture: true, passive: true });
-    inject(DestroyRef).onDestroy(() => {
-      window.removeEventListener('scroll', onScroll, { capture: true });
-      if (frame) cancelAnimationFrame(frame);
-      const client = this.client();
-      if (client) nav.unregister(client);
-    });
-  }
-
-  /** The title has scrolled under the bar of the layout: the bar shows it in small type. */
-  private checkCondensed(nav: ListDetailNav): void {
-    if (!this.docked()) return;
-    const title = this.host.nativeElement.querySelector('.sheet-bar__title');
-    if (!title) return;
-    nav.title.set(title.textContent?.trim() ?? '');
-    nav.condensed.set(title.getBoundingClientRect().bottom <= nav.barBottom());
-  }
+  protected readonly docked = dockInListDetailBar({
+    actions: this.actions,
+    titled: () => !!this.slotTitle(),
+    title: () => this.host.nativeElement.querySelector('.sheet-bar__title'),
+  });
 }

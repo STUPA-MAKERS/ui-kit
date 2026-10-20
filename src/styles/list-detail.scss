@@ -10,6 +10,17 @@
 :root {
   --ld-list-width: clamp(20rem, 32vw, 27.5rem);
   --ld-gap: var(--space-3);
+  // The height of the bar of a one-view page (`app-list-detail-bar`), without the top
+  // safe area. It leaves 10px above and below the 40px buttons, so the arrow and the menu
+  // do not touch the top edge of the screen.
+  --ld-bar-height: 60px;
+}
+
+// The page below an `app-list-detail-bar` (the detail of `app-list-detail` one view at a
+// time, an admin page on a phone): a sticky element of the page (the edit bar of an
+// application, a search bar) sticks below the bar, not under it.
+.ld-under-bar {
+  --ld-sticky-top: calc(var(--ld-bar-height) + env(safe-area-inset-top, 0px));
 }
 
 // The list column of such a page, in this order: the header, the search bar with its

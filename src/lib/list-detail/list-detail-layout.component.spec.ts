@@ -240,6 +240,8 @@ describe('ListDetailLayoutComponent', () => {
       const sheetBar = view.container.querySelector('app-sheet-bar') as HTMLElement;
       expect(sheetBar).toHaveClass('sheet-bar--docked');
       expect(sheetBar.contains(screen.getByRole('heading', { name: 'Druckkosten' }))).toBe(true);
+      // A sticky element of the detail sticks below the bar.
+      expect(view.container.querySelector('.ld__detail')).toHaveClass('ld-under-bar');
       expect(await runAxe(view.container)).toHaveNoViolations();
     });
 
@@ -248,6 +250,7 @@ describe('ListDetailLayoutComponent', () => {
       const view = await render(SheetHostComponent);
       view.fixture.detectChanges();
       expect(bar(view.container)).toBeNull();
+      expect(view.container.querySelector('.ld__detail')).not.toHaveClass('ld-under-bar');
       const sheetBar = view.container.querySelector('app-sheet-bar') as HTMLElement;
       expect(sheetBar).not.toHaveClass('sheet-bar--docked');
       expect(sheetBar.contains(menu())).toBe(true);
@@ -456,13 +459,13 @@ describe('ListDetailLayoutComponent', () => {
 
 describe('ListDetailLayoutComponent bar styles', () => {
   // jsdom applies no component styles, so this reads the SCSS.
-  const scss = readFileSync(join(__dirname, 'list-detail-layout.component.scss'), 'utf8');
   const bar = readFileSync(join(__dirname, 'list-detail-bar.component.scss'), 'utf8');
+  const tokens = readFileSync(join(__dirname, '../../styles/list-detail.scss'), 'utf8');
 
   it('gives the phone bar room above the buttons and keeps them off the screen edges', () => {
-    expect(scss).toContain('--ld-bar-height: 60px;');
+    expect(tokens).toContain('--ld-bar-height: 60px;');
     expect(bar).toContain('min-height: calc(var(--ld-bar-height, 60px) + env(safe-area-inset-top, 0px));');
     expect(bar).toContain('padding: env(safe-area-inset-top, 0px) calc(var(--ld-bar-gutter) - var(--space-1)) 0;');
-    expect(scss).toContain('--ld-sticky-top: calc(var(--ld-bar-height) + env(safe-area-inset-top, 0px));');
+    expect(tokens).toContain('--ld-sticky-top: calc(var(--ld-bar-height) + env(safe-area-inset-top, 0px));');
   });
 });

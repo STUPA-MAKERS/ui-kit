@@ -1,11 +1,12 @@
-/* Sticky at the top of the viewport, below the shell header and the safe area. The block
-   padding gives the field a small gap to the viewport edge while it is stuck; the same
-   negative margin keeps the bar at its place in the flow. */
+/* Sticky at the top of the viewport, below the shell header and the safe area. Below the
+   bar of a one-view page (`.ld-under-bar` sets `--ld-sticky-top`) it sticks below that
+   bar. The block padding gives the field a small gap to the viewport edge while it is
+   stuck; the same negative margin keeps the bar at its place in the flow. */
 :host {
   --stb-pad: var(--space-2);
   --stb-fade: var(--space-4);
   position: sticky;
-  top: calc(var(--layout-header-height, 0px) + env(safe-area-inset-top, 0px));
+  top: var(--ld-sticky-top, calc(var(--layout-header-height, 0px) + env(safe-area-inset-top, 0px)));
   /* Above the rows, below the floating action button and the phone bar (`--z-sticky`). */
   z-index: calc(var(--z-sticky) - 1);
   display: block;
