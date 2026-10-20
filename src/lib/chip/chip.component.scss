@@ -1,3 +1,5 @@
+@use '../../styles/press';
+
 :host {
   display: inline-flex;
   align-items: center;
@@ -26,6 +28,7 @@
   background: transparent;
   color: var(--color-text-muted);
   cursor: pointer;
+  @include press.press;
 }
 .rmchip__x--sm {
   width: 22px;

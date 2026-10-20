@@ -1,3 +1,5 @@
+@use '../../styles/press';
+
 .toasts {
   position: fixed;
   inset-block-end: var(--space-5);
@@ -51,6 +53,7 @@
   border-radius: var(--radius-pill);
   cursor: pointer;
   color: var(--color-text-muted);
+  @include press.press;
 }
 @media (hover: hover) {
   .toast__close:hover {

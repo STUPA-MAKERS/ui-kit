@@ -1,3 +1,5 @@
+@use '../../styles/press';
+
 :host {
   display: flex;
   flex-direction: column;
@@ -12,16 +14,16 @@
   overflow: hidden;
 }
 .card--interactive {
-  transition: background-color var(--motion-fast) var(--ease-standard);
+  transition:
+    background-color var(--motion-fast) var(--ease-standard),
+    scale var(--motion-xs) var(--ease-standard);
+  // A pressed card tints and shrinks a little (`_press.scss`).
+  @include press.press($scale: true);
 }
 @media (hover: hover) {
   .card--interactive:hover {
     background: var(--color-surface-sunken);
   }
-}
-// Tap/Klick: ganze gerundete Kachel tönt sich (statt rechteckigem Tap-Kasten).
-.card--interactive:active {
-  background: var(--color-surface-3);
 }
 .card__header:empty,
 .card__footer:empty {

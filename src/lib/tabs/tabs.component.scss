@@ -1,3 +1,5 @@
+@use '../../styles/press';
+
 :host {
   display: block;
   min-width: 0;
@@ -13,6 +15,7 @@
   display: none;
 }
 .tabs__tab {
+  @include press.chrome-text;
   display: inline-flex;
   align-items: center;
   gap: 6px;
@@ -20,6 +23,8 @@
   height: 44px;
   padding: 0 var(--space-1);
   border: 0;
+  /* The top corners round the press tint; the indicator at the bottom stays straight. */
+  border-radius: var(--radius-sm) var(--radius-sm) 0 0;
   background: none;
   color: var(--color-text-muted);
   font: inherit;
@@ -28,6 +33,7 @@
   white-space: nowrap;
   cursor: pointer;
   transition: color var(--motion-fast) var(--ease-standard);
+  @include press.press;
 }
 @media (hover: hover) {
   .tabs__tab:hover:not(:disabled) {

@@ -1,3 +1,5 @@
+@use '../../styles/press';
+
 :host {
   display: block;
   min-width: 0;
@@ -15,7 +17,12 @@
   border-radius: var(--li-radius, var(--radius-lg));
   background: var(--li-bg, transparent);
   color: var(--li-color, var(--color-text));
-  transition: background-color var(--motion-fast) var(--ease-standard);
+  transition:
+    background-color var(--motion-fast) var(--ease-standard),
+    scale var(--motion-xs) var(--ease-standard);
+  /* The title is the control (its ::after covers the row), so the row tints and shrinks a
+     little while the title is pressed, not while a button in the trail is. */
+  @include press.press-on('.li__title', $scale: true);
 }
 /* `--li-hover` lets a list on surface 2 pick a hover that differs from its rows. */
 @media (hover: hover) {

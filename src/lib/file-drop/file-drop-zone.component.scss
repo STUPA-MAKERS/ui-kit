@@ -1,3 +1,5 @@
+@use '../../styles/press';
+
 :host {
   display: block;
   min-width: 0;
@@ -47,6 +49,7 @@
 
 /* The outlined small button of the kit (`.btn.outl.sm` in the design). */
 .fdz__button {
+  @include press.chrome-text;
   flex: none;
   height: var(--control-height-sm);
   padding: 0 14px;
@@ -58,6 +61,7 @@
   font-size: 0.8125rem;
   font-weight: var(--fw-semibold);
   cursor: pointer;
+  @include press.press;
 }
 @media (hover: hover) {
   .fdz__button:hover:not(:disabled) {

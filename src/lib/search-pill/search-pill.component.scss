@@ -1,3 +1,5 @@
+@use '../../styles/press';
+
 :host {
   display: block;
   min-width: 0;
@@ -43,6 +45,7 @@
 }
 .sp__button {
   cursor: pointer;
+  @include press.press;
 }
 .sp__button:focus-visible {
   outline: none;
@@ -87,6 +90,7 @@
   background: transparent;
   color: var(--color-text-muted);
   cursor: pointer;
+  @include press.press;
 }
 @media (hover: hover) {
   .sp__clear:hover {

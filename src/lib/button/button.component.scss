@@ -1,3 +1,5 @@
+@use '../../styles/press';
+
 :host {
   display: inline-flex;
 }
@@ -35,6 +37,10 @@
     color var(--motion-fast) var(--ease-standard),
     border-color var(--motion-fast) var(--ease-standard),
     filter var(--motion-fast) var(--ease-standard);
+  /* The press of every look is a tint of the text colour over the fill (`_press.scss`).
+     It is the only feedback of a tap, because a touch screen shows no hover. */
+  @include press.press;
+  @include press.chrome-text;
 }
 /* A disabled button has to LOOK unavailable. At 0.55 a secondary button still read as
    clickable against a dark surface, so a pager sitting at its last page looked like it
@@ -113,9 +119,6 @@
     filter: brightness(1.08);
   }
 }
-.btn--fill:active:not(:disabled) {
-  filter: brightness(0.94);
-}
 
 .btn--tonal {
   background: var(--color-surface-3);
@@ -125,10 +128,6 @@
   .btn--tonal:hover:not(:disabled) {
     background: var(--color-surface-4);
   }
-}
-.btn--tonal:active:not(:disabled) {
-  background: var(--color-surface-4);
-  filter: brightness(0.96);
 }
 
 .btn--outlined {
@@ -140,9 +139,6 @@
   .btn--outlined:hover:not(:disabled) {
     background: var(--color-surface-2);
   }
-}
-.btn--outlined:active:not(:disabled) {
-  background: var(--color-surface-3);
 }
 
 /* Quiet action: accent text and a tighter inset. */
@@ -161,9 +157,6 @@
   .btn--text:hover:not(:disabled) {
     background: var(--button-hover-bg, var(--color-surface-2));
   }
-}
-.btn--text:active:not(:disabled) {
-  background: var(--color-surface-3);
 }
 /* As an icon button the text look is a grey glyph, so a row of tools stays quiet. */
 .btn--text.btn--icon {
@@ -187,10 +180,6 @@
     background: var(--color-danger-subtle);
     border-color: var(--color-danger);
   }
-}
-.btn--danger:active:not(:disabled) {
-  background: var(--color-danger-subtle);
-  filter: brightness(0.94);
 }
 
 /* Floating main action of a page. */
@@ -236,9 +225,6 @@
   .btn--custom:hover:not(:disabled) {
     filter: brightness(1.08);
   }
-}
-.btn--custom:active:not(:disabled) {
-  filter: brightness(0.94);
 }
 /* Überlange Beschriftungen (z. B. Flow-Transition-Labels) laufen nicht aus dem
    Button heraus, sondern werden mit … abgeschnitten. */

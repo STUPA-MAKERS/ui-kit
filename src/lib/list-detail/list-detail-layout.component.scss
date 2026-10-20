@@ -1,5 +1,6 @@
 @use '../../styles/surface';
 @use '../../styles/breakpoints' as bp;
+@use '../../styles/press';
 
 /* The host fills the height its parent gives it; each pane scrolls on its own. The width
    of the list (`--ld-list-width`) and the gap (`--ld-gap`) are global tokens in
@@ -112,6 +113,7 @@
 }
 
 .ld__back {
+  @include press.chrome-text;
   display: grid;
   flex: none;
   place-items: center;
@@ -123,6 +125,7 @@
   background: transparent;
   color: var(--color-text);
   cursor: pointer;
+  @include press.press;
 }
 @media (hover: hover) {
   .ld__back:hover {

@@ -1,4 +1,5 @@
 @use '../../styles/skeleton-bar' as bar;
+@use '../../styles/press';
 
 /* The scroll container owns the horizontal overflow, so a wide table scrolls inside
    its own box and never pushes the page sideways. The cut and the tongues sit on the
@@ -124,6 +125,7 @@
     background var(--motion-fast, 120ms) var(--ease-standard, ease),
     color var(--motion-fast, 120ms) var(--ease-standard, ease),
     border-color var(--motion-fast, 120ms) var(--ease-standard, ease);
+  @include press.press;
 }
 /* The width is FIXED on hover on purpose. This is a repeat-click target: a button that
    grows under the cursor moves its own edge away mid-click, and the second press lands
@@ -183,6 +185,7 @@
 
 /* A sortable header is a button, so it needs the header's own typography back. */
 .dt__sort {
+  @include press.chrome-text;
   display: inline-flex;
   align-items: center;
   gap: var(--space-2);
@@ -194,6 +197,7 @@
   text-transform: inherit;
   letter-spacing: inherit;
   cursor: pointer;
+  @include press.press;
 }
 .dt__sort:focus-visible .dt__sort-icon {
   opacity: 1;

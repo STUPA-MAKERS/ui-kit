@@ -1,3 +1,5 @@
+@use '../../styles/press';
+
 .stepper {
   display: flex;
   flex-wrap: wrap;
@@ -27,6 +29,7 @@
   text-align: start;
   cursor: pointer;
   border-radius: var(--radius-lg);
+  @include press.press;
 }
 @media (hover: hover) {
   .stepper__body--button:hover .stepper__label {

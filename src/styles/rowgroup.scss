@@ -1,6 +1,7 @@
 // Row groups and click rows. Consume from the global stylesheet of an app:
 //   @use 'rowgroup';
 // Global, because the rows are projected content: a component style does not reach them.
+@use 'press';
 
 // A row that opens with a click (the edit of an admin row). The control in it
 // (`.hitrow__open`, a button around the name) stretches over the row with its ::after, so
@@ -8,6 +9,7 @@
 // menu) sit above the stretched area and keep their own click.
 .hitrow {
   position: relative;
+  @include press.press-on('.hitrow__open');
 }
 @media (hover: hover) {
   .hitrow:hover {

@@ -1,10 +1,12 @@
 @use '../../styles/option-menu' as om;
+@use '../../styles/press';
 :host {
   display: inline-flex;
   flex: none;
 }
 
 .rm__trigger {
+  @include press.chrome-text;
   display: grid;
   place-items: center;
   width: var(--control-height);
@@ -15,6 +17,7 @@
   background: transparent;
   color: var(--color-text-muted);
   cursor: pointer;
+  @include press.press;
 }
 /* A text button (`text`), for example the "…" of a breadcrumb: the height of a line,
    the width of its text. The size comes from global tokens, because the budget
@@ -87,6 +90,7 @@
 }
 
 .rm__item {
+  @include press.chrome-text;
   display: flex;
   align-items: center;
   gap: 14px;
@@ -101,6 +105,7 @@
   font-weight: var(--fw-medium);
   text-align: start;
   cursor: pointer;
+  @include press.press;
 }
 .rm__item:focus-visible {
   background: var(--color-surface-4);
