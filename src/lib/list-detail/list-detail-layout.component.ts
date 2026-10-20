@@ -13,11 +13,13 @@ import {
   untracked,
   viewChild,
 } from '@angular/core';
+import { NgTemplateOutlet } from '@angular/common';
 import { BREAKPOINTS, MEDIA } from '../breakpoints/breakpoints';
 import { IconComponent } from '../icon/icon.component';
 import { mediaQuery } from '../signals/media-query';
 import { observeElementSize } from '../signals/element-size';
 import { UiKitTranslatePipe } from '../intl/translate.pipe';
+import { ListDetailNav } from './list-detail-nav';
 
 /** The width of the navigation rail of the shell, in px. */
 export const NAV_RAIL_WIDTH = 96;
@@ -50,11 +52,13 @@ export const LIST_DETAIL_SPLIT_MIN = BREAKPOINTS.wideMin - NAV_RAIL_WIDTH - 2 * 
  * Wide (a wide viewport and content of {@link LIST_DETAIL_SPLIT_MIN} or more): the list on
  * the left at the one list width of the app (`--ld-list-width` in `styles/list-detail.scss`), the detail
  * sheet fills the rest. Otherwise one view at a time. The list shows until `detailOpen` is set; then the
- * detail shows with a "Zur Liste" control above it that emits `back`. The list stays in the
- * DOM while hidden, so it keeps its scroll position.
+ * detail shows below a bar that stays at the top while the page scrolls. The bar holds the
+ * back arrow ("Zur Liste", emits `back`), the title in small type once the big title of the
+ * sheet has scrolled under the bar, and the actions of the sheet bar of the detail
+ * (`ListDetailNav`). The list stays in the DOM while hidden, so it keeps its scroll position.
  *
  * Focus in the one-view layout: when a row opens, the list hides, so the layout moves the
- * focus to "Zur Liste". When the detail closes, the focus goes back to the element in the
+ * focus to the back arrow. When the detail closes, the focus goes back to the element in the
  * list that had it (normally the row), if that element is still in the DOM, else to the
  * list itself. A keyboard or screen-reader user so stays at the same place in the list.
  *
@@ -65,7 +69,8 @@ export const LIST_DETAIL_SPLIT_MIN = BREAKPOINTS.wideMin - NAV_RAIL_WIDTH - 2 * 
   selector: 'app-list-detail',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [IconComponent, UiKitTranslatePipe],
+  imports: [IconComponent, NgTemplateOutlet, UiKitTranslatePipe],
+  providers: [ListDetailNav],
   host: {
     '[class.ld--split]': '!collapsed()',
     '[class.ld--collapsed]': 'collapsed()',
@@ -75,12 +80,15 @@ export const LIST_DETAIL_SPLIT_MIN = BREAKPOINTS.wideMin - NAV_RAIL_WIDTH - 2 * 
 })
 export class ListDetailLayoutComponent {
   private readonly host = inject<ElementRef<HTMLElement>>(ElementRef);
+  /** The link to the sheet bar of the detail: its actions and its title. */
+  protected readonly nav = inject(ListDetailNav);
 
   /** A row is open, so the narrow layout shows the detail. */
   readonly detailOpen = input(false);
   /**
-   * Show "Zur Liste" above the detail in the one-view layout. A detail with its own way
-   * back (the phone header of a vote) turns it off; the focus then goes to the detail.
+   * Show the bar with "Zur Liste" above the detail in the one-view layout. A detail with
+   * its own way back (the phone header of a vote) turns it off; the focus then goes to the
+   * detail, and its sheet bar keeps its actions.
    */
   readonly backButton = input(true);
   /** The content width from which the panes sit side by side. */
@@ -97,6 +105,7 @@ export class ListDetailLayoutComponent {
   private readonly listPane = viewChild.required<ElementRef<HTMLElement>>('listPane');
   private readonly detailPane = viewChild.required<ElementRef<HTMLElement>>('detailPane');
   private readonly backControl = viewChild<ElementRef<HTMLButtonElement>>('backButton');
+  private readonly bar = viewChild<ElementRef<HTMLElement>>('bar');
   /** The element in the list that had the focus when the detail opened. */
   private returnFocus: HTMLElement | null = null;
 
@@ -109,6 +118,8 @@ export class ListDetailLayoutComponent {
 
   constructor() {
     this.manageFocus();
+    effect(() => this.nav.active.set(this.collapsed() && this.backButton()));
+    this.nav.barBottom = () => this.bar()?.nativeElement.getBoundingClientRect().bottom ?? 0;
 
     observeElementSize(
       () => this.host.nativeElement,

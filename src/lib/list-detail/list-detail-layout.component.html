@@ -1,12 +1,24 @@
 <div #listPane class="ld__list" tabindex="-1" [hidden]="collapsed() && detailOpen()">
   <ng-content select="[list]" />
 </div>
-<div #detailPane class="ld__detail" tabindex="-1" [hidden]="collapsed() && !detailOpen()">
-  @if (collapsed() && backButton()) {
-    <button #backButton type="button" class="ld__back" (click)="back.emit()">
-      <app-icon name="back" [size]="16" />
-      {{ 'listDetail.back' | uiKitT }}
-    </button>
+<div #detailPane class="ld__detail" [class.ld__detail--bar]="nav.active()" tabindex="-1" [hidden]="collapsed() && !detailOpen()">
+  @if (nav.active()) {
+    <div #bar class="ld__bar" [class.ld__bar--condensed]="nav.condensed()">
+      <button
+        #backButton
+        type="button"
+        class="ld__back"
+        [attr.aria-label]="'listDetail.back' | uiKitT"
+        [title]="'listDetail.back' | uiKitT"
+        (click)="back.emit()"
+      >
+        <app-icon name="back" />
+      </button>
+      <span class="ld__barTitle" aria-hidden="true">{{ nav.title() }}</span>
+      @if (nav.owner(); as owner) {
+        <div class="ld__barActions"><ng-container *ngTemplateOutlet="owner.actions" /></div>
+      }
+    </div>
   }
   <ng-content select="[detail]" />
 </div>
