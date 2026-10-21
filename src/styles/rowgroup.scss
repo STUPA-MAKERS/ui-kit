@@ -78,6 +78,27 @@
 .rowgroup.rowgroup--bg3 > * {
   background: var(--color-surface-3);
 }
+// A list item paints the row surface on its own row (`.li`), not on the host, and takes
+// the corners of the host. The press shrinks that row and the selection colours it, so a
+// surface or a corner on the host stood around it as a second, inner frame. `--li-bg` is
+// a variable, so a page that colours a row (a checked row) still wins with one class.
+.rowgroup > app-list-item,
+.rowgroup.rowgroup--bg1 > app-list-item,
+.rowgroup.rowgroup--bg3 > app-list-item {
+  background: none;
+}
+.rowgroup > app-list-item {
+  --li-bg: var(--color-surface-2);
+}
+.rowgroup:where(.rowgroup--bg1) > app-list-item {
+  --li-bg: var(--color-surface-1);
+}
+.rowgroup:where(.rowgroup--bg3) > app-list-item {
+  --li-bg: var(--color-surface-3);
+}
+.rowgroup > app-list-item .li {
+  border-radius: inherit;
+}
 // On surface 3 the subtle text of a muted status is below 4.5:1 (WCAG 1.4.3). The muted
 // text passes. This rule is more specific than the `:host(.st--muted)` rule of
 // `app-status-text`, so it wins.
