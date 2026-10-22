@@ -72,6 +72,29 @@ describe('MarkdownEditorComponent', () => {
     expect(pm.getAttribute('contenteditable')).toBe('true');
   });
 
+  it('emits no change when the document switches or the editability toggles', async () => {
+    const view = await render(Host);
+    const host = view.fixture.componentInstance;
+    host.value.set('Text A');
+    host.docKey.set('a');
+    view.fixture.detectChanges();
+    await view.fixture.whenStable();
+    // The next document: the text of the old one must not go out as its change.
+    host.value.set('Text B');
+    host.docKey.set('b');
+    view.fixture.detectChanges();
+    await view.fixture.whenStable();
+    host.disabled.set(true);
+    view.fixture.detectChanges();
+    await view.fixture.whenStable();
+    host.value.set('Text C');
+    host.docKey.set('c');
+    view.fixture.detectChanges();
+    await view.fixture.whenStable();
+    expect(host.changes).toEqual([]);
+    expect(editorEl(view.container).textContent).toContain('Text C');
+  });
+
   it('marks the first line of an empty document with the placeholder', async () => {
     const { container } = await render(`<app-markdown-editor [placeholder]="'Schreib was…'" />`, {
       imports: [MarkdownEditorComponent],

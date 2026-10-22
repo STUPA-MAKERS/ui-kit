@@ -214,7 +214,10 @@ export class MarkdownEditorComponent implements OnDestroy {
         this.ensureTrailingLine();
         return;
       }
-      this.editor.setEditable(!disabled);
+      // `false`: no update event. Tiptap emits one by default, and this effect runs on
+      // every change of the document key, before the new content loads: the old text then
+      // went out as a change of the new document, also from an editor that is read-only.
+      if (this.editor.isEditable === disabled) this.editor.setEditable(!disabled, false);
       // Dokument gewechselt → Inhalt neu laden (ohne valueChange auszulösen).
       if (key !== this.loadedKey) {
         this.loadedKey = key;

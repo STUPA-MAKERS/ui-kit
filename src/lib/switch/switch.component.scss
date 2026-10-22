@@ -50,7 +50,9 @@
   width: 20px;
   height: 20px;
   border-radius: 10px;
-  background: var(--color-border-strong);
+  /* The off thumb carries the muted text colour. The outline colour was so close to the
+     track that a switch that was off looked disabled. */
+  background: var(--color-text-muted);
   transition:
     transform var(--motion-fast) var(--ease-standard),
     background-color var(--motion-fast) var(--ease-standard);
