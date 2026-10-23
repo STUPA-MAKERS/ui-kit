@@ -456,7 +456,7 @@ describe('MarkdownEditorComponent', () => {
       const top = [...card.querySelectorAll('.mde__pollRow--top .mde__elName')];
       expect(top.map((n) => n.textContent)).toEqual(['Freiburg', 'Konstanz']);
       expect(card.querySelectorAll('.mde__pollRow--top svg')).toHaveLength(2);
-      expect(card.querySelector('.mde__pollTop')?.textContent).toBe('meiste Stimmen');
+      expect(card.querySelector('.mde__pollTop')).toBeNull();
       const fills = [...card.querySelectorAll<HTMLElement>('.mde__elFill')].map((f) => f.style.width);
       expect(fills).toEqual(['100%', '100%', `${(2 / 7) * 100}%`]);
       expect(card.querySelector('.mde__elRow--abstain .mde__elNum')?.textContent).toBe('1');
@@ -484,7 +484,7 @@ describe('MarkdownEditorComponent', () => {
       expect(nums).toEqual(['6 + 3', '5 + 0']);
       const maybe = [...date.querySelectorAll<HTMLElement>('.mde__pollMaybe')];
       expect(maybe.map((m) => m.style.width)).toEqual([`${(3 / 9) * 100}%`]);
-      expect(date.querySelector('.mde__pollTop')?.textContent).toBe('bester Termin');
+      expect(date.querySelector('.mde__pollTop')).toBeNull();
       expect(date.querySelector('.mde__pollLegend')?.textContent).toBe('JaVielleicht');
       expect(date.querySelector('.mde__elRow--abstain')).toBeNull();
       expect(open.dataset['poll']).toBe('multi');
