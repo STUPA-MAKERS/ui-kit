@@ -59,6 +59,7 @@ export type IconName =
   | 'globe'
   | 'grid'
   | 'grip'
+  | 'grip-h'
   | 'half'
   | 'handshake'
   | 'heading'
@@ -179,6 +180,7 @@ const SHAPES: Record<string, readonly IconShape[]> = {
   gear: [{ t: 'circle', cx: '12', cy: '12', r: '3' }, { t: 'path', d: 'M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z' }],
   globe: [{ t: 'circle', cx: '12', cy: '12', r: '9' }, { t: 'path', d: 'M3 12h18M12 3a14 14 0 0 1 0 18M12 3a14 14 0 0 0 0 18' }],
   grid: [{ t: 'rect', x: '3', y: '3', width: '7', height: '7', rx: '2' }, { t: 'rect', x: '14', y: '3', width: '7', height: '7', rx: '2' }, { t: 'rect', x: '3', y: '14', width: '7', height: '7', rx: '2' }, { t: 'rect', x: '14', y: '14', width: '7', height: '7', rx: '2' }],
+  'grip-h': [{ t: 'circle', cx: '6', cy: '9', r: '1.2' }, { t: 'circle', cx: '12', cy: '9', r: '1.2' }, { t: 'circle', cx: '18', cy: '9', r: '1.2' }, { t: 'circle', cx: '6', cy: '15', r: '1.2' }, { t: 'circle', cx: '12', cy: '15', r: '1.2' }, { t: 'circle', cx: '18', cy: '15', r: '1.2' }],
   grip: [{ t: 'circle', cx: '9', cy: '6', r: '1.2' }, { t: 'circle', cx: '15', cy: '6', r: '1.2' }, { t: 'circle', cx: '9', cy: '12', r: '1.2' }, { t: 'circle', cx: '15', cy: '12', r: '1.2' }, { t: 'circle', cx: '9', cy: '18', r: '1.2' }, { t: 'circle', cx: '15', cy: '18', r: '1.2' }],
   half: [{ t: 'circle', cx: '12', cy: '12', r: '9' }, { t: 'path', d: 'M12 3a9 9 0 0 0 0 18z', fill: 'currentColor' }],
   handshake: [{ t: 'path', d: 'm11 17 2 2a1 1 0 1 0 3-3' }, { t: 'path', d: 'm14 14 2.5 2.5a1 1 0 1 0 3-3l-3.88-3.88a3 3 0 0 0-4.24 0l-.88.88a1 1 0 1 1-3-3l2.81-2.81a5.79 5.79 0 0 1 7.06-.87l.47.28a2 2 0 0 0 1.42.25L21 4' }, { t: 'path', d: 'm21 3 1 11h-2' }, { t: 'path', d: 'M3 3 2 14l6.5 6.5a1 1 0 1 0 3-3' }, { t: 'path', d: 'M3 4h8' }],
@@ -315,6 +317,7 @@ export const ICON_NAMES: readonly IconName[] = [
   'globe',
   'grid',
   'grip',
+  'grip-h',
   'half',
   'handshake',
   'heading',

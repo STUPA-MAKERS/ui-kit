@@ -1,15 +1,26 @@
 import {
   ChangeDetectionStrategy,
   Component,
-  type ElementRef,
+  ElementRef,
   type OnDestroy,
   ViewEncapsulation,
+  computed,
   effect,
+  inject,
   input,
   output,
   signal,
   viewChild,
 } from '@angular/core';
+import {
+  IconComponent,
+  RowMenuComponent,
+  UiKitTranslatePipe,
+  type RowMenuItem,
+  type RowMenuSection,
+  type UiKitTextKey,
+  UI_KIT_INTL,
+} from '@stupa-makers/ui-kit';
 import { Editor } from '@tiptap/core';
 import type { EditorView } from '@tiptap/pm/view';
 import { Focus, Placeholder } from '@tiptap/extensions';
@@ -26,6 +37,7 @@ import {
   isMediaImageSrc,
   stripForeignImages,
 } from './media.extension';
+import { type TableControls, appendToTable, measureTableControls } from './table-controls';
 import {
   VoteCallout,
   type VoteCalloutResolver,
@@ -57,11 +69,35 @@ export type MarkdownImageUploader = (file: File) => Promise<MarkdownImageRef>;
 
 /** An edit of the table at the cursor, for a toolbar of the consumer. */
 export type MarkdownTableCommand =
+  | 'addRowBefore'
   | 'addRowAfter'
+  | 'addColumnBefore'
   | 'addColumnAfter'
   | 'deleteRow'
   | 'deleteColumn'
   | 'deleteTable';
+
+/** One item of a table menu: its command, its text and its icon. */
+interface TableMenuItem {
+  id: MarkdownTableCommand;
+  label: UiKitTextKey;
+  icon: RowMenuItem['icon'];
+  danger?: boolean;
+}
+
+const COLUMN_ITEMS: readonly TableMenuItem[] = [
+  { id: 'addColumnBefore', label: 'editorTable.insertColumnLeft', icon: 'plus' },
+  { id: 'addColumnAfter', label: 'editorTable.insertColumnRight', icon: 'plus' },
+  { id: 'deleteColumn', label: 'editorTable.deleteColumn', icon: 'minus' },
+];
+const ROW_ITEMS: readonly TableMenuItem[] = [
+  { id: 'addRowBefore', label: 'editorTable.insertRowAbove', icon: 'plus' },
+  { id: 'addRowAfter', label: 'editorTable.insertRowBelow', icon: 'plus' },
+  { id: 'deleteRow', label: 'editorTable.deleteRow', icon: 'minus' },
+];
+const TABLE_ITEMS: readonly TableMenuItem[] = [
+  { id: 'deleteTable', label: 'editorTable.delete', icon: 'trash', danger: true },
+];
 
 /**
  * A link target that the editor sets: `http:`, `https:`, `mailto:`, a path of the
@@ -102,6 +138,12 @@ const ACTIVE_CHECK: Record<MarkdownFormat, { name: string; attrs?: Record<string
  * `data:` target as plain text. With `imageUpload`, a paste or a drop of image files
  * uploads them; `insertImage`, `insertTable`, `tableCommand`, `pickImage`, `setLink` and
  * `unsetLink` serve a toolbar of the consumer.
+ *
+ * While an editable editor has the focus and the cursor is in a table, the table shows
+ * its own controls: a grip on the top edge of the cursor's column and one on the start
+ * edge of its row, each with a menu (insert before, insert after, delete), a bar below
+ * the table that adds a row, a bar at its end that adds a column, and the table menu
+ * above that bar (delete the table).
  */
 @Component({
   selector: 'app-markdown-editor',
@@ -111,6 +153,12 @@ const ACTIVE_CHECK: Record<MarkdownFormat, { name: string; attrs?: Record<string
   // scope attribute never reaches them. Every rule is prefixed with `.mde__host` or
   // the element name instead.
   encapsulation: ViewEncapsulation.None,
+  imports: [IconComponent, RowMenuComponent, UiKitTranslatePipe],
+  // The controls of a table are placed against the editor element.
+  host: {
+    '(focusin)': 'focusWithin.set(true)',
+    '(focusout)': 'onFocusOut($event)',
+  },
   templateUrl: './markdown-editor.component.html',
   styleUrl: './markdown-editor.component.scss',
 })
@@ -152,7 +200,26 @@ export class MarkdownEditorComponent implements OnDestroy {
   /** The number of image uploads that still run. */
   readonly uploading = signal(0);
 
+  /** The focus is in the editor or in one of its table controls. */
+  protected readonly focusWithin = signal(false);
+  /** Where the controls of the table at the cursor go; `null` outside a table. */
+  private readonly tablePlace = signal<TableControls | null>(null);
+  /** The editable state that the controls follow. */
+  private readonly editable = signal(false);
+  /** The table controls, while they show. */
+  protected readonly tableControls = computed(() =>
+    this.editable() && this.focusWithin() ? this.tablePlace() : null,
+  );
+
+  private readonly intl = inject(UI_KIT_INTL);
+  protected readonly columnMenu = computed(() => this.menuOf(COLUMN_ITEMS));
+  protected readonly rowMenu = computed(() => this.menuOf(ROW_ITEMS));
+  protected readonly tableMenu = computed(() => this.menuOf(TABLE_ITEMS));
+
+  private readonly frame = inject<ElementRef<HTMLElement>>(ElementRef);
   private readonly host = viewChild.required<ElementRef<HTMLDivElement>>('host');
+  /** Places the table controls again when the text or the width changes. */
+  private resize: ResizeObserver | null = null;
   private editor: Editor | null = null;
   private loadedKey: string | null = null;
   private emitting = false;
@@ -160,6 +227,10 @@ export class MarkdownEditorComponent implements OnDestroy {
   private readonly voteViews = new Set<VoteCalloutView>();
 
   constructor() {
+    // A wide table scrolls sideways in its wrapper. A scroll does not bubble, so the
+    // listener catches it on the way down.
+    const onScroll = (): void => this.placeTableControls();
+    this.frame.nativeElement.addEventListener('scroll', onScroll, { capture: true, passive: true });
     // Editor lazy aufbauen, sobald das Host-Element existiert, und auf
     // docKey/disabled reagieren.
     effect(() => {
@@ -211,9 +282,15 @@ export class MarkdownEditorComponent implements OnDestroy {
           onTransaction: ({ editor }) => this.readFormats(editor),
         });
         this.loadedKey = key;
+        this.editable.set(!disabled);
         this.ensureTrailingLine();
+        if (typeof ResizeObserver !== 'undefined') {
+          this.resize = new ResizeObserver(() => this.placeTableControls());
+          this.resize.observe(this.editor.view.dom);
+        }
         return;
       }
+      this.editable.set(!disabled);
       // `false`: no update event. Tiptap emits one by default, and this effect runs on
       // every change of the document key, before the new content loads: the old text then
       // went out as a change of the new document, also from an editor that is read-only.
@@ -317,8 +394,12 @@ export class MarkdownEditorComponent implements OnDestroy {
     if (!editor || !editor.isEditable) return false;
     const chain = editor.chain().focus();
     switch (command) {
+      case 'addRowBefore':
+        return chain.addRowBefore().run();
       case 'addRowAfter':
         return chain.addRowAfter().run();
+      case 'addColumnBefore':
+        return chain.addColumnBefore().run();
       case 'addColumnAfter':
         return chain.addColumnAfter().run();
       case 'deleteRow':
@@ -328,6 +409,51 @@ export class MarkdownEditorComponent implements OnDestroy {
       case 'deleteTable':
         return chain.deleteTable().run();
     }
+  }
+
+  /** A table control ran its command: rows, columns or the whole table. */
+  protected onTableMenu(item: RowMenuItem): void {
+    this.tableCommand(item.id as MarkdownTableCommand);
+  }
+
+  /** A bar of the table: add a row below the table or a column at its end. */
+  protected appendTable(what: 'row' | 'column'): void {
+    const editor = this.editor;
+    if (!editor || !editor.isEditable) return;
+    appendToTable(editor, what);
+  }
+
+  /** The focus left the editor and its table controls: the controls hide. */
+  protected onFocusOut(event: FocusEvent): void {
+    const next = event.relatedTarget as Node | null;
+    if (next && this.frame.nativeElement.contains(next)) return;
+    this.focusWithin.set(false);
+  }
+
+  /** Measure where the controls of the table at the cursor go. */
+  protected placeTableControls(): void {
+    const editor = this.editor;
+    const next = editor ? measureTableControls(editor, this.frame.nativeElement) : null;
+    const prev = this.tablePlace();
+    if (prev === next) return;
+    if (prev && next && (Object.keys(next) as (keyof TableControls)[]).every((k) => prev[k] === next[k])) {
+      return;
+    }
+    this.tablePlace.set(next);
+  }
+
+  private menuOf(items: readonly TableMenuItem[]): RowMenuSection[] {
+    this.intl.lang();
+    return [
+      {
+        items: items.map((item) => ({
+          id: item.id,
+          icon: item.icon,
+          danger: item.danger,
+          label: this.intl.translate(item.label),
+        })),
+      },
+    ];
   }
 
   /** Open the file dialog of the browser and upload the chosen images (`imageUpload`). */
@@ -401,6 +527,7 @@ export class MarkdownEditorComponent implements OnDestroy {
 
   /** Read the formats at the cursor into `activeFormats`. */
   private readFormats(editor: Editor): void {
+    this.placeTableControls();
     const inTable = editor.isActive('table');
     if (inTable !== this.inTable()) this.inTable.set(inTable);
     const next = new Set(
@@ -427,6 +554,8 @@ export class MarkdownEditorComponent implements OnDestroy {
   }
 
   ngOnDestroy(): void {
+    this.resize?.disconnect();
+    this.resize = null;
     this.editor?.destroy();
     this.editor = null;
   }

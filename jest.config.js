@@ -7,6 +7,8 @@ module.exports = {
   testMatch: ['**/*.spec.ts'],
   moduleNameMapper: {
     '\\.(css|scss)$': '<rootDir>/testing/style-mock.js',
+    // The markdown editor (a secondary entry) imports the primary entry by its name.
+    '^@stupa-makers/ui-kit$': '<rootDir>/src/public-api.ts',
   },
   transform: {
     '^.+\\.(ts|mjs|js|html)$': [

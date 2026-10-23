@@ -1,1 +1,60 @@
 <div #host class="mde__host" [class.mde__host--disabled]="disabled()"></div>
+@if (tableControls(); as tc) {
+  @if (tc.colX !== null) {
+    <app-row-menu
+      class="mde__grip mde__grip--col"
+      icon="grip-h"
+      align="start"
+      [style.left.px]="tc.colX"
+      [style.top.px]="tc.top"
+      [label]="'editorTable.columnMenu' | uiKitT"
+      [sections]="columnMenu()"
+      (selected)="onTableMenu($event)"
+    />
+  }
+  <app-row-menu
+    class="mde__grip mde__grip--row"
+    icon="grip"
+    align="start"
+    [style.left.px]="tc.left"
+    [style.top.px]="tc.rowY"
+    [label]="'editorTable.rowMenu' | uiKitT"
+    [sections]="rowMenu()"
+    (selected)="onTableMenu($event)"
+  />
+  <app-row-menu
+    class="mde__tableMenu"
+    icon="more"
+    [style.left.px]="tc.visibleRight"
+    [style.top.px]="tc.top"
+    [label]="'editorTable.menu' | uiKitT"
+    [sections]="tableMenu()"
+    (selected)="onTableMenu($event)"
+  />
+  <button
+    type="button"
+    class="mde__add mde__add--col"
+    [style.left.px]="tc.visibleRight"
+    [style.top.px]="tc.top"
+    [style.--mde-table-h.px]="tc.bottom - tc.top"
+    [attr.aria-label]="'editorTable.addColumn' | uiKitT"
+    [title]="'editorTable.addColumn' | uiKitT"
+    (mousedown)="$event.preventDefault()"
+    (click)="appendTable('column')"
+  >
+    <app-icon name="plus" [size]="18" />
+  </button>
+  <button
+    type="button"
+    class="mde__add mde__add--row"
+    [style.left.px]="tc.visibleLeft"
+    [style.top.px]="tc.bottom"
+    [style.width.px]="tc.visibleRight - tc.visibleLeft"
+    [attr.aria-label]="'editorTable.addRow' | uiKitT"
+    [title]="'editorTable.addRow' | uiKitT"
+    (mousedown)="$event.preventDefault()"
+    (click)="appendTable('row')"
+  >
+    <app-icon name="plus" [size]="18" />
+  </button>
+}
