@@ -1,5 +1,9 @@
 app-markdown-editor {
   display: block;
+  /* The controls of a table are placed against the editor element. */
+  position: relative;
+  --mde-table-gap: 4px;
+  --mde-table-bar: 16px;
 }
 .mde__host {
   min-height: 16rem;
@@ -63,6 +67,11 @@ app-markdown-editor {
 .mde__host .ProseMirror .tableWrapper {
   margin: var(--space-3) 0;
   overflow-x: auto;
+}
+/* An editable table keeps room for its controls: the add bar at its end and below it. */
+.mde__host:not(.mde__host--disabled) .ProseMirror .tableWrapper {
+  padding-right: calc(var(--mde-table-bar) + 2 * var(--mde-table-gap));
+  padding-bottom: calc(var(--mde-table-bar) + 2 * var(--mde-table-gap));
 }
 .mde__host .ProseMirror table {
   border-collapse: collapse;
@@ -425,4 +434,94 @@ app-markdown-editor {
 .mde__host .ProseMirror .mde__pollFoot {
   font-size: var(--fs-sm);
   color: var(--color-text-subtle);
+}
+
+/* The controls of the table at the cursor (`table-controls.ts`). A grip sits on the
+   middle of the top edge of the cursor's column or of the start edge of its row and
+   opens the menu of that column or row. The bars add a row below the table and a
+   column at its end; the table menu sits above the column bar. Each control has a
+   touch area of the control height around its small visible shape. */
+.mde__grip,
+.mde__tableMenu,
+.mde__add {
+  position: absolute;
+  z-index: 1;
+}
+.mde__grip {
+  translate: -50% -50%;
+}
+app-markdown-editor .mde__grip .rm__trigger {
+  position: relative;
+  width: 28px;
+  height: 16px;
+  border: var(--border-width) solid var(--color-border-strong);
+  border-radius: var(--radius-pill);
+  background: var(--color-surface-2);
+  --icon-size: 14px;
+}
+app-markdown-editor .mde__grip--col .rm__trigger app-icon {
+  rotate: 90deg;
+}
+app-markdown-editor .mde__grip--row .rm__trigger {
+  width: 16px;
+  height: 28px;
+}
+app-markdown-editor .mde__grip .rm__trigger::before,
+.mde__add::before {
+  content: '';
+  position: absolute;
+  inset: 50% auto auto 50%;
+  width: max(100%, var(--control-height));
+  height: max(100%, var(--control-height));
+  translate: -50% -50%;
+}
+@media (hover: hover) {
+  app-markdown-editor .mde__grip .rm__trigger:hover,
+  app-markdown-editor .mde__tableMenu .rm__trigger:hover {
+    background: var(--color-surface-3);
+  }
+}
+app-markdown-editor .mde__grip .rm__trigger.rm__trigger--on,
+app-markdown-editor .mde__tableMenu .rm__trigger.rm__trigger--on {
+  background: var(--color-selected);
+  color: var(--color-accent-text);
+}
+.mde__tableMenu {
+  margin-left: var(--mde-table-gap);
+}
+app-markdown-editor .mde__tableMenu .rm__trigger {
+  width: var(--mde-table-bar);
+  height: var(--mde-table-bar);
+  border-radius: var(--radius-sm);
+  background: var(--color-surface-2);
+  --icon-size: 14px;
+}
+.mde__add {
+  display: grid;
+  place-items: center;
+  padding: 0;
+  border: 0;
+  border-radius: var(--radius-sm);
+  background: var(--color-surface-2);
+  color: var(--color-text-muted);
+  cursor: pointer;
+}
+@media (hover: hover) {
+  .mde__add:hover {
+    background: var(--color-surface-3);
+    color: var(--color-text);
+  }
+}
+.mde__add:focus-visible {
+  outline: 2px solid var(--color-focus-ring);
+  outline-offset: 1px;
+}
+.mde__add--col {
+  width: var(--mde-table-bar);
+  height: calc(var(--mde-table-h) - var(--mde-table-bar) - var(--mde-table-gap));
+  margin: calc(var(--mde-table-bar) + var(--mde-table-gap)) 0 0 var(--mde-table-gap);
+}
+.mde__add--row {
+  height: var(--mde-table-bar);
+  margin-top: var(--mde-table-gap);
 }

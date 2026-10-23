@@ -63,7 +63,19 @@ export type UiKitTextKey =
   | 'viewer.next'
   | 'viewer.position'
   | 'viewer.error'
-  | 'viewer.noPreview';
+  | 'viewer.noPreview'
+  | 'editorTable.columnMenu'
+  | 'editorTable.rowMenu'
+  | 'editorTable.menu'
+  | 'editorTable.insertColumnLeft'
+  | 'editorTable.insertColumnRight'
+  | 'editorTable.deleteColumn'
+  | 'editorTable.insertRowAbove'
+  | 'editorTable.insertRowBelow'
+  | 'editorTable.deleteRow'
+  | 'editorTable.addRow'
+  | 'editorTable.addColumn'
+  | 'editorTable.delete';
 
 export type UiKitMessages = Record<UiKitTextKey, string>;
 
@@ -115,6 +127,18 @@ export const UI_KIT_DEFAULT_MESSAGES: Record<UiLang, UiKitMessages> = {
     'viewer.position': '{n} von {total}',
     'viewer.error': 'Die Datei kann nicht angezeigt werden.',
     'viewer.noPreview': 'Für diese Datei gibt es keine Vorschau.',
+    'editorTable.columnMenu': 'Spalte',
+    'editorTable.rowMenu': 'Zeile',
+    'editorTable.menu': 'Tabelle',
+    'editorTable.insertColumnLeft': 'Spalte links einfügen',
+    'editorTable.insertColumnRight': 'Spalte rechts einfügen',
+    'editorTable.deleteColumn': 'Spalte löschen',
+    'editorTable.insertRowAbove': 'Zeile oberhalb einfügen',
+    'editorTable.insertRowBelow': 'Zeile unterhalb einfügen',
+    'editorTable.deleteRow': 'Zeile löschen',
+    'editorTable.addRow': 'Zeile hinzufügen',
+    'editorTable.addColumn': 'Spalte hinzufügen',
+    'editorTable.delete': 'Tabelle löschen',
   },
   en: {
     'dialog.close': 'Close',
@@ -162,6 +186,18 @@ export const UI_KIT_DEFAULT_MESSAGES: Record<UiLang, UiKitMessages> = {
     'viewer.position': '{n} of {total}',
     'viewer.error': 'The file cannot be displayed.',
     'viewer.noPreview': 'There is no preview for this file.',
+    'editorTable.columnMenu': 'Column',
+    'editorTable.rowMenu': 'Row',
+    'editorTable.menu': 'Table',
+    'editorTable.insertColumnLeft': 'Insert column left',
+    'editorTable.insertColumnRight': 'Insert column right',
+    'editorTable.deleteColumn': 'Delete column',
+    'editorTable.insertRowAbove': 'Insert row above',
+    'editorTable.insertRowBelow': 'Insert row below',
+    'editorTable.deleteRow': 'Delete row',
+    'editorTable.addRow': 'Add row',
+    'editorTable.addColumn': 'Add column',
+    'editorTable.delete': 'Delete table',
   },
 };
 
