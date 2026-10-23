@@ -312,8 +312,10 @@ describe('MarkdownEditorComponent', () => {
 
     it('takes the caption, the labels and the result from the resolver', async () => {
       const seen: string[] = [];
-      const resolve: VoteCalloutResolver = (question) => {
+      const bodies: (readonly string[] | undefined)[] = [];
+      const resolve: VoteCalloutResolver = (question, lines) => {
         seen.push(question);
+        bodies.push(lines);
         return {
           caption: 'Beschluss · 18:52 · Einfache Mehrheit',
           result: { label: 'Abgelehnt', tone: 'rejected' },
@@ -326,6 +328,8 @@ describe('MarkdownEditorComponent', () => {
       });
       const card = container.querySelector('.mde__vote') as HTMLElement;
       expect(seen).toContain('Wird der Antrag angenommen?');
+      // The lines after the question reach the resolver, without the tally line.
+      expect(bodies[0]).not.toContainEqual(expect.stringMatching(/^ja: /));
       expect(card.dataset['result']).toBe('rejected');
       expect(card.querySelector('.mde__voteKind')?.textContent).toBe('Beschluss · 18:52 · Einfache Mehrheit');
       const cells = [...card.querySelectorAll('.mde__voteCell')].map((c) => c.textContent);
@@ -456,9 +460,8 @@ describe('MarkdownEditorComponent', () => {
       const fills = [...card.querySelectorAll<HTMLElement>('.mde__elFill')].map((f) => f.style.width);
       expect(fills).toEqual(['100%', '100%', `${(2 / 7) * 100}%`]);
       expect(card.querySelector('.mde__elRow--abstain .mde__elNum')?.textContent).toBe('1');
-      expect(card.querySelector('.mde__pollFoot')?.textContent).toBe(
-        '17 Antworten · Meinungsbild, kein Beschluss',
-      );
+      // A stored answers line of an older snippet shows the number only.
+      expect(card.querySelector('.mde__pollFoot')?.textContent).toBe('17 Antworten');
       expect(card.querySelector('.mde__voteBody')).toBeNull();
       expect(card.querySelector('.mde__pollLegend')).toBeNull();
       expect(markdownOf(view)).toBe(poll);
@@ -493,6 +496,11 @@ describe('MarkdownEditorComponent', () => {
   });
 
   describe('parsePoll', () => {
+    it('writes "1 Antwort" for one answer', () => {
+      expect(parsePoll(['Umfrage · Einzelwahl', 'A: 1', '1 Antwort'])?.footer).toBe('1 Antwort');
+      expect(parsePoll(['Umfrage · Einzelwahl', 'A: 1', '1 Antworten · alt'])?.footer).toBe('1 Antwort');
+    });
+
     it('splits the best options at the known labels and keeps a label with a comma whole', () => {
       const card = parsePoll([
         'Umfrage · Mehrfachwahl',
