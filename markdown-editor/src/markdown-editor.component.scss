@@ -360,3 +360,69 @@ app-markdown-editor {
   box-shadow: inset 0 0 0 1px var(--color-warning);
   color: var(--color-warning);
 }
+
+/* A poll as a ranking, like the election and like the poll box of the PDF. A poll is
+   no decision, so the best options carry the neutral info colour, not the accent: a
+   star, a bold name, a solid bar and "meiste Stimmen". A date poll stacks Ja (solid)
+   and Vielleicht (light) in one bar. The abstentions and the line with the number of
+   answers are muted. */
+.mde__host .ProseMirror .mde__vote[data-poll] .mde__elRows {
+  grid-template-columns: 18px minmax(6rem, 14rem) minmax(0, 1fr) auto auto;
+}
+.mde__host .ProseMirror .mde__pollTrack {
+  display: flex;
+}
+.mde__host .ProseMirror .mde__pollTrack .mde__elFill {
+  flex: none;
+  border-radius: 0;
+}
+.mde__host .ProseMirror .mde__pollTrack .mde__elFill:first-child {
+  border-radius: var(--radius-pill) 0 0 var(--radius-pill);
+}
+.mde__host .ProseMirror .mde__pollTrack .mde__elFill:last-child {
+  border-top-right-radius: var(--radius-pill);
+  border-bottom-right-radius: var(--radius-pill);
+}
+.mde__host .ProseMirror .mde__pollMaybe {
+  background: color-mix(in srgb, var(--color-text-subtle) 25%, transparent);
+}
+.mde__host .ProseMirror .mde__pollRow--top .mde__elMark,
+.mde__host .ProseMirror .mde__pollTop {
+  color: var(--color-info);
+}
+.mde__host .ProseMirror .mde__pollRow--top .mde__elName,
+.mde__host .ProseMirror .mde__pollRow--top .mde__elNum {
+  color: var(--color-text);
+  font-weight: var(--fw-semibold);
+}
+.mde__host .ProseMirror .mde__pollRow--top .mde__elFill {
+  background: var(--color-info);
+}
+.mde__host .ProseMirror .mde__pollRow--top .mde__pollMaybe,
+.mde__host .ProseMirror .mde__pollSwatch--maybe {
+  background: color-mix(in srgb, var(--color-info) 35%, transparent);
+}
+.mde__host .ProseMirror .mde__pollTop {
+  font-size: var(--fs-xs);
+  white-space: nowrap;
+}
+.mde__host .ProseMirror .mde__pollLegend {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: var(--fs-xs);
+  color: var(--color-text-subtle);
+}
+.mde__host .ProseMirror .mde__pollSwatch {
+  width: 10px;
+  height: 6px;
+  border-radius: 2px;
+  background: var(--color-info);
+}
+.mde__host .ProseMirror .mde__pollSwatch--maybe {
+  margin-left: 6px;
+}
+.mde__host .ProseMirror .mde__pollFoot {
+  font-size: var(--fs-sm);
+  color: var(--color-text-subtle);
+}

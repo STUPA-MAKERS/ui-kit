@@ -16,7 +16,8 @@ import { Node, mergeAttributes } from '@tiptap/core';
  * The card shows a caption, the question, the counts and a bar of the counts. The
  * consumer can add what the Markdown does not hold through a resolver
  * (`VoteCalloutInfo`): the caption with the time and the majority rule, the result
- * under that rule, and the labels in the language of the page.
+ * under that rule, and the labels in the language of the page. A callout without a
+ * tally line can hold an election or a poll, which the card shows as a ranking.
  */
 
 const MARKER = /^\[!(abstimmung|vote)\]\s*/i;
@@ -159,6 +160,110 @@ export function parseElection(lines: readonly string[]): ElectionCard | null {
   return card;
 }
 
+/** One option row of a poll. */
+export interface PollRow {
+  label: string;
+  /** The votes; for a date poll the Ja answers. */
+  count: number;
+  /** The Vielleicht answers of a date poll, otherwise null. */
+  maybe: number | null;
+  /** One of the options with the most votes (several on a tie). */
+  top: boolean;
+}
+
+/**
+ * A poll (Umfrage) in a callout. The backend writes it as
+ *
+ *     > [!abstimmung] **Frage**
+ *     > Umfrage · Mehrfachwahl, höchstens 2
+ *     > Freiburg: 7
+ *     > Konstanz: 4
+ *     > Enthaltungen: 1
+ *     > Meiste Stimmen: Freiburg
+ *     > 12 Antworten · Meinungsbild, kein Beschluss
+ *
+ * A date poll has the kind "Terminumfrage", rows such as "Di, 3.11. · 18:00–20:00:
+ * 5 (+2)" (Ja and Vielleicht), the legend line "Zahl = Ja, (+n) = Vielleicht" and
+ * "Bester Termin: …". An open poll has the kind line only. The render service reads
+ * the same lines (`_poll` of the typst service).
+ */
+export interface PollCard {
+  kind: 'single' | 'multi' | 'date';
+  /** The line "Umfrage · Einzelwahl" or "Terminumfrage". */
+  meta: string;
+  /** The options in the order of the snippet, best first. */
+  rows: PollRow[];
+  abstentions: number | null;
+  /** The line "n Antworten · …". */
+  footer: string | null;
+  /** Lines the card does not read. */
+  notes: string[];
+}
+
+const POLL_META = /^(?:Umfrage\s+·\s+.+|Terminumfrage)$/;
+const POLL_ROW = /^(.*\S):\s*(\d+)(?:\s*\(\+(\d+)\))?$/;
+const POLL_TOP = /^(?:Meiste Stimmen|Bester Termin):\s*(.*)$/;
+const POLL_BALLOTS = /^\d+ Antworten\b/;
+const POLL_LEGEND = 'Zahl = Ja, (+n) = Vielleicht';
+
+/**
+ * Split the list of the best options ("A, B") into known labels. A label can hold
+ * ", " itself (a date such as "Di, 3.11. · 18:00–20:00"), so the function finds a
+ * sequence of known labels that joins to the list, the longer label first.
+ */
+function topLabels(top: string, labels: readonly string[]): Set<string> {
+  const ordered = [...new Set(labels)].sort((a, b) => b.length - a.length);
+  const failed = new Set<string>();
+  const split = (rest: string): string[] | null => {
+    if (failed.has(rest)) return null;
+    for (const label of ordered) {
+      if (rest === label) return [label];
+      if (rest.startsWith(`${label}, `)) {
+        const tail = split(rest.slice(label.length + 2));
+        if (tail) return [label, ...tail];
+      }
+    }
+    failed.add(rest);
+    return null;
+  };
+  return new Set(top ? (split(top) ?? []) : []);
+}
+
+/** Read a poll from the lines after the question. A callout without the kind line is no poll. */
+export function parsePoll(lines: readonly string[]): PollCard | null {
+  const meta = lines[0];
+  if (meta === undefined || !POLL_META.test(meta)) return null;
+  const date = meta === 'Terminumfrage';
+  const card: PollCard = {
+    kind: date ? 'date' : meta.includes('Mehrfachwahl') ? 'multi' : 'single',
+    meta,
+    rows: [],
+    abstentions: null,
+    footer: null,
+    notes: [],
+  };
+  let top = '';
+  for (const line of lines.slice(1)) {
+    const topMatch = POLL_TOP.exec(line);
+    const row = POLL_ROW.exec(line);
+    if (topMatch) top = topMatch[1].trim();
+    else if (!row && POLL_BALLOTS.test(line)) card.footer = line;
+    else if (line === POLL_LEGEND) continue;
+    else if (row && row[1] === 'Enthaltungen' && row[3] === undefined) card.abstentions = Number(row[2]);
+    else if (row && (row[3] !== undefined) === date) {
+      card.rows.push({
+        label: row[1],
+        count: Number(row[2]),
+        maybe: row[3] !== undefined ? Number(row[3]) : null,
+        top: false,
+      });
+    } else card.notes.push(line);
+  }
+  const best = topLabels(top, card.rows.map((r) => r.label));
+  for (const row of card.rows) row.top = best.has(row.label);
+  return card;
+}
+
 /**
  * What the consumer knows about the vote of a callout. The Markdown holds only the
  * question and the counts; the time, the majority rule and the result under that rule
@@ -241,16 +346,21 @@ function fillCard(root: HTMLElement, raw: string, info: VoteCalloutInfo | null):
   root.dataset['result'] = info?.result ? info.result.tone : card.result;
 
   const election = card.tally ? null : parseElection(card.body);
+  const poll = card.tally || election ? null : parsePoll(card.body);
   const head = el('div', 'mde__voteHead');
   head.appendChild(voteIcon());
   const kind = card.kind.charAt(0).toUpperCase() + card.kind.slice(1);
-  head.appendChild(el('span', 'mde__voteKind', info?.caption || election?.meta || kind));
+  head.appendChild(el('span', 'mde__voteKind', info?.caption || election?.meta || poll?.meta || kind));
   root.appendChild(head);
 
   if (card.question) root.appendChild(el('div', 'mde__voteQ', card.question));
   if (election) {
     if (info?.result) head.appendChild(el('span', 'mde__voteStatus', info.result.label));
     fillElection(root, election);
+    return;
+  }
+  if (poll) {
+    fillPoll(root, poll);
     return;
   }
   for (const line of card.body) root.appendChild(el('div', 'mde__voteBody', line));
@@ -371,6 +481,79 @@ function fillElection(root: HTMLElement, election: ElectionCard): void {
     root.appendChild(box);
   }
   for (const note of election.notes) root.appendChild(el('div', 'mde__voteBody', note));
+}
+
+/** The star of the options with the most votes. */
+function starIcon(): SVGElement {
+  const svg = document.createElementNS(SVG_NS, 'svg');
+  svg.setAttribute('width', '14');
+  svg.setAttribute('height', '14');
+  svg.setAttribute('viewBox', '0 0 24 24');
+  svg.setAttribute('fill', 'currentColor');
+  svg.setAttribute('aria-hidden', 'true');
+  const path = document.createElementNS(SVG_NS, 'path');
+  path.setAttribute('d', 'm12 2 3.1 6.3 6.9 1-5 4.9 1.2 6.8L12 17.8 5.8 21l1.2-6.8-5-4.9 6.9-1z');
+  svg.appendChild(path);
+  return svg;
+}
+
+/**
+ * The options of a poll, drawn like the election and like the poll box of the PDF:
+ * one row per option in the order of the snippet, a bar scaled to the best count, a
+ * star and "meiste Stimmen" ("bester Termin") on the best options. A date poll
+ * stacks Ja and Vielleicht in one bar, prints "Ja + Vielleicht" and shows a legend
+ * of the two parts. The abstentions come last and muted, the line with the number of
+ * answers closes the card. An open poll shows its question and its kind only.
+ */
+function fillPoll(root: HTMLElement, poll: PollCard): void {
+  root.dataset['poll'] = poll.kind;
+  const date = poll.kind === 'date';
+  if (poll.rows.length) {
+    const list = el('div', 'mde__elRows mde__pollRows');
+    const best = Math.max(1, ...poll.rows.map((r) => r.count + (r.maybe ?? 0)));
+    for (const row of poll.rows) {
+      const line = el('div', `mde__elRow mde__pollRow${row.top ? ' mde__pollRow--top' : ''}`);
+      const mark = el('span', 'mde__elMark');
+      if (row.top) mark.appendChild(starIcon());
+      line.appendChild(mark);
+      line.appendChild(el('span', 'mde__elName', row.label));
+      const track = el('span', 'mde__elTrack mde__pollTrack');
+      track.setAttribute('aria-hidden', 'true');
+      const fill = el('span', 'mde__elFill');
+      fill.style.width = `${(row.count / best) * 100}%`;
+      track.appendChild(fill);
+      if (row.maybe) {
+        const maybe = el('span', 'mde__elFill mde__pollMaybe');
+        maybe.style.width = `${(row.maybe / best) * 100}%`;
+        track.appendChild(maybe);
+      }
+      line.appendChild(track);
+      const num = row.maybe === null ? String(row.count) : `${row.count} + ${row.maybe}`;
+      line.appendChild(el('span', 'mde__elNum', num));
+      line.appendChild(el('span', 'mde__pollTop', row.top ? (date ? 'bester Termin' : 'meiste Stimmen') : ''));
+      list.appendChild(line);
+    }
+    if (poll.abstentions !== null) {
+      const line = el('div', 'mde__elRow mde__elRow--abstain');
+      line.appendChild(el('span', 'mde__elMark'));
+      line.appendChild(el('span', 'mde__elName', 'Enthaltungen'));
+      line.appendChild(el('span', 'mde__elTrack mde__elTrack--none'));
+      line.appendChild(el('span', 'mde__elNum', String(poll.abstentions)));
+      line.appendChild(el('span', 'mde__pollTop'));
+      list.appendChild(line);
+    }
+    root.appendChild(list);
+    if (date) {
+      const legend = el('div', 'mde__pollLegend');
+      legend.appendChild(el('span', 'mde__pollSwatch'));
+      legend.appendChild(el('span', '', 'Ja'));
+      legend.appendChild(el('span', 'mde__pollSwatch mde__pollSwatch--maybe'));
+      legend.appendChild(el('span', '', 'Vielleicht'));
+      root.appendChild(legend);
+    }
+  }
+  for (const note of poll.notes) root.appendChild(el('div', 'mde__voteBody', note));
+  if (poll.footer) root.appendChild(el('div', 'mde__pollFoot', poll.footer));
 }
 
 /** Read the info of a callout from the resolver; a failing resolver gives none. */

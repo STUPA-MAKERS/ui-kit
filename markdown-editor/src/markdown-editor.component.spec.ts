@@ -1,7 +1,7 @@
 import { Component, signal } from '@angular/core';
 import { render } from '@testing-library/angular';
 import { MarkdownEditorComponent } from './markdown-editor.component';
-import { parseElection, type VoteCalloutResolver } from './vote-callout.extension';
+import { parseElection, parsePoll, type VoteCalloutResolver } from './vote-callout.extension';
 
 @Component({
   standalone: true,
@@ -433,6 +433,88 @@ describe('MarkdownEditorComponent', () => {
       expect(lot.querySelector('.mde__elTag--warn')?.textContent).toBe('Los steht aus');
       expect(lot.querySelectorAll('.mde__elRow--elected')).toHaveLength(0);
       expect(lot.querySelector('.mde__elLine')).toBeNull();
+    });
+    const poll =
+      '> [!abstimmung] **Wohin geht der Ausflug?**\n> Umfrage · Einzelwahl\n' +
+      '> Freiburg: 7\n> Konstanz: 7\n> Tübingen: 2\n> Enthaltungen: 1\n' +
+      '> Meiste Stimmen: Freiburg, Konstanz\n> 17 Antworten · Meinungsbild, kein Beschluss';
+
+    it('shows a poll as a ranking and marks every best option', async () => {
+      const view = await render(`<app-markdown-editor [value]="md" />`, {
+        imports: [MarkdownEditorComponent],
+        componentProperties: { md: poll },
+      });
+      const card = view.container.querySelector('.mde__vote') as HTMLElement;
+      expect(card.dataset['poll']).toBe('single');
+      expect(card.querySelector('.mde__voteKind')?.textContent).toBe('Umfrage · Einzelwahl');
+      const names = [...card.querySelectorAll('.mde__elName')].map((n) => n.textContent);
+      expect(names).toEqual(['Freiburg', 'Konstanz', 'Tübingen', 'Enthaltungen']);
+      const top = [...card.querySelectorAll('.mde__pollRow--top .mde__elName')];
+      expect(top.map((n) => n.textContent)).toEqual(['Freiburg', 'Konstanz']);
+      expect(card.querySelectorAll('.mde__pollRow--top svg')).toHaveLength(2);
+      expect(card.querySelector('.mde__pollTop')?.textContent).toBe('meiste Stimmen');
+      const fills = [...card.querySelectorAll<HTMLElement>('.mde__elFill')].map((f) => f.style.width);
+      expect(fills).toEqual(['100%', '100%', `${(2 / 7) * 100}%`]);
+      expect(card.querySelector('.mde__elRow--abstain .mde__elNum')?.textContent).toBe('1');
+      expect(card.querySelector('.mde__pollFoot')?.textContent).toBe(
+        '17 Antworten · Meinungsbild, kein Beschluss',
+      );
+      expect(card.querySelector('.mde__voteBody')).toBeNull();
+      expect(card.querySelector('.mde__pollLegend')).toBeNull();
+      expect(markdownOf(view)).toBe(poll);
+    });
+
+    it('shows a date poll with stacked bars and an open poll with its kind only', async () => {
+      const dates =
+        '> [!abstimmung] **Wann?**\n> Terminumfrage\n' +
+        '> Mi, 4.11. · 17:00–19:00: 6 (+3)\n> Di, 3.11. · 18:00–20:00: 5 (+0)\n' +
+        '> Zahl = Ja, (+n) = Vielleicht\n> Bester Termin: Mi, 4.11. · 17:00–19:00\n' +
+        '> 10 Antworten · Meinungsbild, kein Beschluss\n\n' +
+        '> [!abstimmung] **Offen?**\n> Umfrage · Mehrfachwahl, höchstens 2';
+      const view = await render(`<app-markdown-editor [value]="md" />`, {
+        imports: [MarkdownEditorComponent],
+        componentProperties: { md: dates },
+      });
+      const [date, open] = [...view.container.querySelectorAll<HTMLElement>('.mde__vote')];
+      expect(date.dataset['poll']).toBe('date');
+      const nums = [...date.querySelectorAll('.mde__elNum')].map((n) => n.textContent);
+      expect(nums).toEqual(['6 + 3', '5 + 0']);
+      const maybe = [...date.querySelectorAll<HTMLElement>('.mde__pollMaybe')];
+      expect(maybe.map((m) => m.style.width)).toEqual([`${(3 / 9) * 100}%`]);
+      expect(date.querySelector('.mde__pollTop')?.textContent).toBe('bester Termin');
+      expect(date.querySelector('.mde__pollLegend')?.textContent).toBe('JaVielleicht');
+      expect(date.querySelector('.mde__elRow--abstain')).toBeNull();
+      expect(open.dataset['poll']).toBe('multi');
+      expect(open.querySelector('.mde__voteKind')?.textContent).toBe('Umfrage · Mehrfachwahl, höchstens 2');
+      expect(open.querySelector('.mde__elRows')).toBeNull();
+      expect(open.querySelector('.mde__pollFoot')).toBeNull();
+      expect(markdownOf(view)).toBe(dates);
+    });
+  });
+
+  describe('parsePoll', () => {
+    it('splits the best options at the known labels and keeps a label with a comma whole', () => {
+      const card = parsePoll([
+        'Umfrage · Mehrfachwahl',
+        'Ja: 5',
+        'Nein, danke: 5',
+        'Nein: 1',
+        'Ein Hinweis',
+        'Meiste Stimmen: Ja, Nein, danke',
+      ]);
+      expect(card?.rows.map((r) => [r.label, r.top])).toEqual([
+        ['Ja', true],
+        ['Nein, danke', true],
+        ['Nein', false],
+      ]);
+      expect(card?.notes).toEqual(['Ein Hinweis']);
+      expect(card?.abstentions).toBeNull();
+    });
+
+    it('reads no poll without the kind line', () => {
+      expect(parsePoll([])).toBeNull();
+      expect(parsePoll(['Umfrage zur Mensa', 'Freiburg: 7'])).toBeNull();
+      expect(parsePoll(['Umfrage · Einzelwahl', 'Meiste Stimmen: X'])?.rows).toEqual([]);
     });
   });
 
