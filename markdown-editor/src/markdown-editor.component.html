@@ -3,7 +3,7 @@
   @if (tc.colX !== null) {
     <app-row-menu
       class="mde__grip mde__grip--col"
-      icon="grip"
+      icon="grip-h"
       align="start"
       [style.left.px]="tc.colX"
       [style.top.px]="tc.top"
@@ -42,7 +42,7 @@
     (mousedown)="$event.preventDefault()"
     (click)="appendTable('column')"
   >
-    <app-icon name="plus" [size]="14" />
+    <app-icon name="plus" [size]="18" />
   </button>
   <button
     type="button"
@@ -55,6 +55,6 @@
     (mousedown)="$event.preventDefault()"
     (click)="appendTable('row')"
   >
-    <app-icon name="plus" [size]="14" />
+    <app-icon name="plus" [size]="18" />
   </button>
 }

@@ -3,7 +3,7 @@ app-markdown-editor {
   /* The controls of a table are placed against the editor element. */
   position: relative;
   --mde-table-gap: 4px;
-  --mde-table-bar: 16px;
+  --mde-table-bar: 20px;
 }
 .mde__host {
   min-height: 16rem;
@@ -450,23 +450,36 @@ app-markdown-editor {
 .mde__grip {
   translate: -50% -50%;
 }
-app-markdown-editor .mde__grip .rm__trigger {
+/* One size for every control: the grips are 32 x 20 (on their side for a row), the
+   table menu and the bars are 20 wide, every icon is 18. A rotated icon would turn
+   around a box that is not its optical centre, so the column grip has its own
+   horizontal icon (`grip-h`). */
+app-markdown-editor .mde__grip .rm__trigger,
+app-markdown-editor .mde__tableMenu .rm__trigger {
   position: relative;
-  width: 28px;
-  height: 16px;
+  box-sizing: border-box;
+  padding: 0;
   border: var(--border-width) solid var(--color-border-strong);
-  border-radius: var(--radius-pill);
   background: var(--color-surface-2);
-  --icon-size: 14px;
 }
-app-markdown-editor .mde__grip--col .rm__trigger app-icon {
-  rotate: 90deg;
+/* The row menu gives its icon a size of 19 on the icon host, which beats the size of
+   the container. 19 in a box of 18 inside the frame sat one pixel low. */
+app-markdown-editor .mde__grip .rm__trigger svg,
+app-markdown-editor .mde__tableMenu .rm__trigger svg {
+  width: 18px;
+  height: 18px;
+}
+app-markdown-editor .mde__grip .rm__trigger {
+  width: 32px;
+  height: var(--mde-table-bar);
+  border-radius: var(--radius-pill);
 }
 app-markdown-editor .mde__grip--row .rm__trigger {
-  width: 16px;
-  height: 28px;
+  width: var(--mde-table-bar);
+  height: 32px;
 }
 app-markdown-editor .mde__grip .rm__trigger::before,
+app-markdown-editor .mde__tableMenu .rm__trigger::before,
 .mde__add::before {
   content: '';
   position: absolute;
@@ -489,12 +502,12 @@ app-markdown-editor .mde__tableMenu .rm__trigger.rm__trigger--on {
 .mde__tableMenu {
   margin-left: var(--mde-table-gap);
 }
+/* The table menu heads the column bar and looks like it: no frame. */
 app-markdown-editor .mde__tableMenu .rm__trigger {
   width: var(--mde-table-bar);
   height: var(--mde-table-bar);
+  border-color: transparent;
   border-radius: var(--radius-sm);
-  background: var(--color-surface-2);
-  --icon-size: 14px;
 }
 .mde__add {
   display: grid;
