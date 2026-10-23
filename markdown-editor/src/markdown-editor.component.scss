@@ -370,13 +370,12 @@ app-markdown-editor {
   color: var(--color-warning);
 }
 
-/* A poll as a ranking, like the election and like the poll box of the PDF. A poll is
-   no decision, so the best options carry the neutral info colour, not the accent: a
-   star, a bold name, a solid bar and "meiste Stimmen". A date poll stacks Ja (solid)
-   and Vielleicht (light) in one bar. The abstentions and the line with the number of
-   answers are muted. */
+/* A poll as a ranking, like the election and like the poll box of the PDF. The best
+   options carry the accent of the elected candidates: a star, a bold name and a solid
+   bar. A date poll stacks Ja (solid) and Vielleicht (light) in one bar. The
+   abstentions and the line with the number of answers are muted. */
 .mde__host .ProseMirror .mde__vote[data-poll] .mde__elRows {
-  grid-template-columns: 18px minmax(6rem, 14rem) minmax(0, 1fr) auto auto;
+  grid-template-columns: 18px minmax(6rem, 14rem) minmax(0, 1fr) auto;
 }
 .mde__host .ProseMirror .mde__pollTrack {
   display: flex;
@@ -395,25 +394,17 @@ app-markdown-editor {
 .mde__host .ProseMirror .mde__pollMaybe {
   background: color-mix(in srgb, var(--color-text-subtle) 25%, transparent);
 }
-.mde__host .ProseMirror .mde__pollRow--top .mde__elMark,
-.mde__host .ProseMirror .mde__pollTop {
-  color: var(--color-info);
-}
 .mde__host .ProseMirror .mde__pollRow--top .mde__elName,
 .mde__host .ProseMirror .mde__pollRow--top .mde__elNum {
   color: var(--color-text);
   font-weight: var(--fw-semibold);
 }
 .mde__host .ProseMirror .mde__pollRow--top .mde__elFill {
-  background: var(--color-info);
+  background: var(--color-accent);
 }
 .mde__host .ProseMirror .mde__pollRow--top .mde__pollMaybe,
 .mde__host .ProseMirror .mde__pollSwatch--maybe {
-  background: color-mix(in srgb, var(--color-info) 35%, transparent);
-}
-.mde__host .ProseMirror .mde__pollTop {
-  font-size: var(--fs-xs);
-  white-space: nowrap;
+  background: color-mix(in srgb, var(--color-accent) 35%, transparent);
 }
 .mde__host .ProseMirror .mde__pollLegend {
   display: flex;
@@ -426,7 +417,7 @@ app-markdown-editor {
   width: 10px;
   height: 6px;
   border-radius: 2px;
-  background: var(--color-info);
+  background: var(--color-accent);
 }
 .mde__host .ProseMirror .mde__pollSwatch--maybe {
   margin-left: 6px;

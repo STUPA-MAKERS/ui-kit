@@ -511,8 +511,8 @@ function starIcon(): SVGElement {
 
 /**
  * The options of a poll, drawn like the election and like the poll box of the PDF:
- * one row per option in the order of the snippet, a bar scaled to the best count, a
- * star and "meiste Stimmen" ("bester Termin") on the best options. A date poll
+ * one row per option in the order of the snippet, a bar scaled to the best count and a
+ * star on the best options. A date poll
  * stacks Ja and Vielleicht in one bar, prints "Ja + Vielleicht" and shows a legend
  * of the two parts. The abstentions come last and muted, the line with the number of
  * answers closes the card. An open poll shows its question and its kind only.
@@ -542,7 +542,6 @@ function fillPoll(root: HTMLElement, poll: PollCard): void {
       line.appendChild(track);
       const num = row.maybe === null ? String(row.count) : `${row.count} + ${row.maybe}`;
       line.appendChild(el('span', 'mde__elNum', num));
-      line.appendChild(el('span', 'mde__pollTop', row.top ? (date ? 'bester Termin' : 'meiste Stimmen') : ''));
       list.appendChild(line);
     }
     if (poll.abstentions !== null) {
@@ -551,7 +550,6 @@ function fillPoll(root: HTMLElement, poll: PollCard): void {
       line.appendChild(el('span', 'mde__elName', 'Enthaltungen'));
       line.appendChild(el('span', 'mde__elTrack mde__elTrack--none'));
       line.appendChild(el('span', 'mde__elNum', String(poll.abstentions)));
-      line.appendChild(el('span', 'mde__pollTop'));
       list.appendChild(line);
     }
     root.appendChild(list);
