@@ -180,7 +180,7 @@ export interface PollRow {
  *     > Konstanz: 4
  *     > Enthaltungen: 1
  *     > Meiste Stimmen: Freiburg
- *     > 12 Antworten · Meinungsbild, kein Beschluss
+ *     > 12 Antworten
  *
  * A date poll has the kind "Terminumfrage", rows such as "Di, 3.11. · 18:00–20:00:
  * 5 (+2)" (Ja and Vielleicht), the legend line "Zahl = Ja, (+n) = Vielleicht" and
@@ -194,7 +194,7 @@ export interface PollCard {
   /** The options in the order of the snippet, best first. */
   rows: PollRow[];
   abstentions: number | null;
-  /** The line "n Antworten · …". */
+  /** "n Antworten" ("1 Antwort"), from the number of the answers line. */
   footer: string | null;
   /** Lines the card does not read. */
   notes: string[];
@@ -203,7 +203,7 @@ export interface PollCard {
 const POLL_META = /^(?:Umfrage\s+·\s+.+|Terminumfrage)$/;
 const POLL_ROW = /^(.*\S):\s*(\d+)(?:\s*\(\+(\d+)\))?$/;
 const POLL_TOP = /^(?:Meiste Stimmen|Bester Termin):\s*(.*)$/;
-const POLL_BALLOTS = /^\d+ Antworten\b/;
+const POLL_BALLOTS = /^(\d+) Antwort(?:en)?\b/;
 const POLL_LEGEND = 'Zahl = Ja, (+n) = Vielleicht';
 
 /**
@@ -229,6 +229,11 @@ function topLabels(top: string, labels: readonly string[]): Set<string> {
   return new Set(top ? (split(top) ?? []) : []);
 }
 
+/** "1 Antwort", "n Antworten". The rest of a stored answers line does not show. */
+function answersLine(n: number): string {
+  return `${n} ${n === 1 ? 'Antwort' : 'Antworten'}`;
+}
+
 /** Read a poll from the lines after the question. A callout without the kind line is no poll. */
 export function parsePoll(lines: readonly string[]): PollCard | null {
   const meta = lines[0];
@@ -247,7 +252,7 @@ export function parsePoll(lines: readonly string[]): PollCard | null {
     const topMatch = POLL_TOP.exec(line);
     const row = POLL_ROW.exec(line);
     if (topMatch) top = topMatch[1].trim();
-    else if (!row && POLL_BALLOTS.test(line)) card.footer = line;
+    else if (!row && POLL_BALLOTS.test(line)) card.footer = answersLine(Number(POLL_BALLOTS.exec(line)?.[1]));
     else if (line === POLL_LEGEND) continue;
     else if (row && row[1] === 'Enthaltungen' && row[3] === undefined) card.abstentions = Number(row[2]);
     else if (row && (row[3] !== undefined) === date) {
@@ -278,8 +283,15 @@ export interface VoteCalloutInfo {
   labels?: { yes: string; no: string; abstain: string; result: string } | null;
 }
 
-/** Find the info of a callout by its question (the bold text of the marker line). */
-export type VoteCalloutResolver = (question: string) => VoteCalloutInfo | null;
+/**
+ * Find the info of a callout by its question (the bold text of the marker line). The
+ * lines after the question let the consumer tell apart two votes with one question, for
+ * example by the kind line of a poll.
+ */
+export type VoteCalloutResolver = (
+  question: string,
+  lines?: readonly string[],
+) => VoteCalloutInfo | null;
 
 /** The options of the node: a getter, so that a node view reads the current resolver. */
 export interface VoteCalloutOptions {
@@ -559,9 +571,9 @@ function fillPoll(root: HTMLElement, poll: PollCard): void {
 /** Read the info of a callout from the resolver; a failing resolver gives none. */
 function infoFor(resolver: VoteCalloutResolver | null, raw: string): VoteCalloutInfo | null {
   if (!resolver) return null;
-  const question = parseVoteCallout(raw).question;
+  const card = parseVoteCallout(raw);
   try {
-    return resolver(question);
+    return resolver(card.question, card.body);
   } catch {
     return null;
   }
