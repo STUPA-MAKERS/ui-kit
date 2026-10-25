@@ -14,6 +14,11 @@ import {
 export interface ListDetailBarClient {
   /** The actions of the sheet bar (icon buttons, the row menu). */
   readonly actions: TemplateRef<unknown>;
+  /**
+   * A second line under the small title, such as the meta text of a page header. It
+   * shows and fades with the title. An empty template leaves no line.
+   */
+  readonly subtitle?: TemplateRef<unknown> | null;
 }
 
 /**
@@ -67,6 +72,8 @@ export interface ListDetailDockOptions {
   readonly titled: () => boolean;
   /** The element of the big title, read on scroll. */
   readonly title: () => Element | null;
+  /** The template of the second line under the small title (`ListDetailBarClient.subtitle`). */
+  readonly subtitle?: () => TemplateRef<unknown> | null;
 }
 
 /**
@@ -91,11 +98,12 @@ export function dockInListDetailBar(options: ListDetailDockOptions): Signal<bool
   // A header with a title registers once its actions template exists.
   effect(() => {
     const actions = options.actions();
+    const subtitle = options.subtitle?.() ?? null;
     const titled = options.titled();
     untracked(() => {
       const current = client();
       if (titled && !current) {
-        const next = { actions };
+        const next = { actions, subtitle };
         client.set(next);
         nav.register(next);
       } else if (!titled && current) {
