@@ -1,0 +1,64 @@
+// The ends of a scroll area. The scroll-fade directive sets `is-fade-start` and
+// `is-fade-end` on the box while more content lies past that end. Emits no CSS.
+//   @use 'scroll-fade' as fade;
+//   .list { @include fade.edge-y; }
+//   .rail { @include fade.fade-y(var(--space-5)); }
+//
+// `edge-y` draws a line at an end while content lies past it, so the cut sits on a
+// visible edge. Content has no fade: only chrome without an edge (the nav rail) fades.
+//
+// `$size` is the length of the fade. With `$both: false` a box that has more content at
+// both ends fades only at the end (the later rule wins), as a chip row that shows its
+// start does.
+
+@mixin -fade($start, $end, $size, $both) {
+  &.is-fade-start {
+    -webkit-mask-image: linear-gradient(to #{$start}, transparent, #000 $size);
+    mask-image: linear-gradient(to #{$start}, transparent, #000 $size);
+  }
+  &.is-fade-end {
+    -webkit-mask-image: linear-gradient(to #{$end}, transparent, #000 $size);
+    mask-image: linear-gradient(to #{$end}, transparent, #000 $size);
+  }
+  @if $both {
+    &.is-fade-start.is-fade-end {
+      -webkit-mask-image: linear-gradient(
+        to #{$start},
+        transparent,
+        #000 $size,
+        #000 calc(100% - #{$size}),
+        transparent
+      );
+      mask-image: linear-gradient(
+        to #{$start},
+        transparent,
+        #000 $size,
+        #000 calc(100% - #{$size}),
+        transparent
+      );
+    }
+  }
+}
+
+// The top and the bottom end.
+@mixin fade-y($size, $both: true) {
+  @include -fade(bottom, top, $size, $both);
+}
+
+// The start and the end of a row that scrolls sideways.
+@mixin fade-x($size, $both: true) {
+  @include -fade(right, left, $size, $both);
+}
+
+// A line at the top and the bottom end while content lies past it. The line is the border
+// of the box, so it stays at the edge while the content scrolls and takes no extra space:
+// the border is there all the time and only its colour changes.
+@mixin edge-y($color: var(--color-border)) {
+  border-block: var(--border-width) solid transparent;
+  &.is-fade-start {
+    border-top-color: $color;
+  }
+  &.is-fade-end {
+    border-bottom-color: $color;
+  }
+}

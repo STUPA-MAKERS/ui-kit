@@ -64,6 +64,7 @@ list/detail geometry (`list-detail.scss`: `--ld-list-width`, `--ld-gap`, `.ld-pa
 that loads the partials one by one adds `@include meta.load-css('rowgroup')` and
 `@include meta.load-css('list-detail')` at the place in its cascade where they belong. These partials emit no CSS
 and are for component stylesheets: `option-menu` (popover and rows of an option list),
+`scroll-fade` (`edge-y` for a line at a cut end, `fade-y` and `fade-x` for a fade, both driven by the `is-fade-start` and `is-fade-end` classes),
 `dot-parts` (a meta line "A · B · C" without a dot at a line start) and `field`.
 
 ### Rules of the design system
@@ -77,8 +78,10 @@ and are for component stylesheets: `option-menu` (popover and rows of an option 
 - Input fields are filled (surface 2, radius 14), without an edge and without a shadow;
   focus draws a 2px accent line inside the field.
 - A long name gets an ellipsis (`.ell`) and a `title` with the full text.
-- No fades. A scroll area is cut hard at its edges, and each edge is a natural edge: a
-  line, a bar, the edge of a sheet or a dialog, or the screen edge.
+- No fades in content. A scroll area is cut hard at its edges, and each edge is a natural
+  edge: a line, a bar, the edge of a sheet or a dialog, or the screen edge. Where no such
+  edge exists, `edge-y` draws a line at the cut while content lies past it. Only the nav
+  rail fades, because it is chrome without an edge.
 
 ## i18n (decoupled)
 
@@ -149,7 +152,7 @@ status text (`StatusKind`), share bar (`app-seg-bar`), sticky bar, field group a
 row, date block, person avatar and avatar stack, select field (`app-select`, the kit's own
 option list with a popover or a bottom sheet, never the native list), filter chip
 (`app-filter-select`), range chip (`app-range-chip`, `currency` input), search pill with
-`liveSearch()`, file drop zone, drop overlay and `appFileDrop`. Directives
+`liveSearch()`, file drop zone, drop overlay and `appFileDrop`. Directives `appScrollFade`,
 `appTruncated`, `appLongPress`, `appPressSelect`; helpers `downloadBlob`, `formatBytes`,
 `keyParts` and the `capitalize` pipe.
 
