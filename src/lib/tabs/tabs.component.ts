@@ -2,6 +2,7 @@ import {
   ChangeDetectionStrategy,
   Component,
   ElementRef,
+  afterRenderEffect,
   computed,
   inject,
   input,
@@ -51,6 +52,25 @@ export class TabsComponent {
     const hit = tabs.find((t) => t.id === this.active() && !t.disabled);
     return (hit ?? tabs.find((t) => !t.disabled))?.id ?? null;
   });
+
+  constructor() {
+    // A bar wider than the screen scrolls sideways: the active tab comes into view when it
+    // changes from outside the bar (a swipe over the panels, a link), and on the first
+    // render. Only the bar scrolls, never the page.
+    afterRenderEffect(() => {
+      const id = this.current();
+      const bar = this.host.nativeElement.querySelector<HTMLElement>('.tabs');
+      const tab = id === null ? null : bar?.querySelector<HTMLElement>(`[id="${this.tabId(id)}"]`);
+      if (!bar || !tab || bar.scrollWidth <= bar.clientWidth) return;
+      const pad = 16;
+      const left = tab.getBoundingClientRect().left - bar.getBoundingClientRect().left + bar.scrollLeft;
+      const right = left + tab.offsetWidth;
+      let to: number | null = null;
+      if (left - pad < bar.scrollLeft) to = left - pad;
+      else if (right + pad > bar.scrollLeft + bar.clientWidth) to = right + pad - bar.clientWidth;
+      if (to !== null) bar.scrollTo?.({ left: Math.max(0, to), behavior: 'smooth' });
+    });
+  }
 
   tabId(id: string | null): string {
     return `${this.idPrefix()}-tab-${id ?? ''}`;

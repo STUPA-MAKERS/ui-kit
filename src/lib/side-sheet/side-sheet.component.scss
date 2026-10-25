@@ -151,6 +151,14 @@
     transparent
   );
 }
+/* A bottom sheet ends at the screen edge, so its body is cut there and does not fade at
+   the bottom. The top still fades under the head, which has no line. */
+.ss--bottom .ss__body--fadeBottom {
+  mask-image: none;
+}
+.ss--bottom .ss__body--fadeTop {
+  mask-image: linear-gradient(to bottom, transparent, #000 var(--space-5));
+}
 
 /* Motion. A sheet comes in from the edge it lives at and goes back there, faster on the
    way out. The scrim fades with it. Leaving parts take --motion-base. */
