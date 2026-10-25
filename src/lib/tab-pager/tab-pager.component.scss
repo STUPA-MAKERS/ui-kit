@@ -1,0 +1,94 @@
+/* The gutter the tab bar and the pager run over (`--tab-pager-bleed`, 0 by default). A
+   page has the room `--tab-pager-page-top` under the tab line and `--tab-pager-page-bottom`
+   below its content (0 by default). */
+:host {
+  --tp-bleed: var(--tab-pager-bleed, 0px);
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+.tp__panel {
+  min-width: 0;
+  padding-top: var(--tab-pager-page-top, 0px);
+}
+
+/* Paged: the tab bar and its line run over the gutter to the screen edges, so a long tab
+   scrolls out at the edge. The tabs draw no mark of their own: the ink below moves with
+   the swipe. */
+.tp__bar {
+  position: relative;
+  flex: none;
+  min-width: 0;
+  margin-inline: calc(-1 * var(--tp-bleed));
+}
+.tp__bar::after {
+  content: '';
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  height: var(--border-width);
+  background: var(--color-border);
+  pointer-events: none;
+}
+.tp__bar ::ng-deep .tabs {
+  padding-inline: var(--tp-bleed);
+  border-bottom-color: transparent;
+}
+.tp__bar ::ng-deep .tabs .tabs__tab.tabs__tab--on {
+  box-shadow: none;
+}
+.tp__ink {
+  position: absolute;
+  bottom: var(--border-width);
+  left: 0;
+  width: 0;
+  z-index: 1;
+  height: 3px;
+  background: var(--color-accent);
+  pointer-events: none;
+}
+
+/* The pager runs over the gutter to the screen edges, so a page that moves away leaves at
+   the edge; each page keeps the gutter inside. Each page has its own height, and the
+   pager takes the height of the page on screen. */
+.tp__pager {
+  display: grid;
+  align-items: start;
+  grid-auto-columns: 100%;
+  grid-auto-flow: column;
+  min-width: 0;
+  margin-inline: calc(-1 * var(--tp-bleed));
+  overflow-x: auto;
+  overflow-y: hidden;
+  overscroll-behavior-x: contain;
+  scroll-snap-type: x mandatory;
+  scrollbar-width: none;
+}
+.tp__pager::-webkit-scrollbar {
+  display: none;
+}
+.tp__page {
+  min-width: 0;
+  padding: var(--tab-pager-page-top, 0px) var(--tp-bleed) var(--tab-pager-page-bottom, 0px);
+  scroll-snap-align: start;
+  scroll-snap-stop: always;
+}
+
+/* Fill: the pager takes the height of the host, and each page scrolls down by itself. */
+:host(.tp--fill) {
+  flex: 1 1 auto;
+  min-height: 0;
+}
+:host(.tp--fill) .tp__pager {
+  flex: 1 1 0;
+  align-items: stretch;
+  min-height: 0;
+}
+:host(.tp--fill) .tp__page {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior-y: contain;
+}
