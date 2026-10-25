@@ -96,7 +96,6 @@ export * from './lib/file-drop/file-drop-zone.component';
 export * from './lib/file-drop/file-drop.directive';
 export * from './lib/field-group/field-group.component';
 export * from './lib/date-block/date-block.component';
-export * from './lib/scroll-fade/scroll-fade.directive';
 export * from './lib/truncated/truncated.directive';
 export * from './lib/long-press/long-press.directive';
 export * from './lib/press-select/press-select.directive';

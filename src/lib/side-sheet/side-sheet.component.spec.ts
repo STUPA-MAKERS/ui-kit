@@ -334,57 +334,10 @@ describe('SideSheetComponent', () => {
       expect(host.open()).toBe(true);
     });
 
-    it('fades an end of the body only where more content is hidden', async () => {
-      const { dialog, view } = await openBottom();
+    it('cuts the body at its edges and never fades it', async () => {
+      const { dialog } = await openBottom();
       const body = dialog.querySelector('.ss__body') as HTMLElement;
-      Object.defineProperty(body, 'scrollHeight', { value: 600 });
-      Object.defineProperty(body, 'clientHeight', { value: 300 });
-      body.scrollTop = 0;
-      fireEvent.scroll(body);
-      view.fixture.detectChanges();
-      expect(body).not.toHaveClass('ss__body--fadeTop');
-      expect(body).toHaveClass('ss__body--fadeBottom');
-      body.scrollTop = 150;
-      fireEvent.scroll(body);
-      view.fixture.detectChanges();
-      expect(body).toHaveClass('ss__body--fadeTop', 'ss__body--fadeBottom');
-      body.scrollTop = 300;
-      fireEvent.scroll(body);
-      view.fixture.detectChanges();
-      expect(body).toHaveClass('ss__body--fadeTop');
-      expect(body).not.toHaveClass('ss__body--fadeBottom');
-    });
-
-    it('measures the body once it is open and watches its size', async () => {
-      const observed: Element[] = [];
-      const original = globalThis.ResizeObserver;
-      let fire: () => void = () => undefined;
-      Object.defineProperty(globalThis, 'ResizeObserver', {
-        writable: true,
-        value: class {
-          constructor(cb: () => void) {
-            fire = cb;
-          }
-          observe(el: Element): void {
-            observed.push(el);
-          }
-          disconnect(): void {}
-        },
-      });
-      try {
-        const { dialog, host, view } = await openBottom();
-        const body = dialog.querySelector('.ss__body') as HTMLElement;
-        await waitFor(() => expect(observed).toContain(body));
-        Object.defineProperty(body, 'scrollHeight', { value: 900 });
-        Object.defineProperty(body, 'clientHeight', { value: 300 });
-        fire();
-        view.fixture.detectChanges();
-        expect(body).toHaveClass('ss__body--fadeBottom');
-        host.open.set(false);
-        view.fixture.detectChanges();
-      } finally {
-        Object.defineProperty(globalThis, 'ResizeObserver', { writable: true, value: original });
-      }
+      expect(body.className).not.toMatch(/fade/);
     });
   });
 

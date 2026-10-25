@@ -135,23 +135,6 @@
   overflow: hidden;
 }
 
-/* Fade an end of the body only where more content is hidden in that direction. */
-.ss__body--fadeTop {
-  mask-image: linear-gradient(to bottom, transparent, #000 var(--space-5));
-}
-.ss__body--fadeBottom {
-  mask-image: linear-gradient(to top, transparent, #000 var(--space-5));
-}
-.ss__body--fadeTop.ss__body--fadeBottom {
-  mask-image: linear-gradient(
-    to bottom,
-    transparent,
-    #000 var(--space-5),
-    #000 calc(100% - var(--space-5)),
-    transparent
-  );
-}
-
 /* Motion. A sheet comes in from the edge it lives at and goes back there, faster on the
    way out. The scrim fades with it. Leaving parts take --motion-base. */
 .ss__scrim--entering {

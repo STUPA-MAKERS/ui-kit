@@ -88,11 +88,7 @@ export class SideSheetComponent {
 
   protected readonly id = `side-sheet-${nextId++}`;
   private readonly pane = viewChild<ElementRef<HTMLElement>>('pane');
-  private readonly body = viewChild<ElementRef<HTMLElement>>('body');
 
-  /** More content above or below the visible part of the body. */
-  protected readonly fadeTop = signal(false);
-  protected readonly fadeBottom = signal(false);
   /** How far a swipe pulls the bottom sheet down now, in px. */
   protected readonly dragY = signal(0);
   /** A swipe runs: the sheet follows the finger without a transition. */
@@ -100,7 +96,6 @@ export class SideSheetComponent {
 
   private drag: { pointerId: number; startY: number; startTime: number; past: boolean } | null =
     null;
-  private bodyObserver: ResizeObserver | null = null;
 
   private returnFocus: HTMLElement | null = null;
   /** The pane of the current opening, to see after a closing whether it is still there. */
@@ -140,16 +135,6 @@ export class SideSheetComponent {
       return;
     }
     void Promise.all(running.map((a) => a.finished)).then(done, done);
-  }
-
-  /** Read the scroll position of the body and set the fades. */
-  protected measure(): void {
-    const el = this.body()?.nativeElement;
-    if (!el) return;
-    // A sub-pixel layout leaves a fraction of a pixel over on a body that fits.
-    const slack = 1;
-    this.fadeTop.set(el.scrollTop > slack);
-    this.fadeBottom.set(el.scrollTop < el.scrollHeight - el.clientHeight - slack);
   }
 
   /** Start a swipe on the handle or the header of a bottom sheet. */
@@ -219,21 +204,7 @@ export class SideSheetComponent {
       const pane = this.pane()!.nativeElement;
       this.paneEl = pane;
       (focusableIn(pane)[0] ?? pane).focus();
-      this.watchBody();
     });
-  }
-
-  /**
-   * Measure the fades now and whenever the body or its content changes size. The body
-   * keeps its height while the content grows inside it, so the children are watched too.
-   */
-  private watchBody(): void {
-    const el = this.body()?.nativeElement;
-    if (!el) return;
-    this.bodyObserver = new ResizeObserver(() => this.measure());
-    this.bodyObserver.observe(el);
-    for (const child of Array.from(el.children)) this.bodyObserver.observe(child);
-    this.measure();
   }
 
   private deactivate(): void {
@@ -247,8 +218,6 @@ export class SideSheetComponent {
         if (!this.open() && !pane?.isConnected) this.shown.set(false);
       });
     }
-    this.bodyObserver?.disconnect();
-    this.bodyObserver = null;
     this.drag = null;
     this.dragging.set(false);
     this.dragY.set(0);

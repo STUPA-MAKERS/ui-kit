@@ -15,8 +15,8 @@ import {
  *
  * The bar is `position: sticky` at the top of the viewport, below the shell header and
  * the safe area (`--layout-header-height`, `env(safe-area-inset-top)`). It has the page
- * background, so the rows that scroll under it do not show through. While rows are under
- * it (the bar is "stuck"), a short fade below the bar shows that the list continues.
+ * background, so the rows that scroll under it do not show through, and its lower edge
+ * cuts them. While rows are under it, the bar is "stuck" (`stb--stuck`).
  *
  * Put the bar as a direct child of the element that holds the list, not into a small
  * wrapper: a sticky element stays inside its parent, so a parent as high as the bar holds
@@ -56,7 +56,7 @@ import {
 export class StickyBarComponent {
   private readonly host = inject<ElementRef<HTMLElement>>(ElementRef);
 
-  /** False turns the bar off: no sticky position, no background, no fade. */
+  /** False turns the bar off: no sticky position, no background. */
   readonly sticky = input(true);
 
   /** Rows scroll under the bar: it is at its sticky offset, above its place in the flow. */
