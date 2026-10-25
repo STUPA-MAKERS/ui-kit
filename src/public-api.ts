@@ -26,6 +26,8 @@ export * from './lib/button/button-link.component';
 export * from './lib/switch/switch.component';
 export * from './lib/segmented/segmented.component';
 export * from './lib/tabs/tabs.component';
+export * from './lib/tab-pager/tab-pager.component';
+export * from './lib/tab-pager/tab-page.directive';
 export * from './lib/input/input.component';
 export * from './lib/checkbox/checkbox.component';
 export * from './lib/select/select.component';
