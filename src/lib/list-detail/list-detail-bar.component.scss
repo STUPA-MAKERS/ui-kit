@@ -60,13 +60,22 @@
   outline-offset: 2px;
 }
 
+/* The small title and its second line take the free width between the arrow and the
+   actions. */
+.ld__barText {
+  display: flex;
+  flex: 1 1 auto;
+  flex-direction: column;
+  min-width: 0;
+  padding-inline: var(--space-1);
+}
+
 /* The small title: one line at 17px (the h2 step), cut with an ellipsis. The full title
    stays in the sheet below. */
-.ld__barTitle {
-  flex: 1 1 auto;
+.ld__barTitle,
+.ld__barSub {
   min-width: 0;
   overflow: hidden;
-  padding-inline: var(--space-1);
   font-size: var(--fs-h2);
   line-height: var(--lh-h2);
   font-weight: var(--fw-semibold);
@@ -78,13 +87,30 @@
     opacity var(--motion-base, 200ms) var(--ease-standard, ease),
     transform var(--motion-base, 200ms) var(--ease-standard, ease);
 }
-:host(.ld__bar--condensed) .ld__barTitle {
+
+/* The second line: small muted text in one row, such as "Version 12 aktiv ✓ Gültig". A
+   template that renders nothing leaves no line, so the title keeps the centre. */
+.ld__barSub {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-size: var(--fs-sm);
+  line-height: var(--lh-small);
+  font-weight: var(--fw-regular);
+  color: var(--color-text-muted);
+}
+.ld__barSub:empty {
+  display: none;
+}
+
+:host(.ld__bar--condensed) :is(.ld__barTitle, .ld__barSub) {
   opacity: 1;
   transform: none;
 }
 @media (prefers-reduced-motion: reduce) {
   :host,
-  .ld__barTitle {
+  .ld__barTitle,
+  .ld__barSub {
     transition: none;
   }
 }

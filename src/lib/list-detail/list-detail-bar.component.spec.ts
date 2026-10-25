@@ -1,8 +1,36 @@
-import { Component, signal } from '@angular/core';
+import { Component, type ElementRef, type TemplateRef, signal, viewChild } from '@angular/core';
 import { render, screen } from '@testing-library/angular';
 import userEvent from '@testing-library/user-event';
 import { SheetBarComponent, SheetBarTitleDirective } from '../sheet-bar/sheet-bar.component';
 import { ListDetailBarComponent, ListDetailNavDirective } from './list-detail-bar.component';
+import { dockInListDetailBar } from './list-detail-nav';
+
+/** A page header that hands its meta text to the bar as the second line. */
+@Component({
+  selector: 'app-test-header',
+  standalone: true,
+  template: `
+    <h1 #title>Flow-Editor</h1>
+    <ng-template #actions><button type="button">Versionen</button></ng-template>
+    <ng-template #sub>
+      @if (meta()) {
+        <span class="meta">{{ meta() }}</span>
+      }
+    </ng-template>
+  `,
+})
+class SubtitleHeader {
+  readonly meta = signal('Version 12 aktiv');
+  private readonly title = viewChild.required<ElementRef<HTMLElement>>('title');
+  private readonly actions = viewChild.required<TemplateRef<unknown>>('actions');
+  private readonly sub = viewChild.required<TemplateRef<unknown>>('sub');
+  readonly docked = dockInListDetailBar({
+    actions: () => this.actions(),
+    titled: () => true,
+    title: () => this.title().nativeElement,
+    subtitle: () => this.sub(),
+  });
+}
 
 /** A panel outside `app-list-detail` (the card drawer of a board) with the bar of the layout. */
 @Component({
@@ -54,5 +82,20 @@ describe('ListDetailBarComponent with appListDetailNav', () => {
     const bar = view.container.querySelector('app-list-detail-bar') as HTMLElement;
     expect(bar).toHaveClass('ld__bar--condensed');
     expect(bar.querySelector('.ld__barTitle')?.textContent).toBe('Antrag stellen');
+  });
+
+  it('shows the second line of the header under the small title, and none while it is empty', async () => {
+    const view = await render(
+      `<div [appListDetailNav]="true"><app-list-detail-bar /><app-test-header /></div>`,
+      { imports: [ListDetailBarComponent, ListDetailNavDirective, SubtitleHeader] },
+    );
+    const bar = view.container.querySelector('app-list-detail-bar') as HTMLElement;
+    const sub = bar.querySelector('.ld__barText .ld__barSub') as HTMLElement;
+    expect(sub.querySelector('.meta')?.textContent).toBe('Version 12 aktiv');
+    expect(bar.querySelector('.ld__barActions button')?.textContent).toBe('Versionen');
+    view.debugElement.children[0].children[1].componentInstance.meta.set('');
+    view.fixture.detectChanges();
+    expect(sub.querySelector('.meta')).toBeNull();
+    expect(sub.textContent?.trim()).toBe('');
   });
 });
