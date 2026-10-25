@@ -41,7 +41,8 @@ const ARRIVED = 0.05;
  *
  * `fill`: the pager takes the height its host gives it, and each page scrolls down by
  * itself (a board column, a chat log). Without it, the pager is as high as the active
- * page, and the page scrolls with the document.
+ * page, and the page scrolls with the document. Paged, the pager also takes the free
+ * height below it in a flex column, so a swipe works on the empty space under a short page.
  *
  * The host sets `--tab-pager-bleed` to the page gutter (`--space-4` on a phone): the tab
  * bar, its line and the pager then run over the gutter to the screen edges, so a tab or a

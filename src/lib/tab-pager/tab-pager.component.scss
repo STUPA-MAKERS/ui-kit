@@ -75,6 +75,17 @@
   scroll-snap-stop: always;
 }
 
+/* Paged: the host and the pager take the free height below them, so a swipe on the empty
+   space under a short page also moves the pager. The pager grows past the height of the
+   page from `fitHeight`; the page keeps its own height. The host gives the pager the
+   height only when its parent is a flex column that runs to the foot of the view. */
+:host(.tp--paged) {
+  flex-grow: 1;
+}
+:host(.tp--paged) .tp__pager {
+  flex: 1 0 auto;
+}
+
 /* Fill: the pager takes the height of the host, and each page scrolls down by itself. */
 :host(.tp--fill) {
   flex: 1 1 auto;
