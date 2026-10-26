@@ -81,6 +81,14 @@ export class ListItemComponent {
   /** The row is the one open in the detail pane. */
   readonly selected = input(false);
   /**
+   * The row opens and closes a body under it (an expand row). `true` or `false` sets
+   * `aria-expanded` on the title button; `null` (the default) leaves it out, because a
+   * row that opens nothing must not say that it is closed. Not used with `link`.
+   */
+  readonly expanded = input<boolean | null>(null);
+  /** The id of the body that the row opens, for `aria-controls`. Only with `expanded`. */
+  readonly controls = input<string | null>(null);
+  /**
    * The title may take two lines before it gets the ellipsis. For a narrow list where
    * the end of a long title tells the rows apart (meetings on a phone).
    */
