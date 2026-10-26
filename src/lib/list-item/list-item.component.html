@@ -51,6 +51,8 @@
           class="li__title"
           [attr.title]="tooltip()"
           [attr.aria-current]="selected() ? 'true' : null"
+          [attr.aria-expanded]="expanded()"
+          [attr.aria-controls]="expanded() === null ? null : controls()"
           (click)="activate.emit()"
         >
           <span #titleText class="li__titleText">{{ title() }}</span>

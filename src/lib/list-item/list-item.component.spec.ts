@@ -124,6 +124,30 @@ describe('ListItemComponent', () => {
     expect(view.container.querySelector('.li')).toHaveClass('li--on');
   });
 
+  it('says whether an expand row is open, and only for an expand row', async () => {
+    @Component({
+      standalone: true,
+      imports: [ListItemComponent],
+      template: `
+        <app-list-item title="Finanzen" [expanded]="open()" controls="body-1" />
+        <app-list-item title="Mitglied" controls="body-2" />
+      `,
+    })
+    class ExpandHostComponent {
+      readonly open = signal(false);
+    }
+    const view = await render(ExpandHostComponent);
+    const row = screen.getByRole('button', { name: 'Finanzen' });
+    expect(row).toHaveAttribute('aria-expanded', 'false');
+    expect(row).toHaveAttribute('aria-controls', 'body-1');
+    view.fixture.componentInstance.open.set(true);
+    view.fixture.detectChanges();
+    expect(row).toHaveAttribute('aria-expanded', 'true');
+    const plain = screen.getByRole('button', { name: 'Mitglied' });
+    expect(plain).not.toHaveAttribute('aria-expanded');
+    expect(plain).not.toHaveAttribute('aria-controls');
+  });
+
   it('lets the title take two lines with `wrap`', async () => {
     await render(ListItemComponent, { inputs: { title: LONG, wrap: true } });
     const title = screen.getByRole('button', { name: LONG });
