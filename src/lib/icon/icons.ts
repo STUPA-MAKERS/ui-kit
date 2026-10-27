@@ -1,6 +1,6 @@
 // The icon set of the design system: line icons on a 24px grid, drawn with
 // `stroke="currentColor"`. The shapes come from the design mockups. The inventory icons
-// (mappin, package, printer, qr, scan, shapes, template, warehouse, wrench) follow Lucide (ISC).
+// (mappin, package, printer, qr, reset, scan, shapes, template, warehouse, wrench) follow Lucide (ISC).
 
 /** One element of an icon: a path, circle, rect or ellipse with its attributes. */
 export interface IconShape {
@@ -99,6 +99,7 @@ export type IconName =
   | 'receipt'
   | 'redo'
   | 'repeat'
+  | 'reset'
   | 'right'
   | 'scan'
   | 'search'
@@ -231,6 +232,7 @@ const SHAPES: Record<string, readonly IconShape[]> = {
   receipt: [{ t: 'path', d: 'M5 3v18l2.5-1.5L10 21l2-1.5 2 1.5 2.5-1.5L19 21V3l-2.5 1.5L14 3l-2 1.5L10 3 7.5 4.5z' }, { t: 'path', d: 'M9 9h6M9 13h6' }],
   redo: [{ t: 'path', d: 'm15 14 5-5-5-5' }, { t: 'path', d: 'M20 9H9a5 5 0 0 0 0 10h3' }],
   repeat: [{ t: 'path', d: 'm17 2 4 4-4 4' }, { t: 'path', d: 'M3 11v-1a4 4 0 0 1 4-4h14' }, { t: 'path', d: 'm7 22-4-4 4-4' }, { t: 'path', d: 'M21 13v1a4 4 0 0 1-4 4H3' }],
+  reset: [{ t: 'path', d: 'M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8' }, { t: 'path', d: 'M3 3v5h5' }],
   right: [{ t: 'path', d: 'm9 6 6 6-6 6' }],
   scan: [{ t: 'path', d: 'M3 7V5a2 2 0 0 1 2-2h2' }, { t: 'path', d: 'M17 3h2a2 2 0 0 1 2 2v2' }, { t: 'path', d: 'M21 17v2a2 2 0 0 1-2 2h-2' }, { t: 'path', d: 'M7 21H5a2 2 0 0 1-2-2v-2' }, { t: 'path', d: 'M7 12h10' }],
   search: [{ t: 'circle', cx: '11', cy: '11', r: '7' }, { t: 'path', d: 'm20 20-3.5-3.5' }],
@@ -375,6 +377,7 @@ export const ICON_NAMES: readonly IconName[] = [
   'receipt',
   'redo',
   'repeat',
+  'reset',
   'right',
   'scan',
   'search',
