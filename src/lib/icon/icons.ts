@@ -1,5 +1,6 @@
 // The icon set of the design system: line icons on a 24px grid, drawn with
-// `stroke="currentColor"`. The shapes come from the design mockups.
+// `stroke="currentColor"`. The shapes come from the design mockups. The inventory icons
+// (mappin, package, printer, qr, reset, scan, shapes, template, warehouse, wrench) follow Lucide (ISC).
 
 /** One element of an icon: a path, circle, rect or ellipse with its attributes. */
 export interface IconShape {
@@ -79,11 +80,13 @@ export type IconName =
   | 'lock'
   | 'logout'
   | 'mail'
+  | 'mappin'
   | 'menu'
   | 'minus'
   | 'monitor'
   | 'moon'
   | 'more'
+  | 'package'
   | 'palette'
   | 'pie'
   | 'pin'
@@ -91,12 +94,17 @@ export type IconName =
   | 'play'
   | 'plus'
   | 'power'
+  | 'printer'
+  | 'qr'
   | 'receipt'
   | 'redo'
   | 'repeat'
+  | 'reset'
   | 'right'
+  | 'scan'
   | 'search'
   | 'send'
+  | 'shapes'
   | 'shield'
   | 'shieldok'
   | 'sort'
@@ -106,6 +114,7 @@ export type IconName =
   | 'table'
   | 'tag'
   | 'tasks'
+  | 'template'
   | 'ticket'
   | 'trash'
   | 'tune'
@@ -115,7 +124,9 @@ export type IconName =
   | 'user'
   | 'users'
   | 'vote'
+  | 'warehouse'
   | 'webhook'
+  | 'wrench'
   | 'x'
   | 'add'
   | 'audit'
@@ -201,11 +212,13 @@ const SHAPES: Record<string, readonly IconShape[]> = {
   lock: [{ t: 'rect', x: '4', y: '11', width: '16', height: '10', rx: '2' }, { t: 'path', d: 'M8 11V7a4 4 0 0 1 8 0v4' }],
   logout: [{ t: 'path', d: 'M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4' }, { t: 'path', d: 'm16 17 5-5-5-5M21 12H9' }],
   mail: [{ t: 'rect', x: '2', y: '4', width: '20', height: '16', rx: '2' }, { t: 'path', d: 'm22 7-10 6L2 7' }],
+  mappin: [{ t: 'path', d: 'M20 10c0 4.99-5.54 10.19-7.4 11.8a1 1 0 0 1-1.2 0C9.54 20.19 4 14.99 4 10a8 8 0 0 1 16 0' }, { t: 'circle', cx: '12', cy: '10', r: '3' }],
   menu: [{ t: 'path', d: 'M4 6h16M4 12h16M4 18h16' }],
   minus: [{ t: 'path', d: 'M5 12h14' }],
   monitor: [{ t: 'rect', x: '2', y: '3', width: '20', height: '14', rx: '2' }, { t: 'path', d: 'M8 21h8M12 17v4' }],
   moon: [{ t: 'path', d: 'M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z' }],
   more: [{ t: 'circle', cx: '12', cy: '5', r: '1.3' }, { t: 'circle', cx: '12', cy: '12', r: '1.3' }, { t: 'circle', cx: '12', cy: '19', r: '1.3' }],
+  package: [{ t: 'path', d: 'M11 21.73a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73z' }, { t: 'path', d: 'M12 22V12' }, { t: 'path', d: 'm3.3 7 7.7 4.73a2 2 0 0 0 2 0L20.7 7' }, { t: 'path', d: 'm7.5 4.27 9 5.15' }],
   palette: [{ t: 'circle', cx: '12', cy: '12', r: '9' }, { t: 'circle', cx: '7.5', cy: '10.5', r: '1' }, { t: 'circle', cx: '12', cy: '7.5', r: '1' }, { t: 'circle', cx: '16.5', cy: '10.5', r: '1' }, { t: 'path', d: 'M12 21a3 3 0 0 1 0-6h2a3 3 0 0 0 3-3' }],
   pie: [{ t: 'path', d: 'M21 12A9 9 0 1 1 12 3v9z' }, { t: 'path', d: 'M15 3.5A9 9 0 0 1 20.5 9H15z' }],
   play: [{ t: 'path', d: 'M7 4v16l13-8z' }],
@@ -214,15 +227,20 @@ const SHAPES: Record<string, readonly IconShape[]> = {
   pinslash: [{ t: 'path', d: 'M12 17v5' }, { t: 'path', d: 'M15 9.34V7a1 1 0 0 1 1-1 2 2 0 0 0 0-4H7.89' }, { t: 'path', d: 'm2 2 20 20' }, { t: 'path', d: 'M9 9v1.76a2 2 0 0 1-1.11 1.79l-1.78.9A2 2 0 0 0 5 15.24V17h12' }],
   plus: [{ t: 'path', d: 'M12 5v14M5 12h14' }],
   power: [{ t: 'path', d: 'M12 2v10' }, { t: 'path', d: 'M18.4 6.6a9 9 0 1 1-12.77.04' }],
+  printer: [{ t: 'path', d: 'M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2' }, { t: 'path', d: 'M6 9V3a1 1 0 0 1 1-1h10a1 1 0 0 1 1 1v6' }, { t: 'rect', x: '6', y: '14', width: '12', height: '8', rx: '1' }],
+  qr: [{ t: 'rect', x: '3', y: '3', width: '5', height: '5', rx: '1' }, { t: 'rect', x: '16', y: '3', width: '5', height: '5', rx: '1' }, { t: 'rect', x: '3', y: '16', width: '5', height: '5', rx: '1' }, { t: 'path', d: 'M21 16h-3a2 2 0 0 0-2 2v3' }, { t: 'path', d: 'M21 21v.01' }, { t: 'path', d: 'M12 7v3a2 2 0 0 1-2 2H7' }, { t: 'path', d: 'M3 12h.01' }, { t: 'path', d: 'M12 3h.01' }, { t: 'path', d: 'M12 16v.01' }, { t: 'path', d: 'M16 12h1' }, { t: 'path', d: 'M21 12v.01' }, { t: 'path', d: 'M12 21v-1' }],
   receipt: [{ t: 'path', d: 'M5 3v18l2.5-1.5L10 21l2-1.5 2 1.5 2.5-1.5L19 21V3l-2.5 1.5L14 3l-2 1.5L10 3 7.5 4.5z' }, { t: 'path', d: 'M9 9h6M9 13h6' }],
   redo: [{ t: 'path', d: 'm15 14 5-5-5-5' }, { t: 'path', d: 'M20 9H9a5 5 0 0 0 0 10h3' }],
   repeat: [{ t: 'path', d: 'm17 2 4 4-4 4' }, { t: 'path', d: 'M3 11v-1a4 4 0 0 1 4-4h14' }, { t: 'path', d: 'm7 22-4-4 4-4' }, { t: 'path', d: 'M21 13v1a4 4 0 0 1-4 4H3' }],
+  reset: [{ t: 'path', d: 'M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8' }, { t: 'path', d: 'M3 3v5h5' }],
   right: [{ t: 'path', d: 'm9 6 6 6-6 6' }],
+  scan: [{ t: 'path', d: 'M3 7V5a2 2 0 0 1 2-2h2' }, { t: 'path', d: 'M17 3h2a2 2 0 0 1 2 2v2' }, { t: 'path', d: 'M21 17v2a2 2 0 0 1-2 2h-2' }, { t: 'path', d: 'M7 21H5a2 2 0 0 1-2-2v-2' }, { t: 'path', d: 'M7 12h10' }],
   search: [{ t: 'circle', cx: '11', cy: '11', r: '7' }, { t: 'path', d: 'm20 20-3.5-3.5' }],
   // The plane is drawn 0.9 times its full size and moved down and left, so its area
   // centroid sits on the middle of the box. At full size the centroid was 1.8 units right
   // of and above the middle, and the plane looked raised next to a label.
   send: [{ t: 'path', d: 'M19.5 4.5 9.6 14.4' }, { t: 'path', d: 'M19.5 4.5 13.2 22.5l-3.6-8.1-8.1-3.6z' }],
+  shapes: [{ t: 'path', d: 'M8.3 10a.7.7 0 0 1-.63-1.08L11.4 3a.7.7 0 0 1 1.2-.04L16.3 8.9a.7.7 0 0 1-.57 1.1z' }, { t: 'rect', x: '3', y: '14', width: '7', height: '7', rx: '1' }, { t: 'circle', cx: '17.5', cy: '17.5', r: '3.5' }],
   shield: [{ t: 'path', d: 'M12 3 4 6v6c0 5 3.5 8 8 9 4.5-1 8-4 8-9V6z' }],
   shieldok: [{ t: 'path', d: 'M12 3 4 6v6c0 5 3.5 8 8 9 4.5-1 8-4 8-9V6z' }, { t: 'path', d: 'm9 12 2 2 4-4' }],
   sort: [{ t: 'path', d: 'M3 6h18M6 12h12M10 18h4' }],
@@ -232,6 +250,7 @@ const SHAPES: Record<string, readonly IconShape[]> = {
   table: [{ t: 'rect', x: '3', y: '3', width: '18', height: '18', rx: '2' }, { t: 'path', d: 'M3 9h18M3 15h18M12 3v18' }],
   tag: [{ t: 'path', d: 'M20.6 13.4 13.4 20.6a2 2 0 0 1-2.8 0L3 13V3h10l7.6 7.6a2 2 0 0 1 0 2.8z' }, { t: 'circle', cx: '7.5', cy: '7.5', r: '1.3' }],
   tasks: [{ t: 'path', d: 'm3 7 2 2 4-4' }, { t: 'path', d: 'm3 17 2 2 4-4' }, { t: 'path', d: 'M13 7h8M13 17h8' }],
+  template: [{ t: 'rect', x: '3', y: '3', width: '18', height: '7', rx: '1' }, { t: 'rect', x: '3', y: '14', width: '9', height: '7', rx: '1' }, { t: 'rect', x: '16', y: '14', width: '5', height: '7', rx: '1' }],
   ticket: [{ t: 'path', d: 'M3 8a2 2 0 0 0 2-2h14a2 2 0 0 0 2 2v2a2 2 0 0 0 0 4v2a2 2 0 0 0-2 2H5a2 2 0 0 0-2-2v-2a2 2 0 0 0 0-4z' }, { t: 'path', d: 'M14 6v2M14 11v2M14 16v2' }],
   trash: [{ t: 'path', d: 'M3 6h18M8 6V4h8v2M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6' }],
   tune: [{ t: 'path', d: 'M4 6h9M17 6h3M4 12h3M11 12h9M4 18h11M19 18h1' }, { t: 'circle', cx: '15', cy: '6', r: '2' }, { t: 'circle', cx: '9', cy: '12', r: '2' }, { t: 'circle', cx: '17', cy: '18', r: '2' }],
@@ -241,7 +260,9 @@ const SHAPES: Record<string, readonly IconShape[]> = {
   user: [{ t: 'circle', cx: '12', cy: '8', r: '4' }, { t: 'path', d: 'M4 21a8 8 0 0 1 16 0' }],
   users: [{ t: 'path', d: 'M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2' }, { t: 'circle', cx: '9', cy: '7', r: '4' }, { t: 'path', d: 'M22 21v-2a4 4 0 0 0-3-3.87' }, { t: 'path', d: 'M16 3.13a4 4 0 0 1 0 7.75' }],
   vote: [{ t: 'path', d: 'M7 11V4a1 1 0 0 1 1-1h8a1 1 0 0 1 1 1v7' }, { t: 'path', d: 'm9.5 7 1.8 1.8L14.5 5.5' }, { t: 'path', d: 'M3 11h18v9a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1z' }, { t: 'path', d: 'M8 15h8' }],
+  warehouse: [{ t: 'path', d: 'M18 21V10a1 1 0 0 0-1-1H7a1 1 0 0 0-1 1v11' }, { t: 'path', d: 'M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V8.35a2 2 0 0 1 1.26-1.86l8-3.2a2 2 0 0 1 1.48 0l8 3.2A2 2 0 0 1 22 8.35z' }, { t: 'path', d: 'M6 13h12' }, { t: 'path', d: 'M6 17h12' }],
   webhook: [{ t: 'path', d: 'M18 17h-6c-1.1 0-2 .9-2.5 1.9A4 4 0 0 1 2 17c0-.7.2-1.4.6-2' }, { t: 'path', d: 'm6 17 3.1-5.8c.5-1 .1-2.2-.5-3.1a4 4 0 1 1 6.9-4.1' }, { t: 'path', d: 'm12 6 3.1 5.7c.5 1 1.8 1.3 2.9 1.3a4 4 0 0 1 0 8' }],
+  wrench: [{ t: 'path', d: 'M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94z' }],
   x: [{ t: 'path', d: 'M18 6 6 18M6 6l12 12' }],
 };
 
@@ -337,11 +358,13 @@ export const ICON_NAMES: readonly IconName[] = [
   'lock',
   'logout',
   'mail',
+  'mappin',
   'menu',
   'minus',
   'monitor',
   'moon',
   'more',
+  'package',
   'palette',
   'pie',
   'pin',
@@ -349,12 +372,17 @@ export const ICON_NAMES: readonly IconName[] = [
   'play',
   'plus',
   'power',
+  'printer',
+  'qr',
   'receipt',
   'redo',
   'repeat',
+  'reset',
   'right',
+  'scan',
   'search',
   'send',
+  'shapes',
   'shield',
   'shieldok',
   'sort',
@@ -364,6 +392,7 @@ export const ICON_NAMES: readonly IconName[] = [
   'table',
   'tag',
   'tasks',
+  'template',
   'ticket',
   'trash',
   'tune',
@@ -373,7 +402,9 @@ export const ICON_NAMES: readonly IconName[] = [
   'user',
   'users',
   'vote',
+  'warehouse',
   'webhook',
+  'wrench',
   'x',
   'add',
   'audit',
