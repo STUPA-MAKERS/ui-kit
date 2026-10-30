@@ -1,4 +1,6 @@
 import { Component, signal } from '@angular/core';
+import { TestBed } from '@angular/core/testing';
+import { RouterTestingHarness } from '@angular/router/testing';
 import { Router, provideRouter, type Routes } from '@angular/router';
 import { render, screen, within } from '@testing-library/angular';
 import userEvent from '@testing-library/user-event';
@@ -311,5 +313,43 @@ describe('ShellComponent', () => {
   it('has no axe violations in the rail frame', async () => {
     const { container } = await setup();
     expect(await runAxe(container)).toHaveNoViolations();
+  });
+});
+
+/** The shell inside the component of a layout route, as an app with a layout route has it. */
+@Component({
+  standalone: true,
+  imports: [ShellComponent],
+  template: `<app-shell frame="rail" [nav]="nav" [barKeys]="barKeys" [brand]="brand" />`,
+})
+class LayoutPage {
+  readonly nav = NAV;
+  readonly barKeys = BAR_KEYS;
+  readonly brand = BRAND;
+}
+
+describe('ShellComponent inside a route component', () => {
+  it('renders before the lazy child is active and reads its route data after', async () => {
+    TestBed.configureTestingModule({
+      providers: [
+        provideRouter([
+          {
+            path: '',
+            component: LayoutPage,
+            children: [
+              {
+                path: 'board',
+                loadComponent: () => Promise.resolve(StubPage),
+                data: { fill: true },
+              },
+            ],
+          },
+        ]),
+      ],
+    });
+    const harness = await RouterTestingHarness.create('/board');
+    const host = harness.routeNativeElement as HTMLElement;
+    expect(host.querySelector('main')).toHaveClass('main--fill');
+    expect(screen.getByRole('heading', { name: 'Seite' })).toBeInTheDocument();
   });
 });

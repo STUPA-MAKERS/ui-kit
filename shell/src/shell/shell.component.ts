@@ -10,7 +10,7 @@ import {
   signal,
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { ActivatedRoute, NavigationEnd, Router, RouterOutlet } from '@angular/router';
+import { type ActivatedRouteSnapshot, NavigationEnd, Router, RouterOutlet } from '@angular/router';
 import {
   LoadBarComponent,
   MEDIA,
@@ -88,7 +88,6 @@ import type { ShellBrand, ShellFrame, ShellNavItem } from '../shell.types';
 })
 export class ShellComponent {
   private readonly router = inject(Router);
-  private readonly route = inject(ActivatedRoute);
   private readonly pageFrame = inject(PageFrame);
 
   /** The frame the app asks for. */
@@ -152,15 +151,19 @@ export class ShellComponent {
     this.readRoute();
   }
 
+  /**
+   * Reads the data of every route from the root of the router state, so the shell works at
+   * the root and inside a route component, where its own route has no active child yet.
+   */
   private readRoute(): void {
-    let r = this.route.firstChild;
+    let r: ActivatedRouteSnapshot | null = this.router.routerState.snapshot.root;
     let wide = false;
     let fab = false;
     let footer = false;
     let fill = false;
     let chrome = true;
     while (r) {
-      const data = r.snapshot.data;
+      const data = r.data;
       wide = data['wide'] === true || wide;
       fab = data['fab'] === true || fab;
       footer = data['footer'] === true || footer;
