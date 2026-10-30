@@ -1,7 +1,25 @@
-import { ChangeDetectionStrategy, Component, inject, input, output } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  InjectionToken,
+  inject,
+  input,
+  output,
+} from '@angular/core';
 import { ButtonComponent } from '../button/button.component';
 import { IconComponent, type IconName } from '../icon/icon.component';
 import { FabGroupComponent } from './fab-group.component';
+
+/** A route for a fab: a press opens it instead of emitting `activate`. */
+export interface FabLink {
+  open(): void;
+}
+
+/**
+ * Set by a directive on the same `app-fab` (for example `FabLinkDirective` of
+ * `@stupa-makers/ui-kit/shell`), so the main entry does not need the router.
+ */
+export const FAB_LINK = new InjectionToken<FabLink>('FAB_LINK');
 
 /**
  * The floating main action of a page: one per page, at the bottom end of the content, on
@@ -39,8 +57,9 @@ import { FabGroupComponent } from './fab-group.component';
  * Several floating buttons of one page sit side by side in an `app-fab-group`, which takes
  * the position at the bottom end; a fab in a group has no position of its own.
  *
- * To open a route, handle `activate` and navigate, or use `FabLinkDirective` of
- * `@stupa-makers/ui-kit/shell` (`<app-fab link="/apply" …>`).
+ * To open a route, use `FabLinkDirective` of `@stupa-makers/ui-kit/shell`
+ * (`<app-fab link="/apply" …>`). A fab with a link opens the route and does not emit
+ * `activate`.
  */
 @Component({
   selector: 'app-fab',
@@ -84,11 +103,14 @@ export class FabComponent {
   /** The fab sits in an `app-fab-group`, which positions it. */
   protected readonly grouped = !!inject(FabGroupComponent, { optional: true });
 
-  /** The button was pressed. */
+  private readonly link = inject(FAB_LINK, { optional: true, self: true });
+
+  /** The button was pressed (not emitted when a link is set). */
   readonly activate = output<void>();
 
   protected onClick(): void {
     if (this.loading() || this.disabled()) return;
-    this.activate.emit();
+    if (this.link) this.link.open();
+    else this.activate.emit();
   }
 }

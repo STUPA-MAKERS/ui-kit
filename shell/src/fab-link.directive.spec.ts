@@ -10,7 +10,7 @@ import { FabLinkDirective } from './fab-link.directive';
 class Stub {}
 
 describe('FabLinkDirective', () => {
-  it('opens the route and still emits activate', async () => {
+  it('opens the route and does not emit activate', async () => {
     const activate = jest.fn();
     await render(
       `<app-fab icon="plus" label="Neuer Antrag" link="/apply?draft=1" (activate)="activate()" />`,
@@ -24,6 +24,16 @@ describe('FabLinkDirective', () => {
     const go = jest.spyOn(router, 'navigateByUrl');
     await userEvent.click(screen.getByRole('button', { name: 'Neuer Antrag' }));
     expect(go).toHaveBeenCalledWith('/apply?draft=1');
-    expect(activate).toHaveBeenCalledTimes(1);
+    expect(activate).not.toHaveBeenCalled();
+  });
+
+  it('does not open the route while disabled', async () => {
+    await render(`<app-fab label="Neuer Antrag" link="/apply" [disabled]="true" />`, {
+      imports: [FabComponent, FabLinkDirective],
+      providers: [provideRouter([{ path: 'apply', component: Stub }])],
+    });
+    const go = jest.spyOn(TestBed.inject(Router), 'navigateByUrl');
+    await userEvent.click(screen.getByRole('button', { name: 'Neuer Antrag' }));
+    expect(go).not.toHaveBeenCalled();
   });
 });

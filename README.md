@@ -340,7 +340,7 @@ with a `link` opens it. `searchShortcutKeys()` of the main entry names the short
 List pages: `injectListDetailPage(layout, { param })` gives `selectedId` and `split` and
 sets `PageFrame.fill` while the panes sit side by side. `app-list-none` is the empty
 child route (`data: { none: ListNoneData }`) and reads `LIST_PAGE_STATE`;
-`LIST_NONE_TEXT` translates the texts of the route data. `app-fab[link]` opens a route.
+`LIST_NONE_TEXT` translates the texts of the route data. `app-fab[link]` opens a route and then does not emit `activate`.
 
 Route motion: `provideRouteMotion()` (view transitions with `onRouteViewTransition`),
 `routeMotion`, `routePath`, `RouteMotion` and `watchUAVisualTransitions(window)`, which an

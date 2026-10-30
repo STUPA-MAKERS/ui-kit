@@ -90,7 +90,7 @@ describe('FabComponent icon only and FabGroupComponent', () => {
     const save = jest.fn();
     const { container } = await render(
       `<app-fab-group>
-        <app-fab icon="undo" label="Reset" [iconOnly]="true" tone="neutral" (activate)="reset()" />
+        <app-fab icon="reset" label="Reset" [iconOnly]="true" tone="neutral" (activate)="reset()" />
         <app-fab icon="check" label="Save" [iconOnly]="true" (activate)="save()" />
       </app-fab-group>`,
       {
