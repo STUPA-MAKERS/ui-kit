@@ -10,6 +10,7 @@
   "include": [
     "src/**/*.spec.ts",
     "markdown-editor/**/*.spec.ts",
+    "pwa/**/*.spec.ts",
     "testing/**/*.ts",
     "setup-jest.ts"
   ]

@@ -1,0 +1,11 @@
+// The host of a page component whose only content is `app-detail-none`: the empty detail
+// outlet of a list/detail page. The host fills the free height of the outlet, so the empty
+// state centres in it. Emits no CSS.
+//   @use 'detail-none-host' as dnh;
+//   :host { @include dnh.host; }
+@mixin host {
+  display: flex;
+  flex: 1 1 auto;
+  flex-direction: column;
+  min-height: 0;
+}

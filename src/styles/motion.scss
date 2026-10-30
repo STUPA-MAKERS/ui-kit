@@ -1,0 +1,171 @@
+// Motion classes and route transitions. Consume from the global stylesheet of an app:
+//   @use 'motion';
+// The durations, the easings, the shift and the scale come from the `--motion-*` and
+// `--ease-*` tokens (`tokens.scss`). `base.scss` cuts every animation to nothing when the
+// system asks for reduced motion.
+
+// Enter and leave classes, for `animate.enter` and `animate.leave` of Angular.
+//
+// - `motion-pop-in`: a menu or a popover opens (fade and a small scale).
+// - `motion-pop-out`, `motion-fade-out`: a short fade on leave. The element takes no
+//   pointer while it goes.
+// - `motion-rise-in`: content comes in from a little below.
+// - `motion-fade-in`: content fades in.
+// - `motion-expand-in`, `motion-expand-out`: a block opens or closes to its height. The
+//   content shows after the height has started to grow, and hides before the height is gone.
+.motion-expand-in,
+.motion-expand-out {
+  interpolate-size: allow-keywords;
+  overflow: clip;
+}
+.motion-expand-in {
+  animation: motion-expand-in var(--motion-base) var(--ease-standard);
+}
+.motion-expand-out {
+  animation: motion-expand-out var(--motion-base) var(--ease-standard) forwards;
+}
+.motion-pop-in {
+  animation: motion-pop-in var(--motion-fast) var(--ease-enter);
+}
+.motion-pop-out {
+  pointer-events: none;
+  animation: motion-fade-out var(--motion-xs) var(--ease-exit) forwards;
+}
+@keyframes motion-pop-in {
+  from {
+    opacity: 0;
+    scale: var(--motion-scale-in);
+  }
+}
+.motion-rise-in {
+  animation: motion-rise-in var(--motion-base) var(--ease-enter);
+}
+.motion-fade-in {
+  animation: motion-fade-in var(--motion-base) var(--ease-standard);
+}
+.motion-fade-out {
+  pointer-events: none;
+  animation: motion-fade-out var(--motion-xs) var(--ease-exit) forwards;
+}
+@keyframes motion-expand-in {
+  from {
+    height: 0;
+    opacity: 0;
+  }
+  45% {
+    opacity: 0;
+  }
+}
+@keyframes motion-expand-out {
+  45% {
+    opacity: 0;
+  }
+  to {
+    height: 0;
+    opacity: 0;
+  }
+}
+@keyframes motion-rise-in {
+  from {
+    opacity: 0;
+    transform: translateY(var(--motion-shift-sm));
+  }
+}
+@keyframes motion-fade-in {
+  from {
+    opacity: 0;
+  }
+}
+@keyframes motion-fade-out {
+  to {
+    opacity: 0;
+  }
+}
+
+// Route transitions with the View Transitions API. The app names the kind of a navigation
+// on `<html data-motion>` while the transition runs:
+//
+// - `section`: to another top-level section. The old page fades out, the new one rises in.
+// - `push`: one level deeper on a phone. The new page slides in from the end.
+// - `pop`: one level back on a phone. The old page slides out to the end.
+//
+// Without `data-motion` no rule applies. The page moves as the root snapshot, not as a group
+// of `.main`, because `.main` moves with the document scroll and its own group would morph
+// from the old box to the new one. The frame gets groups of its own, so it stays still: the
+// rail is `.frame__rail`, the phone bottom bar is `.bb`.
+:root[data-motion] .frame__rail {
+  view-transition-name: rail;
+}
+// A group of its own, so the moving page never paints over the bottom bar.
+:root[data-motion] .bb {
+  view-transition-name: bottom-bar;
+}
+:root[data-motion]::view-transition {
+  background: var(--color-bg);
+}
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation-duration: var(--motion-base);
+  animation-timing-function: var(--ease-standard);
+}
+::view-transition-group(rail),
+::view-transition-old(rail),
+::view-transition-new(rail) {
+  animation-duration: var(--motion-fast);
+}
+// The bottom bar does not cross-fade: its old and new pictures are the same but for the
+// active entry, and a cross-fade of two half transparent snapshots shows garbage on some
+// GPUs. The new picture shows at once.
+::view-transition-old(bottom-bar) {
+  display: none;
+}
+::view-transition-group(bottom-bar),
+::view-transition-new(bottom-bar) {
+  animation: none;
+}
+:root[data-motion='section']::view-transition-old(root) {
+  animation: vt-fade-out var(--motion-xs) var(--ease-exit) both;
+}
+:root[data-motion='section']::view-transition-new(root) {
+  animation: vt-rise-in var(--motion-base) var(--ease-enter) var(--motion-xs) both;
+}
+:root[data-motion='push']::view-transition-old(root) {
+  animation: vt-recede var(--motion-slow) var(--ease-standard) both;
+}
+:root[data-motion='push']::view-transition-new(root) {
+  animation: vt-from-end var(--motion-slow) var(--ease-standard) both;
+}
+:root[data-motion='pop']::view-transition-old(root) {
+  z-index: 1;
+  animation: vt-to-end var(--motion-base) var(--ease-exit) both;
+}
+:root[data-motion='pop']::view-transition-new(root) {
+  animation: vt-recede var(--motion-base) var(--ease-standard) reverse both;
+}
+@keyframes vt-fade-out {
+  to {
+    opacity: 0;
+  }
+}
+@keyframes vt-rise-in {
+  from {
+    opacity: 0;
+    transform: translateY(var(--motion-shift-sm));
+  }
+}
+@keyframes vt-recede {
+  to {
+    opacity: 0.6;
+    transform: translateX(-25%);
+  }
+}
+@keyframes vt-from-end {
+  from {
+    transform: translateX(100%);
+  }
+}
+@keyframes vt-to-end {
+  to {
+    transform: translateX(100%);
+  }
+}

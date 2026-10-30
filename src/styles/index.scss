@@ -1,15 +1,18 @@
 // @stupa-makers/ui-kit — design-system styles entry.
 // Order: font face declarations → tokens (primitive + semantic) → base element reset →
 // loading placeholders (`.skel*`) → row groups and click rows (`.rowgroup`, `.hitrow`) →
-// the list/detail geometry (`--ld-*`, `.ld-pane`).
+// the list/detail geometry (`--ld-*`, `.ld-pane`) → the motion classes (`.motion-*`) and the
+// route view transitions (`:root[data-motion]`).
 // Consume from an app's global stylesheet, e.g.:
 //   @use '@stupa-makers/ui-kit/styles' as uikit;
 // The @font-face rules reference '/assets/fonts/ibm-plex-*.woff2' (absolute) — copy the
 // kit's `assets/fonts` into the app's served `/assets/fonts` (see README).
 // The breakpoint mixins emit no CSS. Use them in a stylesheet with `@use 'breakpoints'`.
+// The partials `list-pane` and `detail-none-host` emit no CSS either.
 @use 'fonts';
 @use 'tokens';
 @use 'base';
 @use 'skeleton';
 @use 'rowgroup';
 @use 'list-detail';
+@use 'motion';

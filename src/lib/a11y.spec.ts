@@ -62,6 +62,12 @@ import {
   StatusTextComponent,
   StickyBarComponent,
 } from '../public-api';
+import {
+  DetailNoneComponent,
+  FabComponent,
+  LoadBarComponent,
+  PageHeaderComponent,
+} from '../public-api';
 import { ToastComponent } from './toast/toast.component';
 
 interface Row {
@@ -312,7 +318,32 @@ class FileViewerHost {
   ];
 }
 
+@Component({
+  standalone: true,
+  imports: [ButtonComponent, DetailNoneComponent, FabComponent, LoadBarComponent, PageHeaderComponent],
+  template: `
+    <app-load-bar />
+    <main>
+      <app-page-header title="Anträge" subtitle="Alle Anträge dieses Jahres" meta="8 offen">
+        <nav crumbs aria-label="Brotkrumen"><a href="/">Start</a></nav>
+        <span heading>Aktiv</span>
+        <app-button actions variant="outlined">Exportieren</app-button>
+      </app-page-header>
+      <section aria-label="Detail">
+        <app-detail-none icon="vote" heading="Wähle eine Abstimmung aus." body="Sie öffnet sich hier." />
+      </section>
+      <app-fab label="Antrag anlegen" />
+    </main>
+  `,
+})
+class PageHost {}
+
 describe('UI-Primitive a11y (axe)', () => {
+  it('has no axe violations across the page frame pieces', async () => {
+    const { container } = await render(PageHost);
+    expect(await runAxe(container)).toHaveNoViolations();
+  });
+
   it('has no axe violations across the patterns of the app pages', async () => {
     const { container } = await render(PatternsHost);
     expect(await runAxe(container)).toHaveNoViolations();

@@ -9,7 +9,7 @@
 //      theme in the name (`--c-light-*`, `--c-dark-*`).
 //   2. SEMANTIC  — role tokens (`--color-bg`, `--color-primary`, …), mapped per theme.
 //      Components use ONLY semantic tokens, never primitives.
-// Theme switch: `data-theme="light|dark"` on <html> (ThemeService in the app).
+// Theme switch: `data-theme="light|dark"` on <html> (`ThemeService` of the kit sets it).
 //
 // The semantic NAMES are stable. A redesign changes their values, so a page that uses
 // `--color-primary` keeps working and only changes its look. One exception: since the

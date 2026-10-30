@@ -30,6 +30,7 @@ Optional:
   (`@tiptap/core`, `@tiptap/pm`, `@tiptap/starter-kit`, `@tiptap/extensions`,
   `@tiptap/extension-mathematics`, `@tiptap/extension-table`, `@tiptap/extension-image`,
   `katex`, `tiptap-markdown`).
+- **`@angular/service-worker`** — only for the `pwa` secondary entry point.
 
 ## Styles
 
@@ -62,10 +63,29 @@ The styles entry also holds the global loading placeholders (`.skel`, `.skel-tex
 (`rowgroup.scss`: `.rowgroup`, `.rowgroup--bg1`, `.rowgroup--bg3`, `.hitrow`) and the
 list/detail geometry (`list-detail.scss`: `--ld-list-width`, `--ld-gap`, `.ld-pane`). An app
 that loads the partials one by one adds `@include meta.load-css('rowgroup')` and
-`@include meta.load-css('list-detail')` at the place in its cascade where they belong. These partials emit no CSS
+`@include meta.load-css('list-detail')` and `@include meta.load-css('motion')` at the place in its cascade where they belong. These partials emit no CSS
 and are for component stylesheets: `option-menu` (popover and rows of an option list),
 `scroll-fade` (`fade-y`, `fade-x` for the `is-fade-start` and `is-fade-end` classes),
-`dot-parts` (a meta line "A · B · C" without a dot at a line start) and `field`.
+`dot-parts` (a meta line "A · B · C" without a dot at a line start), `field`,
+`list-pane` (the column, the chips, the scroll area and the hover row menu of a list pane,
+and `frame($b)`, the whole frame of a list page with a detail outlet) and
+`detail-none-host` (`host`, the host of a route component that shows only
+`app-detail-none`).
+
+### Motion
+
+The styles entry loads `motion.scss`. It holds the enter and leave classes for
+`animate.enter` / `animate.leave`: `.motion-pop-in`, `.motion-pop-out`, `.motion-rise-in`,
+`.motion-fade-in`, `.motion-fade-out`, `.motion-expand-in` and `.motion-expand-out`. It also
+holds the route view transitions: while `<html data-motion="section|push|pop">` is set, the
+root snapshot fades through (`section`) or slides (`push`, `pop`), and the rail
+(`.frame__rail`) and the bottom bar (`.bb`) stay still in groups of their own. The app sets
+`data-motion` from the `onViewTransitionCreated` hook of its router. Every timing comes from
+the `--motion-*` and `--ease-*` tokens, and `base.scss` stops the motion when the system asks
+for reduced motion.
+
+In code, `reducedMotion()` reads the system wish, and `withViewTransition(update)` runs a
+change of the whole page as one cross-fade (at once without the API or with reduced motion).
 
 ### Rules of the design system
 
@@ -118,15 +138,51 @@ import { provideUiKit } from '@stupa-makers/ui-kit';
 providers: [provideUiKit({ messages: { en: { loading: 'Please wait…' } } })];
 ```
 
-## Loading overlay (decoupled)
+## Loading state (decoupled)
 
-`LoadingOverlayComponent` reads the `UI_KIT_LOADING` token (defaults to never-visible). Bind
-it to the host app's loading service:
+`app-load-bar` (a thin bar at the top edge, the quiet choice) and `app-loading-overlay` read
+the `UI_KIT_LOADING` token. By default the token is the kit's `LoadingService`: it counts the
+GET requests that pass `loadingInterceptor`, shows after 300 ms and stays at least 400 ms.
+Register the interceptor as the outermost one:
+
+```ts
+import { provideHttpClient, withInterceptors } from '@angular/common/http';
+import { loadingInterceptor } from '@stupa-makers/ui-kit';
+
+providers: [provideHttpClient(withInterceptors([loadingInterceptor /* , the others */]))];
+```
+
+Only GET requests count. A background read opts out with `{ context: skipLoading() }`
+(`SKIP_LOADING`); `quietly(() => …)` starts reads that never count (a read ahead), and
+`visibly(() => …)` makes reads count although they opt out (the reload of a pull to
+refresh). Without the interceptor nothing counts and the bar never shows.
+
+A host app with a loading service of its own binds the token to it:
 
 ```ts
 import { UI_KIT_LOADING } from '@stupa-makers/ui-kit';
 
-providers: [{ provide: UI_KIT_LOADING, useFactory: () => ({ visible: inject(LoadingService).visible }) }];
+providers: [{ provide: UI_KIT_LOADING, useFactory: () => ({ visible: inject(MyLoadingService).visible }) }];
+```
+
+## Theme
+
+`ThemeService` keeps the preference (`system`, `light`, `dark`) in `localStorage`, writes the
+theme in effect to `data-theme` on `<html>`, writes the page background to every
+`<meta name="theme-color">` and links the manifest of that theme. `init()` once at app
+start; `setPreference()` and `toggle()` cross-fade the page; `setPageDefault()` sets the
+theme of `system` while one page shows. Configure it per app:
+
+```ts
+providers: [
+  provideUiKit({
+    theme: {
+      storageKey: 'ap.theme', // default 'ui-kit.theme'
+      manifest: { light: 'manifest.webmanifest', dark: 'manifest-dark.webmanifest' }, // null: keep the link
+      background: { light: '#f6f7f5', dark: '#101211' }, // default: --color-bg of the tokens
+    },
+  }),
+];
 ```
 
 ## Components
@@ -145,12 +201,20 @@ Patterns of the pages: list row (`app-list-item`, a router link or a button), li
 layout (`app-list-detail`), side sheet and phone bottom sheet (`app-side-sheet`), sheet bar,
 row menu (⋮), selection bar, confirm dialog, empty state with ghost rows, skeleton, note,
 status text (`StatusKind`), share bar (`app-seg-bar`), sticky bar, field group and field
-row, date block, person avatar and avatar stack, select field (`app-select`, the kit's own
+row, page header (`app-page-header`), floating main action (`app-fab`), empty detail pane
+(`app-detail-none`), date block, person avatar and avatar stack, select field (`app-select`, the kit's own
 option list with a popover or a bottom sheet, never the native list), filter chip
 (`app-filter-select`), range chip (`app-range-chip`, `currency` input), search pill with
 `liveSearch()`, file drop zone, drop overlay and `appFileDrop`. Directives `appScrollFade`,
 `appTruncated`, `appLongPress`, `appPressSelect`; helpers `downloadBlob`, `formatBytes`,
 `keyParts` and the `capitalize` pipe.
+
+The page header has the inputs `title`, `subtitle`, `meta`, `flush`, `rail`, `pane`,
+`display`, `titleId` and `titleTag`, and three slots: `[crumbs]` above the title (the
+crumb trail of the app, for example its own `app-breadcrumbs`), `[heading]` beside the title
+and `[actions]` at the end. A `pane` header and a header below the bar of a one-view page
+do not show the crumbs. `app-fab` emits `activate`; to open a route, navigate in the
+handler.
 
 The avatar draws initials. A host app with person images provides `UI_KIT_AVATAR_SOURCE`
 (`url(principal, px)`, `markFailed(principal)`), for example a Gravatar proxy.
@@ -203,11 +267,31 @@ function from the question to `VoteCalloutInfo` (`caption`, `result` with `label
 `tone`, `labels` of the counts). The cards render again when the function changes. Without
 it the caption is the kind of the callout and the card names no result.
 
+## PWA helpers
+
+The helpers of an installed web app live in the **`pwa`** secondary entry point, so
+`@angular/service-worker` stays an optional peer:
+
+```ts
+import {
+  IS_INSTALLED_APP,
+  SwUpdatePromptComponent,
+  SwUpdateService,
+  lockInstalledAppZoom,
+} from '@stupa-makers/ui-kit/pwa';
+```
+
+`SwUpdateService.init()` checks for a new version at start, every 5 minutes and on focus;
+`app-sw-update-prompt` then offers the reload (texts `pwa.updateReady` and `pwa.reload` of
+`UI_KIT_INTL`). `IS_INSTALLED_APP` (and `isInstalledApp(window)`) tells the installed app
+from a browser tab, and `lockInstalledAppZoom(document, installed)` stops the page zoom in
+the installed app only.
+
 ## Develop
 
 ```bash
 npm ci
-npm run build   # ng-packagr → dist/ (Angular Package Format, incl. markdown-editor secondary entry)
+npm run build   # ng-packagr → dist/ (Angular Package Format, incl. the markdown-editor and pwa secondary entries)
 npm test        # jest + @testing-library/angular + axe
 npm run lint
 ```

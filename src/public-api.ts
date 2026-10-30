@@ -17,8 +17,15 @@ export * from './lib/intl';
 // --- layout breakpoints (same values as styles/_breakpoints.scss) ------------
 export * from './lib/breakpoints/breakpoints';
 
-// --- loading overlay token --------------------------------------------------
+// --- loading state (token, service, HTTP interceptor) -------------------------
 export * from './lib/loading/loading.token';
+export * from './lib/loading/loading.service';
+export * from './lib/loading/loading.interceptor';
+
+// --- theme and motion -------------------------------------------------------
+export * from './lib/theme/theme.config';
+export * from './lib/theme/theme.service';
+export * from './lib/motion/motion';
 
 // --- components -------------------------------------------------------------
 export * from './lib/button/button.component';
@@ -54,6 +61,7 @@ export * from './lib/data-table/row-detail.directive';
 export * from './lib/currency-input/currency-input.component';
 export * from './lib/currency-input/parse-money';
 export * from './lib/loading-overlay/loading-overlay.component';
+export * from './lib/load-bar/load-bar.component';
 export * from './lib/chip/chip.component';
 export * from './lib/chip/chip-group.component';
 export * from './lib/copy/copy-button.component';
@@ -80,6 +88,9 @@ export * from './lib/sheet-bar/sheet-bar.component';
 export * from './lib/row-menu/row-menu.component';
 export * from './lib/skeleton/skeleton.component';
 export * from './lib/empty-state/empty-state.component';
+export * from './lib/detail-none/detail-none.component';
+export * from './lib/page-header/page-header.component';
+export * from './lib/fab/fab.component';
 export * from './lib/note/note.component';
 export * from './lib/confirm-dialog/confirm-dialog.component';
 export * from './lib/selection-bar/selection-bar.component';

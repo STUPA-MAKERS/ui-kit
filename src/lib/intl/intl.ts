@@ -6,6 +6,7 @@ import {
   makeEnvironmentProviders,
   signal,
 } from '@angular/core';
+import { UI_KIT_THEME, type UiKitThemeOptions, uiKitThemeConfig } from '../theme/theme.config';
 
 /** Languages the built-in catalogue ships. Consumers may map their own onto these. */
 export type UiLang = 'de' | 'en';
@@ -75,7 +76,9 @@ export type UiKitTextKey =
   | 'editorTable.deleteRow'
   | 'editorTable.addRow'
   | 'editorTable.addColumn'
-  | 'editorTable.delete';
+  | 'editorTable.delete'
+  | 'pwa.updateReady'
+  | 'pwa.reload';
 
 export type UiKitMessages = Record<UiKitTextKey, string>;
 
@@ -139,6 +142,8 @@ export const UI_KIT_DEFAULT_MESSAGES: Record<UiLang, UiKitMessages> = {
     'editorTable.addRow': 'Zeile hinzufügen',
     'editorTable.addColumn': 'Spalte hinzufügen',
     'editorTable.delete': 'Tabelle löschen',
+    'pwa.updateReady': 'Eine neue Version der App ist verfügbar.',
+    'pwa.reload': 'Neu laden',
   },
   en: {
     'dialog.close': 'Close',
@@ -198,6 +203,8 @@ export const UI_KIT_DEFAULT_MESSAGES: Record<UiLang, UiKitMessages> = {
     'editorTable.addRow': 'Add row',
     'editorTable.addColumn': 'Add column',
     'editorTable.delete': 'Delete table',
+    'pwa.updateReady': 'A new version of the app is available.',
+    'pwa.reload': 'Reload',
   },
 };
 
@@ -295,17 +302,28 @@ export function uiKitIntlFromLang(
   return new DefaultUiKitIntl({ lang, messages, formatLocale });
 }
 
+/** Options of {@link provideUiKit}. */
+export interface UiKitOptions extends UiKitIntlOptions {
+  /** A ready {@link UiKitIntl}. It wins over `lang`, `formatLocale` and `messages`. */
+  intl?: UiKitIntl;
+  /**
+   * The settings of the `ThemeService`: the storage key of the preference, the manifest
+   * URL per theme and the page background per theme. Omit a field to keep its default.
+   */
+  theme?: UiKitThemeOptions;
+}
+
 /**
- * Register the kit's i18n. Pass a ready {@link UiKitIntl} via `intl`, or `lang`/`messages`
- * to configure the default implementation. With no argument the built-in catalogue is used.
+ * Register the kit's i18n and theme settings. Pass a ready {@link UiKitIntl} via `intl`, or
+ * `lang`/`messages` to configure the default implementation. With no argument the
+ * built-in catalogue and the default theme settings are used.
  */
-export function provideUiKit(
-  options: UiKitIntlOptions & { intl?: UiKitIntl } = {},
-): EnvironmentProviders {
+export function provideUiKit(options: UiKitOptions = {}): EnvironmentProviders {
   return makeEnvironmentProviders([
     {
       provide: UI_KIT_INTL,
       useFactory: () => options.intl ?? new DefaultUiKitIntl(options),
     },
+    { provide: UI_KIT_THEME, useValue: uiKitThemeConfig(options.theme) },
   ]);
 }

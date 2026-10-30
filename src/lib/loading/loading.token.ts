@@ -1,19 +1,20 @@
-import { InjectionToken, type Signal, signal } from '@angular/core';
+import { InjectionToken, type Signal, inject } from '@angular/core';
+import { LoadingService } from './loading.service';
 
-/** Minimal contract {@link LoadingOverlayComponent} needs from a host loading service. */
+/** Minimal contract the load bar and the loading overlay need from a loading service. */
 export interface UiKitLoadingState {
-  /** True while the global loading overlay should be visible. */
+  /** True while the global loading bar or overlay should be visible. */
   readonly visible: Signal<boolean>;
 }
 
-const NEVER_VISIBLE: UiKitLoadingState = { visible: signal(false).asReadonly() };
-
 /**
- * DI token feeding the loading overlay. Defaults to never-visible (no-op); the host app
- * provides one delegating to its own loading service, e.g.
- * `{ provide: UI_KIT_LOADING, useFactory: () => ({ visible: inject(LoadingService).visible }) }`.
+ * DI token that feeds `app-load-bar` and `app-loading-overlay`. It defaults to the kit's
+ * {@link LoadingService}, which counts the GET requests that pass the
+ * `loadingInterceptor`. Without the interceptor nothing counts, so the bar never shows.
+ * A host app with a loading service of its own provides one that delegates to it, e.g.
+ * `{ provide: UI_KIT_LOADING, useFactory: () => ({ visible: inject(MyLoadingService).visible }) }`.
  */
 export const UI_KIT_LOADING = new InjectionToken<UiKitLoadingState>('UI_KIT_LOADING', {
   providedIn: 'root',
-  factory: () => NEVER_VISIBLE,
+  factory: () => inject(LoadingService),
 });
