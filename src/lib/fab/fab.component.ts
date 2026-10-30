@@ -1,6 +1,7 @@
-import { ChangeDetectionStrategy, Component, input, output } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, input, output } from '@angular/core';
 import { ButtonComponent } from '../button/button.component';
 import { IconComponent, type IconName } from '../icon/icon.component';
+import { FabGroupComponent } from './fab-group.component';
 
 /**
  * The floating main action of a page: one per page, at the bottom end of the content, on
@@ -31,7 +32,15 @@ import { IconComponent, type IconName } from '../icon/icon.component';
  * It sits below dialogs, sheets and drawers (`--z-sticky`). A page hides it while a
  * selection bar or a form with its own primary action is open.
  *
- * To open a route, handle `activate` and navigate.
+ * `iconOnly` makes it the round 56px icon button; the label is then its accessible name
+ * and its title. `tone="neutral"` gives it the surface of a secondary action, for example
+ * "Reset" beside "Save".
+ *
+ * Several floating buttons of one page sit side by side in an `app-fab-group`, which takes
+ * the position at the bottom end; a fab in a group has no position of its own.
+ *
+ * To open a route, handle `activate` and navigate, or use `FabLinkDirective` of
+ * `@stupa-makers/ui-kit/shell` (`<app-fab link="/apply" …>`).
  */
 @Component({
   selector: 'app-fab',
@@ -41,15 +50,19 @@ import { IconComponent, type IconName } from '../icon/icon.component';
   host: {
     class: 'fab',
     '[class.fab--contained]': 'contained()',
+    '[class.fab--grouped]': 'grouped',
+    '[class.fab--neutral]': "tone() === 'neutral'",
   },
   template: `<app-button
     variant="fab"
+    [iconOnly]="iconOnly()"
     [ariaLabel]="label()"
+    [title]="iconOnly() ? label() : ''"
     [loading]="loading()"
     [disabled]="disabled()"
     (click)="onClick()"
   >
-    <app-icon [name]="icon()" />{{ label() }}
+    <app-icon [name]="icon()" />{{ iconOnly() ? '' : label() }}
   </app-button>`,
   styleUrl: './fab.component.scss',
 })
@@ -63,6 +76,13 @@ export class FabComponent {
   readonly loading = input(false);
   /** The action cannot run now, for example a save of a form with an error. */
   readonly disabled = input(false);
+  /** The round icon button without the visible label. */
+  readonly iconOnly = input(false);
+  /** `accent`: the main action. `neutral`: a secondary action beside it in a group. */
+  readonly tone = input<'accent' | 'neutral'>('accent');
+
+  /** The fab sits in an `app-fab-group`, which positions it. */
+  protected readonly grouped = !!inject(FabGroupComponent, { optional: true });
 
   /** The button was pressed. */
   readonly activate = output<void>();

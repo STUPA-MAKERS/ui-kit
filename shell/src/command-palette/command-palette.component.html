@@ -1,0 +1,134 @@
+@if (open()) {
+  <div
+    class="pal__scrim"
+    animate.enter="pal--fade-in"
+    animate.leave="pal--fade-out"
+    (click)="close()"
+  ></div>
+
+  <div
+    class="pal"
+    role="dialog"
+    aria-modal="true"
+    [attr.aria-label]="'palette.title' | uiKitT"
+    animate.enter="pal--entering"
+    animate.leave="pal--fade-out"
+  >
+    <div class="pal__field">
+      <app-icon class="pal__glass" name="search" [size]="22" />
+      <input
+        #field
+        type="text"
+        class="pal__input"
+        role="combobox"
+        autocomplete="off"
+        spellcheck="false"
+        aria-autocomplete="list"
+        aria-controls="palette-results"
+        [attr.aria-label]="'palette.title' | uiKitT"
+        [attr.aria-expanded]="rows().length > 0"
+        [attr.aria-activedescendant]="activeId()"
+        [placeholder]="placeholder() ?? ('palette.placeholder' | uiKitT)"
+        [value]="query()"
+        (input)="onQuery($any($event.target).value)"
+      />
+      @if (loading()) {
+        <span class="pal__spinner" aria-hidden="true"></span>
+      }
+      <button
+        #closeButton
+        type="button"
+        class="pal__close"
+        [attr.aria-label]="'palette.close' | uiKitT"
+        [title]="'palette.close' | uiKitT"
+        (click)="close()"
+      >
+        <span class="kbd pal__esc" aria-hidden="true">{{ escLabel }}</span>
+        <app-icon class="pal__x" name="x" [size]="20" />
+      </button>
+    </div>
+
+    <div
+      id="palette-results"
+      class="pal__results"
+      role="listbox"
+      [attr.aria-label]="'palette.title' | uiKitT"
+    >
+      @for (group of groups(); track group.label) {
+        <div class="pal__group" role="group" [attr.aria-label]="group.label">
+          <h3 class="pal__groupLabel" aria-hidden="true">{{ group.label }}</h3>
+          @for (row of group.rows; track row.id) {
+            @let on = indexOf(row) === active();
+            <div
+              class="pal__row"
+              role="option"
+              [id]="optionId(row)"
+              [class.pal__row--active]="on"
+              [attr.aria-selected]="on"
+              (mouseenter)="active.set(indexOf(row))"
+              (click)="go(row)"
+            >
+              <app-icon class="pal__rowIcon" [name]="row.icon" [size]="19" />
+              <span class="pal__rowText">
+                <span
+                  class="pal__rowTitle ell"
+                  [appTruncated]="row.title"
+                  #cut="appTruncated"
+                  [attr.title]="cut.truncated() ? row.title : null"
+                >
+                  <app-highlight [text]="row.title" [query]="query()" />
+                </span>
+                @if (row.subtitle) {
+                  @if (row.status) {
+                    <app-status-text class="pal__rowSub" kind="neutral">{{
+                      row.subtitle
+                    }}</app-status-text>
+                  } @else {
+                    <span
+                      class="pal__rowSub ell"
+                      [appTruncated]="row.subtitle"
+                      #cut2="appTruncated"
+                      [attr.title]="cut2.truncated() ? row.subtitle : null"
+                    >
+                      <app-highlight [text]="row.subtitle" [query]="query()" />
+                    </span>
+                  }
+                }
+              </span>
+              @if (row.archived) {
+                <span class="pal__archived">
+                  <app-icon name="archive" [size]="14" />{{ 'palette.archived' | uiKitT }}
+                </span>
+              }
+              @if (on) {
+                <span class="kbd pal__enter" aria-hidden="true">Enter</span>
+              }
+            </div>
+          }
+        </div>
+      }
+
+      @if (showEmpty()) {
+        <app-empty-state
+          class="pal__empty"
+          shape="file"
+          rows="3"
+          [heading]="'palette.empty' | uiKitT"
+        />
+      }
+      @if (showTruncated()) {
+        <p class="pal__note pal__note--foot">
+          {{ 'palette.truncated' | uiKitT }}
+        </p>
+      }
+    </div>
+
+    <div class="pal__keys" aria-hidden="true">
+      <span class="pal__key"
+        ><span class="kbd">↑</span><span class="kbd">↓</span
+        >{{ 'palette.keysSelect' | uiKitT }}</span
+      >
+      <span class="pal__key"><span class="kbd">Enter</span>{{ 'palette.keysOpen' | uiKitT }}</span>
+    </div>
+  </div>
+}

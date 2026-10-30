@@ -213,8 +213,15 @@ The page header has the inputs `title`, `subtitle`, `meta`, `flush`, `rail`, `pa
 `display`, `titleId` and `titleTag`, and three slots: `[crumbs]` above the title (the
 crumb trail of the app, for example its own `app-breadcrumbs`), `[heading]` beside the title
 and `[actions]` at the end. A `pane` header and a header below the bar of a one-view page
-do not show the crumbs. `app-fab` emits `activate`; to open a route, navigate in the
+do not show the crumbs. `app-fab` emits `activate`; `iconOnly` shows only the icon (the
+label becomes the accessible name and the tooltip) and `tone="neutral"` gives the quiet
+look. `app-fab-group` puts several fabs side by side at the bottom end, above the phone bar
+(for example Save and Reset); a fab in a group gives its place to the group. To open a
+route from a fab, use the `link` input of the `shell` entry (below) or navigate in the
 handler.
+
+`PageFrame` holds the page frame state that pages and the shell share: while `fill()` is
+true, the page fills the height of the frame and only its panes scroll.
 
 The avatar draws initials. A host app with person images provides `UI_KIT_AVATAR_SOURCE`
 (`url(principal, px)`, `markFailed(principal)`), for example a Gravatar proxy.
@@ -266,6 +273,80 @@ majority rule and no result, so the consumer can give them through the `voteInfo
 function from the question to `VoteCalloutInfo` (`caption`, `result` with `label` and
 `tone`, `labels` of the counts). The cards render again when the function changes. Without
 it the caption is the kind of the callout and the card names no result.
+
+## App shell
+
+The frame of an app lives in the **`shell`** secondary entry point, because it needs the
+router:
+
+```ts
+import { ShellComponent, provideRouteMotion } from '@stupa-makers/ui-kit/shell';
+
+provideRouter(routes, provideRouteMotion());
+```
+
+```html
+<app-shell
+  [frame]="frame()"
+  [nav]="nav"
+  [barKeys]="['start', 'applications', 'meetings', 'tasks']"
+  [brand]="{ home: '/dashboard', label: 'STUPA', mark: { light: 'mark.svg', dark: 'mark-dark.svg' } }"
+  [keyboardOpen]="keyboardOpen()"
+  (search)="palette.open()"
+>
+  <ng-template appNavMark let-key let-part="part">…</ng-template>
+  <app-help-menu shellRailTools />
+  <app-account-menu shellAccount variant="auto" [name]="me().name" (logout)="logout()" />
+  <app-help-items shellMore />
+  <app-public-header shellPublicHeader />
+  <app-footer shellFooter />
+  <app-sw-update-prompt shellPrompts />
+  <app-command-palette shellOverlays … />
+</app-shell>
+```
+
+- `frame` is `'rail'` (signed in: the rail on a wide screen, the bottom bar on a phone),
+  `'public'` (header and footer), `'bare'` (only the page) or `'pending'` (the session is
+  not known yet, so only the page shows). An entry of `nav` is a `ShellNavItem`
+  (`key`, `path`, `label`, `icon`, `place: 'main' | 'end'`, `exact?`); `barKeys` are the
+  entries of the phone bar, and the rest go into the "More" sheet.
+- An `appNavMark` template draws a mark on an entry. Its context is the key and the part
+  (`visual` on the icon, `text` for screen readers, `count` beside the label).
+- The route data `wide`, `fab`, `footer`, `fill` and `chrome: false` set the page width, the
+  room for a fab, the footer, the fill of `PageFrame` and a page without chrome.
+- The shell shows the skip link, the load bar and the toasts. It does not import the `pwa`
+  entry; put the update prompt into `[shellPrompts]`. `[shellOverlays]` shows only in the
+  `rail` frame (rail and bottom bar).
+- Slots: `[shellRailTools]` (above the account in the rail), `[shellAccount]` (the rail
+  and the "More" sheet), `[shellMore]` (the "More" sheet), `[shellPublicHeader]`,
+  `[shellFooter]`, `[shellPrompts]`, `[shellOverlays]`, `[shellRailEnd]` and
+  `[shellBarEnd]` (an own entry at the end of the rail and the bar, in the look of
+  `app-rail-button` and `app-bar-button`) and `[shellMain]` (shown before the outlet).
+- For a small app: `searchable = false` removes the search entries, `more = false` removes
+  "More" (put every entry into `barKeys`), and `outlet = false` removes the router outlet,
+  so the app can show its own content in `[shellMain]` (for example a sign-in gate).
+  `morePaths` are the paths that mark "More" as active.
+
+The parts also work alone: `app-nav-rail`, `app-bottom-bar` (model `moreOpen`, slots
+`[more]` and `[moreAccount]`) and `app-account-menu` (inputs `variant`, `name`, `avatarId`,
+`languages`, `language`, `dark`; outputs `languageChange`, `darkChange`, `logout`,
+`navigated`; slot `[accountItems]` for links such as `a.am__item`).
+
+`app-command-palette` with the `CommandPalette` service is the search dialog: inputs
+`groups` (`PaletteGroup` of `PaletteRow`: `id`, `icon`, `title`, `subtitle?`, `link?`,
+`status?`, `archived?`), model `query`, `loading`, `truncated`; output `pick(row)`. A row
+with a `link` opens it. `searchShortcutKeys()` of the main entry names the shortcut.
+
+List pages: `injectListDetailPage(layout, { param })` gives `selectedId` and `split` and
+sets `PageFrame.fill` while the panes sit side by side. `app-list-none` is the empty
+child route (`data: { none: ListNoneData }`) and reads `LIST_PAGE_STATE`;
+`LIST_NONE_TEXT` translates the texts of the route data. `app-fab[link]` opens a route.
+
+Route motion: `provideRouteMotion()` (view transitions with `onRouteViewTransition`),
+`routeMotion`, `routePath`, `RouteMotion` and `watchUAVisualTransitions(window)`, which an
+app calls once at start so a back that the browser animated is not animated twice.
+
+The texts of the shell are `shell.*`, `account.*` and `palette.*` of `UI_KIT_INTL`.
 
 ## PWA helpers
 

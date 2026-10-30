@@ -1,0 +1,7 @@
+@use '../nav-items';
+
+:host {
+  display: contents;
+}
+
+@include nav-items.bar-item;

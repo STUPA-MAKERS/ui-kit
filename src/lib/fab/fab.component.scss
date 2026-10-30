@@ -5,7 +5,8 @@
     max(
         var(--layout-gutter),
         calc((100vw - var(--rail-width, 0px) - var(--layout-max-width)) / 2 + var(--layout-gutter))
-      ) + var(--fab-inset, var(--space-4))
+      ) +
+      var(--fab-inset, var(--space-4))
   );
   --fab-foot: calc(var(--pane-foot-gap, var(--layout-gutter)) + var(--fab-inset, var(--space-4)));
   position: fixed;
@@ -25,4 +26,13 @@
   position: absolute;
   right: var(--space-4);
   bottom: var(--space-4);
+}
+// In an `app-fab-group` the group takes the position.
+:host(.fab--grouped) {
+  position: static;
+}
+// A secondary action beside the main one: the surface of a raised sheet, not the accent.
+:host(.fab--neutral) ::ng-deep .btn--fab {
+  background: var(--color-surface-3);
+  color: var(--color-text);
 }

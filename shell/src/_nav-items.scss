@@ -1,0 +1,202 @@
+// The entries of the navigation rail and of the phone bottom bar, as mixins, so the rail,
+// the bar and the item buttons that an app puts into their end slots look the same. Emits
+// no CSS.
+@use '../../src/styles/press';
+
+/// An entry of the rail: the indicator pill over the label. `$b` is the block (`rail`).
+@mixin rail-item($b: rail) {
+  .#{$b}__item {
+    display: flex;
+    flex: none;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    width: 100%;
+    min-height: 60px;
+    color: var(--color-text-muted);
+    font-size: 11.5px;
+    font-weight: var(--fw-medium);
+    line-height: 14px;
+    text-decoration: none;
+  }
+  button.#{$b}__item {
+    padding: 0;
+    border: 0;
+    background: none;
+    font-family: inherit;
+    cursor: pointer;
+  }
+  .#{$b}__label {
+    max-width: 88px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .#{$b}__ind {
+    position: relative;
+    display: grid;
+    flex: none;
+    place-items: center;
+    width: 56px;
+    height: 32px;
+    border-radius: 16px;
+    transition:
+      background-color var(--motion-fast) var(--ease-standard),
+      scale var(--motion-xs) var(--ease-standard);
+  }
+  @media (hover: hover) {
+    .#{$b}__item:hover .#{$b}__ind {
+      background: var(--color-surface-2);
+    }
+    .#{$b}__item:hover {
+      color: var(--color-text);
+    }
+  }
+  .#{$b}__item.is-active {
+    color: var(--color-text);
+    font-weight: var(--fw-semibold);
+  }
+  .#{$b}__item.is-active .#{$b}__ind {
+    color: var(--color-accent-text);
+  }
+  .#{$b}__ind::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    background: var(--color-selected);
+    opacity: 0;
+    scale: 0.5 1;
+    transition:
+      opacity var(--motion-base) var(--ease-standard),
+      scale var(--motion-base) var(--ease-standard);
+  }
+  .#{$b}__item.is-active .#{$b}__ind::before {
+    opacity: 1;
+    scale: 1;
+  }
+  .#{$b}__ind > app-icon {
+    position: relative;
+  }
+  // A layer above the fill, so the active entry shows the press tint too.
+  .#{$b}__ind::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    pointer-events: none;
+  }
+  .#{$b}__item:active .#{$b}__ind::after {
+    background: var(--press-tint);
+  }
+  .#{$b}__item:active .#{$b}__ind {
+    @include press.press-scale;
+  }
+  .#{$b}__item:focus-visible {
+    outline: none;
+  }
+  .#{$b}__item:focus-visible .#{$b}__ind {
+    outline: 2px solid var(--color-focus-ring);
+    outline-offset: 2px;
+  }
+  // Up to about 1080px high: 56px steps.
+  @media (max-height: 1080px) {
+    .#{$b}__item {
+      min-height: 56px;
+    }
+  }
+  // A low laptop screen (1366 × 657 and similar): smaller steps, so every entry fits.
+  @media (max-height: 760px) {
+    .#{$b}__item {
+      min-height: 52px;
+    }
+  }
+}
+
+/// An entry of the phone bottom bar. `$b` is the block (`bb`).
+@mixin bar-item($b: bb) {
+  .#{$b}__item {
+    display: flex;
+    flex: 1 1 0;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    min-width: 0;
+    max-width: 88px;
+    padding: 0;
+    border: 0;
+    background: transparent;
+    color: var(--color-text-muted);
+    font: inherit;
+    font-size: 11.5px;
+    font-weight: var(--fw-medium);
+    line-height: 14px;
+    text-decoration: none;
+    cursor: pointer;
+  }
+  .#{$b}__label {
+    max-width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .#{$b}__ind {
+    position: relative;
+    display: grid;
+    place-items: center;
+    width: 56px;
+    height: 32px;
+    border-radius: 16px;
+    transition: scale var(--motion-xs) var(--ease-standard);
+  }
+  .#{$b}__item.is-active {
+    color: var(--color-text);
+    font-weight: var(--fw-semibold);
+  }
+  // The selected token is too close to surface 3 in both themes, so the pill mixes the
+  // accent into the bar surface.
+  .#{$b}__item.is-active .#{$b}__ind {
+    color: var(--color-accent-text);
+  }
+  .#{$b}__ind::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    background: color-mix(in srgb, var(--color-accent) 28%, var(--color-surface-3));
+    opacity: 0;
+    scale: 0.5 1;
+    transition:
+      opacity var(--motion-base) var(--ease-standard),
+      scale var(--motion-base) var(--ease-standard);
+  }
+  .#{$b}__item.is-active .#{$b}__ind::before {
+    opacity: 1;
+    scale: 1;
+  }
+  .#{$b}__ind > app-icon {
+    position: relative;
+  }
+  // A layer above the fill, so the active entry shows the press tint too.
+  .#{$b}__ind::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    pointer-events: none;
+  }
+  .#{$b}__item:active .#{$b}__ind::after {
+    background: var(--press-tint);
+  }
+  .#{$b}__item:active .#{$b}__ind {
+    @include press.press-scale;
+  }
+  .#{$b}__item:focus-visible {
+    outline: none;
+  }
+  .#{$b}__item:focus-visible .#{$b}__ind {
+    outline: 2px solid var(--color-focus-ring);
+    outline-offset: 2px;
+  }
+}

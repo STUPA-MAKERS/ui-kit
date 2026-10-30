@@ -78,7 +78,26 @@ export type UiKitTextKey =
   | 'editorTable.addColumn'
   | 'editorTable.delete'
   | 'pwa.updateReady'
-  | 'pwa.reload';
+  | 'pwa.reload'
+  | 'shell.skip'
+  | 'shell.mainNav'
+  | 'shell.more'
+  | 'shell.search'
+  | 'shell.brand'
+  | 'account.signedInAs'
+  | 'account.language'
+  | 'account.darkMode'
+  | 'account.logout'
+  | 'account.open'
+  | 'account.region'
+  | 'palette.title'
+  | 'palette.placeholder'
+  | 'palette.close'
+  | 'palette.empty'
+  | 'palette.truncated'
+  | 'palette.keysSelect'
+  | 'palette.keysOpen'
+  | 'palette.archived';
 
 export type UiKitMessages = Record<UiKitTextKey, string>;
 
@@ -144,6 +163,25 @@ export const UI_KIT_DEFAULT_MESSAGES: Record<UiLang, UiKitMessages> = {
     'editorTable.delete': 'Tabelle löschen',
     'pwa.updateReady': 'Eine neue Version der App ist verfügbar.',
     'pwa.reload': 'Neu laden',
+    'shell.skip': 'Zum Inhalt springen',
+    'shell.mainNav': 'Hauptnavigation',
+    'shell.more': 'Mehr',
+    'shell.search': 'Suche',
+    'shell.brand': '{name}, Start',
+    'account.signedInAs': 'Angemeldet als',
+    'account.language': 'Sprache',
+    'account.darkMode': 'Dunkles Design',
+    'account.logout': 'Abmelden',
+    'account.open': 'Konto: {name}',
+    'account.region': 'Konto',
+    'palette.title': 'Suche',
+    'palette.placeholder': 'Suchen …',
+    'palette.close': 'Suche schließen',
+    'palette.empty': 'Nichts gefunden.',
+    'palette.truncated': 'Es gibt weitere Treffer. Suchbegriff eingrenzen.',
+    'palette.keysSelect': 'Auswählen',
+    'palette.keysOpen': 'Öffnen',
+    'palette.archived': 'Archiviert',
   },
   en: {
     'dialog.close': 'Close',
@@ -205,6 +243,25 @@ export const UI_KIT_DEFAULT_MESSAGES: Record<UiLang, UiKitMessages> = {
     'editorTable.delete': 'Delete table',
     'pwa.updateReady': 'A new version of the app is available.',
     'pwa.reload': 'Reload',
+    'shell.skip': 'Skip to content',
+    'shell.mainNav': 'Main navigation',
+    'shell.more': 'More',
+    'shell.search': 'Search',
+    'shell.brand': '{name}, home',
+    'account.signedInAs': 'Signed in as',
+    'account.language': 'Language',
+    'account.darkMode': 'Dark theme',
+    'account.logout': 'Sign out',
+    'account.open': 'Account: {name}',
+    'account.region': 'Account',
+    'palette.title': 'Search',
+    'palette.placeholder': 'Search …',
+    'palette.close': 'Close search',
+    'palette.empty': 'Nothing found.',
+    'palette.truncated': 'There are more results. Narrow the query.',
+    'palette.keysSelect': 'Select',
+    'palette.keysOpen': 'Open',
+    'palette.archived': 'Archived',
   },
 };
 

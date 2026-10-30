@@ -1,0 +1,82 @@
+<a class="skip-link" href="#main">{{ 'shell.skip' | uiKitT }}</a>
+
+<ng-template #accountTpl><ng-content select="[shellAccount]" /></ng-template>
+
+<div
+  class="frame"
+  [class.frame--rail]="current() === 'rail' && !phone()"
+  [class.frame--phone]="current() === 'rail' && phone()"
+  [class.frame--keyboard]="current() === 'rail' && phone() && keyboardOpen()"
+  [class.frame--fab]="current() === 'rail' && phone() && fab()"
+  [class.frame--public]="current() === 'public'"
+  [class.frame--bare]="current() === 'bare'"
+>
+  @if (current() === 'rail' && !phone()) {
+    <app-nav-rail
+      class="frame__rail"
+      [items]="nav()"
+      [brand]="brand()"
+      [searchable]="searchable()"
+      [mark]="mark()"
+      (search)="search.emit()"
+    >
+      <ng-container ngProjectAs="[railTools]"
+        ><ng-content select="[shellRailTools]"
+      /></ng-container>
+      <ng-container ngProjectAs="[railEnd]"><ng-content select="[shellRailEnd]" /></ng-container>
+      <ng-container ngProjectAs="[railAccount]"
+        ><ng-container *ngTemplateOutlet="accountTpl"
+      /></ng-container>
+    </app-nav-rail>
+  }
+
+  <div class="frame__body">
+    @if (current() === 'public') {
+      <ng-content select="[shellPublicHeader]" />
+    }
+
+    <main
+      id="main"
+      class="main"
+      [class.page-shell]="current() !== 'bare'"
+      [class.main--wide]="wide()"
+      [class.main--fill]="fill()"
+      tabindex="-1"
+    >
+      <ng-content select="[shellMain]" />
+      @if (outlet()) {
+        <router-outlet />
+      }
+    </main>
+
+    @if (footer()) {
+      <div class="frame__footer"><ng-content select="[shellFooter]" /></div>
+    }
+  </div>
+
+  @if (current() === 'rail' && phone()) {
+    <app-bottom-bar
+      [items]="nav()"
+      [barKeys]="barKeys()"
+      [searchable]="searchable()"
+      [more]="more()"
+      [morePaths]="morePaths()"
+      [mark]="mark()"
+      (search)="search.emit()"
+    >
+      <ng-container ngProjectAs="[barEnd]"><ng-content select="[shellBarEnd]" /></ng-container>
+      <ng-container ngProjectAs="[more]"><ng-content select="[shellMore]" /></ng-container>
+      <ng-container ngProjectAs="[moreAccount]"
+        ><ng-container *ngTemplateOutlet="accountTpl"
+      /></ng-container>
+    </app-bottom-bar>
+  }
+</div>
+
+<app-load-bar />
+<app-toast />
+<ng-content select="[shellPrompts]" />
+
+@if (current() === 'rail') {
+  <ng-content select="[shellOverlays]" />
+}

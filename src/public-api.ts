@@ -26,6 +26,7 @@ export * from './lib/loading/loading.interceptor';
 export * from './lib/theme/theme.config';
 export * from './lib/theme/theme.service';
 export * from './lib/motion/motion';
+export * from './lib/page-frame/page-frame';
 
 // --- components -------------------------------------------------------------
 export * from './lib/button/button.component';
@@ -91,6 +92,7 @@ export * from './lib/empty-state/empty-state.component';
 export * from './lib/detail-none/detail-none.component';
 export * from './lib/page-header/page-header.component';
 export * from './lib/fab/fab.component';
+export * from './lib/fab/fab-group.component';
 export * from './lib/note/note.component';
 export * from './lib/confirm-dialog/confirm-dialog.component';
 export * from './lib/selection-bar/selection-bar.component';
