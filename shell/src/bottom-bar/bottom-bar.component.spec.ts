@@ -1,4 +1,5 @@
 import { Component } from '@angular/core';
+import { TestBed } from '@angular/core/testing';
 import { Router, provideRouter } from '@angular/router';
 import { render, screen, within } from '@testing-library/angular';
 import userEvent from '@testing-library/user-event';
@@ -7,6 +8,7 @@ import { BAR_KEYS, NAV, TestMarkComponent } from '../../../testing/shell';
 import { NavMarkDirective } from '../nav-mark.directive';
 import { BarButtonComponent } from '../nav-item/nav-item-buttons';
 import { BottomBarComponent } from './bottom-bar.component';
+import { ShellMoreSheet } from './more-sheet';
 
 @Component({ standalone: true, template: 'page' })
 class StubPage {}
@@ -19,6 +21,7 @@ async function setup(opts: { searchable?: boolean; more?: boolean; barKeys?: str
       [morePaths]="['/account']" [mark]="m" (search)="search()">
       <app-bar-button barEnd icon="moon" label="Dunkel" />
       <div more role="group" aria-label="Hilfe"><button type="button">Problem melden</button></div>
+      <div more class="wiki"><a href="#wiki">Wiki</a><p>Hinweis zur Hilfe</p></div>
       <div moreAccount class="account">Ada Admin</div>
     </app-bottom-bar>`,
     {
@@ -102,6 +105,49 @@ describe('BottomBarComponent', () => {
     await fixture.whenStable();
     fixture.detectChanges();
     expect(screen.queryByRole('dialog', { name: 'Mehr' })).not.toBeInTheDocument();
+  });
+
+  describe('the [more] slot of the app', () => {
+    const sheet = () => screen.queryByRole('dialog', { name: 'Mehr' });
+
+    async function openSheet(fixture: { detectChanges(): void }): Promise<void> {
+      await userEvent.click(more());
+      fixture.detectChanges();
+      expect(sheet()).toBeInTheDocument();
+    }
+
+    it('closes the sheet after a click on a button of the app', async () => {
+      const { fixture } = await setup();
+      await openSheet(fixture);
+      await userEvent.click(screen.getByRole('button', { name: 'Problem melden' }));
+      fixture.detectChanges();
+      expect(sheet()).not.toBeInTheDocument();
+      expect(more()).toHaveAttribute('aria-expanded', 'false');
+    });
+
+    it('closes the sheet after a click on a link of the app', async () => {
+      const { fixture } = await setup();
+      await openSheet(fixture);
+      await userEvent.click(screen.getByRole('link', { name: 'Wiki' }));
+      fixture.detectChanges();
+      expect(sheet()).not.toBeInTheDocument();
+    });
+
+    it('keeps the sheet open after a click on text of the slot', async () => {
+      const { fixture } = await setup();
+      await openSheet(fixture);
+      await userEvent.click(screen.getByText('Hinweis zur Hilfe'));
+      fixture.detectChanges();
+      expect(sheet()).toBeInTheDocument();
+    });
+
+    it('closes the sheet through ShellMoreSheet', async () => {
+      const { fixture } = await setup();
+      await openSheet(fixture);
+      TestBed.inject(ShellMoreSheet).close();
+      fixture.detectChanges();
+      expect(sheet()).not.toBeInTheDocument();
+    });
   });
 
   it('marks Mehr as active on a page that lives in the sheet or under a more path', async () => {

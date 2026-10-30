@@ -71,7 +71,9 @@
           </button>
         </div>
       }
-      <ng-content select="[more]" />
+      <div class="more__slot" (click)="onSlotClick($event)">
+        <ng-content select="[more]" />
+      </div>
       <ng-content select="[moreAccount]" />
     </div>
   </app-side-sheet>

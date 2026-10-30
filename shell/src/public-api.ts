@@ -9,6 +9,7 @@ export * from './nav-mark.directive';
 export * from './shell/shell.component';
 export * from './nav-rail/nav-rail.component';
 export * from './bottom-bar/bottom-bar.component';
+export * from './bottom-bar/more-sheet';
 export * from './nav-item/nav-item-buttons';
 export * from './account-menu/account-menu.component';
 export * from './command-palette/command-palette.service';

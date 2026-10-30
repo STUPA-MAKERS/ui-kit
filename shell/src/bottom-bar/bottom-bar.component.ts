@@ -2,6 +2,7 @@ import { NgTemplateOutlet } from '@angular/common';
 import {
   ChangeDetectionStrategy,
   Component,
+  DestroyRef,
   TemplateRef,
   computed,
   inject,
@@ -16,6 +17,7 @@ import { IconComponent, SideSheetComponent, UiKitTranslatePipe } from '@stupa-ma
 import { filter } from 'rxjs';
 import type { NavMarkContext } from '../nav-mark.directive';
 import type { ShellNavItem } from '../shell.types';
+import { ShellMoreSheet } from './more-sheet';
 
 /**
  * The phone navigation (viewport <= 768px): the entries of `barKeys`, the `[barEnd]` slot
@@ -24,8 +26,11 @@ import type { ShellNavItem } from '../shell.types';
  * groups, for example a help menu) and the `[moreAccount]` slot (the account menu).
  *
  * With `more` false the bar has no "More" entry; give every entry a key in `barKeys`
- * then. The sheet closes after each navigation. "More" is the active entry while the page
- * belongs to one of its entries or starts with one of `morePaths`.
+ * then. The sheet closes after each navigation, and after a click on a link or a button in
+ * the `[more]` slot (an action such as "Report a problem" that opens a dialog, or a link
+ * that leaves the app). A click on empty space of the sheet keeps it open. The content of the
+ * slot can also close it with `ShellMoreSheet.close()`. "More" is the active entry while
+ * the page belongs to one of its entries or starts with one of `morePaths`.
  */
 @Component({
   selector: 'app-bottom-bar',
@@ -96,6 +101,20 @@ export class BottomBarComponent {
         this.url.set(e.urlAfterRedirects);
         this.moreOpen.set(false);
       });
+    const unregister = inject(ShellMoreSheet).register(() => this.moreOpen.set(false));
+    inject(DestroyRef).onDestroy(unregister);
+  }
+
+  /** A click on a link or a button of the `[more]` slot closes the sheet. */
+  onSlotClick(event: Event): void {
+    const { target, currentTarget } = event;
+    if (!(target instanceof Element) || !(currentTarget instanceof Element)) return;
+    const hit = target.closest(
+      'a[href], button, [role="button"], [role="menuitem"], [role="link"]',
+    );
+    if (hit && currentTarget.contains(hit) && !hit.matches(':disabled')) {
+      this.moreOpen.set(false);
+    }
   }
 
   openMore(): void {
