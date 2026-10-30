@@ -343,7 +343,8 @@ provideRouter(routes, provideRouteMotion());
   `morePaths` are the paths that mark "More" as active.
 
 The parts also work alone: `app-nav-rail`, `app-bottom-bar` (model `moreOpen`, slots
-`[more]` and `[moreAccount]`) and `app-account-menu` (inputs `variant`, `name`, `avatarId`,
+`[more]` and `[moreAccount]`; a click on a link or a button in `[more]` closes the sheet,
+and the content can close it with `ShellMoreSheet.close()`) and `app-account-menu` (inputs `variant`, `name`, `avatarId`,
 `languages`, `language`, `dark`; outputs `languageChange`, `darkChange`, `logout`,
 `navigated`; slot `[accountItems]` for links such as `a.am__item`).
 
