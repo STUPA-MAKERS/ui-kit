@@ -59,9 +59,14 @@ import type { ShellBrand, ShellFrame, ShellNavItem } from '../shell.types';
  *   `outlet` false it takes the place of the page, for example a gate that shows a load
  *   or offline state until the app is ready.
  * - `[shellOverlays]`: dialogs of the app (the search palette); only in the rail frame.
- * - `[shellPrompts]`: prompts in every frame, for example `app-sw-update-prompt` of
- *   `@stupa-makers/ui-kit/pwa`. The shell does not render it itself, so this entry
- *   does not need `@angular/service-worker`.
+ * - `[shellPrompts]`: prompts of the app in every frame, for example a prompt to install
+ *   the app or to unlock a key. The update of the app needs no slot: `SwUpdateService` of
+ *   `@stupa-makers/ui-kit/pwa` shows it as a toast.
+ *
+ * The toasts sit at the bottom end. On a phone they sit above the bottom bar
+ * (`--app-bottom-inset`), and an app that hides the bar for the keyboard sets the inset to 0.
+ * A `fill` page is one screen high, so only its panes scroll; it shows no footer. An empty
+ * footer slot leaves no box.
  *
  * A `<ng-template appNavMark let-key let-part="part">` gives each entry a mark.
  */

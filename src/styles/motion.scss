@@ -108,17 +108,18 @@
   animation-duration: var(--motion-base);
   animation-timing-function: var(--ease-standard);
 }
-::view-transition-group(rail),
-::view-transition-old(rail),
-::view-transition-new(rail) {
-  animation-duration: var(--motion-fast);
+// The rail and the bottom bar do not cross-fade: their old and new pictures are the same but
+// for the active entry, and a cross-fade of two half transparent snapshots shows garbage on
+// some GPUs. The new picture shows at once, and the rail gets an opaque ground for it.
+:root[data-motion] .frame__rail {
+  background: var(--color-bg);
 }
-// The bottom bar does not cross-fade: its old and new pictures are the same but for the
-// active entry, and a cross-fade of two half transparent snapshots shows garbage on some
-// GPUs. The new picture shows at once.
+::view-transition-old(rail),
 ::view-transition-old(bottom-bar) {
   display: none;
 }
+::view-transition-group(rail),
+::view-transition-new(rail),
 ::view-transition-group(bottom-bar),
 ::view-transition-new(bottom-bar) {
   animation: none;

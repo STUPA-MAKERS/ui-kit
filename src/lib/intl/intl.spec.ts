@@ -1,4 +1,4 @@
-import { signal } from '@angular/core';
+import { Injectable, inject, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import {
   DefaultUiKitIntl,
@@ -48,5 +48,19 @@ describe('UiKitIntl', () => {
     const intl = TestBed.inject(UI_KIT_INTL);
     expect(intl.formatLocale()).toBe('en-GB');
     expect(intl.translate('dialog.close')).toBe('Close');
+  });
+
+  it('provideUiKit takes an intl factory that injects a service provided after it', () => {
+    @Injectable()
+    class AppLang {
+      readonly lang = signal('en' as const);
+    }
+    TestBed.configureTestingModule({
+      providers: [
+        provideUiKit({ intl: () => uiKitIntlFromLang(inject(AppLang).lang) }),
+        AppLang,
+      ],
+    });
+    expect(TestBed.inject(UI_KIT_INTL).translate('dialog.close')).toBe('Close');
   });
 });

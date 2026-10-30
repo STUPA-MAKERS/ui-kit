@@ -1,6 +1,6 @@
 @use '../../../src/styles/press';
 @use '../../../src/styles/scroll-fade' as fade;
-@use '../nav-items';
+@use '../../../src/styles/nav-items';
 
 :host {
   display: block;

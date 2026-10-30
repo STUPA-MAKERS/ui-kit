@@ -287,6 +287,24 @@ describe('ShellComponent', () => {
       await router.navigateByUrl('/board');
       fixture.detectChanges();
       expect(container.querySelector('main')).toHaveClass('main--fill');
+      expect(container.querySelector('.frame')).toHaveClass('frame--fill');
+      await router.navigateByUrl('/tasks');
+      fixture.detectChanges();
+      expect(container.querySelector('.frame')).not.toHaveClass('frame--fill');
+    });
+
+    it('leaves the footer box empty when the app projects no footer', async () => {
+      const { container } = await render(
+        `<app-shell frame="public" [nav]="[]" [barKeys]="[]" [brand]="brand" />`,
+        {
+          imports: [ShellComponent],
+          componentProperties: { brand: BRAND },
+          providers: [provideRouter(ROUTES)],
+        },
+      );
+      const footer = container.querySelector('.frame__footer');
+      expect(footer).not.toBeNull();
+      expect(footer?.childNodes).toHaveLength(0);
     });
   });
 

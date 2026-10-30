@@ -79,7 +79,9 @@ The styles entry loads `motion.scss`. It holds the enter and leave classes for
 `.motion-fade-in`, `.motion-fade-out`, `.motion-expand-in` and `.motion-expand-out`. It also
 holds the route view transitions: while `<html data-motion="section|push|pop">` is set, the
 root snapshot fades through (`section`) or slides (`push`, `pop`), and the rail
-(`.frame__rail`) and the bottom bar (`.bb`) stay still in groups of their own. The app sets
+(`.frame__rail`) and the bottom bar (`.bb`) stay still in groups of their own. They do not
+cross-fade, because a cross-fade of their half transparent snapshots shows garbage on some
+GPUs: the new picture shows at once, on an opaque ground for the rail. The app sets
 `data-motion` from the `onViewTransitionCreated` hook of its router. Every timing comes from
 the `--motion-*` and `--ease-*` tokens, and `base.scss` stops the motion when the system asks
 for reduced motion.
@@ -123,6 +125,13 @@ export const appConfig: ApplicationConfig = {
     },
   ],
 };
+```
+
+Or pass a factory to `provideUiKit`. It runs in an injection context when the kit first
+needs a text, so the order of the providers does not matter:
+
+```ts
+provideUiKit({ intl: () => uiKitIntlFromLang(inject(MyI18nService).locale) });
 ```
 
 Numbers and dates format with `formatLocale()` of the intl, an `Intl` tag. By default it
@@ -300,7 +309,7 @@ provideRouter(routes, provideRouteMotion());
   <app-help-items shellMore />
   <app-public-header shellPublicHeader />
   <app-footer shellFooter />
-  <app-sw-update-prompt shellPrompts />
+  <app-install-prompt shellPrompts />
   <app-command-palette shellOverlays … />
 </app-shell>
 ```
@@ -313,15 +322,21 @@ provideRouter(routes, provideRouteMotion());
 - An `appNavMark` template draws a mark on an entry. Its context is the key and the part
   (`visual` on the icon, `text` for screen readers, `count` beside the label).
 - The route data `wide`, `fab`, `footer`, `fill` and `chrome: false` set the page width, the
-  room for a fab, the footer, the fill of `PageFrame` and a page without chrome.
-- The shell shows the skip link, the load bar and the toasts. It does not import the `pwa`
-  entry; put the update prompt into `[shellPrompts]`. `[shellOverlays]` shows only in the
-  `rail` frame (rail and bottom bar).
+  room for a fab, the footer, the fill and a page without chrome. A fill page (route data
+  `fill` or `PageFrame.fill`) is one screen high, so only its panes scroll; on a phone it
+  ends above the bottom bar. It shows no footer, and an empty `[shellFooter]` leaves no box.
+- The shell shows the skip link, the load bar and the toasts. The toasts sit at the bottom
+  end; on a phone they sit above the bottom bar (`--app-bottom-inset`, which an app sets
+  to 0 when it hides the bar for the keyboard). `[shellPrompts]` takes prompts of the app
+  in every frame (an install or unlock prompt); the update notice is a toast of the `pwa`
+  entry. `[shellOverlays]` shows only in the `rail` frame (rail and bottom bar).
 - Slots: `[shellRailTools]` (above the account in the rail), `[shellAccount]` (the rail
   and the "More" sheet), `[shellMore]` (the "More" sheet), `[shellPublicHeader]`,
   `[shellFooter]`, `[shellPrompts]`, `[shellOverlays]`, `[shellRailEnd]` and
   `[shellBarEnd]` (an own entry at the end of the rail and the bar, in the look of
   `app-rail-button` and `app-bar-button`) and `[shellMain]` (shown before the outlet).
+  An app entry of its own can use the mixins `rail-item` and `bar-item` of
+  `@use '@stupa-makers/ui-kit/styles/nav-items'`.
 - For a small app: `searchable = false` removes the search entries, `more = false` removes
   "More" (put every entry into `barKeys`), and `outlet = false` removes the router outlet,
   so the app can show its own content in `[shellMain]` (for example a sign-in gate).
@@ -354,17 +369,15 @@ The helpers of an installed web app live in the **`pwa`** secondary entry point,
 `@angular/service-worker` stays an optional peer:
 
 ```ts
-import {
-  IS_INSTALLED_APP,
-  SwUpdatePromptComponent,
-  SwUpdateService,
-  lockInstalledAppZoom,
-} from '@stupa-makers/ui-kit/pwa';
+import { IS_INSTALLED_APP, SwUpdateService, lockInstalledAppZoom } from '@stupa-makers/ui-kit/pwa';
 ```
 
-`SwUpdateService.init()` checks for a new version at start, every 5 minutes and on focus;
-`app-sw-update-prompt` then offers the reload (texts `pwa.updateReady` and `pwa.reload` of
-`UI_KIT_INTL`). `IS_INSTALLED_APP` (and `isInstalledApp(window)`) tells the installed app
+`SwUpdateService.init()` checks for a new version 1 second after the start, every 5
+minutes and on focus. A second `init()` does nothing, and the checks stop when the root
+injector goes. When a new version is ready, it shows a toast of the kit `ToastService`
+(texts `pwa.updateReady` and `pwa.reload` of `UI_KIT_INTL`) that stays until the person
+closes it. Only its action reloads: it activates the update and then reloads the page.
+A broken cache (`unrecoverable`) reloads at once. `IS_INSTALLED_APP` (and `isInstalledApp(window)`) tells the installed app
 from a browser tab, and `lockInstalledAppZoom(document, installed)` stops the page zoom in
 the installed app only.
 

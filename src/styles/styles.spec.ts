@@ -245,6 +245,13 @@ describe('motion and list pane partials', () => {
     expect(motion).toContain(':root[data-motion] .bb {');
   });
 
+  it('shows the new rail and bottom bar at once, without a cross-fade', () => {
+    const motion = read('motion.scss');
+    expect(motion).toMatch(/::view-transition-old\(rail\),\n::view-transition-old\(bottom-bar\) \{\n {2}display: none;/);
+    expect(motion).toMatch(/::view-transition-new\(rail\),[^{]*\{\n {2}animation: none;/);
+    expect(motion).toMatch(/:root\[data-motion\] \.frame__rail \{\n {2}background: var\(--color-bg\);/);
+  });
+
   it('times every motion with the tokens, never a literal duration', () => {
     const motion = read('motion.scss');
     for (const m of motion.matchAll(/animation(?:-duration)?\s*:([^;]*);/g)) {

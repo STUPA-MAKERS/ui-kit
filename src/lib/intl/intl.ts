@@ -161,7 +161,7 @@ export const UI_KIT_DEFAULT_MESSAGES: Record<UiLang, UiKitMessages> = {
     'editorTable.addRow': 'Zeile hinzufügen',
     'editorTable.addColumn': 'Spalte hinzufügen',
     'editorTable.delete': 'Tabelle löschen',
-    'pwa.updateReady': 'Eine neue Version der App ist verfügbar.',
+    'pwa.updateReady': 'Eine neue Version der App ist bereit.',
     'pwa.reload': 'Neu laden',
     'shell.skip': 'Zum Inhalt springen',
     'shell.mainNav': 'Hauptnavigation',
@@ -241,7 +241,7 @@ export const UI_KIT_DEFAULT_MESSAGES: Record<UiLang, UiKitMessages> = {
     'editorTable.addRow': 'Add row',
     'editorTable.addColumn': 'Add column',
     'editorTable.delete': 'Delete table',
-    'pwa.updateReady': 'A new version of the app is available.',
+    'pwa.updateReady': 'A new version of the app is ready.',
     'pwa.reload': 'Reload',
     'shell.skip': 'Skip to content',
     'shell.mainNav': 'Main navigation',
@@ -361,8 +361,13 @@ export function uiKitIntlFromLang(
 
 /** Options of {@link provideUiKit}. */
 export interface UiKitOptions extends UiKitIntlOptions {
-  /** A ready {@link UiKitIntl}. It wins over `lang`, `formatLocale` and `messages`. */
-  intl?: UiKitIntl;
+  /**
+   * A ready {@link UiKitIntl}, or a factory for one. It wins over `lang`, `formatLocale` and
+   * `messages`. The factory runs in an injection context when the kit first needs its
+   * texts, so it can `inject()` the i18n service of the app, and the order of the providers
+   * does not matter.
+   */
+  intl?: UiKitIntl | (() => UiKitIntl);
   /**
    * The settings of the `ThemeService`: the storage key of the preference, the manifest
    * URL per theme and the page background per theme. Omit a field to keep its default.
@@ -379,7 +384,11 @@ export function provideUiKit(options: UiKitOptions = {}): EnvironmentProviders {
   return makeEnvironmentProviders([
     {
       provide: UI_KIT_INTL,
-      useFactory: () => options.intl ?? new DefaultUiKitIntl(options),
+      useFactory: (): UiKitIntl => {
+        const intl = options.intl;
+        if (typeof intl === 'function') return intl();
+        return intl ?? new DefaultUiKitIntl(options);
+      },
     },
     { provide: UI_KIT_THEME, useValue: uiKitThemeConfig(options.theme) },
   ]);

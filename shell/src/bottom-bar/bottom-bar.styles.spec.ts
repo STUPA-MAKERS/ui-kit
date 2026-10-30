@@ -7,7 +7,7 @@ import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 
 const bar = readFileSync(join(__dirname, 'bottom-bar.component.scss'), 'utf8');
-const items = readFileSync(join(__dirname, '../_nav-items.scss'), 'utf8');
+const items = readFileSync(join(__dirname, '../../../src/styles/_nav-items.scss'), 'utf8');
 const shell = readFileSync(join(__dirname, '../shell/shell.component.scss'), 'utf8');
 
 /** The declarations of the first rule with exactly this selector. */

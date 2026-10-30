@@ -1,8 +1,0 @@
-<div class="sw-prompt-region" aria-live="polite">
-  @if (sw.updateReady()) {
-    <div class="sw-prompt" role="status">
-      <span class="sw-prompt__msg">{{ 'pwa.updateReady' | uiKitT }}</span>
-      <app-button variant="fill" size="sm" (click)="sw.reload()">{{ 'pwa.reload' | uiKitT }}</app-button>
-    </div>
-  }
-</div>

@@ -10,6 +10,7 @@
   [class.frame--fab]="current() === 'rail' && phone() && fab()"
   [class.frame--public]="current() === 'public'"
   [class.frame--bare]="current() === 'bare'"
+  [class.frame--fill]="fill()"
 >
   @if (current() === 'rail' && !phone()) {
     <app-nav-rail
@@ -71,10 +72,11 @@
       /></ng-container>
     </app-bottom-bar>
   }
+
+  <app-toast />
 </div>
 
 <app-load-bar />
-<app-toast />
 <ng-content select="[shellPrompts]" />
 
 @if (current() === 'rail') {

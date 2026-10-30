@@ -2,6 +2,7 @@ import { DOCUMENT } from '@angular/common';
 import { Injector, runInInjectionContext } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { SwUpdate, type UnrecoverableStateEvent, type VersionEvent } from '@angular/service-worker';
+import { ToastService } from '@stupa-makers/ui-kit';
 import { Subject } from 'rxjs';
 import { PAGE_RELOAD, SwUpdateService, pageReloadFactory } from './sw-update.service';
 
@@ -20,6 +21,7 @@ describe('SwUpdateService', () => {
   let svc: SwUpdateService;
   let sw: FakeSwUpdate;
   let reload: jest.Mock;
+  let toast: ToastService;
 
   function configure(enabled: boolean): void {
     sw = new FakeSwUpdate();
@@ -32,7 +34,10 @@ describe('SwUpdateService', () => {
       ],
     });
     svc = TestBed.inject(SwUpdateService);
+    toast = TestBed.inject(ToastService);
   }
+
+  const ready = { type: 'VERSION_READY' } as VersionEvent;
 
   /** Let the promise of a check settle, so concatMap takes the next tick. */
   async function flushPromises(): Promise<void> {
@@ -74,6 +79,78 @@ describe('SwUpdateService', () => {
 
     expect(svc.updateReady()).toBe(true);
     expect(sw.activateUpdate).not.toHaveBeenCalled();
+    expect(reload).not.toHaveBeenCalled();
+  });
+
+  it('shows a toast that stays, with the reload as its action', () => {
+    configure(true);
+    svc.init();
+    sw.versionUpdates.next(ready);
+    expect(toast.toasts()).toEqual([
+      expect.objectContaining({
+        message: 'Eine neue Version der App ist bereit.',
+        action: 'Neu laden',
+        variant: 'info',
+      }),
+    ]);
+    jest.advanceTimersByTime(60 * 60 * 1000);
+    expect(toast.toasts()).toHaveLength(1);
+  });
+
+  it('activates the update and reloads only after the action', async () => {
+    configure(true);
+    svc.init();
+    sw.versionUpdates.next(ready);
+    toast.act(toast.toasts()[0].id);
+    await flushPromises();
+    expect(sw.activateUpdate).toHaveBeenCalledTimes(1);
+    expect(reload).toHaveBeenCalledTimes(1);
+  });
+
+  it('does not reload when the toast is closed', async () => {
+    configure(true);
+    svc.init();
+    sw.versionUpdates.next(ready);
+    toast.dismiss(toast.toasts()[0].id);
+    await flushPromises();
+    expect(sw.activateUpdate).not.toHaveBeenCalled();
+    expect(reload).not.toHaveBeenCalled();
+  });
+
+  it('shows one toast for a repeated VERSION_READY, and a new one after a close', () => {
+    configure(true);
+    svc.init();
+    sw.versionUpdates.next(ready);
+    sw.versionUpdates.next(ready);
+    expect(toast.toasts()).toHaveLength(1);
+    toast.dismiss(toast.toasts()[0].id);
+    sw.versionUpdates.next(ready);
+    expect(toast.toasts()).toHaveLength(1);
+  });
+
+  it('starts once, however often init() runs', async () => {
+    configure(true);
+    svc.init();
+    svc.init();
+    sw.versionUpdates.next(ready);
+    expect(toast.toasts()).toHaveLength(1);
+    sw.unrecoverable.next({ type: 'UNRECOVERABLE_STATE', reason: 'x' });
+    expect(reload).toHaveBeenCalledTimes(1);
+    jest.advanceTimersByTime(1000);
+    await flushPromises();
+    expect(sw.checkForUpdate).toHaveBeenCalledTimes(1);
+  });
+
+  it('ends every subscription and timer when the injector goes', async () => {
+    configure(true);
+    svc.init();
+    TestBed.resetTestingModule();
+    jest.advanceTimersByTime(FIVE_MINUTES * 2);
+    window.dispatchEvent(new Event('focus'));
+    await flushPromises();
+    sw.versionUpdates.next(ready);
+    sw.unrecoverable.next({ type: 'UNRECOVERABLE_STATE', reason: 'x' });
+    expect(sw.checkForUpdate).not.toHaveBeenCalled();
     expect(reload).not.toHaveBeenCalled();
   });
 

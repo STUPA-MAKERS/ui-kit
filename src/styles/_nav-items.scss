@@ -1,7 +1,7 @@
 // The entries of the navigation rail and of the phone bottom bar, as mixins, so the rail,
 // the bar and the item buttons that an app puts into their end slots look the same. Emits
-// no CSS.
-@use '../../src/styles/press';
+// no CSS. An app can `@use '@stupa-makers/ui-kit/styles/nav-items'` for an entry of its own.
+@use 'press';
 
 /// An entry of the rail: the indicator pill over the label. `$b` is the block (`rail`).
 @mixin rail-item($b: rail) {
