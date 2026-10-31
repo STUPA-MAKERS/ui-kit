@@ -40,6 +40,11 @@
   flex: none;
   color: var(--color-text-muted);
 }
+/* An icon at the end has the 32px box of the buttons there, so it lines up with them. */
+.toast__icon--end {
+  width: 32px;
+  height: 32px;
+}
 .toast__msg {
   flex: 1;
   font-size: var(--fs-body);

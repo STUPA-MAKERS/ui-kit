@@ -10,8 +10,8 @@ import { ToastService, UI_KIT_INTL } from '@stupa-makers/ui-kit';
  * Without a window (a server render) it stays true and no notice shows.
  *
  * While the browser is offline, `init()` keeps a notice open (`pwa.offline` of
- * `UI_KIT_INTL`, icon `cloud-off`): on a phone a red bar at the top of the frame
- * (`app-toast-bar`), on a wider screen a toast in the stack. It has no action and no close
+ * `UI_KIT_INTL`, the icon `cloud-off` at the end of the row): on a phone a red bar at the
+ * top of the frame (`app-toast-bar`), on a wider screen a toast in the stack. It has no action and no close
  * button, and it goes away by itself when the connection comes back. A second `init()` does
  * nothing, and the listeners end when the root injector is destroyed.
  */
@@ -64,6 +64,7 @@ export class OfflineService {
       message: this.intl.translate('pwa.offline'),
       variant: 'danger',
       icon: 'cloud-off',
+      iconPosition: 'end',
       phonePlacement: 'top',
     });
   }

@@ -15,13 +15,18 @@ export interface Toast {
   actionIcon?: IconName;
   /** Where the toast shows on a phone (see {@link ToastPhonePlacement}). */
   phonePlacement?: ToastPhonePlacement;
-  /** An icon before the message. */
+  /** An icon before the message, or at the end of the row (see `iconPosition`). */
   icon?: IconName;
+  /** Where `icon` sits: `start` before the message (default), `end` at the end of the row. */
+  iconPosition?: ToastIconPosition;
   /** False hides the close button: the code that shows the toast also removes it. */
   closable?: boolean;
   /** The colour of the phone top bar (see {@link ToastBarTone}). */
   barTone?: ToastBarTone;
 }
+
+/** Where the icon of a toast sits. */
+export type ToastIconPosition = 'start' | 'end';
 
 /**
  * The colour of a toast in the phone top bar. `accent`: the accent colour (an offer, for
@@ -35,6 +40,8 @@ export interface ToastNotice {
   message: string;
   variant?: ToastVariant;
   icon?: IconName;
+  /** Where `icon` sits. Default `start`. */
+  iconPosition?: ToastIconPosition;
   /** Show a close button. Default false. */
   closable?: boolean;
   /** Where the notice shows on a phone. Default `stack`. */
@@ -154,11 +161,12 @@ export class ToastService {
    */
   showNotice(notice: ToastNotice): number {
     const id = nextId++;
-    const { message, variant = 'info', icon, closable = false, phonePlacement } = notice;
+    const { message, variant = 'info', icon, iconPosition, closable = false } = notice;
+    const { phonePlacement } = notice;
     const barTone = notice.barTone ?? (variant === 'danger' ? 'danger' : 'accent');
     this._toasts.update((list) => [
       ...list,
-      { id, message, variant, icon, closable, phonePlacement, barTone },
+      { id, message, variant, icon, iconPosition, closable, phonePlacement, barTone },
     ]);
     return id;
   }

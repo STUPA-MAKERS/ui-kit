@@ -66,7 +66,9 @@ describe('ToastBarComponent', () => {
       const reload = within(status).getByRole('button', { name: 'Neu laden' });
       expect(reload).toHaveClass('tbar__row');
       expect(reload).toHaveAccessibleDescription('Eine neue Version der App ist bereit.');
-      expect(reload.querySelector('app-icon.tbar__go')).not.toBeNull();
+      const go = reload.querySelector('app-icon.tbar__end') as HTMLElement;
+      expect(go.style.getPropertyValue('--icon-size')).toBe('18px');
+      expect(reload.lastElementChild).toBe(go);
       await userEvent.click(screen.getByText('Eine neue Version der App ist bereit.'));
       expect(closed).toHaveBeenCalledWith('action');
     });
@@ -100,6 +102,7 @@ describe('ToastBarComponent', () => {
         message: 'Keine Verbindung',
         variant: 'danger',
         icon: 'cloud-off',
+        iconPosition: 'end',
         phonePlacement: 'top',
       });
       fixture.detectChanges();
@@ -109,7 +112,13 @@ describe('ToastBarComponent', () => {
         'Update',
       ]);
       expect(bars[0]).toHaveClass('tbar--danger');
-      expect(bars[0].querySelector('app-icon.tbar__icon')).not.toBeNull();
+      const row = bars[0].querySelector('.tbar__row') as HTMLElement;
+      expect(row.firstElementChild).toHaveClass('tbar__msg');
+      expect(row.lastElementChild).toHaveClass('tbar__end');
+      expect((row.lastElementChild as HTMLElement).style.getPropertyValue('--icon-size')).toBe(
+        '18px',
+      );
+      expect(bars[0].querySelector('app-icon.tbar__icon')).toBeNull();
       expect(within(bars[0]).queryByRole('button')).toBeNull();
       toast.dismiss(id);
       fixture.detectChanges();

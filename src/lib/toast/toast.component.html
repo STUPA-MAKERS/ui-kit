@@ -7,10 +7,13 @@
       animate.enter="toast--entering"
       animate.leave="toast--leaving"
     >
-      @if (toast.icon; as icon) {
-        <app-icon class="toast__icon" [name]="icon" [size]="20" />
+      @if (toast.icon && toast.iconPosition !== 'end') {
+        <app-icon class="toast__icon" [name]="toast.icon" [size]="18" />
       }
       <span class="toast__msg">{{ toast.message }}</span>
+      @if (toast.icon && toast.iconPosition === 'end') {
+        <app-icon class="toast__icon toast__icon--end" [name]="toast.icon" [size]="18" />
+      }
       @if (toast.action; as action) {
         @if (toast.actionIcon; as actionIcon) {
           <button
@@ -20,7 +23,7 @@
             [title]="action"
             (click)="toastService.act(toast.id)"
           >
-            <app-icon [name]="actionIcon" [size]="20" />
+            <app-icon [name]="actionIcon" [size]="18" />
           </button>
         } @else {
           <button type="button" class="toast__action" (click)="toastService.act(toast.id)">

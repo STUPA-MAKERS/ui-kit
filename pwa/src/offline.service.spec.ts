@@ -49,6 +49,7 @@ describe('OfflineService', () => {
         message: 'Keine Verbindung',
         variant: 'danger',
         icon: 'cloud-off',
+        iconPosition: 'end',
         closable: false,
         phonePlacement: 'top',
         barTone: 'danger',

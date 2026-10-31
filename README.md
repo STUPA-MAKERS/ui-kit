@@ -390,7 +390,7 @@ reloads. The reload activates the update and then reloads the page. A broken cac
 
 `OfflineService` follows the connection (`online()`, from `navigator.onLine` and the
 `online` and `offline` events). After `init()` it shows `pwa.offline` with the `cloud-off`
-icon while the browser is offline: a red bar at the top on a phone, a toast on a wider
+icon at the end of the row while the browser is offline: a red bar at the top on a phone, a toast on a wider
 screen. It has no close button and goes away when the connection comes back. Both bars
 show at once, the offline bar first.
 
@@ -400,7 +400,8 @@ app only.
 
 The toasts of the kit support these notices: `showAction` takes `actionIcon` (the action
 as an icon at the end), `closable: false` and `phonePlacement: 'top'`; `showNotice` shows
-a notice with an `icon` that stays until `dismiss(id)`. The colours of the bar are the
+a notice with an `icon` (`iconPosition: 'start' | 'end'`) that stays until `dismiss(id)`.
+The icons of the notices are 18px; the buttons keep their 32px box. The colours of the bar are the
 custom properties `--toast-bar-accent-bg` / `-fg` and `--toast-bar-danger-bg` / `-fg` of
 `app-toast-bar`.
 
