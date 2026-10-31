@@ -1,0 +1,70 @@
+<nav class="rail" [attr.aria-label]="'shell.mainNav' | uiKitT">
+  <a
+    class="rail__brand"
+    [routerLink]="brand().home"
+    [attr.aria-label]="'shell.brand' | uiKitT: { name: brand().label }"
+  >
+    @if (themedMark(); as m) {
+      <img class="rail__mark rail__mark--light" [src]="m.light" alt="" width="40" height="40" />
+      <img class="rail__mark rail__mark--dark" [src]="m.dark" alt="" width="40" height="40" />
+    } @else {
+      <img class="rail__mark" [src]="plainMark()" alt="" width="40" height="40" />
+    }
+  </a>
+
+  @if (searchable()) {
+    <button
+      type="button"
+      class="rail__item rail__search"
+      [attr.aria-keyshortcuts]="searchKeys"
+      (click)="search.emit()"
+    >
+      <span class="rail__ind"><app-icon name="search" [size]="22" /></span>
+      <span class="rail__label">{{ 'shell.search' | uiKitT }}</span>
+    </button>
+  }
+
+  <div class="rail__main" appScrollFade="y">
+    @for (item of mainItems(); track item.key) {
+      <a
+        class="rail__item"
+        [routerLink]="item.path"
+        routerLinkActive="is-active"
+        ariaCurrentWhenActive="page"
+        [routerLinkActiveOptions]="{ exact: item.exact ?? false }"
+      >
+        <span class="rail__ind">
+          <app-icon [name]="item.icon" [size]="22" />
+          @if (mark(); as m) {
+            <ng-container *ngTemplateOutlet="m; context: { $implicit: item.key, part: 'visual' }" />
+          }
+        </span>
+        <span class="rail__label">{{ item.label }}</span>
+        @if (mark(); as m) {
+          <ng-container *ngTemplateOutlet="m; context: { $implicit: item.key, part: 'text' }" />
+        }
+      </a>
+    }
+  </div>
+
+  <div class="rail__spacer"></div>
+
+  <div class="rail__tools"><ng-content select="[railTools]" /></div>
+
+  @for (item of endItems(); track item.key) {
+    <a
+      class="rail__item"
+      [routerLink]="item.path"
+      routerLinkActive="is-active"
+      ariaCurrentWhenActive="page"
+      [routerLinkActiveOptions]="{ exact: item.exact ?? false }"
+    >
+      <span class="rail__ind"><app-icon [name]="item.icon" [size]="22" /></span>
+      <span class="rail__label">{{ item.label }}</span>
+    </a>
+  }
+
+  <div class="rail__end"><ng-content select="[railEnd]" /></div>
+
+  <div class="rail__account"><ng-content select="[railAccount]" /></div>
+</nav>

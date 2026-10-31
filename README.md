@@ -30,6 +30,7 @@ Optional:
   (`@tiptap/core`, `@tiptap/pm`, `@tiptap/starter-kit`, `@tiptap/extensions`,
   `@tiptap/extension-mathematics`, `@tiptap/extension-table`, `@tiptap/extension-image`,
   `katex`, `tiptap-markdown`).
+- **`@angular/service-worker`** — only for the `pwa` secondary entry point.
 
 ## Styles
 
@@ -62,10 +63,31 @@ The styles entry also holds the global loading placeholders (`.skel`, `.skel-tex
 (`rowgroup.scss`: `.rowgroup`, `.rowgroup--bg1`, `.rowgroup--bg3`, `.hitrow`) and the
 list/detail geometry (`list-detail.scss`: `--ld-list-width`, `--ld-gap`, `.ld-pane`). An app
 that loads the partials one by one adds `@include meta.load-css('rowgroup')` and
-`@include meta.load-css('list-detail')` at the place in its cascade where they belong. These partials emit no CSS
+`@include meta.load-css('list-detail')` and `@include meta.load-css('motion')` at the place in its cascade where they belong. These partials emit no CSS
 and are for component stylesheets: `option-menu` (popover and rows of an option list),
 `scroll-fade` (`fade-y`, `fade-x` for the `is-fade-start` and `is-fade-end` classes),
-`dot-parts` (a meta line "A · B · C" without a dot at a line start) and `field`.
+`dot-parts` (a meta line "A · B · C" without a dot at a line start), `field`,
+`list-pane` (the column, the chips, the scroll area and the hover row menu of a list pane,
+and `frame($b)`, the whole frame of a list page with a detail outlet) and
+`detail-none-host` (`host`, the host of a route component that shows only
+`app-detail-none`).
+
+### Motion
+
+The styles entry loads `motion.scss`. It holds the enter and leave classes for
+`animate.enter` / `animate.leave`: `.motion-pop-in`, `.motion-pop-out`, `.motion-rise-in`,
+`.motion-fade-in`, `.motion-fade-out`, `.motion-expand-in` and `.motion-expand-out`. It also
+holds the route view transitions: while `<html data-motion="section|push|pop">` is set, the
+root snapshot fades through (`section`) or slides (`push`, `pop`), and the rail
+(`.frame__rail`) and the bottom bar (`.bb`) stay still in groups of their own. They do not
+cross-fade, because a cross-fade of their half transparent snapshots shows garbage on some
+GPUs: the new picture shows at once, on an opaque ground for the rail. The app sets
+`data-motion` from the `onViewTransitionCreated` hook of its router. Every timing comes from
+the `--motion-*` and `--ease-*` tokens, and `base.scss` stops the motion when the system asks
+for reduced motion.
+
+In code, `reducedMotion()` reads the system wish, and `withViewTransition(update)` runs a
+change of the whole page as one cross-fade (at once without the API or with reduced motion).
 
 ### Rules of the design system
 
@@ -105,6 +127,13 @@ export const appConfig: ApplicationConfig = {
 };
 ```
 
+Or pass a factory to `provideUiKit`. It runs in an injection context when the kit first
+needs a text, so the order of the providers does not matter:
+
+```ts
+provideUiKit({ intl: () => uiKitIntlFromLang(inject(MyI18nService).locale) });
+```
+
 Numbers and dates format with `formatLocale()` of the intl, an `Intl` tag. By default it
 maps `de` to `de-DE` and `en` to `en-GB` (`UI_KIT_FORMAT_LOCALES`), because bare `en`
 gives US order. A host app with its own tag passes it as the third argument:
@@ -118,15 +147,51 @@ import { provideUiKit } from '@stupa-makers/ui-kit';
 providers: [provideUiKit({ messages: { en: { loading: 'Please wait…' } } })];
 ```
 
-## Loading overlay (decoupled)
+## Loading state (decoupled)
 
-`LoadingOverlayComponent` reads the `UI_KIT_LOADING` token (defaults to never-visible). Bind
-it to the host app's loading service:
+`app-load-bar` (a thin bar at the top edge, the quiet choice) and `app-loading-overlay` read
+the `UI_KIT_LOADING` token. By default the token is the kit's `LoadingService`: it counts the
+GET requests that pass `loadingInterceptor`, shows after 300 ms and stays at least 400 ms.
+Register the interceptor as the outermost one:
+
+```ts
+import { provideHttpClient, withInterceptors } from '@angular/common/http';
+import { loadingInterceptor } from '@stupa-makers/ui-kit';
+
+providers: [provideHttpClient(withInterceptors([loadingInterceptor /* , the others */]))];
+```
+
+Only GET requests count. A background read opts out with `{ context: skipLoading() }`
+(`SKIP_LOADING`); `quietly(() => …)` starts reads that never count (a read ahead), and
+`visibly(() => …)` makes reads count although they opt out (the reload of a pull to
+refresh). Without the interceptor nothing counts and the bar never shows.
+
+A host app with a loading service of its own binds the token to it:
 
 ```ts
 import { UI_KIT_LOADING } from '@stupa-makers/ui-kit';
 
-providers: [{ provide: UI_KIT_LOADING, useFactory: () => ({ visible: inject(LoadingService).visible }) }];
+providers: [{ provide: UI_KIT_LOADING, useFactory: () => ({ visible: inject(MyLoadingService).visible }) }];
+```
+
+## Theme
+
+`ThemeService` keeps the preference (`system`, `light`, `dark`) in `localStorage`, writes the
+theme in effect to `data-theme` on `<html>`, writes the page background to every
+`<meta name="theme-color">` and links the manifest of that theme. `init()` once at app
+start; `setPreference()` and `toggle()` cross-fade the page; `setPageDefault()` sets the
+theme of `system` while one page shows. Configure it per app:
+
+```ts
+providers: [
+  provideUiKit({
+    theme: {
+      storageKey: 'ap.theme', // default 'ui-kit.theme'
+      manifest: { light: 'manifest.webmanifest', dark: 'manifest-dark.webmanifest' }, // null: keep the link
+      background: { light: '#f6f7f5', dark: '#101211' }, // default: --color-bg of the tokens
+    },
+  }),
+];
 ```
 
 ## Components
@@ -145,12 +210,27 @@ Patterns of the pages: list row (`app-list-item`, a router link or a button), li
 layout (`app-list-detail`), side sheet and phone bottom sheet (`app-side-sheet`), sheet bar,
 row menu (⋮), selection bar, confirm dialog, empty state with ghost rows, skeleton, note,
 status text (`StatusKind`), share bar (`app-seg-bar`), sticky bar, field group and field
-row, date block, person avatar and avatar stack, select field (`app-select`, the kit's own
+row, page header (`app-page-header`), floating main action (`app-fab`), empty detail pane
+(`app-detail-none`), date block, person avatar and avatar stack, select field (`app-select`, the kit's own
 option list with a popover or a bottom sheet, never the native list), filter chip
 (`app-filter-select`), range chip (`app-range-chip`, `currency` input), search pill with
 `liveSearch()`, file drop zone, drop overlay and `appFileDrop`. Directives `appScrollFade`,
 `appTruncated`, `appLongPress`, `appPressSelect`; helpers `downloadBlob`, `formatBytes`,
 `keyParts` and the `capitalize` pipe.
+
+The page header has the inputs `title`, `subtitle`, `meta`, `flush`, `rail`, `pane`,
+`display`, `titleId` and `titleTag`, and three slots: `[crumbs]` above the title (the
+crumb trail of the app, for example its own `app-breadcrumbs`), `[heading]` beside the title
+and `[actions]` at the end. A `pane` header and a header below the bar of a one-view page
+do not show the crumbs. `app-fab` emits `activate`; `iconOnly` shows only the icon (the
+label becomes the accessible name and the tooltip) and `tone="neutral"` gives the quiet
+look. `app-fab-group` puts several fabs side by side at the bottom end, above the phone bar
+(for example Save and Reset); a fab in a group gives its place to the group. To open a
+route from a fab, use the `link` input of the `shell` entry (below) or navigate in the
+handler.
+
+`PageFrame` holds the page frame state that pages and the shell share: while `fill()` is
+true, the page fills the height of the frame and only its panes scroll.
 
 The avatar draws initials. A host app with person images provides `UI_KIT_AVATAR_SOURCE`
 (`url(principal, px)`, `markFailed(principal)`), for example a Gravatar proxy.
@@ -203,11 +283,133 @@ function from the question to `VoteCalloutInfo` (`caption`, `result` with `label
 `tone`, `labels` of the counts). The cards render again when the function changes. Without
 it the caption is the kind of the callout and the card names no result.
 
+## App shell
+
+The frame of an app lives in the **`shell`** secondary entry point, because it needs the
+router:
+
+```ts
+import { ShellComponent, provideRouteMotion } from '@stupa-makers/ui-kit/shell';
+
+provideRouter(routes, provideRouteMotion());
+```
+
+```html
+<app-shell
+  [frame]="frame()"
+  [nav]="nav"
+  [barKeys]="['start', 'applications', 'meetings', 'tasks']"
+  [brand]="{ home: '/dashboard', label: 'STUPA', mark: { light: 'mark.svg', dark: 'mark-dark.svg' } }"
+  [keyboardOpen]="keyboardOpen()"
+  (search)="palette.open()"
+>
+  <ng-template appNavMark let-key let-part="part">…</ng-template>
+  <app-help-menu shellRailTools />
+  <app-account-menu shellAccount variant="auto" [name]="me().name" (logout)="logout()" />
+  <app-help-items shellMore />
+  <app-public-header shellPublicHeader />
+  <app-footer shellFooter />
+  <app-install-prompt shellPrompts />
+  <app-command-palette shellOverlays … />
+</app-shell>
+```
+
+- `frame` is `'rail'` (signed in: the rail on a wide screen, the bottom bar on a phone),
+  `'public'` (header and footer), `'bare'` (only the page) or `'pending'` (the session is
+  not known yet, so only the page shows). An entry of `nav` is a `ShellNavItem`
+  (`key`, `path`, `label`, `icon`, `place: 'main' | 'end'`, `exact?`); `barKeys` are the
+  entries of the phone bar, and the rest go into the "More" sheet.
+- An `appNavMark` template draws a mark on an entry. Its context is the key and the part
+  (`visual` on the icon, `text` for screen readers, `count` beside the label).
+- The route data `wide`, `fab`, `footer`, `fill` and `chrome: false` set the page width, the
+  room for a fab, the footer, the fill and a page without chrome. A fill page (route data
+  `fill` or `PageFrame.fill`) is one screen high, so only its panes scroll; on a phone it
+  ends above the bottom bar. It shows no footer, and an empty `[shellFooter]` leaves no box.
+- The shell shows the skip link, the load bar and the toasts. The toasts sit at the bottom
+  end; on a phone they sit above the bottom bar (`--app-bottom-inset`, which an app sets
+  to 0 when it hides the bar for the keyboard). `[shellPrompts]` takes prompts of the app
+  in every frame (an install or unlock prompt). On a phone the frame starts with
+  `app-toast-bar`: a toast with `phonePlacement: 'top'` (the update and offline notices of
+  the `pwa` entry) shows there as a full-width bar, and the page moves down by its height.
+  `[shellOverlays]` shows only in the `rail` frame (rail and bottom bar).
+- Slots: `[shellRailTools]` (above the account in the rail), `[shellAccount]` (the rail
+  and the "More" sheet), `[shellMore]` (the "More" sheet), `[shellPublicHeader]`,
+  `[shellFooter]`, `[shellPrompts]`, `[shellOverlays]`, `[shellRailEnd]` and
+  `[shellBarEnd]` (an own entry at the end of the rail and the bar, in the look of
+  `app-rail-button` and `app-bar-button`) and `[shellMain]` (shown before the outlet).
+  An app entry of its own can use the mixins `rail-item` and `bar-item` of
+  `@use '@stupa-makers/ui-kit/styles/nav-items'`.
+- For a small app: `searchable = false` removes the search entries, `more = false` removes
+  "More" (put every entry into `barKeys`), and `outlet = false` removes the router outlet,
+  so the app can show its own content in `[shellMain]` (for example a sign-in gate).
+  `morePaths` are the paths that mark "More" as active.
+
+The parts also work alone: `app-nav-rail`, `app-bottom-bar` (model `moreOpen`, slots
+`[more]` and `[moreAccount]`; a click on a link or a button in `[more]` closes the sheet,
+and the content can close it with `ShellMoreSheet.close()`) and `app-account-menu` (inputs `variant`, `name`, `avatarId`,
+`languages`, `language`, `dark`; outputs `languageChange`, `darkChange`, `logout`,
+`navigated`; slot `[accountItems]` for links such as `a.am__item`).
+
+`app-command-palette` with the `CommandPalette` service is the search dialog: inputs
+`groups` (`PaletteGroup` of `PaletteRow`: `id`, `icon`, `title`, `subtitle?`, `link?`,
+`status?`, `archived?`), model `query`, `loading`, `truncated`; output `pick(row)`. A row
+with a `link` opens it. `searchShortcutKeys()` of the main entry names the shortcut.
+
+List pages: `injectListDetailPage(layout, { param })` gives `selectedId` and `split` and
+sets `PageFrame.fill` while the panes sit side by side. `app-list-none` is the empty
+child route (`data: { none: ListNoneData }`) and reads `LIST_PAGE_STATE`;
+`LIST_NONE_TEXT` translates the texts of the route data. `app-fab[link]` opens a route and then does not emit `activate`.
+
+Route motion: `provideRouteMotion()` (view transitions with `onRouteViewTransition`),
+`routeMotion`, `routePath`, `RouteMotion` and `watchUAVisualTransitions(window)`, which an
+app calls once at start so a back that the browser animated is not animated twice.
+
+The texts of the shell are `shell.*`, `account.*` and `palette.*` of `UI_KIT_INTL`.
+
+## PWA helpers
+
+The helpers of an installed web app live in the **`pwa`** secondary entry point, so
+`@angular/service-worker` stays an optional peer:
+
+```ts
+import {
+  IS_INSTALLED_APP,
+  OfflineService,
+  SwUpdateService,
+  lockInstalledAppZoom,
+} from '@stupa-makers/ui-kit/pwa';
+```
+
+`SwUpdateService.init()` checks for a new version 1 second after the start, every 5
+minutes and on focus. A second `init()` does nothing, and the checks stop when the root
+injector goes. When a new version is ready, it shows the notice `pwa.updateReady` with a
+reload icon (named `pwa.reload`) and no close button. On a phone it is a green bar at the
+top of the frame and the whole bar reloads; on a wider screen it is a toast and the icon
+reloads. The reload activates the update and then reloads the page. A broken cache
+(`unrecoverable`) reloads at once.
+
+`OfflineService` follows the connection (`online()`, from `navigator.onLine` and the
+`online` and `offline` events). After `init()` it shows `pwa.offline` with the `cloud-off`
+icon at the end of the row while the browser is offline: a red bar at the top on a phone, a toast on a wider
+screen. It has no close button and goes away when the connection comes back. Both bars
+show at once, the offline bar first.
+
+`IS_INSTALLED_APP` (and `isInstalledApp(window)`) tells the installed app from a browser
+tab, and `lockInstalledAppZoom(document, installed)` stops the page zoom in the installed
+app only.
+
+The toasts of the kit support these notices: `showAction` takes `actionIcon` (the action
+as an icon at the end), `closable: false` and `phonePlacement: 'top'`; `showNotice` shows
+a notice with an `icon` (`iconPosition: 'start' | 'end'`) that stays until `dismiss(id)`.
+The icons of the notices are 18px; the buttons keep their 32px box. The colours of the bar are the
+custom properties `--toast-bar-accent-bg` / `-fg` and `--toast-bar-danger-bg` / `-fg` of
+`app-toast-bar`.
+
 ## Develop
 
 ```bash
 npm ci
-npm run build   # ng-packagr → dist/ (Angular Package Format, incl. markdown-editor secondary entry)
+npm run build   # ng-packagr → dist/ (Angular Package Format, incl. the markdown-editor and pwa secondary entries)
 npm test        # jest + @testing-library/angular + axe
 npm run lint
 ```

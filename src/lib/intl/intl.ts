@@ -6,6 +6,7 @@ import {
   makeEnvironmentProviders,
   signal,
 } from '@angular/core';
+import { UI_KIT_THEME, type UiKitThemeOptions, uiKitThemeConfig } from '../theme/theme.config';
 
 /** Languages the built-in catalogue ships. Consumers may map their own onto these. */
 export type UiLang = 'de' | 'en';
@@ -75,7 +76,29 @@ export type UiKitTextKey =
   | 'editorTable.deleteRow'
   | 'editorTable.addRow'
   | 'editorTable.addColumn'
-  | 'editorTable.delete';
+  | 'editorTable.delete'
+  | 'pwa.updateReady'
+  | 'pwa.reload'
+  | 'pwa.offline'
+  | 'shell.skip'
+  | 'shell.mainNav'
+  | 'shell.more'
+  | 'shell.search'
+  | 'shell.brand'
+  | 'account.signedInAs'
+  | 'account.language'
+  | 'account.darkMode'
+  | 'account.logout'
+  | 'account.open'
+  | 'account.region'
+  | 'palette.title'
+  | 'palette.placeholder'
+  | 'palette.close'
+  | 'palette.empty'
+  | 'palette.truncated'
+  | 'palette.keysSelect'
+  | 'palette.keysOpen'
+  | 'palette.archived';
 
 export type UiKitMessages = Record<UiKitTextKey, string>;
 
@@ -139,6 +162,28 @@ export const UI_KIT_DEFAULT_MESSAGES: Record<UiLang, UiKitMessages> = {
     'editorTable.addRow': 'Zeile hinzufügen',
     'editorTable.addColumn': 'Spalte hinzufügen',
     'editorTable.delete': 'Tabelle löschen',
+    'pwa.updateReady': 'Eine neue Version der App ist bereit.',
+    'pwa.reload': 'Neu laden',
+    'pwa.offline': 'Keine Verbindung',
+    'shell.skip': 'Zum Inhalt springen',
+    'shell.mainNav': 'Hauptnavigation',
+    'shell.more': 'Mehr',
+    'shell.search': 'Suche',
+    'shell.brand': '{name}, Start',
+    'account.signedInAs': 'Angemeldet als',
+    'account.language': 'Sprache',
+    'account.darkMode': 'Dunkles Design',
+    'account.logout': 'Abmelden',
+    'account.open': 'Konto: {name}',
+    'account.region': 'Konto',
+    'palette.title': 'Suche',
+    'palette.placeholder': 'Suchen …',
+    'palette.close': 'Suche schließen',
+    'palette.empty': 'Nichts gefunden.',
+    'palette.truncated': 'Es gibt weitere Treffer. Suchbegriff eingrenzen.',
+    'palette.keysSelect': 'Auswählen',
+    'palette.keysOpen': 'Öffnen',
+    'palette.archived': 'Archiviert',
   },
   en: {
     'dialog.close': 'Close',
@@ -198,6 +243,28 @@ export const UI_KIT_DEFAULT_MESSAGES: Record<UiLang, UiKitMessages> = {
     'editorTable.addRow': 'Add row',
     'editorTable.addColumn': 'Add column',
     'editorTable.delete': 'Delete table',
+    'pwa.updateReady': 'A new version of the app is ready.',
+    'pwa.reload': 'Reload',
+    'pwa.offline': 'You are offline',
+    'shell.skip': 'Skip to content',
+    'shell.mainNav': 'Main navigation',
+    'shell.more': 'More',
+    'shell.search': 'Search',
+    'shell.brand': '{name}, home',
+    'account.signedInAs': 'Signed in as',
+    'account.language': 'Language',
+    'account.darkMode': 'Dark theme',
+    'account.logout': 'Sign out',
+    'account.open': 'Account: {name}',
+    'account.region': 'Account',
+    'palette.title': 'Search',
+    'palette.placeholder': 'Search …',
+    'palette.close': 'Close search',
+    'palette.empty': 'Nothing found.',
+    'palette.truncated': 'There are more results. Narrow the query.',
+    'palette.keysSelect': 'Select',
+    'palette.keysOpen': 'Open',
+    'palette.archived': 'Archived',
   },
 };
 
@@ -295,17 +362,37 @@ export function uiKitIntlFromLang(
   return new DefaultUiKitIntl({ lang, messages, formatLocale });
 }
 
+/** Options of {@link provideUiKit}. */
+export interface UiKitOptions extends UiKitIntlOptions {
+  /**
+   * A ready {@link UiKitIntl}, or a factory for one. It wins over `lang`, `formatLocale` and
+   * `messages`. The factory runs in an injection context when the kit first needs its
+   * texts, so it can `inject()` the i18n service of the app, and the order of the providers
+   * does not matter.
+   */
+  intl?: UiKitIntl | (() => UiKitIntl);
+  /**
+   * The settings of the `ThemeService`: the storage key of the preference, the manifest
+   * URL per theme and the page background per theme. Omit a field to keep its default.
+   */
+  theme?: UiKitThemeOptions;
+}
+
 /**
- * Register the kit's i18n. Pass a ready {@link UiKitIntl} via `intl`, or `lang`/`messages`
- * to configure the default implementation. With no argument the built-in catalogue is used.
+ * Register the kit's i18n and theme settings. Pass a ready {@link UiKitIntl} via `intl`, or
+ * `lang`/`messages` to configure the default implementation. With no argument the
+ * built-in catalogue and the default theme settings are used.
  */
-export function provideUiKit(
-  options: UiKitIntlOptions & { intl?: UiKitIntl } = {},
-): EnvironmentProviders {
+export function provideUiKit(options: UiKitOptions = {}): EnvironmentProviders {
   return makeEnvironmentProviders([
     {
       provide: UI_KIT_INTL,
-      useFactory: () => options.intl ?? new DefaultUiKitIntl(options),
+      useFactory: (): UiKitIntl => {
+        const intl = options.intl;
+        if (typeof intl === 'function') return intl();
+        return intl ?? new DefaultUiKitIntl(options);
+      },
     },
+    { provide: UI_KIT_THEME, useValue: uiKitThemeConfig(options.theme) },
   ]);
 }

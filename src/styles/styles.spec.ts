@@ -230,3 +230,41 @@ describe('design-system rules in the stylesheets', () => {
     expect(block(scss, '\n.dialog {')).toMatch(/@include surface\.context\(1\);/);
   });
 });
+
+describe('motion and list pane partials', () => {
+  it('loads the motion classes and the route transitions with the styles entry', () => {
+    expect(read('index.scss')).toMatch(/@use 'motion';/);
+    const motion = read('motion.scss');
+    for (const name of ['pop-in', 'pop-out', 'rise-in', 'fade-in', 'fade-out', 'expand-in', 'expand-out']) {
+      expect(motion).toContain(`.motion-${name} {`);
+    }
+    for (const kind of ['section', 'push', 'pop']) {
+      expect(motion).toContain(`:root[data-motion='${kind}']::view-transition-new(root)`);
+    }
+    expect(motion).toContain(':root[data-motion] .frame__rail {');
+    expect(motion).toContain(':root[data-motion] .bb {');
+  });
+
+  it('shows the new rail and bottom bar at once, without a cross-fade', () => {
+    const motion = read('motion.scss');
+    expect(motion).toMatch(/::view-transition-old\(rail\),\n::view-transition-old\(bottom-bar\) \{\n {2}display: none;/);
+    expect(motion).toMatch(/::view-transition-new\(rail\),[^{]*\{\n {2}animation: none;/);
+    expect(motion).toMatch(/:root\[data-motion\] \.frame__rail \{\n {2}background: var\(--color-bg\);/);
+  });
+
+  it('times every motion with the tokens, never a literal duration', () => {
+    const motion = read('motion.scss');
+    for (const m of motion.matchAll(/animation(?:-duration)?\s*:([^;]*);/g)) {
+      expect(m[1]).not.toMatch(/\d+m?s\b/);
+    }
+  });
+
+  it('builds the frame of a list page from the list pane mixins', () => {
+    const pane = read('_list-pane.scss');
+    const frame = block(pane, '@mixin frame($b) {');
+    expect(frame).toContain('@include stack;');
+    expect(frame).toContain('@include split-scroll(--#{$b}-fade);');
+    expect(frame).toContain('@include fade.fade-y(var(--#{$b}-fade));');
+    expect(pane).toContain("@use 'scroll-fade' as fade;");
+  });
+});

@@ -6,5 +6,12 @@ export {
   provideUiKit,
   uiKitIntlFromLang,
 } from './intl';
-export type { UiKitIntl, UiKitIntlOptions, UiKitMessages, UiKitTextKey, UiLang } from './intl';
+export type {
+  UiKitIntl,
+  UiKitIntlOptions,
+  UiKitMessages,
+  UiKitOptions,
+  UiKitTextKey,
+  UiLang,
+} from './intl';
 export { UiKitTranslatePipe } from './translate.pipe';

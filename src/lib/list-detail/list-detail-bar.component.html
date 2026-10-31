@@ -10,8 +10,10 @@
 </button>
 <span class="ld__barText">
   <span class="ld__barTitle" aria-hidden="true">{{ title() ?? nav.title() }}</span>
-  @if (nav.owner()?.subtitle; as subtitle) {
-    <span class="ld__barSub"><ng-container *ngTemplateOutlet="subtitle" /></span>
+  @if (nav.owner(); as owner) {
+    @if (owner.subtitle; as subtitle) {
+      <span class="ld__barSub"><ng-container *ngTemplateOutlet="subtitle" /></span>
+    }
   }
 </span>
 @if (nav.owner(); as owner) {

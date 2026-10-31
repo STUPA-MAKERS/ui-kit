@@ -5,11 +5,16 @@
     "module": "CommonJS",
     "moduleResolution": "node",
     "esModuleInterop": true,
-    "types": ["jest", "node"]
+    "types": ["jest", "node"],
+    "paths": {
+      "@stupa-makers/ui-kit": ["./src/public-api.ts"]
+    }
   },
   "include": [
     "src/**/*.spec.ts",
     "markdown-editor/**/*.spec.ts",
+    "pwa/**/*.spec.ts",
+    "shell/**/*.spec.ts",
     "testing/**/*.ts",
     "setup-jest.ts"
   ]
