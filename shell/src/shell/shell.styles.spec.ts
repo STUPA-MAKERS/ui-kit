@@ -17,7 +17,8 @@ function rule(css: string, selector: string): string {
 
 describe('shell styles', () => {
   it('makes a fill page one screen high, so only its panes scroll', () => {
-    expect(rule(shell, '.frame--fill .frame__body')).toMatch(/height: 100dvh;/);
+    expect(rule(shell, '.frame--fill')).toMatch(/height: 100dvh;/);
+    expect(rule(shell, '.frame--fill .frame__body')).toMatch(/flex: 1 1 0;[^}]*min-height: 0;/);
     expect(rule(shell, '.main--fill')).toMatch(/flex: 1 1 0;[^}]*min-height: 0;/);
     expect(rule(shell, '.frame--rail .main.main--fill')).toMatch(
       /--main-pad-bottom: var\(--pane-foot-gap\);/,
@@ -32,6 +33,11 @@ describe('shell styles', () => {
     expect(rule(shell, '.frame--phone app-toast ::ng-deep .toasts')).toMatch(
       /inset-block-end: calc\(var\(--app-bottom-inset\) \+ var\(--space-3\)\);/,
     );
+  });
+
+  it('puts the phone top bar in the column and gives the top safe area to the bar', () => {
+    expect(rule(shell, '.frame__topbar')).toMatch(/flex: none;/);
+    expect(rule(shell, '.frame--topbar')).toMatch(/--app-top-safe-area: 0px;/);
   });
 
   it('gives an empty footer no box and no safe-area padding', () => {

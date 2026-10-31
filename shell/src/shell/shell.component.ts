@@ -15,7 +15,9 @@ import {
   LoadBarComponent,
   MEDIA,
   PageFrame,
+  ToastBarComponent,
   ToastComponent,
+  ToastService,
   UiKitTranslatePipe,
   mediaQuery,
 } from '@stupa-makers/ui-kit';
@@ -63,6 +65,10 @@ import type { ShellBrand, ShellFrame, ShellNavItem } from '../shell.types';
  *   the app or to unlock a key. The update of the app needs no slot: `SwUpdateService` of
  *   `@stupa-makers/ui-kit/pwa` shows it as a toast.
  *
+ * On a phone the frame starts with `app-toast-bar`: a toast with `phonePlacement: 'top'`
+ * (the update or offline notice of the `pwa` entry) shows there as a full-width bar, and
+ * the page moves down by its height. A fill page stays one screen high with the bar.
+ *
  * The toasts sit at the bottom end. On a phone they sit above the bottom bar
  * (`--app-bottom-inset`), and an app that hides the bar for the keyboard sets the inset to 0.
  * A `fill` page is one screen high, so only its panes scroll; it shows no footer. An empty
@@ -78,6 +84,7 @@ import type { ShellBrand, ShellFrame, ShellNavItem } from '../shell.types';
     RouterOutlet,
     NgTemplateOutlet,
     UiKitTranslatePipe,
+    ToastBarComponent,
     ToastComponent,
     LoadBarComponent,
     NavRailComponent,
@@ -116,6 +123,13 @@ export class ShellComponent {
 
   /** The viewport is a phone (<= 768px): bottom bar instead of the rail. */
   readonly phone = mediaQuery(MEDIA.phone);
+
+  private readonly toasts = inject(ToastService);
+  /**
+   * The phone top bar shows a toast (`phonePlacement: 'top'`). The bar covers the top safe
+   * area itself, so the frame gives it no second time.
+   */
+  readonly topBar = computed(() => this.phone() && this.toasts.topBarToasts().length > 0);
 
   /** Full-width content from route data `wide`. */
   readonly wide = signal(false);

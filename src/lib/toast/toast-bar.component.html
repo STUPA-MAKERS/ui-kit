@@ -1,0 +1,61 @@
+<div class="tbars" aria-live="polite" aria-atomic="false">
+  @for (toast of toastService.topBarToasts(); track toast.id) {
+    <div
+      class="tbar"
+      [class.tbar--danger]="toast.barTone === 'danger'"
+      role="status"
+      animate.enter="motion-expand-in"
+      animate.leave="motion-expand-out"
+    >
+      @if (toast.actionIcon && toast.action) {
+        <button
+          type="button"
+          class="tbar__row tbar__row--button"
+          [attr.aria-label]="toast.action"
+          [attr.aria-describedby]="'tbar-msg-' + toast.id"
+          (click)="toastService.act(toast.id)"
+        >
+          @if (toast.icon; as icon) {
+            <app-icon class="tbar__icon" [name]="icon" [size]="20" />
+          }
+          <span class="tbar__msg" [id]="'tbar-msg-' + toast.id">{{ toast.message }}</span>
+          <app-icon class="tbar__go" [name]="toast.actionIcon" [size]="20" />
+        </button>
+      } @else {
+        <div class="tbar__row">
+          @if (toast.icon; as icon) {
+            <app-icon class="tbar__icon" [name]="icon" [size]="20" />
+          }
+          <span class="tbar__msg">{{ toast.message }}</span>
+          @if (toast.action; as action) {
+            <button type="button" class="tbar__action" (click)="toastService.act(toast.id)">
+              {{ action }}
+            </button>
+          }
+          @if (toast.closable !== false) {
+            <button
+              type="button"
+              class="tbar__close"
+              [attr.aria-label]="'dialog.close' | uiKitT"
+              (click)="toastService.dismiss(toast.id)"
+            >
+              <svg
+                width="16"
+                height="16"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="1.7"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                aria-hidden="true"
+              >
+                <path d="M18 6 6 18M6 6l12 12" />
+              </svg>
+            </button>
+          }
+        </div>
+      }
+    </div>
+  }
+</div>

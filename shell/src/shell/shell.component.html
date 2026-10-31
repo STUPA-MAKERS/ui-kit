@@ -11,7 +11,11 @@
   [class.frame--public]="current() === 'public'"
   [class.frame--bare]="current() === 'bare'"
   [class.frame--fill]="fill()"
+  [class.frame--topbar]="topBar()"
 >
+  @if (phone()) {
+    <app-toast-bar class="frame__topbar" />
+  }
   @if (current() === 'rail' && !phone()) {
     <app-nav-rail
       class="frame__rail"

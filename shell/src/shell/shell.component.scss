@@ -109,11 +109,23 @@
   --main-pad-top: var(--space-6);
 }
 
-// A fill page is one screen high, so only its panes scroll. The body is the viewport high and
-// `.main` takes what the public header leaves. On a phone the body pads by the bottom bar (and
-// the fab), so `.main` ends above it.
-.frame--fill .frame__body {
+// A fill page is one screen high, so only its panes scroll. The frame is the viewport high,
+// the body takes what the phone top bar leaves, and `.main` takes what the public header
+// leaves. On a phone the body pads by the bottom bar (and the fab), so `.main` ends above it.
+.frame--fill {
   height: 100dvh;
+}
+.frame--fill .frame__body {
+  flex: 1 1 0;
+  min-height: 0;
+}
+
+// The phone top bar is the first item of the column and pads by the top safe area itself.
+.frame__topbar {
+  flex: none;
+}
+.frame--topbar {
+  --app-top-safe-area: 0px;
 }
 .main--fill {
   flex: 1 1 0;

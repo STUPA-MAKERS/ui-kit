@@ -82,7 +82,7 @@ describe('SwUpdateService', () => {
     expect(reload).not.toHaveBeenCalled();
   });
 
-  it('shows a toast that stays, with the reload as its action', () => {
+  it('shows a notice that stays, with the reload icon as its action and no close button', () => {
     configure(true);
     svc.init();
     sw.versionUpdates.next(ready);
@@ -90,7 +90,10 @@ describe('SwUpdateService', () => {
       expect.objectContaining({
         message: 'Eine neue Version der App ist bereit.',
         action: 'Neu laden',
+        actionIcon: 'reload',
+        closable: false,
         variant: 'info',
+        phonePlacement: 'top',
       }),
     ]);
     jest.advanceTimersByTime(60 * 60 * 1000);
@@ -107,7 +110,7 @@ describe('SwUpdateService', () => {
     expect(reload).toHaveBeenCalledTimes(1);
   });
 
-  it('does not reload when the toast is closed', async () => {
+  it('does not reload when the notice goes without its action', async () => {
     configure(true);
     svc.init();
     sw.versionUpdates.next(ready);

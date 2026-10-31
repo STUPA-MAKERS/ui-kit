@@ -328,8 +328,10 @@ provideRouter(routes, provideRouteMotion());
 - The shell shows the skip link, the load bar and the toasts. The toasts sit at the bottom
   end; on a phone they sit above the bottom bar (`--app-bottom-inset`, which an app sets
   to 0 when it hides the bar for the keyboard). `[shellPrompts]` takes prompts of the app
-  in every frame (an install or unlock prompt); the update notice is a toast of the `pwa`
-  entry. `[shellOverlays]` shows only in the `rail` frame (rail and bottom bar).
+  in every frame (an install or unlock prompt). On a phone the frame starts with
+  `app-toast-bar`: a toast with `phonePlacement: 'top'` (the update and offline notices of
+  the `pwa` entry) shows there as a full-width bar, and the page moves down by its height.
+  `[shellOverlays]` shows only in the `rail` frame (rail and bottom bar).
 - Slots: `[shellRailTools]` (above the account in the rail), `[shellAccount]` (the rail
   and the "More" sheet), `[shellMore]` (the "More" sheet), `[shellPublicHeader]`,
   `[shellFooter]`, `[shellPrompts]`, `[shellOverlays]`, `[shellRailEnd]` and
@@ -370,17 +372,37 @@ The helpers of an installed web app live in the **`pwa`** secondary entry point,
 `@angular/service-worker` stays an optional peer:
 
 ```ts
-import { IS_INSTALLED_APP, SwUpdateService, lockInstalledAppZoom } from '@stupa-makers/ui-kit/pwa';
+import {
+  IS_INSTALLED_APP,
+  OfflineService,
+  SwUpdateService,
+  lockInstalledAppZoom,
+} from '@stupa-makers/ui-kit/pwa';
 ```
 
 `SwUpdateService.init()` checks for a new version 1 second after the start, every 5
 minutes and on focus. A second `init()` does nothing, and the checks stop when the root
-injector goes. When a new version is ready, it shows a toast of the kit `ToastService`
-(texts `pwa.updateReady` and `pwa.reload` of `UI_KIT_INTL`) that stays until the person
-closes it. Only its action reloads: it activates the update and then reloads the page.
-A broken cache (`unrecoverable`) reloads at once. `IS_INSTALLED_APP` (and `isInstalledApp(window)`) tells the installed app
-from a browser tab, and `lockInstalledAppZoom(document, installed)` stops the page zoom in
-the installed app only.
+injector goes. When a new version is ready, it shows the notice `pwa.updateReady` with a
+reload icon (named `pwa.reload`) and no close button. On a phone it is a green bar at the
+top of the frame and the whole bar reloads; on a wider screen it is a toast and the icon
+reloads. The reload activates the update and then reloads the page. A broken cache
+(`unrecoverable`) reloads at once.
+
+`OfflineService` follows the connection (`online()`, from `navigator.onLine` and the
+`online` and `offline` events). After `init()` it shows `pwa.offline` with the `cloud-off`
+icon while the browser is offline: a red bar at the top on a phone, a toast on a wider
+screen. It has no close button and goes away when the connection comes back. Both bars
+show at once, the offline bar first.
+
+`IS_INSTALLED_APP` (and `isInstalledApp(window)`) tells the installed app from a browser
+tab, and `lockInstalledAppZoom(document, installed)` stops the page zoom in the installed
+app only.
+
+The toasts of the kit support these notices: `showAction` takes `actionIcon` (the action
+as an icon at the end), `closable: false` and `phonePlacement: 'top'`; `showNotice` shows
+a notice with an `icon` that stays until `dismiss(id)`. The colours of the bar are the
+custom properties `--toast-bar-accent-bg` / `-fg` and `--toast-bar-danger-bg` / `-fg` of
+`app-toast-bar`.
 
 ## Develop
 

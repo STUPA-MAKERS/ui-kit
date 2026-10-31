@@ -1,0 +1,109 @@
+@use '../../styles/press';
+
+/* In the flow of the page, above the sticky strip of the top safe area, so the page moves
+   down by the height of the bar instead of lying under it. */
+:host {
+  display: block;
+  position: relative;
+  z-index: calc(var(--z-sticky) + 2);
+}
+
+/* The full width of the window: no gutter, no corners, no shadow, no edge colour. One pair
+   of custom properties per tone, so an app can change a colour in one place. */
+:host {
+  --toast-bar-accent-bg: var(--color-accent);
+  --toast-bar-accent-fg: var(--color-on-accent);
+  --toast-bar-danger-bg: var(--color-danger);
+  --toast-bar-danger-fg: var(--color-on-danger);
+}
+.tbar {
+  --tbar-fg: var(--toast-bar-accent-fg);
+  background: var(--toast-bar-accent-bg);
+  color: var(--tbar-fg);
+}
+.tbar--danger {
+  --tbar-fg: var(--toast-bar-danger-fg);
+  background: var(--toast-bar-danger-bg);
+}
+.tbar__icon {
+  flex: none;
+}
+/* The padding sits on an inner row, so the height of `.tbar` can open from 0. */
+.tbar__row {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  min-height: 48px;
+  padding: calc(env(safe-area-inset-top, 0px) + var(--space-2)) var(--space-2) var(--space-2)
+    var(--space-4);
+}
+/* The whole bar is the action: one button over the full row, the action icon at its end. */
+.tbar__row--button {
+  width: 100%;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  text-align: start;
+  cursor: pointer;
+  transition: scale var(--motion-xs) var(--ease-standard);
+  // The press of a row: the whole bar is one control that spans the window.
+  @include press.press($scale: row);
+}
+.tbar__row--button:focus-visible {
+  outline: 2px solid var(--tbar-fg);
+  outline-offset: -4px;
+}
+@media (hover: hover) {
+  .tbar__row--button:hover {
+    background: color-mix(in srgb, var(--tbar-fg) 10%, transparent);
+  }
+}
+.tbar__go {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+}
+.tbar__msg {
+  flex: 1;
+  font-size: var(--fs-body);
+  line-height: var(--lh-body);
+}
+.tbar__action,
+.tbar__close {
+  flex: none;
+  border: 0;
+  border-radius: var(--radius-pill);
+  background: transparent;
+  color: var(--tbar-fg);
+  cursor: pointer;
+  transition: scale var(--motion-xs) var(--ease-standard);
+  @include press.press;
+}
+.tbar__action {
+  min-height: 32px;
+  padding: 0 var(--space-3);
+  font: inherit;
+  font-weight: var(--fw-semibold);
+}
+.tbar__close {
+  display: grid;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  padding: 0;
+}
+.tbar__action:focus-visible,
+.tbar__close:focus-visible {
+  outline: 2px solid var(--tbar-fg);
+  outline-offset: 2px;
+}
+@media (hover: hover) {
+  .tbar__action:hover,
+  .tbar__close:hover {
+    background: color-mix(in srgb, var(--tbar-fg) 14%, transparent);
+  }
+}

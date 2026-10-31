@@ -36,12 +36,17 @@
 .toast--info {
   border-color: var(--color-border-strong);
 }
+.toast__icon {
+  flex: none;
+  color: var(--color-text-muted);
+}
 .toast__msg {
   flex: 1;
   font-size: var(--fs-body);
   line-height: var(--lh-body);
 }
-.toast__close {
+.toast__close,
+.toast__iconAction {
   flex: none;
   display: grid;
   place-items: center;
@@ -72,6 +77,7 @@
   @include press.press;
 }
 .toast__action:focus-visible,
+.toast__iconAction:focus-visible,
 .toast__close:focus-visible {
   outline: 2px solid var(--color-focus-ring);
   outline-offset: 2px;
@@ -80,6 +86,7 @@
   .toast__action:hover {
     background: var(--color-surface-4);
   }
+  .toast__iconAction:hover,
   .toast__close:hover {
     background: var(--color-surface-4);
     color: var(--color-text);

@@ -1,5 +1,5 @@
 <div class="toasts" aria-live="polite" aria-atomic="false">
-  @for (toast of toastService.toasts(); track toast.id) {
+  @for (toast of toastService.stackToasts(); track toast.id) {
     <div
       class="toast"
       [class]="'toast--' + toast.variant"
@@ -7,18 +7,49 @@
       animate.enter="toast--entering"
       animate.leave="toast--leaving"
     >
+      @if (toast.icon; as icon) {
+        <app-icon class="toast__icon" [name]="icon" [size]="20" />
+      }
       <span class="toast__msg">{{ toast.message }}</span>
       @if (toast.action; as action) {
-        <button type="button" class="toast__action" (click)="toastService.act(toast.id)">{{ action }}</button>
+        @if (toast.actionIcon; as actionIcon) {
+          <button
+            type="button"
+            class="toast__iconAction"
+            [attr.aria-label]="action"
+            [title]="action"
+            (click)="toastService.act(toast.id)"
+          >
+            <app-icon [name]="actionIcon" [size]="20" />
+          </button>
+        } @else {
+          <button type="button" class="toast__action" (click)="toastService.act(toast.id)">
+            {{ action }}
+          </button>
+        }
       }
-      <button
-        type="button"
-        class="toast__close"
-        [attr.aria-label]="'dialog.close' | uiKitT"
-        (click)="toastService.dismiss(toast.id)"
-      >
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 6 6 18M6 6l12 12" /></svg>
-      </button>
+      @if (toast.closable !== false) {
+        <button
+          type="button"
+          class="toast__close"
+          [attr.aria-label]="'dialog.close' | uiKitT"
+          (click)="toastService.dismiss(toast.id)"
+        >
+          <svg
+            width="16"
+            height="16"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="1.7"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            aria-hidden="true"
+          >
+            <path d="M18 6 6 18M6 6l12 12" />
+          </svg>
+        </button>
+      }
     </div>
   }
 </div>

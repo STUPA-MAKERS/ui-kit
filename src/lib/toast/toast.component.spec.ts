@@ -49,4 +49,27 @@ describe('ToastComponent + ToastService', () => {
     expect(closed).toHaveBeenCalledWith('action');
     expect(screen.queryByRole('status')).toBeNull();
   });
+
+  it('shows an icon action with its label as name and title, and an icon before the message', async () => {
+    const { fixture, container } = await render(ToastComponent);
+    const svc = fixture.debugElement.injector.get(ToastService);
+    const closed = jest.fn();
+    svc.showAction({
+      message: 'Neue Version',
+      action: 'Neu laden',
+      actionIcon: 'reload',
+      closable: false,
+      timeout: 0,
+      closed,
+    });
+    svc.showNotice({ message: 'Keine Verbindung', variant: 'danger', icon: 'cloud-off' });
+    fixture.detectChanges();
+    expect(screen.queryByRole('button', { name: 'Schließen' })).toBeNull();
+    const reload = screen.getByRole('button', { name: 'Neu laden' });
+    expect(reload).toHaveAttribute('title', 'Neu laden');
+    expect(reload).toHaveClass('toast__iconAction');
+    expect(container.querySelectorAll('app-icon.toast__icon')).toHaveLength(1);
+    await userEvent.click(reload);
+    expect(closed).toHaveBeenCalledWith('action');
+  });
 });

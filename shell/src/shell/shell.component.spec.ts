@@ -4,7 +4,7 @@ import { RouterTestingHarness } from '@angular/router/testing';
 import { Router, provideRouter, type Routes } from '@angular/router';
 import { render, screen, within } from '@testing-library/angular';
 import userEvent from '@testing-library/user-event';
-import { PageFrame } from '@stupa-makers/ui-kit';
+import { PageFrame, ToastService } from '@stupa-makers/ui-kit';
 import { runAxe } from '../../../testing/a11y';
 import { BAR_KEYS, BRAND, NAV, TestMarkComponent } from '../../../testing/shell';
 import { NavMarkDirective } from '../nav-mark.directive';
@@ -257,6 +257,76 @@ describe('ShellComponent', () => {
       fixture.detectChanges();
       expect(container.querySelector('main')).toHaveTextContent('Offline');
       expect(screen.queryByRole('heading', { name: 'Seite' })).not.toBeInTheDocument();
+    });
+  });
+
+  describe('the phone top bar', () => {
+    function showUpdate(): jest.Mock {
+      const closed = jest.fn();
+      TestBed.inject(ToastService).showAction({
+        message: 'Eine neue Version der App ist bereit.',
+        action: 'Neu laden',
+        actionIcon: 'reload',
+        closable: false,
+        timeout: 0,
+        phonePlacement: 'top',
+        closed,
+      });
+      return closed;
+    }
+
+    it('starts the frame with the bar and gives it the top safe area', async () => {
+      const restore = phoneViewport();
+      try {
+        const { fixture, container } = await setup();
+        const frame = container.querySelector('.frame') as HTMLElement;
+        expect(frame.firstElementChild?.tagName).toBe('APP-TOAST-BAR');
+        expect(frame).not.toHaveClass('frame--topbar');
+        const closed = showUpdate();
+        fixture.detectChanges();
+        expect(frame).toHaveClass('frame--topbar');
+        const bar = frame.querySelector('app-toast-bar') as HTMLElement;
+        await userEvent.click(within(bar).getByRole('button', { name: 'Neu laden' }));
+        fixture.detectChanges();
+        expect(closed).toHaveBeenCalledWith('action');
+        expect(frame).not.toHaveClass('frame--topbar');
+      } finally {
+        restore();
+      }
+    });
+
+    it('keeps the bottom bar and the fill frame while the bar shows', async () => {
+      const restore = phoneViewport();
+      try {
+        const { fixture, container, router } = await setup();
+        await router.navigateByUrl('/board');
+        showUpdate();
+        fixture.detectChanges();
+        const frame = container.querySelector('.frame') as HTMLElement;
+        expect(frame).toHaveClass('frame--phone', 'frame--fill', 'frame--topbar');
+        expect(container.querySelector('app-bottom-bar')).not.toBeNull();
+        expect(Array.from(frame.children).map((c) => c.className.split(' ')[0])).toEqual([
+          'frame__topbar',
+          'frame__body',
+          '',
+          '',
+        ]);
+      } finally {
+        restore();
+      }
+    });
+
+    it('has no bar on a wide screen, so the update shows as a toast', async () => {
+      const { fixture, container } = await setup();
+      showUpdate();
+      fixture.detectChanges();
+      expect(container.querySelector('app-toast-bar')).toBeNull();
+      expect(container.querySelector('.frame')).not.toHaveClass('frame--topbar');
+      expect(
+        within(container.querySelector('app-toast') as HTMLElement).getByRole('button', {
+          name: 'Neu laden',
+        }),
+      ).toBeInTheDocument();
     });
   });
 

@@ -37,13 +37,16 @@ const FIRST_CHECK_DELAY = 1000;
  * service worker itself (`provideServiceWorker`). Without a service worker (dev mode, plain
  * HTTP, old browsers) `isEnabled` is false and nothing happens.
  *
- * - `VERSION_READY`: the new version is in the cache. The service shows a toast of the kit
- *   `ToastService` with the action "Reload" (`pwa.updateReady`, `pwa.reload` of
- *   `UI_KIT_INTL`). The toast stays until the person closes it. Only the action reloads:
- *   it activates the update and then reloads, so the reload loads the new version. The
- *   service never reloads without the consent of the person, because the page can hold
- *   unsaved work. It does not activate the update before that, because the old JS would
- *   then run against the new cache and miss a lazy chunk of the old build.
+ * - `VERSION_READY`: the new version is in the cache. The service shows a notice
+ *   (`pwa.updateReady` of `UI_KIT_INTL`) with a reload icon at its end (`reload`, named
+ *   `pwa.reload`). On a phone it is the green bar at the top of the frame
+ *   (`phonePlacement: 'top'`, `app-toast-bar`), and the whole bar is the reload button. On
+ *   a wider screen it is a toast in the stack, and the icon is the reload button. It has no
+ *   close button and no timeout: it stays until the reload. The reload activates the update
+ *   and then reloads, so the reload loads the new version. The service never reloads
+ *   without the consent of the person, because the page can hold unsaved work. It does not
+ *   activate the update before that, because the old JS would then run against the new
+ *   cache and miss a lazy chunk of the old build.
  * - `VERSION_INSTALLATION_FAILED`: the service ignores it. The next check tries again.
  * - `unrecoverable`: the cache of the running version is broken, so the page cannot load
  *   its lazy chunks. The service reloads the page at once.
@@ -111,8 +114,11 @@ export class SwUpdateService {
     this.toast.showAction({
       message: this.intl.translate('pwa.updateReady'),
       action: this.intl.translate('pwa.reload'),
+      actionIcon: 'reload',
       variant: 'info',
       timeout: 0,
+      closable: false,
+      phonePlacement: 'top',
       closed: (how) => {
         this.toastOpen = false;
         if (how === 'action') void this.reload();

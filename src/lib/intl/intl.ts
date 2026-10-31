@@ -79,6 +79,7 @@ export type UiKitTextKey =
   | 'editorTable.delete'
   | 'pwa.updateReady'
   | 'pwa.reload'
+  | 'pwa.offline'
   | 'shell.skip'
   | 'shell.mainNav'
   | 'shell.more'
@@ -163,6 +164,7 @@ export const UI_KIT_DEFAULT_MESSAGES: Record<UiLang, UiKitMessages> = {
     'editorTable.delete': 'Tabelle löschen',
     'pwa.updateReady': 'Eine neue Version der App ist bereit.',
     'pwa.reload': 'Neu laden',
+    'pwa.offline': 'Keine Verbindung',
     'shell.skip': 'Zum Inhalt springen',
     'shell.mainNav': 'Hauptnavigation',
     'shell.more': 'Mehr',
@@ -243,6 +245,7 @@ export const UI_KIT_DEFAULT_MESSAGES: Record<UiLang, UiKitMessages> = {
     'editorTable.delete': 'Delete table',
     'pwa.updateReady': 'A new version of the app is ready.',
     'pwa.reload': 'Reload',
+    'pwa.offline': 'You are offline',
     'shell.skip': 'Skip to content',
     'shell.mainNav': 'Main navigation',
     'shell.more': 'More',
