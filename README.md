@@ -67,7 +67,8 @@ that loads the partials one by one adds `@include meta.load-css('rowgroup')` and
 and are for component stylesheets: `option-menu` (popover and rows of an option list),
 `scroll-fade` (`fade-y`, `fade-x` for the `is-fade-start` and `is-fade-end` classes),
 `dot-parts` (a meta line "A · B · C" without a dot at a line start), `field`,
-`list-pane` (the column, the chips, the scroll area and the hover row menu of a list pane,
+`list-pane` (the column, the chips, the scroll area and the hover row menu of a list pane
+(the group heads are `app-list-group`),
 and `frame($b)`, the whole frame of a list page with a detail outlet) and
 `detail-none-host` (`host`, the host of a route component that shows only
 `app-detail-none`).
@@ -206,7 +207,8 @@ optional subtitle that names the object), table & sortable
 data-table, toast service, loading overlay, and a generic config/field diff
 renderer.
 
-Patterns of the pages: list row (`app-list-item`, a router link or a button), list/detail
+Patterns of the pages: list row (`app-list-item`, a router link or a button), group of
+rows with its head (`app-list-group`), list/detail
 layout (`app-list-detail`), side sheet and phone bottom sheet (`app-side-sheet`), sheet bar,
 row menu (⋮), selection bar, confirm dialog, empty state with ghost rows, skeleton, note,
 status text (`StatusKind`), share bar (`app-seg-bar`), sticky bar, field group and field
@@ -228,6 +230,18 @@ look. `app-fab-group` puts several fabs side by side at the bottom end, above th
 (for example Save and Reset); a fab in a group gives its place to the group. To open a
 route from a fab, use the `link` input of the `shell` entry (below) or navigate in the
 handler.
+
+`app-list-group` is a group of rows in a list pane, for example a month or "Saved". The
+`label` is the head and names the group as a region; the caller projects the rows. The head
+shows the name only, never a count of the rows. Without a `label` the group has no head,
+`skeleton` (a width such as `7rem`) shows a placeholder bar in place of the head while the
+list loads, and `tone="warn"` colours the head of a group that waits for somebody.
+
+```html
+<app-list-group [label]="group.label">
+  <div class="apps__rows" [class.rowgroup]="!split()" role="list">…</div>
+</app-list-group>
+```
 
 `PageFrame` holds the page frame state that pages and the shell share: while `fill()` is
 true, the page fills the height of the frame and only its panes scroll.
