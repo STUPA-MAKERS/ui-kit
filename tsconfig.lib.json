@@ -4,8 +4,11 @@
     "outDir": "./out-tsc/lib",
     "declaration": true,
     "declarationMap": true,
-    "types": []
+    "types": [],
+    "paths": {
+      "@stupa-makers/ui-kit": ["./src/public-api.ts"]
+    }
   },
   "exclude": ["**/*.spec.ts", "testing/**", "src/styles/**"],
-  "include": ["src/**/*.ts", "markdown-editor/**/*.ts"]
+  "include": ["src/**/*.ts", "markdown-editor/**/*.ts", "pwa/**/*.ts", "shell/**/*.ts"]
 }

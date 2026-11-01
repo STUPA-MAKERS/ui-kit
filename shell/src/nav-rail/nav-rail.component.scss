@@ -1,0 +1,98 @@
+@use '../../../src/styles/press';
+@use '../../../src/styles/scroll-fade' as fade;
+@use '../../../src/styles/nav-items';
+
+:host {
+  display: block;
+  height: 100%;
+}
+
+.rail {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 96px;
+  height: 100%;
+  padding: 20px 0 16px;
+  overflow: hidden;
+  @include press.chrome-text;
+}
+
+.rail__main {
+  display: flex;
+  flex: 0 1 auto;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  scrollbar-width: thin;
+  @include fade.fade-y(var(--space-5));
+}
+
+.rail__brand {
+  display: flex;
+  flex: none;
+  margin-bottom: 24px;
+  border-radius: var(--radius-md);
+}
+.rail__brand img {
+  display: block;
+  width: 40px;
+  height: 40px;
+}
+:host-context([data-theme='dark']) .rail__mark--light,
+:host-context(:root:not([data-theme='dark'])) .rail__mark--dark {
+  display: none;
+}
+
+@include nav-items.rail-item;
+
+.rail__search {
+  margin: 0 0 8px;
+}
+
+.rail__brand:focus-visible {
+  outline: 2px solid var(--color-focus-ring);
+  outline-offset: 2px;
+}
+
+.rail__spacer {
+  flex: 1 0 var(--space-4);
+}
+
+// The slots of the foot: a tool (a help menu), an item of the app and the account. An empty
+// slot takes no room.
+.rail__tools {
+  flex: none;
+  width: 100%;
+}
+.rail__end {
+  display: contents;
+}
+.rail__account {
+  flex: none;
+  margin-top: 8px;
+}
+.rail__tools:empty,
+.rail__account:empty {
+  display: none;
+}
+
+// Up to about 1080px high: so all areas, the help and the account fit at 1000px.
+@media (max-height: 1080px) {
+  .rail__brand {
+    margin-bottom: 14px;
+  }
+}
+
+// A low laptop screen (1366 × 657 and similar): smaller steps, so every entry fits.
+@media (max-height: 760px) {
+  .rail {
+    padding-top: 14px;
+  }
+  .rail__brand {
+    margin-bottom: 12px;
+  }
+}

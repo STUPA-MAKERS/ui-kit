@@ -1,0 +1,38 @@
+// The surface context of a container. Emits custom properties only, no other CSS.
+//
+// Nested surfaces step up: a table on a container uses the next higher surface than the
+// container. A container that is itself a surface (a pane, a sheet, a dialog) includes
+// this mixin with its own surface level. The tables of the kit (`app-data-table`,
+// `app-table`) read the properties below and fall back to the page values when no
+// container sets them.
+//
+//   --table-bg         the frame, the header row and the body rows
+//   --table-hover-bg   a row under the pointer, and the skeleton bars
+//   --table-raised-bg  an opened detail row and a child row
+//   --table-head-fg    the header text. At least 4.5:1 on --table-bg (WCAG 1.4.3)
+//   --dt-gap           the colour between the rows of a row group: the container itself
+//
+// Use:
+//   @use 'surface';
+//   .pane { background: var(--color-surface-1); @include surface.context(1); }
+
+/// The surface context for a container on surface `$level` (1 or 2).
+@mixin context($level) {
+  @if $level == 1 {
+    --table-bg: var(--color-surface-2);
+    --table-hover-bg: var(--color-surface-3);
+    --table-raised-bg: var(--color-surface-3);
+    // The subtle text keeps 4.5:1 on surface 2 in both themes.
+    --table-head-fg: var(--color-text-subtle);
+    --dt-gap: var(--color-surface-1);
+  } @else if $level == 2 {
+    --table-bg: var(--color-surface-3);
+    --table-hover-bg: var(--color-surface-4);
+    --table-raised-bg: var(--color-surface-4);
+    // The subtle text is below 4.5:1 on surface 3. The muted text passes.
+    --table-head-fg: var(--color-text-muted);
+    --dt-gap: var(--color-surface-2);
+  } @else {
+    @error 'surface.context: the level must be 1 or 2, not #{$level}.';
+  }
+}

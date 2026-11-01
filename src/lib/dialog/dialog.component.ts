@@ -11,6 +11,11 @@ import {
   SimpleChanges,
   ViewChild,
 } from '@angular/core';
+import { focusableIn, lockBodyScroll, trapTab } from '../focus/focus-trap';
+import { haptic } from '../util/haptic';
+
+/** A drag down by more than this many pixels closes the phone sheet. */
+const DRAG_CLOSE_PX = 120;
 
 let nextId = 0;
 
@@ -32,25 +37,38 @@ let nextId = 0;
 export class DialogComponent implements OnChanges, OnDestroy {
   @Input() open = false;
   @Input() title = '';
+  /**
+   * A short line below the title that names the object of the dialog, for example
+   * the meeting a new agenda item goes to. Empty: no line. The dialog uses it as its
+   * description (`aria-describedby`).
+   */
+  @Input() subtitle = '';
   @Input() closeLabel = 'Schließen';
-  /** Breite: 'md' (32rem, Default) oder 'lg' (44rem, z. B. Charts). */
-  @Input() size: 'md' | 'lg' = 'md';
+  /**
+   * Breite: 'md' (35rem, Default), 'form' (40rem, Formulare mit zwei Feldern
+   * nebeneinander) oder 'lg' (44rem, z. B. Charts).
+   */
+  @Input() size: 'md' | 'form' | 'lg' = 'md';
   @Output() closed = new EventEmitter<void>();
 
   @ViewChild('pane') private pane?: ElementRef<HTMLElement>;
 
-  readonly titleId = `app-dialog-title-${nextId++}`;
+  private readonly uid = nextId++;
+  readonly titleId = `app-dialog-title-${this.uid}`;
+  readonly subtitleId = `app-dialog-subtitle-${this.uid}`;
 
   /** Element, das vor dem Öffnen den Fokus hatte — für Restore beim Schließen. */
   private previouslyFocused: HTMLElement | null = null;
 
-  /** Body-Scroll-Sperre: gemerkter vorheriger overflow-Wert für den Restore. */
-  private prevBodyOverflow: string | null = null;
+  /** Body-Scroll-Sperre: gibt den vorherigen overflow-Wert zurück. */
+  private releaseScroll: (() => void) | null = null;
   // Drag-to-dismiss (Mobile-Sheet, #14).
   private dragStartY = 0;
   private dragStartT = 0;
   private dragging = false;
   private dragDy = 0;
+  /** The drag is past the way that closes the sheet; the crossing gives one haptic tick. */
+  private pastClose = false;
 
   ngOnChanges(changes: SimpleChanges): void {
     const c = changes['open'];
@@ -83,25 +101,9 @@ export class DialogComponent implements OnChanges, OnDestroy {
   /** Tab/Shift+Tab im Dialog halten (Focus-Trap). */
   @HostListener('document:keydown', ['$event'])
   onKeydown(event: KeyboardEvent): void {
-    if (!this.open || event.key !== 'Tab') return;
+    if (!this.open) return;
     const pane = this.pane?.nativeElement;
-    if (!pane) return;
-    const focusables = this.focusable(pane);
-    if (focusables.length === 0) {
-      event.preventDefault();
-      pane.focus();
-      return;
-    }
-    const first = focusables[0];
-    const last = focusables[focusables.length - 1];
-    const active = document.activeElement;
-    if (event.shiftKey && (active === first || active === pane)) {
-      event.preventDefault();
-      last.focus();
-    } else if (!event.shiftKey && active === last) {
-      event.preventDefault();
-      first.focus();
-    }
+    if (pane) trapTab(event, pane);
   }
 
   onBackdrop(_event: MouseEvent): void {
@@ -115,6 +117,7 @@ export class DialogComponent implements OnChanges, OnDestroy {
     this.dragStartY = event.touches[0].clientY;
     this.dragStartT = event.timeStamp;
     this.dragDy = 0;
+    this.pastClose = false;
     const pane = this.pane?.nativeElement;
     if (pane) pane.style.transition = 'none';
   }
@@ -123,6 +126,11 @@ export class DialogComponent implements OnChanges, OnDestroy {
     if (!this.dragging) return;
     // Nur nach unten ziehen (kein „Hochziehen").
     this.dragDy = Math.max(0, event.touches[0].clientY - this.dragStartY);
+    // A tick when the sheet passes the way that closes it, so the finger feels the point
+    // where a release closes. A drag back above it and down again ticks again.
+    const past = this.dragDy > DRAG_CLOSE_PX;
+    if (past && !this.pastClose) haptic('tick');
+    this.pastClose = past;
     const pane = this.pane?.nativeElement;
     if (pane) pane.style.transform = `translateY(${this.dragDy}px)`;
   }
@@ -135,7 +143,7 @@ export class DialogComponent implements OnChanges, OnDestroy {
     const dt = event.timeStamp - this.dragStartT;
     const velocity = this.dragDy / Math.max(1, dt); // px/ms
     // Flick (schnelle Abwärtsbewegung) ODER deutlicher Weg → schließen.
-    if (velocity > 0.5 || this.dragDy > 120) {
+    if (velocity > 0.5 || this.dragDy > DRAG_CLOSE_PX) {
       this.close();
     } else if (pane) {
       pane.style.transform = '';
@@ -144,23 +152,19 @@ export class DialogComponent implements OnChanges, OnDestroy {
 
   close(): void {
     this.open = false;
-    const pane = this.pane?.nativeElement;
-    if (pane) pane.style.transform = '';
+    // The pane keeps a swipe offset: the exit animation runs on from where the finger left it.
     this.restoreFocus();
     this.unlockScroll();
     this.closed.emit();
   }
 
   private lockScroll(): void {
-    if (this.prevBodyOverflow !== null) return;
-    this.prevBodyOverflow = document.body.style.overflow;
-    document.body.style.overflow = 'hidden';
+    this.releaseScroll ??= lockBodyScroll();
   }
 
   private unlockScroll(): void {
-    if (this.prevBodyOverflow === null) return;
-    document.body.style.overflow = this.prevBodyOverflow;
-    this.prevBodyOverflow = null;
+    this.releaseScroll?.();
+    this.releaseScroll = null;
   }
 
   /** Vorherigen Fokus merken und Fokus in den Dialog setzen (nach Render). */
@@ -169,8 +173,7 @@ export class DialogComponent implements OnChanges, OnDestroy {
     queueMicrotask(() => {
       const pane = this.pane?.nativeElement;
       if (!pane) return;
-      const focusables = this.focusable(pane);
-      (focusables[0] ?? pane).focus();
+      (focusableIn(pane)[0] ?? pane).focus();
     });
   }
 
@@ -178,17 +181,5 @@ export class DialogComponent implements OnChanges, OnDestroy {
     const target = this.previouslyFocused;
     this.previouslyFocused = null;
     if (target && typeof target.focus === 'function') target.focus();
-  }
-
-  private focusable(root: HTMLElement): HTMLElement[] {
-    const selector = [
-      'a[href]',
-      'button:not([disabled])',
-      'input:not([disabled])',
-      'select:not([disabled])',
-      'textarea:not([disabled])',
-      '[tabindex]:not([tabindex="-1"])',
-    ].join(',');
-    return Array.from(root.querySelectorAll<HTMLElement>(selector));
   }
 }

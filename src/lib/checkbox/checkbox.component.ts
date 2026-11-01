@@ -1,4 +1,11 @@
-import { ChangeDetectionStrategy, Component, Input, signal } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  Input,
+  booleanAttribute,
+  input,
+  signal,
+} from '@angular/core';
 import { NG_VALUE_ACCESSOR, type ControlValueAccessor } from '@angular/forms';
 
 let nextId = 0;
@@ -8,6 +15,12 @@ let nextId = 0;
  * (Reactive Forms + `ngModel`). Token-basiert (`accent-color` = CD-Primär),
  * sichtbarer Fokus-Ring (global `:focus-visible`), Label/`for`-Bindung für a11y.
  * Label-Text wird projiziert: `<app-checkbox [(ngModel)]="x">Text</app-checkbox>`.
+ *
+ * `indeterminate` shows the mixed state (a dash), for a select-all box over a partial
+ * selection: `<app-checkbox [indeterminate]="some()" [ngModel]="all()">`. The input is
+ * the source of truth: a click changes the value, but the box stays mixed until the host
+ * sets `indeterminate` to false. The native control carries the state, so a screen
+ * reader announces "mixed".
  */
 @Component({
   selector: 'app-checkbox',
@@ -20,6 +33,8 @@ let nextId = 0;
 export class CheckboxComponent implements ControlValueAccessor {
   @Input() id = `app-checkbox-${nextId++}`;
   @Input() hint = '';
+  /** The mixed state (a dash in the box), for a select-all box over a partial selection. */
+  readonly indeterminate = input(false, { transform: booleanAttribute });
 
   readonly checked = signal(false);
   readonly disabled = signal(false);
@@ -28,7 +43,10 @@ export class CheckboxComponent implements ControlValueAccessor {
   onTouched: () => void = () => {};
 
   onToggle(event: Event): void {
-    const v = (event.target as HTMLInputElement).checked;
+    const box = event.target as HTMLInputElement;
+    const v = box.checked;
+    // A click clears the native mixed state. The input stays the source of truth.
+    box.indeterminate = this.indeterminate();
     this.checked.set(v);
     this.onChange(v);
   }

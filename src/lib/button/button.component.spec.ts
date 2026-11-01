@@ -1,14 +1,15 @@
 import { Component } from '@angular/core';
 import { render, screen } from '@testing-library/angular';
 import userEvent from '@testing-library/user-event';
-import { ButtonComponent } from './button.component';
+import { ButtonComponent, buttonLook, type ButtonVariant } from './button.component';
+import { IconComponent } from '../icon/icon.component';
 
 describe('ButtonComponent', () => {
   it('renders projected label inside a native button', async () => {
     await render(`<app-button>Speichern</app-button>`, { imports: [ButtonComponent] });
     const btn = screen.getByRole('button', { name: 'Speichern' });
     expect(btn).toBeInTheDocument();
-    expect(btn).toHaveClass('btn--primary', 'btn--md');
+    expect(btn).toHaveClass('btn--primary', 'btn--fill', 'btn--md');
   });
 
   it('applies variant and size modifiers', async () => {
@@ -22,7 +23,7 @@ describe('ButtonComponent', () => {
     await render(`<app-button variant="danger-outline">Faktor entfernen</app-button>`, {
       imports: [ButtonComponent],
     });
-    expect(screen.getByRole('button')).toHaveClass('btn--danger-outline');
+    expect(screen.getByRole('button')).toHaveClass('btn--danger-outline', 'btn--danger');
   });
 
   it('adds the icon modifier when iconOnly is set', async () => {
@@ -30,6 +31,17 @@ describe('ButtonComponent', () => {
       imports: [ButtonComponent],
     });
     expect(screen.getByRole('button')).toHaveClass('btn--icon', 'btn--secondary', 'btn--sm');
+  });
+
+  it('projects an icon and a text into one label', async () => {
+    await render(
+      `<app-button><span class="inline-flex items-center gap-2"><app-icon name="add" [size]="16" /> Buchung</span></app-button>`,
+      { imports: [ButtonComponent, IconComponent] },
+    );
+    const btn = screen.getByRole('button', { name: 'Buchung' });
+    const label = btn.querySelector('.btn__label');
+    expect(label?.querySelector('app-icon svg')).not.toBeNull();
+    expect(label?.textContent?.trim()).toBe('Buchung');
   });
 
   it('exposes an accessible name via ariaLabel for icon buttons', async () => {
@@ -44,6 +56,17 @@ describe('ButtonComponent', () => {
     const btn = screen.getByRole('button');
     expect(btn).toBeDisabled();
     expect(btn).toHaveAttribute('aria-busy', 'true');
+  });
+
+  it('keeps the label of a loading text button beside the spinner', async () => {
+    const { container } = await render(`<app-button variant="text" [loading]="true">Mehr laden</app-button>`, {
+      imports: [ButtonComponent],
+    });
+    const btn = screen.getByRole('button', { name: 'Mehr laden' });
+    expect(btn).toHaveAttribute('aria-busy', 'true');
+    expect(btn).toHaveClass('btn--text');
+    expect(container.querySelector('.btn__spinner')).toBeTruthy();
+    expect(container.querySelector('.btn__label')).toHaveTextContent('Mehr laden');
   });
 
   it('does not emit click when disabled', async () => {
@@ -145,5 +168,82 @@ describe('ButtonComponent', () => {
       imports: [ButtonComponent],
     });
     expect(container.querySelector('button')).not.toHaveAttribute('aria-pressed');
+  });
+
+  it('reports a disclosure state and the region it controls', async () => {
+    await render(
+      `<app-button variant="text" [ariaExpanded]="false" ariaControls="more">Alle anzeigen</app-button>
+       <app-button variant="text" [ariaExpanded]="true">Weniger</app-button>`,
+      { imports: [ButtonComponent] },
+    );
+    const closed = screen.getByRole('button', { name: 'Alle anzeigen' });
+    expect(closed).toHaveAttribute('aria-expanded', 'false');
+    expect(closed).toHaveAttribute('aria-controls', 'more');
+    const open = screen.getByRole('button', { name: 'Weniger' });
+    expect(open).toHaveAttribute('aria-expanded', 'true');
+    expect(open).not.toHaveAttribute('aria-controls');
+  });
+
+  it('carries no disclosure state by default', async () => {
+    await render(`<app-button>Speichern</app-button>`, { imports: [ButtonComponent] });
+    expect(screen.getByRole('button')).not.toHaveAttribute('aria-expanded');
+    expect(screen.getByRole('button')).not.toHaveAttribute('aria-controls');
+  });
+
+  describe('looks', () => {
+    for (const look of ['fill', 'tonal', 'outlined', 'text', 'danger', 'fab'] as const) {
+      it(`renders the ${look} look with one class`, async () => {
+        await render(`<app-button variant="${look}">X</app-button>`, { imports: [ButtonComponent] });
+        const btn = screen.getByRole('button');
+        expect(btn).toHaveClass('btn', `btn--${look}`);
+        expect(btn.className.match(/btn--(fill|tonal|outlined|text|danger|fab)\b/g)).toHaveLength(1);
+      });
+    }
+
+    it('maps the older variant names onto the looks, so callers keep compiling', () => {
+      const cases: [ButtonVariant, string][] = [
+        ['primary', 'fill'],
+        ['success', 'fill'],
+        ['secondary', 'tonal'],
+        ['ghost', 'text'],
+        ['danger-outline', 'danger'],
+        ['danger', 'danger'],
+      ];
+      for (const [variant, look] of cases) {
+        expect(buttonLook(variant)).toBe(look);
+      }
+      expect(buttonLook('nope' as ButtonVariant)).toBe('fill');
+    });
+
+    it('keeps the alias class next to the look class', async () => {
+      await render(`<app-button variant="ghost" size="sm">Mehr</app-button>`, {
+        imports: [ButtonComponent],
+      });
+      expect(screen.getByRole('button')).toHaveClass('btn--ghost', 'btn--text', 'btn--sm');
+    });
+
+    it('draws a destructive action as an outlined danger button', async () => {
+      await render(`<app-button variant="danger">Löschen</app-button>`, { imports: [ButtonComponent] });
+      const btn = screen.getByRole('button', { name: 'Löschen' });
+      expect(btn).toHaveClass('btn--danger');
+      expect(btn).not.toHaveClass('btn--fill');
+    });
+
+    it('renders a round icon button and a pressed icon button', async () => {
+      await render(
+        `<app-button variant="text" [iconOnly]="true" [ariaPressed]="true" ariaLabel="Weitere Aktionen">⋮</app-button>`,
+        { imports: [ButtonComponent] },
+      );
+      const btn = screen.getByRole('button', { name: 'Weitere Aktionen' });
+      expect(btn).toHaveClass('btn--text', 'btn--icon', 'btn--md');
+      expect(btn).toHaveAttribute('aria-pressed', 'true');
+    });
+
+    it('renders the floating action button', async () => {
+      await render(`<app-button variant="fab">Antrag stellen</app-button>`, {
+        imports: [ButtonComponent],
+      });
+      expect(screen.getByRole('button', { name: 'Antrag stellen' })).toHaveClass('btn--fab');
+    });
   });
 });

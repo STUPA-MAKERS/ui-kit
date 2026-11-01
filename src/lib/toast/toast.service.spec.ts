@@ -83,4 +83,72 @@ describe('ToastService', () => {
   it('exposes a read-only toasts signal (no set method)', () => {
     expect((svc.toasts as unknown as { set?: unknown }).set).toBeUndefined();
   });
+
+  describe('showAction()', () => {
+    it('shows the action and reports a press once, also when the time runs out later', () => {
+      jest.useFakeTimers();
+      const closed = jest.fn();
+      const id = svc.showAction({ message: 'Archiviert', action: 'Rückgängig', closed });
+      expect(svc.toasts()[0]).toMatchObject({
+        id,
+        message: 'Archiviert',
+        action: 'Rückgängig',
+        variant: 'info',
+      });
+      svc.act(id);
+      expect(svc.toasts()).toEqual([]);
+      jest.advanceTimersByTime(6000);
+      expect(closed.mock.calls).toEqual([['action']]);
+    });
+
+    it('reports the timeout after 6 s by default, and a dismiss', () => {
+      jest.useFakeTimers();
+      const closed = jest.fn();
+      svc.showAction({ message: 'Gelöscht', action: 'Rückgängig', closed });
+      jest.advanceTimersByTime(5999);
+      expect(closed).not.toHaveBeenCalled();
+      jest.advanceTimersByTime(1);
+      const id = svc.showAction({
+        message: 'x',
+        action: 'y',
+        variant: 'success',
+        timeout: 0,
+        closed,
+      });
+      jest.advanceTimersByTime(60_000);
+      svc.dismiss(id);
+      expect(closed.mock.calls).toEqual([['timeout'], ['dismiss']]);
+    });
+  });
+});
+
+describe('ToastService notices and the top bar', () => {
+  it('keeps a notice without a close button until dismiss()', () => {
+    jest.useFakeTimers();
+    const svc = TestBed.inject(ToastService);
+    const id = svc.showNotice({
+      message: 'Keine Verbindung',
+      variant: 'danger',
+      icon: 'cloud-off',
+    });
+    expect(svc.toasts()[0]).toEqual(
+      expect.objectContaining({ closable: false, icon: 'cloud-off', barTone: 'danger' }),
+    );
+    jest.advanceTimersByTime(60 * 60 * 1000);
+    expect(svc.toasts()).toHaveLength(1);
+    svc.dismiss(id);
+    expect(svc.toasts()).toHaveLength(0);
+    jest.useRealTimers();
+  });
+
+  it('counts the top bars, and a second removal of one bar does nothing', () => {
+    const svc = TestBed.inject(ToastService);
+    const first = svc.registerTopBar();
+    const second = svc.registerTopBar();
+    first();
+    first();
+    expect(svc.hasTopBar()).toBe(true);
+    second();
+    expect(svc.hasTopBar()).toBe(false);
+  });
 });

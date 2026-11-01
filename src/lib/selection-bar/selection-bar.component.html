@@ -1,0 +1,37 @@
+@if (inline() || count() > 0) {
+  <div class="selbar" role="toolbar" [attr.aria-label]="'selection.toolbar' | uiKitT">
+    @if (allSelected() !== null) {
+      <!-- The box and the count are one label: the whole text toggles the selection. -->
+      <app-checkbox
+        class="selbar__all"
+        [ngModel]="allSelected()"
+        [indeterminate]="count() > 0 && !allSelected()"
+        (ngModelChange)="selectAll.emit($event)"
+      >
+        <span class="sr-only">{{ selectAllLabel() ?? ('selection.selectAll' | uiKitT) }}</span>
+        <ng-container *ngTemplateOutlet="countText" />
+      </app-checkbox>
+    } @else {
+      <ng-container *ngTemplateOutlet="countText" />
+    }
+    <div class="selbar__actions"><ng-content /></div>
+    @if (!inline()) {
+      <span class="selbar__div" aria-hidden="true"></span>
+    }
+    <button
+      type="button"
+      class="selbar__clear"
+      [attr.aria-label]="clearLabel() ?? ('selection.clear' | uiKitT)"
+      [title]="clearLabel() ?? ('selection.clear' | uiKitT)"
+      (click)="cleared.emit()"
+    >
+      <app-icon name="x" [size]="17" />
+    </button>
+  </div>
+}
+
+<ng-template #countText>
+  <span class="selbar__count" role="status">{{
+    countLabel() ?? ('selection.count' | uiKitT: { count: count() })
+  }}</span>
+</ng-template>

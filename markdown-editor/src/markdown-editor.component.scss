@@ -1,5 +1,9 @@
 app-markdown-editor {
   display: block;
+  /* The controls of a table are placed against the editor element. */
+  position: relative;
+  --mde-table-gap: 4px;
+  --mde-table-bar: 20px;
 }
 .mde__host {
   min-height: 16rem;
@@ -58,17 +62,86 @@ app-markdown-editor {
   border-top: var(--border-width) solid var(--color-border);
   margin: var(--space-3) 0;
 }
+/* A GFM table. The wrapper of Tiptap scrolls a wide table sideways inside the editor.
+   The selected cells of a cell selection carry the accent tint. */
+.mde__host .ProseMirror .tableWrapper {
+  margin: var(--space-3) 0;
+  overflow-x: auto;
+}
+/* An editable table keeps room for its controls: the add bar at its end and below it. */
+.mde__host:not(.mde__host--disabled) .ProseMirror .tableWrapper {
+  padding-right: calc(var(--mde-table-bar) + 2 * var(--mde-table-gap));
+  padding-bottom: calc(var(--mde-table-bar) + 2 * var(--mde-table-gap));
+}
+.mde__host .ProseMirror table {
+  border-collapse: collapse;
+  table-layout: auto;
+  min-width: 50%;
+  font-size: var(--fs-sm);
+}
+.mde__host .ProseMirror th,
+.mde__host .ProseMirror td {
+  position: relative;
+  min-width: 4rem;
+  padding: var(--space-1) var(--space-2);
+  border: var(--border-width) solid var(--color-border);
+  vertical-align: top;
+  text-align: left;
+}
+.mde__host .ProseMirror th {
+  background: var(--color-surface-2);
+  font-weight: var(--fw-semibold);
+}
+.mde__host .ProseMirror th > p,
+.mde__host .ProseMirror td > p {
+  margin: 0;
+}
+.mde__host .ProseMirror .selectedCell::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: var(--color-primary-subtle);
+  opacity: 0.6;
+  pointer-events: none;
+}
+
+/* An image from the media store, as wide as the text at most. An image with another
+   source shows its alt text only, in a muted frame. */
+.mde__host .ProseMirror img.mde__img {
+  display: inline-block;
+  max-width: 100%;
+  max-height: 32rem;
+  height: auto;
+  vertical-align: bottom;
+  border-radius: var(--radius-md);
+}
+.mde__host .ProseMirror-focused img.mde__img.ProseMirror-selectednode {
+  outline: 2px solid var(--color-focus-ring);
+  outline-offset: 2px;
+}
+.mde__host .ProseMirror .mde__imgAlt {
+  padding: 0 var(--space-1);
+  border: var(--border-width) dashed var(--color-border-strong);
+  border-radius: var(--radius-sm);
+  color: var(--color-text-muted);
+  font-style: italic;
+}
+
 /* The placeholder of an empty document sits on its first line. The hint of a document
-   with content sits on its empty last line, so the eye finds the place to continue. */
+   with content follows the cursor: it sits on the empty line of the cursor while the
+   editor has the focus, else on the empty last line, so the eye finds the place to
+   continue. */
 .mde__host .ProseMirror p.is-editor-empty:first-child::before,
-.mde__host .ProseMirror p.is-empty:last-child:not(:first-child)::before {
+.mde__host .ProseMirror.ProseMirror-focused p.is-empty.has-focus:not(.is-editor-empty)::before,
+.mde__host .ProseMirror:not(.ProseMirror-focused) p.is-empty:last-child:not(:first-child)::before {
   content: attr(data-placeholder);
   color: var(--color-text-muted);
   float: left;
   height: 0;
   pointer-events: none;
 }
-.mde__host .ProseMirror p.is-empty:last-child:not(:first-child)::before {
+.mde__host .ProseMirror.ProseMirror-focused p.is-empty.has-focus:not(.is-editor-empty)::before,
+.mde__host .ProseMirror:not(.ProseMirror-focused) p.is-empty:last-child:not(:first-child)::before {
   font-style: italic;
 }
 
@@ -78,9 +151,13 @@ app-markdown-editor {
   border-radius: var(--radius-sm);
   padding: 0 var(--space-1);
 }
-.mde__host .ProseMirror .tiptap-mathematics-render:hover,
 .mde__host .ProseMirror .ProseMirror-selectednode.tiptap-mathematics-render {
   background: var(--color-primary-subtle);
+}
+@media (hover: hover) {
+  .mde__host .ProseMirror .tiptap-mathematics-render:hover {
+    background: var(--color-primary-subtle);
+  }
 }
 .mde__host .ProseMirror div.tiptap-mathematics-render {
   display: block;
@@ -89,59 +166,366 @@ app-markdown-editor {
   padding: var(--space-2) 0;
 }
 
-/* The vote callout as a card. One atom: selected and deleted as a whole. */
+/* The vote callout as a card. One atom: selected and deleted as a whole. A caption
+   with the time and the rule, the question, the counts with the result, and a bar of
+   the counts (yes in the accent, no in red, abstentions in grey). */
 .mde__host .ProseMirror .mde__vote {
   margin: var(--space-3) 0;
-  padding: var(--space-3) var(--space-4);
-  border-left: 3px solid var(--color-primary);
-  border-radius: var(--radius-md);
-  background: var(--color-surface-sunken);
+  padding: var(--space-4) 18px 18px;
+  border-radius: var(--radius-lg);
+  background: var(--color-surface-2);
   display: flex;
   flex-direction: column;
   gap: var(--space-2);
 }
-.mde__host .ProseMirror .ProseMirror-selectednode.mde__vote,
-.mde__host .ProseMirror .ProseMirror-selectednode > .mde__vote {
-  outline: 2px solid var(--color-primary);
+/* The outline marks a selected card only while the editor has the focus; a loaded or
+   read-only document shows none. */
+.mde__host .ProseMirror-focused .ProseMirror-selectednode.mde__vote,
+.mde__host .ProseMirror-focused .ProseMirror-selectednode > .mde__vote {
+  outline: 2px solid var(--color-focus-ring);
   outline-offset: 2px;
-}
-.mde__host .ProseMirror .mde__vote[data-result='rejected'] {
-  border-left-color: var(--color-danger);
-}
-.mde__host .ProseMirror .mde__vote[data-result='tie'],
-.mde__host .ProseMirror .mde__vote[data-result='none'] {
-  border-left-color: var(--color-border-strong);
 }
 .mde__host .ProseMirror .mde__voteHead {
   display: flex;
   align-items: center;
-  gap: var(--space-3);
-  flex-wrap: wrap;
-}
-.mde__host .ProseMirror .mde__voteKind {
-  font-size: var(--fs-xs);
-  font-weight: var(--fw-bold);
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
+  gap: var(--space-2);
+  min-width: 0;
   color: var(--color-text-muted);
 }
-.mde__host .ProseMirror .mde__voteTally {
-  margin-left: auto;
-  font-size: var(--fs-sm);
-  font-variant-numeric: tabular-nums;
-  color: var(--color-primary);
+.mde__host .ProseMirror .mde__voteIcon {
+  flex: none;
+}
+.mde__host .ProseMirror .mde__voteKind {
+  min-width: 0;
+  font-size: var(--fs-xs);
+  line-height: 1rem;
   font-weight: var(--fw-semibold);
-}
-.mde__host .ProseMirror .mde__vote[data-result='rejected'] .mde__voteTally {
-  color: var(--color-danger);
-}
-.mde__host .ProseMirror .mde__vote[data-result='tie'] .mde__voteTally {
-  color: var(--color-text);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
 }
 .mde__host .ProseMirror .mde__voteQ {
   font-weight: var(--fw-semibold);
+  overflow-wrap: anywhere;
 }
 .mde__host .ProseMirror .mde__voteBody {
   color: var(--color-text-muted);
   font-size: var(--fs-sm);
+}
+.mde__host .ProseMirror .mde__voteCounts {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: var(--space-1) var(--space-6);
+  margin-top: var(--space-1);
+}
+.mde__host .ProseMirror .mde__voteCell {
+  display: flex;
+  flex-direction: column;
+  min-width: 3.5rem;
+}
+.mde__host .ProseMirror .mde__voteCell--result {
+  margin-left: auto;
+  align-items: flex-end;
+  text-align: right;
+}
+.mde__host .ProseMirror .mde__voteLabel {
+  font-size: var(--fs-sm);
+  line-height: 1.25rem;
+  color: var(--color-text-muted);
+}
+.mde__host .ProseMirror .mde__voteNum {
+  font-size: 1.25rem;
+  line-height: 1.75rem;
+  font-variant-numeric: tabular-nums;
+}
+.mde__host .ProseMirror .mde__voteResult {
+  font-size: 1.125rem;
+  line-height: 1.75rem;
+  font-weight: var(--fw-semibold);
+  color: var(--color-accent-text);
+}
+.mde__host .ProseMirror .mde__vote[data-result='rejected'] .mde__voteResult {
+  color: var(--color-danger);
+}
+.mde__host .ProseMirror .mde__voteBar {
+  display: flex;
+  gap: 3px;
+  height: 6px;
+  margin-top: var(--space-1);
+}
+.mde__host .ProseMirror .mde__voteSeg {
+  flex: 0 1 0;
+  min-width: 6px;
+  border-radius: var(--radius-pill);
+}
+.mde__host .ProseMirror .mde__voteSeg--yes {
+  background: var(--color-accent);
+}
+.mde__host .ProseMirror .mde__voteSeg--no {
+  background: var(--color-danger);
+}
+.mde__host .ProseMirror .mde__voteSeg--abstain {
+  background: var(--color-text-subtle);
+}
+
+/* An election as a ranking: one row per candidate, best first, with a bar scaled to
+   the best count. The elected rows carry a check and the accent, a dashed line ends
+   them, the abstentions come last and muted. */
+.mde__host .ProseMirror .mde__voteStatus {
+  margin-left: auto;
+  font-size: var(--fs-sm);
+  font-weight: var(--fw-semibold);
+  white-space: nowrap;
+  color: var(--color-accent-text);
+}
+.mde__host .ProseMirror .mde__vote[data-result='rejected'] .mde__voteStatus {
+  color: var(--color-text-muted);
+}
+.mde__host .ProseMirror .mde__elRows {
+  display: grid;
+  grid-template-columns: 18px minmax(6rem, 14rem) minmax(0, 1fr) 2.25rem;
+  gap: 7px 10px;
+  align-items: center;
+  margin-top: var(--space-1);
+}
+.mde__host .ProseMirror .mde__elRow {
+  display: contents;
+}
+.mde__host .ProseMirror .mde__elMark {
+  display: grid;
+  place-items: center;
+  color: var(--color-accent-text);
+}
+.mde__host .ProseMirror .mde__elName {
+  min-width: 0;
+  font-size: var(--fs-sm);
+  color: var(--color-text-muted);
+  overflow-wrap: anywhere;
+}
+.mde__host .ProseMirror .mde__elRow--elected .mde__elName {
+  color: var(--color-text);
+  font-weight: var(--fw-semibold);
+}
+.mde__host .ProseMirror .mde__elRow--public .mde__elName {
+  grid-column: 2 / -1;
+}
+.mde__host .ProseMirror .mde__elTrack {
+  display: block;
+  height: 8px;
+  border-radius: var(--radius-pill);
+  background: var(--color-surface-3, var(--color-surface-1));
+  overflow: hidden;
+}
+.mde__host .ProseMirror .mde__elTrack--none {
+  visibility: hidden;
+}
+.mde__host .ProseMirror .mde__elFill {
+  display: block;
+  height: 100%;
+  border-radius: var(--radius-pill);
+  background: color-mix(in srgb, var(--color-text-subtle) 60%, transparent);
+}
+.mde__host .ProseMirror .mde__elRow--elected .mde__elFill {
+  background: var(--color-accent);
+}
+.mde__host .ProseMirror .mde__elNum {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+  font-weight: var(--fw-semibold);
+  color: var(--color-text-muted);
+}
+.mde__host .ProseMirror .mde__elRow--elected .mde__elNum {
+  color: var(--color-text);
+}
+.mde__host .ProseMirror .mde__elRow--abstain .mde__elName,
+.mde__host .ProseMirror .mde__elRow--abstain .mde__elNum {
+  color: var(--color-text-subtle);
+  font-weight: var(--fw-regular, 400);
+}
+.mde__host .ProseMirror .mde__elLine {
+  grid-column: 1 / -1;
+  border-top: 1.5px dashed var(--color-border);
+  margin: 1px 0;
+}
+.mde__host .ProseMirror .mde__elTags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 2px;
+}
+.mde__host .ProseMirror .mde__elTag {
+  display: inline-flex;
+  align-items: center;
+  height: 26px;
+  padding: 0 10px;
+  border-radius: var(--radius-pill);
+  font-size: var(--fs-xs);
+  font-weight: var(--fw-medium);
+  background: var(--color-surface-3, var(--color-surface-1));
+  color: var(--color-text);
+}
+.mde__host .ProseMirror .mde__elTag--warn {
+  background: transparent;
+  box-shadow: inset 0 0 0 1px var(--color-warning);
+  color: var(--color-warning);
+}
+
+/* A poll as a ranking, like the election and like the poll box of the PDF. The best
+   options carry the accent of the elected candidates: a star, a bold name and a solid
+   bar. A date poll stacks Ja (solid) and Vielleicht (light) in one bar. The
+   abstentions and the line with the number of answers are muted. */
+.mde__host .ProseMirror .mde__vote[data-poll] .mde__elRows {
+  grid-template-columns: 18px minmax(6rem, 14rem) minmax(0, 1fr) auto;
+}
+.mde__host .ProseMirror .mde__pollTrack {
+  display: flex;
+}
+.mde__host .ProseMirror .mde__pollTrack .mde__elFill {
+  flex: none;
+  border-radius: 0;
+}
+.mde__host .ProseMirror .mde__pollTrack .mde__elFill:first-child {
+  border-radius: var(--radius-pill) 0 0 var(--radius-pill);
+}
+.mde__host .ProseMirror .mde__pollTrack .mde__elFill:last-child {
+  border-top-right-radius: var(--radius-pill);
+  border-bottom-right-radius: var(--radius-pill);
+}
+.mde__host .ProseMirror .mde__pollMaybe {
+  background: color-mix(in srgb, var(--color-text-subtle) 25%, transparent);
+}
+.mde__host .ProseMirror .mde__pollRow--top .mde__elName,
+.mde__host .ProseMirror .mde__pollRow--top .mde__elNum {
+  color: var(--color-text);
+  font-weight: var(--fw-semibold);
+}
+.mde__host .ProseMirror .mde__pollRow--top .mde__elFill {
+  background: var(--color-accent);
+}
+.mde__host .ProseMirror .mde__pollRow--top .mde__pollMaybe,
+.mde__host .ProseMirror .mde__pollSwatch--maybe {
+  background: color-mix(in srgb, var(--color-accent) 35%, transparent);
+}
+.mde__host .ProseMirror .mde__pollLegend {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: var(--fs-xs);
+  color: var(--color-text-subtle);
+}
+.mde__host .ProseMirror .mde__pollSwatch {
+  width: 10px;
+  height: 6px;
+  border-radius: 2px;
+  background: var(--color-accent);
+}
+.mde__host .ProseMirror .mde__pollSwatch--maybe {
+  margin-left: 6px;
+}
+.mde__host .ProseMirror .mde__pollFoot {
+  font-size: var(--fs-sm);
+  color: var(--color-text-subtle);
+}
+
+/* The controls of the table at the cursor (`table-controls.ts`). A grip sits on the
+   middle of the top edge of the cursor's column or of the start edge of its row and
+   opens the menu of that column or row. The bars add a row below the table and a
+   column at its end; the table menu sits above the column bar. Each control has a
+   touch area of the control height around its small visible shape. */
+.mde__grip,
+.mde__tableMenu,
+.mde__add {
+  position: absolute;
+  z-index: 1;
+}
+.mde__grip {
+  translate: -50% -50%;
+}
+/* One size for every control: the grips are 32 x 20 (on their side for a row), the
+   table menu and the bars are 20 wide, every icon is 18. A rotated icon would turn
+   around a box that is not its optical centre, so the column grip has its own
+   horizontal icon (`grip-h`). */
+app-markdown-editor .mde__grip .rm__trigger,
+app-markdown-editor .mde__tableMenu .rm__trigger {
+  position: relative;
+  box-sizing: border-box;
+  padding: 0;
+  border: var(--border-width) solid var(--color-border-strong);
+  background: var(--color-surface-2);
+}
+/* The row menu gives its icon a size of 19 on the icon host, which beats the size of
+   the container. 19 in a box of 18 inside the frame sat one pixel low. */
+app-markdown-editor .mde__grip .rm__trigger svg,
+app-markdown-editor .mde__tableMenu .rm__trigger svg {
+  width: 18px;
+  height: 18px;
+}
+app-markdown-editor .mde__grip .rm__trigger {
+  width: 32px;
+  height: var(--mde-table-bar);
+  border-radius: var(--radius-pill);
+}
+app-markdown-editor .mde__grip--row .rm__trigger {
+  width: var(--mde-table-bar);
+  height: 32px;
+}
+app-markdown-editor .mde__grip .rm__trigger::before,
+app-markdown-editor .mde__tableMenu .rm__trigger::before,
+.mde__add::before {
+  content: '';
+  position: absolute;
+  inset: 50% auto auto 50%;
+  width: max(100%, var(--control-height));
+  height: max(100%, var(--control-height));
+  translate: -50% -50%;
+}
+@media (hover: hover) {
+  app-markdown-editor .mde__grip .rm__trigger:hover,
+  app-markdown-editor .mde__tableMenu .rm__trigger:hover {
+    background: var(--color-surface-3);
+  }
+}
+app-markdown-editor .mde__grip .rm__trigger.rm__trigger--on,
+app-markdown-editor .mde__tableMenu .rm__trigger.rm__trigger--on {
+  background: var(--color-selected);
+  color: var(--color-accent-text);
+}
+.mde__tableMenu {
+  margin-left: var(--mde-table-gap);
+}
+/* The table menu heads the column bar and looks like it: no frame. */
+app-markdown-editor .mde__tableMenu .rm__trigger {
+  width: var(--mde-table-bar);
+  height: var(--mde-table-bar);
+  border-color: transparent;
+  border-radius: var(--radius-sm);
+}
+.mde__add {
+  display: grid;
+  place-items: center;
+  padding: 0;
+  border: 0;
+  border-radius: var(--radius-sm);
+  background: var(--color-surface-2);
+  color: var(--color-text-muted);
+  cursor: pointer;
+}
+@media (hover: hover) {
+  .mde__add:hover {
+    background: var(--color-surface-3);
+    color: var(--color-text);
+  }
+}
+.mde__add:focus-visible {
+  outline: 2px solid var(--color-focus-ring);
+  outline-offset: 1px;
+}
+.mde__add--col {
+  width: var(--mde-table-bar);
+  height: calc(var(--mde-table-h) - var(--mde-table-bar) - var(--mde-table-gap));
+  margin: calc(var(--mde-table-bar) + var(--mde-table-gap)) 0 0 var(--mde-table-gap);
+}
+.mde__add--row {
+  height: var(--mde-table-bar);
+  margin-top: var(--mde-table-gap);
 }

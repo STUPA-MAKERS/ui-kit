@@ -53,14 +53,18 @@ export interface ColumnDef {
    *
    * * `title` — the card's heading: full width, left aligned, no label. Pick the column
    *   that says WHICH record this is.
+   * * `actions` — the row actions in the card header, after the heading, with no label
+   *   line. For a compact control such as a row menu (⋮) or one or two icon buttons. A
+   *   wide group of text buttons squeezes the heading; keep that one a `row`.
    * * `hidden` — left out of the card. For a column that is redundant once the others
    *   are visible, or is a placeholder on most rows.
    * * `row` (the default) — the label/value pair.
    *
    * A table that declares nothing keeps the previous behaviour, where the first data
-   * column becomes the heading.
+   * column becomes the heading. With `selectable`, the checkbox always sits in the card
+   * header before the heading.
    */
-  card?: 'title' | 'row' | 'hidden';
+  card?: 'title' | 'row' | 'actions' | 'hidden';
   /** Renders the header as a sort control and emits `sortChange` on click. */
   sortable?: boolean;
   /**
@@ -141,6 +145,21 @@ export class DataTableComponent
   @Input() rows: readonly unknown[] = [];
   @Input() emptyText = '—';
   @Input() boxed = true;
+  /**
+   * The surface of the rows.
+   *
+   * * `sheet` (the default): the boxed frame with a rule under each row.
+   * * `rowgroup`: the rows of a row group (the dt() tables of the boards). The header and
+   *   each row sit on the table surface, 2px apart, with round outer corners, and reach
+   *   the edge of the box. The colour between the rows is `--dt-gap`, the surface behind
+   *   the table: the page background by default. A card on a phone leaves out a cell
+   *   that renders nothing, for example the actions of a closed row.
+   *
+   * In both modes the table surface is one step above its container: `--table-bg`,
+   * surface 1 by default. A container that is itself a surface sets it with
+   * `surface.context` from `styles/_surface.scss`.
+   */
+  @Input() surface: 'sheet' | 'rowgroup' = 'sheet';
   /** Stable track key per row (index otherwise). */
   @Input() rowKey?: (row: unknown, index: number) => unknown;
   /** Makes rows clickable (cursor/tab/enter) and emits `rowClick`. */

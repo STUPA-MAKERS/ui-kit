@@ -1,0 +1,30 @@
+@use '../../styles/breakpoints' as bp;
+
+:host {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.lg__head {
+  margin: 0;
+  padding: 18px var(--space-4) 6px;
+  font-size: 0.84375rem;
+  line-height: 1.25rem;
+  font-weight: var(--fw-semibold);
+  color: var(--color-accent-text);
+}
+// The first group sits close to the filter line above the list.
+:host(:first-child) .lg__head {
+  padding-top: var(--space-2);
+}
+.lg__head--warn {
+  color: var(--color-warning);
+}
+
+// On a phone the head moves near the edge of the rows.
+@include bp.phone {
+  .lg__head {
+    padding-inline: var(--space-1);
+  }
+}

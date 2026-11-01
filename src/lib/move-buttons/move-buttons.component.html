@@ -1,0 +1,18 @@
+<app-button
+  variant="text"
+  size="sm"
+  [iconOnly]="true"
+  [disabled]="upDisabled()"
+  [ariaLabel]="up()"
+  (click)="move.emit(-1)"
+  ><app-icon name="up"
+/></app-button>
+<app-button
+  variant="text"
+  size="sm"
+  [iconOnly]="true"
+  [disabled]="downDisabled()"
+  [ariaLabel]="down()"
+  (click)="move.emit(1)"
+  ><app-icon name="down"
+/></app-button>

@@ -1,3 +1,5 @@
+@use '../../styles/press';
+
 :host {
   display: inline-flex;
 }
@@ -8,16 +10,24 @@
 :host(.btn-block) .btn {
   width: 100%;
 }
+/* A link in the button look (`a[appButton]`): the link is the focus target, the pill
+   inside it draws the look. The link takes the pill radius, so the focus ring is a pill. */
+:host(.btn-link) {
+  border-radius: var(--radius-pill);
+  color: inherit;
+  text-decoration: none;
+}
 .btn {
   position: relative;
   display: inline-flex;
   align-items: center;
   justify-content: center;
   gap: var(--space-2);
+  font-family: inherit;
   font-weight: var(--fw-semibold);
   line-height: 1;
   border: var(--border-width) solid transparent;
-  border-radius: var(--radius-md);
+  border-radius: var(--radius-pill);
   cursor: pointer;
   white-space: nowrap;
   max-width: 100%;
@@ -25,7 +35,14 @@
   transition:
     background-color var(--motion-fast) var(--ease-standard),
     color var(--motion-fast) var(--ease-standard),
-    border-color var(--motion-fast) var(--ease-standard);
+    border-color var(--motion-fast) var(--ease-standard),
+    filter var(--motion-fast) var(--ease-standard),
+    scale var(--motion-xs) var(--ease-standard);
+  /* The press of every look and size is a tint of the text colour over the fill and a
+     shrink to --press-scale-control (`_press.scss`). It is the only feedback of a tap,
+     because a touch screen shows no hover. */
+  @include press.press;
+  @include press.chrome-text;
 }
 /* A disabled button has to LOOK unavailable. At 0.55 a secondary button still read as
    clickable against a dark surface, so a pager sitting at its last page looked like it
@@ -37,100 +54,179 @@
   box-shadow: none;
   filter: grayscale(0.4);
 }
+
+/* --- Sizes: 32 / 40 / 52px, pill radius. -------------------------------- */
 .btn--sm {
-  padding: var(--space-2) var(--space-3);
-  font-size: var(--fs-sm);
+  --btn-h: var(--button-height, var(--control-height-sm));
+  height: var(--btn-h);
+  padding: 0 var(--button-padding-inline, 14px);
+  font-size: var(--button-font-size, 0.8125rem); /* 13px */
 }
 .btn--md {
-  padding: var(--space-3) var(--space-5);
-  font-size: var(--fs-md);
+  --btn-h: var(--button-height, var(--control-height));
+  height: var(--btn-h);
+  padding: 0 var(--button-padding-inline, var(--space-5));
+  font-size: var(--button-font-size, var(--fs-body));
 }
 .btn--lg {
-  padding: var(--space-4) var(--space-6);
-  font-size: var(--fs-lg);
+  --btn-h: var(--button-height, var(--control-height-lg));
+  height: var(--btn-h);
+  padding: 0 var(--button-padding-inline, 26px);
+  font-size: var(--button-font-size, var(--fs-md));
 }
-/* Quadratischer Icon-Button: gleiche H/B, zentriertes Glyph. */
+
+/* --- Icon button: round, as wide as it is high. -------------------------- */
 .btn--icon {
   aspect-ratio: 1;
-  padding: var(--space-2);
-  line-height: 1;
+  padding: 0;
 }
 .btn--icon.btn--sm {
-  padding: var(--space-1) var(--space-2);
+  width: var(--control-height-sm);
 }
-.btn--primary {
-  background: var(--color-primary);
-  color: var(--color-on-primary);
+.btn--icon.btn--md {
+  width: var(--control-height);
 }
-.btn--primary:hover:not(:disabled) {
-  background: var(--color-primary-hover);
+.btn--icon.btn--lg {
+  width: var(--control-height-lg);
 }
-.btn--primary:active:not(:disabled) {
-  background: var(--color-primary-active);
+
+/* --- Icon size: set by the button size, never by the page. A leading icon sits on the end
+   cap by its `--icon-size` (see below), so an icon of a different size moves off the centre
+   of the cap. An icon without `size` takes the value from here. An icon button has no text
+   beside its glyph and draws it larger. */
+.btn--sm,
+.btn--md {
+  --icon-size: 16px;
 }
-.btn--secondary {
-  background: var(--color-surface);
+.btn--lg {
+  --icon-size: 18px;
+}
+.btn--icon.btn--sm {
+  --icon-size: 18px;
+}
+.btn--icon.btn--md {
+  --icon-size: 20px;
+}
+.btn--icon.btn--lg {
+  --icon-size: 24px;
+}
+
+/* --- Looks ---------------------------------------------------------------- */
+.btn--fill {
+  background: var(--color-accent);
+  color: var(--color-on-accent);
+}
+@media (hover: hover) {
+  .btn--fill:hover:not(:disabled) {
+    filter: brightness(1.08);
+  }
+}
+
+.btn--tonal {
+  background: var(--color-surface-3);
+  color: var(--color-text);
+}
+@media (hover: hover) {
+  .btn--tonal:hover:not(:disabled) {
+    background: var(--color-surface-4);
+  }
+}
+
+.btn--outlined {
+  background: transparent;
   color: var(--color-text);
   border-color: var(--color-border-strong);
 }
-.btn--secondary:hover:not(:disabled) {
-  background: var(--color-surface-sunken);
-  border-color: var(--color-text-muted);
+@media (hover: hover) {
+  .btn--outlined:hover:not(:disabled) {
+    background: var(--color-surface-2);
+  }
 }
-.btn--secondary:active:not(:disabled) {
-  background: var(--color-border);
-}
-.btn--ghost {
+
+/* Quiet action: accent text and a tighter inset. */
+.btn--text {
   background: transparent;
-  color: var(--color-primary);
+  color: var(--color-accent-text);
 }
-.btn--ghost:hover:not(:disabled) {
-  background: var(--color-primary-subtle);
+.btn--text.btn--md {
+  padding: 0 var(--button-padding-inline, var(--space-3));
 }
-.btn--ghost:active:not(:disabled) {
-  background: var(--color-primary-subtle);
-  color: var(--color-primary-active);
+.btn--text.btn--sm {
+  padding: 0 var(--button-padding-inline, 10px);
 }
+/* `--button-hover-bg` lets a text button on a surface-2 card hover one surface up. */
+@media (hover: hover) {
+  .btn--text:hover:not(:disabled) {
+    background: var(--button-hover-bg, var(--color-surface-2));
+  }
+}
+/* As an icon button the text look is a grey glyph, so a row of tools stays quiet. */
+.btn--text.btn--icon {
+  color: var(--color-text-muted);
+  padding: 0;
+}
+@media (hover: hover) {
+  .btn--text.btn--icon:hover:not(:disabled) {
+    color: var(--color-text);
+  }
+}
+
+/* Destructive: outlined in the error colour, never filled. */
 .btn--danger {
-  background: var(--color-danger);
-  color: var(--color-text-inverse);
-}
-.btn--danger:hover:not(:disabled) {
-  filter: brightness(1.08);
-}
-.btn--danger:active:not(:disabled) {
-  filter: brightness(0.94);
-}
-/* Gefahr als Umriss: Fläche des Kartengrunds, Rand und Text in Gefahr-Farbe. Für
-   eine zweite, seltenere Löschaktion neben anderen Knöpfen (z. B. im Fuß). */
-.btn--danger-outline {
-  background: var(--color-surface);
+  background: transparent;
   color: var(--color-danger);
-  border-color: var(--color-danger);
+  border-color: color-mix(in srgb, var(--color-danger) 60%, transparent);
 }
-.btn--danger-outline:hover:not(:disabled) {
-  background: var(--color-danger-subtle);
+@media (hover: hover) {
+  .btn--danger:hover:not(:disabled) {
+    background: var(--color-danger-subtle);
+    border-color: var(--color-danger);
+  }
 }
-.btn--danger-outline:active:not(:disabled) {
-  background: var(--color-danger-subtle);
-  filter: brightness(0.94);
+
+/* Floating main action of a page. */
+.btn--fab {
+  height: 56px;
+  padding: 0 var(--space-5) 0 var(--space-4);
+  gap: var(--space-3);
+  border-radius: var(--radius-lg);
+  background: var(--color-accent);
+  color: var(--color-on-accent);
+  font-size: var(--fs-md);
+  box-shadow: var(--shadow-elevated);
 }
-.btn--success {
-  background: var(--color-success);
-  color: var(--color-text-inverse);
+.btn--fab.btn--icon {
+  width: 56px;
+  padding: 0;
 }
-.btn--success:hover:not(:disabled) {
-  filter: brightness(1.08);
+.btn--fab,
+.btn--fab.btn--icon {
+  --icon-size: 20px;
 }
-.btn--success:active:not(:disabled) {
-  filter: brightness(0.94);
+@media (hover: hover) {
+  .btn--fab:hover:not(:disabled) {
+    filter: brightness(1.08);
+  }
 }
+
+/* A toggle that is on: the selection colour, as a selected list row. A filled button
+   already reads as on, so it keeps its look. */
+.btn--tonal[aria-pressed='true'],
+.btn--outlined[aria-pressed='true'],
+.btn--text[aria-pressed='true'] {
+  background: var(--color-selected);
+  color: var(--color-on-selected);
+  border-color: transparent;
+}
+.btn--text.btn--icon[aria-pressed='true'] {
+  color: var(--color-accent-text);
+}
+
 /* Frei wählbare Farbe: Hintergrund kommt inline, Hover/Active wie danger/success. */
-.btn--custom:hover:not(:disabled) {
-  filter: brightness(1.08);
-}
-.btn--custom:active:not(:disabled) {
-  filter: brightness(0.94);
+@media (hover: hover) {
+  .btn--custom:hover:not(:disabled) {
+    filter: brightness(1.08);
+  }
 }
 /* Überlange Beschriftungen (z. B. Flow-Transition-Labels) laufen nicht aus dem
    Button heraus, sondern werden mit … abgeschnitten. */
@@ -142,6 +238,78 @@
   /* line-height des Buttons ist 1 (kompakt); für den Text etwas mehr Raum,
      sonst schneidet overflow:hidden Unterlängen (g/p/ü) unten ab (#btn-clip). */
   line-height: 1.3;
+}
+/* Projected icon and text sit on one centre line. An inline-flex child (a row of an icon
+   and a text, `inline-flex items-center`) takes its baseline from its first item; for an
+   icon that is the lower edge of the SVG, so the text line moved up by about 3px. At the
+   top of the line box such a row is exactly one text line high and its own `align-items`
+   centres it. A bare icon beside the text is one text line high and also sits at the
+   top of the line box, so it centres its glyph on the middle of the capital letters.
+   `vertical-align: middle` took the middle of the lower-case letters, about 1.5px too
+   low next to a capitalized label. */
+.btn__label ::ng-deep > * {
+  vertical-align: top;
+}
+.btn__label ::ng-deep > app-icon {
+  height: 1.3em;
+}
+/* A leading icon has its centre on the centre of the left end cap: half the button height
+   from the outer left edge, so the glyph sits in the round end like a dot in a capsule. The
+   inset follows from the height and the icon size, not from the padding of the label. The
+   button drops its start padding and the icon takes the inset as a margin; a negative
+   margin would be cut by the `overflow: hidden` of the label. A wrapper that holds the icon
+   and the text counts as a leading icon too. `:first-child` does not see text, so a label
+   that ends with its only icon puts the text in an element. The fab has a rounded
+   rectangle, not a pill, and keeps its padding. */
+:host ::ng-deep .btn:not(.btn--icon):not(.btn--fab):has(> .btn__label > app-icon:first-child),
+:host
+  ::ng-deep
+  .btn:not(.btn--icon):not(.btn--fab):has(> .btn__label > :first-child > app-icon:first-child) {
+  padding-inline-start: 0;
+}
+/* The icon floats at the start of the label with the gap of the design (8px) after it.
+   A float drops the white space of the template that follows it, because that space now
+   starts the line: inline, the gap was that space (about 3px, or none when the icon and
+   the text touch in the markup). The text stays inline, so a long label still ends in an
+   ellipsis; a flex row would make the text a flex item that is cut without one. */
+.btn:not(.btn--icon):not(.btn--fab) .btn__label ::ng-deep > app-icon:first-child,
+.btn:not(.btn--icon):not(.btn--fab) .btn__label ::ng-deep > :first-child > app-icon:first-child {
+  float: inline-start;
+  margin-inline: calc(var(--btn-h) / 2 - var(--icon-size, 18px) / 2 - var(--border-width))
+    var(--space-2);
+}
+/* A button wider than its content (a block button, a stretched action) keeps the icon on
+   the end cap and centres the text in the room after it. */
+:host ::ng-deep .btn:not(.btn--icon):not(.btn--fab) > .btn__label:has(> app-icon:first-child),
+:host
+  ::ng-deep
+  .btn:not(.btn--icon):not(.btn--fab)
+  > .btn__label:has(> :first-child > app-icon:first-child) {
+  flex: 1 1 auto;
+  text-align: center;
+}
+/* A wrapper of the icon and the text is a flex row by its own page styles. As a block it
+   holds the floating icon and cuts its text with an ellipsis like the label. */
+:host
+  ::ng-deep
+  .btn:not(.btn--icon):not(.btn--fab)
+  > .btn__label
+  > :first-child:has(> app-icon:first-child) {
+  display: block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+/* An icon button holds no text to cut, so its label is a centred row. It does not clip:
+   a glyph that fills its em box (the calendar) lost its edge pixels to `overflow:
+   hidden`. Its icon keeps the glyph size instead of the one-line box of a label. */
+.btn--icon .btn__label {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  overflow: visible;
+}
+.btn--icon .btn__label ::ng-deep > app-icon {
+  height: auto;
 }
 /* Spinner liegt ÜBER dem (unsichtbaren) Inhalt statt daneben: der Button
    behält beim Laden exakt seine Größe (kein Breiten-Sprung, #send-glitch). */
@@ -159,8 +327,38 @@
 .btn__label--loading {
   visibility: hidden;
 }
+/* A text button has no surface, so a spinner over its hidden label is only a faint glyph
+   and does not say what loads ("Mehr laden"). While it loads, a text button with a label
+   keeps the label, and the spinner stands before it in the gap of the button. It keeps
+   the full contrast, because the spinner already shows that it is busy. */
+.btn--text:not(.btn--icon) .btn__spinner {
+  position: static;
+  flex: none;
+  margin: 0;
+}
+.btn--text:not(.btn--icon) .btn__label--loading {
+  visibility: visible;
+}
+.btn--text:not(.btn--icon)[aria-busy='true'] {
+  opacity: 1;
+  filter: none;
+  cursor: progress;
+}
 @keyframes btn-spin {
   to {
     transform: rotate(360deg);
   }
+}
+
+/* The fab holds its icon and its text in one row, 12px apart (the gap of `.btn--fab`).
+   The label is that row: the gap of the button reaches only the label itself. The icon
+   is larger than the text line, so the label does not clip it. */
+.btn--fab .btn__label {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-3);
+  overflow: visible;
+}
+.btn--fab .btn__label ::ng-deep > app-icon {
+  height: auto;
 }

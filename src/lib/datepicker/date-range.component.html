@@ -2,7 +2,7 @@
   @if (legend) {
     <legend class="p-0 mb-2 text-sm font-semibold text-text">{{ legend }}</legend>
   }
-  <div class="flex items-end gap-3 flex-wrap">
+  <div class="flex items-center gap-3 flex-wrap">
     <div class="dr__field">
       <app-datepicker
         [id]="id + '-start'"
@@ -12,7 +12,7 @@
         (ngModelChange)="onStart($event)"
       />
     </div>
-    <span class="pb-3 text-muted" aria-hidden="true">–</span>
+    <span class="text-muted" aria-hidden="true">–</span>
     <div class="dr__field">
       <app-datepicker
         [id]="id + '-end'"

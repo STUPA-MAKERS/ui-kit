@@ -1,0 +1,11 @@
+:host {
+  display: inline;
+}
+
+.hl__hit {
+  border-radius: var(--highlight-radius, 3px);
+  padding: var(--highlight-padding, 0 1px);
+  background: var(--highlight-bg, var(--color-selected));
+  color: var(--highlight-color, inherit);
+  font-weight: var(--highlight-weight, inherit);
+}

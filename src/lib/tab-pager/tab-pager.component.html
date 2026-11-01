@@ -1,0 +1,52 @@
+@if (paged()) {
+  <div #bar class="tp__bar">
+    <app-tabs
+      class="tp__tabs"
+      [idPrefix]="idPrefix()"
+      [ariaLabel]="ariaLabel()"
+      [tabs]="tabs()"
+      [active]="current()"
+      (activeChange)="select($event)"
+    />
+    <span #ink class="tp__ink" aria-hidden="true"></span>
+  </div>
+  <!-- One page per tab side by side; a swipe snaps to the next page (CSS scroll snap), and
+       the ink under the tabs moves with the scroll. -->
+  <div #pager class="tp__pager" (scroll)="onScroll()" (scrollend)="onRest()" (pointerdown)="onTouch()">
+    @for (tab of tabs(); track tab.id) {
+      <div
+        class="tp__page"
+        role="tabpanel"
+        [id]="panelId(tab.id)"
+        [attr.aria-labelledby]="tabId(tab.id)"
+        [attr.inert]="tab.id === current() ? null : ''"
+      >
+        <ng-container
+          *ngTemplateOutlet="templateFor(tab.id); context: { $implicit: tab.id, active: tab.id === current() }"
+        />
+      </div>
+    }
+  </div>
+} @else {
+  <app-tabs
+    class="tp__tabs"
+    [idPrefix]="idPrefix()"
+    [ariaLabel]="ariaLabel()"
+    [tabs]="tabs()"
+    [active]="current()"
+    (activeChange)="select($event)"
+  />
+  @for (tab of tabs(); track tab.id) {
+    <div
+      class="tp__panel"
+      role="tabpanel"
+      [id]="panelId(tab.id)"
+      [attr.aria-labelledby]="tabId(tab.id)"
+      [hidden]="tab.id !== current()"
+    >
+      <ng-container
+        *ngTemplateOutlet="templateFor(tab.id); context: { $implicit: tab.id, active: tab.id === current() }"
+      />
+    </div>
+  }
+}

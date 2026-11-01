@@ -1,4 +1,5 @@
 // Reset + Basis-Element-Styles. Nutzt ausschließlich Semantic-Tokens.
+@use 'press';
 
 *,
 *::before,
@@ -14,6 +15,50 @@
   -webkit-tap-highlight-color: transparent;
 }
 
+// A touch screen: a press and hold on the interface (a heading, a label, a row title, a
+// tab, a status line) selects nothing and opens no callout, as in a native app, because a
+// selection there reads as a broken control. Only content stays selectable: the text
+// fields, the field values of a detail (`.kv dd`, `.fld__value`, `.lfld__value`) and
+// every element with `.selectable` (an app puts it on its Markdown and chat texts). An
+// element that sets its own `user-select` (`all` for a join link) keeps it. A fine
+// pointer keeps the selection of the browser everywhere. The callout rule does nothing on
+// Android: the app stops the link menu of a long press there with a `contextmenu` handler.
+@media (hover: none) and (pointer: coarse) {
+  html {
+    @include press.chrome-text;
+  }
+  // A link or an image does not start a drag under the finger.
+  a,
+  img {
+    -webkit-user-drag: none;
+  }
+  // A touch screen shows no scroll bar, as a native app does: the content moves under the
+  // finger, and Android draws a classic grey bar for a styled or thin one. No reserved
+  // gutter either, because it would leave an empty strip at the edge. `!important`,
+  // because a component rule (`scrollbar-width: thin`) would win over the universal
+  // selector.
+  *,
+  *::before,
+  *::after {
+    scrollbar-width: none !important;
+    scrollbar-gutter: auto !important;
+  }
+  *::-webkit-scrollbar {
+    display: none;
+    width: 0;
+    height: 0;
+  }
+  input,
+  textarea,
+  [contenteditable]:not([contenteditable='false']),
+  .selectable,
+  .kv dd,
+  .fld__value,
+  .lfld__value {
+    @include press.selectable;
+  }
+}
+
 html {
   font-size: 100%;
   -webkit-text-size-adjust: 100%;
@@ -26,7 +71,7 @@ html {
 body {
   min-height: 100dvh;
   font-family: var(--font-sans);
-  font-size: var(--fs-md);
+  font-size: var(--fs-body);
   font-weight: var(--fw-regular);
   line-height: var(--lh-normal);
   color: var(--color-text);
@@ -43,22 +88,27 @@ h2,
 h3,
 h4 {
   font-weight: var(--fw-semibold);
-  line-height: var(--lh-tight);
-  letter-spacing: var(--tracking-tight);
   text-wrap: balance;
 }
 
+// Role scale: the page title (h1) is d2, a section heading (h2) is h1, and so on. The
+// heading LEVEL follows the document outline; the SIZE follows the role.
 h1 {
-  font-size: var(--fs-3xl);
+  font-size: var(--fs-d2);
+  line-height: var(--lh-d2);
+  letter-spacing: var(--tracking-tight);
 }
 h2 {
-  font-size: var(--fs-2xl);
+  font-size: var(--fs-h1);
+  line-height: var(--lh-h1);
 }
 h3 {
-  font-size: var(--fs-xl);
+  font-size: var(--fs-h2);
+  line-height: var(--lh-h2);
 }
 h4 {
-  font-size: var(--fs-lg);
+  font-size: var(--fs-h3);
+  line-height: var(--lh-h3);
 }
 
 p {
@@ -90,11 +140,10 @@ textarea {
   color: inherit;
 }
 
-// Sichtbarer, konsistenter Fokus-Ring (a11y, WCAG 2.1 AA).
+// Visible focus ring in the accent colour (a11y, WCAG 2.1 AA).
 :focus-visible {
   outline: 2px solid var(--color-focus-ring);
   outline-offset: 2px;
-  border-radius: var(--radius-sm);
 }
 
 :focus:not(:focus-visible) {
@@ -124,8 +173,9 @@ textarea {
   border: 0;
 }
 
-// Layout-Container.
-.container {
+// The layout box of a page. Not `.container`: Tailwind emits a `.container` utility with
+// breakpoint max-widths, which comes later in an app and wins over `--layout-max-width`.
+.page-shell {
   width: 100%;
   max-width: var(--layout-max-width);
   margin-inline: auto;
@@ -135,22 +185,19 @@ textarea {
 // Mobile-Baseline (≤768px): engerer Seitenrand, kompaktere Headings.
 // Desktop bleibt unverändert — alle Mobile-Regeln sind additiv per max-width.
 @media (max-width: 768px) {
-  .container {
+  .page-shell {
     padding-inline: var(--space-4);
   }
   h1 {
-    font-size: var(--fs-2xl);
-  }
-  h2 {
-    font-size: var(--fs-xl);
+    font-size: var(--fs-h1);
+    line-height: var(--lh-h1);
   }
 }
 
-// Native Checkboxen/Radios app-weit in CD-Primärfarbe (statt Browser-Blau) —
-// damit sie überall gleich aussehen wie das app-checkbox-UI-Kit.
+// Native checkboxes and radios app-wide in the accent colour (instead of browser blue).
 input[type='checkbox'],
 input[type='radio'] {
-  accent-color: var(--color-primary);
+  accent-color: var(--color-accent);
 }
 
 // App-weiter Leerzustand für Listen/Tabellen — eine Quelle der Wahrheit. Wird als
@@ -162,7 +209,6 @@ input[type='radio'] {
   text-align: center;
   color: var(--color-text-muted);
   padding: var(--space-6);
-  border: var(--border-width) solid var(--color-border);
   border-radius: var(--radius-lg);
   background: var(--color-surface);
 }
@@ -234,3 +280,137 @@ input[type='radio'] {
   }
 }
 
+
+
+/* ---------------------------------------------------------------------------
+   Text utilities of the design system.
+   --------------------------------------------------------------------------- */
+
+/* Numbers that line up in a column: amounts, counts, dates. */
+.num {
+  font-variant-numeric: tabular-nums;
+}
+
+/* Amounts, short IDs and keys in the mono face. */
+.mono {
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+}
+
+/* One line with an ellipsis. Give the element a `title` with the full text. */
+.ell {
+  overflow: hidden;
+  min-width: 0;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Caption: table headers, group labels above a list. */
+.cap {
+  font-size: var(--fs-cap);
+  line-height: var(--lh-cap);
+  font-weight: var(--fw-semibold);
+  letter-spacing: var(--tracking-cap);
+  text-transform: uppercase;
+  color: var(--color-text-subtle);
+}
+
+/* A code tag: a token, a scope, an event name or a group in the mono face (`<code
+   class="code-tag">`). A filled plate on surface 3, or `.code-tag--outlined` with an edge.
+   It wraps anywhere, so a long scope is never cut. `--code-tag-padding` sets the padding
+   (default 1px 8px), `--code-tag-font-size` the size (default 12.5px). */
+.code-tag {
+  max-width: 100%;
+  padding: var(--code-tag-padding, 1px var(--space-2));
+  border-radius: var(--radius-sm);
+  background: var(--color-surface-3);
+  font-family: var(--font-mono);
+  font-size: var(--code-tag-font-size, var(--fs-xs));
+  overflow-wrap: anywhere;
+}
+.code-tag--outlined {
+  border: 1px solid var(--color-border-strong);
+  border-radius: var(--radius-md);
+  background: transparent;
+}
+
+/* A key/value grid of facts (`<dl class="kv">`): each fact is a `<div>` with the muted
+   label (`dt`) above the value (`dd`). A value wraps anywhere, so an address or an id is
+   never cut. `.kv__wide` takes a whole line. A page sets the columns with `--kv-cols`
+   (default 3, in a container query for a narrow sheet), the gaps with `--kv-gap` and the
+   space between label and value with `--kv-item-gap` (default 2px). */
+.kv {
+  display: grid;
+  grid-template-columns: repeat(var(--kv-cols, 3), minmax(0, 1fr));
+  gap: var(--kv-gap, var(--space-3) var(--space-5));
+  margin: 0;
+}
+.kv > div {
+  display: flex;
+  flex-direction: column;
+  gap: var(--kv-item-gap, 2px);
+  min-width: 0;
+}
+.kv dt {
+  font-size: var(--fs-sm);
+  color: var(--color-text-muted);
+}
+.kv dd {
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+.kv__wide {
+  grid-column: 1 / -1;
+}
+
+/* A keyboard key, for example the shortcut of the search field. */
+.kbd {
+  display: inline-block;
+  padding: 5px 7px;
+  font: var(--fw-medium) 11px/1 var(--font-mono);
+  color: var(--color-text-subtle);
+  border: var(--border-width) solid var(--color-border);
+  border-radius: var(--radius-sm);
+  white-space: nowrap;
+}
+
+/* A filter chip (a button): 32px high, radius 8, a thin edge. `.on` marks an active
+   filter with the selection colour. */
+.chip {
+  @include press.chrome-text;
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  gap: 6px;
+  height: var(--control-height-sm);
+  padding: 0 var(--space-3);
+  border: var(--border-width) solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: transparent;
+  color: var(--color-text-muted);
+  font: inherit;
+  font-size: 0.84375rem; /* 13.5px */
+  font-weight: var(--fw-medium);
+  white-space: nowrap;
+  cursor: pointer;
+  transition: scale var(--motion-xs) var(--ease-standard);
+  @include press.press;
+}
+@media (hover: hover) {
+  .chip:hover {
+    background: var(--color-surface-2);
+    color: var(--color-text);
+  }
+}
+.chip.on {
+  background: var(--color-selected);
+  border-color: transparent;
+  color: var(--color-on-selected);
+}
+@media (hover: hover) {
+  .chip.on:hover {
+    background: var(--color-selected);
+    border-color: transparent;
+    color: var(--color-on-selected);
+  }
+}

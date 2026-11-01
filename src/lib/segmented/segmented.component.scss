@@ -1,0 +1,126 @@
+@use '../../styles/press';
+
+:host {
+  display: inline-flex;
+  max-width: 100%;
+}
+.seg {
+  display: inline-flex;
+  align-items: stretch;
+  max-width: 100%;
+  height: 36px;
+  border: var(--border-width) solid var(--color-border-strong);
+  border-radius: 18px;
+  overflow: hidden;
+}
+.seg__opt {
+  @include press.chrome-text;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+  padding: 0 var(--space-4);
+  border: 0;
+  background: transparent;
+  color: var(--color-text);
+  font: inherit;
+  font-size: 0.84375rem; /* 13.5px */
+  font-weight: var(--fw-medium);
+  white-space: nowrap;
+  cursor: pointer;
+  /* A new selection fades: the old segment loses its fill while the new one gains it. */
+  transition:
+    background-color var(--motion-base) var(--ease-standard),
+    color var(--motion-base) var(--ease-standard),
+    scale var(--motion-xs) var(--ease-standard);
+  @include press.press;
+}
+.seg__opt + .seg__opt {
+  border-left: var(--border-width) solid var(--color-border-strong);
+}
+@media (hover: hover) {
+  .seg__opt:hover:not(:disabled):not(.seg__opt--on) {
+    background: var(--color-surface-2);
+  }
+}
+.seg__opt--on {
+  background: var(--color-selected);
+  color: var(--color-on-selected);
+  font-weight: var(--fw-semibold);
+}
+.seg__opt:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+/* The ring sits inside: the group clips its children to the rounded edge. */
+.seg__opt:focus-visible {
+  outline-offset: -3px;
+}
+.seg__check {
+  flex: none;
+}
+.seg__label {
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+/* A hidden copy of the label in the weight of the chosen segment. The label is then as
+   wide as its bold form, and the selection does not change the width of a segment.
+   The empty alternative text keeps the copy out of the accessible name. */
+.seg__label::after {
+  content: attr(data-label);
+  content: attr(data-label) / '';
+  display: block;
+  height: 0;
+  overflow: hidden;
+  visibility: hidden;
+  font-weight: var(--fw-semibold);
+}
+
+/* A count after the label: the same size, a lighter weight and colour. */
+.seg__count {
+  flex: none;
+  color: var(--color-text-muted);
+  font-weight: var(--fw-regular);
+  font-variant-numeric: tabular-nums;
+}
+.seg__opt--on .seg__count {
+  color: inherit;
+}
+
+/* `equal`: every segment as wide as the widest one. A grid with columns of `1fr` sizes
+   all of them to the largest content. */
+:host(.seg-host--equal) .seg {
+  display: inline-grid;
+  grid-auto-columns: 1fr;
+  grid-auto-flow: column;
+}
+/* `fill`: the control takes the width of its container; the segments share it. */
+:host(.seg-host--fill) {
+  display: flex;
+  width: 100%;
+}
+:host(.seg-host--fill) .seg {
+  display: grid;
+  flex: 1 1 auto;
+  grid-auto-columns: minmax(0, 1fr);
+  grid-auto-flow: column;
+}
+:host(.seg-host--equal) .seg__opt,
+:host(.seg-host--fill) .seg__opt {
+  justify-content: center;
+}
+
+/* `size="control"`: as high as a medium button, so a header row has one height. */
+:host(.seg-host--control) .seg {
+  height: var(--control-height);
+  border-radius: calc(var(--control-height) / 2);
+}
+
+/* A `control` switch keeps one width: a segment without the check mark adds the room
+   of the mark (14px) and its gap (6px) to its padding, half on each side. The label
+   moves when the mark appears, but the switch does not change its width, so the buttons
+   beside it do not move. */
+:host(.seg-host--control.seg-host--check:not(.seg-host--fill)) .seg__opt:not(.seg__opt--on) {
+  justify-content: center;
+  padding-inline: calc(var(--space-4) + 10px);
+}

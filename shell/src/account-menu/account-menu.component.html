@@ -1,0 +1,78 @@
+<ng-template #content>
+  <div class="am__who">
+    <span class="am__whoLabel">{{ 'account.signedInAs' | uiKitT }}</span>
+    <span
+      class="am__whoName ell"
+      [appTruncated]="name()"
+      #cut="appTruncated"
+      [attr.title]="cut.truncated() ? name() : null"
+      >{{ name() }}</span
+    >
+  </div>
+  <div class="am__sep" role="separator"></div>
+  <div class="am__items" (click)="onItemsClick($event)">
+    <ng-content select="[accountItems]" />
+  </div>
+  <div class="am__sep" role="separator"></div>
+  @if (languages().length > 1) {
+    <div class="am__item am__item--field">
+      <app-icon name="globe" [size]="19" />
+      <span class="am__grow" aria-hidden="true">{{ 'account.language' | uiKitT }}</span>
+      <span class="am__lang">
+        <app-filter-select
+          [label]="'account.language' | uiKitT"
+          [options]="options()"
+          [value]="language()"
+          [text]="languageName()"
+          size="sm"
+          (valueChange)="chooseLanguage($event)"
+        />
+      </span>
+    </div>
+  }
+  <div class="am__item am__item--field">
+    <app-icon name="moon" [size]="19" />
+    <app-switch class="am__grow" [checked]="dark()" (checkedChange)="darkChange.emit($event)">{{
+      'account.darkMode' | uiKitT
+    }}</app-switch>
+  </div>
+  <div class="am__sep" role="separator"></div>
+  <button type="button" class="am__item" (click)="signOut()">
+    <app-icon name="logout" [size]="19" />{{ 'account.logout' | uiKitT }}
+  </button>
+</ng-template>
+
+@if (look() === 'popover') {
+  <button
+    #trigger
+    type="button"
+    class="am__trigger"
+    [class.am__trigger--on]="open()"
+    [attr.aria-expanded]="open()"
+    [attr.aria-controls]="open() ? panelId : null"
+    [attr.aria-label]="'account.open' | uiKitT: { name: name() }"
+    [title]="'account.open' | uiKitT: { name: name() }"
+    (click)="toggle()"
+  >
+    <app-avatar [name]="name()" [principalId]="avatarId()" [decorative]="true" />
+  </button>
+  @if (open()) {
+    <div
+      #panel
+      class="am am--popover"
+      animate.enter="motion-pop-in"
+      animate.leave="motion-pop-out"
+      role="region"
+      [id]="panelId"
+      [attr.aria-label]="'account.region' | uiKitT"
+      [style.left.px]="position().left"
+      [style.bottom.px]="position().bottom"
+    >
+      <ng-container [ngTemplateOutlet]="content" />
+    </div>
+  }
+} @else {
+  <div class="am am--sheet" role="group" [attr.aria-label]="'account.region' | uiKitT">
+    <ng-container [ngTemplateOutlet]="content" />
+  </div>
+}

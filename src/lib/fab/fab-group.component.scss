@@ -1,0 +1,19 @@
+:host {
+  position: fixed;
+  right: calc(var(--layout-gutter) + var(--space-4));
+  bottom: calc(var(--layout-gutter) + var(--space-4));
+  z-index: var(--z-sticky);
+  display: flex;
+  gap: var(--space-3);
+  animation: fab-group-in var(--motion-fast) var(--ease-enter);
+}
+:host-context(.frame--phone) {
+  right: var(--space-4);
+  bottom: calc(var(--app-bottom-inset, 0px) + var(--space-4));
+}
+@keyframes fab-group-in {
+  from {
+    opacity: 0;
+    transform: translateY(var(--space-3));
+  }
+}

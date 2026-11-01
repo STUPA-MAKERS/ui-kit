@@ -1,0 +1,48 @@
+// The fade at the ends of a scroll area. An end fades only while more content lies past
+// it: the scroll-fade directive of the app sets `is-fade-start` and `is-fade-end` on the
+// box. Emits no CSS.
+//   @use 'scroll-fade' as fade;
+//   .list { @include fade.fade-y(var(--space-5)); }
+//
+// `$size` is the length of the fade. With `$both: false` a box that has more content at
+// both ends fades only at the end (the later rule wins), as a chip row that shows its
+// start does.
+
+@mixin -fade($start, $end, $size, $both) {
+  &.is-fade-start {
+    -webkit-mask-image: linear-gradient(to #{$start}, transparent, #000 $size);
+    mask-image: linear-gradient(to #{$start}, transparent, #000 $size);
+  }
+  &.is-fade-end {
+    -webkit-mask-image: linear-gradient(to #{$end}, transparent, #000 $size);
+    mask-image: linear-gradient(to #{$end}, transparent, #000 $size);
+  }
+  @if $both {
+    &.is-fade-start.is-fade-end {
+      -webkit-mask-image: linear-gradient(
+        to #{$start},
+        transparent,
+        #000 $size,
+        #000 calc(100% - #{$size}),
+        transparent
+      );
+      mask-image: linear-gradient(
+        to #{$start},
+        transparent,
+        #000 $size,
+        #000 calc(100% - #{$size}),
+        transparent
+      );
+    }
+  }
+}
+
+// The top and the bottom end.
+@mixin fade-y($size, $both: true) {
+  @include -fade(bottom, top, $size, $both);
+}
+
+// The start and the end of a row that scrolls sideways.
+@mixin fade-x($size, $both: true) {
+  @include -fade(right, left, $size, $both);
+}

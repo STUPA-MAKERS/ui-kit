@@ -1,4 +1,24 @@
-@if (isEmpty(diff())) {
+@if (compact()) {
+  <div class="cfg-diff-code" role="group" [attr.aria-label]="'diff.label' | uiKitT">
+    @for (l of lines(); track $index) {
+      <div class="cfg-diff-code__item">
+        <div class="cfg-diff-code__key">{{ l.key }}</div>
+        @if (l.before !== null) {
+          <div class="cfg-diff-code__del">
+            <span aria-hidden="true">- </span><span class="cfg-diff-code__sr">{{ 'diff.before' | uiKitT }}: </span>{{ l.before }}
+          </div>
+        }
+        @if (l.after !== null) {
+          <div class="cfg-diff-code__ins">
+            <span aria-hidden="true">+ </span><span class="cfg-diff-code__sr">{{ 'diff.after' | uiKitT }}: </span>{{ l.after }}
+          </div>
+        }
+      </div>
+    } @empty {
+      <p class="cfg-diff-code__none">{{ 'diff.noneCompact' | uiKitT }}</p>
+    }
+  </div>
+} @else if (isEmpty(diff())) {
   <p class="text-muted cfg-diff__none">{{ 'diff.none' | uiKitT }}</p>
 } @else {
   <ul class="cfg-diff">

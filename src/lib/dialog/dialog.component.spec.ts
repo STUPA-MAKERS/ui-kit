@@ -1,5 +1,6 @@
 import { fireEvent, render, screen } from '@testing-library/angular';
 import userEvent from '@testing-library/user-event';
+import { ButtonComponent } from '../button/button.component';
 import { DialogComponent } from './dialog.component';
 
 function pane(): HTMLElement {
@@ -26,6 +27,74 @@ describe('DialogComponent', () => {
     const dialog = screen.getByRole('dialog');
     expect(dialog).toHaveAttribute('aria-modal', 'true');
     expect(dialog).toHaveAccessibleName('Antrag löschen?');
+  });
+
+  it('shows a subtitle below the title and uses it as the description', async () => {
+    await render(
+      `<app-dialog title="TOP hinzufügen" subtitle="34. Sitzung des Studierendenparlaments" [open]="true">B</app-dialog>`,
+      { imports: [DialogComponent] },
+    );
+    const sub = screen.getByText('34. Sitzung des Studierendenparlaments');
+    expect(sub).toHaveClass('dialog__subtitle');
+    expect(pane()).toHaveAccessibleDescription('34. Sitzung des Studierendenparlaments');
+    expect(pane()).toHaveAccessibleName('TOP hinzufügen');
+  });
+
+  it('renders no subtitle and no description without a subtitle', async () => {
+    await render(`<app-dialog title="X" [open]="true">B</app-dialog>`, {
+      imports: [DialogComponent],
+    });
+    expect(document.querySelector('.dialog__subtitle')).toBeNull();
+    expect(pane()).not.toHaveAttribute('aria-describedby');
+  });
+
+  it('shows the title as a heading and a round close button with an icon', async () => {
+    await render(`<app-dialog title="Sitzung schließen?" [open]="true">B</app-dialog>`, {
+      imports: [DialogComponent],
+    });
+    expect(screen.getByRole('heading', { level: 2, name: 'Sitzung schließen?' })).toHaveClass('dialog__title');
+    const close = screen.getByRole('button', { name: 'Schließen' });
+    expect(close).toHaveAttribute('title', 'Schließen');
+    expect(close.querySelector('svg')).toHaveAttribute('aria-hidden', 'true');
+    expect(close.textContent?.trim()).toBe('');
+  });
+
+  it('puts the actions in the footer, the destructive one as an outlined danger button', async () => {
+    await render(
+      `<app-dialog title="Antrag löschen?" [open]="true">
+         <p>Der Antrag wird gelöscht.</p>
+         <app-button dialog-footer variant="text">Abbrechen</app-button>
+         <app-button dialog-footer variant="danger">Löschen</app-button>
+       </app-dialog>`,
+      { imports: [DialogComponent, ButtonComponent] },
+    );
+    const footer = document.querySelector('.dialog__footer') as HTMLElement;
+    const del = screen.getByRole('button', { name: 'Löschen' });
+    expect(footer).toContainElement(del);
+    expect(del).toHaveClass('btn--danger');
+    expect(del).not.toHaveClass('btn--fill');
+    // The destructive action comes last, at the trailing edge.
+    const buttons = Array.from(footer.querySelectorAll('button'));
+    expect(buttons[buttons.length - 1]).toBe(del);
+  });
+
+  it('projects a wrapper of switching actions into the footer', async () => {
+    await render(
+      `<app-dialog title="Konto zusammenführen" [open]="true">
+         <p>Schritt 1</p>
+         <div dialog-footer>
+           @if (true) {
+             <app-button variant="text">Abbrechen</app-button>
+             <app-button variant="fill">Weiter</app-button>
+           }
+         </div>
+       </app-dialog>`,
+      { imports: [DialogComponent, ButtonComponent] },
+    );
+    const footer = document.querySelector('.dialog__footer') as HTMLElement;
+    const wrapper = footer.querySelector(':scope > div[dialog-footer]');
+    expect(wrapper).not.toBeNull();
+    expect(wrapper).toContainElement(screen.getByRole('button', { name: 'Weiter' }));
   });
 
   it('emits closed when the close button is pressed', async () => {
@@ -77,6 +146,14 @@ describe('DialogComponent', () => {
       imports: [DialogComponent],
     });
     expect(pane()).toHaveClass('dialog--lg');
+  });
+
+  it('applies the form size modifier', async () => {
+    await render(`<app-dialog title="X" [open]="true" size="form">B</app-dialog>`, {
+      imports: [DialogComponent],
+    });
+    expect(pane()).toHaveClass('dialog--form');
+    expect(pane()).not.toHaveClass('dialog--lg');
   });
 
   it('closes on a backdrop click but not on a click inside the pane', async () => {
@@ -237,6 +314,29 @@ describe('DialogComponent', () => {
     cmp.onDragEnd(makeTouch(20, 5000)); // 20px over 5000ms → velocity 0.004 → snap back
     expect(closed).not.toHaveBeenCalled();
     expect(paneEl.style.transform).toBe('');
+  });
+
+  it('ticks once when the drag passes the way that closes the sheet', async () => {
+    const vibrate = jest.fn(() => true);
+    Object.defineProperty(navigator, 'vibrate', { value: vibrate, configurable: true });
+    try {
+      const view = await render(`<app-dialog title="X" [open]="true">B</app-dialog>`, {
+        imports: [DialogComponent],
+      });
+      const cmp = view.fixture.debugElement.children[0].componentInstance as DialogComponent;
+      cmp.onDragStart(makeTouch(0, 0));
+      cmp.onDragMove(makeTouch(100, 10));
+      expect(vibrate).not.toHaveBeenCalled();
+      cmp.onDragMove(makeTouch(130, 20));
+      cmp.onDragMove(makeTouch(160, 30));
+      expect(vibrate).toHaveBeenCalledTimes(1);
+      // Back above the line and down again: a second tick.
+      cmp.onDragMove(makeTouch(90, 40));
+      cmp.onDragMove(makeTouch(140, 50));
+      expect(vibrate).toHaveBeenCalledTimes(2);
+    } finally {
+      delete (navigator as { vibrate?: unknown }).vibrate;
+    }
   });
 
   it('only drags down, never up (clamped at 0)', async () => {

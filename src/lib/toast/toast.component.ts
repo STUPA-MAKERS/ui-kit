@@ -1,4 +1,5 @@
 import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
+import { IconComponent } from '../icon/icon.component';
 import { UiKitTranslatePipe } from '../intl/translate.pipe';
 import { ToastService } from './toast.service';
 
@@ -7,7 +8,7 @@ import { ToastService } from './toast.service';
   selector: 'app-toast',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [UiKitTranslatePipe],
+  imports: [UiKitTranslatePipe, IconComponent],
   templateUrl: './toast.component.html',
   styleUrl: './toast.component.scss',
 })

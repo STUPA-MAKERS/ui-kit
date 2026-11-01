@@ -1,3 +1,6 @@
+@use '../../styles/surface';
+@use '../../styles/press';
+
 .dialog__backdrop {
   position: fixed;
   inset: 0;
@@ -6,18 +9,22 @@
   align-items: center;
   justify-content: center;
   padding: var(--space-5);
-  background: rgba(0, 18, 10, 0.55);
+  background: var(--color-scrim);
 }
+/* The sheet: surface 1, radius 24, no edge. A table inside it steps up to surface 2. */
 .dialog {
+  @include surface.context(1);
   width: 100%;
-  max-width: 32rem;
+  max-width: 35rem;
   background: var(--color-bg-elevated);
-  border: var(--border-width) solid var(--color-border);
-  border-radius: var(--radius-lg);
-  box-shadow: var(--shadow-lg);
+  border-radius: var(--radius-2xl);
+  box-shadow: var(--shadow-elevated);
   display: flex;
   flex-direction: column;
   max-height: 85dvh;
+}
+.dialog--form {
+  max-width: 40rem;
 }
 .dialog--lg {
   max-width: 44rem;
@@ -28,19 +35,53 @@
 }
 .dialog__header {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   justify-content: space-between;
   gap: var(--space-4);
-  padding: var(--space-5) var(--space-5) var(--space-3);
+  padding: var(--space-5) var(--space-4) var(--space-2) var(--space-5);
+}
+.dialog__heading {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  min-width: 0;
+}
+.dialog__title {
+  min-width: 0;
+  padding-top: 6px;
+  font-size: var(--fs-h1);
+  line-height: var(--lh-h1);
+  font-weight: var(--fw-semibold);
+  overflow-wrap: anywhere;
+}
+/* The object of the dialog, below the title: body size, muted. */
+.dialog__subtitle {
+  margin: 0;
+  font-size: var(--fs-body);
+  line-height: var(--lh-body);
+  color: var(--color-text-muted);
+  overflow-wrap: anywhere;
 }
 .dialog__close {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  padding: 0;
   background: transparent;
   border: 0;
-  cursor: pointer;
-  font-size: var(--fs-lg);
+  border-radius: var(--radius-pill);
   color: var(--color-text-muted);
-  border-radius: var(--radius-sm);
-  padding: var(--space-1);
+  cursor: pointer;
+  transition: background-color var(--motion-fast) var(--ease-standard), scale var(--motion-xs) var(--ease-standard);
+  @include press.press;
+}
+@media (hover: hover) {
+  .dialog__close:hover {
+    background: var(--color-surface-2);
+    color: var(--color-text);
+  }
 }
 .dialog__body {
   /* Vertikales Padding reserviert die Fade-Zone als Leerraum: im Ruhezustand wird
@@ -49,6 +90,8 @@
      Protokoll-Timeline und die Budget-Bäume. */
   padding: var(--space-4) var(--space-5);
   overflow-y: auto;
+  font-size: var(--fs-body);
+  line-height: var(--lh-body);
   --fade: linear-gradient(
     to bottom,
     transparent,
@@ -61,16 +104,29 @@
 }
 .dialog__footer {
   display: flex;
+  flex-wrap: wrap;
   justify-content: flex-end;
-  gap: var(--space-3);
-  padding: var(--space-5);
+  gap: var(--space-2);
+  padding: var(--space-2) var(--space-5) var(--space-5);
 }
 .dialog__footer:empty {
   display: none;
 }
+/* A wrapper `<div dialog-footer>` holds actions that switch with a state (a step, a
+   failure). It lays them out like the footer itself, so a page needs no CSS of its own.
+   `--dialog-footer-gap` sets the space between the actions (default 12px). */
+.dialog__footer ::ng-deep > div[dialog-footer] {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  align-items: center;
+  gap: var(--dialog-footer-gap, var(--space-3));
+}
 
-/* Mobile (≤768px): Dialog als Sheet — volle Breite, am unteren Rand,
-   mehr nutzbare Höhe. Desktop unverändert. */
+/* Mobile (≤768px): Dialog als Sheet — volle Breite, am unteren Rand. Desktop
+   unverändert.
+   The sheet is at most 85dvh high, the same as the bottom sheet of the app. The page
+   stays visible above it. */
 @media (max-width: 768px) {
   .dialog__backdrop {
     align-items: flex-end;
@@ -78,14 +134,15 @@
   }
   .dialog {
     max-width: none;
-    max-height: 92dvh;
-    border-radius: var(--radius-lg) var(--radius-lg) 0 0;
-    border-bottom: 0;
+    max-height: 85dvh;
+    border-radius: var(--radius-2xl) var(--radius-2xl) 0 0;
     /* Flush am unteren Rand inkl. Safe-Area (Home-Indicator) füllen — keine
        Backdrop-Lücke unter dem Sheet (#14). */
     padding-bottom: env(safe-area-inset-bottom, 0px);
-    /* Sanftes Zurückschnappen / Schließen beim Wischen. */
-    transition: transform 0.22s var(--ease-standard);
+    /* In landscape the sheet keeps its content clear of the notch. */
+    padding-inline: env(safe-area-inset-left, 0px) env(safe-area-inset-right, 0px);
+    /* Snap back after a short swipe. */
+    transition: transform var(--motion-fast) var(--ease-standard);
   }
   /* Drag-Zone: native Scroll-Geste hier unterdrücken, damit das Sheet dem
      Finger folgt statt den Inhalt zu scrollen. */
@@ -101,7 +158,7 @@
     background: var(--color-border-strong);
   }
   .dialog__header {
-    padding: var(--space-2) var(--space-4);
+    padding: var(--space-2) var(--space-2) var(--space-2) var(--space-4);
   }
   .dialog__body {
     /* Fade-Zone (var(--space-4)) als Leerraum behalten, sonst Anschnitt am Rand. */
@@ -110,5 +167,62 @@
   .dialog__footer {
     padding: var(--space-4);
     flex-wrap: wrap;
+  }
+}
+
+/* Motion. The dialog grows from the centre, the scrim fades with it. Leaving runs faster
+   (exit curve). Both parts of a leave take --motion-base, so the element stays until both end.
+   On a phone the dialog is a sheet: it comes up from the bottom edge and goes back down. */
+.dialog--entering {
+  animation: dialog-scrim-in var(--motion-base) var(--ease-standard);
+}
+.dialog--entering .dialog {
+  animation: dialog-in var(--motion-base) var(--ease-enter);
+}
+.dialog--leaving {
+  pointer-events: none;
+  animation: dialog-scrim-out var(--motion-base) var(--ease-exit) forwards;
+}
+.dialog--leaving .dialog {
+  animation: dialog-out var(--motion-base) var(--ease-exit) forwards;
+}
+@media (max-width: 768px) {
+  .dialog--entering .dialog {
+    animation: dialog-sheet-in var(--motion-slow) var(--ease-enter);
+  }
+  .dialog--leaving .dialog {
+    animation: dialog-sheet-out var(--motion-base) var(--ease-exit) forwards;
+  }
+}
+@keyframes dialog-scrim-in {
+  from {
+    background-color: transparent;
+  }
+}
+@keyframes dialog-scrim-out {
+  to {
+    background-color: transparent;
+  }
+}
+@keyframes dialog-in {
+  from {
+    opacity: 0;
+    transform: scale(var(--motion-scale-in));
+  }
+}
+@keyframes dialog-out {
+  to {
+    opacity: 0;
+    transform: scale(var(--motion-scale-in));
+  }
+}
+@keyframes dialog-sheet-in {
+  from {
+    transform: translateY(100%);
+  }
+}
+@keyframes dialog-sheet-out {
+  to {
+    transform: translateY(100%);
   }
 }

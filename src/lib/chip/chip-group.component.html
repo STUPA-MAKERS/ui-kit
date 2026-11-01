@@ -1,0 +1,24 @@
+<div
+  class="cgrp"
+  role="radiogroup"
+  [attr.aria-label]="ariaLabel() || null"
+  [attr.aria-labelledby]="ariaLabelledby() || null"
+>
+  @for (opt of options(); track opt.value; let i = $index) {
+    <button
+      type="button"
+      role="radio"
+      class="chip cgrp__chip"
+      [class.on]="opt.value === value()"
+      [attr.aria-checked]="opt.value === value()"
+      [attr.tabindex]="opt.value === focusValue() ? 0 : -1"
+      (click)="select(opt)"
+      (keydown)="onKeydown($event, i)"
+    >
+      @if (check() && opt.value === value()) {
+        <app-icon name="check" [size]="14" />
+      }
+      {{ opt.label }}
+    </button>
+  }
+</div>

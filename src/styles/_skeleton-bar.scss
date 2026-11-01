@@ -1,0 +1,7 @@
+// The geometry of the skeleton bar in a table cell. `app-data-table` (`.dt__skeleton`)
+// and the global `.skel--bar` read it, so a hand-rolled table matches the shared one.
+// Emits no CSS.
+
+$height: 0.75rem;
+$width: 60%;
+$first-width: 80%;

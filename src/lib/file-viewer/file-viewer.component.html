@@ -1,0 +1,121 @@
+@if (open()) {
+  <div
+    #pane
+    class="fv"
+    role="dialog"
+    aria-modal="true"
+    tabindex="-1"
+    [attr.aria-label]="current()?.name ?? null"
+    animate.enter="fv--entering"
+    animate.leave="fv--leaving"
+  >
+    <span class="fv__sentinel" tabindex="0" (focus)="wrapFocus('last')"></span>
+
+    <header class="fv__bar">
+      <div class="fv__bar-start"></div>
+      <h2
+        #name
+        class="fv__name"
+        [attr.title]="titleTooltip"
+        (mouseenter)="updateTitleTooltip(name)"
+      >{{ current()?.name }}</h2>
+      <div class="fv__bar-end">
+        <div class="fv__actions"><ng-content select="[viewerActions]" /></div>
+        <button
+          #closeButton
+          type="button"
+          class="fv__btn fv__close"
+          [attr.aria-label]="'viewer.close' | uiKitT"
+          [attr.title]="'viewer.close' | uiKitT"
+          (click)="close()"
+        >
+          <app-icon name="x" [size]="22" />
+        </button>
+      </div>
+    </header>
+
+    <div
+      class="fv__stage"
+      [class.fv__stage--pdf]="kind() === 'pdf'"
+      (touchstart)="onTouchStart($event)"
+      (touchend)="onTouchEnd($event)"
+    >
+      @if (current(); as item) {
+        @switch (kind()) {
+          @case ('image') {
+            @if (state() !== 'error' && item.url) {
+              <img
+                class="fv__image"
+                [class.fv__image--loading]="state() === 'loading'"
+                [src]="item.url"
+                [alt]="item.name"
+                (load)="onLoad()"
+                (error)="onError()"
+              />
+            }
+          }
+          @case ('pdf') {
+            @if (item.url) {
+              <iframe
+                class="fv__pdf"
+                [class.fv__pdf--loading]="state() === 'loading'"
+                [src]="pdfUrl()"
+                [title]="item.name"
+                (load)="onLoad()"
+              ></iframe>
+            }
+          }
+          @default {
+            <div class="fv__message">
+              <app-icon name="file" [size]="64" [strokeWidth]="1.2" />
+              <p class="fv__message-name">{{ item.name }}</p>
+              <p class="fv__message-text">{{ 'viewer.noPreview' | uiKitT }}</p>
+              <div class="fv__message-action"><ng-content select="[viewerFallback]" /></div>
+            </div>
+          }
+        }
+
+        @if (kind() !== 'other') {
+          @if (state() === 'loading') {
+            <div class="fv__loading" role="status">
+              <span class="fv__spinner" aria-hidden="true"></span>
+              <span class="fv__sr">{{ 'loading' | uiKitT }}</span>
+            </div>
+          } @else if (state() === 'error') {
+            <div class="fv__message" role="alert">
+              <app-icon name="alert" [size]="48" [strokeWidth]="1.4" />
+              <p class="fv__message-name">{{ item.name }}</p>
+              <p class="fv__message-text">{{ 'viewer.error' | uiKitT }}</p>
+            </div>
+          }
+        }
+      }
+
+      @if (multiple()) {
+        <button
+          type="button"
+          class="fv__btn fv__nav fv__nav--prev"
+          [disabled]="!hasPrevious()"
+          [attr.aria-label]="'viewer.previous' | uiKitT"
+          [attr.title]="'viewer.previous' | uiKitT"
+          (click)="previous()"
+        >
+          <app-icon name="chevron-left" />
+        </button>
+        <button
+          type="button"
+          class="fv__btn fv__nav fv__nav--next"
+          [disabled]="!hasNext()"
+          [attr.aria-label]="'viewer.next' | uiKitT"
+          [attr.title]="'viewer.next' | uiKitT"
+          (click)="next()"
+        >
+          <app-icon name="chevron-right" />
+        </button>
+        <p class="fv__sr fv__position" aria-live="polite">{{ positionText() }}</p>
+      }
+    </div>
+
+    <span class="fv__sentinel" tabindex="0" (focus)="wrapFocus('first')"></span>
+  </div>
+}

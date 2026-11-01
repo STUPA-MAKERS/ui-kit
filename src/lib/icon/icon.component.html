@@ -1,11 +1,37 @@
-<span class="icon__stack">
-  <i class="fa-solid" [class]="faClass()" [style.fontSize.px]="size" aria-hidden="true"></i>
-  @if (overlayClass()) {
-    <i
-      class="fa-solid icon__overlay"
-      [class]="overlayClass()"
-      [style.fontSize.px]="size"
-      aria-hidden="true"
-    ></i>
+<svg
+  [attr.width]="size"
+  [attr.height]="size"
+  viewBox="0 0 24 24"
+  fill="none"
+  stroke="currentColor"
+  [attr.stroke-width]="strokeWidth"
+  stroke-linecap="round"
+  stroke-linejoin="round"
+  aria-hidden="true"
+  focusable="false"
+  [attr.data-icon]="name"
+>
+  @for (s of shapes(); track $index) {
+    @switch (s.t) {
+      @case ('path') {
+        <svg:path [attr.d]="s.d" [attr.fill]="s.fill ?? null" />
+      }
+      @case ('circle') {
+        <svg:circle [attr.cx]="s.cx" [attr.cy]="s.cy" [attr.r]="s.r" [attr.fill]="s.fill ?? null" />
+      }
+      @case ('rect') {
+        <svg:rect
+          [attr.x]="s.x"
+          [attr.y]="s.y"
+          [attr.width]="s.width"
+          [attr.height]="s.height"
+          [attr.rx]="s.rx ?? null"
+          [attr.fill]="s.fill ?? null"
+        />
+      }
+      @case ('ellipse') {
+        <svg:ellipse [attr.cx]="s.cx" [attr.cy]="s.cy" [attr.rx]="s.rx" [attr.ry]="s.ry" [attr.fill]="s.fill ?? null" />
+      }
+    }
   }
-</span>
+</svg>

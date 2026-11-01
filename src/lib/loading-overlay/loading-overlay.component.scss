@@ -9,14 +9,14 @@
   justify-content: center;
   background: color-mix(in srgb, var(--color-bg, #000) 55%, transparent);
   backdrop-filter: blur(1px);
-  animation: lo-fade 120ms ease-out;
+  animation: lo-fade var(--motion-fast) var(--ease-enter);
 }
 .lo__spinner {
   width: 2.25rem;
   height: 2.25rem;
   border-radius: 999px;
-  border: 3px solid var(--color-border-strong, currentColor);
-  border-top-color: var(--color-primary);
+  border: 3px solid var(--color-surface-4, currentColor);
+  border-top-color: var(--color-accent);
   animation: lo-spin 0.7s linear infinite;
 }
 @keyframes lo-spin {

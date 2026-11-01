@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, signal } from '@angular/core';
 import { FormControl, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { render, screen } from '@testing-library/angular';
 import userEvent from '@testing-library/user-event';
@@ -62,5 +62,52 @@ describe('CheckboxComponent', () => {
     const describedBy = box.getAttribute('aria-describedby');
     expect(describedBy).toBeTruthy();
     expect(screen.getByText('Mehr Infos')).toHaveAttribute('id', describedBy);
+  });
+
+  it('shows the mixed state through the native control', async () => {
+    @Component({
+      standalone: true,
+      imports: [CheckboxComponent],
+      template: `<app-checkbox [indeterminate]="mixed()">Alle</app-checkbox>`,
+    })
+    class Host {
+      mixed = signal(true);
+    }
+    const { fixture } = await render(Host);
+    const box = screen.getByRole('checkbox', { name: 'Alle' }) as HTMLInputElement;
+    expect(box.indeterminate).toBe(true);
+    expect(box).toBePartiallyChecked();
+    fixture.componentInstance.mixed.set(false);
+    fixture.detectChanges();
+    expect(box.indeterminate).toBe(false);
+    expect(box).not.toBePartiallyChecked();
+  });
+
+  it('accepts indeterminate as a bare attribute', async () => {
+    await render(`<app-checkbox indeterminate>Alle</app-checkbox>`, {
+      imports: [CheckboxComponent],
+    });
+    expect((screen.getByRole('checkbox') as HTMLInputElement).indeterminate).toBe(true);
+  });
+
+  it('is not mixed by default', async () => {
+    await render(`<app-checkbox>X</app-checkbox>`, { imports: [CheckboxComponent] });
+    expect((screen.getByRole('checkbox') as HTMLInputElement).indeterminate).toBe(false);
+  });
+
+  it('keeps the mixed state after a click until the host clears it', async () => {
+    @Component({
+      standalone: true,
+      imports: [CheckboxComponent, FormsModule],
+      template: `<app-checkbox [indeterminate]="true" [(ngModel)]="on">Alle</app-checkbox>`,
+    })
+    class Host {
+      on = false;
+    }
+    const { fixture } = await render(Host);
+    const box = screen.getByRole('checkbox') as HTMLInputElement;
+    await userEvent.click(box);
+    expect(fixture.componentInstance.on).toBe(true);
+    expect(box.indeterminate).toBe(true);
   });
 });
