@@ -1,0 +1,8 @@
+@if (skeleton(); as width) {
+  <h2 class="lg__head" aria-hidden="true">
+    <span class="skel-text skel-text--accent" [style.width]="width"></span>
+  </h2>
+} @else if (label(); as text) {
+  <h2 class="lg__head" [class.lg__head--warn]="tone() === 'warn'" [id]="headId">{{ text }}</h2>
+}
+<ng-content />

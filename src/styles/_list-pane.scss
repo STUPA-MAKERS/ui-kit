@@ -1,6 +1,6 @@
 // The list column of a list/detail page: the column, the filter chips, the scroll area of
-// the rows, the month heads, the "more" row, the detail outlet and the row menu that shows
-// on hover. Emits no CSS.
+// the rows, the "more" row, the detail outlet and the row menu that shows on hover. The
+// head of a group of rows is the component `app-list-group`. Emits no CSS.
 //   @use 'list-pane' as lp;
 //   .apps__scroll { @include lp.scroll(--apps-fade); }
 //
@@ -49,10 +49,6 @@
   overflow-y: auto;
   overscroll-behavior: contain;
   scroll-padding-block: var(#{$fade});
-}
-
-@mixin month {
-  padding: 18px var(--space-4) 6px;
 }
 
 @mixin more {

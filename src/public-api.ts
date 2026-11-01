@@ -90,6 +90,7 @@ export * from './lib/row-menu/row-menu.component';
 export * from './lib/skeleton/skeleton.component';
 export * from './lib/empty-state/empty-state.component';
 export * from './lib/detail-none/detail-none.component';
+export * from './lib/list-group/list-group.component';
 export * from './lib/page-header/page-header.component';
 export * from './lib/fab/fab.component';
 export * from './lib/fab/fab-group.component';
