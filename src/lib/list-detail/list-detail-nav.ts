@@ -22,6 +22,20 @@ export interface ListDetailBarClient {
 }
 
 /**
+ * A task that takes over the detail, such as an edit form. While it runs, the bar shows
+ * an X in place of the back arrow and the name of the task as a fixed title, so the
+ * task has no second bar of its own.
+ */
+export interface ListDetailTask {
+  /** The name of the task, shown as the title of the bar. */
+  readonly title: string;
+  /** The name of the X for screen readers, such as "Abbrechen". */
+  readonly cancelLabel: string;
+  /** The X was pressed. */
+  readonly cancel: () => void;
+}
+
+/**
  * The link between `app-list-detail` and the `app-sheet-bar` of its detail, one per layout.
  *
  * One view at a time, the layout shows a bar (`app-list-detail-bar`) at the top of the
@@ -42,6 +56,11 @@ export class ListDetailNav {
   readonly condensed = signal(false);
   /** The text of the small title. */
   readonly title = signal('');
+  /**
+   * The task that takes over the detail, or null. A detail sets it while the task runs
+   * and clears it when the task ends (`ListDetailTask`).
+   */
+  readonly task = signal<ListDetailTask | null>(null);
   /** The lower edge of the bar in the viewport, in px; 0 while no bar shows. */
   barBottom: () => number = () => 0;
 

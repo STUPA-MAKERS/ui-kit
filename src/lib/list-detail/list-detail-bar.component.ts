@@ -21,6 +21,10 @@ import { ListDetailNav } from './list-detail-nav';
  * scrolled under the bar, and the actions of the sheet bar of the detail. It stays at the
  * top while the page (or the scrolling panel around it) scrolls.
  *
+ * While a task takes over the detail (`ListDetailNav.task`, such as an edit form), the
+ * bar shows an X that cancels the task and the name of the task as a fixed title, and no
+ * actions.
+ *
  * `app-list-detail` shows it above its detail. A detail outside that layout (the card
  * drawer of a to-do board on a phone) gets the same bar with `appListDetailNav` on its
  * panel and this bar as the first child of the panel: its `app-sheet-bar` then hands its
@@ -37,7 +41,7 @@ import { ListDetailNav } from './list-detail-nav';
   imports: [IconComponent, NgTemplateOutlet, UiKitTranslatePipe],
   host: {
     class: 'ld__bar',
-    '[class.ld__bar--condensed]': 'nav.condensed() || title() !== null',
+    '[class.ld__bar--condensed]': 'nav.condensed() || title() !== null || nav.task() !== null',
   },
   templateUrl: './list-detail-bar.component.html',
   styleUrl: './list-detail-bar.component.scss',
@@ -45,7 +49,7 @@ import { ListDetailNav } from './list-detail-nav';
 export class ListDetailBarComponent {
   protected readonly nav = inject(ListDetailNav);
   private readonly host = inject<ElementRef<HTMLElement>>(ElementRef).nativeElement;
-  private readonly backButton = viewChild.required<ElementRef<HTMLButtonElement>>('backButton');
+  private readonly backButton = viewChild<ElementRef<HTMLButtonElement>>('backButton');
 
   /** The name of the back arrow; "Zur Liste" by default. */
   readonly label = input<string | null>(null);
@@ -67,7 +71,7 @@ export class ListDetailBarComponent {
 
   /** Put the focus on the back arrow. */
   focus(): void {
-    this.backButton().nativeElement.focus();
+    this.backButton()?.nativeElement.focus();
   }
 }
 
