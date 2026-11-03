@@ -95,6 +95,7 @@ export * from './lib/page-header/page-header.component';
 export * from './lib/fab/fab.component';
 export * from './lib/fab/fab-group.component';
 export * from './lib/note/note.component';
+export * from './lib/section/section.component';
 export * from './lib/confirm-dialog/confirm-dialog.component';
 export * from './lib/selection-bar/selection-bar.component';
 export * from './lib/list-item/list-item.component';
