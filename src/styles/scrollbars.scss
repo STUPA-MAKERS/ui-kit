@@ -1,0 +1,100 @@
+// The overlay scroll bars that `startOverlayScrollbars` draws (lib/scrollbar). While they run,
+// `<html>` carries `ui-scrollbars`, and the native bars turn transparent but keep their gutter,
+// so the layout is the same as with the native bar and the drawn one sits where it was.
+// `scrollbar-color` inherits, so one rule on the root covers every box. Safari draws no
+// `scrollbar-color`, so it gets the `-webkit-scrollbar` parts, which Chrome ignores while
+// `scrollbar-color` is set.
+
+:root.ui-scrollbars {
+  scrollbar-color: transparent transparent;
+}
+
+@supports not (scrollbar-color: transparent transparent) {
+  .ui-scrollbars *::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+    background: transparent;
+  }
+  .ui-scrollbars *::-webkit-scrollbar-thumb,
+  .ui-scrollbars *::-webkit-scrollbar-corner {
+    background: transparent;
+  }
+}
+
+// The layer covers the viewport (or its dialog) and lets every press through, except on a rail
+// that shows.
+.ui-sb-layer {
+  position: fixed;
+  inset: 0;
+  z-index: var(--z-toast);
+  pointer-events: none;
+  contain: strict;
+}
+
+.ui-sb {
+  --sb-thumb: color-mix(in srgb, var(--color-text) 32%, transparent);
+  --sb-thumb-hot: color-mix(in srgb, var(--color-text) 50%, transparent);
+  --sb-track: color-mix(in srgb, var(--color-text) 7%, transparent);
+  position: absolute;
+  box-sizing: border-box;
+  border-radius: 999px;
+  opacity: 0;
+  pointer-events: none;
+  transition:
+    opacity var(--motion-base) var(--ease-standard),
+    background-color var(--motion-fast) var(--ease-standard);
+
+  &.is-shown {
+    opacity: 1;
+    pointer-events: auto;
+  }
+
+  // The rail is wider than the thumb, so the thumb is easy to hit. The track shows under the
+  // pointer only.
+  &.is-hot {
+    background: var(--sb-track);
+  }
+}
+
+.ui-sb__thumb {
+  position: absolute;
+  border-radius: 999px;
+  background: var(--sb-thumb);
+  transition:
+    width var(--motion-fast) var(--ease-standard),
+    height var(--motion-fast) var(--ease-standard),
+    background-color var(--motion-fast) var(--ease-standard);
+
+  .is-hot > & {
+    background: var(--sb-thumb-hot);
+  }
+}
+
+// A thin thumb at the outer edge of the rail, a wide one under the pointer.
+.ui-sb--y > .ui-sb__thumb {
+  top: 0;
+  right: 2px;
+  width: 4px;
+}
+.ui-sb--y.ui-sb--start > .ui-sb__thumb {
+  right: auto;
+  left: 2px;
+}
+.ui-sb--y.is-hot > .ui-sb__thumb {
+  width: 8px;
+}
+.ui-sb--x > .ui-sb__thumb {
+  left: 0;
+  bottom: 2px;
+  height: 4px;
+}
+.ui-sb--x.is-hot > .ui-sb__thumb {
+  height: 8px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ui-sb,
+  .ui-sb__thumb {
+    transition: none;
+  }
+}

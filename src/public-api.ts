@@ -27,6 +27,7 @@ export * from './lib/theme/theme.config';
 export * from './lib/theme/theme.service';
 export * from './lib/motion/motion';
 export * from './lib/page-frame/page-frame';
+export * from './lib/scrollbar/overlay-scrollbars';
 
 // --- components -------------------------------------------------------------
 export * from './lib/button/button.component';
