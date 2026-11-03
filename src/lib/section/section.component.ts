@@ -6,9 +6,13 @@ let nextId = 0;
  * A titled section of a detail sheet, a form or a settings page: the title in the accent
  * colour, an optional action at the end of the title row, and the content below.
  *
- * Every page uses this one look for its section titles, so the size, the colour, the
- * inset of the title and the space below it are the same everywhere. A page sets no own
- * title style.
+ * Every page uses this look for its section titles, so the size, the colour, the inset
+ * of the title and the space below it are the same everywhere. A page sets no own title
+ * style.
+ *
+ * `size="lg"` is the second look: a larger title in the text colour without an inset, for
+ * the few blocks of an overview page (for example the budget overview) that are panels
+ * of their own and not parts of one sheet. Use it only there.
  *
  * ```html
  * <app-section heading="Unterbuchungen">
@@ -38,6 +42,7 @@ let nextId = 0;
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: {
     role: 'group',
+    '[class.section--lg]': "size() === 'lg'",
     '[attr.aria-labelledby]': 'titleId()',
   },
   templateUrl: './section.component.html',
@@ -48,6 +53,8 @@ export class SectionComponent {
   readonly heading = input.required<string>();
   /** The heading level of the title. */
   readonly level = input<2 | 3 | 4>(3);
+  /** The look of the title: `md` (accent, small) or `lg` (text colour, large). */
+  readonly size = input<'md' | 'lg'>('md');
   /** Quiet text beside the title, for example a count. `null` shows none. */
   readonly meta = input<string | number | null>(null);
   /** Mark the title as required. */

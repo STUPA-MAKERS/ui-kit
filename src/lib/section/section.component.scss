@@ -52,6 +52,18 @@
   line-height: 1.25rem;
 }
 
+// The large look: an overview block. The title sits as far above the content as the
+// content blocks sit apart, and has no inset, so it aligns with the panel edge.
+:host(.section--lg) {
+  gap: var(--section-gap, var(--space-3));
+}
+:host(.section--lg) .section__title {
+  padding: 0 var(--section-inset, 0);
+  color: var(--color-text);
+  font-size: var(--fs-h2);
+  line-height: 1.5rem;
+}
+
 .section__req {
   color: var(--color-danger);
 }

@@ -24,6 +24,16 @@ describe('SectionComponent', () => {
     expect(container.querySelector('.section__body')).not.toHaveTextContent('Hinzufügen');
   });
 
+  it('takes the large look on request', async () => {
+    const { container } = await render(
+      `<app-section heading="Verteilung" size="lg"></app-section><app-section heading="Beleg"></app-section>`,
+      { imports: [SectionComponent] },
+    );
+    const hosts = container.querySelectorAll('app-section');
+    expect(hosts[0]).toHaveClass('section--lg');
+    expect(hosts[1]).not.toHaveClass('section--lg');
+  });
+
   it('takes another heading level', async () => {
     await render(`<app-section heading="Rollen" [level]="2"></app-section>`, {
       imports: [SectionComponent],
