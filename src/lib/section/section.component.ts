@@ -23,7 +23,8 @@ let nextId = 0;
  *
  * - The title is an `h3` (`level` changes it), and the host is a `group` named by it, so
  *   the fields of a form section are grouped for screen readers like a `fieldset`.
- * - `meta` shows quiet text beside the title: a count ("3", "8 von 24") or a short tag.
+ * - `meta` shows a short quiet tag beside the title. It is never a count: a block title
+ *   carries no counter.
  * - `required` marks the title with the star of a required field, for a section that
  *   the user must fill (for example the files of an application).
  * - `hideHeading` keeps the title for screen readers only, for a layout where the
@@ -55,8 +56,8 @@ export class SectionComponent {
   readonly level = input<2 | 3 | 4>(3);
   /** The look of the title: `md` (accent, small) or `lg` (text colour, large). */
   readonly size = input<'md' | 'lg'>('md');
-  /** Quiet text beside the title, for example a count. `null` shows none. */
-  readonly meta = input<string | number | null>(null);
+  /** A short quiet tag beside the title, never a count. `null` shows none. */
+  readonly meta = input<string | null>(null);
   /** Mark the title as required. */
   readonly required = input(false, { transform: booleanAttribute });
   /** Show the title to screen readers only. */

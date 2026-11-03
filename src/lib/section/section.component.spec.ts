@@ -50,12 +50,12 @@ describe('SectionComponent', () => {
     expect(new Set(ids).size).toBe(2);
   });
 
-  it('shows a count beside the title', async () => {
-    const { container } = await render(`<app-section heading="Mitglieder" [meta]="3"></app-section>`, {
+  it('shows a tag beside the title', async () => {
+    const { container } = await render(`<app-section heading="Beschluss" meta="abweichend"></app-section>`, {
       imports: [SectionComponent],
     });
-    expect(container.querySelector('.section__meta')).toHaveTextContent('3');
-    expect(screen.getByRole('heading', { name: 'Mitglieder' })).toBeInTheDocument();
+    expect(container.querySelector('.section__meta')).toHaveTextContent('abweichend');
+    expect(screen.getByRole('heading', { name: 'Beschluss' })).toBeInTheDocument();
   });
 
   it('marks a required section with a star that screen readers skip', async () => {
