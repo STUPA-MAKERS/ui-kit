@@ -1,15 +1,20 @@
-<div class="section__head">
-  @switch (level()) {
-    @case (2) {
-      <h2 class="section__title" [id]="headingId">{{ heading() }}</h2>
+<div class="section__head" [class.section__head--hidden]="hideHeading()">
+  <div class="section__lead">
+    @switch (level()) {
+      @case (2) {
+        <h2 class="section__title" [id]="titleId()">{{ heading() }}@if (required()) {<span class="section__req" aria-hidden="true"> *</span>}</h2>
+      }
+      @case (4) {
+        <h4 class="section__title" [id]="titleId()">{{ heading() }}@if (required()) {<span class="section__req" aria-hidden="true"> *</span>}</h4>
+      }
+      @default {
+        <h3 class="section__title" [id]="titleId()">{{ heading() }}@if (required()) {<span class="section__req" aria-hidden="true"> *</span>}</h3>
+      }
     }
-    @case (4) {
-      <h4 class="section__title" [id]="headingId">{{ heading() }}</h4>
+    @if (meta() !== null) {
+      <span class="section__meta">{{ meta() }}</span>
     }
-    @default {
-      <h3 class="section__title" [id]="headingId">{{ heading() }}</h3>
-    }
-  }
+  </div>
   <ng-content select="[sectionAction]" />
 </div>
 <div class="section__body">
