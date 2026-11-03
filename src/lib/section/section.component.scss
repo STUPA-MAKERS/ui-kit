@@ -13,19 +13,54 @@
   min-width: 0;
 }
 // An action in the row: the row takes the height of a small control.
-.section__head:has(> :not(.section__title)) {
+.section__head:has(> :not(.section__lead)) {
   min-height: var(--control-height-sm);
 }
 
-.section__title {
+// A hidden title stays for screen readers. Without an action the row takes no space; with
+// one, the action keeps its place at the end of the row.
+.section__head--hidden .section__lead,
+.section__head--hidden:not(:has(> :not(.section__lead))) {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  min-height: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+.section__head--hidden:has(> :not(.section__lead)) {
+  justify-content: flex-end;
+}
+
+.section__lead {
+  display: flex;
   flex: 1 1 auto;
+  align-items: baseline;
+  gap: var(--space-2);
+  min-width: 0;
+}
+
+.section__title {
+  flex: 0 1 auto;
   min-width: 0;
   margin: 0;
-  padding: 0 var(--space-1);
+  padding: 0 var(--section-inset, var(--space-1));
   color: var(--color-accent-text);
   font-size: 0.84375rem;
   font-weight: var(--fw-semibold);
   line-height: 1.25rem;
+}
+
+.section__req {
+  color: var(--color-danger);
+}
+
+.section__meta {
+  flex: none;
+  color: var(--color-text-muted);
+  font-size: var(--fs-small);
+  font-variant-numeric: tabular-nums;
 }
 
 .section__body {

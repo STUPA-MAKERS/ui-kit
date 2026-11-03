@@ -39,4 +39,34 @@ describe('SectionComponent', () => {
     const ids = [...container.querySelectorAll('.section__title')].map((t) => t.id);
     expect(new Set(ids).size).toBe(2);
   });
+
+  it('shows a count beside the title', async () => {
+    const { container } = await render(`<app-section heading="Mitglieder" [meta]="3"></app-section>`, {
+      imports: [SectionComponent],
+    });
+    expect(container.querySelector('.section__meta')).toHaveTextContent('3');
+    expect(screen.getByRole('heading', { name: 'Mitglieder' })).toBeInTheDocument();
+  });
+
+  it('marks a required section with a star that screen readers skip', async () => {
+    await render(`<app-section heading="Anhänge" required></app-section>`, { imports: [SectionComponent] });
+    const title = screen.getByRole('heading', { name: 'Anhänge' });
+    expect(title.querySelector('.section__req')).toHaveAttribute('aria-hidden', 'true');
+  });
+
+  it('takes the title id from the page', async () => {
+    await render(`<app-section heading="Daten" headingId="x-data"></app-section>`, {
+      imports: [SectionComponent],
+    });
+    expect(screen.getByRole('heading', { name: 'Daten' }).id).toBe('x-data');
+    expect(screen.getByRole('group', { name: 'Daten' })).toHaveAttribute('aria-labelledby', 'x-data');
+  });
+
+  it('keeps a hidden title for screen readers', async () => {
+    const { container } = await render(`<app-section heading="Details" hideHeading><p>x</p></app-section>`, {
+      imports: [SectionComponent],
+    });
+    expect(container.querySelector('.section__head')).toHaveClass('section__head--hidden');
+    expect(screen.getByRole('group', { name: 'Details' })).toBeInTheDocument();
+  });
 });
