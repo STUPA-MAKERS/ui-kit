@@ -1,0 +1,17 @@
+<div class="section__head">
+  @switch (level()) {
+    @case (2) {
+      <h2 class="section__title" [id]="headingId">{{ heading() }}</h2>
+    }
+    @case (4) {
+      <h4 class="section__title" [id]="headingId">{{ heading() }}</h4>
+    }
+    @default {
+      <h3 class="section__title" [id]="headingId">{{ heading() }}</h3>
+    }
+  }
+  <ng-content select="[sectionAction]" />
+</div>
+<div class="section__body">
+  <ng-content />
+</div>

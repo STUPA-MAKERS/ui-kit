@@ -1,0 +1,36 @@
+:host {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  min-width: 0;
+}
+
+.section__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2);
+  min-width: 0;
+}
+// An action in the row: the row takes the height of a small control.
+.section__head:has(> :not(.section__title)) {
+  min-height: var(--control-height-sm);
+}
+
+.section__title {
+  flex: 1 1 auto;
+  min-width: 0;
+  margin: 0;
+  padding: 0 var(--space-1);
+  color: var(--color-accent-text);
+  font-size: 0.84375rem;
+  font-weight: var(--fw-semibold);
+  line-height: 1.25rem;
+}
+
+.section__body {
+  display: flex;
+  flex-direction: column;
+  gap: var(--section-gap, var(--space-3));
+  min-width: 0;
+}
