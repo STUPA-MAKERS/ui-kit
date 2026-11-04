@@ -23,14 +23,14 @@
   padding: 0 max(4px, var(--app-right-safe-area, 0px)) env(safe-area-inset-bottom)
     max(4px, var(--app-left-safe-area, 0px));
   box-shadow: var(--bb-shadow, var(--shadow-md-up));
+  --nav-mark-ring: var(--color-surface-3);
+  @include press.chrome-text;
   @include frosted(
     var(--color-surface-3),
     top,
     $fade-to: var(--color-surface-3),
     $fade-stop: calc(100% - env(safe-area-inset-bottom) - var(--bottom-bar-height, 64px) / 2)
   );
-  --nav-mark-ring: var(--color-surface-3);
-  @include press.chrome-text;
 }
 
 @include nav-items.bar-item;

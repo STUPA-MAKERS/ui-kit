@@ -42,6 +42,7 @@ export type IconName =
   | 'clipcheck'
   | 'clipslash'
   | 'clock'
+  | 'code'
   | 'cloud-off'
   | 'copy'
   | 'db'
@@ -177,6 +178,7 @@ const SHAPES: Record<string, readonly IconShape[]> = {
   clipcheck: [{ t: 'rect', x: '8', y: '2', width: '8', height: '4', rx: '1' }, { t: 'path', d: 'M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2' }, { t: 'path', d: 'm9 14 2 2 4-4' }],
   clipslash: [{ t: 'path', d: 'm21.4 11.1-9.2 9.2a6 6 0 0 1-8.5-8.5l9.2-9.2a4 4 0 0 1 5.7 5.7l-9.2 9.2a2 2 0 0 1-2.8-2.8l8.5-8.5' }, { t: 'path', d: 'M3 3l18 18' }],
   clock: [{ t: 'circle', cx: '12', cy: '12', r: '9' }, { t: 'path', d: 'M12 7v5l3 2' }],
+  code: [{ t: 'path', d: 'M8 7l-5 5 5 5M16 7l5 5-5 5M14 4l-4 16' }],
   'cloud-off': [{ t: 'path', d: 'm2 2 20 20' }, { t: 'path', d: 'M5.782 5.782A7 7 0 0 0 9 19h8.5a4.5 4.5 0 0 0 1.307-.193' }, { t: 'path', d: 'M21.532 16.5A4.5 4.5 0 0 0 17.5 10h-1.79A7.008 7.008 0 0 0 10 5.07' }],
   copy: [{ t: 'rect', x: '8', y: '8', width: '13', height: '13', rx: '2' }, { t: 'path', d: 'M4 16V5a1 1 0 0 1 1-1h11' }],
   db: [{ t: 'ellipse', cx: '12', cy: '5', rx: '8', ry: '3' }, { t: 'path', d: 'M4 5v14c0 1.7 3.6 3 8 3s8-1.3 8-3V5' }, { t: 'path', d: 'M4 12c0 1.7 3.6 3 8 3s8-1.3 8-3' }],
@@ -326,6 +328,7 @@ export const ICON_NAMES: readonly IconName[] = [
   'clipcheck',
   'clipslash',
   'clock',
+  'code',
   'copy',
   'db',
   'down',
