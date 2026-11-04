@@ -70,6 +70,11 @@
   // bottom bar read through the rows of the sheet. The lift undoes the scrim behind it.
   @include frosted-pop(var(--color-surface-2), 85%, 20px, 1.3);
 }
+// The fields, rows and buttons on the glass are neutral overlays (`glass-content`).
+.ss__top,
+.ss__body {
+  @include glass-content;
+}
 // The page shows through the glass, so the scrim under a sheet is lighter.
 .ss__scrim:has(+ .ss) {
   background: color-mix(in srgb, var(--color-scrim) 60%, transparent);

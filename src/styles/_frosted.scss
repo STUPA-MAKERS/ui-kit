@@ -107,3 +107,20 @@
     backdrop-filter: $filter;
   }
 }
+
+/* The content of a glass surface (a dialog, a side or bottom sheet, a dock): every
+   element with a surface of its own (a field, a row, a chip, a tonal button, a card)
+   becomes a neutral overlay of the glass instead of a solid colour, so the glass shows
+   through it. The overlay is the text colour at a low share, so it lightens the glass of
+   the dark theme and darkens that of the light theme, and the step from the glass stays
+   the same in both. The levels keep their order (1 < 2 < 3 < 4), so a hover or a nested
+   surface still steps up. Put it on the wrappers inside the glass, never on the glass
+   element itself, because the glass reads its own colour from the same tokens. */
+@mixin glass-content {
+  --color-bg-elevated: color-mix(in srgb, var(--color-text) 5%, transparent);
+  --color-surface: color-mix(in srgb, var(--color-text) 5%, transparent);
+  --color-surface-1: color-mix(in srgb, var(--color-text) 5%, transparent);
+  --color-surface-2: color-mix(in srgb, var(--color-text) 6%, transparent);
+  --color-surface-3: color-mix(in srgb, var(--color-text) 9%, transparent);
+  --color-surface-4: color-mix(in srgb, var(--color-text) 13%, transparent);
+}
