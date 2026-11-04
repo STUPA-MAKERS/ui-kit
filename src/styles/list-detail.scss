@@ -23,6 +23,13 @@
   --ld-sticky-top: calc(var(--ld-bar-height) + env(safe-area-inset-top, 0px));
 }
 
+// A page with tabs (`app-tab-pager`) sticks its tab line right under the bar as glass, so
+// the bar casts no shadow there: the bar and the tab line read as one glass head. The
+// class is doubled to win over the shadow of the bar component.
+body:has(app-tab-pager) app-list-detail-bar.ld__bar--condensed.ld__bar--condensed {
+  box-shadow: none;
+}
+
 // The list column of such a page, in this order: the header, the search bar with its
 // chips (`.ld-pane__filters`, normally on an `app-sticky-bar`), then the rows. Side by
 // side the column takes the full height and only its rows scroll; one pane at a time the
