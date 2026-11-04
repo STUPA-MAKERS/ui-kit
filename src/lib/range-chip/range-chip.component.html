@@ -58,8 +58,8 @@
       <p class="rc__error" role="alert">{{ 'range.invalid' | uiKitT }}</p>
     }
     <div class="rc__actions">
-      <app-button variant="text" size="sm" (click)="reset()">{{ 'range.reset' | uiKitT }}</app-button>
-      <app-button variant="fill" size="sm" [disabled]="!draftValid()" (click)="apply()">{{
+      <app-button variant="text" [size]="phone() ? 'md' : 'sm'" (click)="reset()">{{ 'range.reset' | uiKitT }}</app-button>
+      <app-button variant="fill" [size]="phone() ? 'md' : 'sm'" [disabled]="!draftValid()" (click)="apply()">{{
         'range.apply' | uiKitT
       }}</app-button>
     </div>

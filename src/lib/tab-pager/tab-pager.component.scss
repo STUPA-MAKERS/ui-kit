@@ -45,6 +45,13 @@
     isolation: isolate;
     @include frosted(var(--tab-pager-bar-bg, var(--color-bg)), bottom);
   }
+  // Stuck, it sits on the glass of the head bar, which reaches over it (`watchStuck`).
+  .tp__bar.tp__bar--stuck {
+    z-index: calc(var(--z-sticky) + 1);
+  }
+  .tp__bar.tp__bar--stuck::before {
+    display: none;
+  }
 }
 .tp__bar ::ng-deep .tabs {
   padding-inline: var(--tp-bleed);

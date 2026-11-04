@@ -27,6 +27,15 @@
   @include frosted(var(--color-bg), bottom);
   transition: box-shadow var(--motion-fast, 120ms) var(--ease-standard, ease);
 }
+/* A tab line that sticks under the bar sets `--ld-bar-extend` to its height: the glass
+   reaches over it, so the bar and the tab line are one pane (`TabPagerComponent`). */
+:host::before {
+  mask-image: linear-gradient(
+    to bottom,
+    #000 calc(100% - 64px + var(--ld-bar-extend, 0px)),
+    transparent calc(100% - 64px + var(--ld-bar-extend, 0px))
+  );
+}
 :host(.ld__bar--condensed) {
   box-shadow: var(--shadow-md);
 }
