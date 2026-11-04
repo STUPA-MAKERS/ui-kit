@@ -7,8 +7,11 @@
    reaches over the page gutter to the window edges, so nothing shows above or beside it.
    The arrow and the actions keep their 40px boxes, 4px inside the page gutter (12px from
    a 16px gutter), so they do not touch the screen edges; the big title below stays on
-   the gutter. The small title fades in once the big title has scrolled under the bar, and a
-   rule then closes the bar. */
+   the gutter. The small title fades in once the big title has scrolled under the bar.
+   The bar has no rule: it is frosted glass, a see-through tint of the page colour over a
+   blur, so the content that scrolls under it shows through blurred. Without
+   `backdrop-filter` the bar is solid, because a plain see-through bar puts the text of the
+   content behind its title. */
 :host {
   --ld-bar-gutter: var(--layout-gutter);
   position: sticky;
@@ -21,17 +24,19 @@
   min-height: calc(var(--ld-bar-height, 60px) + env(safe-area-inset-top, 0px));
   margin: calc(-1 * var(--main-pad-top, 0px)) calc(-1 * var(--ld-bar-gutter)) 0;
   padding: env(safe-area-inset-top, 0px) calc(var(--ld-bar-gutter) - var(--space-1)) 0;
-  border-bottom: var(--border-width) solid transparent;
   background: var(--color-bg);
-  transition: border-color var(--motion-fast, 120ms) var(--ease-standard, ease);
+}
+@supports (backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px)) {
+  :host {
+    background: color-mix(in srgb, var(--color-bg) 72%, transparent);
+    -webkit-backdrop-filter: blur(20px) saturate(1.6);
+    backdrop-filter: blur(20px) saturate(1.6);
+  }
 }
 @include bp.phone {
   :host {
     --ld-bar-gutter: var(--space-4);
   }
-}
-:host(.ld__bar--condensed) {
-  border-bottom-color: var(--color-border);
 }
 
 .ld__back {
@@ -108,7 +113,6 @@
   transform: none;
 }
 @media (prefers-reduced-motion: reduce) {
-  :host,
   .ld__barTitle,
   .ld__barSub {
     transition: none;
