@@ -9,7 +9,8 @@
    a 16px gutter), so they do not touch the screen edges; the big title below stays on
    the gutter. The small title fades in once the big title has scrolled under the bar.
    The bar has no rule: it is frosted glass, a see-through tint of the page colour over a
-   blur, so the content that scrolls under it shows through blurred. Without
+   blur, so the content that scrolls under it shows through blurred. A light shadow lifts it
+   off the content once it is condensed, because only then does content run under it. Without
    `backdrop-filter` the bar is solid, because a plain see-through bar puts the text of the
    content behind its title. */
 :host {
@@ -25,6 +26,10 @@
   margin: calc(-1 * var(--main-pad-top, 0px)) calc(-1 * var(--ld-bar-gutter)) 0;
   padding: env(safe-area-inset-top, 0px) calc(var(--ld-bar-gutter) - var(--space-1)) 0;
   background: var(--color-bg);
+  transition: box-shadow var(--motion-fast, 120ms) var(--ease-standard, ease);
+}
+:host(.ld__bar--condensed) {
+  box-shadow: var(--shadow-md);
 }
 @supports (backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px)) {
   :host {
@@ -113,6 +118,7 @@
   transform: none;
 }
 @media (prefers-reduced-motion: reduce) {
+  :host,
   .ld__barTitle,
   .ld__barSub {
     transition: none;
