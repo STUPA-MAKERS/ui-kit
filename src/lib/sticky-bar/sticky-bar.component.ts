@@ -17,8 +17,7 @@ import {
  * the safe area (`--layout-header-height`, `env(safe-area-inset-top)`). It has the page
  * background, so the rows that scroll under it do not show through. While rows are under
  * it (the bar is "stuck"), a short fade below the bar shows that the list continues. On a
- * phone the bar is frosted glass from edge to edge instead, with a shadow while it is
- * stuck.
+ * phone the bar is frosted glass from edge to edge instead, which fades out below it.
  *
  * The scroll container gets `--stb-bottom`, the offset of the lower edge of the stuck bar,
  * so the head of a group of rows (`app-list-group`) sticks right below the bar.

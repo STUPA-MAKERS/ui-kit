@@ -65,9 +65,10 @@ describe('ListGroupComponent', () => {
     expect(a.id).not.toBe(b.id);
   });
 
-  it('moves the head up in the first group and near the edge on a phone', () => {
+  it('moves the head up in the first group and sticks it near the edge on a phone', () => {
     const scss = readFileSync(join(__dirname, 'list-group.component.scss'), 'utf8');
     expect(scss).toMatch(/:host\(:first-child\) \.lg__head \{\s*padding-top: var\(--space-2\);/);
-    expect(scss).toMatch(/@include bp\.phone \{\s*\.lg__head \{\s*padding-inline: var\(--space-1\);/);
+    expect(scss).toMatch(/@include bp\.phone \{\s*\.lg__head \{\s*position: sticky;\s*top: var\(--stb-bottom\);/);
+    expect(scss).toMatch(/padding-inline: calc\(var\(--stb-bleed, var\(--space-4\)\) \+ var\(--space-1\)\);/);
   });
 });
