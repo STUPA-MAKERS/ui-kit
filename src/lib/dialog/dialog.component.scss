@@ -1,10 +1,20 @@
 @use '../../styles/surface';
 @use '../../styles/press';
 
+/* In the top layer (popover) the UA styles would shrink and centre the backdrop, so they
+   are reset here. */
 .dialog__backdrop {
   position: fixed;
   inset: 0;
   z-index: var(--z-dialog);
+  width: auto;
+  height: auto;
+  max-width: none;
+  max-height: none;
+  margin: 0;
+  border: 0;
+  overflow: visible;
+  color: inherit;
   display: flex;
   align-items: center;
   justify-content: center;

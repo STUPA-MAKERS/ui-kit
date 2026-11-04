@@ -5,6 +5,26 @@ import { ToastComponent } from './toast.component';
 import { ToastService } from './toast.service';
 
 describe('ToastComponent + ToastService', () => {
+  it('puts the stack in the top layer and raises it for a new toast', async () => {
+    const show = jest.fn();
+    const proto = HTMLElement.prototype as HTMLElement & { showPopover?: () => void; hidePopover?: () => void };
+    const had = [proto.showPopover, proto.hidePopover];
+    proto.showPopover = show;
+    proto.hidePopover = jest.fn();
+    try {
+      const { fixture } = await render(ToastComponent);
+      expect(document.querySelector('.toasts')).toHaveAttribute('popover', 'manual');
+      const before = show.mock.calls.length;
+      expect(before).toBeGreaterThan(0);
+      fixture.debugElement.injector.get(ToastService).success('Gespeichert');
+      fixture.detectChanges();
+      await fixture.whenStable();
+      expect(show.mock.calls.length).toBeGreaterThan(before);
+    } finally {
+      [proto.showPopover, proto.hidePopover] = had;
+    }
+  });
+
   // Default language is DE (navigator pinned in setup-jest); the EN case flips it via the
   // injected UI_KIT_INTL instance.
 

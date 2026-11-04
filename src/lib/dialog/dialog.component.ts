@@ -12,6 +12,7 @@ import {
   ViewChild,
 } from '@angular/core';
 import { focusableIn, lockBodyScroll, trapTab } from '../focus/focus-trap';
+import { showInTopLayer } from '../popover/anchored-popover';
 import { haptic } from '../util/haptic';
 
 /** A drag down by more than this many pixels closes the phone sheet. */
@@ -26,6 +27,11 @@ let nextId = 0;
  * Tab/Shift+Tab werden im Dialog gefangen (Focus-Trap), beim Schließen kehrt der
  * Fokus auf das auslösende Element zurück. `aria-modal`/`role="dialog"` +
  * `aria-labelledby` sind gesetzt.
+ *
+ * The backdrop opens in the top layer (popover) where the browser has it. A dialog
+ * inside a side sheet is a descendant of the sheet, and the glass of the sheet
+ * (`backdrop-filter`) and the fade of its body (`mask-image`) would otherwise make the
+ * sheet the box of the dialog and cut the dialog off at the edge of the sheet.
  */
 @Component({
   selector: 'app-dialog',
@@ -52,6 +58,11 @@ export class DialogComponent implements OnChanges, OnDestroy {
   @Output() closed = new EventEmitter<void>();
 
   @ViewChild('pane') private pane?: ElementRef<HTMLElement>;
+
+  /** The backdrop goes into the top layer as soon as it is rendered. */
+  @ViewChild('backdrop') private set backdrop(ref: ElementRef<HTMLElement> | undefined) {
+    showInTopLayer(ref?.nativeElement);
+  }
 
   private readonly uid = nextId++;
   readonly titleId = `app-dialog-title-${this.uid}`;

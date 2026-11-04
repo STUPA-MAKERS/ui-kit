@@ -1,7 +1,18 @@
 @use '../../styles/press';
 
+/* In the top layer (popover) the UA styles would stretch and frame the stack, so they are
+   reset before the place is set. */
 .toasts {
   position: fixed;
+  inset: auto;
+  width: auto;
+  height: auto;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  overflow: visible;
+  background: transparent;
+  color: inherit;
   inset-block-end: var(--space-5);
   inset-inline-end: var(--space-5);
   z-index: var(--z-toast);
