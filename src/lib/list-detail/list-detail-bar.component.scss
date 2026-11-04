@@ -11,7 +11,9 @@
    the gutter. The small title fades in once the big title has scrolled under the bar.
    The bar has no rule: it is frosted glass (`frosted`), a see-through tint of the page
    colour over a blur, so the content that scrolls under it shows through blurred. A light shadow lifts it
-   off the content once it is condensed, because only then does content run under it. */
+   off the content once it is condensed and the page has scrolled, because only then does content
+   run under it. A bar with a fixed title (`title`) is condensed from the start, so the shadow
+   waits for the scroll too. */
 :host {
   --ld-bar-gutter: var(--layout-gutter);
   position: sticky;
@@ -36,7 +38,7 @@
     transparent calc(100% - 64px + var(--ld-bar-extend, 0px))
   );
 }
-:host(.ld__bar--condensed) {
+:host(.ld__bar--condensed.ld__bar--under) {
   box-shadow: var(--shadow-md);
 }
 /* Glass only while the page has scrolled, because only then does content run under the
