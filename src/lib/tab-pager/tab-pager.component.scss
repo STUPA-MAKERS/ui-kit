@@ -34,28 +34,42 @@
   background: var(--color-border);
   pointer-events: none;
 }
-/* On a phone the tab line sticks under the top bar of the page (`--ld-sticky-top`) as
+/* On a phone, and below the bar of a one-view detail (`.ld-under-bar`, also on a wide
+   screen), the tab line sticks under the top bar of the page (`--ld-sticky-top`) as
    frosted glass, so the tabs stay in reach while the page scrolls. The glass is cut at the
    tab line, because the line is a real edge. */
-@include bp.phone {
-  .tp__bar {
+@mixin sticky-tabs($bar: '.tp__bar') {
+  #{$bar} {
     position: sticky;
     top: var(--ld-sticky-top, 0px);
     z-index: calc(var(--z-sticky) - 1);
     isolation: isolate;
     @include frosted(var(--tab-pager-bar-bg, var(--color-bg)), bottom);
+
+    // Stuck, it sits on the glass of the head bar, which reaches over it (`watchStuck`).
+    &.tp__bar--stuck {
+      z-index: calc(var(--z-sticky) + 1);
+    }
+    &.tp__bar--stuck::before {
+      display: none;
+    }
+    // Not stuck, nothing runs under the line, so it is solid.
+    &:not(.tp__bar--stuck) {
+      @include frosted-rest(var(--tab-pager-bar-bg, var(--color-bg)));
+    }
   }
-  // Stuck, it sits on the glass of the head bar, which reaches over it (`watchStuck`).
-  .tp__bar.tp__bar--stuck {
-    z-index: calc(var(--z-sticky) + 1);
-  }
-  .tp__bar.tp__bar--stuck::before {
-    display: none;
-  }
-  // Not stuck, nothing runs under the line, so it is solid.
-  .tp__bar:not(.tp__bar--stuck) {
-    @include frosted-rest(var(--tab-pager-bar-bg, var(--color-bg)));
-  }
+}
+@include bp.phone {
+  @include sticky-tabs;
+}
+/* Without `paged` (a wide screen) the tabs sit in `.tp__head`, which keeps the line and
+   the mark of the tabs themselves. */
+:host-context(.ld-under-bar) {
+  @include sticky-tabs('.tp__bar, .tp__head');
+}
+.tp__head {
+  position: relative;
+  min-width: 0;
 }
 .tp__bar ::ng-deep .tabs {
   padding-inline: var(--tp-bleed);

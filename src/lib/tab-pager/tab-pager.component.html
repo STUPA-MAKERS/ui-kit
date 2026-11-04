@@ -28,14 +28,16 @@
     }
   </div>
 } @else {
-  <app-tabs
-    class="tp__tabs"
-    [idPrefix]="idPrefix()"
-    [ariaLabel]="ariaLabel()"
-    [tabs]="tabs()"
-    [active]="current()"
-    (activeChange)="select($event)"
-  />
+  <div #bar class="tp__head">
+    <app-tabs
+      class="tp__tabs"
+      [idPrefix]="idPrefix()"
+      [ariaLabel]="ariaLabel()"
+      [tabs]="tabs()"
+      [active]="current()"
+      (activeChange)="select($event)"
+    />
+  </div>
   @for (tab of tabs(); track tab.id) {
     <div
       class="tp__panel"

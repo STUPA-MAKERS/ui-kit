@@ -180,12 +180,17 @@ describe('touch rules in the stylesheets', () => {
 
   it('keeps the sheets clear of the status bar, the home bar and the notch', () => {
     const sheet = read('../lib/side-sheet/side-sheet.component.scss');
+    // A sheet from the side is attached to the window edge; its padding keeps the content
+    // clear of the safe areas.
+    expect(sheet).toContain(
+      'padding: env(safe-area-inset-top, 0px) env(safe-area-inset-right, 0px)\n    env(safe-area-inset-bottom, 0px) 0;',
+    );
+    expect(sheet).toContain(
+      'padding: env(safe-area-inset-top, 0px) 0 env(safe-area-inset-bottom, 0px)\n    env(safe-area-inset-left, 0px);',
+    );
     for (const side of ['top', 'bottom']) {
-      expect(sheet).toContain(`${side}: calc(12px + env(safe-area-inset-${side}, 0px));`);
       expect(sheet).toContain(`${side}: calc(8px + env(safe-area-inset-${side}, 0px));`);
     }
-    expect(sheet).toContain('right: calc(12px + env(safe-area-inset-right, 0px));');
-    expect(sheet).toContain('left: calc(12px + env(safe-area-inset-left, 0px));');
     expect(read('../lib/dialog/dialog.component.scss')).toContain(
       'padding-inline: env(safe-area-inset-left, 0px) env(safe-area-inset-right, 0px);',
     );
