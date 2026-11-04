@@ -23,8 +23,6 @@
   height: 44px;
   padding: 0 var(--space-1);
   border: 0;
-  /* The top corners round the press tint; the indicator at the bottom stays straight. */
-  border-radius: var(--radius-sm) var(--radius-sm) 0 0;
   background: none;
   color: var(--color-text-muted);
   font: inherit;
@@ -33,7 +31,11 @@
   white-space: nowrap;
   cursor: pointer;
   transition: color var(--motion-fast) var(--ease-standard), scale var(--motion-xs) var(--ease-standard);
-  @include press.press;
+}
+/* A tab shows its state by the line under it only: a press shrinks it but paints no tint,
+   because a tint behind the label reads as a second selected state. */
+.tabs__tab:active:not(:disabled) {
+  @include press.press-scale;
 }
 @media (hover: hover) {
   .tabs__tab:hover:not(:disabled) {

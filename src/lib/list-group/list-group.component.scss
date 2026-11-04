@@ -36,4 +36,8 @@
     padding-inline: calc(var(--stb-bleed, var(--space-4)) + var(--space-1));
     @include frosted(var(--stb-bg, var(--color-bg)), bottom, $soft: var(--space-4));
   }
+  // Glass and its fade only while the head is stuck over its rows (`lg__head--stuck`).
+  .lg__head:not(.lg__head--stuck) {
+    @include frosted-rest(var(--stb-bg, var(--color-bg)));
+  }
 }

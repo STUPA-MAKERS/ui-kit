@@ -73,6 +73,19 @@
   }
 }
 
+/* The resting state of a `frosted` element while nothing runs under it: the solid colour
+   and no glass. The glass blurs the backdrop `$reach` past the edges, so at rest it pulls
+   the content next to the box into it: the title below a bar shows as a glow in the bar,
+   and the rows below a group head look faded. Put it on the state in which the element
+   has not scrolled or is not stuck. */
+@mixin frosted-rest($color) {
+  background: $color;
+
+  &::before {
+    display: none;
+  }
+}
+
 /* Frosted glass for a box that floats over the page, such as a menu or a popover: the
    tint and the blur sit on the box itself. Nothing scrolls past its edges, so the sharp
    edge that `frosted` avoids does not occur, and a pseudo-element would scroll with the

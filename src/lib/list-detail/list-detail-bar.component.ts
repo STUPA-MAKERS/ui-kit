@@ -8,6 +8,7 @@ import {
   inject,
   input,
   output,
+  signal,
   viewChild,
 } from '@angular/core';
 import { NgTemplateOutlet } from '@angular/common';
@@ -42,6 +43,7 @@ import { ListDetailNav } from './list-detail-nav';
   host: {
     class: 'ld__bar',
     '[class.ld__bar--condensed]': 'nav.condensed() || title() !== null || nav.task() !== null',
+    '[class.ld__bar--under]': 'under()',
   },
   templateUrl: './list-detail-bar.component.html',
   styleUrl: './list-detail-bar.component.scss',
@@ -64,15 +66,45 @@ export class ListDetailBarComponent {
   /** The back arrow was pressed. */
   readonly back = output<void>();
 
+  /**
+   * The page or a panel around the bar has scrolled, so content runs under the bar: only
+   * then is the bar glass (`ld__bar--under`). At rest the glass would blur the content
+   * below the bar into it.
+   */
+  protected readonly under = signal(false);
+
   constructor() {
     this.nav.barBottom = () => this.host.getBoundingClientRect().bottom;
-    inject(DestroyRef).onDestroy(() => (this.nav.barBottom = () => 0));
+    let frame = 0;
+    const check = () => {
+      frame = 0;
+      this.under.set(scrolledAround(this.host));
+    };
+    const onScroll = () => {
+      if (!frame) frame = requestAnimationFrame(check);
+    };
+    window.addEventListener('scroll', onScroll, { capture: true, passive: true });
+    frame = requestAnimationFrame(check);
+    inject(DestroyRef).onDestroy(() => {
+      this.nav.barBottom = () => 0;
+      window.removeEventListener('scroll', onScroll, { capture: true });
+      if (frame) cancelAnimationFrame(frame);
+    });
   }
 
   /** Put the focus on the back arrow. */
   focus(): void {
     this.backButton()?.nativeElement.focus();
   }
+}
+
+/** The document or an element around `el` has scrolled away from its top. */
+function scrolledAround(el: HTMLElement): boolean {
+  if ((document.scrollingElement?.scrollTop ?? window.scrollY) > 0) return true;
+  for (let p = el.parentElement; p; p = p.parentElement) {
+    if (p.scrollTop > 0) return true;
+  }
+  return false;
 }
 
 /**
