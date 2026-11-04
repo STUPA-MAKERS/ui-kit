@@ -110,8 +110,7 @@
 .rowgroup > :has(> .rowgroup__head, > * > .rowgroup__head) {
   transition: scale var(--motion-xs) var(--ease-standard);
 }
-.rowgroup
-  > :has(> .rowgroup__head .li__title:active, > * > .rowgroup__head .li__title:active) {
+.rowgroup > :has(> .rowgroup__head .li__title:active, > * > .rowgroup__head .li__title:active) {
   background-image: linear-gradient(var(--press-tint), var(--press-tint));
   @include press.press-scale(row);
 }
