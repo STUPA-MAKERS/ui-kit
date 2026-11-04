@@ -1,5 +1,6 @@
 @use '../../styles/breakpoints' as bp;
 @use '../../styles/surface';
+@use '../../styles/frosted' as *;
 
 .ss__scrim {
   position: fixed;
@@ -54,6 +55,13 @@
     env(safe-area-inset-left, 0px);
   border-radius: var(--radius-2xl) var(--radius-2xl) 0 0;
   transition: transform var(--motion-fast) var(--ease-standard);
+  // Frosted glass at a high tint and a strong blur: at a lower tint the labels of the
+  // bottom bar read through the rows of the sheet. The lift undoes the scrim behind it.
+  @include frosted-pop(var(--color-surface-2), 85%, 20px, 1.3);
+}
+// The page shows through the glass, so the scrim under a bottom sheet is lighter.
+.ss__scrim:has(+ .ss--bottom) {
+  background: color-mix(in srgb, var(--color-scrim) 60%, transparent);
 }
 .ss--dragging {
   transition: none;

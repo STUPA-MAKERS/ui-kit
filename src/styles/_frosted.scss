@@ -76,13 +76,21 @@
 /* Frosted glass for a box that floats over the page, such as a menu or a popover: the
    tint and the blur sit on the box itself. Nothing scrolls past its edges, so the sharp
    edge that `frosted` avoids does not occur, and a pseudo-element would scroll with the
-   rows of a long menu. Without `backdrop-filter` the box keeps the solid `$color`. */
-@mixin frosted-pop($color, $tint: 55%) {
+   rows of a long menu. Without `backdrop-filter` the box keeps the solid `$color`.
+   `$blur`: a large box such as a bottom sheet takes more, so the rows behind it do not
+   read through its text. `$lift`: a brightness for the backdrop, for a box over a scrim:
+   the scrim darkens the glass of a light theme, so the fields in the box lose their
+   contrast to it. On a dark theme the backdrop is near black, so the lift changes little. */
+@mixin frosted-pop($color, $tint: 55%, $blur: 10px, $lift: null) {
   background: $color;
 
   @supports (backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px)) {
     background: color-mix(in srgb, #{$color} #{$tint}, transparent);
-    -webkit-backdrop-filter: blur(10px) saturate(1.8);
-    backdrop-filter: blur(10px) saturate(1.8);
+    $filter: blur($blur) saturate(1.8);
+    @if $lift {
+      $filter: blur($blur) saturate(1.8) brightness($lift);
+    }
+    -webkit-backdrop-filter: $filter;
+    backdrop-filter: $filter;
   }
 }
