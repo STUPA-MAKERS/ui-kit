@@ -12,8 +12,11 @@
 
    `$edges`: the edges where content passes under the element, `top`, `bottom` or both.
    `$fade-to`: a colour that the glass turns into towards its foot, for a bar that sits on
-   a solid bar below it (the protocol dock on the navigation bar); `null` keeps one tint. */
-@mixin frosted($color, $edges: (top, bottom), $reach: 64px, $fade-to: null) {
+   a solid bar below it or at the edge of the screen; `null` keeps one tint.
+   `$fade-stop`: where the glass reaches `$fade-to`, measured on the glass layer, which
+   starts `$reach` above the box when content passes the top. Below it the colour is solid,
+   so the foot of the navigation bar meets the system bar of the phone without an edge. */
+@mixin frosted($color, $edges: (top, bottom), $reach: 64px, $fade-to: null, $fade-stop: null) {
   background: $color;
 
   @supports (backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px)) {
@@ -30,7 +33,7 @@
         background: linear-gradient(
           to bottom,
           color-mix(in srgb, #{$color} 55%, transparent) #{$top},
-          #{$fade-to} calc(100% - #{$bottom})
+          #{$fade-to} #{if($fade-stop, $fade-stop, calc(100% - #{$bottom}))}
         );
       } @else {
         background: color-mix(in srgb, #{$color} 55%, transparent);

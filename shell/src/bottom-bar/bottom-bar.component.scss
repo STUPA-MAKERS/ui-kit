@@ -5,7 +5,8 @@
 // The safe-area padding keeps the entries above the gesture bar of an installed app
 // (viewport-fit=cover). A light shadow upwards sets the bar off the page instead of a rule;
 // `--bb-shadow` lets a page turn it off. The page scrolls under the bar, so the bar is frosted
-// glass at its top edge that turns into the solid bar colour towards its foot.
+// glass at its top edge that turns into the solid bar colour by its middle, so the lower half
+// and the safe area have exactly the colour of the system bar (`theme_color`) below it.
 :host {
   display: block;
 }
@@ -22,7 +23,12 @@
   padding: 0 max(4px, var(--app-right-safe-area, 0px)) env(safe-area-inset-bottom)
     max(4px, var(--app-left-safe-area, 0px));
   box-shadow: var(--bb-shadow, var(--shadow-md-up));
-  @include frosted(var(--color-surface-3), top, $fade-to: var(--color-surface-3));
+  @include frosted(
+    var(--color-surface-3),
+    top,
+    $fade-to: var(--color-surface-3),
+    $fade-stop: calc(100% - env(safe-area-inset-bottom) - var(--bottom-bar-height, 64px) / 2)
+  );
   --nav-mark-ring: var(--color-surface-3);
   @include press.chrome-text;
 }
