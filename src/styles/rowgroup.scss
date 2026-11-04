@@ -99,6 +99,27 @@
 .rowgroup > app-list-item .li {
   border-radius: inherit;
 }
+// An item whose head is a list item (an expand row: the head and the content below it, in one
+// `<li>`) presses as one item. The item (its surface and its corners) shrinks and tints while
+// the title of the head is pressed. The list item would shrink only its own row inside that
+// surface, which stood as a second, inner frame, so its own press and its hover surface are
+// off. The doubled class beats the press rule of the list item, which loads later. The head
+// carries `.rowgroup__head`, one or two levels below the item, so a head in the content of an
+// open item does not press the outer item. A press on a control in the trail (⋮, a chevron
+// button) is no press of the item.
+.rowgroup > :has(> .rowgroup__head, > * > .rowgroup__head) {
+  transition: scale var(--motion-xs) var(--ease-standard);
+}
+.rowgroup > :has(> .rowgroup__head .li__title:active, > * > .rowgroup__head .li__title:active) {
+  background-image: linear-gradient(var(--press-tint), var(--press-tint));
+  @include press.press-scale(row);
+}
+.rowgroup > * > .rowgroup__head .li.li:has(.li__title:active),
+.rowgroup > * > * > .rowgroup__head .li.li:has(.li__title:active) {
+  scale: none;
+  background-color: transparent;
+  background-image: none;
+}
 // On surface 3 the subtle text of a muted status is below 4.5:1 (WCAG 1.4.3). The muted
 // text passes. This rule is more specific than the `:host(.st--muted)` rule of
 // `app-status-text`, so it wins.
