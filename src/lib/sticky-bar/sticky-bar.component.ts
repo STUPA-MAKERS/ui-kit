@@ -16,7 +16,11 @@ import {
  * The bar is `position: sticky` at the top of the viewport, below the shell header and
  * the safe area (`--layout-header-height`, `env(safe-area-inset-top)`). It has the page
  * background, so the rows that scroll under it do not show through. While rows are under
- * it (the bar is "stuck"), a short fade below the bar shows that the list continues.
+ * it (the bar is "stuck"), a short fade below the bar shows that the list continues. On a
+ * phone the bar is frosted glass from edge to edge instead, which fades out below it.
+ *
+ * The scroll container gets `--stb-bottom`, the offset of the lower edge of the stuck bar,
+ * so the head of a group of rows (`app-list-group`) sticks right below the bar.
  *
  * Put the bar as a direct child of the element that holds the list, not into a small
  * wrapper: a sticky element stays inside its parent, so a parent as high as the bar holds
@@ -118,27 +122,32 @@ export class StickyBarComponent {
     const scrolled = scroller ? scroller.scrollTop > 0 : window.scrollY > 0;
     // In a scrolling box the bar sticks below the top padding of the box.
     const inset = scroller ? parseFloat(getComputedStyle(scroller).paddingTop) || 0 : 0;
-    const edge = scroller
-      ? scroller.getBoundingClientRect().top + scroller.clientTop + inset
-      : 0;
+    const edge = scroller ? scroller.getBoundingClientRect().top + scroller.clientTop + inset : 0;
     this.stuck.set(scrolled && rect.height > 0 && rect.top <= edge + top + slack);
     // A hidden bar (height 0) keeps nothing clear.
     // The scroll padding counts from the edge of the scroll port, so it includes the top
     // padding of a scrolling box.
-    this.setPadding(rect.height > 0 ? Math.ceil(inset + top + rect.height) : null);
+    this.setPadding(
+      rect.height > 0 ? Math.ceil(inset + top + rect.height) : null,
+      Math.ceil(top + rect.height),
+    );
   }
 
   /**
    * Set the scroll padding of the scroll container (the document, or the scrolling
-   * ancestor), or remove it (`null`) if this bar set it.
+   * ancestor) and `--stb-bottom` for the group heads, or remove both (`null`) if this bar
+   * set them.
    */
-  private setPadding(px: number | null): void {
+  private setPadding(px: number | null, bottom = 0): void {
     const target = this.scroller ?? document.documentElement;
     if (px !== null) {
       target.style.setProperty('scroll-padding-top', `${px}px`);
+      // A sticky offset counts from the edge of the scroll port, without its padding.
+      target.style.setProperty('--stb-bottom', `${bottom}px`);
       this.ownsPadding = target;
     } else if (this.ownsPadding) {
       this.ownsPadding.style.removeProperty('scroll-padding-top');
+      this.ownsPadding.style.removeProperty('--stb-bottom');
       this.ownsPadding = null;
     }
   }

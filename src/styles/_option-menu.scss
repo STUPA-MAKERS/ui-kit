@@ -3,9 +3,10 @@
 // Component styles are encapsulated, so each component includes the mixins. Emits no CSS.
 //   @use 'option-menu' as om;
 @use 'press';
+@use 'frosted' as *;
 
-// The popover: fixed to the viewport, in the top layer, with the surface and the shadow
-// of the row menu. In the top layer the UA styles would centre it, so the reset comes
+// The popover: fixed to the viewport, in the top layer, with the frosted surface and the
+// shadow of the row menu. In the top layer the UA styles would centre it, so the reset comes
 // first. A popover with a form inside gives its own padding and corner radius.
 @mixin menu($padding: 6px 0, $radius: var(--radius-field)) {
   position: fixed;
@@ -16,9 +17,9 @@
   padding: $padding;
   border: 0;
   border-radius: $radius;
-  background: var(--color-surface-3);
   color: var(--color-text);
   box-shadow: var(--shadow-elevated);
+  @include frosted-pop(var(--color-surface-3));
 
   &:focus {
     outline: none;

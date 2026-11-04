@@ -1,3 +1,6 @@
+@use '../../styles/breakpoints' as bp;
+@use '../../styles/frosted' as *;
+
 /* The gutter the tab bar and the pager run over (`--tab-pager-bleed`, 0 by default). A
    page has the room `--tab-pager-page-top` under the tab line and `--tab-pager-page-bottom`
    below its content (0 by default). */
@@ -30,6 +33,25 @@
   height: var(--border-width);
   background: var(--color-border);
   pointer-events: none;
+}
+/* On a phone the tab line sticks under the top bar of the page (`--ld-sticky-top`) as
+   frosted glass, so the tabs stay in reach while the page scrolls. The glass is cut at the
+   tab line, because the line is a real edge. */
+@include bp.phone {
+  .tp__bar {
+    position: sticky;
+    top: var(--ld-sticky-top, 0px);
+    z-index: calc(var(--z-sticky) - 1);
+    isolation: isolate;
+    @include frosted(var(--tab-pager-bar-bg, var(--color-bg)), bottom);
+  }
+  // Stuck, it sits on the glass of the head bar, which reaches over it (`watchStuck`).
+  .tp__bar.tp__bar--stuck {
+    z-index: calc(var(--z-sticky) + 1);
+  }
+  .tp__bar.tp__bar--stuck::before {
+    display: none;
+  }
 }
 .tp__bar ::ng-deep .tabs {
   padding-inline: var(--tp-bleed);

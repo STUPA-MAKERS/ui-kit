@@ -1,5 +1,6 @@
 @use '../../styles/option-menu' as om;
 @use '../../styles/press';
+@use '../../styles/frosted' as *;
 :host {
   display: inline-flex;
   flex: none;
@@ -50,8 +51,9 @@
   }
 }
 
-/* Fixed to the viewport, below the trigger and aligned to its end. In the top layer
-   (popover) the UA styles would centre it, so the reset comes first. */
+/* Fixed to the viewport, below the trigger and aligned to its end, as frosted glass
+   (`frosted-pop`). In the top layer (popover) the UA styles would centre it, so the reset
+   comes first. */
 .rm__menu {
   @include om.motion;
   position: fixed;
@@ -65,9 +67,9 @@
   padding: 6px 0;
   border: 0;
   border-radius: var(--radius-field);
-  background: var(--color-surface-3);
   color: var(--color-text);
   box-shadow: var(--shadow-elevated);
+  @include frosted-pop(var(--color-surface-3));
 }
 .rm__menu:focus {
   outline: none;

@@ -16,14 +16,17 @@
    `$fade-stop`: where the glass reaches `$fade-to`, measured on the glass layer, which
    starts `$reach` above the box when content passes the top. Below it the colour is solid,
    so the foot of the navigation bar meets the system bar of the phone without an edge.
-   `$tint`: how much of `$color` the glass holds; less shows more of the content behind. */
+   `$tint`: how much of `$color` the glass holds; less shows more of the content behind.
+   `$soft`: a length past the lower edge over which the glass fades out to nothing, for a
+   bar with no shadow and no rule under it; `null` cuts the glass at the edge. */
 @mixin frosted(
   $color,
   $edges: (top, bottom),
   $reach: 64px,
   $fade-to: null,
   $fade-stop: null,
-  $tint: 55%
+  $tint: 55%,
+  $soft: null
 ) {
   background: $color;
 
@@ -48,14 +51,46 @@
       }
       -webkit-backdrop-filter: blur(10px) saturate(1.8);
       backdrop-filter: blur(10px) saturate(1.8);
-      mask-image: linear-gradient(
-        to bottom,
-        transparent #{$top},
-        #000 #{$top},
-        #000 calc(100% - #{$bottom}),
-        transparent calc(100% - #{$bottom})
-      );
+      @if $soft {
+        mask-image: linear-gradient(
+          to bottom,
+          transparent #{$top},
+          #000 #{$top},
+          #000 calc(100% - #{$bottom}),
+          transparent calc(100% - #{$bottom} + #{$soft})
+        );
+      } @else {
+        mask-image: linear-gradient(
+          to bottom,
+          transparent #{$top},
+          #000 #{$top},
+          #000 calc(100% - #{$bottom}),
+          transparent calc(100% - #{$bottom})
+        );
+      }
       pointer-events: none;
     }
+  }
+}
+
+/* Frosted glass for a box that floats over the page, such as a menu or a popover: the
+   tint and the blur sit on the box itself. Nothing scrolls past its edges, so the sharp
+   edge that `frosted` avoids does not occur, and a pseudo-element would scroll with the
+   rows of a long menu. Without `backdrop-filter` the box keeps the solid `$color`.
+   `$blur`: a large box such as a bottom sheet takes more, so the rows behind it do not
+   read through its text. `$lift`: a brightness for the backdrop, for a box over a scrim:
+   the scrim darkens the glass of a light theme, so the fields in the box lose their
+   contrast to it. On a dark theme the backdrop is near black, so the lift changes little. */
+@mixin frosted-pop($color, $tint: 55%, $blur: 10px, $lift: null) {
+  background: $color;
+
+  @supports (backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px)) {
+    background: color-mix(in srgb, #{$color} #{$tint}, transparent);
+    $filter: blur($blur) saturate(1.8);
+    @if $lift {
+      $filter: blur($blur) saturate(1.8) brightness($lift);
+    }
+    -webkit-backdrop-filter: $filter;
+    backdrop-filter: $filter;
   }
 }
