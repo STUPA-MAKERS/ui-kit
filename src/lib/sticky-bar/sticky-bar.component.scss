@@ -60,6 +60,10 @@
   :host::after {
     display: none;
   }
+  /* Glass only while rows scroll under the bar (`stb--stuck`). */
+  :host(:not(.stb--stuck)) {
+    @include frosted-rest(var(--stb-bg, var(--color-bg)));
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {

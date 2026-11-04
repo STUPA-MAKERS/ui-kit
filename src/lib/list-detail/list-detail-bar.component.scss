@@ -39,6 +39,11 @@
 :host(.ld__bar--condensed) {
   box-shadow: var(--shadow-md);
 }
+/* Glass only while the page has scrolled, because only then does content run under the
+   bar; at rest it is the solid page colour (`frosted-rest`). */
+:host(:not(.ld__bar--under)) {
+  @include frosted-rest(var(--color-bg));
+}
 @include bp.phone {
   :host {
     --ld-bar-gutter: var(--space-4);

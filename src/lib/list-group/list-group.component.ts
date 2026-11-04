@@ -1,4 +1,13 @@
-import { ChangeDetectionStrategy, Component, input } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  DestroyRef,
+  ElementRef,
+  inject,
+  input,
+  signal,
+  viewChild,
+} from '@angular/core';
 
 let nextId = 0;
 
@@ -43,4 +52,33 @@ export class ListGroupComponent {
   readonly skeleton = input<string | null>(null);
 
   protected readonly headId = `list-group-${nextId++}`;
+
+  /**
+   * The head sticks over its rows (on a phone below a sticky search bar): it has moved
+   * down from the top of its group. Only then is it glass with a fade below it
+   * (`lg__head--stuck`); at rest the glass would blur the first row into the head.
+   */
+  protected readonly stuck = signal(false);
+
+  private readonly head = viewChild<ElementRef<HTMLElement>>('head');
+
+  constructor() {
+    const host = inject<ElementRef<HTMLElement>>(ElementRef).nativeElement;
+    let frame = 0;
+    const check = () => {
+      frame = 0;
+      const head = this.head()?.nativeElement;
+      this.stuck.set(
+        !!head && head.getBoundingClientRect().top - host.getBoundingClientRect().top > 0.5,
+      );
+    };
+    const onScroll = () => {
+      if (!frame) frame = requestAnimationFrame(check);
+    };
+    window.addEventListener('scroll', onScroll, { capture: true, passive: true });
+    inject(DestroyRef).onDestroy(() => {
+      window.removeEventListener('scroll', onScroll, { capture: true });
+      if (frame) cancelAnimationFrame(frame);
+    });
+  }
 }

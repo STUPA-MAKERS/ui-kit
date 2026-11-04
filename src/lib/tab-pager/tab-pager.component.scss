@@ -52,6 +52,10 @@
   .tp__bar.tp__bar--stuck::before {
     display: none;
   }
+  // Not stuck, nothing runs under the line, so it is solid.
+  .tp__bar:not(.tp__bar--stuck) {
+    @include frosted-rest(var(--tab-pager-bar-bg, var(--color-bg)));
+  }
 }
 .tp__bar ::ng-deep .tabs {
   padding-inline: var(--tp-bleed);

@@ -141,7 +141,6 @@ describe('touch rules in the stylesheets', () => {
   it.each([
     ['button', '../lib/button/button.component.scss', true],
     ['segment', '../lib/segmented/segmented.component.scss', true],
-    ['tab', '../lib/tabs/tabs.component.scss', true],
     ['row menu', '../lib/row-menu/row-menu.component.scss', true],
     ['filter chip', 'base.scss', true],
     ['option row', '_option-menu.scss', true],
@@ -151,6 +150,13 @@ describe('touch rules in the stylesheets', () => {
     expect(scss).toMatch(/@use '(\.\.\/\.\.\/styles\/)?press';/);
     expect(scss).toMatch(/@include press\.press(\(\$scale: row\))?;/);
     if (chrome) expect(scss).toContain('@include press.chrome-text;');
+  });
+
+  it('shrinks a pressed tab without a tint, because the line under it is its only state', () => {
+    const scss = read('../lib/tabs/tabs.component.scss');
+    expect(scss).not.toContain('@include press.press;');
+    expect(scss).toMatch(/\.tabs__tab:active:not\(:disabled\) \{\s*@include press\.press-scale;/);
+    expect(scss).toContain('@include press.chrome-text;');
   });
 
   it('keeps the interface unselectable on a touch screen, and the content selectable', () => {
