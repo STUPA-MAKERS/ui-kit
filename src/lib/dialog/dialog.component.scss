@@ -39,6 +39,12 @@
   flex-direction: column;
   max-height: 85dvh;
 }
+/* The fields, rows and buttons on the glass are neutral overlays (`glass-content`). */
+.dialog__header,
+.dialog__body,
+.dialog__footer {
+  @include glass-content;
+}
 .dialog--form {
   max-width: 40rem;
 }
