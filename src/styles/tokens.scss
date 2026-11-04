@@ -243,6 +243,8 @@
 
   --shadow-sm: 0 1px 2px rgba(20, 40, 28, 0.06), 0 1px 3px rgba(20, 40, 28, 0.08);
   --shadow-md: 0 2px 6px rgba(20, 40, 28, 0.08), 0 6px 16px rgba(20, 40, 28, 0.08);
+  /* `--shadow-md` cast upwards, for a bar fixed to the foot of the window. */
+  --shadow-md-up: 0 -2px 6px rgba(20, 40, 28, 0.08), 0 -6px 16px rgba(20, 40, 28, 0.08);
   --shadow-lg: 0 10px 30px rgba(20, 40, 28, 0.14), 0 2px 6px rgba(20, 40, 28, 0.08);
   // Menus, popovers, the floating selection bar.
   --shadow-elevated: 0 10px 30px rgba(20, 40, 28, 0.14), 0 2px 6px rgba(20, 40, 28, 0.08);
@@ -309,6 +311,7 @@
 
   --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.4);
   --shadow-md: 0 2px 8px rgba(0, 0, 0, 0.5);
+  --shadow-md-up: 0 -2px 8px rgba(0, 0, 0, 0.5);
   --shadow-lg: 0 10px 30px rgba(0, 0, 0, 0.5), 0 2px 6px rgba(0, 0, 0, 0.35);
   --shadow-elevated: 0 10px 30px rgba(0, 0, 0, 0.5), 0 2px 6px rgba(0, 0, 0, 0.35);
   --shadow-cut: -6px 0 9px -5px rgba(0, 0, 0, 0.65);
