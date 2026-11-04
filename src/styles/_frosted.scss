@@ -1,0 +1,61 @@
+/* Frosted glass: a see-through tint over a blur of what lies behind the element.
+
+   A browser blurs only the backdrop inside the box of the element, so the pixels near an
+   edge mix with too little of their surroundings and stay sharp. The glass is therefore a
+   pseudo-element that reaches `$reach` beyond the edges where content scrolls in, and a mask
+   cuts it back to the box: the blur sees the content around the edge, the eye sees only the
+   box. The host needs `position` (it is the containing block) and a stacking context
+   (`z-index` or `isolation`), so the glass at `z-index: -1` stays behind its content.
+
+   Without `backdrop-filter` the element keeps the solid `$color`, because a plain
+   see-through surface puts the text behind it under its own text.
+
+   `$edges`: the edges where content passes under the element, `top`, `bottom` or both.
+   `$fade-to`: a colour that the glass turns into towards its foot, for a bar that sits on
+   a solid bar below it or at the edge of the screen; `null` keeps one tint.
+   `$fade-stop`: where the glass reaches `$fade-to`, measured on the glass layer, which
+   starts `$reach` above the box when content passes the top. Below it the colour is solid,
+   so the foot of the navigation bar meets the system bar of the phone without an edge.
+   `$tint`: how much of `$color` the glass holds; less shows more of the content behind. */
+@mixin frosted(
+  $color,
+  $edges: (top, bottom),
+  $reach: 64px,
+  $fade-to: null,
+  $fade-stop: null,
+  $tint: 55%
+) {
+  background: $color;
+
+  @supports (backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px)) {
+    background: transparent;
+
+    &::before {
+      $top: if(index($edges, top), $reach, 0px);
+      $bottom: if(index($edges, bottom), $reach, 0px);
+      content: '';
+      position: absolute;
+      z-index: -1;
+      inset: calc(-1 * #{$top}) 0 calc(-1 * #{$bottom});
+      @if $fade-to {
+        background: linear-gradient(
+          to bottom,
+          color-mix(in srgb, #{$color} #{$tint}, transparent) #{$top},
+          #{$fade-to} #{if($fade-stop, $fade-stop, calc(100% - #{$bottom}))}
+        );
+      } @else {
+        background: color-mix(in srgb, #{$color} #{$tint}, transparent);
+      }
+      -webkit-backdrop-filter: blur(10px) saturate(1.8);
+      backdrop-filter: blur(10px) saturate(1.8);
+      mask-image: linear-gradient(
+        to bottom,
+        transparent #{$top},
+        #000 #{$top},
+        #000 calc(100% - #{$bottom}),
+        transparent calc(100% - #{$bottom})
+      );
+      pointer-events: none;
+    }
+  }
+}

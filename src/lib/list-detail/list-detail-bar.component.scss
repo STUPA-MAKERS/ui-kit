@@ -1,5 +1,6 @@
 @use '../../styles/breakpoints' as bp;
 @use '../../styles/press';
+@use '../../styles/frosted' as *;
 
 /* One view at a time: the bar at the top of the detail. It stays at the top of the
    window while the page scrolls under it, so the way back and the actions are always in
@@ -7,8 +8,10 @@
    reaches over the page gutter to the window edges, so nothing shows above or beside it.
    The arrow and the actions keep their 40px boxes, 4px inside the page gutter (12px from
    a 16px gutter), so they do not touch the screen edges; the big title below stays on
-   the gutter. The small title fades in once the big title has scrolled under the bar, and a
-   rule then closes the bar. */
+   the gutter. The small title fades in once the big title has scrolled under the bar.
+   The bar has no rule: it is frosted glass (`frosted`), a see-through tint of the page
+   colour over a blur, so the content that scrolls under it shows through blurred. A light shadow lifts it
+   off the content once it is condensed, because only then does content run under it. */
 :host {
   --ld-bar-gutter: var(--layout-gutter);
   position: sticky;
@@ -21,17 +24,16 @@
   min-height: calc(var(--ld-bar-height, 60px) + env(safe-area-inset-top, 0px));
   margin: calc(-1 * var(--main-pad-top, 0px)) calc(-1 * var(--ld-bar-gutter)) 0;
   padding: env(safe-area-inset-top, 0px) calc(var(--ld-bar-gutter) - var(--space-1)) 0;
-  border-bottom: var(--border-width) solid transparent;
-  background: var(--color-bg);
-  transition: border-color var(--motion-fast, 120ms) var(--ease-standard, ease);
+  @include frosted(var(--color-bg), bottom);
+  transition: box-shadow var(--motion-fast, 120ms) var(--ease-standard, ease);
+}
+:host(.ld__bar--condensed) {
+  box-shadow: var(--shadow-md);
 }
 @include bp.phone {
   :host {
     --ld-bar-gutter: var(--space-4);
   }
-}
-:host(.ld__bar--condensed) {
-  border-bottom-color: var(--color-border);
 }
 
 .ld__back {

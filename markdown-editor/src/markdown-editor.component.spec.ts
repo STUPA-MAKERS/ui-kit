@@ -196,7 +196,7 @@ describe('MarkdownEditorComponent', () => {
       return view.fixture.debugElement.children[0].componentInstance as MarkdownEditorComponent;
     }
 
-    it('switches bold, italic, a heading and a bullet list and reports them as active', async () => {
+    it('switches bold, italic, a heading, a bullet list and a quote and reports them as active', async () => {
       const view = await render(Host);
       const host = view.fixture.componentInstance;
       const cmp = editorOf(view);
@@ -236,6 +236,13 @@ describe('MarkdownEditorComponent', () => {
       cmp.toggleFormat('bulletList');
       expect(cmp.activeFormats().has('bulletList')).toBe(true);
       expect(host.changes.at(-1)).toContain('- Rückfragen');
+      cmp.toggleFormat('bulletList');
+
+      cmp.toggleFormat('blockquote');
+      expect(cmp.activeFormats().has('blockquote')).toBe(true);
+      expect(host.changes.at(-1)).toContain('> Rückfragen');
+      cmp.toggleFormat('blockquote');
+      expect(cmp.activeFormats().has('blockquote')).toBe(false);
     });
 
     it('does nothing while the editor is read-only', async () => {
