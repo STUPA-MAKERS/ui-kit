@@ -76,6 +76,7 @@ export type IconName =
   | 'key'
   | 'landmark'
   | 'left'
+  | 'letters'
   | 'link'
   | 'linkslash'
   | 'list'
@@ -212,6 +213,7 @@ const SHAPES: Record<string, readonly IconShape[]> = {
   key: [{ t: 'circle', cx: '7.5', cy: '15.5', r: '4.5' }, { t: 'path', d: 'm10.7 12.3 9.3-9.3M17 6l3 3M14 9l2 2' }],
   landmark: [{ t: 'path', d: 'M3 22h18M6 18v-7M10 18v-7M14 18v-7M18 18v-7' }, { t: 'path', d: 'M12 2 20 7H4z' }],
   left: [{ t: 'path', d: 'm15 6-6 6 6 6' }],
+  letters: [{ t: 'path', d: 'M3 19 8.5 5 14 19M5.2 14h6.6M15 19l3-7.5 3 7.5M16 16.5h4' }],
   link: [{ t: 'path', d: 'M10 13a5 5 0 0 0 7.5.5l3-3a5 5 0 0 0-7-7l-1.7 1.7' }, { t: 'path', d: 'M14 11a5 5 0 0 0-7.5-.5l-3 3a5 5 0 0 0 7 7l1.7-1.7' }],
   linkslash: [{ t: 'path', d: 'M10 13a5 5 0 0 0 7.5.5l3-3a5 5 0 0 0-7-7l-1.7 1.7' }, { t: 'path', d: 'M14 11a5 5 0 0 0-7.5-.5l-3 3a5 5 0 0 0 7 7l1.7-1.7' }, { t: 'path', d: 'M3 3l18 18' }],
   list: [{ t: 'path', d: 'M9 6h11M9 12h11M9 18h11M4 6h.01M4 12h.01M4 18h.01' }],
@@ -361,6 +363,7 @@ export const ICON_NAMES: readonly IconName[] = [
   'key',
   'landmark',
   'left',
+  'letters',
   'link',
   'linkslash',
   'list',
