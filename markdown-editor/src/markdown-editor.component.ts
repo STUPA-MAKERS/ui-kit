@@ -51,9 +51,9 @@ const KATEX_OPTIONS = { throwOnError: false };
  * A format that a toolbar of the consumer can switch: a heading (level 2, because level 1
  * is the heading of the document), bold, italic and a bullet list.
  */
-export type MarkdownFormat = 'heading' | 'bold' | 'italic' | 'bulletList';
+export type MarkdownFormat = 'heading' | 'bold' | 'italic' | 'bulletList' | 'blockquote';
 
-const FORMATS: readonly MarkdownFormat[] = ['heading', 'bold', 'italic', 'bulletList'];
+const FORMATS: readonly MarkdownFormat[] = ['heading', 'bold', 'italic', 'bulletList', 'blockquote'];
 
 /** An image that an upload stored: its canonical path and its alt text. */
 export interface MarkdownImageRef {
@@ -119,6 +119,7 @@ const ACTIVE_CHECK: Record<MarkdownFormat, { name: string; attrs?: Record<string
   bold: { name: 'bold' },
   italic: { name: 'italic' },
   bulletList: { name: 'bulletList' },
+  blockquote: { name: 'blockquote' },
 };
 
 /**
@@ -336,6 +337,9 @@ export class MarkdownEditorComponent implements OnDestroy {
         break;
       case 'bulletList':
         chain.toggleBulletList().run();
+        break;
+      case 'blockquote':
+        chain.toggleBlockquote().run();
         break;
     }
   }

@@ -2,7 +2,9 @@
 @use '../../../src/styles/nav-items';
 
 // The safe-area padding keeps the entries above the gesture bar of an installed app
-// (viewport-fit=cover).
+// (viewport-fit=cover). A light shadow upwards sets the bar off the page instead of a rule;
+// a page with its own bar on top of it (the protocol dock) sets `--bb-shadow: none`, because
+// that bar casts the shadow then.
 :host {
   display: block;
 }
@@ -18,7 +20,7 @@
   height: calc(var(--bottom-bar-height, 64px) + env(safe-area-inset-bottom));
   padding: 0 max(4px, var(--app-right-safe-area, 0px)) env(safe-area-inset-bottom)
     max(4px, var(--app-left-safe-area, 0px));
-  border-top: var(--border-width) solid var(--color-border);
+  box-shadow: var(--bb-shadow, var(--shadow-md-up));
   background: var(--color-surface-3);
   --nav-mark-ring: var(--color-surface-3);
   @include press.chrome-text;

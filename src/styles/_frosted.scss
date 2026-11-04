@@ -10,8 +10,10 @@
    Without `backdrop-filter` the element keeps the solid `$color`, because a plain
    see-through surface puts the text behind it under its own text.
 
-   `$edges`: the edges where content passes under the element, `top`, `bottom` or both. */
-@mixin frosted($color, $edges: (top, bottom), $reach: 64px) {
+   `$edges`: the edges where content passes under the element, `top`, `bottom` or both.
+   `$fade-to`: a colour that the glass turns into towards its foot, for a bar that sits on
+   a solid bar below it (the protocol dock on the navigation bar); `null` keeps one tint. */
+@mixin frosted($color, $edges: (top, bottom), $reach: 64px, $fade-to: null) {
   background: $color;
 
   @supports (backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px)) {
@@ -24,7 +26,15 @@
       position: absolute;
       z-index: -1;
       inset: calc(-1 * #{$top}) 0 calc(-1 * #{$bottom});
-      background: color-mix(in srgb, #{$color} 55%, transparent);
+      @if $fade-to {
+        background: linear-gradient(
+          to bottom,
+          color-mix(in srgb, #{$color} 55%, transparent) #{$top},
+          #{$fade-to} calc(100% - #{$bottom})
+        );
+      } @else {
+        background: color-mix(in srgb, #{$color} 55%, transparent);
+      }
       -webkit-backdrop-filter: blur(10px) saturate(1.8);
       backdrop-filter: blur(10px) saturate(1.8);
       mask-image: linear-gradient(
