@@ -1,6 +1,8 @@
 @if (open) {
   <div
+    #backdrop
     class="dialog__backdrop"
+    popover="manual"
     animate.enter="dialog--entering"
     animate.leave="dialog--leaving"
     (click)="onBackdrop($event)"

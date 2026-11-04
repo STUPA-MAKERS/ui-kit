@@ -13,6 +13,23 @@ function backdrop(): HTMLElement {
 
 
 describe('DialogComponent', () => {
+  it('opens the backdrop in the top layer, so a sheet around it cannot cut it off', async () => {
+    const show = jest.fn();
+    const proto = HTMLElement.prototype as HTMLElement & { showPopover?: () => void };
+    const had = proto.showPopover;
+    proto.showPopover = show;
+    try {
+      await render(`<app-dialog title="Namen ändern" [open]="true">B</app-dialog>`, {
+        imports: [DialogComponent],
+      });
+      expect(backdrop()).toHaveAttribute('popover', 'manual');
+      expect(show).toHaveBeenCalledTimes(1);
+      expect(show.mock.contexts[0]).toBe(backdrop());
+    } finally {
+      proto.showPopover = had;
+    }
+  });
+
   it('is not rendered while closed', async () => {
     await render(`<app-dialog title="Hinweis" [open]="false">Body</app-dialog>`, {
       imports: [DialogComponent],

@@ -1,9 +1,23 @@
-import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  ElementRef,
+  afterRenderEffect,
+  inject,
+  viewChild,
+} from '@angular/core';
 import { IconComponent } from '../icon/icon.component';
 import { UiKitTranslatePipe } from '../intl/translate.pipe';
 import { ToastService } from './toast.service';
 
-/** Toast-Container — einmal im Shell-Layout platziert. ARIA-Live-Region. */
+/**
+ * Toast-Container — einmal im Shell-Layout platziert. ARIA-Live-Region.
+ *
+ * A dialog opens in the top layer, so the stack is in the top layer too, from the first
+ * render on (a hidden popover would hide the live region). A new toast raises the stack
+ * above a dialog that opened after it, so a toast about a dialog shows above that dialog.
+ * An empty stack has no size and takes no press.
+ */
 @Component({
   selector: 'app-toast',
   standalone: true,
@@ -14,4 +28,25 @@ import { ToastService } from './toast.service';
 })
 export class ToastComponent {
   readonly toastService = inject(ToastService);
+
+  private readonly stack = viewChild<ElementRef<HTMLElement>>('stack');
+
+  constructor() {
+    afterRenderEffect(() => {
+      const count = this.toastService.stackToasts().length;
+      const el = this.stack()?.nativeElement as
+        | (HTMLElement & { showPopover?: () => void; hidePopover?: () => void })
+        | undefined;
+      if (!el || typeof el.showPopover !== 'function' || typeof el.hidePopover !== 'function') return;
+      let open = false;
+      try {
+        open = el.matches(':popover-open');
+      } catch {
+        // The engine does not know the selector (jsdom, old browsers).
+      }
+      if (open && count === 0) return;
+      if (open) el.hidePopover();
+      el.showPopover();
+    });
+  }
 }
