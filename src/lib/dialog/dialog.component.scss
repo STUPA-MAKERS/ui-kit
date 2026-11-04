@@ -1,5 +1,6 @@
 @use '../../styles/surface';
 @use '../../styles/press';
+@use '../../styles/frosted' as *;
 
 /* In the top layer (popover) the UA styles would shrink and centre the backdrop, so they
    are reset here. */
@@ -19,7 +20,9 @@
   align-items: center;
   justify-content: center;
   padding: var(--space-5);
-  background: var(--color-scrim);
+  /* The page shows through the glass of the dialog, so the scrim is lighter, as under a
+     side sheet. */
+  background: color-mix(in srgb, var(--color-scrim) 60%, transparent);
 }
 /* The sheet: surface 1, radius 24, no edge. A table inside it steps up to surface 2. */
 .dialog {
@@ -27,6 +30,9 @@
   width: 100%;
   max-width: 35rem;
   background: var(--color-bg-elevated);
+  /* Frosted glass like the side sheets and the menus (`frosted-pop`). The lift keeps the
+     fields readable over the scrim of a light theme. */
+  @include frosted-pop(var(--color-bg-elevated), 85%, 20px, 1.3);
   border-radius: var(--radius-2xl);
   box-shadow: var(--shadow-elevated);
   display: flex;
