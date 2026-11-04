@@ -1,3 +1,6 @@
+@use '../../styles/breakpoints' as bp;
+@use '../../styles/frosted' as *;
+
 /* Sticky at the top of the viewport, below the shell header and the safe area. Below the
    bar of a one-view page (`.ld-under-bar` sets `--ld-sticky-top`) it sticks below that
    bar. The block padding gives the field a small gap to the viewport edge while it is
@@ -41,7 +44,30 @@
   opacity: 1;
 }
 
+/* On a phone the bar is frosted glass from screen edge to screen edge (`--stb-bleed`, the
+   gutter of the page): the rows that scroll under it show through blurred, and a light
+   shadow lifts it off them while it is stuck, like the bar of a one-view page. The glass
+   replaces the fade. The gap above the field is the gutter at the sides, so the stuck
+   field sits as far from the top of the screen as from its edges. */
+@include bp.phone {
+  :host {
+    margin-inline: calc(-1 * var(--stb-bleed, var(--space-4)));
+    margin-top: calc(-1 * var(--stb-bleed, var(--space-4)));
+    padding-inline: var(--stb-bleed, var(--space-4));
+    padding-top: var(--stb-bleed, var(--space-4));
+    transition: box-shadow var(--motion-fast) var(--ease-standard);
+    @include frosted(var(--stb-bg, var(--color-bg)), bottom);
+  }
+  :host::after {
+    display: none;
+  }
+  :host(.stb--stuck) {
+    box-shadow: var(--shadow-md);
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
+  :host,
   :host::after {
     transition: none;
   }
@@ -50,6 +76,9 @@
 /* Turned off: the content stays in the flow as if the bar were not there. */
 :host(.stb--off) {
   display: contents;
+}
+:host(.stb--off)::before {
+  display: none;
 }
 :host(.stb--off)::after {
   display: none;
