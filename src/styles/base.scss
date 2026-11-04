@@ -1,5 +1,6 @@
 // Reset + Basis-Element-Styles. Nutzt ausschließlich Semantic-Tokens.
 @use 'press';
+@use 'breakpoints' as bp;
 
 *,
 *::before,
@@ -412,5 +413,15 @@ input[type='radio'] {
     background: var(--color-selected);
     border-color: transparent;
     color: var(--color-on-selected);
+  }
+}
+
+// A phone list: a group head that is stuck right under the sticky search bar continues
+// the glass of the bar, so the head carries the shadow at the end of the glass and the
+// bar has none (`StickyBarComponent`, `ListGroupComponent`). The rule reads the class of
+// one component and styles the other, so it lives here and not in either component.
+@include bp.phone {
+  body:has(.lg__head--stuck) app-sticky-bar.stb--stuck {
+    box-shadow: none;
   }
 }
