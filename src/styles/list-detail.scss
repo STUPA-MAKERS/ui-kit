@@ -112,6 +112,12 @@ body:has(app-tab-pager) app-list-detail-bar.ld__bar--condensed.ld__bar--condense
     mask-image: none;
   }
 }
+// The rows run down to the bottom edge of the screen, and a floating button in the column
+// (`app-fab` `contained`) sits `--ld-pane-drop` higher, so the end of the rows keeps room for
+// the button above that edge.
+.ld-pane--glass:has(.fab--contained) > .ld-pane__rows.ld-pane__rows.ld-pane__rows.ld-pane__rows {
+  padding-bottom: calc(56px + var(--space-6) + var(--ld-pane-drop, 0px));
+}
 .ld-pane--glass::before {
   content: '';
   position: absolute;
