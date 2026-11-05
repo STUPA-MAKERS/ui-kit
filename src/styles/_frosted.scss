@@ -90,11 +90,13 @@
    tint and the blur sit on the box itself. Nothing scrolls past its edges, so the sharp
    edge that `frosted` avoids does not occur, and a pseudo-element would scroll with the
    rows of a long menu. Without `backdrop-filter` the box keeps the solid `$color`.
+   `$tint`: high by default, because at a lower tint the text behind a menu reads through
+   its rows. A floating box takes `--color-pop`, which a glass surface does not override.
    `$blur`: a large box such as a bottom sheet takes more, so the rows behind it do not
    read through its text. `$lift`: a brightness for the backdrop, for a box over a scrim:
    the scrim darkens the glass of a light theme, so the fields in the box lose their
    contrast to it. On a dark theme the backdrop is near black, so the lift changes little. */
-@mixin frosted-pop($color, $tint: 55%, $blur: 10px, $lift: null) {
+@mixin frosted-pop($color, $tint: 92%, $blur: 16px, $lift: null) {
   background: $color;
 
   @supports (backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px)) {
