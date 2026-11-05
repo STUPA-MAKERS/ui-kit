@@ -22,10 +22,12 @@
   --fab-end: var(--space-4);
   --fab-foot: var(--space-4);
 }
+// A glass list column reaches down to the bottom edge of the screen (`--ld-pane-drop`), so
+// the button keeps the gap that the column had before it reached the edge.
 :host(.fab--contained) {
   position: absolute;
   right: var(--space-4);
-  bottom: var(--space-4);
+  bottom: calc(var(--ld-pane-drop, 0px) + var(--space-4));
 }
 // In an `app-fab-group` the group takes the position.
 :host(.fab--grouped) {
