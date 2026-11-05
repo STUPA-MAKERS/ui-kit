@@ -58,8 +58,8 @@
 
 // Side by side, in a list column whose head is glass over its rows (`.ld-pane--glass`,
 // `styles/list-detail.scss`), the head of a group sticks right under the head of the
-// column (`--ld-pane-top`), the same as on a phone: glass with a hard edge and a light
-// shadow while stuck, and its glass reaches up behind the head of the column while it
+// column (`--ld-pane-top`), the same as on a phone but without a shadow: glass with a
+// hard edge while stuck, and its glass reaches up behind the head of the column while it
 // sits right under it.
 :host-context(.ld-pane--glass) .lg__head {
   position: sticky;
@@ -68,9 +68,6 @@
   padding-inline: calc(var(--lg-inset, var(--space-4)) + var(--lg-bleed, 0px));
   z-index: 2;
   @include frosted(var(--stb-bg, var(--color-bg)), bottom);
-}
-:host-context(.ld-pane--glass) .lg__head--stuck {
-  box-shadow: var(--shadow-md);
 }
 :host-context(.ld-pane--glass) .lg__head:not(.lg__head--stuck) {
   @include frosted-rest(var(--stb-bg, var(--color-bg)));

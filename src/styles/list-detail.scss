@@ -68,8 +68,8 @@ body:has(app-tab-pager) app-list-detail-bar.ld__bar--condensed.ld__bar--condense
 // screen. The rows reach up under the head, and the head is one frosted glass
 // surface over them, the same as the search bar on a phone: one glass layer for the
 // whole head (`::before`), because two layers side by side show a seam where each one
-// stops to blur. The glass ends in a hard edge with a light shadow (`::after`) while rows
-// are under it (`.ld-pane--scrolled`); the rows have no fades. At rest
+// stops to blur. The glass ends in a hard edge without a shadow while rows are under it
+// (`.ld-pane--scrolled`); the rows have no fades. At rest
 // there is no glass, because it would blur the first row into the head.
 .ld-pane--glass {
   // The column reaches up to the top edge of the screen (`--ld-pane-lift`, the padding of
@@ -112,8 +112,7 @@ body:has(app-tab-pager) app-list-detail-bar.ld__bar--condensed.ld__bar--condense
     mask-image: none;
   }
 }
-.ld-pane--glass::before,
-.ld-pane--glass::after {
+.ld-pane--glass::before {
   content: '';
   position: absolute;
   inset-inline: 0;
@@ -137,22 +136,9 @@ body:has(app-tab-pager) app-list-detail-bar.ld__bar--condensed.ld__bar--condense
     mask-image: linear-gradient(to bottom, #000 calc(100% - 64px), transparent calc(100% - 64px));
   }
 }
-// The shadow of the edge, below the head only: the clip cuts it at the sides of the
-// column.
-.ld-pane--glass::after {
-  clip-path: inset(0 0 -32px 0);
-  transition: box-shadow var(--motion-fast) var(--ease-standard);
-}
-.ld-pane--glass.ld-pane--scrolled::after {
-  box-shadow: var(--shadow-md);
-}
-.ld-pane--glass:not(.ld-pane--scrolled)::before {
-  display: none;
-}
 // A group head that sticks right under the head of the column (`ListGroupComponent`,
-// `lg__head--under`) carries the glass of the head behind it and the shadow, so the column
-// drops both: one glass surface, no seam.
-.ld-pane--glass:has(.lg__head--under)::before,
-.ld-pane--glass:has(.lg__head--stuck)::after {
+// `lg__head--under`) carries the glass of the head behind it, so the column drops its own:
+// one glass surface, no seam.
+.ld-pane--glass:has(.lg__head--under)::before {
   display: none;
 }
