@@ -7,9 +7,12 @@
   min-width: 0;
 }
 
+// `--lg-inset`: the inline padding of the head, so its text lines up with the rows of a
+// list that has its own inset. `--lg-bleed`: the inline padding of the scrolling rows, so
+// a pinned head reaches over it to the edges of the column.
 .lg__head {
   margin: 0;
-  padding: 18px var(--space-4) 6px;
+  padding: 18px var(--lg-inset, var(--space-4)) 6px;
   font-size: 0.84375rem;
   line-height: 1.25rem;
   font-weight: var(--fw-semibold);
@@ -61,6 +64,8 @@
 :host-context(.ld-pane--glass) .lg__head {
   position: sticky;
   top: 0;
+  margin-inline: calc(-1 * var(--lg-bleed, 0px));
+  padding-inline: calc(var(--lg-inset, var(--space-4)) + var(--lg-bleed, 0px));
   z-index: 2;
   @include frosted(var(--stb-bg, var(--color-bg)), bottom);
 }

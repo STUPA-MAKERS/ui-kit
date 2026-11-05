@@ -69,16 +69,18 @@ body:has(app-tab-pager) app-list-detail-bar.ld__bar--condensed.ld__bar--condense
 // surface over them, the same as the search bar on a phone: one glass layer for the
 // whole head (`::before`), because two layers side by side show a seam where each one
 // stops to blur. The glass ends in a hard edge with a light shadow (`::after`) while rows
-// are under it (`.ld-pane--scrolled`); there is no fade at the top of the rows. At rest
+// are under it (`.ld-pane--scrolled`); the rows have no fades. At rest
 // there is no glass, because it would blur the first row into the head.
 .ld-pane--glass {
   // The column reaches up to the top edge of the screen (`--ld-pane-lift`, the padding of
   // the page above it), so the glass and the rows under it end at that edge, not at a
-  // line below it. The padding keeps the header where it was.
+  // line below it; the padding keeps the header where it was. It also reaches down to the
+  // bottom edge (`--ld-pane-drop`), so the rows run out at the edge of the screen.
   --ld-pane-top: calc(var(--ld-pane-lift, 0px) + var(--ld-pane-head, 0px));
   margin-top: calc(-1 * var(--ld-pane-lift, 0px));
+  margin-bottom: calc(-1 * var(--ld-pane-drop, 0px));
   padding-top: var(--ld-pane-lift, 0px);
-  height: calc(100% + var(--ld-pane-lift, 0px));
+  height: calc(100% + var(--ld-pane-lift, 0px) + var(--ld-pane-drop, 0px));
 
   > :has(~ .ld-pane__rows):not(.ld-pane__filters) {
     position: relative;
@@ -91,38 +93,23 @@ body:has(app-tab-pager) app-list-detail-bar.ld__bar--condensed.ld__bar--condense
   > .ld-pane__filters::after {
     display: none;
   }
-  > .ld-pane__rows {
+  // The repeated class wins over a page rule that sets the padding of its rows (the nav
+  // of the admin frame sets `padding: 0 …`), which would put the first rows under the head.
+  > .ld-pane__rows.ld-pane__rows.ld-pane__rows.ld-pane__rows {
     position: relative;
     z-index: 0;
     margin-top: calc(-1 * var(--ld-pane-top));
     padding-top: var(--ld-pane-top);
     scroll-padding-top: var(--ld-pane-top);
   }
-  // No fade at the top of the rows: the glass and its edge show that rows are under it.
-  // A mask on the rows, or on the column, would make it the backdrop root of the glass
-  // of a stuck group head, and the glass then blurs nothing. So no mask: the fade at the
-  // foot is a gradient to the page colour that sticks at the foot of the rows. The
+  // No fades in the rows: the glass and its edge show that rows are under the head, and
+  // the rows run to the bottom edge of the screen. A mask on the rows would also make them
+  // the backdrop root of the glass of a stuck group head, which then blurs nothing. The
   // repeated class wins over the fade of the page (`fade-y`), which can carry three
   // classes and the attribute of the component.
   > .ld-pane__rows.ld-pane__rows.ld-pane__rows.ld-pane__rows {
     -webkit-mask-image: none;
     mask-image: none;
-  }
-  > .ld-pane__rows::after {
-    content: '';
-    position: sticky;
-    bottom: 0;
-    z-index: 3;
-    flex: none;
-    height: var(--space-6);
-    margin-top: calc(-1 * var(--space-6));
-    background: linear-gradient(to bottom, transparent, var(--stb-bg, var(--color-bg)));
-    opacity: 0;
-    pointer-events: none;
-    transition: opacity var(--motion-fast) var(--ease-standard);
-  }
-  > .ld-pane__rows.is-fade-end::after {
-    opacity: 1;
   }
 }
 .ld-pane--glass::before,
