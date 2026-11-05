@@ -133,7 +133,16 @@ body:has(app-tab-pager) app-list-detail-bar.ld__bar--condensed.ld__bar--condense
     background: color-mix(in srgb, var(--stb-bg, var(--color-bg)) 55%, transparent);
     -webkit-backdrop-filter: blur(10px) saturate(1.8);
     backdrop-filter: blur(10px) saturate(1.8);
-    mask-image: linear-gradient(to bottom, #000 calc(100% - 64px), transparent calc(100% - 64px));
+    // The sides fade to the page, so the glass shows no edge against the page beside the
+    // column; the foot is cut at the head.
+    -webkit-mask-image:
+      linear-gradient(to bottom, #000 calc(100% - 64px), transparent calc(100% - 64px)),
+      linear-gradient(to right, transparent, #000 var(--space-4), #000 calc(100% - var(--space-4)), transparent);
+    -webkit-mask-composite: source-in;
+    mask-image:
+      linear-gradient(to bottom, #000 calc(100% - 64px), transparent calc(100% - 64px)),
+      linear-gradient(to right, transparent, #000 var(--space-4), #000 calc(100% - var(--space-4)), transparent);
+    mask-composite: intersect;
   }
 }
 // A group head that sticks right under the head of the column (`ListGroupComponent`,
