@@ -156,10 +156,11 @@ export class StickyBarComponent {
     this.setRows(rows);
     const pane = el.parentElement;
     if (!rows || !pane) return;
-    const prev = rows.previousElementSibling;
-    const head = prev instanceof HTMLElement ? prev.offsetTop + prev.offsetHeight : 0;
-    const gap = parseFloat(getComputedStyle(pane).rowGap) || 0;
-    pane.style.setProperty('--ld-pane-top', `${Math.ceil(head + gap)}px`);
+    // The place of the rows in the flow, without the pull under the head: it includes the
+    // gap of the column and the negative margin of this bar (`--stb-pad`).
+    const pulled = parseFloat(getComputedStyle(rows).marginTop) || 0;
+    const top = rows.offsetTop - pulled;
+    pane.style.setProperty('--ld-pane-top', `${Math.round(top)}px`);
     pane.classList.toggle('ld-pane--scrolled', rows.scrollTop > 0);
   }
 
