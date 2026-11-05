@@ -96,7 +96,7 @@
    read through its text. `$lift`: a brightness for the backdrop, for a box over a scrim:
    the scrim darkens the glass of a light theme, so the fields in the box lose their
    contrast to it. On a dark theme the backdrop is near black, so the lift changes little. */
-@mixin frosted-pop($color, $tint: 88%, $blur: 10px, $lift: null) {
+@mixin frosted-pop($color, $tint: 92%, $blur: 16px, $lift: null) {
   background: $color;
 
   @supports (backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px)) {
