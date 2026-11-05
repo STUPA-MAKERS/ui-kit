@@ -19,7 +19,7 @@
   border-radius: $radius;
   color: var(--color-text);
   box-shadow: var(--shadow-elevated);
-  @include frosted-pop(var(--color-surface-3));
+  @include frosted-pop(var(--color-pop));
 
   &:focus {
     outline: none;

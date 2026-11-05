@@ -103,7 +103,7 @@
   list-style: none;
   border-radius: var(--radius-md);
   box-shadow: var(--shadow-elevated);
-  @include frosted-pop(var(--color-surface-3));
+  @include frosted-pop(var(--color-pop));
 }
 .ac__option {
   @include press.chrome-text;
