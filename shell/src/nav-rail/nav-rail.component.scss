@@ -27,7 +27,9 @@
   min-height: 0;
   overflow-y: auto;
   overscroll-behavior: contain;
-  scrollbar-width: thin;
+  // No native gutter, which would push the items off centre. The overlay bar of the kit
+  // (`data-scrollbar="hover start"`) shows at the left edge, and only under the pointer.
+  scrollbar-width: none;
   @include fade.fade-y(var(--space-5));
 }
 
