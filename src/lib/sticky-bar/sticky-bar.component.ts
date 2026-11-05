@@ -20,14 +20,21 @@ import {
  * phone the bar is frosted glass from edge to edge instead, which fades out below it.
  *
  * The scroll container gets `--stb-bottom`, the offset of the lower edge of the stuck bar,
- * so the head of a group of rows (`app-list-group`) sticks right below the bar.
+ * so the head of a group of rows (`app-list-group`) sticks right below the bar, and
+ * `--stb-height`, the height of the bar, so the glass of that head can reach up behind the
+ * bar and be one surface with it.
  *
  * Put the bar as a direct child of the element that holds the list, not into a small
  * wrapper: a sticky element stays inside its parent, so a parent as high as the bar holds
  * it in place and it scrolls away.
  *
- * In a list/detail column that scrolls by itself, the bar is not needed: the column keeps
- * the search above its scrolling list. The bar does no harm there, it never sticks.
+ * In a list/detail column whose rows scroll by themselves (side by side, `.ld-pane`), the
+ * bar never sticks: the column keeps the search above its scrolling rows. The bar then
+ * makes the head of the column one glass surface over the rows: it marks the column
+ * `.ld-pane--glass` and the rows `.ld-pane__rows`, sets `--ld-pane-head` (the height of the
+ * head with the gap below it), `--ld-pane-lift` (the gap from the column to the top edge
+ * of the screen) and `.ld-pane--scrolled` while rows are under the head
+ * (`styles/list-detail.scss`).
  *
  * Scroll container: the bar sticks in the nearest ancestor that scrolls (`overflow-y`
  * auto or scroll), else in the window. In the admin sheet, whose body scrolls inside its
@@ -69,6 +76,9 @@ export class StickyBarComponent {
   private ownsPadding: HTMLElement | null = null;
   /** The scrolling ancestor, or null for the window (see {@link scrollParent}). */
   private scroller: HTMLElement | null = null;
+  /** The rows of the list column that scroll by themselves (see {@link paneRows}). */
+  private rows: HTMLElement | null = null;
+  private onRowsScroll: (() => void) | null = null;
 
   constructor() {
     let frame = 0;
@@ -81,6 +91,7 @@ export class StickyBarComponent {
     };
     let observer: ResizeObserver | null = null;
 
+    this.onRowsScroll = schedule;
     afterNextRender(() => {
       this.scroller = scrollParent(this.host.nativeElement);
       this.scroller?.addEventListener('scroll', schedule, { passive: true });
@@ -103,12 +114,14 @@ export class StickyBarComponent {
       window.removeEventListener('resize', schedule);
       observer?.disconnect();
       this.setPadding(null);
+      this.setRows(null);
     });
   }
 
   /** Read the position of the bar; set the stuck state and the scroll padding. */
   protected measure(): void {
     const el = this.host.nativeElement;
+    this.measureRows();
     if (!this.sticky()) {
       this.stuck.set(false);
       this.setPadding(null);
@@ -130,27 +143,93 @@ export class StickyBarComponent {
     this.setPadding(
       rect.height > 0 ? Math.ceil(inset + top + rect.height) : null,
       Math.ceil(top + rect.height),
+      Math.ceil(rect.height),
     );
   }
 
   /**
-   * Set the scroll padding of the scroll container (the document, or the scrolling
-   * ancestor) and `--stb-bottom` for the group heads, or remove both (`null`) if this bar
-   * set them.
+   * The glass head of a list column whose rows scroll by themselves: mark the column and
+   * the rows, and set the height of the head and the scrolled state.
    */
-  private setPadding(px: number | null, bottom = 0): void {
+  private measureRows(): void {
+    const el = this.host.nativeElement;
+    const rows = paneRows(el);
+    this.setRows(rows);
+    const pane = el.parentElement;
+    if (!rows || !pane) return;
+    // The place of the rows in the flow, without the pull under the head: it includes the
+    // gap of the column and the negative margin of this bar (`--stb-pad`).
+    // Counted from the top padding of the column, which is the lift below: the column
+    // adds the two (`--ld-pane-top`).
+    const pulled = parseFloat(getComputedStyle(rows).marginTop) || 0;
+    const padding = parseFloat(getComputedStyle(pane).paddingTop) || 0;
+    const head = rows.offsetTop - pulled - padding;
+    pane.style.setProperty('--ld-pane-head', `${Math.round(head)}px`);
+    // The column reaches up to the top edge of the screen, so the glass and the rows under
+    // it do too: the lift is the gap between the box that holds the column and that edge.
+    const lift = Math.max(0, pane.parentElement?.getBoundingClientRect().top ?? 0);
+    pane.style.setProperty('--ld-pane-lift', `${Math.round(lift)}px`);
+    pane.classList.toggle('ld-pane--scrolled', rows.scrollTop > 0);
+  }
+
+  /** Attach to the rows `rows` (null: none), and undo the marks of the rows before. */
+  private setRows(rows: HTMLElement | null): void {
+    if (rows === this.rows) return;
+    const old = this.rows;
+    if (old && this.onRowsScroll) {
+      old.removeEventListener('scroll', this.onRowsScroll);
+      old.classList.remove('ld-pane__rows');
+      const pane = old.parentElement;
+      pane?.classList.remove('ld-pane--glass', 'ld-pane--scrolled');
+      pane?.style.removeProperty('--ld-pane-head');
+      pane?.style.removeProperty('--ld-pane-lift');
+    }
+    this.rows = rows;
+    if (rows && this.onRowsScroll) {
+      rows.addEventListener('scroll', this.onRowsScroll, { passive: true });
+      rows.classList.add('ld-pane__rows');
+      rows.parentElement?.classList.add('ld-pane--glass');
+    }
+  }
+
+  /**
+   * Set the scroll padding of the scroll container (the document, or the scrolling
+   * ancestor) and `--stb-bottom` and `--stb-height` for the group heads, or remove them
+   * (`null`) if this bar set them.
+   */
+  private setPadding(px: number | null, bottom = 0, height = 0): void {
     const target = this.scroller ?? document.documentElement;
     if (px !== null) {
       target.style.setProperty('scroll-padding-top', `${px}px`);
       // A sticky offset counts from the edge of the scroll port, without its padding.
       target.style.setProperty('--stb-bottom', `${bottom}px`);
+      target.style.setProperty('--stb-height', `${height}px`);
       this.ownsPadding = target;
     } else if (this.ownsPadding) {
       this.ownsPadding.style.removeProperty('scroll-padding-top');
       this.ownsPadding.style.removeProperty('--stb-bottom');
+      this.ownsPadding.style.removeProperty('--stb-height');
       this.ownsPadding = null;
     }
   }
+}
+
+/**
+ * The rows of the list column of `bar` that scroll by themselves: the first scroll
+ * container after the bar among its siblings, when the bar is the search bar of a list
+ * column (`.ld-pane > .ld-pane__filters`). Null when the bar is somewhere else or the
+ * page scrolls (one pane at a time).
+ */
+export function paneRows(bar: HTMLElement): HTMLElement | null {
+  if (!bar.classList.contains('ld-pane__filters')) return null;
+  if (!bar.parentElement?.classList.contains('ld-pane')) return null;
+  for (let n = bar.nextElementSibling; n; n = n.nextElementSibling) {
+    if (!(n instanceof HTMLElement)) continue;
+    // Our own mark sets no overflow, so a former scroll container is read afresh.
+    const y = getComputedStyle(n).overflowY;
+    if (y === 'auto' || y === 'scroll') return n;
+  }
+  return null;
 }
 
 /** The nearest ancestor that scrolls vertically, or null when the window scrolls. */

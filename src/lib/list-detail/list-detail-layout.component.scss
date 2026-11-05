@@ -32,6 +32,12 @@
 :host(.ld--split) {
   gap: var(--ld-gap);
 }
+/* A list column with a glass head (`.ld-pane--glass`) reaches up over the padding of the
+   page to the top edge of the screen. It scrolls its rows itself, so the list need not
+   clip it. */
+:host(.ld--split) .ld__list:has(> .ld-pane--glass) {
+  overflow: visible;
+}
 :host(.ld--split) .ld__list {
   flex: none;
   width: var(--ld-list-width);
