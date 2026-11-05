@@ -58,8 +58,8 @@
 
 // Side by side, in a list column whose head is glass over its rows (`.ld-pane--glass`,
 // `styles/list-detail.scss`), the head of a group sticks right under the head of the
-// column (`--ld-pane-top`), the same as on a phone: glass with a hard edge and a light
-// shadow while stuck, and its glass reaches up behind the head of the column while it
+// column (`--ld-pane-top`), the same as on a phone but without a shadow: glass with a
+// hard edge while stuck, and its glass reaches up behind the head of the column while it
 // sits right under it.
 :host-context(.ld-pane--glass) .lg__head {
   position: sticky;
@@ -69,12 +69,20 @@
   z-index: 2;
   @include frosted(var(--stb-bg, var(--color-bg)), bottom);
 }
-:host-context(.ld-pane--glass) .lg__head--stuck {
-  box-shadow: var(--shadow-md);
-}
 :host-context(.ld-pane--glass) .lg__head:not(.lg__head--stuck) {
   @include frosted-rest(var(--stb-bg, var(--color-bg)));
 }
 :host-context(.ld-pane--glass) .lg__head--under::before {
   top: calc(-1 * var(--ld-pane-top, 0px));
+}
+// The sides of the glass fade to the page, as the glass of the head of the column does.
+:host-context(.ld-pane--glass) .lg__head::before {
+  -webkit-mask-image:
+    linear-gradient(to bottom, #000 calc(100% - 64px), transparent calc(100% - 64px)),
+    linear-gradient(to right, transparent, #000 var(--space-4), #000 calc(100% - var(--space-4)), transparent);
+  -webkit-mask-composite: source-in;
+  mask-image:
+    linear-gradient(to bottom, #000 calc(100% - 64px), transparent calc(100% - 64px)),
+    linear-gradient(to right, transparent, #000 var(--space-4), #000 calc(100% - var(--space-4)), transparent);
+  mask-composite: intersect;
 }
