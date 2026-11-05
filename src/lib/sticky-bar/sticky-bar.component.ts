@@ -32,8 +32,8 @@ import {
  * bar never sticks: the column keeps the search above its scrolling rows. The bar then
  * makes the head of the column one glass surface over the rows: it marks the column
  * `.ld-pane--glass` and the rows `.ld-pane__rows`, sets `--ld-pane-head` (the height of the
- * head with the gap below it), `--ld-pane-lift` (the gap from the column to the top edge
- * of the screen) and `.ld-pane--scrolled` while rows are under the head
+ * head with the gap below it), `--ld-pane-lift` and `--ld-pane-drop` (the gaps from the
+ * column to the top and the bottom edge of the screen) and `.ld-pane--scrolled` while rows are under the head
  * (`styles/list-detail.scss`).
  *
  * Scroll container: the bar sticks in the nearest ancestor that scrolls (`overflow-y`
@@ -167,8 +167,12 @@ export class StickyBarComponent {
     pane.style.setProperty('--ld-pane-head', `${Math.round(head)}px`);
     // The column reaches up to the top edge of the screen, so the glass and the rows under
     // it do too: the lift is the gap between the box that holds the column and that edge.
-    const lift = Math.max(0, pane.parentElement?.getBoundingClientRect().top ?? 0);
+    const box = pane.parentElement?.getBoundingClientRect();
+    const lift = Math.max(0, box?.top ?? 0);
     pane.style.setProperty('--ld-pane-lift', `${Math.round(lift)}px`);
+    // The same down to the bottom edge of the screen.
+    const drop = Math.max(0, box ? window.innerHeight - box.bottom : 0);
+    pane.style.setProperty('--ld-pane-drop', `${Math.round(drop)}px`);
     pane.classList.toggle('ld-pane--scrolled', rows.scrollTop > 0);
   }
 
@@ -183,6 +187,7 @@ export class StickyBarComponent {
       pane?.classList.remove('ld-pane--glass', 'ld-pane--scrolled');
       pane?.style.removeProperty('--ld-pane-head');
       pane?.style.removeProperty('--ld-pane-lift');
+      pane?.style.removeProperty('--ld-pane-drop');
     }
     this.rows = rows;
     if (rows && this.onRowsScroll) {
