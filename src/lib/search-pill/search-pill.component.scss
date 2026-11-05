@@ -12,9 +12,12 @@
   height: var(--control-height-lg);
   padding: 0 6px 0 0;
   border-radius: var(--radius-pill);
-  /* A parent on a surface-2 background (a side sheet, for example) sets `--sp-bg` to a
-     different surface, so that the field stays visible. */
-  background: var(--sp-bg, var(--color-surface-2));
+  /* A neutral overlay, not a solid surface: the text colour at a low share lightens the
+     glass of a stuck bar in the dark theme and darkens it in the light theme, like the
+     controls on a dialog or a sheet (`glass-content`). On the solid page it gives the step
+     of `surface-2`. A parent sets `--sp-bg` to a different surface where the field needs
+     more contrast. */
+  background: var(--sp-bg, color-mix(in srgb, var(--color-text) 6%, transparent));
   color: var(--color-text-muted);
   font-size: var(--fs-md);
 }
@@ -96,7 +99,7 @@
 }
 @media (hover: hover) {
   .sp__clear:hover {
-    background: var(--color-surface-3, var(--color-surface-2));
+    background: color-mix(in srgb, var(--color-text) 9%, transparent);
     color: var(--color-text);
   }
 }
