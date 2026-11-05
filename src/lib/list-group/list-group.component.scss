@@ -28,6 +28,10 @@
 // scroll, as frosted glass from screen edge to screen edge that ends in a hard edge with a
 // light shadow, so the month of the rows stays in view and the end of the glass is clear;
 // the next head pushes it away. Without the bar `top` is unset and it scrolls.
+// Two glass layers side by side show a seam: each blurs only what lies behind its own box,
+// so the foot of the bar and the top of the head blur different content. While the head
+// sits right under the bar (`lg__head--under`), its glass therefore reaches up behind the
+// bar (`--stb-height`) and the bar drops its own glass (`base.scss`): one surface, one blur.
 @include bp.phone {
   .lg__head {
     position: sticky;
@@ -40,8 +44,32 @@
   .lg__head--stuck {
     box-shadow: var(--shadow-md);
   }
+  .lg__head--under::before {
+    top: calc(-1 * var(--stb-height, 0px));
+  }
   // Glass and its shadow only while the head is stuck over its rows (`lg__head--stuck`).
   .lg__head:not(.lg__head--stuck) {
     @include frosted-rest(var(--stb-bg, var(--color-bg)));
   }
+}
+
+// Side by side, in a list column whose head is glass over its rows (`.ld-pane--glass`,
+// `styles/list-detail.scss`), the head of a group sticks right under the head of the
+// column (`--ld-pane-top`), the same as on a phone: glass with a hard edge and a light
+// shadow while stuck, and its glass reaches up behind the head of the column while it
+// sits right under it.
+:host-context(.ld-pane--glass) .lg__head {
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  @include frosted(var(--stb-bg, var(--color-bg)), bottom);
+}
+:host-context(.ld-pane--glass) .lg__head--stuck {
+  box-shadow: var(--shadow-md);
+}
+:host-context(.ld-pane--glass) .lg__head:not(.lg__head--stuck) {
+  @include frosted-rest(var(--stb-bg, var(--color-bg)));
+}
+:host-context(.ld-pane--glass) .lg__head--under::before {
+  top: calc(-1 * var(--ld-pane-top, 0px));
 }

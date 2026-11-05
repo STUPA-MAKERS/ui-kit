@@ -59,3 +59,104 @@ body:has(app-tab-pager) app-list-detail-bar.ld__bar--condensed.ld__bar--condense
   gap: var(--space-3);
   min-width: 0;
 }
+
+// Side by side, the rows of the column scroll in an element of their own (the next
+// scroll container after the search bar). The search bar (`StickyBarComponent`) then
+// marks the column `.ld-pane--glass`, the rows `.ld-pane__rows`, and sets `--ld-pane-top`,
+// the height of the head of the column (header, search bar and what follows it) with the
+// gap below it. The rows reach up under the head, and the head is one frosted glass
+// surface over them, the same as the search bar on a phone: one glass layer for the
+// whole head (`::before`), because two layers side by side show a seam where each one
+// stops to blur. The glass ends in a hard edge with a light shadow (`::after`) while rows
+// are under it (`.ld-pane--scrolled`); there is no fade at the top of the rows. At rest
+// there is no glass, because it would blur the first row into the head.
+.ld-pane--glass {
+  > :has(~ .ld-pane__rows):not(.ld-pane__filters) {
+    position: relative;
+    z-index: 2;
+  }
+  > .ld-pane__filters {
+    z-index: 2;
+    background: transparent;
+  }
+  > .ld-pane__filters::after {
+    display: none;
+  }
+  > .ld-pane__rows {
+    position: relative;
+    z-index: 0;
+    margin-top: calc(-1 * var(--ld-pane-top));
+    padding-top: var(--ld-pane-top);
+    scroll-padding-top: var(--ld-pane-top);
+  }
+  // No fade at the top of the rows: the glass and its edge show that rows are under it.
+  // A mask on the rows, or on the column, would make it the backdrop root of the glass
+  // of a stuck group head, and the glass then blurs nothing. So no mask: the fade at the
+  // foot is a gradient to the page colour that sticks at the foot of the rows. The
+  // repeated class wins over the fade of the page (`fade-y`), which can carry three
+  // classes and the attribute of the component.
+  > .ld-pane__rows.ld-pane__rows.ld-pane__rows.ld-pane__rows {
+    -webkit-mask-image: none;
+    mask-image: none;
+  }
+  > .ld-pane__rows::after {
+    content: '';
+    position: sticky;
+    bottom: 0;
+    z-index: 3;
+    flex: none;
+    height: var(--space-6);
+    margin-top: calc(-1 * var(--space-6));
+    background: linear-gradient(to bottom, transparent, var(--stb-bg, var(--color-bg)));
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity var(--motion-fast) var(--ease-standard);
+  }
+  > .ld-pane__rows.is-fade-end::after {
+    opacity: 1;
+  }
+}
+.ld-pane--glass::before,
+.ld-pane--glass::after {
+  content: '';
+  position: absolute;
+  inset-inline: 0;
+  top: 0;
+  z-index: 1;
+  height: var(--ld-pane-top);
+  pointer-events: none;
+}
+// The glass reaches `$reach` (64px) below the head and a mask cuts it back, so the blur at
+// the edge sees the rows around it (`frosted`, `_frosted.scss`). Without `backdrop-filter`
+// the head is solid.
+.ld-pane--glass::before {
+  background: var(--stb-bg, var(--color-bg));
+}
+@supports (backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px)) {
+  .ld-pane--glass::before {
+    height: calc(var(--ld-pane-top) + 64px);
+    background: color-mix(in srgb, var(--stb-bg, var(--color-bg)) 55%, transparent);
+    -webkit-backdrop-filter: blur(10px) saturate(1.8);
+    backdrop-filter: blur(10px) saturate(1.8);
+    mask-image: linear-gradient(to bottom, #000 calc(100% - 64px), transparent calc(100% - 64px));
+  }
+}
+// The shadow of the edge, below the head only: the clip cuts it at the sides of the
+// column.
+.ld-pane--glass::after {
+  clip-path: inset(0 0 -32px 0);
+  transition: box-shadow var(--motion-fast) var(--ease-standard);
+}
+.ld-pane--glass.ld-pane--scrolled::after {
+  box-shadow: var(--shadow-md);
+}
+.ld-pane--glass:not(.ld-pane--scrolled)::before {
+  display: none;
+}
+// A group head that sticks right under the head of the column (`ListGroupComponent`,
+// `lg__head--under`) carries the glass of the head behind it and the shadow, so the column
+// drops both: one glass surface, no seam.
+.ld-pane--glass:has(.lg__head--under)::before,
+.ld-pane--glass:has(.lg__head--stuck)::after {
+  display: none;
+}
