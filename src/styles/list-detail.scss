@@ -62,15 +62,24 @@ body:has(app-tab-pager) app-list-detail-bar.ld__bar--condensed.ld__bar--condense
 
 // Side by side, the rows of the column scroll in an element of their own (the next
 // scroll container after the search bar). The search bar (`StickyBarComponent`) then
-// marks the column `.ld-pane--glass`, the rows `.ld-pane__rows`, and sets `--ld-pane-top`,
+// marks the column `.ld-pane--glass`, the rows `.ld-pane__rows`, and sets `--ld-pane-head`,
 // the height of the head of the column (header, search bar and what follows it) with the
-// gap below it. The rows reach up under the head, and the head is one frosted glass
+// gap below it. `--ld-pane-top` adds the lift: the head counted from the top edge of the
+// screen. The rows reach up under the head, and the head is one frosted glass
 // surface over them, the same as the search bar on a phone: one glass layer for the
 // whole head (`::before`), because two layers side by side show a seam where each one
 // stops to blur. The glass ends in a hard edge with a light shadow (`::after`) while rows
 // are under it (`.ld-pane--scrolled`); there is no fade at the top of the rows. At rest
 // there is no glass, because it would blur the first row into the head.
 .ld-pane--glass {
+  // The column reaches up to the top edge of the screen (`--ld-pane-lift`, the padding of
+  // the page above it), so the glass and the rows under it end at that edge, not at a
+  // line below it. The padding keeps the header where it was.
+  --ld-pane-top: calc(var(--ld-pane-lift, 0px) + var(--ld-pane-head, 0px));
+  margin-top: calc(-1 * var(--ld-pane-lift, 0px));
+  padding-top: var(--ld-pane-lift, 0px);
+  height: calc(100% + var(--ld-pane-lift, 0px));
+
   > :has(~ .ld-pane__rows):not(.ld-pane__filters) {
     position: relative;
     z-index: 2;

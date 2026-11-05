@@ -31,8 +31,9 @@ import {
  * In a list/detail column whose rows scroll by themselves (side by side, `.ld-pane`), the
  * bar never sticks: the column keeps the search above its scrolling rows. The bar then
  * makes the head of the column one glass surface over the rows: it marks the column
- * `.ld-pane--glass` and the rows `.ld-pane__rows`, sets `--ld-pane-top` (the height of the
- * head with the gap below it) and `.ld-pane--scrolled` while rows are under the head
+ * `.ld-pane--glass` and the rows `.ld-pane__rows`, sets `--ld-pane-head` (the height of the
+ * head with the gap below it), `--ld-pane-lift` (the gap from the column to the top edge
+ * of the screen) and `.ld-pane--scrolled` while rows are under the head
  * (`styles/list-detail.scss`).
  *
  * Scroll container: the bar sticks in the nearest ancestor that scrolls (`overflow-y`
@@ -158,9 +159,16 @@ export class StickyBarComponent {
     if (!rows || !pane) return;
     // The place of the rows in the flow, without the pull under the head: it includes the
     // gap of the column and the negative margin of this bar (`--stb-pad`).
+    // Counted from the top padding of the column, which is the lift below: the column
+    // adds the two (`--ld-pane-top`).
     const pulled = parseFloat(getComputedStyle(rows).marginTop) || 0;
-    const top = rows.offsetTop - pulled;
-    pane.style.setProperty('--ld-pane-top', `${Math.round(top)}px`);
+    const padding = parseFloat(getComputedStyle(pane).paddingTop) || 0;
+    const head = rows.offsetTop - pulled - padding;
+    pane.style.setProperty('--ld-pane-head', `${Math.round(head)}px`);
+    // The column reaches up to the top edge of the screen, so the glass and the rows under
+    // it do too: the lift is the gap between the box that holds the column and that edge.
+    const lift = Math.max(0, pane.parentElement?.getBoundingClientRect().top ?? 0);
+    pane.style.setProperty('--ld-pane-lift', `${Math.round(lift)}px`);
     pane.classList.toggle('ld-pane--scrolled', rows.scrollTop > 0);
   }
 
@@ -173,7 +181,8 @@ export class StickyBarComponent {
       old.classList.remove('ld-pane__rows');
       const pane = old.parentElement;
       pane?.classList.remove('ld-pane--glass', 'ld-pane--scrolled');
-      pane?.style.removeProperty('--ld-pane-top');
+      pane?.style.removeProperty('--ld-pane-head');
+      pane?.style.removeProperty('--ld-pane-lift');
     }
     this.rows = rows;
     if (rows && this.onRowsScroll) {
