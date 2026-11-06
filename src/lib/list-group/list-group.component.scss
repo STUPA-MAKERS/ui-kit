@@ -1,6 +1,22 @@
 @use '../../styles/breakpoints' as bp;
 @use '../../styles/frosted' as *;
 
+// A blur without tint from the top of the head up by `$height`, behind the glass of the bar
+// or of the head of the column above it (`lg__head--under`).
+@mixin lift-blur($height) {
+  @supports (backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px)) {
+    content: '';
+    position: absolute;
+    z-index: -1;
+    inset-inline: 0;
+    bottom: 100%;
+    height: $height;
+    -webkit-backdrop-filter: blur(10px) saturate(1.8);
+    backdrop-filter: blur(10px) saturate(1.8);
+    pointer-events: none;
+  }
+}
+
 :host {
   display: flex;
   flex-direction: column;
@@ -33,8 +49,12 @@
 // the next head pushes it away. Without the bar `top` is unset and it scrolls.
 // Two glass layers side by side show a seam: each blurs only what lies behind its own box,
 // so the foot of the bar and the top of the head blur different content. While the head
-// sits right under the bar (`lg__head--under`), its glass therefore reaches up behind the
-// bar (`--stb-height`) and the bar drops its own glass (`base.scss`): one surface, one blur.
+// sits right under the bar (`lg__head--under`), a blur without tint therefore reaches up
+// from the head behind the bar (`--stb-height`, `::after`): the bar then blurs the same
+// blurred rows as the head, and no seam shows. The bar keeps its own glass in every state.
+// The classes follow the scroll one frame or more late while the page scrolls fast, so no
+// state may take glass away from the bar: a late class then only blurs a little more or
+// less, and no row shows sharp through the bar or the head.
 @include bp.phone {
   .lg__head {
     position: sticky;
@@ -47,8 +67,8 @@
   .lg__head--stuck {
     box-shadow: var(--shadow-md);
   }
-  .lg__head--under::before {
-    top: calc(-1 * var(--stb-height, 0px));
+  .lg__head--under::after {
+    @include lift-blur(var(--stb-height, 0px));
   }
   // Glass and its shadow only while the head is stuck over its rows (`lg__head--stuck`).
   .lg__head:not(.lg__head--stuck) {
@@ -72,8 +92,8 @@
 :host-context(.ld-pane--glass) .lg__head:not(.lg__head--stuck) {
   @include frosted-rest(var(--stb-bg, var(--color-bg)));
 }
-:host-context(.ld-pane--glass) .lg__head--under::before {
-  top: calc(-1 * var(--ld-pane-top, 0px));
+:host-context(.ld-pane--glass) .lg__head--under::after {
+  @include lift-blur(var(--ld-pane-top, 0px));
 }
 // The sides of the glass turn into the solid page colour, as the glass of the head of the
 // column does.

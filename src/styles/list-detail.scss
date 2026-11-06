@@ -93,6 +93,17 @@ body:has(app-tab-pager) app-list-detail-bar.ld__bar--condensed.ld__bar--condense
   > .ld-pane__filters::after {
     display: none;
   }
+  // On a phone the bar is glass of its own (`StickyBarComponent`), solid at rest. Over the
+  // glass of the column it adds nothing: a second layer shows a seam, and at rest its solid
+  // colour cuts the rows below the head. The repeated class wins over the host style of the
+  // bar.
+  > .ld-pane__filters.ld-pane__filters.ld-pane__filters {
+    background: transparent;
+    box-shadow: none;
+  }
+  > .ld-pane__filters.ld-pane__filters.ld-pane__filters::before {
+    display: none;
+  }
   // The repeated class wins over a page rule that sets the padding of its rows (the nav
   // of the admin frame sets `padding: 0 …`), which would put the first rows under the head.
   > .ld-pane__rows.ld-pane__rows.ld-pane__rows.ld-pane__rows {
@@ -151,10 +162,4 @@ body:has(app-tab-pager) app-list-detail-bar.ld__bar--condensed.ld__bar--condense
     backdrop-filter: blur(10px) saturate(1.8);
     mask-image: linear-gradient(to bottom, #000 calc(100% - 64px), transparent calc(100% - 64px));
   }
-}
-// A group head that sticks right under the head of the column (`ListGroupComponent`,
-// `lg__head--under`) carries the glass of the head behind it, so the column drops its own:
-// one glass surface, no seam.
-.ld-pane--glass:has(.lg__head--under)::before {
-  display: none;
 }

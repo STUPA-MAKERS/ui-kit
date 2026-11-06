@@ -90,6 +90,7 @@ export class StickyBarComponent {
       });
     };
     let observer: ResizeObserver | null = null;
+    let siblings: MutationObserver | null = null;
 
     this.onRowsScroll = schedule;
     afterNextRender(() => {
@@ -99,6 +100,7 @@ export class StickyBarComponent {
       window.addEventListener('resize', schedule, { passive: true });
       observer = new ResizeObserver(schedule);
       observer.observe(this.host.nativeElement);
+      siblings = watchSiblings(this.host.nativeElement, schedule);
       this.measure();
     });
     // A bar that turns on or off changes the room that the focus scroll must keep clear.
@@ -113,6 +115,7 @@ export class StickyBarComponent {
       window.removeEventListener('scroll', schedule);
       window.removeEventListener('resize', schedule);
       observer?.disconnect();
+      siblings?.disconnect();
       this.setPadding(null);
       this.setRows(null);
     });
@@ -235,6 +238,31 @@ export function paneRows(bar: HTMLElement): HTMLElement | null {
     if (y === 'auto' || y === 'scroll') return n;
   }
   return null;
+}
+
+/**
+ * Call `changed` when a sibling of `bar` changes its class or the siblings change, while
+ * the bar is the search bar of a list column (see {@link paneRows}). A page can turn the
+ * element after the bar into a scroll container or back by a class (for example when it
+ * switches from a board to a list), and neither the size of the bar nor a scroll tells the
+ * bar about it. Null when the bar is somewhere else.
+ */
+export function watchSiblings(bar: HTMLElement, changed: () => void): MutationObserver | null {
+  const pane = bar.parentElement;
+  if (!bar.classList.contains('ld-pane__filters') || !pane?.classList.contains('ld-pane')) return null;
+  const observer = new MutationObserver((records) => {
+    if (records.some((r) => r.type === 'childList')) watch();
+    changed();
+  });
+  const watch = (): void => {
+    observer.disconnect();
+    observer.observe(pane, { childList: true });
+    for (const child of Array.from(pane.children)) {
+      if (child !== bar) observer.observe(child, { attributes: true, attributeFilter: ['class'] });
+    }
+  };
+  watch();
+  return observer;
 }
 
 /** The nearest ancestor that scrolls vertically, or null when the window scrolls. */
