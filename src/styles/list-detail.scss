@@ -220,3 +220,15 @@ body:has(app-tab-pager) app-list-detail-bar.ld__bar--condensed.ld__bar--condense
     --ld-corner: 0px;
   }
 }
+
+// A group head right under the head of the column carries the tint of the whole head
+// (`ListGroupComponent`), so the glass of the column keeps only its blur, without tint and
+// without saturation: one tint layer, saturated once, and no line where the head of the
+// column ends.
+@supports (backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px)) {
+  .ld-pane--glass:has(.lg__head--under)::before {
+    background: none;
+    -webkit-backdrop-filter: blur(10px);
+    backdrop-filter: blur(10px);
+  }
+}

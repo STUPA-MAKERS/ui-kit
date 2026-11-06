@@ -79,8 +79,14 @@
 // Side by side, in a list column whose head is glass over its rows (`.ld-pane--glass`,
 // `styles/list-detail.scss`), the head of a group sticks right under the head of the
 // column (`--ld-pane-top`), the same as on a phone but without a shadow: glass with a
-// hard edge while stuck, and its glass reaches up behind the head of the column while it
-// sits right under it.
+// hard edge while stuck.
+//
+// While it sits right under the head of the column (`lg__head--under`), its glass reaches up
+// to the top of the column, and the glass of the column keeps only its blur, without tint
+// (`styles/list-detail.scss`). The tint of the whole head is then one layer, so no line
+// shows where the head of the column ends. The glass of the column keeps its blur in every
+// state: a class that follows the scroll late then only changes the tint for a frame, and
+// no row shows sharp through the head.
 :host-context(.ld-pane--glass) .lg__head {
   position: sticky;
   top: 0;
@@ -91,9 +97,6 @@
 }
 :host-context(.ld-pane--glass) .lg__head:not(.lg__head--stuck) {
   @include frosted-rest(var(--stb-bg, var(--color-bg)));
-}
-:host-context(.ld-pane--glass) .lg__head--under::after {
-  @include lift-blur(var(--ld-pane-top, 0px));
 }
 // The sides of the glass turn into the solid page colour, as the glass of the head of the
 // column does.
@@ -114,4 +117,9 @@
 // head of the column does (`glass-corners`, `styles/list-detail.scss`).
 :host-context(.ld-pane--glass) .lg__head--stuck::before {
   @include glass-corners(var(--stb-bg, var(--color-bg)), var(--radius-xl));
+}
+@supports (backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px)) {
+  :host-context(.ld-pane--glass) .lg__head--under::before {
+    top: calc(-1 * var(--ld-pane-top, 0px));
+  }
 }
