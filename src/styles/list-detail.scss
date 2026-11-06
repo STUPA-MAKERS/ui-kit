@@ -1,6 +1,7 @@
 // The one list/detail geometry. Consume from the global stylesheet of an app:
 //   @use 'list-detail';
 @use 'breakpoints' as bp;
+@use 'frosted' as *;
 
 // Every page with a list or a navigation column beside a sheet takes the width of that
 // column and the gap to the sheet from these two tokens (`app-list-detail` reads them).
@@ -200,5 +201,22 @@ body:has(app-tab-pager) app-list-detail-bar.ld__bar--condensed.ld__bar--condense
   }
   .ld-pane--glass:has(.lg__head--under)::after {
     display: none;
+  }
+}
+
+// On a wide screen the glass of the head runs into the rows with round inner corners at
+// both sides of the column (`glass-corners`), while rows are under it. At rest the corners
+// would blur the top corners of the first row. A group head right under the head of the
+// column carries the corners itself (`ListGroupComponent`).
+@include bp.not-phone {
+  .ld-pane--glass::before {
+    --ld-corner: 0px;
+    @include glass-corners(var(--stb-bg, var(--color-bg)), var(--ld-corner));
+  }
+  .ld-pane--glass.ld-pane--scrolled::before {
+    --ld-corner: var(--radius-xl);
+  }
+  .ld-pane--glass:has(.lg__head--under)::before {
+    --ld-corner: 0px;
   }
 }

@@ -110,3 +110,8 @@
       color-mix(in srgb, var(--stb-bg, var(--color-bg)) 55%, transparent);
   }
 }
+// While stuck, the glass of the head runs into its rows with round inner corners, as the
+// head of the column does (`glass-corners`, `styles/list-detail.scss`).
+:host-context(.ld-pane--glass) .lg__head--stuck::before {
+  @include glass-corners(var(--stb-bg, var(--color-bg)), var(--radius-xl));
+}
