@@ -75,22 +75,17 @@
 
 /* Round inner corners below the glass of a head whose rows scroll under it, as the top bar
    of a desktop shell runs into the round top corners of the screen below it: at each side
-   a concave quarter circle of `$radius` in the solid `$color` hangs below the head, so the
-   rows below read as a window with round top corners. Glass alone shows no corner, because
-   its tint is close to the rows behind it. Put it on the glass layer (`::before`) of a head
-   with the bottom edge, which reaches `$reach` below the box. It sets the background of
-   that layer (the corners, the sides that turn into `$color`, the tint) and its mask.
-   `$radius` 0 gives no corners. */
+   the glass reaches down by `$radius` in a concave quarter circle, the same glass as the
+   head, so no edge shows between the head and its corners. Put it on the glass layer
+   (`::before`) of a head with the bottom edge, which reaches `$reach` below the box. It
+   sets the background of that layer (the sides that turn into `$color`, the tint) and its
+   mask. `$radius` 0 gives no corners. */
 @mixin glass-corners($color, $radius, $reach: 64px) {
   @supports (backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px)) {
     $edge: calc(100% - #{$reach});
     $inner: calc(#{$radius} - 0.5px);
     $at: calc(#{$reach} - #{$radius});
     background:
-      radial-gradient(circle at 100% 100%, transparent #{$inner}, #{$color} #{$radius}) left 0
-        bottom #{$at} / #{$radius} #{$radius} no-repeat,
-      radial-gradient(circle at 0 100%, transparent #{$inner}, #{$color} #{$radius}) right 0
-        bottom #{$at} / #{$radius} #{$radius} no-repeat,
       linear-gradient(
         to right,
         #{$color},
