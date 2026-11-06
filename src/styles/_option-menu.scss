@@ -8,7 +8,12 @@
 // The popover: fixed to the viewport, in the top layer, with the frosted surface and the
 // shadow of the row menu. In the top layer the UA styles would centre it, so the reset comes
 // first. A popover with a form inside gives its own padding and corner radius.
-@mixin menu($padding: 6px 0, $radius: var(--radius-field)) {
+//
+// The padding is 6px on every side, so the rows sit inset from the edge of the menu. The
+// hover, the focus and the press of a row then show as a rounded tile inside the menu, the
+// same as an option of the autocomplete. A full-width row that shrinks on press leaves a
+// gap on both sides and reads as a loose grey block.
+@mixin menu($padding: 6px, $radius: var(--radius-field)) {
   position: fixed;
   inset: auto;
   z-index: var(--z-dropdown);
@@ -70,7 +75,8 @@
   color: inherit;
 }
 
-// One row of the list.
+// One row of the list. The corner radius is the radius of the menu less its padding
+// (14px - 6px), so the tile of a row follows the curve of the menu.
 @mixin option {
   @include press.chrome-text;
   display: flex;
@@ -78,8 +84,9 @@
   gap: 12px;
   width: 100%;
   min-height: 2.75rem;
-  padding: 0 var(--space-4);
+  padding: 0 calc(var(--space-4) - 6px);
   border: 0;
+  border-radius: var(--radius-md);
   background: transparent;
   color: var(--color-text);
   font: inherit;
@@ -105,10 +112,23 @@
 }
 
 // In the sheet: the rows of a row group (`.rowgroup--bg3`, global) on surface 3, as tall
-// as a list row. The row group sets the surface and the corners.
+// as a list row. The row is a tile of the group: the inner corners are 4px and the outer
+// corners of the group are `--radius-lg`, as in `rowgroup.scss`. The component style of
+// the row wins over the global row group, so the row sets them itself.
 @mixin option-sheet {
   min-height: 52px;
+  padding-inline: var(--space-4);
+  border-radius: 4px;
   background: var(--color-surface-3);
+
+  &:first-child {
+    border-top-left-radius: var(--radius-lg);
+    border-top-right-radius: var(--radius-lg);
+  }
+  &:last-child {
+    border-bottom-left-radius: var(--radius-lg);
+    border-bottom-right-radius: var(--radius-lg);
+  }
 }
 
 // The avatar in front of the label of a person (or of "Niemand" among persons). Surface 4
@@ -127,7 +147,7 @@
 // The text when there is no choice.
 @mixin empty {
   margin: 0;
-  padding: var(--space-3) var(--space-4);
+  padding: var(--space-3) calc(var(--space-4) - 6px);
   color: var(--color-text-muted);
   font-size: var(--fs-small);
 }

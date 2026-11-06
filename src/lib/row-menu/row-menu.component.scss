@@ -64,7 +64,9 @@
   max-width: min(22rem, calc(100vw - 16px));
   max-height: calc(100vh - 16px);
   overflow-y: auto;
-  padding: 6px 0;
+  /* The rows sit inset, so their hover, focus and press show as a rounded tile inside the
+     menu (`_option-menu.scss`). */
+  padding: 6px;
   border: 0;
   border-radius: var(--radius-field);
   color: var(--color-text);
@@ -76,7 +78,7 @@
 }
 
 .rm__cap {
-  padding: 8px var(--space-4) 6px;
+  padding: 8px calc(var(--space-4) - 6px) 6px;
   font-size: var(--fs-cap);
   line-height: var(--lh-cap);
   font-weight: var(--fw-semibold);
@@ -99,8 +101,9 @@
   gap: 14px;
   width: 100%;
   height: 2.75rem;
-  padding: 0 var(--space-4);
+  padding: 0 calc(var(--space-4) - 6px);
   border: 0;
+  border-radius: var(--radius-md);
   background: transparent;
   color: var(--color-text);
   font: inherit;
@@ -181,10 +184,10 @@
 }
 
 .rm__loading {
-  padding: var(--space-3) var(--space-4) 0;
+  padding: var(--space-3) calc(var(--space-4) - 6px) 0;
 }
 .rm__empty {
   margin: 0;
-  padding: var(--space-3) var(--space-4);
+  padding: var(--space-3) calc(var(--space-4) - 6px);
   color: var(--color-text-muted);
 }
