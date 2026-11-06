@@ -13,6 +13,7 @@
   "include": [
     "src/**/*.spec.ts",
     "markdown-editor/**/*.spec.ts",
+    "markdown-view/**/*.spec.ts",
     "pwa/**/*.spec.ts",
     "shell/**/*.spec.ts",
     "testing/**/*.ts",

@@ -261,6 +261,18 @@ and `showInTopLayer` for a popover at an anchor; the signals `nowSignal`, `eleme
 import { ButtonComponent, DataTableComponent, ToastService } from '@stupa-makers/ui-kit';
 ```
 
+The Markdown view lives in the secondary entry point `markdown-view`:
+
+```ts
+import { MarkdownViewComponent, markdownToSafeHtml } from '@stupa-makers/ui-kit/markdown-view';
+```
+
+`<app-markdown-view [src]="text" />` shows rendered Markdown. The renderer escapes the whole
+input before it writes any tag, so no raw HTML of the source reaches the page. A link target
+must be http, https, mailto or an app path (`/…`, `#…`). `[mailto]="false"` renders a mailto
+link as text. An image shows only with the canonical path `/api/media/images/<uuid>`;
+`[imageSrc]="null"` shows its alt text instead. A click on an app path goes through the router.
+
 The Markdown (Tiptap) editor lives in a **secondary entry point** so Tiptap stays out of the
 main bundle:
 
