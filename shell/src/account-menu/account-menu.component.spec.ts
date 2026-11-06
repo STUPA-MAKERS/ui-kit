@@ -208,7 +208,7 @@ describe('AccountMenuComponent', () => {
     it('takes the sheet look with `auto` on a phone', async () => {
       const original = window.matchMedia;
       window.matchMedia = ((query: string) => ({
-        matches: query === '(max-width: 768px)',
+        matches: query === '(max-width: 767.98px)',
         media: query,
         addEventListener: () => undefined,
         removeEventListener: () => undefined,

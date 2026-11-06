@@ -121,7 +121,7 @@ export class ShellComponent {
   protected readonly markDir = contentChild(NavMarkDirective);
   protected readonly mark = computed(() => this.markDir()?.template ?? null);
 
-  /** The viewport is a phone (<= 768px): bottom bar instead of the rail. */
+  /** The viewport is a phone (< 768px): bottom bar instead of the rail. */
   readonly phone = mediaQuery(MEDIA.phone);
 
   private readonly toasts = inject(ToastService);

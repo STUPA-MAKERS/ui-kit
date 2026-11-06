@@ -154,7 +154,7 @@ describe('design-system rules in the stylesheets', () => {
 
   it('colours the whole card for a selected row on a phone, never a box of cells', () => {
     const scss = read('../lib/data-table/data-table.component.scss');
-    const last = scss.slice(scss.lastIndexOf('@media (max-width: 768px)'));
+    const last = scss.slice(scss.lastIndexOf('@media (max-width: 767.98px)'));
     // The cells go transparent and the row takes the colour, after every surface rule.
     expect(block(last, '.dt .dt__table tbody tr > td,')).toMatch(/background: transparent/);
     expect(block(last, '.dt .dt__table tbody tr.dt__row--selected,')).toMatch(
