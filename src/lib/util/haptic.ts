@@ -10,7 +10,7 @@
  */
 export type HapticKind = 'tick' | 'lift' | 'success';
 
-const PATTERNS: Record<HapticKind, number | number[]> = {
+const PATTERNS: Readonly<Record<HapticKind, number | number[]>> = {
   tick: 10,
   lift: 15,
   success: [12, 60, 18],

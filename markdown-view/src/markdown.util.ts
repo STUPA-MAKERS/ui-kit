@@ -17,6 +17,8 @@
  * destination renders as its alt text, so no external image loads (tracking pixels).
  */
 
+import { assertNever } from '@stupa-makers/ui-kit';
+
 import { linkify } from './linkify';
 
 /** The canonical image path. Group 1 is the lowercase uuid. */
@@ -31,15 +33,15 @@ const CONTROL_RE = /[\u0000-\u0008\u000b\u000c\u000e-\u001f\u007f]/g;
 export interface MarkdownOptions {
   /** The number of levels that a heading moves down. The default 3 renders `#` as h4.
    *  A full-size document uses 0. */
-  headingOffset?: number;
+  readonly headingOffset?: number;
   /**
    * The URL of an image from its uuid. The default is the canonical path, which needs a
    * session. `null` renders the alt text instead of an image (anonymous contexts).
    */
-  imageSrc?: ((id: string) => string) | null;
+  readonly imageSrc?: ((id: string) => string) | null;
   /** Whether a `mailto:` link renders as a link. The default is `true`. With `false`, only http,
    *  https and app paths are links. */
-  mailto?: boolean;
+  readonly mailto?: boolean;
 }
 
 /** The default image source: the canonical path, served to any authenticated session. */
@@ -83,43 +85,60 @@ function replaceRefs(
   bang: boolean,
   render: (label: string, dest: string) => string | null,
 ): string {
-  let out = '';
-  let i = 0;
-  while (i < text.length) {
+  const at = (i: number): RefAt | null => {
     const open = bang ? text.startsWith('![', i) : text[i] === '[';
     const start = i + (bang ? 2 : 1);
     const close = open ? text.indexOf(']', start) : -1;
     const label = close >= 0 ? text.slice(start, close) : '';
     const dest = close >= 0 && text[close + 1] === '(' ? destination(text, close + 2) : null;
     const html = dest !== null && !label.includes('[') ? render(label, dest.url) : null;
-    if (html === null || dest === null) {
-      out += text[i];
-      i++;
-      continue;
-    }
-    out += html;
-    i = dest.end;
-  }
-  return out;
+    return html === null || dest === null ? null : { html, end: dest.end };
+  };
+  return Array.from({ length: text.length }, (_, i) => i).reduce(
+    (acc, i) => {
+      const ref = i < acc.skipTo ? null : at(i);
+      return i < acc.skipTo
+        ? acc
+        : ref
+          ? { out: acc.out + ref.html, skipTo: ref.end }
+          : { out: acc.out + text[i], skipTo: acc.skipTo };
+    },
+    { out: '', skipTo: 0 },
+  ).out;
 }
 
-/** The destination from `from` to its closing parenthesis, or `null` when it has none. */
-function destination(text: string, from: number): { url: string; end: number } | null {
-  let depth = 0;
-  for (let j = from; j < text.length; j++) {
-    const c = text[j];
-    if (/\s/.test(c)) return null;
-    if (c === '(') depth++;
-    else if (c === ')') {
-      if (depth === 0) return { url: text.slice(from, j), end: j + 1 };
-      depth--;
-    }
-  }
-  return null;
+/** A rendered reference and the index after its closing parenthesis. */
+interface RefAt {
+  readonly html: string;
+  readonly end: number;
+}
+
+/** The parenthesis depth after `c`, or `null` when `c` closes the destination. */
+function parenStep(depth: number, c: string): number | null {
+  return c === '(' ? depth + 1 : c !== ')' ? depth : depth === 0 ? null : depth - 1;
+}
+
+/**
+ * The destination from `from` to its closing parenthesis, or `null` when it has none.
+ * A destination holds no white space, so the search ends at the first one.
+ */
+function destination(
+  text: string,
+  from: number,
+): { readonly url: string; readonly end: number } | null {
+  const word = /^\S*/.exec(text.slice(from))?.[0] ?? '';
+  const close = word.split('').reduce<{ readonly depth: number; readonly at: number }>(
+    (acc, c, j) => {
+      const depth = acc.at >= 0 ? null : parenStep(acc.depth, c);
+      return acc.at >= 0 ? acc : depth === null ? { depth: 0, at: j } : { depth, at: -1 };
+    },
+    { depth: 0, at: -1 },
+  ).at;
+  return close < 0 ? null : { url: text.slice(from, from + close), end: from + close + 1 };
 }
 
 /** Callout kind → title and CSS modifier: the GitHub kinds and the protocol kinds. */
-const CALLOUT_TITLES: Record<string, string> = {
+const CALLOUT_TITLES: Readonly<Record<string, string>> = {
   note: 'Note',
   tip: 'Tip',
   important: 'Important',
@@ -146,6 +165,7 @@ type Inline = (text: string) => string;
  */
 function inlineRenderer(imageSrc: ((id: string) => string) | null, mailto: boolean): Inline {
   return (text: string): string => {
+    // The placeholders fill while the replacements run, so the two tables grow in place.
     const parts: string[] = [];
     const texts: string[] = [];
     // eslint-disable-next-line no-control-regex -- NUL sentinel (the source has no control characters)
@@ -164,31 +184,31 @@ function inlineRenderer(imageSrc: ((id: string) => string) | null, mailto: boole
         .replace(/(^|[\s(>])\*([^*\n]+)\*(?=[\s).,!?:;<]|$)/g, '$1<em>$2</em>')
         .replace(/(^|[\s(>])_([^_\n]+)_(?=[\s).,!?:;<]|$)/g, '$1<em>$2</em>');
 
-    let out = text.replace(/`([^`]+)`/g, (_m, code: string) =>
+    const coded = text.replace(/`([^`]+)`/g, (_m, code: string) =>
       stash(`<code>${code}</code>`, code),
     );
-    out = out
+    const escaped = coded
       .replace(/\\$/, '')
       .replace(/\\(&amp;|&lt;|&gt;|&quot;|&#39;|[!-/:-@[-`{-~])/g, (_m, c: string) => stash(c));
-    out = replaceRefs(out, true, (alt, dest) => {
+    const imaged = replaceRefs(escaped, true, (alt, dest) => {
       const id = IMAGE_PATH_RE.exec(dest)?.[1];
       if (!id || !imageSrc) return alt ? stash(alt) : '';
       const src = escapeHtml(imageSrc(id));
       const plain = fill(alt, true);
       return stash(`<img src="${src}" alt="${plain}" loading="lazy" decoding="async">`, plain);
     });
-    out = replaceRefs(out, false, (label, href) => {
+    const linked = replaceRefs(imaged, false, (label, href) => {
       const kind = label ? hrefKind(href, mailto) : null;
       if (!kind) return null;
       const attrs = kind === 'external' ? ' target="_blank" rel="noopener noreferrer"' : '';
       return stash(`<a href="${href}"${attrs}>${emphasis(label)}</a>`, label);
     });
-    return fill(emphasis(out));
+    return fill(emphasis(linked));
   };
 }
 
 /** The cells of a pipe-table row (`| a | b |`). An escaped pipe (`\|`) stays in its cell. */
-function tableCells(line: string): string[] {
+function tableCells(line: string): readonly string[] {
   return line
     .trim()
     .replace(/^\|/, '')
@@ -198,7 +218,7 @@ function tableCells(line: string): string[] {
 }
 
 /** The alignment of each column from a separator row, or `null` when it is none. */
-function tableAlign(line: string): string[] | null {
+function tableAlign(line: string): readonly string[] | null {
   if (!line.includes('-')) return null;
   const cells = tableCells(line);
   if (!cells.every((c) => /^:?-+:?$/.test(c))) return null;
@@ -210,12 +230,17 @@ function tableAlign(line: string): string[] | null {
   });
 }
 
-function renderTable(head: string[], align: string[], rows: string[][], inline: Inline): string {
+function renderTable(
+  head: readonly string[],
+  align: readonly string[],
+  rows: readonly (readonly string[])[],
+  inline: Inline,
+): string {
   const cell = (tag: 'th' | 'td', text: string, col: number): string => {
     const cls = align[col] ? ` class="mdv__al--${align[col]}"` : '';
     return `<${tag}${cls}>${inline(text)}</${tag}>`;
   };
-  const row = (cells: string[], tag: 'th' | 'td'): string =>
+  const row = (cells: readonly string[], tag: 'th' | 'td'): string =>
     `<tr>${align.map((_a, i) => cell(tag, cells[i] ?? '', i)).join('')}</tr>`;
   const body = rows.map((r) => row(r, 'td')).join('');
   return (
@@ -229,7 +254,11 @@ function renderTable(head: string[], align: string[], rows: string[][], inline: 
  * blockquote holds blocks of its own (paragraphs, headings, lists, a nested quote), so
  * a quoted mail keeps its paragraphs. `blocks` renders lines that are escaped already.
  */
-function renderQuote(lines: string[], inline: Inline, blocks: (lines: string[]) => string): string {
+function renderQuote(
+  lines: readonly string[],
+  inline: Inline,
+  blocks: (lines: readonly string[]) => string,
+): string {
   const marker = /^\[!(\w+)\]\s*(.*)$/.exec(lines[0].trim());
   const kind = marker ? marker[1].toLowerCase() : '';
   if (marker && kind in CALLOUT_TITLES) {
@@ -269,117 +298,178 @@ export function markdownToSafeHtml(src: string, opts: MarkdownOptions = {}): str
   return linkify(renderBlocks(escapeHtml(clean).split('\n'), offset, inline));
 }
 
-/** The blocks of lines that are escaped already. A blockquote renders its lines again. */
-function renderBlocks(lines: string[], offset: number, inline: Inline): string {
-  const out: string[] = [];
-  let para: string[] = [];
-  let list: { tag: 'ul' | 'ol'; items: string[] } | null = null;
-  let quote: string[] = [];
-  let fence: string[] | null = null;
+/** An open list: its tag and its items so far. */
+interface OpenList {
+  readonly tag: 'ul' | 'ol';
+  readonly items: readonly string[];
+}
 
-  const flushPara = (): void => {
-    if (para.length) {
-      out.push(`<p>${para.map(inline).join('<br>')}</p>`);
-      para = [];
-    }
-  };
-  const flushList = (): void => {
-    if (list) {
-      const items = list.items.map((i) => renderItem(i, inline)).join('');
-      out.push(`<${list.tag}>${items}</${list.tag}>`);
-      list = null;
-    }
-  };
-  const flushQuote = (): void => {
-    if (quote.length) {
-      out.push(renderQuote(quote, inline, (inner) => renderBlocks(inner, offset, inline)));
-      quote = [];
-    }
-  };
-  const flushAll = (): void => {
-    flushPara();
-    flushList();
-    flushQuote();
-  };
-  const pushItem = (tag: 'ul' | 'ol', text: string): void => {
-    flushPara();
-    flushQuote();
-    if (list?.tag !== tag) {
-      flushList();
-      list = { tag, items: [] };
-    }
-    list.items.push(text);
-  };
+/**
+ * The state of the block scan. At most one of `para`, `list` and `quote` is open, and
+ * `fence` holds the lines of an open code fence. Lines before `skipTo` belong to a table
+ * that is rendered already.
+ */
+interface Blocks {
+  readonly out: readonly string[];
+  readonly para: readonly string[];
+  readonly list: OpenList | null;
+  readonly quote: readonly string[];
+  readonly fence: readonly string[] | null;
+  readonly skipTo: number;
+}
 
-  for (let i = 0; i < lines.length; i++) {
-    const line = lines[i];
-    if (fence) {
-      if (/^```/.test(line.trim())) {
-        out.push(`<pre><code>${fence.join('\n')}</code></pre>`);
-        fence = null;
-      } else {
-        fence.push(line);
-      }
-      continue;
-    }
-    const t = line.trim();
-    if (/^```/.test(t)) {
-      flushAll();
-      fence = [];
-      continue;
-    }
-    if (!t) {
-      flushAll();
-      continue;
-    }
+/** What the block scan needs besides the state. */
+interface BlockContext {
+  readonly lines: readonly string[];
+  readonly offset: number;
+  readonly inline: Inline;
+}
+
+/** One line outside a code fence, by what it starts. */
+type BlockLine =
+  | { readonly kind: 'fence' }
+  | { readonly kind: 'blank' }
+  | { readonly kind: 'heading'; readonly hashes: number; readonly text: string }
+  | { readonly kind: 'rule' }
+  | { readonly kind: 'table'; readonly head: readonly string[]; readonly align: readonly string[] }
+  | { readonly kind: 'item'; readonly tag: 'ul' | 'ol'; readonly text: string }
+  | { readonly kind: 'quote'; readonly text: string }
+  | { readonly kind: 'text' };
+
+/** The line after a table head, when it makes a table with the head. */
+function tableLine(t: string, next: string | undefined): BlockLine | null {
+  const align = t.includes('|') && next !== undefined ? tableAlign(next) : null;
+  const head = align ? tableCells(t) : null;
+  return align && head?.length === align.length ? { kind: 'table', head, align } : null;
+}
+
+/** The tests of a trimmed line, in order: the first one that matches wins. */
+const BLOCK_LINES: readonly ((t: string, next: string | undefined) => BlockLine | null)[] = [
+  (t) => (/^```/.test(t) ? { kind: 'fence' } : null),
+  (t) => (t ? null : { kind: 'blank' }),
+  (t) => {
     const h = /^(#{1,6})\s+(.*)$/.exec(t);
-    if (h) {
-      flushAll();
-      const lvl = Math.min(h[1].length + offset, 6);
-      out.push(`<h${lvl}>${inline(h[2])}</h${lvl}>`);
-      continue;
-    }
-    if (/^([-*_])(\s*\1){2,}$/.test(t)) {
-      flushAll();
-      out.push('<hr>');
-      continue;
-    }
-    const align = t.includes('|') && i + 1 < lines.length ? tableAlign(lines[i + 1]) : null;
-    const head = align ? tableCells(t) : null;
-    if (align && head?.length === align.length) {
-      flushAll();
-      const rows: string[][] = [];
-      i += 2;
-      while (i < lines.length && lines[i].trim() && lines[i].includes('|')) {
-        rows.push(tableCells(lines[i]));
-        i++;
-      }
-      i--;
-      out.push(renderTable(head, align, rows, inline));
-      continue;
-    }
+    return h ? { kind: 'heading', hashes: h[1].length, text: h[2] } : null;
+  },
+  (t) => (/^([-*_])(\s*\1){2,}$/.test(t) ? { kind: 'rule' } : null),
+  tableLine,
+  (t) => {
     const ul = /^[-*+]\s+(.*)$/.exec(t);
-    if (ul) {
-      pushItem('ul', ul[1]);
-      continue;
-    }
+    return ul ? { kind: 'item', tag: 'ul', text: ul[1] } : null;
+  },
+  (t) => {
     const ol = /^\d+[.)]\s+(.*)$/.exec(t);
-    if (ol) {
-      pushItem('ol', ol[1]);
-      continue;
-    }
+    return ol ? { kind: 'item', tag: 'ol', text: ol[1] } : null;
+  },
+  (t) => {
     const q = /^&gt;\s?(.*)$/.exec(t);
-    if (q) {
-      flushPara();
-      flushList();
-      quote.push(q[1]);
-      continue;
+    return q ? { kind: 'quote', text: q[1] } : null;
+  },
+];
+
+/** What a trimmed line outside a code fence starts; `next` is the line after it. */
+function blockLine(t: string, next: string | undefined): BlockLine {
+  return BLOCK_LINES.reduce<BlockLine | null>((hit, test) => hit ?? test(t, next), null) ?? {
+    kind: 'text',
+  };
+}
+
+/** The state with `html` added to the output. */
+function emit(s: Blocks, html: string): Blocks {
+  return { ...s, out: [...s.out, html] };
+}
+
+/** Render the open paragraph, if there is one. */
+function closePara(s: Blocks, ctx: BlockContext): Blocks {
+  const html = `<p>${s.para.map(ctx.inline).join('<br>')}</p>`;
+  return s.para.length ? { ...emit(s, html), para: [] } : s;
+}
+
+/** Render the open list, if there is one. */
+function closeList(s: Blocks, ctx: BlockContext): Blocks {
+  const items = s.list ? s.list.items.map((i) => renderItem(i, ctx.inline)).join('') : '';
+  return s.list ? { ...emit(s, `<${s.list.tag}>${items}</${s.list.tag}>`), list: null } : s;
+}
+
+/** Render the open quote, if there is one. */
+function closeQuote(s: Blocks, ctx: BlockContext): Blocks {
+  const blocks = (inner: readonly string[]) => renderBlocks(inner, ctx.offset, ctx.inline);
+  return s.quote.length
+    ? { ...emit(s, renderQuote(s.quote, ctx.inline, blocks)), quote: [] }
+    : s;
+}
+
+/** Render the open paragraph, list and quote. */
+function closeAll(s: Blocks, ctx: BlockContext): Blocks {
+  return closeQuote(closeList(closePara(s, ctx), ctx), ctx);
+}
+
+/** The first line from `start` on that is no table row, or the end of the lines. */
+function tableEnd(lines: readonly string[], start: number): number {
+  const stop = lines.slice(start).findIndex((l) => !(l.trim() && l.includes('|')));
+  return stop < 0 ? lines.length : start + stop;
+}
+
+/** Add a list item: it continues an open list of the same tag or opens a new one. */
+function addItem(s: Blocks, ctx: BlockContext, tag: 'ul' | 'ol', text: string): Blocks {
+  const closed = closeQuote(closePara(s, ctx), ctx);
+  const open = closed.list?.tag === tag ? closed : { ...closeList(closed, ctx), list: null };
+  return { ...open, list: { tag, items: [...(open.list?.items ?? []), text] } };
+}
+
+/** The state after one line inside a code fence. */
+function fenceStep(s: Blocks, fence: readonly string[], line: string): Blocks {
+  return /^```/.test(line.trim())
+    ? { ...emit(s, `<pre><code>${fence.join('\n')}</code></pre>`), fence: null }
+    : { ...s, fence: [...fence, line] };
+}
+
+/** The state after the line at `i`. */
+function blockStep(s: Blocks, ctx: BlockContext, i: number): Blocks {
+  if (i < s.skipTo) return s;
+  if (s.fence) return fenceStep(s, s.fence, ctx.lines[i]);
+  const t = ctx.lines[i].trim();
+  const line = blockLine(t, ctx.lines[i + 1]);
+  switch (line.kind) {
+    case 'fence':
+      return { ...closeAll(s, ctx), fence: [] };
+    case 'blank':
+      return closeAll(s, ctx);
+    case 'heading': {
+      const lvl = Math.min(line.hashes + ctx.offset, 6);
+      return emit(closeAll(s, ctx), `<h${lvl}>${ctx.inline(line.text)}</h${lvl}>`);
     }
-    flushList();
-    flushQuote();
-    para.push(t);
+    case 'rule':
+      return emit(closeAll(s, ctx), '<hr>');
+    case 'table': {
+      const end = tableEnd(ctx.lines, i + 2);
+      const rows = ctx.lines.slice(i + 2, end).map(tableCells);
+      const table = renderTable(line.head, line.align, rows, ctx.inline);
+      return { ...emit(closeAll(s, ctx), table), skipTo: end };
+    }
+    case 'item':
+      return addItem(s, ctx, line.tag, line.text);
+    case 'quote': {
+      const closed = closeList(closePara(s, ctx), ctx);
+      return { ...closed, quote: [...closed.quote, line.text] };
+    }
+    case 'text': {
+      const closed = closeQuote(closeList(s, ctx), ctx);
+      return { ...closed, para: [...closed.para, t] };
+    }
+    default:
+      return assertNever(line);
   }
-  if (fence) out.push(`<pre><code>${fence.join('\n')}</code></pre>`);
-  flushAll();
-  return out.join('\n');
+}
+
+const NO_BLOCKS: Blocks = { out: [], para: [], list: null, quote: [], fence: null, skipTo: 0 };
+
+/** The blocks of lines that are escaped already. A blockquote renders its lines again. */
+function renderBlocks(lines: readonly string[], offset: number, inline: Inline): string {
+  const ctx: BlockContext = { lines, offset, inline };
+  const scanned = lines.reduce<Blocks>((s, _line, i) => blockStep(s, ctx, i), NO_BLOCKS);
+  const fenced = scanned.fence
+    ? emit(scanned, `<pre><code>${scanned.fence.join('\n')}</code></pre>`)
+    : scanned;
+  return closeAll(fenced, ctx).out.join('\n');
 }

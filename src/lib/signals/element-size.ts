@@ -2,8 +2,8 @@ import { NgZone, type Signal, effect, inject, signal, untracked } from '@angular
 
 /** The size of an element, in CSS pixels. */
 export interface ElementSize {
-  width: number;
-  height: number;
+  readonly width: number;
+  readonly height: number;
 }
 
 /**

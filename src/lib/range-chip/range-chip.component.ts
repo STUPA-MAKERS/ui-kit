@@ -37,8 +37,8 @@ const GAP = 4;
 
 /** The two bounds of a range. An empty string is an open bound. */
 export interface RangeValue {
-  from: string;
-  to: string;
+  readonly from: string;
+  readonly to: string;
 }
 
 /**
@@ -131,10 +131,12 @@ export class RangeChipComponent {
     const from = this.from().trim();
     const to = this.to().trim();
     if (!from && !to) return this.label();
-    let range: string;
-    if (from && to) range = `${this.format(from)} – ${this.format(to)}`;
-    else if (from) range = this.i18n.translate('range.fromOnly', { value: this.format(from) });
-    else range = this.i18n.translate('range.toOnly', { value: this.format(to) });
+    const range =
+      from && to
+        ? `${this.format(from)} – ${this.format(to)}`
+        : from
+          ? this.i18n.translate('range.fromOnly', { value: this.format(from) })
+          : this.i18n.translate('range.toOnly', { value: this.format(to) });
     return `${this.label()}: ${range}`;
   });
 

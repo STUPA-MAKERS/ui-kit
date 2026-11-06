@@ -44,11 +44,11 @@ function plainText(markdown: string): string {
 }
 
 export interface VoteCard {
-  kind: string;
-  question: string;
-  tally: { yes: number; no: number; abstain: number } | null;
-  body: string[];
-  result: 'passed' | 'rejected' | 'tie' | 'none';
+  readonly kind: string;
+  readonly question: string;
+  readonly tally: { readonly yes: number; readonly no: number; readonly abstain: number } | null;
+  readonly body: readonly string[];
+  readonly result: 'passed' | 'rejected' | 'tie' | 'none';
 }
 
 /** Read the card from the raw callout lines, the marker line first. */
@@ -76,9 +76,9 @@ export function parseVoteCallout(raw: string): VoteCard {
 
 /** One candidate row of an election callout. */
 export interface ElectionRow {
-  name: string;
-  votes: number;
-  elected: boolean;
+  readonly name: string;
+  readonly votes: number;
+  readonly elected: boolean;
 }
 
 /**
@@ -94,81 +94,120 @@ export interface ElectionRow {
  */
 export interface ElectionCard {
   /** The line "Wahl · 2 Posten". */
-  meta: string;
+  readonly meta: string;
   /** The candidates, best first, the elected first within equal votes. */
-  rows: ElectionRow[];
-  abstentions: number | null;
+  readonly rows: readonly ElectionRow[];
+  readonly abstentions: number | null;
   /** The elected people of the public form, which has no counts. */
-  elected: string[];
-  others: number;
-  lot: 'drawn' | 'pending' | null;
+  readonly elected: readonly string[];
+  readonly others: number;
+  readonly lot: 'drawn' | 'pending' | null;
   /** Lines the card does not read (a runoff note of an older election). */
-  notes: string[];
+  readonly notes: readonly string[];
 }
 
 const ELECTION_META = /^(?:Wahl|Stichwahl)\b.*·\s*\d+\s+Posten/;
+const ELECTION_ELECTED = /^Gewählt:\s*(.*)$/;
+const ELECTION_OTHERS = /^(\d+) weitere Kandidierende$/;
+const ELECTION_PENDING = /^Gleichstand: das Los steht aus\.?$/;
+const ELECTION_COUNTS = /^.+:\s*\d+(\s+·\s+.+:\s*\d+)*$/;
+
+/** The kind of one line of an election callout, the first test that holds wins. */
+type ElectionLineKind = 'elected' | 'others' | 'drawn' | 'pending' | 'counts' | 'note';
+
+const ELECTION_LINE_TESTS: readonly (readonly [ElectionLineKind, (line: string) => boolean])[] = [
+  ['elected', (line) => ELECTION_ELECTED.test(line)],
+  ['others', (line) => ELECTION_OTHERS.test(line)],
+  ['drawn', (line) => line === 'Durch Los entschieden.'],
+  ['pending', (line) => ELECTION_PENDING.test(line)],
+  ['counts', (line) => ELECTION_COUNTS.test(line)],
+];
+
+/** The kind of one line of an election callout. */
+function electionLineKind(line: string): ElectionLineKind {
+  return ELECTION_LINE_TESTS.find(([, test]) => test(line))?.[0] ?? 'note';
+}
+
+/** The "name: n" parts of a counts line; the part "Enthaltungen" is the abstentions. */
+function countParts(line: string): readonly { readonly name: string; readonly votes: number }[] {
+  return line
+    .split(/\s+·\s+/)
+    .map((part) => /^(.*):\s*(\d+)$/.exec(part))
+    .filter((match): match is RegExpExecArray => match !== null)
+    .map((match) => ({ name: match[1], votes: Number(match[2]) }));
+}
+
+/**
+ * The indexes of the rows that the line "Gewählt: …" names. The longer names match
+ * first and each match leaves the list, so a name with ", " stays whole.
+ */
+function electedIndexes(rows: readonly ElectionRow[], electedRaw: string): ReadonlySet<number> {
+  const byLength = rows
+    .map((_row, i) => i)
+    .sort((a, b) => rows[b].name.length - rows[a].name.length);
+  return byLength.reduce(
+    (found, i) =>
+      found.rest.includes(rows[i].name)
+        ? { rest: found.rest.replace(rows[i].name, ''), hits: new Set([...found.hits, i]) }
+        : found,
+    { rest: electedRaw, hits: new Set<number>() as ReadonlySet<number> },
+  ).hits;
+}
 
 /**
  * Read an election from the lines after the question. A callout without the line
  * "Wahl · n Posten", or with a single candidate (its Ja/Nein line), is no ranking.
+ *
+ * The first counts line with a candidate gives the rows; a later counts line is a note.
  */
 export function parseElection(lines: readonly string[]): ElectionCard | null {
   const metaIndex = lines.findIndex((l) => ELECTION_META.test(l));
   if (metaIndex < 0 || lines.some((l) => /^Kandidatur:/.test(l))) return null;
-  const card: ElectionCard = {
+  const read = lines
+    .filter((_, i) => i !== metaIndex)
+    .map((line) => ({ line, kind: electionLineKind(line) }));
+  const ofKind = (kind: ElectionLineKind) => read.filter((r) => r.kind === kind).map((r) => r.line);
+  const counts = read
+    .map((r, i) => ({ ...r, i, parts: r.kind === 'counts' ? countParts(r.line) : [] }))
+    .filter((r) => r.kind === 'counts');
+  const rowsAt = counts.find((c) => c.parts.some((p) => p.name !== 'Enthaltungen'));
+  const usedCounts = rowsAt ? counts.filter((c) => c.i <= rowsAt.i) : counts;
+  const lateCounts = new Set(rowsAt ? counts.filter((c) => c.i > rowsAt.i).map((c) => c.i) : []);
+  const abstain = usedCounts.flatMap((c) => c.parts).filter((p) => p.name === 'Enthaltungen');
+  const parsedRows = (rowsAt?.parts ?? [])
+    .filter((p) => p.name !== 'Enthaltungen')
+    .map((p) => ({ name: p.name, votes: p.votes, elected: false }));
+  const electedRaw = ofKind('elected').map((l) => ELECTION_ELECTED.exec(l)?.[1] ?? '').at(-1);
+  const named = electedRaw !== undefined && electedRaw !== 'niemand';
+  const hits = named ? electedIndexes(parsedRows, electedRaw) : new Set<number>();
+  const rows = parsedRows
+    .map((row, i) => ({ ...row, elected: hits.has(i) }))
+    .sort((a, b) => b.votes - a.votes || Number(b.elected) - Number(a.elected));
+  const others = ofKind('others').at(-1);
+  const lot = read.filter((r) => r.kind === 'drawn' || r.kind === 'pending').at(-1)?.kind;
+  return {
     meta: lines[metaIndex],
-    rows: [],
-    abstentions: null,
-    elected: [],
-    others: 0,
-    lot: null,
-    notes: [],
+    rows,
+    abstentions: abstain.length ? (abstain.at(-1)?.votes ?? null) : null,
+    elected:
+      named && !parsedRows.length
+        ? electedRaw.split(',').map((n) => n.trim()).filter((n) => n)
+        : [],
+    others: others === undefined ? 0 : Number(ELECTION_OTHERS.exec(others)?.[1]),
+    lot: lot === 'drawn' || lot === 'pending' ? lot : null,
+    notes: read.filter((r, i) => r.kind === 'note' || lateCounts.has(i)).map((r) => r.line),
   };
-  let electedRaw: string | null = null;
-  for (const [i, line] of lines.entries()) {
-    if (i === metaIndex) continue;
-    const elected = /^Gewählt:\s*(.*)$/.exec(line);
-    const others = /^(\d+) weitere Kandidierende$/.exec(line);
-    if (elected) electedRaw = elected[1];
-    else if (others) card.others = Number(others[1]);
-    else if (line === 'Durch Los entschieden.') card.lot = 'drawn';
-    else if (/^Gleichstand: das Los steht aus\.?$/.test(line)) card.lot = 'pending';
-    else if (/^.+:\s*\d+(\s+·\s+.+:\s*\d+)*$/.test(line) && !card.rows.length) {
-      for (const part of line.split(/\s+·\s+/)) {
-        const match = /^(.*):\s*(\d+)$/.exec(part);
-        if (!match) continue;
-        if (match[1] === 'Enthaltungen') card.abstentions = Number(match[2]);
-        else card.rows.push({ name: match[1], votes: Number(match[2]), elected: false });
-      }
-    } else card.notes.push(line);
-  }
-  if (electedRaw !== null && electedRaw !== 'niemand') {
-    // Match the known names first, so a name with ", " stays whole.
-    let rest = electedRaw;
-    const known = [...card.rows].sort((a, b) => b.name.length - a.name.length);
-    for (const row of known) {
-      if (rest.includes(row.name)) {
-        row.elected = true;
-        rest = rest.replace(row.name, '');
-      }
-    }
-    if (!card.rows.length) {
-      card.elected = electedRaw.split(',').map((n) => n.trim()).filter((n) => n);
-    }
-  }
-  card.rows.sort((a, b) => b.votes - a.votes || Number(b.elected) - Number(a.elected));
-  return card;
 }
 
 /** One option row of a poll. */
 export interface PollRow {
-  label: string;
+  readonly label: string;
   /** The votes; for a date poll the Ja answers. */
-  count: number;
+  readonly count: number;
   /** The Vielleicht answers of a date poll, otherwise null. */
-  maybe: number | null;
+  readonly maybe: number | null;
   /** One of the options with the most votes (several on a tie). */
-  top: boolean;
+  readonly top: boolean;
 }
 
 /**
@@ -188,16 +227,16 @@ export interface PollRow {
  * the same lines (`_poll` of the typst service).
  */
 export interface PollCard {
-  kind: 'single' | 'multi' | 'date';
+  readonly kind: 'single' | 'multi' | 'date';
   /** The line "Umfrage · Einzelwahl" or "Terminumfrage". */
-  meta: string;
+  readonly meta: string;
   /** The options in the order of the snippet, best first. */
-  rows: PollRow[];
-  abstentions: number | null;
+  readonly rows: readonly PollRow[];
+  readonly abstentions: number | null;
   /** "n Antworten" ("1 Antwort"), from the number of the answers line. */
-  footer: string | null;
+  readonly footer: string | null;
   /** Lines the card does not read. */
-  notes: string[];
+  readonly notes: readonly string[];
 }
 
 const POLL_META = /^(?:Umfrage\s+·\s+.+|Terminumfrage)$/;
@@ -211,20 +250,23 @@ const POLL_LEGEND = 'Zahl = Ja, (+n) = Vielleicht';
  * ", " itself (a date such as "Di, 3.11. · 18:00–20:00"), so the function finds a
  * sequence of known labels that joins to the list, the longer label first.
  */
-function topLabels(top: string, labels: readonly string[]): Set<string> {
+function topLabels(top: string, labels: readonly string[]): ReadonlySet<string> {
   const ordered = [...new Set(labels)].sort((a, b) => b.length - a.length);
   const failed = new Set<string>();
-  const split = (rest: string): string[] | null => {
-    if (failed.has(rest)) return null;
-    for (const label of ordered) {
-      if (rest === label) return [label];
-      if (rest.startsWith(`${label}, `)) {
-        const tail = split(rest.slice(label.length + 2));
-        if (tail) return [label, ...tail];
-      }
-    }
-    failed.add(rest);
-    return null;
+  const withLabel = (label: string, rest: string): readonly string[] | null => {
+    const tail = rest.startsWith(`${label}, `) ? split(rest.slice(label.length + 2)) : null;
+    return rest === label ? [label] : tail && [label, ...tail];
+  };
+  const split = (rest: string): readonly string[] | null => {
+    const found = failed.has(rest)
+      ? null
+      : ordered.reduce<readonly string[] | null>(
+          (hit, label) => hit ?? withLabel(label, rest),
+          null,
+        );
+    // A rest that has no split is remembered, so the search tries each rest once.
+    if (!found) failed.add(rest);
+    return found;
   };
   return new Set(top ? (split(top) ?? []) : []);
 }
@@ -234,39 +276,49 @@ function answersLine(n: number): string {
   return `${n} ${n === 1 ? 'Antwort' : 'Antworten'}`;
 }
 
+/** The kind of one line of a poll callout, the first test that holds wins. */
+type PollLineKind = 'top' | 'ballots' | 'legend' | 'abstain' | 'row' | 'note';
+
+/** The kind of one line of a poll callout; a date poll takes only rows with a Vielleicht count. */
+function pollLineKind(line: string, date: boolean): PollLineKind {
+  const row = POLL_ROW.exec(line);
+  const tests: readonly (readonly [PollLineKind, boolean])[] = [
+    ['top', POLL_TOP.test(line)],
+    ['ballots', !row && POLL_BALLOTS.test(line)],
+    ['legend', line === POLL_LEGEND],
+    ['abstain', !!row && row[1] === 'Enthaltungen' && row[3] === undefined],
+    ['row', !!row && (row[3] !== undefined) === date],
+  ];
+  return tests.find(([, holds]) => holds)?.[0] ?? 'note';
+}
+
 /** Read a poll from the lines after the question. A callout without the kind line is no poll. */
 export function parsePoll(lines: readonly string[]): PollCard | null {
   const meta = lines[0];
   if (meta === undefined || !POLL_META.test(meta)) return null;
   const date = meta === 'Terminumfrage';
-  const card: PollCard = {
+  const read = lines.slice(1).map((line) => ({ line, kind: pollLineKind(line, date) }));
+  const ofKind = (kind: PollLineKind) => read.filter((r) => r.kind === kind).map((r) => r.line);
+  const top = ofKind('top').map((l) => (POLL_TOP.exec(l)?.[1] ?? '').trim()).at(-1) ?? '';
+  const ballots = ofKind('ballots').at(-1);
+  const abstain = ofKind('abstain').at(-1);
+  const parsedRows = ofKind('row')
+    .map((l) => POLL_ROW.exec(l))
+    .filter((row): row is RegExpExecArray => row !== null);
+  const best = topLabels(top, parsedRows.map((row) => row[1]));
+  return {
     kind: date ? 'date' : meta.includes('Mehrfachwahl') ? 'multi' : 'single',
     meta,
-    rows: [],
-    abstentions: null,
-    footer: null,
-    notes: [],
+    rows: parsedRows.map((row) => ({
+      label: row[1],
+      count: Number(row[2]),
+      maybe: row[3] !== undefined ? Number(row[3]) : null,
+      top: best.has(row[1]),
+    })),
+    abstentions: abstain === undefined ? null : Number(POLL_ROW.exec(abstain)?.[2]),
+    footer: ballots === undefined ? null : answersLine(Number(POLL_BALLOTS.exec(ballots)?.[1])),
+    notes: ofKind('note'),
   };
-  let top = '';
-  for (const line of lines.slice(1)) {
-    const topMatch = POLL_TOP.exec(line);
-    const row = POLL_ROW.exec(line);
-    if (topMatch) top = topMatch[1].trim();
-    else if (!row && POLL_BALLOTS.test(line)) card.footer = answersLine(Number(POLL_BALLOTS.exec(line)?.[1]));
-    else if (line === POLL_LEGEND) continue;
-    else if (row && row[1] === 'Enthaltungen' && row[3] === undefined) card.abstentions = Number(row[2]);
-    else if (row && (row[3] !== undefined) === date) {
-      card.rows.push({
-        label: row[1],
-        count: Number(row[2]),
-        maybe: row[3] !== undefined ? Number(row[3]) : null,
-        top: false,
-      });
-    } else card.notes.push(line);
-  }
-  const best = topLabels(top, card.rows.map((r) => r.label));
-  for (const row of card.rows) row.top = best.has(row.label);
-  return card;
 }
 
 /**
@@ -276,11 +328,16 @@ export function parsePoll(lines: readonly string[]): PollCard | null {
  */
 export interface VoteCalloutInfo {
   /** The line above the question, for example "Beschluss · 18:52 · Einfache Mehrheit". */
-  caption?: string | null;
+  readonly caption?: string | null;
   /** The result under the majority rule of the vote. A tie is a rejection. */
-  result?: { label: string; tone: 'passed' | 'rejected' } | null;
+  readonly result?: { readonly label: string; readonly tone: 'passed' | 'rejected' } | null;
   /** The labels of the counts and of the result, in the language of the page. */
-  labels?: { yes: string; no: string; abstain: string; result: string } | null;
+  readonly labels?: {
+    readonly yes: string;
+    readonly no: string;
+    readonly abstain: string;
+    readonly result: string;
+  } | null;
 }
 
 /**
@@ -295,9 +352,9 @@ export type VoteCalloutResolver = (
 
 /** The options of the node: a getter, so that a node view reads the current resolver. */
 export interface VoteCalloutOptions {
-  resolver: () => VoteCalloutResolver | null;
+  readonly resolver: () => VoteCalloutResolver | null;
   /** The live node views. The editor renders them again when the resolver changes. */
-  views: Set<VoteCalloutView> | null;
+  readonly views: Set<VoteCalloutView> | null;
 }
 
 /** A node view that can render its card again with new info. */
@@ -322,17 +379,22 @@ function voteIcon(): SVGElement {
   svg.setAttribute('stroke-linecap', 'round');
   svg.setAttribute('stroke-linejoin', 'round');
   svg.setAttribute('aria-hidden', 'true');
-  for (const d of [
-    'M7 11V4a1 1 0 0 1 1-1h8a1 1 0 0 1 1 1v7',
-    'm9.5 7 1.8 1.8L14.5 5.5',
-    'M3 11h18v9a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1z',
-    'M8 15h8',
-  ]) {
-    const path = document.createElementNS(SVG_NS, 'path');
-    path.setAttribute('d', d);
-    svg.appendChild(path);
-  }
+  svg.append(
+    ...[
+      'M7 11V4a1 1 0 0 1 1-1h8a1 1 0 0 1 1 1v7',
+      'm9.5 7 1.8 1.8L14.5 5.5',
+      'M3 11h18v9a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1z',
+      'M8 15h8',
+    ].map(svgPath),
+  );
   return svg;
+}
+
+/** One `path` of an icon. */
+function svgPath(d: string): SVGElement {
+  const path = document.createElementNS(SVG_NS, 'path');
+  path.setAttribute('d', d);
+  return path;
 }
 
 function el(tag: string, className: string, text?: string): HTMLElement {
@@ -375,23 +437,27 @@ function fillCard(root: HTMLElement, raw: string, info: VoteCalloutInfo | null):
     fillPoll(root, poll);
     return;
   }
-  for (const line of card.body) root.appendChild(el('div', 'mde__voteBody', line));
+  root.append(...card.body.map((line) => el('div', 'mde__voteBody', line)));
 
   if (!card.tally) return;
   const tally = card.tally;
   const keys = Object.keys(TALLY) as (keyof typeof TALLY)[];
   const grid = el('div', 'mde__voteCounts');
-  for (const key of keys) {
-    const cell = el('div', 'mde__voteCell');
-    cell.appendChild(el('span', 'mde__voteLabel', labels[key]));
-    cell.appendChild(el('span', 'mde__voteNum', String(tally[key])));
-    grid.appendChild(cell);
-  }
+  grid.append(
+    ...keys.map((key) =>
+      withChildren(el('div', 'mde__voteCell'), [
+        el('span', 'mde__voteLabel', labels[key]),
+        el('span', 'mde__voteNum', String(tally[key])),
+      ]),
+    ),
+  );
   if (info?.result) {
-    const cell = el('div', 'mde__voteCell mde__voteCell--result');
-    cell.appendChild(el('span', 'mde__voteLabel', labels.result));
-    cell.appendChild(el('span', 'mde__voteResult', info.result.label));
-    grid.appendChild(cell);
+    grid.appendChild(
+      withChildren(el('div', 'mde__voteCell mde__voteCell--result'), [
+        el('span', 'mde__voteLabel', labels.result),
+        el('span', 'mde__voteResult', info.result.label),
+      ]),
+    );
   }
   root.appendChild(grid);
 
@@ -399,14 +465,22 @@ function fillCard(root: HTMLElement, raw: string, info: VoteCalloutInfo | null):
   if (total > 0) {
     const bar = el('div', 'mde__voteBar');
     bar.setAttribute('aria-hidden', 'true');
-    for (const key of keys) {
-      if (!tally[key]) continue;
-      const part = el('span', `mde__voteSeg mde__voteSeg--${key}`);
-      part.style.flexGrow = String(tally[key]);
-      bar.appendChild(part);
-    }
+    bar.append(...keys.filter((key) => tally[key]).map((key) => voteSegment(key, tally[key])));
     root.appendChild(bar);
   }
+}
+
+/** Append the children to the node and return the node. */
+function withChildren(node: HTMLElement, children: readonly Element[]): HTMLElement {
+  node.append(...children);
+  return node;
+}
+
+/** One part of the bar of the counts, as wide as its count. */
+function voteSegment(key: keyof typeof TALLY, votes: number): HTMLElement {
+  const part = el('span', `mde__voteSeg mde__voteSeg--${key}`);
+  part.style.flexGrow = String(votes);
+  return part;
 }
 
 /** The check mark of an elected candidate. */
@@ -441,58 +515,72 @@ function markCell(elected: boolean): HTMLElement {
 function fillElection(root: HTMLElement, election: ElectionCard): void {
   root.dataset['election'] = '';
   const list = el('div', 'mde__elRows');
-  if (election.rows.length) {
-    const top = Math.max(1, ...election.rows.map((r) => r.votes));
-    let lineDone = false;
-    for (const [i, row] of election.rows.entries()) {
-      if (!row.elected && !lineDone && i > 0 && election.rows[i - 1].elected) {
-        list.appendChild(el('div', 'mde__elLine'));
-        lineDone = true;
-      }
-      const tone = row.elected ? ' mde__elRow--elected' : '';
-      const line = el('div', `mde__elRow${tone}`);
-      line.appendChild(markCell(row.elected));
-      line.appendChild(el('span', 'mde__elName', row.name));
-      const track = el('span', 'mde__elTrack');
-      track.setAttribute('aria-hidden', 'true');
-      const fill = el('span', 'mde__elFill');
-      fill.style.width = `${(row.votes / top) * 100}%`;
-      track.appendChild(fill);
-      line.appendChild(track);
-      line.appendChild(el('span', 'mde__elNum', String(row.votes)));
-      list.appendChild(line);
-    }
-    if (election.abstentions !== null) {
-      const line = el('div', 'mde__elRow mde__elRow--abstain');
-      line.appendChild(markCell(false));
-      line.appendChild(el('span', 'mde__elName', 'Enthaltungen'));
-      line.appendChild(el('span', 'mde__elTrack mde__elTrack--none'));
-      line.appendChild(el('span', 'mde__elNum', String(election.abstentions)));
-      list.appendChild(line);
-    }
-  } else {
-    for (const name of election.elected) {
-      const line = el('div', 'mde__elRow mde__elRow--elected mde__elRow--public');
-      line.appendChild(markCell(true));
-      line.appendChild(el('span', 'mde__elName', name));
-      list.appendChild(line);
-    }
-  }
+  list.append(...(election.rows.length ? electionRows(election) : publicElectionRows(election)));
   root.appendChild(list);
   if (election.others > 0) {
     root.appendChild(el('div', 'mde__voteBody', `${election.others} weitere Kandidierende`));
   }
-  const tags: HTMLElement[] = [];
-  if (election.lot === 'drawn') tags.push(el('span', 'mde__elTag', 'Durch Los entschieden'));
-  if (election.lot === 'pending') {
-    tags.push(el('span', 'mde__elTag mde__elTag--warn', 'Los steht aus'));
-  }
-  if (tags.length) {
-    const box = el('div', 'mde__elTags');
-    for (const tag of tags) box.appendChild(tag);
-    root.appendChild(box);
-  }
-  for (const note of election.notes) root.appendChild(el('div', 'mde__voteBody', note));
+  const drawn = election.lot === 'drawn';
+  const pending = election.lot === 'pending';
+  const tags = [
+    ...(drawn ? [el('span', 'mde__elTag', 'Durch Los entschieden')] : []),
+    ...(pending ? [el('span', 'mde__elTag mde__elTag--warn', 'Los steht aus')] : []),
+  ];
+  if (tags.length) root.appendChild(withChildren(el('div', 'mde__elTags'), tags));
+  root.append(...election.notes.map((note) => el('div', 'mde__voteBody', note)));
+}
+
+/**
+ * The rows of an election with counts, best first, and the abstentions last. The dashed
+ * line goes before the first row that is not elected and follows an elected one.
+ */
+function electionRows(election: ElectionCard): readonly HTMLElement[] {
+  const top = Math.max(1, ...election.rows.map((r) => r.votes));
+  const lineAt = election.rows.findIndex(
+    (row, i) => i > 0 && !row.elected && election.rows[i - 1].elected,
+  );
+  const rows = election.rows.flatMap((row, i) => [
+    ...(i === lineAt ? [el('div', 'mde__elLine')] : []),
+    electionRow(row, top),
+  ]);
+  const abstain =
+    election.abstentions === null
+      ? []
+      : [
+          withChildren(el('div', 'mde__elRow mde__elRow--abstain'), [
+            markCell(false),
+            el('span', 'mde__elName', 'Enthaltungen'),
+            el('span', 'mde__elTrack mde__elTrack--none'),
+            el('span', 'mde__elNum', String(election.abstentions)),
+          ]),
+        ];
+  return [...rows, ...abstain];
+}
+
+/** One candidate with its mark, its name, a bar scaled to the best count and its count. */
+function electionRow(row: ElectionRow, top: number): HTMLElement {
+  const tone = row.elected ? ' mde__elRow--elected' : '';
+  const track = el('span', 'mde__elTrack');
+  track.setAttribute('aria-hidden', 'true');
+  const fill = el('span', 'mde__elFill');
+  fill.style.width = `${(row.votes / top) * 100}%`;
+  track.appendChild(fill);
+  return withChildren(el('div', `mde__elRow${tone}`), [
+    markCell(row.elected),
+    el('span', 'mde__elName', row.name),
+    track,
+    el('span', 'mde__elNum', String(row.votes)),
+  ]);
+}
+
+/** The rows of the public form: the elected people only, without counts. */
+function publicElectionRows(election: ElectionCard): readonly HTMLElement[] {
+  return election.elected.map((name) =>
+    withChildren(el('div', 'mde__elRow mde__elRow--elected mde__elRow--public'), [
+      markCell(true),
+      el('span', 'mde__elName', name),
+    ]),
+  );
 }
 
 /** The star of the options with the most votes. */
@@ -523,47 +611,55 @@ function fillPoll(root: HTMLElement, poll: PollCard): void {
   if (poll.rows.length) {
     const list = el('div', 'mde__elRows mde__pollRows');
     const best = Math.max(1, ...poll.rows.map((r) => r.count + (r.maybe ?? 0)));
-    for (const row of poll.rows) {
-      const line = el('div', `mde__elRow mde__pollRow${row.top ? ' mde__pollRow--top' : ''}`);
-      const mark = el('span', 'mde__elMark');
-      if (row.top) mark.appendChild(starIcon());
-      line.appendChild(mark);
-      line.appendChild(el('span', 'mde__elName', row.label));
-      const track = el('span', 'mde__elTrack mde__pollTrack');
-      track.setAttribute('aria-hidden', 'true');
-      const fill = el('span', 'mde__elFill');
-      fill.style.width = `${(row.count / best) * 100}%`;
-      track.appendChild(fill);
-      if (row.maybe) {
-        const maybe = el('span', 'mde__elFill mde__pollMaybe');
-        maybe.style.width = `${(row.maybe / best) * 100}%`;
-        track.appendChild(maybe);
-      }
-      line.appendChild(track);
-      const num = row.maybe === null ? String(row.count) : `${row.count} + ${row.maybe}`;
-      line.appendChild(el('span', 'mde__elNum', num));
-      list.appendChild(line);
-    }
+    list.append(...poll.rows.map((row) => pollRow(row, best)));
     if (poll.abstentions !== null) {
-      const line = el('div', 'mde__elRow mde__elRow--abstain');
-      line.appendChild(el('span', 'mde__elMark'));
-      line.appendChild(el('span', 'mde__elName', 'Enthaltungen'));
-      line.appendChild(el('span', 'mde__elTrack mde__elTrack--none'));
-      line.appendChild(el('span', 'mde__elNum', String(poll.abstentions)));
-      list.appendChild(line);
+      list.appendChild(
+        withChildren(el('div', 'mde__elRow mde__elRow--abstain'), [
+          el('span', 'mde__elMark'),
+          el('span', 'mde__elName', 'Enthaltungen'),
+          el('span', 'mde__elTrack mde__elTrack--none'),
+          el('span', 'mde__elNum', String(poll.abstentions)),
+        ]),
+      );
     }
     root.appendChild(list);
     if (date) {
-      const legend = el('div', 'mde__pollLegend');
-      legend.appendChild(el('span', 'mde__pollSwatch'));
-      legend.appendChild(el('span', '', 'Ja'));
-      legend.appendChild(el('span', 'mde__pollSwatch mde__pollSwatch--maybe'));
-      legend.appendChild(el('span', '', 'Vielleicht'));
-      root.appendChild(legend);
+      root.appendChild(
+        withChildren(el('div', 'mde__pollLegend'), [
+          el('span', 'mde__pollSwatch'),
+          el('span', '', 'Ja'),
+          el('span', 'mde__pollSwatch mde__pollSwatch--maybe'),
+          el('span', '', 'Vielleicht'),
+        ]),
+      );
     }
   }
-  for (const note of poll.notes) root.appendChild(el('div', 'mde__voteBody', note));
+  root.append(...poll.notes.map((note) => el('div', 'mde__voteBody', note)));
   if (poll.footer) root.appendChild(el('div', 'mde__pollFoot', poll.footer));
+}
+
+/** A bar part of a poll row, as wide as its share of the best count. */
+function pollFill(className: string, votes: number, best: number): HTMLElement {
+  const fill = el('span', className);
+  fill.style.width = `${(votes / best) * 100}%`;
+  return fill;
+}
+
+/** One option of a poll: the star, the label, the bar (Ja, then Vielleicht) and the count. */
+function pollRow(row: PollRow, best: number): HTMLElement {
+  const mark = el('span', 'mde__elMark');
+  if (row.top) mark.appendChild(starIcon());
+  const track = el('span', 'mde__elTrack mde__pollTrack');
+  track.setAttribute('aria-hidden', 'true');
+  track.appendChild(pollFill('mde__elFill', row.count, best));
+  if (row.maybe) track.appendChild(pollFill('mde__elFill mde__pollMaybe', row.maybe, best));
+  const num = row.maybe === null ? String(row.count) : `${row.count} + ${row.maybe}`;
+  return withChildren(el('div', `mde__elRow mde__pollRow${row.top ? ' mde__pollRow--top' : ''}`), [
+    mark,
+    el('span', 'mde__elName', row.label),
+    track,
+    el('span', 'mde__elNum', num),
+  ]);
 }
 
 /** Read the info of a callout from the resolver; a failing resolver gives none. */
@@ -580,21 +676,26 @@ function infoFor(resolver: VoteCalloutResolver | null, raw: string): VoteCallout
 // The parts of markdown-it the block rule touches. The library ships no types of
 // its own in this bundle, so the shape is written down here.
 interface MdState {
-  src: string;
-  bMarks: number[];
-  eMarks: number[];
-  tShift: number[];
+  readonly src: string;
+  readonly bMarks: readonly number[];
+  readonly eMarks: readonly number[];
+  readonly tShift: readonly number[];
   line: number;
   push(type: string, tag: string, nesting: number): { content: string; map: [number, number] | null };
 }
 interface MarkdownIt {
-  block: { ruler: { before(name: string, rule: string, fn: (state: MdState, start: number, end: number, silent: boolean) => boolean, options: { alt: string[] }): void } };
-  renderer: { rules: Record<string, (tokens: { content: string }[], idx: number) => string> };
-  utils: { escapeHtml(text: string): string };
+  readonly block: { readonly ruler: { before(name: string, rule: string, fn: (state: MdState, start: number, end: number, silent: boolean) => boolean, options: { readonly alt: readonly string[] }): void } };
+  readonly renderer: { readonly rules: Record<string, (tokens: readonly { readonly content: string }[], idx: number) => string> };
+  readonly utils: { escapeHtml(text: string): string };
 }
 
 function lineOf(state: MdState, line: number): string {
   return state.src.slice(state.bMarks[line] + state.tShift[line], state.eMarks[line]);
+}
+
+/** The first line from `line` on that is no quote line, or `end`. */
+function quoteEnd(state: MdState, line: number, end: number): number {
+  return line < end && lineOf(state, line).startsWith('>') ? quoteEnd(state, line + 1, end) : line;
 }
 
 /** `> [!abstimmung] …` and the quote lines that follow become one `vote_callout` token. */
@@ -602,14 +703,10 @@ function voteCalloutRule(state: MdState, startLine: number, endLine: number, sil
   const first = lineOf(state, startLine);
   if (!/^>\s?\[!(abstimmung|vote)\]/i.test(first)) return false;
   if (silent) return true;
-  let next = startLine;
-  const lines: string[] = [];
-  while (next < endLine) {
-    const line = lineOf(state, next);
-    if (!line.startsWith('>')) break;
-    lines.push(line.replace(/^>\s?/, ''));
-    next++;
-  }
+  const next = quoteEnd(state, startLine, endLine);
+  const lines = Array.from({ length: next - startLine }, (_, i) =>
+    lineOf(state, startLine + i).replace(/^>\s?/, ''),
+  );
   const token = state.push('vote_callout', 'div', 0);
   token.content = lines.join('\n');
   token.map = [startLine, next];

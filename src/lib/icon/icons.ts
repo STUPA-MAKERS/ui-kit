@@ -4,18 +4,18 @@
 
 /** One element of an icon: a path, circle, rect or ellipse with its attributes. */
 export interface IconShape {
-  t: 'path' | 'circle' | 'rect' | 'ellipse';
-  d?: string;
-  cx?: string;
-  cy?: string;
-  r?: string;
-  x?: string;
-  y?: string;
-  width?: string;
-  height?: string;
-  rx?: string;
-  ry?: string;
-  fill?: string;
+  readonly t: 'path' | 'circle' | 'rect' | 'ellipse';
+  readonly d?: string;
+  readonly cx?: string;
+  readonly cy?: string;
+  readonly r?: string;
+  readonly x?: string;
+  readonly y?: string;
+  readonly width?: string;
+  readonly height?: string;
+  readonly rx?: string;
+  readonly ry?: string;
+  readonly fill?: string;
 }
 
 /** Every icon name of the kit. */

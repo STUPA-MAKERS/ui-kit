@@ -30,10 +30,10 @@ export type FilterSelectPerson = AvatarPerson;
 
 /** One choice of a filter chip. */
 export interface FilterSelectOption {
-  value: string;
-  label: string;
+  readonly value: string;
+  readonly label: string;
   /** The avatar in front of the label, in a list of persons (an assignee select). */
-  person?: FilterSelectPerson | null;
+  readonly person?: FilterSelectPerson | null;
 }
 
 let nextId = 0;
@@ -247,9 +247,9 @@ export class FilterSelectComponent {
 
   protected choose(option: FilterSelectOption): void {
     if (this.multiple()) {
-      const next = this.values().filter((v) => v !== option.value);
-      if (!this.values().includes(option.value)) next.push(option.value);
-      this.values.set(next);
+      const values = this.values();
+      const rest = values.filter((v) => v !== option.value);
+      this.values.set(values.includes(option.value) ? rest : [...rest, option.value]);
       return;
     }
     this.value.set(option.value);
@@ -311,13 +311,10 @@ export class FilterSelectComponent {
     const cycle = needle.length > 1 && [...needle].every((c) => c === needle[0]);
     const search = cycle ? needle[0] : needle;
     const start = cycle || needle.length === 1 ? index + 1 : Math.max(index, 0);
-    for (let i = 0; i < items.length; i++) {
-      const el = items[(start + i) % items.length];
-      if ((el.textContent ?? '').trim().toLocaleLowerCase().startsWith(search)) {
-        el.focus();
-        return;
-      }
-    }
+    items
+      .map((_item, i) => items[(start + i) % items.length])
+      .find((el) => (el.textContent ?? '').trim().toLocaleLowerCase().startsWith(search))
+      ?.focus();
   }
 
   /** Under the chip, aligned to its start, inside the viewport. */

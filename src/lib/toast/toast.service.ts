@@ -2,27 +2,28 @@ import { Injectable, computed, signal } from '@angular/core';
 import { MEDIA } from '../breakpoints/breakpoints';
 import { mediaQuery } from '../signals/media-query';
 import type { IconName } from '../icon/icons';
+import { withEntry } from '../util/immutable';
 
 export type ToastVariant = 'info' | 'success' | 'warning' | 'danger';
 
 export interface Toast {
-  id: number;
-  message: string;
-  variant: ToastVariant;
+  readonly id: number;
+  readonly message: string;
+  readonly variant: ToastVariant;
   /** The label of the one action button (for example "Rückgängig"), else none. */
-  action?: string;
+  readonly action?: string;
   /** Show the action as this icon; `action` is then its accessible name and its title. */
-  actionIcon?: IconName;
+  readonly actionIcon?: IconName;
   /** Where the toast shows on a phone (see {@link ToastPhonePlacement}). */
-  phonePlacement?: ToastPhonePlacement;
+  readonly phonePlacement?: ToastPhonePlacement;
   /** An icon before the message, or at the end of the row (see `iconPosition`). */
-  icon?: IconName;
+  readonly icon?: IconName;
   /** Where `icon` sits: `start` before the message (default), `end` at the end of the row. */
-  iconPosition?: ToastIconPosition;
+  readonly iconPosition?: ToastIconPosition;
   /** False hides the close button: the code that shows the toast also removes it. */
-  closable?: boolean;
+  readonly closable?: boolean;
   /** The colour of the phone top bar (see {@link ToastBarTone}). */
-  barTone?: ToastBarTone;
+  readonly barTone?: ToastBarTone;
 }
 
 /** Where the icon of a toast sits. */
@@ -37,17 +38,17 @@ export type ToastBarTone = 'accent' | 'danger';
 
 /** A toast that stays until the code that shows it removes it, for example a state. */
 export interface ToastNotice {
-  message: string;
-  variant?: ToastVariant;
-  icon?: IconName;
+  readonly message: string;
+  readonly variant?: ToastVariant;
+  readonly icon?: IconName;
   /** Where `icon` sits. Default `start`. */
-  iconPosition?: ToastIconPosition;
+  readonly iconPosition?: ToastIconPosition;
   /** Show a close button. Default false. */
-  closable?: boolean;
+  readonly closable?: boolean;
   /** Where the notice shows on a phone. Default `stack`. */
-  phonePlacement?: ToastPhonePlacement;
+  readonly phonePlacement?: ToastPhonePlacement;
   /** The colour of the phone top bar. Default `danger` for a `danger` notice, else `accent`. */
-  barTone?: ToastBarTone;
+  readonly barTone?: ToastBarTone;
 }
 
 /**
@@ -63,27 +64,27 @@ export type ToastClose = 'action' | 'timeout' | 'dismiss';
 
 /** A toast with one action, for example the undo of a swipe. */
 export interface ActionToast {
-  message: string;
+  readonly message: string;
   /** The visible label of the button. */
-  action: string;
-  variant?: ToastVariant;
+  readonly action: string;
+  readonly variant?: ToastVariant;
   /** 0 keeps the toast until a press. */
-  timeout?: number;
+  readonly timeout?: number;
   /**
    * Called once when the toast goes: `action` after a press of the button, `timeout`
    * when the time ran out, `dismiss` after the close button or `dismiss()`. A delete that
    * waits for its undo sends its request on anything but `action`.
    */
-  closed: (how: ToastClose) => void;
+  readonly closed: (how: ToastClose) => void;
   /** Where the toast shows on a phone. Default `stack`. */
-  phonePlacement?: ToastPhonePlacement;
+  readonly phonePlacement?: ToastPhonePlacement;
   /**
    * Show the action as this icon at the end of the row; `action` is then its accessible
    * name. In the phone top bar the whole bar is the action button.
    */
-  actionIcon?: IconName;
+  readonly actionIcon?: IconName;
   /** False hides the close button, so only the action closes the toast. Default true. */
-  closable?: boolean;
+  readonly closable?: boolean;
 }
 
 let nextId = 0;
@@ -93,7 +94,7 @@ let nextId = 0;
 export class ToastService {
   private readonly _toasts = signal<Toast[]>([]);
   /** The close callbacks of the toasts with an action, by id. */
-  private readonly onClose = new Map<number, (how: ToastClose) => void>();
+  private onClose: ReadonlyMap<number, (how: ToastClose) => void> = new Map();
   readonly toasts = this._toasts.asReadonly();
 
   private readonly topBars = signal(0);
@@ -134,7 +135,7 @@ export class ToastService {
     const id = nextId++;
     const { message, action, actionIcon, closable, variant = 'info', timeout = 6000 } = toast;
     const { phonePlacement } = toast;
-    this.onClose.set(id, toast.closed);
+    this.onClose = withEntry(this.onClose, id, toast.closed);
     this._toasts.update((list) => [
       ...list,
       { id, message, variant, action, actionIcon, closable, phonePlacement },
@@ -192,7 +193,7 @@ export class ToastService {
   private close(id: number, how: ToastClose): void {
     this._toasts.update((list) => list.filter((t) => t.id !== id));
     const closed = this.onClose.get(id);
-    this.onClose.delete(id);
+    this.onClose = new Map([...this.onClose].filter(([key]) => key !== id));
     closed?.(how);
   }
 }

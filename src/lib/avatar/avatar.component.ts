@@ -34,9 +34,9 @@ const ICON_PX: Record<AvatarSize, number> = { md: 20, sm: 16, xs: 13 };
  * the image, or an icon for a choice that is no single person ("Niemand", "Alle").
  */
 export interface AvatarPerson {
-  name: string;
-  principalId?: string | null;
-  icon?: IconName | null;
+  readonly name: string;
+  readonly principalId?: string | null;
+  readonly icon?: IconName | null;
 }
 
 /**

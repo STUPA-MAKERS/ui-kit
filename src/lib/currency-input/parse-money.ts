@@ -16,7 +16,7 @@ export type MoneyParseResult =
 /** The most decimals an amount of money can have (cents). */
 export const MONEY_MAX_DECIMALS = 2;
 
-const SEPARATORS: Record<UiLang, { decimal: string; group: string }> = {
+const SEPARATORS: Record<UiLang, { readonly decimal: string; readonly group: string }> = {
   de: { decimal: ',', group: '.' },
   en: { decimal: '.', group: ',' },
 };
@@ -55,13 +55,13 @@ const DE_DOT_DECIMAL = /^\d*\.\d{0,2}$/;
  * `1.234` stays one thousand two hundred thirty-four.
  */
 export function parseMoney(raw: string | null | undefined, lang: UiLang): MoneyParseResult {
-  let s = (raw ?? '').trim();
-  if (s.startsWith('€')) s = s.slice(1).trim();
-  if (s.endsWith('€')) s = s.slice(0, -1).trim();
-  const neg = s.startsWith('-');
-  if (neg) s = s.slice(1);
-  if (!s) return { status: 'empty' };
-  if (lang === 'de' && DE_DOT_DECIMAL.test(s)) s = s.replace('.', ',');
+  const trimmed = (raw ?? '').trim();
+  const noLead = trimmed.startsWith('€') ? trimmed.slice(1).trim() : trimmed;
+  const signed = noLead.endsWith('€') ? noLead.slice(0, -1).trim() : noLead;
+  const neg = signed.startsWith('-');
+  const body = neg ? signed.slice(1) : signed;
+  if (!body) return { status: 'empty' };
+  const s = lang === 'de' && DE_DOT_DECIMAL.test(body) ? body.replace('.', ',') : body;
   const match = PATTERNS[lang].exec(s);
   if (!match) return { status: 'invalid' };
   const intRaw = match[1] ?? '';

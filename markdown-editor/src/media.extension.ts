@@ -183,40 +183,34 @@ function cellMarkdown(state: SerializerState, cell: PmNode): string {
     .trim();
 }
 
+/**
+ * The cell at slot `k` of the table map, when the slot is the first one of its cell. A
+ * merged cell fills more slots; the later ones are empty in Markdown.
+ */
+function firstCell(node: PmNode, slots: readonly number[], k: number): PmNode | null {
+  return slots.indexOf(slots[k]) === k ? node.nodeAt(slots[k]) : null;
+}
+
 /** Write a table as a GFM pipe table. Every table is written, whatever its shape. */
 function serializeTable(state: SerializerState, node: PmNode): void {
   const map = TableMap.get(node);
-  const seen = new Set<number>();
-  const aligns: unknown[] = new Array(map.width).fill(null);
-  const rows: string[][] = [];
+  const slots = Array.from({ length: map.height }, (_, r) =>
+    Array.from({ length: map.width }, (_, c) => firstCell(node, map.map, r * map.width + c)),
+  );
+  const aligns = Array.from({ length: map.width }, (_, c) => {
+    const aligned = slots.map((row) => row[c]).find((cell) => cell?.attrs['align']);
+    return aligned?.attrs['align'] ?? null;
+  });
   // Flush the separation from the block before, so the cells render after it.
   state.write('');
-  for (let r = 0; r < map.height; r++) {
-    const row: string[] = [];
-    for (let c = 0; c < map.width; c++) {
-      const pos = map.map[r * map.width + c];
-      if (seen.has(pos)) {
-        row.push('');
-        continue;
-      }
-      seen.add(pos);
-      const cell = node.nodeAt(pos);
-      if (!cell) {
-        row.push('');
-        continue;
-      }
-      if (aligns[c] === null && cell.attrs['align']) aligns[c] = cell.attrs['align'];
-      row.push(cellMarkdown(state, cell));
-    }
-    rows.push(row);
-  }
-  const line = (cells: string[]): string => `| ${cells.join(' | ')} |`;
-  const lines = rows.map(line);
-  lines.splice(1, 0, line(aligns.map(delimiter)));
-  lines.forEach((text, i) => {
+  const rows = slots.map((row) => row.map((cell) => (cell ? cellMarkdown(state, cell) : '')));
+  const line = (cells: readonly string[]): string => `| ${cells.join(' | ')} |`;
+  const body = rows.map(line);
+  const lines = [...body.slice(0, 1), line(aligns.map(delimiter)), ...body.slice(1)];
+  for (const [i, text] of lines.entries()) {
     if (i) state.ensureNewLine();
     state.write(text);
-  });
+  }
   state.closeBlock(node);
 }
 

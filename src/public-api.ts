@@ -123,6 +123,7 @@ export * from './lib/gesture/gesture';
 export * from './lib/util/download.util';
 export * from './lib/util/format-bytes';
 export * from './lib/util/haptic';
+export * from './lib/util/immutable';
 export * from './lib/util/key-parts.util';
 export * from './lib/util/capitalize.pipe';
 export * from './lib/toast/toast.component';

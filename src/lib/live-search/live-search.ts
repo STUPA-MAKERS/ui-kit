@@ -25,20 +25,20 @@ export interface LiveSearchOptions<T> {
    *
    * Without `reset`, a query below `minLength` runs as `''`, without the debounce.
    */
-  run: (query: string) => Observable<T> | void;
+  readonly run: (query: string) => Observable<T> | void;
   /** Receives each answer of `run`. */
-  result?: (value: T, query: string) => void;
+  readonly result?: (value: T, query: string) => void;
   /**
    * The query became empty or shorter than `minLength`. It runs at once, without the
    * debounce, and replaces `run('')`.
    */
-  reset?: () => void;
+  readonly reset?: () => void;
   /** The request failed. The next key press searches again. */
-  error?: (err: unknown, query: string) => void;
+  readonly error?: (err: unknown, query: string) => void;
   /** Default {@link LIVE_SEARCH_MIN_LENGTH}. 0 or 1 searches from the first character. */
-  minLength?: number;
+  readonly minLength?: number;
   /** Default {@link LIVE_SEARCH_DEBOUNCE_MS}. */
-  debounceMs?: number;
+  readonly debounceMs?: number;
 }
 
 /** The search behind one search field. Make it with {@link liveSearch}. */
@@ -68,8 +68,8 @@ export interface LiveSearch {
 }
 
 type Command =
-  | { kind: 'input'; text: string; now: boolean; force: boolean }
-  | { kind: 'sync'; text: string };
+  | { readonly kind: 'input'; readonly text: string; readonly now: boolean; readonly force: boolean }
+  | { readonly kind: 'sync'; readonly text: string };
 
 /**
  * The one mechanism behind every search field of the app: the field searches while

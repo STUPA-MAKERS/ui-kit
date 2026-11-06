@@ -12,8 +12,8 @@ export type SegTone = 'filled' | 'second' | 'error' | 'muted';
 
 /** One part of the bar. Values are in the unit of `total` (euro, votes, items). */
 export interface Seg {
-  value: number;
-  tone: SegTone;
+  readonly value: number;
+  readonly tone: SegTone;
 }
 
 /** The height of the bar: 4px, 6px, 10px, or 20px for the beamer. */

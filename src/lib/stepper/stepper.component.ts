@@ -3,9 +3,9 @@ import { NgTemplateOutlet } from '@angular/common';
 import { IconComponent } from '../icon/icon.component';
 
 export interface Step {
-  label: string;
+  readonly label: string;
   /** A second line below the label, for example the chosen value of a done step. */
-  hint?: string | null;
+  readonly hint?: string | null;
 }
 
 export type StepperOrientation = 'horizontal' | 'vertical';

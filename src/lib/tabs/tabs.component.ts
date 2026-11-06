@@ -12,10 +12,10 @@ let nextId = 0;
 
 /** One tab. `count` shows a number after the label, for example "Verlauf 4". */
 export interface TabItem {
-  id: string;
-  label: string;
-  count?: number | null;
-  disabled?: boolean;
+  readonly id: string;
+  readonly label: string;
+  readonly count?: number | null;
+  readonly disabled?: boolean;
 }
 
 /**
@@ -76,23 +76,8 @@ export class TabsComponent {
 
   onKeydown(event: KeyboardEvent, index: number): void {
     const tabs = this.tabs();
-    let next = -1;
-    switch (event.key) {
-      case 'ArrowRight':
-        next = this.step(index, 1);
-        break;
-      case 'ArrowLeft':
-        next = this.step(index, -1);
-        break;
-      case 'Home':
-        next = this.step(-1, 1);
-        break;
-      case 'End':
-        next = this.step(tabs.length, -1);
-        break;
-      default:
-        return;
-    }
+    const next = this.keyTarget(event.key, index);
+    if (next === null) return;
     event.preventDefault();
     if (next < 0) return;
     this.select(tabs[next]);
@@ -103,10 +88,23 @@ export class TabsComponent {
   private step(from: number, dir: 1 | -1): number {
     const tabs = this.tabs();
     const n = tabs.length;
-    for (let i = 1; i <= n; i++) {
-      const idx = (((from + dir * i) % n) + n) % n;
-      if (!tabs[idx].disabled) return idx;
+    const ring = Array.from({ length: n }, (_, i) => (((from + dir * (i + 1)) % n) + n) % n);
+    return ring.find((idx) => !tabs[idx].disabled) ?? -1;
+  }
+
+  /** The index a key moves to (-1 when no tab is enabled), or null for another key. */
+  private keyTarget(key: string, index: number): number | null {
+    switch (key) {
+      case 'ArrowRight':
+        return this.step(index, 1);
+      case 'ArrowLeft':
+        return this.step(index, -1);
+      case 'Home':
+        return this.step(-1, 1);
+      case 'End':
+        return this.step(this.tabs().length, -1);
+      default:
+        return null;
     }
-    return -1;
   }
 }

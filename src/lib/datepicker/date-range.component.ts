@@ -6,8 +6,8 @@ let nextId = 0;
 
 /** Zeitraum-Wert: ISO-Start/-Ende (`YYYY-MM-DD`), je leer wenn ungesetzt. */
 export interface DateRange {
-  start: string;
-  end: string;
+  readonly start: string;
+  readonly end: string;
 }
 
 /**
