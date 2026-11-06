@@ -1,5 +1,6 @@
 // The one list/detail geometry. Consume from the global stylesheet of an app:
 //   @use 'list-detail';
+@use 'breakpoints' as bp;
 
 // Every page with a list or a navigation column beside a sheet takes the width of that
 // column and the gap to the sheet from these two tokens (`app-list-detail` reads them).
@@ -161,5 +162,43 @@ body:has(app-tab-pager) app-list-detail-bar.ld__bar--condensed.ld__bar--condense
     -webkit-backdrop-filter: blur(10px) saturate(1.8);
     backdrop-filter: blur(10px) saturate(1.8);
     mask-image: linear-gradient(to bottom, #000 calc(100% - 64px), transparent calc(100% - 64px));
+  }
+}
+
+// On a phone the glass of the head of the column ends in the light shadow of every phone
+// list bar (`StickyBarComponent`) while rows are under it (`.ld-pane--scrolled`). The glass
+// itself carries a mask, which would cut a shadow off, so a box of the size of the head
+// casts it, and a clip leaves only the shadow below the head. A thin line would cast a
+// shadow too faint to see. A group head right under the head of the column carries the
+// shadow itself (`ListGroupComponent`).
+// The glass and its shadow run from screen edge to screen edge over the gutter of the page
+// (`--stb-bleed`), as the phone list bar does, so the glass has no side fade there.
+@include bp.phone {
+  .ld-pane--glass::before {
+    inset-inline: calc(-1 * var(--stb-bleed, var(--space-4)));
+  }
+  @supports (backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px)) {
+    .ld-pane--glass::before {
+      background: color-mix(in srgb, var(--stb-bg, var(--color-bg)) 55%, transparent);
+    }
+  }
+  .ld-pane--glass::after {
+    content: '';
+    position: absolute;
+    inset-inline: calc(-1 * var(--stb-bleed, var(--space-4)));
+    top: 0;
+    z-index: 1;
+    height: var(--ld-pane-top);
+    box-shadow: var(--shadow-md);
+    clip-path: inset(100% 0 -32px 0);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity var(--motion-fast) var(--ease-standard);
+  }
+  .ld-pane--glass.ld-pane--scrolled::after {
+    opacity: 1;
+  }
+  .ld-pane--glass:has(.lg__head--under)::after {
+    display: none;
   }
 }
