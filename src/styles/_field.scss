@@ -122,7 +122,7 @@
 
   // iOS zooms into a focused field with text under 16px. The viewport forbids zoom, but
   // older iOS versions still zoom on focus.
-  @media (max-width: 768px) {
+  @media (max-width: 767.98px) {
     font-size: 1rem;
   }
 }

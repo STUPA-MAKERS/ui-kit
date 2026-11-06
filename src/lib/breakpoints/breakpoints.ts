@@ -2,13 +2,13 @@
  * Layout breakpoints for TypeScript code (`matchMedia`, `BreakpointObserver`). The values
  * are the same as in `src/styles/_breakpoints.scss`. Change both files together.
  *
- * - phone: width <= 768px (bottom bar, stacked cards, near-fullscreen dialogs)
- * - narrow: 769px to 1199px (navigation rail, list and detail as separate views)
+ * - phone: width < 768px (bottom bar, stacked cards, near-fullscreen dialogs)
+ * - narrow: 768px to 1199px (navigation rail, list and detail as separate views)
  * - wide: width >= 1200px (navigation rail, list and detail side by side)
  */
 export const BREAKPOINTS = {
-  /** The widest viewport that counts as a phone, in px. */
-  phoneMax: 768,
+  /** The widest viewport that counts as a phone, in px: everything below 768. */
+  phoneMax: 767.98,
   /** The narrowest viewport that shows a list and its detail side by side, in px. */
   wideMin: 1200,
 } as const;
@@ -18,10 +18,10 @@ export const BREAKPOINTS = {
  * touch-first pointer, `reducedMotion` the system wish for less motion.
  */
 export const MEDIA = {
-  phone: '(max-width: 768px)',
-  narrow: '(min-width: 768.02px) and (max-width: 1199.98px)',
+  phone: '(max-width: 767.98px)',
+  narrow: '(min-width: 768px) and (max-width: 1199.98px)',
   wide: '(min-width: 1200px)',
-  notPhone: '(min-width: 768.02px)',
+  notPhone: '(min-width: 768px)',
   belowWide: '(max-width: 1199.98px)',
   coarse: '(pointer: coarse)',
   reducedMotion: '(prefers-reduced-motion: reduce)',

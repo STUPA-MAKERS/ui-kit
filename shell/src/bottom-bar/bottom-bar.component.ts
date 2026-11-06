@@ -20,7 +20,7 @@ import type { ShellNavItem } from '../shell.types';
 import { ShellMoreSheet } from './more-sheet';
 
 /**
- * The phone navigation (viewport <= 768px): the entries of `barKeys`, the `[barEnd]` slot
+ * The phone navigation (viewport < 768px): the entries of `barKeys`, the `[barEnd]` slot
  * (for example an `app-bar-button`), then "More". "More" opens a bottom sheet in this
  * order: the other entries (with their count mark), the search, the `[more]` slot (extra
  * groups, for example a help menu) and the `[moreAccount]` slot (the account menu).

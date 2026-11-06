@@ -170,7 +170,7 @@
   pointer-events: auto;
 }
 /* Stacked cards do not scroll sideways, so there is nothing for a tongue to scroll. */
-@media (max-width: 768px) {
+@media (max-width: 767.98px) {
   .dt__cutline,
   .dt__tongue {
     display: none;
@@ -529,9 +529,9 @@
   padding: var(--space-6) !important;
 }
 
-/* Mobile (≤768px): Zeilen als gestapelte Karten — je Zelle Label/Wert-
+/* Mobile (<768px): Zeilen als gestapelte Karten — je Zelle Label/Wert-
    Paar aus der Spalten-Definition. Desktop-Tabelle bleibt unverändert. */
-@media (max-width: 768px) {
+@media (max-width: 767.98px) {
   .dt__table,
   .dt__table tbody {
     display: block;
@@ -800,7 +800,7 @@
     background: var(--dt-hover);
   }
 }
-@media (max-width: 768px) {
+@media (max-width: 767.98px) {
   /* The cards: the gap goes between the cards, not between the fields of a card. */
   .dt--rowgroup .dt__table td {
     border-bottom: 0;
@@ -827,7 +827,7 @@
    strong as the row-group rules, so neither surface paints a cell on top of the card:
    a cell with a colour of its own reads as a box inside the card. The accent line on
    the inside of the card edge marks the selection without the colour alone. */
-@media (max-width: 768px) {
+@media (max-width: 767.98px) {
   .dt .dt__table tbody tr > td,
   .dt .dt__table tbody tr:is(:focus-visible, :active) > td {
     --pin-bg: transparent;

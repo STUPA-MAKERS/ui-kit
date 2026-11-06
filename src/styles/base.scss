@@ -183,9 +183,9 @@ textarea {
   padding-inline: var(--layout-gutter);
 }
 
-// Mobile-Baseline (≤768px): engerer Seitenrand, kompaktere Headings.
+// Mobile-Baseline (<768px): engerer Seitenrand, kompaktere Headings.
 // Desktop bleibt unverändert — alle Mobile-Regeln sind additiv per max-width.
-@media (max-width: 768px) {
+@media (max-width: 767.98px) {
   .page-shell {
     padding-inline: var(--space-4);
   }
@@ -273,7 +273,7 @@ input[type='radio'] {
   text-overflow: ellipsis;
   white-space: nowrap;
 }
-@media (max-width: 768px) {
+@media (max-width: 767.98px) {
   .dt__truncate {
     overflow: visible;
     overflow-wrap: anywhere;
