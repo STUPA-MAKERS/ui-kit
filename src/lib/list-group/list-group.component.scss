@@ -2,7 +2,9 @@
 @use '../../styles/frosted' as *;
 
 // A blur without tint from the top of the head up by `$height`, behind the glass of the bar
-// or of the head of the column above it (`lg__head--under`).
+// or of the head of the column above it (`lg__head--under`). It does not saturate, because
+// the glass above it saturates once more, and twice is more colourful than the glass of the
+// head below.
 @mixin lift-blur($height) {
   @supports (backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px)) {
     content: '';
@@ -11,8 +13,8 @@
     inset-inline: 0;
     bottom: 100%;
     height: $height;
-    -webkit-backdrop-filter: blur(10px) saturate(1.8);
-    backdrop-filter: blur(10px) saturate(1.8);
+    -webkit-backdrop-filter: blur(10px);
+    backdrop-filter: blur(10px);
     pointer-events: none;
   }
 }
@@ -114,4 +116,11 @@
 // head of the column does (`glass-corners`, `styles/list-detail.scss`).
 :host-context(.ld-pane--glass) .lg__head--stuck::before {
   @include glass-corners(var(--stb-bg, var(--color-bg)), var(--radius-xl));
+}
+// Right under the head of the column the glass of the head holds more tint. The glass of
+// the column blurs the rows at its foot together with the page above them, but the glass
+// of the head lies right on the rows: with the same tint a row surface below shows through
+// it more strongly, and a step shows where the two glass layers meet.
+:host-context(.ld-pane--glass) .lg__head--stuck.lg__head--under::before {
+  @include glass-corners(var(--stb-bg, var(--color-bg)), var(--radius-xl), $tint: 75%);
 }

@@ -79,8 +79,8 @@
    head, so no edge shows between the head and its corners. Put it on the glass layer
    (`::before`) of a head with the bottom edge, which reaches `$reach` below the box. It
    sets the background of that layer (the sides that turn into `$color`, the tint) and its
-   mask. `$radius` 0 gives no corners. */
-@mixin glass-corners($color, $radius, $reach: 64px) {
+   mask. `$radius` 0 gives no corners. `$tint`: how much of `$color` the glass holds. */
+@mixin glass-corners($color, $radius, $reach: 64px, $tint: 55%) {
   @supports (backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px)) {
     $edge: calc(100% - #{$reach});
     $inner: calc(#{$radius} - 0.5px);
@@ -93,7 +93,7 @@
         transparent calc(100% - var(--space-4)),
         #{$color}
       ),
-      color-mix(in srgb, #{$color} 55%, transparent);
+      color-mix(in srgb, #{$color} #{$tint}, transparent);
     mask-image:
       linear-gradient(to bottom, #000 #{$edge}, transparent #{$edge}),
       radial-gradient(circle at 100% 100%, transparent #{$inner}, #000 #{$radius}),
