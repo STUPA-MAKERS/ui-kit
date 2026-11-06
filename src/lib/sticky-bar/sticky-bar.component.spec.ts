@@ -1,6 +1,6 @@
 import { Component, signal } from '@angular/core';
 import { render } from '@testing-library/angular';
-import { StickyBarComponent, scrollParent } from './sticky-bar.component';
+import { StickyBarComponent, scrollParent, watchSiblings } from './sticky-bar.component';
 
 @Component({
   standalone: true,
@@ -160,5 +160,50 @@ describe('StickyBarComponent', () => {
       view.fixture.destroy();
       expect(pane.style.getPropertyValue('scroll-padding-top')).toBe('');
     });
+  });
+});
+
+describe('watchSiblings', () => {
+  function column(): { pane: HTMLElement; bar: HTMLElement; rows: HTMLElement } {
+    const pane = document.createElement('div');
+    pane.className = 'ld-pane';
+    const bar = document.createElement('div');
+    bar.className = 'ld-pane__filters';
+    const rows = document.createElement('div');
+    pane.append(bar, rows);
+    return { pane, bar, rows };
+  }
+  const flush = (): Promise<void> => new Promise((resolve) => setTimeout(resolve));
+
+  it('reports a class change of a sibling and of a sibling added later', async () => {
+    const { pane, bar, rows } = column();
+    const changed = jest.fn();
+    const observer = watchSiblings(bar, changed);
+    rows.classList.add('rows--scroll');
+    await flush();
+    expect(changed).toHaveBeenCalledTimes(1);
+
+    const later = document.createElement('div');
+    pane.append(later);
+    await flush();
+    later.classList.add('rows--scroll');
+    await flush();
+    expect(changed).toHaveBeenCalledTimes(3);
+    observer?.disconnect();
+  });
+
+  it('ignores the class of the bar itself, and a bar outside a list column', async () => {
+    const { bar } = column();
+    const changed = jest.fn();
+    const observer = watchSiblings(bar, changed);
+    bar.classList.add('stb--stuck');
+    await flush();
+    expect(changed).not.toHaveBeenCalled();
+    observer?.disconnect();
+
+    const lone = document.createElement('div');
+    lone.className = 'ld-pane__filters';
+    document.createElement('div').append(lone);
+    expect(watchSiblings(lone, changed)).toBeNull();
   });
 });

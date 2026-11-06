@@ -418,16 +418,10 @@ input[type='radio'] {
 
 // A phone list: a group head that is stuck right under the sticky search bar continues
 // the glass of the bar, so the head carries the shadow at the end of the glass and the
-// bar has none (`StickyBarComponent`, `ListGroupComponent`). While the head sits right
-// under the bar, the glass of the head reaches up behind the bar and the bar has no glass
-// of its own, so the two are one surface and no seam shows between them. The rule reads
-// the class of one component and styles the other, so it lives here and not in either
-// component.
+// bar has none (`StickyBarComponent`, `ListGroupComponent`). The rule reads the class of
+// one component and styles the other, so it lives here and not in either component.
 @include bp.phone {
   body:has(.lg__head--stuck) app-sticky-bar.stb--stuck {
     box-shadow: none;
-  }
-  body:has(.lg__head--under) app-sticky-bar.stb--stuck::before {
-    display: none;
   }
 }

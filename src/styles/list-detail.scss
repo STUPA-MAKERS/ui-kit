@@ -1,5 +1,7 @@
 // The one list/detail geometry. Consume from the global stylesheet of an app:
 //   @use 'list-detail';
+@use 'breakpoints' as bp;
+@use 'frosted' as *;
 
 // Every page with a list or a navigation column beside a sheet takes the width of that
 // column and the gap to the sheet from these two tokens (`app-list-detail` reads them).
@@ -93,6 +95,17 @@ body:has(app-tab-pager) app-list-detail-bar.ld__bar--condensed.ld__bar--condense
   > .ld-pane__filters::after {
     display: none;
   }
+  // On a phone the bar is glass of its own (`StickyBarComponent`), solid at rest. Over the
+  // glass of the column it adds nothing: a second layer shows a seam, and at rest its solid
+  // colour cuts the rows below the head. The repeated class wins over the host style of the
+  // bar.
+  > .ld-pane__filters.ld-pane__filters.ld-pane__filters {
+    background: transparent;
+    box-shadow: none;
+  }
+  > .ld-pane__filters.ld-pane__filters.ld-pane__filters::before {
+    display: none;
+  }
   // The repeated class wins over a page rule that sets the padding of its rows (the nav
   // of the admin frame sets `padding: 0 …`), which would put the first rows under the head.
   > .ld-pane__rows.ld-pane__rows.ld-pane__rows.ld-pane__rows {
@@ -152,9 +165,58 @@ body:has(app-tab-pager) app-list-detail-bar.ld__bar--condensed.ld__bar--condense
     mask-image: linear-gradient(to bottom, #000 calc(100% - 64px), transparent calc(100% - 64px));
   }
 }
-// A group head that sticks right under the head of the column (`ListGroupComponent`,
-// `lg__head--under`) carries the glass of the head behind it, so the column drops its own:
-// one glass surface, no seam.
-.ld-pane--glass:has(.lg__head--under)::before {
-  display: none;
+
+// On a phone the glass of the head of the column ends in the light shadow of every phone
+// list bar (`StickyBarComponent`) while rows are under it (`.ld-pane--scrolled`). The glass
+// itself carries a mask, which would cut a shadow off, so a box of the size of the head
+// casts it, and a clip leaves only the shadow below the head. A thin line would cast a
+// shadow too faint to see. A group head right under the head of the column carries the
+// shadow itself (`ListGroupComponent`).
+// The glass and its shadow run from screen edge to screen edge over the gutter of the page
+// (`--stb-bleed`), as the phone list bar does, so the glass has no side fade there.
+@include bp.phone {
+  .ld-pane--glass::before {
+    inset-inline: calc(-1 * var(--stb-bleed, var(--space-4)));
+  }
+  @supports (backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px)) {
+    .ld-pane--glass::before {
+      background: color-mix(in srgb, var(--stb-bg, var(--color-bg)) 55%, transparent);
+    }
+  }
+  .ld-pane--glass::after {
+    content: '';
+    position: absolute;
+    inset-inline: calc(-1 * var(--stb-bleed, var(--space-4)));
+    top: 0;
+    z-index: 1;
+    height: var(--ld-pane-top);
+    box-shadow: var(--shadow-md);
+    clip-path: inset(100% 0 -32px 0);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity var(--motion-fast) var(--ease-standard);
+  }
+  .ld-pane--glass.ld-pane--scrolled::after {
+    opacity: 1;
+  }
+  .ld-pane--glass:has(.lg__head--under)::after {
+    display: none;
+  }
+}
+
+// On a wide screen the glass of the head runs into the rows with round inner corners at
+// both sides of the column (`glass-corners`), while rows are under it. At rest the corners
+// would blur the top corners of the first row. A group head right under the head of the
+// column carries the corners itself (`ListGroupComponent`).
+@include bp.not-phone {
+  .ld-pane--glass::before {
+    --ld-corner: 0px;
+    @include glass-corners(var(--stb-bg, var(--color-bg)), var(--ld-corner));
+  }
+  .ld-pane--glass.ld-pane--scrolled::before {
+    --ld-corner: var(--radius-xl);
+  }
+  .ld-pane--glass:has(.lg__head--under)::before {
+    --ld-corner: 0px;
+  }
 }
