@@ -169,7 +169,7 @@
   margin-top: 6px;
 }
 .sel__groupHead {
-  padding: 6px var(--space-4) 4px;
+  padding: 6px calc(var(--space-4) - 6px) 4px;
   color: var(--color-text-muted);
   font-size: var(--fs-cap);
   font-weight: var(--fw-semibold);

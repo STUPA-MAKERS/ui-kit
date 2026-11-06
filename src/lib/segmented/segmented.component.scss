@@ -12,6 +12,10 @@
   border: var(--border-width) solid var(--color-border-strong);
   border-radius: 18px;
   overflow: hidden;
+  /* A press tints the segment and shrinks the whole control: the group clips its segments,
+     so a segment that shrinks alone leaves a gap at the border. */
+  transition: scale var(--motion-xs) var(--ease-standard);
+  @include press.press-part('.seg__opt');
 }
 .seg__opt {
   @include press.chrome-text;
@@ -31,9 +35,7 @@
   /* A new selection fades: the old segment loses its fill while the new one gains it. */
   transition:
     background-color var(--motion-base) var(--ease-standard),
-    color var(--motion-base) var(--ease-standard),
-    scale var(--motion-xs) var(--ease-standard);
-  @include press.press;
+    color var(--motion-base) var(--ease-standard);
 }
 .seg__opt + .seg__opt {
   border-left: var(--border-width) solid var(--color-border-strong);

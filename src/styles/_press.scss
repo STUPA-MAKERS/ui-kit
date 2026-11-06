@@ -56,6 +56,20 @@
   }
 }
 
+// The press of a part of a group that clips its parts to one rounded edge (a segment of a
+// segmented control): the pressed part tints, and the whole group shrinks. A part that
+// shrinks alone pulls its fill away from the border and the clipped edge of the group, and
+// the gap reads as a broken control. Use it on the group; `$part` is the selector of a part.
+// The group is wide, so it shrinks by the row amount by default.
+@mixin press-part($part, $scale: row) {
+  &:has(#{$part}:active:not(:disabled):not([aria-disabled='true'])) {
+    @include press-scale($scale);
+  }
+  #{$part}:active:not(:disabled):not([aria-disabled='true']) {
+    background-image: linear-gradient(var(--press-tint), var(--press-tint));
+  }
+}
+
 // The label of a control. A long press on it selects the text and opens the iOS callout
 // (copy, look up), which reads as a broken button. Use it on controls only: a content text
 // (a URL, an IBAN, a name in a row) stays selectable.

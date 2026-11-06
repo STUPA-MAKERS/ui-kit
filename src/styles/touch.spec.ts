@@ -95,7 +95,7 @@ describe('touch rules in the stylesheets', () => {
     const scale = press.indexOf('scale: amount-of($scale);');
     expect(press.slice(0, scale).lastIndexOf('@media (prefers-reduced-motion: no-preference)'))
       .toBeGreaterThan(press.slice(0, scale).lastIndexOf('@mixin press-scale'));
-    expect(press.match(/@include press-scale\(\$scale\);/g)).toHaveLength(2);
+    expect(press.match(/@include press-scale\(\$scale\);/g)).toHaveLength(3);
     expect(read('base.scss')).toMatch(/-webkit-tap-highlight-color: transparent;/);
   });
 
@@ -140,7 +140,6 @@ describe('touch rules in the stylesheets', () => {
 
   it.each([
     ['button', '../lib/button/button.component.scss', true],
-    ['segment', '../lib/segmented/segmented.component.scss', true],
     ['row menu', '../lib/row-menu/row-menu.component.scss', true],
     ['filter chip', 'base.scss', true],
     ['option row', '_option-menu.scss', true],
@@ -150,6 +149,29 @@ describe('touch rules in the stylesheets', () => {
     expect(scss).toMatch(/@use '(\.\.\/\.\.\/styles\/)?press';/);
     expect(scss).toMatch(/@include press\.press(\(\$scale: row\))?;/);
     if (chrome) expect(scss).toContain('@include press.chrome-text;');
+  });
+
+  it('tints a pressed segment and shrinks the whole control, because the control clips it', () => {
+    const scss = read('../lib/segmented/segmented.component.scss');
+    expect(scss).toMatch(/\.seg \{[^}]*transition: scale var\(--motion-xs\) var\(--ease-standard\);\s*@include press\.press-part\('\.seg__opt'\);/);
+    expect(scss).not.toMatch(/@include press\.press;/);
+    expect(scss).toContain('@include press.chrome-text;');
+    const press = read('_press.scss');
+    expect(press).toMatch(/@mixin press-part\(\$part, \$scale: row\) \{\s*&:has\(#\{\$part\}:active/);
+  });
+
+  it.each([
+    ['option menu', '_option-menu.scss', /@mixin menu\(\$padding: 6px,/],
+    ['row menu', '../lib/row-menu/row-menu.component.scss', /\.rm__menu \{[^}]*padding: 6px;/],
+  ])('insets the rows of the %s, so a pressed row is a rounded tile', (_name, path, padding) => {
+    expect(read(path)).toMatch(padding);
+  });
+
+  it.each([
+    ['option row', '_option-menu.scss', /@mixin option \{[^}]*border-radius: var\(--radius-md\);/],
+    ['menu row', '../lib/row-menu/row-menu.component.scss', /\.rm__item \{[^}]*border-radius: var\(--radius-md\);/],
+  ])('rounds the %s inside the menu', (_name, path, radius) => {
+    expect(read(path)).toMatch(radius);
   });
 
   it('shrinks a pressed tab without a tint, because the line under it is its only state', () => {
