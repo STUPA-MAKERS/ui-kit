@@ -175,7 +175,7 @@ export class SideSheetComponent {
     // where a release closes. A drag back above it and down again ticks again.
     const past = distance > SWIPE_CLOSE_PX;
     if (past && !this.drag.past) haptic('tick');
-    this.drag.past = past;
+    this.drag = { ...this.drag, past };
   }
 
   /** End a swipe: a long or quick way down closes the sheet, else it snaps back. */

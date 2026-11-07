@@ -438,7 +438,15 @@ npm ci
 npm run build   # ng-packagr → dist/ (Angular Package Format, incl. the markdown-editor and pwa secondary entries)
 npm test        # jest + @testing-library/angular + axe
 npm run lint
+npm run lint:functional   # the functional-style warnings, capped at their current count
 ```
+
+ESLint warns on mutation, `let` and loops in the library code (`eslint-plugin-functional`,
+`prefer-const`, `no-param-reassign`, `switch-exhaustiveness-check`; tests excepted). The
+warnings are not errors, but `lint:functional` fails when their number grows above the cap
+in `package.json`. When a change lowers the number, lower the cap in the same change.
+`assertNever`, `toggled` and `withEntry` (`src/lib/util/immutable.ts`) close an exhaustive
+`switch` and build a new set or map instead of changing one in place.
 
 ## License
 

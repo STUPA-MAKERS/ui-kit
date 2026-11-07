@@ -2,8 +2,8 @@ import { Directive, TemplateRef, inject, input } from '@angular/core';
 
 /** The context of a page template: the id of its tab, and whether it is the active one. */
 export interface TabPageContext {
-  $implicit: string;
-  active: boolean;
+  readonly $implicit: string;
+  readonly active: boolean;
 }
 
 /**

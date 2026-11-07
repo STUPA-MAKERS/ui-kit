@@ -35,10 +35,9 @@ export function motionReduced(): boolean {
  * itself, for example the swipe back of the card drawer of a to-do board.
  */
 export function modalOpen(doc: Document = document, inside: Element | null = null): boolean {
-  for (const layer of Array.from(doc.querySelectorAll('[aria-modal="true"], dialog[open]'))) {
-    if (!inside || !layer.contains(inside)) return true;
-  }
-  return false;
+  return Array.from(doc.querySelectorAll('[aria-modal="true"], dialog[open]')).some(
+    (layer) => !inside || !layer.contains(inside),
+  );
 }
 
 /**
@@ -54,11 +53,11 @@ export function motionMs(el: Element, token: string, fallback: number): number {
 
 /** The first background colour that is not transparent, from `el` up to the root. */
 export function opaqueBackground(el: Element | null): string {
-  for (let node = el; node; node = node.parentElement) {
-    const bg = getComputedStyle(node).backgroundColor;
-    if (bg && bg !== 'transparent' && !/^rgba\(.*,\s*0\)$/.test(bg)) return bg;
-  }
-  return 'var(--color-bg)';
+  if (!el) return 'var(--color-bg)';
+  const bg = getComputedStyle(el).backgroundColor;
+  return bg && bg !== 'transparent' && !/^rgba\(.*,\s*0\)$/.test(bg)
+    ? bg
+    : opaqueBackground(el.parentElement);
 }
 
 /** A gesture marked the navigation that starts now. */
@@ -85,8 +84,8 @@ export function takeGestureNavigation(now = Date.now()): boolean {
 
 /** One sample of a moving finger. */
 interface Sample {
-  x: number;
-  t: number;
+  readonly x: number;
+  readonly t: number;
 }
 
 /**
@@ -94,11 +93,13 @@ interface Sample {
  * the recent samples, so the speed at the release counts, not the mean of the whole move.
  */
 export class VelocityTracker {
-  private samples: Sample[] = [];
+  private samples: readonly Sample[] = [];
 
   add(x: number, t: number): void {
-    this.samples.push({ x, t });
-    while (this.samples.length > 2 && t - this.samples[0].t > 100) this.samples.shift();
+    const all = [...this.samples, { x, t }];
+    // The oldest samples drop while more than two are left and they are older than 100 ms.
+    const keep = all.findIndex((s, i) => all.length - i <= 2 || t - s.t <= 100);
+    this.samples = all.slice(keep);
   }
 
   velocity(): number {

@@ -49,8 +49,8 @@ export class BadgeComponent {
 
 /** The text colour of a configured status colour in the light and in the dark theme. */
 export interface StatusTextColors {
-  light: string;
-  dark: string;
+  readonly light: string;
+  readonly dark: string;
 }
 
 /**
@@ -82,27 +82,27 @@ export function statusTextColors(hex?: string | null): StatusTextColors | null {
   };
 }
 
-type Rgb = [number, number, number];
+type Rgb = readonly [number, number, number];
 
 function readableOn(rgb: Rgb, towards: Rgb, surfaces: readonly string[]): Rgb {
   const backs = surfaces.map((s) => parseHex(s) as Rgb);
-  for (let step = 0; step <= 20; step++) {
-    const t = step / 20;
-    const c = rgb.map((v, i) => Math.round(v + (towards[i] - v) * t)) as Rgb;
-    if (backs.every((b) => contrast(c, b) >= AA_TEXT)) return c;
-  }
-  return towards;
+  const steps = Array.from({ length: 21 }, (_, step) => step / 20);
+  const mixes = steps.map(
+    (t) => rgb.map((v, i) => Math.round(v + (towards[i] - v) * t)) as unknown as Rgb,
+  );
+  return mixes.find((c) => backs.every((b) => contrast(c, b) >= AA_TEXT)) ?? towards;
 }
 
 function parseHex(hex?: string | null): Rgb | null {
   if (!hex) return null;
-  let h = hex.trim().replace(/^#/, '');
-  if (h.length === 3) {
-    h = h
-      .split('')
-      .map((c) => c + c)
-      .join('');
-  }
+  const trimmed = hex.trim().replace(/^#/, '');
+  const h =
+    trimmed.length === 3
+      ? trimmed
+          .split('')
+          .map((c) => c + c)
+          .join('')
+      : trimmed;
   if (!/^[0-9a-fA-F]{6}$/.test(h)) return null;
   return [parseInt(h.slice(0, 2), 16), parseInt(h.slice(2, 4), 16), parseInt(h.slice(4, 6), 16)];
 }

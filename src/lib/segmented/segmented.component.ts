@@ -12,20 +12,20 @@ import { NG_VALUE_ACCESSOR, type ControlValueAccessor } from '@angular/forms';
 
 /** One option of a segmented control. */
 export interface SegmentedOption {
-  value: string;
-  label: string;
+  readonly value: string;
+  readonly label: string;
   /** A disabled option cannot be chosen: a click and the arrow keys skip it. */
-  disabled?: boolean;
+  readonly disabled?: boolean;
   /**
    * A tooltip (the native `title`), for example the reason why the option is disabled.
    * It does not change the accessible name, which stays the label.
    */
-  title?: string;
+  readonly title?: string;
   /**
    * A count after the label, in a lighter weight (for example the number of invoices in
    * a segment of a list). The screen reader reads it as part of the name.
    */
-  count?: number | string | null;
+  readonly count?: number | string | null;
 }
 
 /**
@@ -111,25 +111,8 @@ export class SegmentedComponent implements ControlValueAccessor {
 
   onKeydown(event: KeyboardEvent, index: number): void {
     const opts = this.options();
-    let next = -1;
-    switch (event.key) {
-      case 'ArrowRight':
-      case 'ArrowDown':
-        next = this.step(index, 1);
-        break;
-      case 'ArrowLeft':
-      case 'ArrowUp':
-        next = this.step(index, -1);
-        break;
-      case 'Home':
-        next = this.step(-1, 1);
-        break;
-      case 'End':
-        next = this.step(opts.length, -1);
-        break;
-      default:
-        return;
-    }
+    const next = this.keyTarget(event.key, index);
+    if (next === null) return;
     event.preventDefault();
     if (next < 0) return;
     this.select(opts[next]);
@@ -140,11 +123,26 @@ export class SegmentedComponent implements ControlValueAccessor {
   private step(from: number, dir: 1 | -1): number {
     const opts = this.options();
     const n = opts.length;
-    for (let i = 1; i <= n; i++) {
-      const idx = (((from + dir * i) % n) + n) % n;
-      if (!opts[idx].disabled) return idx;
+    const ring = Array.from({ length: n }, (_, i) => (((from + dir * (i + 1)) % n) + n) % n);
+    return ring.find((idx) => !opts[idx].disabled) ?? -1;
+  }
+
+  /** The index a key moves to (-1 when no option is enabled), or null for another key. */
+  private keyTarget(key: string, index: number): number | null {
+    switch (key) {
+      case 'ArrowRight':
+      case 'ArrowDown':
+        return this.step(index, 1);
+      case 'ArrowLeft':
+      case 'ArrowUp':
+        return this.step(index, -1);
+      case 'Home':
+        return this.step(-1, 1);
+      case 'End':
+        return this.step(this.options().length, -1);
+      default:
+        return null;
     }
-    return -1;
   }
 
   writeValue(value: string | null): void {

@@ -9,6 +9,7 @@ import {
   input,
   signal,
 } from '@angular/core';
+import { ancestors, nextSiblings } from '../util/dom-walk';
 
 /**
  * A bar that never scrolls away: the search field of a list page and its filter chips.
@@ -231,13 +232,12 @@ export class StickyBarComponent {
 export function paneRows(bar: HTMLElement): HTMLElement | null {
   if (!bar.classList.contains('ld-pane__filters')) return null;
   if (!bar.parentElement?.classList.contains('ld-pane')) return null;
-  for (let n = bar.nextElementSibling; n; n = n.nextElementSibling) {
-    if (!(n instanceof HTMLElement)) continue;
-    // Our own mark sets no overflow, so a former scroll container is read afresh.
-    const y = getComputedStyle(n).overflowY;
-    if (y === 'auto' || y === 'scroll') return n;
-  }
-  return null;
+  // Our own mark sets no overflow, so a former scroll container is read afresh.
+  return (
+    nextSiblings(bar)
+      .filter((n): n is HTMLElement => n instanceof HTMLElement)
+      .find((n) => scrollsY(n)) ?? null
+  );
 }
 
 /**
@@ -267,9 +267,13 @@ export function watchSiblings(bar: HTMLElement, changed: () => void): MutationOb
 
 /** The nearest ancestor that scrolls vertically, or null when the window scrolls. */
 export function scrollParent(el: HTMLElement): HTMLElement | null {
-  for (let p = el.parentElement; p && p !== document.body; p = p.parentElement) {
-    const y = getComputedStyle(p).overflowY;
-    if (y === 'auto' || y === 'scroll') return p;
-  }
-  return null;
+  const chain = ancestors(el);
+  const body = chain.indexOf(document.body);
+  return (body < 0 ? chain : chain.slice(0, body)).find((p) => scrollsY(p)) ?? null;
+}
+
+/** The element scrolls vertically by its own overflow. */
+function scrollsY(el: HTMLElement): boolean {
+  const y = getComputedStyle(el).overflowY;
+  return y === 'auto' || y === 'scroll';
 }

@@ -33,33 +33,33 @@ import { SideSheetComponent } from '../side-sheet/side-sheet.component';
 
 /** A plain choice: a value and its label. Every option list of the kit takes it. */
 export interface SelectOption {
-  value: string;
-  label: string;
-  disabled?: boolean;
+  readonly value: string;
+  readonly label: string;
+  readonly disabled?: boolean;
 }
 
 /** One choice of {@link SelectFieldComponent}. */
 export interface SelectFieldOption extends SelectOption {
   /** The heading of the group. Consecutive options with the same group form one group. */
-  group?: string;
+  readonly group?: string;
   /** The avatar in front of the label, in a list of persons (an assignee select). */
-  person?: AvatarPerson | null;
+  readonly person?: AvatarPerson | null;
 }
 
 /** One row of the list: an option, or the placeholder row that clears the value. */
 interface Row {
-  value: string;
-  label: string;
-  disabled: boolean;
-  placeholder: boolean;
-  index: number;
-  person: AvatarPerson | null;
+  readonly value: string;
+  readonly label: string;
+  readonly disabled: boolean;
+  readonly placeholder: boolean;
+  readonly index: number;
+  readonly person: AvatarPerson | null;
 }
 
 /** Consecutive rows with the same group (or none). */
 interface Section {
-  group: string | null;
-  rows: Row[];
+  readonly group: string | null;
+  readonly rows: readonly Row[];
 }
 
 let nextId = 0;
@@ -144,36 +144,33 @@ export class SelectFieldComponent implements ControlValueAccessor {
   protected readonly listId = computed(() => `${this.id()}-list`);
   protected readonly labelId = computed(() => `${this.id()}-label`);
 
-  protected readonly rows = computed<Row[]>(() => {
-    const rows: Row[] = [];
+  protected readonly rows = computed<readonly Row[]>(() => {
     const text = this.placeholder();
-    if (text && this.clearable() && !this.required()) {
-      rows.push({ value: '', label: text, disabled: false, placeholder: true, index: 0, person: null });
-    }
-    for (const opt of this.options()) {
-      rows.push({
-        value: opt.value,
-        label: opt.label,
-        disabled: !!opt.disabled,
-        placeholder: false,
-        index: rows.length,
-        person: opt.person ?? null,
-      });
-    }
-    return rows;
+    const clear: readonly Row[] =
+      text && this.clearable() && !this.required()
+        ? [{ value: '', label: text, disabled: false, placeholder: true, index: 0, person: null }]
+        : [];
+    const options = this.options().map((opt, i) => ({
+      value: opt.value,
+      label: opt.label,
+      disabled: !!opt.disabled,
+      placeholder: false,
+      index: clear.length + i,
+      person: opt.person ?? null,
+    }));
+    return [...clear, ...options];
   });
 
-  protected readonly sections = computed<Section[]>(() => {
+  protected readonly sections = computed<readonly Section[]>(() => {
     const groups = this.options().map((o) => o.group ?? null);
     const offset = this.rows().length - groups.length;
-    const sections: Section[] = [];
-    this.rows().forEach((row, i) => {
+    return this.rows().reduce<readonly Section[]>((sections, row, i) => {
       const group = i < offset ? null : groups[i - offset];
-      const last = sections[sections.length - 1];
-      if (last && last.group === group) last.rows.push(row);
-      else sections.push({ group, rows: [row] });
-    });
-    return sections;
+      const last = sections.at(-1);
+      return last && last.group === group
+        ? [...sections.slice(0, -1), { group, rows: [...last.rows, row] }]
+        : [...sections, { group, rows: [row] }];
+    }, []);
   });
 
   /** The option of the current value, if there is one. */
@@ -403,11 +400,14 @@ export class SelectFieldComponent implements ControlValueAccessor {
    */
   private step(from: number, dir: 1 | -1, inclusive = false): number {
     const rows = this.rows();
-    for (let i = inclusive ? from : from + dir; i >= 0 && i < rows.length; i += dir) {
-      if (!rows[i].disabled) return i;
-    }
-    if (inclusive) return this.step(from, dir === 1 ? -1 : 1);
-    return from >= 0 && from < rows.length ? from : -1;
+    const inRange = (i: number): boolean => i >= 0 && i < rows.length;
+    const first = inclusive ? from : from + dir;
+    const path = inRange(first)
+      ? Array.from({ length: rows.length }, (_, n) => first + n * dir).filter(inRange)
+      : [];
+    const hit = path.find((i) => !rows[i].disabled);
+    const stay = inRange(from) ? from : -1;
+    return hit ?? (inclusive ? this.step(from, dir === 1 ? -1 : 1) : stay);
   }
 
   /** The row that opens active: the chosen one (or the placeholder row), else the first enabled one. */
@@ -431,13 +431,13 @@ export class SelectFieldComponent implements ControlValueAccessor {
     const search = cycle ? needle[0] : needle;
     const rows = this.rows();
     const start = cycle || needle.length === 1 ? index + 1 : Math.max(index, 0);
-    for (let n = 0; n < rows.length; n++) {
-      const row = rows[(start + n) % rows.length];
-      if (!row.disabled && !row.placeholder && row.label.toLocaleLowerCase().startsWith(search)) {
-        return row.index;
-      }
-    }
-    return -1;
+    const hit = rows
+      .map((_row, n) => rows[(start + n) % rows.length])
+      .find(
+        (row) =>
+          !row.disabled && !row.placeholder && row.label.toLocaleLowerCase().startsWith(search),
+      );
+    return hit ? hit.index : -1;
   }
 
   private moveTo(index: number): void {

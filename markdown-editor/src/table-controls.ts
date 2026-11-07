@@ -11,29 +11,29 @@ import { TableMap, isInTable, selectedRect } from '@tiptap/pm/tables';
  */
 export interface TableControls {
   /** The top edge of the table. */
-  top: number;
+  readonly top: number;
   /** The bottom edge of the table. */
-  bottom: number;
+  readonly bottom: number;
   /** The start edge of the table. */
-  left: number;
+  readonly left: number;
   /**
    * The visible part of the table from start to end. A wide table scrolls sideways in its
    * wrapper, so the bars cover only what shows.
    */
-  visibleLeft: number;
-  visibleRight: number;
+  readonly visibleLeft: number;
+  readonly visibleRight: number;
   /** The centre of the cursor's column, or `null` while it is scrolled out of view. */
-  colX: number | null;
+  readonly colX: number | null;
   /** The centre of the cursor's row. */
-  rowY: number;
+  readonly rowY: number;
 }
 
 /** The table at the cursor: its position, its map and the cell of the cursor. */
 interface TableAt {
-  tableStart: number;
-  map: TableMap;
-  row: number;
-  col: number;
+  readonly tableStart: number;
+  readonly map: TableMap;
+  readonly row: number;
+  readonly col: number;
 }
 
 function tableAt(state: EditorState): TableAt | null {

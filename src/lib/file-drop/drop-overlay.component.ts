@@ -11,10 +11,10 @@ import { IconComponent } from '../icon/icon.component';
 
 /** Where the overlay sits on the screen, in px. */
 interface Box {
-  top: number;
-  left: number;
-  width: number;
-  height: number;
+  readonly top: number;
+  readonly left: number;
+  readonly width: number;
+  readonly height: number;
 }
 
 /**

@@ -57,8 +57,8 @@ const FORMATS: readonly MarkdownFormat[] = ['heading', 'bold', 'italic', 'bullet
 
 /** An image that an upload stored: its canonical path and its alt text. */
 export interface MarkdownImageRef {
-  src: string;
-  alt: string;
+  readonly src: string;
+  readonly alt: string;
 }
 
 /**
@@ -79,10 +79,10 @@ export type MarkdownTableCommand =
 
 /** One item of a table menu: its command, its text and its icon. */
 interface TableMenuItem {
-  id: MarkdownTableCommand;
-  label: UiKitTextKey;
-  icon: RowMenuItem['icon'];
-  danger?: boolean;
+  readonly id: MarkdownTableCommand;
+  readonly label: UiKitTextKey;
+  readonly icon: RowMenuItem['icon'];
+  readonly danger?: boolean;
 }
 
 const COLUMN_ITEMS: readonly TableMenuItem[] = [
@@ -109,12 +109,12 @@ function isSafeHref(href: string): boolean {
 }
 
 /** The image files of a paste or a drop. Other files are ignored. */
-function imageFiles(list: FileList | null | undefined): File[] {
+function imageFiles(list: FileList | null | undefined): readonly File[] {
   return Array.from(list ?? []).filter((f) => IMAGE_UPLOAD_TYPES.includes(f.type));
 }
 
 /** The node or mark name and the attributes that `isActive` checks for a format. */
-const ACTIVE_CHECK: Record<MarkdownFormat, { name: string; attrs?: Record<string, unknown> }> = {
+const ACTIVE_CHECK: Record<MarkdownFormat, { readonly name: string; readonly attrs?: Record<string, unknown> }> = {
   heading: { name: 'heading', attrs: { level: 2 } },
   bold: { name: 'bold' },
   italic: { name: 'italic' },

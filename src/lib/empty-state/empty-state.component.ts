@@ -2,7 +2,7 @@ import { booleanAttribute, ChangeDetectionStrategy, Component, computed, input, 
 import { IconComponent, type IconName } from '../icon/icon.component';
 
 /** Bar widths in percent of the ghost rows, title and sub line. Uneven, so they read as text. */
-const GHOST_ROWS: readonly { title: number; sub: number }[] = [
+const GHOST_ROWS: readonly { readonly title: number; readonly sub: number }[] = [
   { title: 62, sub: 34 },
   { title: 48, sub: 28 },
   { title: 70, sub: 40 },

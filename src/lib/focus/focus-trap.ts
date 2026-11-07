@@ -9,20 +9,20 @@ export const FOCUSABLE_SELECTOR = [
 ].join(',');
 
 /** The elements in `root` that take the focus with the Tab key, in document order. */
-export function focusableIn(root: ParentNode, selector = FOCUSABLE_SELECTOR): HTMLElement[] {
+export function focusableIn(root: ParentNode, selector = FOCUSABLE_SELECTOR): readonly HTMLElement[] {
   return Array.from(root.querySelectorAll<HTMLElement>(selector));
 }
 
 export interface TrapTabOptions {
   /** The elements in the cycle. Default: `focusableIn(root)`. */
-  items?: HTMLElement[];
+  readonly items?: readonly HTMLElement[];
   /**
    * A Tab from an element outside `items` (the root itself after the open, for example)
    * wraps like one from an edge. Default: only the root counts, and only for Shift+Tab.
    */
-  outsideWraps?: boolean;
+  readonly outsideWraps?: boolean;
   /** With no element in the cycle, the root takes the focus. Default true. */
-  focusRootWhenEmpty?: boolean;
+  readonly focusRootWhenEmpty?: boolean;
 }
 
 /**

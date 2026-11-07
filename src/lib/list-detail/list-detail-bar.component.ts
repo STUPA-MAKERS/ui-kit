@@ -14,6 +14,7 @@ import {
 import { NgTemplateOutlet } from '@angular/common';
 import { IconComponent } from '../icon/icon.component';
 import { UiKitTranslatePipe } from '../intl/translate.pipe';
+import { ancestors } from '../util/dom-walk';
 import { ListDetailNav } from './list-detail-nav';
 
 /**
@@ -100,11 +101,8 @@ export class ListDetailBarComponent {
 
 /** The document or an element around `el` has scrolled away from its top. */
 function scrolledAround(el: HTMLElement): boolean {
-  if ((document.scrollingElement?.scrollTop ?? window.scrollY) > 0) return true;
-  for (let p = el.parentElement; p; p = p.parentElement) {
-    if (p.scrollTop > 0) return true;
-  }
-  return false;
+  const page = document.scrollingElement?.scrollTop ?? window.scrollY;
+  return page > 0 || ancestors(el).some((p) => p.scrollTop > 0);
 }
 
 /**

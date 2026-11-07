@@ -170,25 +170,17 @@ export class ShellComponent {
    * the root and inside a route component, where its own route has no active child yet.
    */
   private readRoute(): void {
-    let r: ActivatedRouteSnapshot | null = this.router.routerState.snapshot.root;
-    let wide = false;
-    let fab = false;
-    let footer = false;
-    let fill = false;
-    let chrome = true;
-    while (r) {
-      const data = r.data;
-      wide = data['wide'] === true || wide;
-      fab = data['fab'] === true || fab;
-      footer = data['footer'] === true || footer;
-      fill = data['fill'] === true || fill;
-      if (data['chrome'] === false) chrome = false;
-      r = r.firstChild;
-    }
-    this.wide.set(wide);
-    this.fab.set(fab);
-    this.footerRoute.set(footer);
-    this.fillRoute.set(fill);
-    this.chrome.set(chrome);
+    const chain = routeChain(this.router.routerState.snapshot.root);
+    const flag = (key: string, value: boolean): boolean => chain.some((r) => r.data[key] === value);
+    this.wide.set(flag('wide', true));
+    this.fab.set(flag('fab', true));
+    this.footerRoute.set(flag('footer', true));
+    this.fillRoute.set(flag('fill', true));
+    this.chrome.set(!flag('chrome', false));
   }
+}
+
+/** The route snapshots from `route` down to the leaf, along the first child. */
+function routeChain(route: ActivatedRouteSnapshot | null): readonly ActivatedRouteSnapshot[] {
+  return route ? [route, ...routeChain(route.firstChild)] : [];
 }

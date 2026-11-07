@@ -6,7 +6,7 @@ export function reducedMotion(): boolean {
   return matchesMedia(MEDIA.reducedMotion);
 }
 
-type TransitionDocument = Document & { startViewTransition?: (update: () => void) => unknown };
+type TransitionDocument = Document & { readonly startViewTransition?: (update: () => void) => unknown };
 
 /**
  * Run a change of the whole page (for example the theme) as one cross-fade, so the

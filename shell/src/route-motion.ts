@@ -8,7 +8,7 @@ import {
 } from '@angular/router';
 import { MEDIA, matchesMedia, reducedMotion, takeGestureNavigation } from '@stupa-makers/ui-kit';
 
-type NavigateEvent = Event & { hasUAVisualTransition?: boolean };
+type NavigateEvent = Event & { readonly hasUAVisualTransition?: boolean };
 type NavigationApi = EventTarget;
 
 /** A back or forward gesture that the browser animated counts for this long, in ms. */
@@ -52,10 +52,8 @@ function takeUATransition(): boolean {
 export type RouteMotion = 'section' | 'push' | 'pop' | 'none';
 
 /** The path segments of a route tree, from the root to the leaf. */
-export function routePath(snapshot: ActivatedRouteSnapshot | null): string[] {
-  const out: string[] = [];
-  for (let s = snapshot; s; s = s.firstChild) out.push(...s.url.map((u) => u.path));
-  return out;
+export function routePath(snapshot: ActivatedRouteSnapshot | null): readonly string[] {
+  return snapshot ? [...snapshot.url.map((u) => u.path), ...routePath(snapshot.firstChild)] : [];
 }
 
 function startsWith(long: readonly string[], short: readonly string[]): boolean {

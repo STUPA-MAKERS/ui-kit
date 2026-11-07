@@ -11,9 +11,21 @@ const TRAILING = /(?:[.,;:!?)\]]|&gt;|&quot;|&#39;)$/;
 
 /** Cut the punctuation that follows a URL in a sentence. */
 function trimUrl(url: string): string {
-  let out = url;
-  while (TRAILING.test(out)) out = out.replace(TRAILING, '');
-  return out;
+  return TRAILING.test(url) ? trimUrl(url.replace(TRAILING, '')) : url;
+}
+
+/** The change of the link and code depth that a tag makes: +1 opens, -1 closes. */
+function depthStep(tag: string): number {
+  return /^<(a|code|pre)\b/.test(tag) ? 1 : /^<\/(a|code|pre)>/.test(tag) ? -1 : 0;
+}
+
+/** Link the bare URLs of one text part. */
+function linkText(text: string): string {
+  return text.replace(URL_RE, (match) => {
+    const url = trimUrl(match);
+    const rest = match.slice(url.length);
+    return `<a href="${url}" target="_blank" rel="noopener noreferrer">${url}</a>${rest}`;
+  });
 }
 
 /**
@@ -21,21 +33,11 @@ function trimUrl(url: string): string {
  * element stays as it is. The link shows the whole URL; it is never shortened.
  */
 export function linkify(html: string): string {
-  let depth = 0;
-  return html
-    .split(/(<[^>]+>)/)
-    .map((part) => {
-      if (part.startsWith('<')) {
-        if (/^<(a|code|pre)\b/.test(part)) depth++;
-        else if (/^<\/(a|code|pre)>/.test(part)) depth--;
-        return part;
-      }
-      if (depth > 0) return part;
-      return part.replace(URL_RE, (match) => {
-        const url = trimUrl(match);
-        const rest = match.slice(url.length);
-        return `<a href="${url}" target="_blank" rel="noopener noreferrer">${url}</a>${rest}`;
-      });
-    })
-    .join('');
+  return html.split(/(<[^>]+>)/).reduce(
+    (acc, part) =>
+      part.startsWith('<')
+        ? { depth: acc.depth + depthStep(part), out: acc.out + part }
+        : { depth: acc.depth, out: acc.out + (acc.depth > 0 ? part : linkText(part)) },
+    { depth: 0, out: '' },
+  ).out;
 }

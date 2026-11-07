@@ -22,15 +22,16 @@ import {
   signal,
 } from '@angular/core';
 import { UiKitTranslatePipe } from '../intl/translate.pipe';
+import { toggled } from '../util/immutable';
 import { CellDirective } from './cell.directive';
 import { FootCellDirective } from './foot-cell.directive';
 import { RowDetailDirective } from './row-detail.directive';
 
 /** Column definition of the {@link DataTableComponent}. */
 export interface ColumnDef {
-  key: string;
-  label: string;
-  align?: 'start' | 'end';
+  readonly key: string;
+  readonly label: string;
+  readonly align?: 'start' | 'end';
   /**
    * Wie breit die Spalte sein soll, als UNTERGRENZE statt als Vorschlag.
    *
@@ -40,7 +41,7 @@ export interface ColumnDef {
    * bleibt die Breite stehen und die Tabelle scrollt stattdessen — wofür die
    * Aktionsspalte `sticky: 'end'` bekommt.
    */
-  width?: string;
+  readonly width?: string;
   /**
    * What this column becomes when the table stacks into cards below the mobile
    * breakpoint.
@@ -64,15 +65,15 @@ export interface ColumnDef {
    * column becomes the heading. With `selectable`, the checkbox always sits in the card
    * header before the heading.
    */
-  card?: 'title' | 'row' | 'actions' | 'hidden';
+  readonly card?: 'title' | 'row' | 'actions' | 'hidden';
   /** Renders the header as a sort control and emits `sortChange` on click. */
-  sortable?: boolean;
+  readonly sortable?: boolean;
   /**
    * Direction a FIRST click on this column asks for. Defaults to ascending, which is
    * what a name or a key wants; a date or an amount usually wants the largest first,
    * so those columns set `desc`.
    */
-  initialSort?: 'asc' | 'desc';
+  readonly initialSort?: 'asc' | 'desc';
   /**
    * Pins the column to the trailing edge while the table scrolls sideways.
    *
@@ -84,13 +85,13 @@ export interface ColumnDef {
    * Pin ONE column at most, and pin it last: two pinned columns would overlap, because
    * each one is offset from the same edge.
    */
-  sticky?: 'end';
+  readonly sticky?: 'end';
 }
 
 /** Which column a table is sorted by, and in which direction. */
 export interface SortState {
-  key: string;
-  direction: 'asc' | 'desc';
+  readonly key: string;
+  readonly direction: 'asc' | 'desc';
 }
 
 /** How many skeleton rows to draw while loading, when the caller gives no hint. */
@@ -241,7 +242,7 @@ export class DataTableComponent
   protected readonly held = signal<-1 | 0 | 1>(0);
   private holdTimer?: ReturnType<typeof setTimeout>;
   private holdTick?: ReturnType<typeof setInterval>;
-  private readonly teardown: (() => void)[] = [];
+  private teardown: readonly (() => void)[] = [];
 
   /** Long-press state. `pressSelected` swallows the click a completed press produces. */
   private pressTimer?: ReturnType<typeof setTimeout>;
@@ -324,11 +325,7 @@ export class DataTableComponent
   }
 
   protected toggleRow(row: unknown, index: number): void {
-    const next = new Set(this.selected);
-    const key = this.trackRow(row, index);
-    if (next.has(key)) next.delete(key);
-    else next.add(key);
-    this.selectedChange.emit(next);
+    this.selectedChange.emit(new Set(toggled(this.selected, this.trackRow(row, index))));
   }
 
   /** Select-all applies to the rows ON SCREEN, which is what the checkbox sits above. */
@@ -474,20 +471,16 @@ export class DataTableComponent
   private occluded(scroll: HTMLElement, cut: number): { start: boolean; end: boolean } {
     const rect = scroll.getBoundingClientRect();
     const startEdge = rect.left + this.stickyStartWidth(scroll);
-    let firstLeft = Number.POSITIVE_INFINITY;
-    let lastRight = Number.NEGATIVE_INFINITY;
-    for (const cell of Array.from(scroll.querySelectorAll('thead th'))) {
-      // A pinned cell never leaves the box, so it can never say something is hidden.
-      if (
-        cell.classList.contains('dt__cell--stickyEnd') ||
-        cell.classList.contains('dt__cell--stickyStart')
-      ) {
-        continue;
-      }
-      const r = cell.getBoundingClientRect();
-      if (r.left < firstLeft) firstLeft = r.left;
-      if (r.right > lastRight) lastRight = r.right;
-    }
+    // A pinned cell never leaves the box, so it can never say something is hidden.
+    const boxes = Array.from(scroll.querySelectorAll('thead th'))
+      .filter(
+        (cell) =>
+          !cell.classList.contains('dt__cell--stickyEnd') &&
+          !cell.classList.contains('dt__cell--stickyStart'),
+      )
+      .map((cell) => cell.getBoundingClientRect());
+    const firstLeft = Math.min(Number.POSITIVE_INFINITY, ...boxes.map((r) => r.left));
+    const lastRight = Math.max(Number.NEGATIVE_INFINITY, ...boxes.map((r) => r.right));
     return { start: firstLeft < startEdge - EDGE_SLACK, end: lastRight > cut + EDGE_SLACK };
   }
 
@@ -555,17 +548,13 @@ export class DataTableComponent
       return;
     }
     const edge = scroll.getBoundingClientRect().left + this.stickyStartWidth(scroll);
-    const cells = scroll.querySelectorAll('thead th');
-    for (let i = 0; i < cells.length; i++) {
-      // The leading pin sits at that edge by definition; anchoring to it never moves.
-      if (cells[i].classList.contains('dt__cell--stickyStart')) continue;
-      const box = cells[i].getBoundingClientRect();
-      if (box.right > edge + EDGE_SLACK) {
-        this.anchor = { index: i, cut: Math.round(edge - box.left) };
-        return;
-      }
-    }
-    this.anchor = null;
+    // The leading pin sits at that edge by definition; anchoring to it never moves.
+    const boxes = Array.from(scroll.querySelectorAll('thead th')).map((cell) =>
+      cell.classList.contains('dt__cell--stickyStart') ? null : cell.getBoundingClientRect(),
+    );
+    const i = boxes.findIndex((box) => box !== null && box.right > edge + EDGE_SLACK);
+    const box = boxes[i];
+    this.anchor = box ? { index: i, cut: Math.round(edge - box.left) } : null;
   }
 
   /**
@@ -650,16 +639,19 @@ export class DataTableComponent
       const resync = (): void => this.onScroll();
       window.addEventListener('scroll', resync, { passive: true });
       window.addEventListener('resize', resync);
-      this.teardown.push(() => {
-        window.removeEventListener('scroll', resync);
-        window.removeEventListener('resize', resync);
-      });
+      this.teardown = [
+        ...this.teardown,
+        () => {
+          window.removeEventListener('scroll', resync);
+          window.removeEventListener('resize', resync);
+        },
+      ];
       // The width all of this depends on changes without anyone scrolling: a cell
       // template arrives, a sidebar opens, the font loads.
       if (typeof ResizeObserver !== 'undefined' && this.scroller) {
         const ro = new ResizeObserver(resync);
         ro.observe(this.scroller.nativeElement);
-        this.teardown.push(() => ro.disconnect());
+        this.teardown = [...this.teardown, () => ro.disconnect()];
       }
     });
   }

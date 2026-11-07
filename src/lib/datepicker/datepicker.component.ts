@@ -135,11 +135,11 @@ export class DatepickerComponent implements ControlValueAccessor {
     const parts = text.trim().split(/[./\-\s]+/).filter(Boolean);
     if (parts.length !== 3) return '';
     const [day, month, y] = parts;
-    let yyyy = Number(y);
+    const year = Number(y);
     const dd = Number(day);
     const mm = Number(month);
-    if (!dd || !mm || !yyyy) return '';
-    if (yyyy < 100) yyyy += 2000;
+    if (!dd || !mm || !year) return '';
+    const yyyy = year < 100 ? year + 2000 : year;
     if (mm < 1 || mm > 12 || dd < 1 || dd > 31) return '';
     const iso = `${String(yyyy).padStart(4, '0')}-${String(mm).padStart(2, '0')}-${String(dd).padStart(2, '0')}`;
     const dt = new Date(iso + 'T00:00:00');

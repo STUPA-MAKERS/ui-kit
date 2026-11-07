@@ -300,14 +300,14 @@ function interpolate(text: string, params?: Record<string, string | number>): st
 
 export interface UiKitIntlOptions {
   /** External language signal (e.g. the host app's locale). Omit for an internal, settable one. */
-  lang?: Signal<UiLang>;
+  readonly lang?: Signal<UiLang>;
   /**
    * External format-locale signal (e.g. the host app's `Intl` tag). Omit to map the
    * language through {@link UI_KIT_FORMAT_LOCALES}.
    */
-  formatLocale?: Signal<string>;
+  readonly formatLocale?: Signal<string>;
   /** Partial message overrides merged over the built-in DE/EN catalogue. */
-  messages?: Partial<Record<UiLang, Partial<UiKitMessages>>>;
+  readonly messages?: Partial<Record<UiLang, Partial<UiKitMessages>>>;
 }
 
 /**
@@ -370,12 +370,12 @@ export interface UiKitOptions extends UiKitIntlOptions {
    * texts, so it can `inject()` the i18n service of the app, and the order of the providers
    * does not matter.
    */
-  intl?: UiKitIntl | (() => UiKitIntl);
+  readonly intl?: UiKitIntl | (() => UiKitIntl);
   /**
    * The settings of the `ThemeService`: the storage key of the preference, the manifest
    * URL per theme and the page background per theme. Omit a field to keep its default.
    */
-  theme?: UiKitThemeOptions;
+  readonly theme?: UiKitThemeOptions;
 }
 
 /**

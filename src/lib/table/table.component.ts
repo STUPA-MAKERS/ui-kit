@@ -1,9 +1,9 @@
 import { ChangeDetectionStrategy, Component, Input } from '@angular/core';
 
 export interface Column<T> {
-  key: keyof T & string;
-  label: string;
-  align?: 'start' | 'end';
+  readonly key: keyof T & string;
+  readonly label: string;
+  readonly align?: 'start' | 'end';
 }
 
 /** Schlanke, datengetriebene Tabelle. Für komplexe Fälle später erweiterbar. */

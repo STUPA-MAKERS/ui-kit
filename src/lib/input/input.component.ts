@@ -38,10 +38,8 @@ export class InputComponent implements ControlValueAccessor {
   onTouched: () => void = () => {};
 
   get describedBy(): string | null {
-    const ids: string[] = [];
-    if (this.suffix) ids.push(`${this.id}-suffix`);
-    if (this.error) ids.push(`${this.id}-error`);
-    else if (this.hint) ids.push(`${this.id}-hint`);
+    const message = this.error ? [`${this.id}-error`] : this.hint ? [`${this.id}-hint`] : [];
+    const ids = [...(this.suffix ? [`${this.id}-suffix`] : []), ...message];
     return ids.length ? ids.join(' ') : null;
   }
 

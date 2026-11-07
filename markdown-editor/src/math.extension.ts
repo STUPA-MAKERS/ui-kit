@@ -17,24 +17,24 @@ interface MdToken {
   map: [number, number] | null;
 }
 interface MdInlineState {
-  src: string;
+  readonly src: string;
   pos: number;
-  posMax: number;
+  readonly posMax: number;
   push(type: string, tag: string, nesting: number): MdToken;
 }
 interface MdBlockState {
-  src: string;
-  bMarks: number[];
-  eMarks: number[];
-  tShift: number[];
+  readonly src: string;
+  readonly bMarks: readonly number[];
+  readonly eMarks: readonly number[];
+  readonly tShift: readonly number[];
   line: number;
   push(type: string, tag: string, nesting: number): MdToken;
 }
 interface MarkdownIt {
-  inline: { ruler: { after(name: string, rule: string, fn: (state: MdInlineState, silent: boolean) => boolean): void } };
-  block: { ruler: { before(name: string, rule: string, fn: (state: MdBlockState, start: number, end: number, silent: boolean) => boolean, options: { alt: string[] }): void } };
-  renderer: { rules: Record<string, (tokens: MdToken[], idx: number) => string> };
-  utils: { escapeHtml(text: string): string };
+  readonly inline: { readonly ruler: { after(name: string, rule: string, fn: (state: MdInlineState, silent: boolean) => boolean): void } };
+  readonly block: { readonly ruler: { before(name: string, rule: string, fn: (state: MdBlockState, start: number, end: number, silent: boolean) => boolean, options: { readonly alt: readonly string[] }): void } };
+  readonly renderer: { readonly rules: Record<string, (tokens: readonly MdToken[], idx: number) => string> };
+  readonly utils: { escapeHtml(text: string): string };
 }
 interface SerializerState {
   write(text: string): void;
@@ -42,6 +42,16 @@ interface SerializerState {
 }
 
 const DOLLAR = 0x24;
+
+/** The first `$` from `from` on that no backslash escapes, or -1 when none is before `max`. */
+function closingDollar(src: string, from: number, max: number): number {
+  const end = src.indexOf('$', from);
+  return end === -1 || end >= max
+    ? -1
+    : src[end - 1] === '\\'
+      ? closingDollar(src, end + 1, max)
+      : end;
+}
 
 /**
  * `$…$` on one line. The opening `$` is not followed by white space, the closing
@@ -56,18 +66,10 @@ function inlineMathRule(state: MdInlineState, silent: boolean): boolean {
   if (src.charCodeAt(start) !== DOLLAR || src.charCodeAt(start + 1) === DOLLAR) return false;
   const first = src[start + 1];
   if (first === undefined || /\s/.test(first)) return false;
-  let end = start + 1;
-  for (;;) {
-    end = src.indexOf('$', end);
-    if (end === -1 || end >= state.posMax) return false;
-    const before = src[end - 1];
-    if (before === '\\') {
-      end++;
-      continue;
-    }
-    if (before === undefined || /\s/.test(before)) return false;
-    break;
-  }
+  const end = closingDollar(src, start + 1, state.posMax);
+  if (end < 0) return false;
+  const before = src[end - 1];
+  if (before === undefined || /\s/.test(before)) return false;
   const latex = src.slice(start + 1, end);
   if (!latex.trim() || latex.includes('\n')) return false;
   const after = src[end + 1];
@@ -84,30 +86,28 @@ function lineOf(state: MdBlockState, line: number): string {
   return state.src.slice(state.bMarks[line] + state.tShift[line], state.eMarks[line]);
 }
 
+/** The first line from `from` on whose trimmed text ends in `$$`, or -1 before `end`. */
+function closingLine(state: MdBlockState, from: number, end: number): number {
+  const at = Array.from({ length: Math.max(0, end - from) }, (_, i) => from + i).find((line) =>
+    lineOf(state, line).trim().endsWith('$$'),
+  );
+  return at ?? -1;
+}
+
 /** `$$ … $$` on one line, or `$$` opening a block that a line ending in `$$` closes. */
 function blockMathRule(state: MdBlockState, startLine: number, endLine: number, silent: boolean): boolean {
   const first = lineOf(state, startLine).trim();
   if (!first.startsWith('$$')) return false;
-  let latex: string;
-  let next = startLine + 1;
-  if (first.length > 4 && first.endsWith('$$')) {
-    latex = first.slice(2, -2).trim();
-  } else {
-    const parts = [first.slice(2)];
-    let closed = false;
-    while (next < endLine) {
-      const line = lineOf(state, next).trim();
-      next++;
-      if (line.endsWith('$$')) {
-        parts.push(line.slice(0, -2));
-        closed = true;
-        break;
-      }
-      parts.push(line);
-    }
-    if (!closed) return false;
-    latex = parts.join('\n').trim();
-  }
+  const oneLine = first.length > 4 && first.endsWith('$$');
+  const closeAt = oneLine ? startLine : closingLine(state, startLine + 1, endLine);
+  if (closeAt < 0) return false;
+  const next = closeAt + 1;
+  const lines = Array.from({ length: Math.max(0, closeAt - startLine - 1) }, (_, i) =>
+    lineOf(state, startLine + 1 + i).trim(),
+  );
+  const latex = oneLine
+    ? first.slice(2, -2).trim()
+    : [first.slice(2), ...lines, lineOf(state, closeAt).trim().slice(0, -2)].join('\n').trim();
   if (!latex) return false;
   if (silent) return true;
   const token = state.push('math_block', 'div', 0);
