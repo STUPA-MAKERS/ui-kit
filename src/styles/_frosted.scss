@@ -153,8 +153,9 @@
    through it. The overlay is the text colour at a low share, so it lightens the glass of
    the dark theme and darkens that of the light theme, and the step from the glass stays
    the same in both. The levels keep their order (1 < 2 < 3 < 4), so a hover or a nested
-   surface still steps up. Put it on the wrappers inside the glass, never on the glass
-   element itself, because the glass reads its own colour from the same tokens. */
+   surface still steps up. Put it on the wrappers inside the glass. The glass itself reads
+   `--color-glass-1` or `--color-glass-2`, which this mixin never changes, so a dialog or a
+   sheet that opens inside the content keeps the tint of the first level. */
 @mixin glass-content {
   --color-bg-elevated: color-mix(in srgb, var(--color-text) 5%, transparent);
   --color-surface: color-mix(in srgb, var(--color-text) 5%, transparent);

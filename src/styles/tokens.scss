@@ -200,6 +200,11 @@
   // surface (`glass-content`) turns the surface tokens into overlays and never this one,
   // so a menu that opens from a dialog or a sheet stays as solid as one on the page.
   --color-pop: var(--c-light-c3);
+  // The glass of a dialog (1) and of a side or bottom sheet (2). `glass-content` never
+  // turns these into overlays either, so a sheet that opens from a dialog or another sheet
+  // has the same tint as one that opens from the page.
+  --color-glass-1: var(--c-light-c1);
+  --color-glass-2: var(--c-light-c2);
   // Dividers and decorative edges.
   --color-border: var(--c-light-olv);
   // Control edges (outlined button, segmented control, checkbox). At least 3:1 against
@@ -278,6 +283,8 @@
   --color-surface-3: var(--c-dark-c3);
   --color-surface-4: var(--c-dark-c4);
   --color-pop: var(--c-dark-c3);
+  --color-glass-1: var(--c-dark-c1);
+  --color-glass-2: var(--c-dark-c2);
   --color-border: var(--c-dark-olv);
   --color-border-strong: var(--c-dark-ol);
 

@@ -56,6 +56,24 @@ describe('design-system rules in the stylesheets', () => {
     expect(scss).not.toMatch(/border: var\(--border-width\) solid/);
   });
 
+  it('gives a dialog or a sheet over another one the tint of the first level', () => {
+    // A sheet inside a dialog body inherits `glass-content`, so the glass must read a
+    // token that the mixin does not change (spec 000532).
+    const content = block(read('_frosted.scss'), '@mixin glass-content {');
+    expect(content).not.toMatch(/--color-glass-/);
+    expect(content).not.toMatch(/--color-pop/);
+    const glass: [string, RegExp][] = [
+      ['../lib/dialog/dialog.component.scss', /frosted-pop\(var\(([^)]*)\)/g],
+      ['../lib/side-sheet/side-sheet.component.scss', /frosted-pop\(var\(([^)]*)\)/g],
+      ['../../shell/src/command-palette/command-palette.component.scss', /frosted-pop\(var\(([^)]*)\)/g],
+    ];
+    for (const [path, re] of glass) {
+      const tokens = [...read(path).matchAll(re)].map((m) => m[1]);
+      expect(tokens.length).toBeGreaterThan(0);
+      for (const t of tokens) expect(t).toMatch(/^--color-(glass-[12]|pop)$/);
+    }
+  });
+
   it('draws the danger button as an outline, never filled', () => {
     const danger = block(read('../lib/button/button.component.scss'), '.btn--danger {');
     expect(danger).toMatch(/background: transparent/);
