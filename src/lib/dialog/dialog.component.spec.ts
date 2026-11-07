@@ -255,34 +255,34 @@ describe('DialogComponent', () => {
   });
 
   it('locks body scroll while open and restores it on close', async () => {
-    document.body.style.overflow = 'scroll';
+    document.documentElement.style.overflow = 'scroll';
     const view = await render(`<app-dialog title="X" [open]="open">B</app-dialog>`, {
       imports: [DialogComponent],
       componentProperties: { open: false },
     });
-    expect(document.body.style.overflow).toBe('scroll');
+    expect(document.documentElement.style.overflow).toBe('scroll');
     view.rerender({ componentProperties: { open: true } });
-    expect(document.body.style.overflow).toBe('hidden');
+    expect(document.documentElement.style.overflow).toBe('hidden');
     view.rerender({ componentProperties: { open: false } });
-    expect(document.body.style.overflow).toBe('scroll');
-    document.body.style.overflow = '';
+    expect(document.documentElement.style.overflow).toBe('scroll');
+    document.documentElement.style.overflow = '';
   });
 
   it('locks scroll when initially opened (firstChange path)', async () => {
     await render(`<app-dialog title="X" [open]="true">B</app-dialog>`, {
       imports: [DialogComponent],
     });
-    expect(document.body.style.overflow).toBe('hidden');
-    document.body.style.overflow = '';
+    expect(document.documentElement.style.overflow).toBe('hidden');
+    document.documentElement.style.overflow = '';
   });
 
   it('unlocks body scroll when destroyed while open', async () => {
     const view = await render(`<app-dialog title="X" [open]="true">B</app-dialog>`, {
       imports: [DialogComponent],
     });
-    expect(document.body.style.overflow).toBe('hidden');
+    expect(document.documentElement.style.overflow).toBe('hidden');
     view.fixture.destroy();
-    expect(document.body.style.overflow).not.toBe('hidden');
+    expect(document.documentElement.style.overflow).not.toBe('hidden');
   });
 
   // jsdom assigns its own event.timeStamp, so velocity in onDragEnd cannot be

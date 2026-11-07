@@ -52,17 +52,23 @@ export function trapTab(event: KeyboardEvent, root: HTMLElement, options: TrapTa
 }
 
 /**
- * Stop the page behind an overlay from scrolling: `overflow: hidden` on the body. The
- * returned function gives the body its old value back; a second call does nothing.
+ * Stop the page behind an overlay from scrolling: `overflow: hidden` on the root element. The
+ * returned function gives the root its old value back; a second call does nothing.
+ *
+ * The lock sits on the root and not on the body, because the root always passes its overflow
+ * to the viewport. The phone sets `overflow-x: clip` on the root, and then the root no longer
+ * passes the value of the body on: `hidden` on the body makes the body a scroll container, a
+ * sticky page head sticks to the body, which does not scroll, and the head leaves the screen
+ * while a sheet is open (spec 000531).
  */
 export function lockBodyScroll(doc: Document = document): () => void {
-  const body = doc.body;
-  const before = body.style.overflow;
-  body.style.overflow = 'hidden';
+  const root = doc.documentElement;
+  const before = root.style.overflow;
+  root.style.overflow = 'hidden';
   let locked = true;
   return () => {
     if (!locked) return;
     locked = false;
-    body.style.overflow = before;
+    root.style.overflow = before;
   };
 }

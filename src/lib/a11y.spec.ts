@@ -369,7 +369,7 @@ describe('UI-Primitive a11y (axe)', () => {
     fixture.componentInstance.index = index;
     fixture.detectChanges();
     expect(await runAxe(container)).toHaveNoViolations();
-    document.body.style.overflow = '';
+    document.documentElement.style.overflow = '';
   });
 
   it('toast live-region has no axe violations', async () => {
