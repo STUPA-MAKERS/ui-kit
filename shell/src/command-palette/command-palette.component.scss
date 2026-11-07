@@ -27,7 +27,7 @@
   box-shadow: var(--shadow-elevated);
   /* Frosted glass like a dialog (`frosted-pop` with the same tint, blur and lift), and the
      field and rows on it are neutral overlays of the glass (`glass-content`). */
-  @include frosted-pop(var(--color-bg-elevated), 85%, 20px, 1.3);
+  @include frosted-pop(var(--color-glass-1), 85%, 20px, 1.3);
 }
 .pal__field,
 .pal__results,
