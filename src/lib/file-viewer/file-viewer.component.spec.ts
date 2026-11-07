@@ -74,7 +74,7 @@ describe('fileViewerKind', () => {
 
 describe('FileViewerComponent', () => {
   afterEach(() => {
-    document.body.style.overflow = '';
+    document.documentElement.style.overflow = '';
   });
 
   it('renders nothing while closed', async () => {
@@ -87,7 +87,7 @@ describe('FileViewerComponent', () => {
     expect(dialog()).toHaveAttribute('aria-modal', 'true');
     expect(dialog()).toHaveAccessibleName('logo.png');
     expect(screen.getByRole('heading', { level: 2, name: 'logo.png' })).toBeInTheDocument();
-    expect(document.body.style.overflow).toBe('hidden');
+    expect(document.documentElement.style.overflow).toBe('hidden');
     expect(screen.getByRole('button', { name: 'Vorschau schließen' })).toHaveFocus();
   });
 
@@ -104,7 +104,7 @@ describe('FileViewerComponent', () => {
     await fixture.whenStable();
     expect(host.open()).toBe(false);
     expect(host.closedCount).toBe(1);
-    expect(document.body.style.overflow).toBe('');
+    expect(document.documentElement.style.overflow).toBe('');
     expect(document.getElementById('trigger')).toHaveFocus();
   });
 

@@ -16,6 +16,7 @@ import {
   viewChild,
 } from '@angular/core';
 import { DomSanitizer, type SafeResourceUrl } from '@angular/platform-browser';
+import { lockBodyScroll } from '../focus/focus-trap';
 import { IconComponent } from '../icon/icon.component';
 import { UI_KIT_INTL } from '../intl/intl';
 import { UiKitTranslatePipe } from '../intl/translate.pipe';
@@ -146,7 +147,8 @@ export class FileViewerComponent implements OnDestroy {
   protected titleTooltip: string | null = null;
 
   private previouslyFocused: HTMLElement | null = null;
-  private prevBodyOverflow: string | null = null;
+  /** Gives the page its scroll back; null while the viewer does not hold the lock. */
+  private releaseScroll: (() => void) | null = null;
   private touchX = 0;
   private touchY = 0;
   private touching = false;
@@ -295,14 +297,12 @@ export class FileViewerComponent implements OnDestroy {
   }
 
   private lockScroll(): void {
-    if (this.prevBodyOverflow !== null || typeof document === 'undefined') return;
-    this.prevBodyOverflow = document.body.style.overflow;
-    document.body.style.overflow = 'hidden';
+    if (this.releaseScroll !== null || typeof document === 'undefined') return;
+    this.releaseScroll = lockBodyScroll();
   }
 
   private unlockScroll(): void {
-    if (this.prevBodyOverflow === null) return;
-    document.body.style.overflow = this.prevBodyOverflow;
-    this.prevBodyOverflow = null;
+    this.releaseScroll?.();
+    this.releaseScroll = null;
   }
 }

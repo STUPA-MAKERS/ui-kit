@@ -52,15 +52,16 @@ describe('trapTab', () => {
 });
 
 describe('lockBodyScroll', () => {
-  it('hides the body overflow and gives the old value back once', () => {
-    document.body.style.overflow = 'auto';
+  it('hides the root overflow, not the body, and gives the old value back once', () => {
+    document.documentElement.style.overflow = 'auto';
     const release = lockBodyScroll();
-    expect(document.body.style.overflow).toBe('hidden');
+    expect(document.documentElement.style.overflow).toBe('hidden');
+    expect(document.body.style.overflow).toBe('');
     release();
-    expect(document.body.style.overflow).toBe('auto');
-    document.body.style.overflow = 'scroll';
+    expect(document.documentElement.style.overflow).toBe('auto');
+    document.documentElement.style.overflow = 'scroll';
     release();
-    expect(document.body.style.overflow).toBe('scroll');
-    document.body.style.overflow = '';
+    expect(document.documentElement.style.overflow).toBe('scroll');
+    document.documentElement.style.overflow = '';
   });
 });

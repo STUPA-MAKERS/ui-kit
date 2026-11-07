@@ -51,7 +51,7 @@ const confirmButton = () => screen.getByRole('button', { name: 'Löschen' });
 
 describe('ConfirmDialogComponent', () => {
   afterEach(() => {
-    document.body.style.overflow = '';
+    document.documentElement.style.overflow = '';
   });
 
   it('shows the title, the text, "Abbrechen" and "Löschen" in the danger look', async () => {
