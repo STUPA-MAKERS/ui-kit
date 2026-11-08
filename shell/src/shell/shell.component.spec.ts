@@ -224,6 +224,35 @@ describe('ShellComponent', () => {
       );
     });
 
+    it('makes the skip link the first focusable element, and it focuses main without a navigation', async () => {
+      const { router } = await setup();
+      const navigate = jest.spyOn(router, 'navigateByUrl');
+      await userEvent.tab();
+      const skip = screen.getByRole('link', { name: 'Zum Inhalt springen' });
+      expect(skip).toHaveFocus();
+      await userEvent.keyboard('{Enter}');
+      expect(screen.getByRole('main')).toHaveFocus();
+      expect(router.url).toBe('/dashboard');
+      expect(navigate).not.toHaveBeenCalled();
+    });
+
+    it('gives the rail the banner landmark around the navigation', async () => {
+      await setup();
+      const banner = screen.getByRole('banner');
+      expect(banner.tagName).toBe('APP-NAV-RAIL');
+      expect(within(banner).getByRole('navigation')).toBeInTheDocument();
+    });
+
+    it('gives the phone bar the banner landmark', async () => {
+      const restore = phoneViewport();
+      try {
+        await setup();
+        expect(screen.getByRole('banner').tagName).toBe('APP-BOTTOM-BAR');
+      } finally {
+        restore();
+      }
+    });
+
     it('emits search from the rail', async () => {
       const { search } = await setup();
       await userEvent.click(

@@ -2,6 +2,7 @@ import { Component, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { fireEvent, render, screen } from '@testing-library/angular';
 import { TimeInputComponent } from './time-input.component';
+import { runAxe } from '../../../testing/a11y';
 
 @Component({
   standalone: true,
@@ -127,5 +128,19 @@ describe('TimeInputComponent (24h, #time-input)', () => {
     fireEvent.blur(input);
     expect(onChange).toHaveBeenCalledWith('07:45');
     expect(onTouched).toHaveBeenCalled();
+  });
+
+  /** § NF/accessibility/conformance/000493: empty, filled and after invalid text. */
+  it('has no axe violations in each state', async () => {
+    const view = await setup();
+    expect(await runAxe(view.container)).toHaveNoViolations();
+    const input = screen.getByLabelText('Zeit') as HTMLInputElement;
+    fireEvent.input(input, { target: { value: '25:00' } });
+    fireEvent.blur(input);
+    view.fixture.detectChanges();
+    expect(await runAxe(view.container)).toHaveNoViolations();
+    view.fixture.componentInstance.value.set('18:30');
+    view.fixture.detectChanges();
+    expect(await runAxe(view.container)).toHaveNoViolations();
   });
 });

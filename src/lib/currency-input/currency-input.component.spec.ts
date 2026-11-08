@@ -3,6 +3,7 @@ import { FormControl, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { fireEvent, render, screen } from '@testing-library/angular';
 import { DefaultUiKitIntl, UI_KIT_INTL, uiKitIntlFromLang } from '../intl/intl';
 import { CurrencyInputComponent } from './currency-input.component';
+import { runAxe } from '../../../testing/a11y';
 
 /** A UI_KIT_INTL provider pinned to a language, used to drive locale-dependent formatting. */
 function intlProvider(lang: 'de' | 'en') {
@@ -165,6 +166,15 @@ describe('CurrencyInputComponent', () => {
     expect(input).toHaveAttribute('aria-label', 'Betrag');
     expect(input).toHaveAttribute('name', 'amount');
     expect(input).toHaveAttribute('placeholder', '0,00');
+  });
+
+  /** § NF/accessibility/conformance/000492: the visible label points at the input. */
+  it('links the visible label to the input', async () => {
+    const { container } = await render(`<app-currency-input label="Betrag" />`, {
+      imports: [CurrencyInputComponent],
+    });
+    const label = container.querySelector('label') as HTMLLabelElement;
+    expect(label.htmlFor).toBe((container.querySelector('input') as HTMLInputElement).id);
   });
 
   it('disables the input via setDisabledState', async () => {
@@ -387,5 +397,15 @@ describe('CurrencyInputComponent (EN locale)', () => {
     const boxes = container.querySelectorAll('.cur');
     expect(boxes[0]).toHaveClass('cur--lg');
     expect(boxes[1]).not.toHaveClass('cur--lg');
+  });
+
+  /** § NF/accessibility/conformance/000493: labelled, with hint, with error, bare. */
+  it.each([
+    `<app-currency-input label="Betrag" hint="in Euro" [required]="true" />`,
+    `<app-currency-input label="Betrag" error="Pflicht" />`,
+    `<app-currency-input ariaLabel="Betrag" />`,
+  ])('has no axe violations: %s', async (tpl) => {
+    const { container } = await render(tpl, { imports: [CurrencyInputComponent] });
+    expect(await runAxe(container)).toHaveNoViolations();
   });
 });

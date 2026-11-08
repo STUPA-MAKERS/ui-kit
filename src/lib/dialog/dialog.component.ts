@@ -117,8 +117,9 @@ export class DialogComponent implements OnChanges, OnDestroy {
     if (pane) trapTab(event, pane);
   }
 
-  onBackdrop(_event: MouseEvent): void {
-    this.close();
+  /** A click on the backdrop itself closes the dialog; a click inside the pane does not. */
+  onBackdrop(event: MouseEvent): void {
+    if (event.target === event.currentTarget) this.close();
   }
 
   // --- Drag-to-dismiss (Mobile-Sheet, #14) -----------------------------------

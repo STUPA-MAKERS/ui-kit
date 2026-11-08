@@ -9,6 +9,7 @@ import {
   ListNoneComponent,
   type ListNoneData,
 } from './list-none.component';
+import { runAxe } from '../../../testing/a11y';
 
 const NONE: ListNoneData = {
   icon: 'file',
@@ -78,5 +79,16 @@ describe('ListNoneComponent', () => {
     );
     expect(screen.getByText('T:list.empty')).toBeInTheDocument();
     expect(screen.getByText('T:Noch nichts eingereicht.')).toBeInTheDocument();
+  });
+
+  /** § NF/accessibility/conformance/000493: loading, error, empty and pick. */
+  it.each([
+    [true, false, false],
+    [false, true, false],
+    [false, false, false],
+    [false, false, true],
+  ])('has no axe violations (loading %s, error %s, rows %s)', async (loading, error, rows) => {
+    const { container } = await setup(page(loading, error, rows));
+    expect(await runAxe(container)).toHaveNoViolations();
   });
 });
