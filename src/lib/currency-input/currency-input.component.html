@@ -7,7 +7,7 @@
     [class.cur--disabled]="disabled()"
   >
     @if (label()) {
-      <label class="cur__label">
+      <label class="cur__label" [for]="id">
         {{ label() }}
         @if (required()) {
           <span class="text-danger ms-[2px]" aria-hidden="true">*</span>
@@ -21,8 +21,11 @@
       [value]="text()"
       [disabled]="disabled()"
       [attr.placeholder]="placeholder()"
-      [attr.aria-label]="ariaLabel() || label() || null"
+      [id]="id"
+      [attr.aria-label]="ariaLabel() || null"
       [attr.aria-invalid]="shownError() ? 'true' : null"
+      [attr.aria-required]="required() ? 'true' : null"
+      [attr.aria-describedby]="shownError() ? id + '-error' : hint() ? id + '-hint' : null"
       [attr.name]="name() || null"
       (focus)="onFocus()"
       (input)="onInput($any($event.target).value)"
@@ -31,9 +34,9 @@
     <span class="cur__symbol" aria-hidden="true">€</span>
   </span>
   @if (hint() && !shownError()) {
-    <p class="cur__msg text-muted">{{ hint() }}</p>
+    <p class="cur__msg text-muted" [id]="id + '-hint'">{{ hint() }}</p>
   }
   @if (shownError(); as msg) {
-    <p class="cur__msg text-danger" role="alert">{{ msg }}</p>
+    <p class="cur__msg text-danger" [id]="id + '-error'" role="alert">{{ msg }}</p>
   }
 </div>

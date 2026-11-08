@@ -1,6 +1,7 @@
 import { render } from '@testing-library/angular';
 import { ConfigDiffComponent } from './config-diff.component';
 import type { ConfigDiffData } from './config-diff.types';
+import { runAxe } from '../../../testing/a11y';
 
 describe('ConfigDiffComponent', () => {
   it('renders a row per changed/added/removed field', async () => {
@@ -101,4 +102,18 @@ describe('ConfigDiffComponent', () => {
       expect(container.querySelector('.cfg-diff-code')).not.toBeNull();
     });
   });
+
+  /** § NF/accessibility/conformance/000493: list, compact and no changes. */
+  const axeDiff: ConfigDiffData = {
+    added: [{ key: 'field:new', value: 'X' }],
+    removed: [{ key: 'field:old', value: { a: 1 } }],
+    changed: [{ key: 'field:edit', old: 'A', new: 'B' }],
+  };
+  it.each([{ diff: axeDiff }, { diff: axeDiff, compact: true }, { diff: null }])(
+    'has no axe violations (%o)',
+    async (inputs) => {
+      const { container } = await render(ConfigDiffComponent, { inputs });
+      expect(await runAxe(container)).toHaveNoViolations();
+    },
+  );
 });

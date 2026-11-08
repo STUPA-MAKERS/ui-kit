@@ -1,9 +1,10 @@
-<div #stack class="toasts" popover="manual" aria-live="polite" aria-atomic="false">
+<div #stack class="toasts" popover="manual" aria-live="off">
   @for (toast of toastService.stackToasts(); track toast.id) {
     <div
       class="toast"
       [class]="'toast--' + toast.variant"
       role="status"
+      aria-live="off"
       animate.enter="toast--entering"
       animate.leave="toast--leaving"
     >

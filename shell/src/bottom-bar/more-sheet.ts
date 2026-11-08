@@ -12,7 +12,7 @@ export class ShellMoreSheet {
 
   /** Closes the "More" sheet of every bottom bar. */
   close(): void {
-    for (const close of this.closers) close();
+    this.closers.forEach((close) => close());
   }
 
   /** Called by the bottom bar. Returns the function that removes the closer. */

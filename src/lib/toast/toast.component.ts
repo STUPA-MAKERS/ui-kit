@@ -11,10 +11,14 @@ import { UiKitTranslatePipe } from '../intl/translate.pipe';
 import { ToastService } from './toast.service';
 
 /**
- * Toast-Container — einmal im Shell-Layout platziert. ARIA-Live-Region.
+ * Toast-Container — einmal im Shell-Layout platziert.
+ *
+ * The stack is no live region: `ToastService` reads each toast out once through the
+ * `Announcer` (spec 000517). A new toast closes and opens the stack popover to raise it,
+ * and a screen reader can drop a message of a region that leaves the page and comes back.
  *
  * A dialog opens in the top layer, so the stack is in the top layer too, from the first
- * render on (a hidden popover would hide the live region). A new toast raises the stack
+ * render on. A new toast raises the stack
  * above a dialog that opened after it, so a toast about a dialog shows above that dialog.
  * An empty stack has no size and takes no press.
  */

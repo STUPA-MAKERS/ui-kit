@@ -1,4 +1,5 @@
-import { Injectable, computed, signal } from '@angular/core';
+import { Injectable, computed, inject, signal } from '@angular/core';
+import { Announcer } from '../announce/announcer';
 import { MEDIA } from '../breakpoints/breakpoints';
 import { mediaQuery } from '../signals/media-query';
 import type { IconName } from '../icon/icons';
@@ -92,6 +93,10 @@ let nextId = 0;
 /** Globaler Toast-Hub. Komponenten rufen `show()`, der Container rendert. */
 @Injectable({ providedIn: 'root' })
 export class ToastService {
+  /** Every toast is read out once, through the live regions of the page (spec 000517). */
+  private readonly announcer = inject(Announcer);
+  private readonly say = (message: string, variant: ToastVariant): void =>
+    this.announcer.announce(message, variant === 'danger' ? 'assertive' : 'polite');
   private readonly _toasts = signal<Toast[]>([]);
   /** The close callbacks of the toasts with an action, by id. */
   private onClose: ReadonlyMap<number, (how: ToastClose) => void> = new Map();
@@ -123,6 +128,7 @@ export class ToastService {
   show(message: string, variant: ToastVariant = 'info', timeout = 4000): number {
     const id = nextId++;
     this._toasts.update((list) => [...list, { id, message, variant }]);
+    this.say(message, variant);
     if (timeout > 0) setTimeout(() => this.dismiss(id), timeout);
     return id;
   }
@@ -140,6 +146,7 @@ export class ToastService {
       ...list,
       { id, message, variant, action, actionIcon, closable, phonePlacement },
     ]);
+    this.say(action ? `${message} ${action}` : message, variant);
     if (timeout > 0) setTimeout(() => this.close(id, 'timeout'), timeout);
     return id;
   }
@@ -169,6 +176,7 @@ export class ToastService {
       ...list,
       { id, message, variant, icon, iconPosition, closable, phonePlacement, barTone },
     ]);
+    this.say(message, variant);
     return id;
   }
 

@@ -67,7 +67,10 @@
     [class.sel__option--active]="viaKeys() && row.index === active()"
     [attr.aria-selected]="isChosen(row)"
     [attr.aria-disabled]="row.disabled ? 'true' : null"
+    tabindex="-1"
+    (mousedown)="$event.preventDefault()"
     (click)="pick(row)"
+    (keydown.enter)="pick(row)"
     (pointermove)="hover(row)"
   >
     @if (row.person; as who) {

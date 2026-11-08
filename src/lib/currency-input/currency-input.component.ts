@@ -16,6 +16,8 @@ import {
 import { UI_KIT_INTL } from '../intl/intl';
 import { type MoneyParseResult, parseMoney, parseMoneyModel } from './parse-money';
 
+let nextId = 0;
+
 /**
  * Einheitliches Währungs-Eingabefeld. Überall gleiche Optik:
  * rechtsbündig, Tausender-Gruppierung + 2 Nachkommastellen, „€"-Suffix.
@@ -46,6 +48,8 @@ export class CurrencyInputComponent implements ControlValueAccessor, Validator {
   private readonly intl = inject(UI_KIT_INTL);
 
   readonly placeholder = input('');
+  /** The id of the field; the label, the hint and the error refer to it. */
+  protected readonly id = `app-currency-${nextId++}`;
   readonly ariaLabel = input('');
   readonly name = input('');
   /** Optionales Feld-Label; gesetzt → volle Feld-Optik (Label/Hint/Error),

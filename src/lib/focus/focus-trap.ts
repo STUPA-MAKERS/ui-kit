@@ -1,12 +1,18 @@
-/** The elements that take the focus with the Tab key. */
+/**
+ * The elements that take the focus with the Tab key. A control with `tabindex="-1"` (an
+ * option of a roving list, for example) is not a Tab stop, so it is not in the cycle: a
+ * trap that counts it as the last element lets the Tab from the real last stop leave.
+ */
 export const FOCUSABLE_SELECTOR = [
   'a[href]',
   'button:not([disabled])',
   'input:not([disabled])',
   'select:not([disabled])',
   'textarea:not([disabled])',
-  '[tabindex]:not([tabindex="-1"])',
-].join(',');
+  '[tabindex]',
+]
+  .map((selector) => `${selector}:not([tabindex="-1"])`)
+  .join(',');
 
 /** The elements in `root` that take the focus with the Tab key, in document order. */
 export function focusableIn(root: ParentNode, selector = FOCUSABLE_SELECTOR): readonly HTMLElement[] {

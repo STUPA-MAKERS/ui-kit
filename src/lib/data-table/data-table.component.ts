@@ -364,8 +364,13 @@ export class DataTableComponent
    *
    * Touch only: on a pointer device the checkbox is the way in, and a click that
    * sometimes opened and sometimes selected would be unpredictable.
+   *
+   * A click in the select cell never opens the row: a selectable table is often
+   * also clickable, and a checkbox that also opened the row would make the two
+   * impossible to tell apart.
    */
-  protected onRow(row: unknown, index: number): void {
+  protected onRow(row: unknown, index: number, event?: Event): void {
+    if ((event?.target as Element | null | undefined)?.closest?.('.dt__selectCell')) return;
     if (this.pressSelected) {
       // The long press already acted; swallow the click it produced.
       this.pressSelected = false;

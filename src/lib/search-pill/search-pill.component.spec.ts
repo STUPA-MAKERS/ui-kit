@@ -4,7 +4,8 @@ import { render, screen } from '@testing-library/angular';
 import userEvent from '@testing-library/user-event';
 import { DefaultUiKitIntl, UI_KIT_INTL } from '../intl/intl';
 import { runAxe } from '../../../testing/a11y';
-import { SearchPillComponent } from './search-pill.component';
+import { Announcer } from '../announce/announcer';
+import { SEARCH_RESULTS_SETTLE_MS, SearchPillComponent } from './search-pill.component';
 
 @Component({
   standalone: true,
@@ -169,5 +170,53 @@ describe('SearchPillComponent', () => {
       expect(container.querySelector('kbd')).toBeNull();
       expect(screen.getByRole('button')).not.toHaveAttribute('aria-keyshortcuts');
     });
+  });
+});
+
+@Component({
+  standalone: true,
+  imports: [SearchPillComponent],
+  template: `<app-search-pill placeholder="Suchen" [busy]="busy()" [results]="count()" [(value)]="query" />`,
+})
+class CountHostComponent {
+  readonly query = signal('');
+  readonly count = signal<number | null>(null);
+  readonly busy = signal(false);
+}
+
+describe('SearchPillComponent results', () => {
+  afterEach(() => jest.useRealTimers());
+
+  it('reads the count of hits once the typing settled, and not while a search runs (spec 000517)', async () => {
+    jest.useFakeTimers();
+    const view = await render(CountHostComponent);
+    const announce = jest.spyOn(TestBed.inject(Announcer), 'announce');
+    const host = view.fixture.componentInstance;
+    const settle = (): void => {
+      view.fixture.detectChanges();
+      jest.advanceTimersByTime(SEARCH_RESULTS_SETTLE_MS);
+    };
+    host.count.set(3);
+    settle();
+    expect(announce).not.toHaveBeenCalled();
+    host.query.set('ab');
+    host.busy.set(true);
+    settle();
+    expect(announce).not.toHaveBeenCalled();
+    host.busy.set(false);
+    settle();
+    expect(announce).toHaveBeenLastCalledWith('3 Treffer');
+    settle();
+    expect(announce).toHaveBeenCalledTimes(1);
+    host.count.set(1);
+    settle();
+    expect(announce).toHaveBeenLastCalledWith('1 Treffer');
+    host.count.set(0);
+    settle();
+    expect(announce).toHaveBeenLastCalledWith('Keine Treffer');
+    host.count.set(null);
+    host.query.set('abc');
+    settle();
+    expect(announce).toHaveBeenCalledTimes(3);
   });
 });
