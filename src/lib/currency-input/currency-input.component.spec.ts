@@ -167,6 +167,15 @@ describe('CurrencyInputComponent', () => {
     expect(input).toHaveAttribute('placeholder', '0,00');
   });
 
+  /** § NF/accessibility/conformance/000492: the visible label points at the input. */
+  it('links the visible label to the input', async () => {
+    const { container } = await render(`<app-currency-input label="Betrag" />`, {
+      imports: [CurrencyInputComponent],
+    });
+    const label = container.querySelector('label') as HTMLLabelElement;
+    expect(label.htmlFor).toBe((container.querySelector('input') as HTMLInputElement).id);
+  });
+
   it('disables the input via setDisabledState', async () => {
     const view = await render(`<app-currency-input ariaLabel="amount" />`, {
       imports: [CurrencyInputComponent],

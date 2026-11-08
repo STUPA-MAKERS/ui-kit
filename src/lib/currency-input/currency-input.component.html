@@ -7,7 +7,7 @@
     [class.cur--disabled]="disabled()"
   >
     @if (label()) {
-      <label class="cur__label">
+      <label class="cur__label" [for]="inputId">
         {{ label() }}
         @if (required()) {
           <span class="text-danger ms-[2px]" aria-hidden="true">*</span>
@@ -17,6 +17,7 @@
     <input
       class="cur__input"
       type="text"
+      [id]="inputId"
       inputmode="decimal"
       [value]="text()"
       [disabled]="disabled()"

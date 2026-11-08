@@ -71,7 +71,7 @@
           </button>
         </div>
       }
-      <div class="more__slot" (click)="onSlotClick($event)">
+      <div class="more__slot" role="presentation" (click)="onSlotClick($event)">
         <ng-content select="[more]" />
       </div>
       <ng-content select="[moreAccount]" />

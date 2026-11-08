@@ -106,7 +106,7 @@
                          to tell apart. The label is the touch target: in a card it is
                          44px square around the box, and a tap on it must not open the
                          row either. -->
-                    <label class="dt__checkHit" (click)="$event.stopPropagation()">
+                    <label class="dt__checkHit" role="presentation" (click)="$event.stopPropagation()">
                       <input
                         type="checkbox"
                         class="dt__check"
