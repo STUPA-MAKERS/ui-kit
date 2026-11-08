@@ -2,6 +2,7 @@
   <div
     #backdrop
     class="dialog__backdrop"
+    role="presentation"
     popover="manual"
     animate.enter="dialog--entering"
     animate.leave="dialog--leaving"
@@ -17,7 +18,6 @@
       tabindex="-1"
       [attr.aria-labelledby]="titleId"
       [attr.aria-describedby]="subtitle ? subtitleId : null"
-      (click)="$event.stopPropagation()"
     >
       <!-- Mobile-Sheet: Greifleiste + Header sind die Drag-Zone zum
            Herunterwischen (Flick schließt). Auf Desktop ausgeblendet (#14). -->
