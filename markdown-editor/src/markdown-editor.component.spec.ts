@@ -2,6 +2,7 @@ import { Component, signal } from '@angular/core';
 import { render } from '@testing-library/angular';
 import { MarkdownEditorComponent } from './markdown-editor.component';
 import { parseElection, parsePoll, type VoteCalloutResolver } from './vote-callout.extension';
+import { runAxe } from '../../testing/a11y';
 
 @Component({
   standalone: true,
@@ -11,6 +12,7 @@ import { parseElection, parsePoll, type VoteCalloutResolver } from './vote-callo
     [docKey]="docKey()"
     [disabled]="disabled()"
     [placeholder]="placeholder()"
+    ariaLabel="Protokoll"
     (valueChange)="onChange($event)"
   />`,
 })
@@ -25,7 +27,7 @@ class Host {
   }
 }
 
-function editorEl(container: HTMLElement): HTMLElement {
+function editorEl(container: Element): HTMLElement {
   // Tiptap mounts a contenteditable ProseMirror node inside the host div.
   return container.querySelector('.ProseMirror') as HTMLElement;
 }
@@ -657,5 +659,26 @@ describe('MarkdownEditorComponent', () => {
       cmp as unknown as { toMarkdown: (e: unknown) => string }
     ).toMarkdown(fakeEditor);
     expect(md).toBe('**bold**');
+  });
+
+  /** § NF/accessibility/conformance/000493: empty, with content and disabled. */
+  it('has no axe violations in each state', async () => {
+    const view = await render(Host);
+    expect(await runAxe(view.container)).toHaveNoViolations();
+    expect(editorEl(view.container)).toHaveAttribute('role', 'textbox');
+    expect(editorEl(view.container)).toHaveAttribute('aria-label', 'Protokoll');
+    expect(editorEl(view.container)).toHaveAttribute('aria-multiline', 'true');
+    view.fixture.componentInstance.value.set('# Titel\n\n- a\n- b\n\n**fett**');
+    view.fixture.componentInstance.disabled.set(true);
+    view.fixture.detectChanges();
+    await view.fixture.whenStable();
+    expect(await runAxe(view.container)).toHaveNoViolations();
+    expect(editorEl(view.container)).not.toHaveAttribute('role');
+    expect(editorEl(view.container)).not.toHaveAttribute('aria-label');
+  });
+
+  it('has no aria-label without an ariaLabel', async () => {
+    const view = await render(`<app-markdown-editor value="x" />`, { imports: [MarkdownEditorComponent] });
+    expect(editorEl(view.container)).not.toHaveAttribute('aria-label');
   });
 });

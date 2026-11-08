@@ -122,6 +122,12 @@ const ACTIVE_CHECK: Record<MarkdownFormat, { readonly name: string; readonly att
   blockquote: { name: 'blockquote' },
 };
 
+/** Set an attribute, or remove it for `null`. */
+function setAttr(el: HTMLElement, name: string, value: string | null): void {
+  if (value === null) el.removeAttribute(name);
+  else el.setAttribute(name, value);
+}
+
 /**
  * WYSIWYG-Markdown-Editor (Tiptap) im Stil von Nextcloud Collectives: man tippt
  * Markdown-Kürzel (`# `, `- `, `**fett**`) und sieht **sofort** das gerenderte
@@ -171,6 +177,11 @@ export class MarkdownEditorComponent implements OnDestroy {
   readonly disabled = input<boolean>(false);
   /** Text of the empty document. */
   readonly placeholder = input<string>('');
+  /**
+   * The accessible name of the editable area. The area is a `role="textbox"`, so a
+   * screen reader needs a name for it (WCAG 4.1.2).
+   */
+  readonly ariaLabel = input<string>('');
   /**
    * Text of the empty last line of a document that has content. It shows where the
    * writing continues, the way Nextcloud Collectives does it. Empty means no hint.
@@ -304,6 +315,20 @@ export class MarkdownEditorComponent implements OnDestroy {
         this.emitting = false;
         this.ensureTrailingLine();
       }
+    });
+    // An editable editor is a multi-line `role="textbox"` with the accessible name. A
+    // read-only editor is plain content, as the Markdown view is, because a name or a
+    // textbox role on content that nobody can edit only confuses a screen reader.
+    // ProseMirror resets only the attributes it set itself, and this effect comes after
+    // the one that creates the editor and sets `editable`, so it has the last word.
+    effect(() => {
+      const label = this.ariaLabel();
+      const editable = !this.disabled();
+      const dom = this.editor?.view.dom;
+      if (!dom) return;
+      setAttr(dom, 'role', editable ? 'textbox' : null);
+      setAttr(dom, 'aria-multiline', editable ? 'true' : null);
+      setAttr(dom, 'aria-label', editable && label ? label : null);
     });
   }
 
