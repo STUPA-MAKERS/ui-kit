@@ -58,7 +58,8 @@ export class PageHeaderComponent {
   readonly subtitle = input<string | null>(null);
 
   /**
-   * A short fact about the page, such as a count ("8 open").
+   * A short fact about the page, such as a version ("Version 3"). It is never a count:
+   * a heading shows no counter (app spec 000560).
    *
    * The header shows it as muted text on the baseline of the title. Do not put such a
    * text into the `actions` slot: on a phone the slot moves next to or under the title

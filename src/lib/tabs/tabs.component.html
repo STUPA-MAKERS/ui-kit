@@ -14,10 +14,6 @@
       (keydown)="onKeydown($event, i)"
     >
       <span class="tabs__label">{{ tab.label }}</span>
-      @if (tab.count !== null && tab.count !== undefined) {
-        <!-- The space keeps the name "Label 3" from the text. The flex box does not show it. -->
-        &ngsp;<span class="tabs__count num">{{ tab.count }}</span>
-      }
     </button>
   }
 </div>

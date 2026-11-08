@@ -199,8 +199,8 @@ providers: [
 
 Buttons (fill / tonal / outlined / text / danger / fab, round icon buttons; the older names
 primary / secondary / ghost / danger-outline / success stay as aliases), inputs (text /
-select / checkbox / currency / time), switch, segmented control (auto, equal or filling
-segments, an optional count per segment), tabs, date picker & range,
+select / checkbox / currency / time), switch, segmented control (a pill track; auto, equal or
+filling segments), tabs, date picker & range,
 line icons (inline SVG), card, badge (tag or status text), stepper (horizontal, or vertical
 with a hint per step and done steps as buttons), dialog (title and an
 optional subtitle that names the object), table & sortable

@@ -4,16 +4,19 @@
   display: inline-flex;
   max-width: 100%;
 }
+/* The track: a pill in a faint tint of the text colour, so that it shows on every surface
+   (page, card, sheet) in both themes. It has no border and no dividers (app spec 000561). */
 .seg {
   display: inline-flex;
   align-items: stretch;
+  gap: 2px;
   max-width: 100%;
-  min-height: 36px;
-  border: var(--border-width) solid var(--color-border-strong);
-  border-radius: 18px;
-  overflow: hidden;
-  /* A press tints the segment and shrinks the whole control: the group clips its segments,
-     so a segment that shrinks alone leaves a gap at the border. */
+  min-height: 44px;
+  padding: 4px;
+  border-radius: var(--radius-pill);
+  background: color-mix(in srgb, var(--color-text) 7%, transparent);
+  /* A press tints the segment and shrinks the whole control: a segment that shrinks alone
+     moves its pill away from the track (app spec 000528). */
   transition: scale var(--motion-xs) var(--ease-standard);
   @include press.press-part('.seg__opt');
 }
@@ -21,31 +24,32 @@
   @include press.chrome-text;
   display: inline-flex;
   align-items: center;
-  gap: 6px;
+  justify-content: center;
   min-width: 0;
   padding: 0 var(--space-4);
   border: 0;
+  border-radius: var(--radius-pill);
   background: transparent;
-  color: var(--color-text);
+  color: var(--color-text-muted);
   font: inherit;
   font-size: 0.84375rem; /* 13.5px */
   font-weight: var(--fw-medium);
   cursor: pointer;
-  /* A new selection fades: the old segment loses its fill while the new one gains it. */
+  /* A new selection fades: the old pill loses its fill while the new one gains it. */
   transition:
     background-color var(--motion-base) var(--ease-standard),
     color var(--motion-base) var(--ease-standard);
 }
-.seg__opt + .seg__opt {
-  border-left: var(--border-width) solid var(--color-border-strong);
-}
 @media (hover: hover) {
   .seg__opt:hover:not(:disabled):not(.seg__opt--on) {
-    background: var(--color-surface-2);
+    background: color-mix(in srgb, var(--color-text) 6%, transparent);
+    color: var(--color-text);
   }
 }
+/* The chosen pill: the primary colour mixed into the surface, so that it stands out from
+   the track in both themes. The bold label marks it too, so the fill is not the only sign. */
 .seg__opt--on {
-  background: var(--color-selected);
+  background: color-mix(in srgb, var(--color-primary) 26%, var(--color-surface-1));
   color: var(--color-on-selected);
   font-weight: var(--fw-semibold);
 }
@@ -53,12 +57,8 @@
   opacity: 0.4;
   cursor: not-allowed;
 }
-/* The ring sits inside: the group clips its children to the rounded edge. */
 .seg__opt:focus-visible {
-  outline-offset: -3px;
-}
-.seg__check {
-  flex: none;
+  outline-offset: 1px;
 }
 /* A label that does not fit breaks onto a second line and the control grows, so a user
    text spacing (WCAG 1.4.12, app spec 000504) or a narrow screen cuts no text. */
@@ -81,17 +81,6 @@
   font-weight: var(--fw-semibold);
 }
 
-/* A count after the label: the same size, a lighter weight and colour. */
-.seg__count {
-  flex: none;
-  color: var(--color-text-muted);
-  font-weight: var(--fw-regular);
-  font-variant-numeric: tabular-nums;
-}
-.seg__opt--on .seg__count {
-  color: inherit;
-}
-
 /* `equal`: every segment as wide as the widest one. A grid with columns of `1fr` sizes
    all of them to the largest content. */
 :host(.seg-host--equal) .seg {
@@ -99,7 +88,8 @@
   grid-auto-columns: 1fr;
   grid-auto-flow: column;
 }
-/* `fill`: the control takes the width of its container; the segments share it. */
+/* `fill`: the control takes the width of its container; the segments share it. The pills
+   keep a small inset, so that four labels fit a phone width on one line. */
 :host(.seg-host--fill) {
   display: flex;
   width: 100%;
@@ -107,25 +97,16 @@
 :host(.seg-host--fill) .seg {
   display: grid;
   flex: 1 1 auto;
+  gap: 0;
   grid-auto-columns: minmax(0, 1fr);
   grid-auto-flow: column;
 }
-:host(.seg-host--equal) .seg__opt,
 :host(.seg-host--fill) .seg__opt {
-  justify-content: center;
+  padding-inline: 4px;
 }
 
 /* `size="control"`: as high as a medium button, so a header row has one height. */
 :host(.seg-host--control) .seg {
+  min-height: 0;
   height: var(--control-height);
-  border-radius: calc(var(--control-height) / 2);
-}
-
-/* A `control` switch keeps one width: a segment without the check mark adds the room
-   of the mark (14px) and its gap (6px) to its padding, half on each side. The label
-   moves when the mark appears, but the switch does not change its width, so the buttons
-   beside it do not move. */
-:host(.seg-host--control.seg-host--check:not(.seg-host--fill)) .seg__opt:not(.seg__opt--on) {
-  justify-content: center;
-  padding-inline: calc(var(--space-4) + 10px);
 }

@@ -10,16 +10,15 @@ import {
 
 let nextId = 0;
 
-/** One tab. `count` shows a number after the label, for example "Verlauf 4". */
+/** One tab. A tab shows only its label, never a count (app spec 000560). */
 export interface TabItem {
   readonly id: string;
   readonly label: string;
-  readonly count?: number | null;
   readonly disabled?: boolean;
 }
 
 /**
- * Tab bar of a page or a detail pane (Antrag | Verlauf 4 | Kommentare 2). It follows the
+ * Tab bar of a page or a detail pane (Antrag | Verlauf | Kommentare). It follows the
  * WAI-ARIA tabs pattern with automatic activation: one tab stop, the arrow keys move to
  * the next tab and select it, Home and End jump to the ends.
  *
