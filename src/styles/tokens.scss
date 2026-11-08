@@ -232,6 +232,8 @@
   --color-primary-active: var(--c-light-pt-active);
   --color-primary-subtle: var(--c-light-sel);
   --color-on-primary: var(--c-light-c1);
+  // The ring is the accent as text: the app moves that step to 4.5:1 on every surface of
+  // the theme, so the ring keeps 3:1 for any accent an admin picks (spec 000508).
   --color-focus-ring: var(--c-light-pt);
 
   --color-selected: var(--c-light-sel);
@@ -304,7 +306,9 @@
   --color-primary-active: var(--c-dark-pt-active);
   --color-primary-subtle: var(--c-dark-sel);
   --color-on-primary: var(--c-on-accent);
-  --color-focus-ring: var(--c-accent);
+  // The ring is the accent as text: the app moves that step to 4.5:1 on every surface of
+  // the theme, so the ring keeps 3:1 for any accent an admin picks (spec 000508).
+  --color-focus-ring: var(--c-dark-pt);
 
   --color-selected: var(--c-dark-sel);
   --color-on-selected: var(--c-dark-onsel);

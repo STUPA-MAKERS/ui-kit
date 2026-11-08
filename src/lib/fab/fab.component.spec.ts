@@ -37,6 +37,39 @@ describe('FabComponent', () => {
     expect(activate).toHaveBeenCalledTimes(2);
   });
 
+  it('takes the focus back when the page shows it again after its form', async () => {
+    const view = await setup(`@if (!formOpen) { <app-fab label="New booking" (activate)="formOpen = true" /> } <button>Other</button>`, {
+      formOpen: false,
+    });
+    await userEvent.click(screen.getByRole('button', { name: 'New booking' }));
+    view.fixture.detectChanges();
+    expect(screen.queryByRole('button', { name: 'New booking' })).toBeNull();
+    view.fixture.componentInstance.formOpen = false;
+    view.fixture.detectChanges();
+    await view.fixture.whenStable();
+    expect(screen.getByRole('button', { name: 'New booking' })).toHaveFocus();
+  });
+
+  it('takes no focus when it was not pressed, or when something else has the focus', async () => {
+    const view = await setup(`@if (!formOpen) { <app-fab label="New booking" /> } <button>Other</button>`, {
+      formOpen: false,
+    });
+    view.fixture.componentInstance.formOpen = true;
+    view.fixture.detectChanges();
+    view.fixture.componentInstance.formOpen = false;
+    view.fixture.detectChanges();
+    await view.fixture.whenStable();
+    expect(screen.getByRole('button', { name: 'New booking' })).not.toHaveFocus();
+    await userEvent.click(screen.getByRole('button', { name: 'New booking' }));
+    view.fixture.componentInstance.formOpen = true;
+    view.fixture.detectChanges();
+    screen.getByRole('button', { name: 'Other' }).focus();
+    view.fixture.componentInstance.formOpen = false;
+    view.fixture.detectChanges();
+    await view.fixture.whenStable();
+    expect(screen.getByRole('button', { name: 'Other' })).toHaveFocus();
+  });
+
   it('marks the contained mode on the host', async () => {
     const { container } = await setup(`<app-fab label="New meeting" [contained]="true" />`);
     expect(container.querySelector('app-fab')).toHaveClass('fab--contained');
