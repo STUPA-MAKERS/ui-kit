@@ -78,9 +78,9 @@ describe('PageHeaderComponent', () => {
   });
 
   it('shows the meta text in the title block, not in the actions slot', async () => {
-    const host = await setup({ meta: '8 open' });
+    const host = await setup({ meta: 'Version 3' });
     const meta = host.querySelector('.ph__heading .ph__meta');
-    expect(meta?.textContent).toBe('8 open');
+    expect(meta?.textContent).toBe('Version 3');
     expect(host.querySelector('.ph__actions .ph__meta')).toBeNull();
   });
 
