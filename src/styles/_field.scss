@@ -32,8 +32,12 @@
 }
 
 // The box with a label inside: taller, the label above the value.
+// The label takes a line of its own above the control (see `label`). A long label wraps
+// onto more lines and the box grows, so no text is cut (WCAG 1.4.12, app spec 000504).
 @mixin box-labelled {
   min-height: var(--field-height);
+  flex-wrap: wrap;
+  align-content: space-between;
 }
 
 // The box in an error state.
@@ -57,20 +61,22 @@
   }
 }
 
-// The label inside the box. Clicks pass through it to the control below.
+// The label inside the box: a line of its own above the control, 24px high for one line
+// of text. A long label wraps instead of being cut, and the box grows with it. A click on
+// it reaches the control through its `for`.
 @mixin label {
-  position: absolute;
-  top: 8px;
-  left: var(--space-4);
-  right: var(--space-4);
-  overflow: hidden;
+  position: relative;
+  flex: none;
+  box-sizing: border-box;
+  width: 100%;
+  min-width: 0;
+  padding: 8px var(--space-4) 0;
   font-size: 0.75rem;
   line-height: 1rem;
   font-weight: var(--fw-medium);
   color: var(--color-text-subtle);
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  pointer-events: none;
+  overflow-wrap: anywhere;
+  hyphens: auto;
 }
 
 // The label while the control has focus.
@@ -81,7 +87,9 @@
 // The native control inside the box: no surface, no edge, no own focus ring (the box
 // draws it).
 @mixin control {
-  flex: 1 1 auto;
+  // A zero basis keeps a symbol or a button on the line of the control in a labelled box,
+  // which wraps (see `box-labelled`).
+  flex: 1 1 0%;
   min-width: 0;
   width: 100%;
   height: var(--control-height);
@@ -128,9 +136,10 @@
 }
 
 // The control of a labelled box: the value sits below the label.
+// The label line above it is 24px high, so the value sits where it always did.
 @mixin control-labelled {
-  height: var(--field-height);
-  padding-top: 24px;
+  height: calc(var(--field-height) - 24px);
+  padding-top: 0;
   padding-bottom: 8px;
 }
 

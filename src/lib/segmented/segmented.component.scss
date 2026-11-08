@@ -65,6 +65,7 @@
 .seg__label {
   min-width: 0;
   overflow-wrap: anywhere;
+  hyphens: auto;
   text-align: center;
 }
 /* A hidden copy of the label in the weight of the chosen segment. The label is then as

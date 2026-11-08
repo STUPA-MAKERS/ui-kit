@@ -31,6 +31,7 @@
   .#{$b}__label {
     max-width: 88px;
     overflow-wrap: anywhere;
+    hyphens: auto;
     text-align: center;
   }
   .#{$b}__ind {

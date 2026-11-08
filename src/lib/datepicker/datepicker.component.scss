@@ -28,7 +28,7 @@
 }
 .dp__label {
   @include f.label;
-  right: 3rem;
+  padding-right: 3rem;
 }
 .dp__box:focus-within .dp__label {
   @include f.label-focus;
