@@ -221,14 +221,18 @@ body:has(app-tab-pager) app-list-detail-bar.ld__bar--condensed.ld__bar--condense
   }
 }
 
-// A group head right under the head of the column carries the tint of the whole head
-// (`ListGroupComponent`), so the glass of the column keeps only its blur, without tint and
-// without saturation: one tint layer, saturated once, and no line where the head of the
-// column ends.
+// A group head right under the head of the column carries the glass of the whole head
+// (`ListGroupComponent`): one tint layer, saturated once. The glass of the column lies on
+// top of it and keeps only a light blur, without tint and without saturation. A full blur
+// there blurs the glass of the head a second time: the head of the column then shows a
+// line where it ends, and its sides lose the turn into the page colour, because the blur
+// pulls the glass over them. The light blur stays because the classes follow the scroll
+// late: for a frame the head of the column can lack the glass of the group head, and no
+// row may show sharp through it then.
 @supports (backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px)) {
   .ld-pane--glass:has(.lg__head--under)::before {
     background: none;
-    -webkit-backdrop-filter: blur(10px);
-    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(2px);
+    backdrop-filter: blur(2px);
   }
 }
