@@ -50,10 +50,12 @@
     [class.am__trigger--on]="open()"
     [attr.aria-expanded]="open()"
     [attr.aria-controls]="open() ? panelId : null"
-    [attr.aria-label]="'account.open' | uiKitT: { name: name() }"
     [title]="'account.open' | uiKitT: { name: name() }"
     (click)="toggle()"
   >
+    <!-- The name is text, not aria-label: the initials of the avatar are visible text,
+         and an aria-label without them breaks WCAG 2.5.3 (label in name). -->
+    <span class="sr-only">{{ 'account.open' | uiKitT: { name: name() } }}</span>
     <app-avatar [name]="name()" [principalId]="avatarId()" [decorative]="true" />
   </button>
   @if (open()) {
