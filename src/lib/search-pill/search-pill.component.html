@@ -3,12 +3,18 @@
     <button
       type="button"
       class="sp__field sp__button"
-      [attr.aria-label]="name()"
       [attr.aria-keyshortcuts]="keys()"
       (click)="activate.emit()"
     >
+      <!-- The name comes from the text, so it holds the visible placeholder (WCAG 2.5.3);
+           the shortcut is in aria-keyshortcuts. -->
       <app-icon class="sp__icon" name="search" [size]="20" />
       <span class="sp__ph">{{ placeholder() }}</span>
+      @if (label(); as extra) {
+        @if (extra !== placeholder()) {
+          <span class="sr-only">{{ extra }}</span>
+        }
+      }
       @if (shortcut()) {
         <kbd class="kbd sp__kbd" aria-hidden="true">{{ keyLabel() }}</kbd>
       }

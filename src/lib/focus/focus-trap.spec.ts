@@ -22,6 +22,14 @@ describe('trapTab', () => {
     expect(document.activeElement?.id).toBe('b');
   });
 
+  it('leaves a control with tabindex -1 out of the cycle', () => {
+    const root = setup('<button id="a">A</button><button id="b">B</button><button id="c" tabindex="-1">C</button>');
+    expect(focusableIn(root).map((el) => el.id)).toEqual(['a', 'b']);
+    document.getElementById('b')!.focus();
+    expect(tab(root).defaultPrevented).toBe(true);
+    expect(document.activeElement?.id).toBe('a');
+  });
+
   it('lets a Tab inside the cycle pass, and ignores other keys', () => {
     const root = setup('<button id="a">A</button><button id="b">B</button>');
     document.getElementById('a')!.focus();

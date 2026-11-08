@@ -1,6 +1,7 @@
 import {
   ChangeDetectionStrategy,
   Component,
+  DestroyRef,
   ElementRef,
   Injector,
   afterNextRender,
@@ -16,6 +17,7 @@ import {
 import { BREAKPOINTS, MEDIA } from '../breakpoints/breakpoints';
 import { mediaQuery } from '../signals/media-query';
 import { observeElementSize } from '../signals/element-size';
+import { RouteFocus } from '../focus/route-focus';
 import { ListDetailNav } from './list-detail-nav';
 import { ListDetailBarComponent } from './list-detail-bar.component';
 import { SwipeBackDirective } from '../swipe-back/swipe-back.directive';
@@ -56,10 +58,13 @@ export const LIST_DETAIL_SPLIT_MIN = BREAKPOINTS.wideMin - NAV_RAIL_WIDTH - 2 * 
  * sheet has scrolled under the bar, and the actions of the sheet bar of the detail
  * (`ListDetailNav`). The list stays in the DOM while hidden, so it keeps its scroll position.
  *
- * Focus in the one-view layout: when a row opens, the list hides, so the layout moves the
- * focus to the back arrow. When the detail closes, the focus goes back to the element in the
- * list that had it (normally the row), if that element is still in the DOM, else to the
- * list itself. A keyboard or screen-reader user so stays at the same place in the list.
+ * Focus: while a row is open, the detail pane is the scope of {@link RouteFocus}, so after
+ * the navigation the focus goes to the heading of the detail, in both layouts. In the
+ * one-view layout the list hides when a row opens, so the layout first puts the focus on
+ * the detail pane, which holds it until the heading shows. When the detail closes, the
+ * focus goes back to the element in the list that had it (normally the row), if that
+ * element is still in the DOM, else to the list itself, and `RouteFocus` holds back. A
+ * keyboard or screen-reader user so stays at the same place in the list.
  *
  * Swipe back (a phone with a touch screen, one view at a time, a detail open): a swipe from
  * the left screen edge moves the detail with the finger, and the list comes out under it
@@ -94,8 +99,8 @@ export class ListDetailLayoutComponent {
   readonly detailOpen = input(false);
   /**
    * Show the bar with "Zur Liste" above the detail in the one-view layout. A detail with
-   * its own way back (the phone header of a vote) turns it off; the focus then goes to the
-   * detail, and its sheet bar keeps its actions.
+   * its own way back (the phone header of a vote) turns it off, and its sheet bar keeps
+   * its actions.
    */
   readonly backButton = input(true);
   /** The content width from which the panes sit side by side. */
@@ -111,7 +116,6 @@ export class ListDetailLayoutComponent {
 
   private readonly listPane = viewChild.required<ElementRef<HTMLElement>>('listPane');
   private readonly detailPane = viewChild.required<ElementRef<HTMLElement>>('detailPane');
-  private readonly bar = viewChild(ListDetailBarComponent);
   /** The element in the list that had the focus when the detail opened. */
   private returnFocus: HTMLElement | null = null;
 
@@ -167,6 +171,11 @@ export class ListDetailLayoutComponent {
    */
   private manageFocus(): void {
     const injector = inject(Injector);
+    const routeFocus = inject(RouteFocus);
+    const scope = (): HTMLElement | null =>
+      this.detailOpen() ? this.detailPane().nativeElement : null;
+    routeFocus.setScope(scope);
+    inject(DestroyRef).onDestroy(() => routeFocus.releaseScope(scope));
     let wasOpen: boolean | null = null;
     effect(() => {
       const open = this.detailOpen();
@@ -184,15 +193,14 @@ export class ListDetailLayoutComponent {
               : null;
           afterNextRender(
             () => {
-              if (this.returnFocus !== null || focusIsLost(null)) {
-                const bar = this.bar();
-                if (bar) bar.focus();
-                else this.detailPane().nativeElement.focus();
+              if (focusIsLost(this.listPane().nativeElement)) {
+                this.detailPane().nativeElement.focus();
               }
             },
             { injector },
           );
         } else {
+          routeFocus.hold();
           afterNextRender(
             () => {
               const target = this.returnFocus;

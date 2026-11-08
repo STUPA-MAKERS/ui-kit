@@ -9,14 +9,14 @@
       [attr.aria-selected]="tab.id === current()"
       [attr.aria-controls]="panelId(tab.id)"
       [attr.tabindex]="tab.id === current() ? 0 : -1"
-      [attr.aria-label]="accessibleName(tab)"
       [disabled]="!!tab.disabled"
       (click)="select(tab)"
       (keydown)="onKeydown($event, i)"
     >
       <span class="tabs__label">{{ tab.label }}</span>
       @if (tab.count !== null && tab.count !== undefined) {
-        <span class="tabs__count num">{{ tab.count }}</span>
+        <!-- The space keeps the name "Label 3" from the text. The flex box does not show it. -->
+        &ngsp;<span class="tabs__count num">{{ tab.count }}</span>
       }
     </button>
   }

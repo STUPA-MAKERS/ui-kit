@@ -21,6 +21,7 @@ import { anchorOutOfView, placeBelow, showInTopLayer, watchAnchoredPopover } fro
 import { ButtonComponent } from '../button/button.component';
 import { CurrencyInputComponent } from '../currency-input/currency-input.component';
 import { DatepickerComponent } from '../datepicker/datepicker.component';
+import { FocusDialogDirective } from '../focus/focus-dialog.directive';
 import { IconComponent } from '../icon/icon.component';
 import { MEDIA } from '../breakpoints/breakpoints';
 import { mediaQuery } from '../signals/media-query';
@@ -59,6 +60,7 @@ export interface RangeValue {
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
+    FocusDialogDirective,
     TruncatedDirective,
     ButtonComponent,
     CurrencyInputComponent,

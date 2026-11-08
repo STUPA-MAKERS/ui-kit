@@ -3,6 +3,7 @@ import { join } from 'node:path';
 import { Component, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { SheetBarComponent, SheetBarKickerDirective, SheetBarTitleDirective } from './sheet-bar.component';
+import { runAxe } from '../../../testing/a11y';
 
 @Component({
   standalone: true,
@@ -135,5 +136,15 @@ describe('SheetBarComponent styles', () => {
     expect(docked).toContain('min-height: 0;');
     expect(docked).toContain('padding-top: 0;');
     expect(rule(':host(.sheet-bar--docked) .sheet-bar__title')).toContain('min-height: 0;');
+  });
+
+  /** § NF/accessibility/conformance/000493: kicker text, kicker slot and title slot. */
+  it('has no axe violations in each variant', async () => {
+    for (const host of [HostComponent, SlotHostComponent, TitleHostComponent]) {
+      const fixture = TestBed.createComponent(host);
+      fixture.detectChanges();
+      expect(await runAxe(fixture.nativeElement as HTMLElement)).toHaveNoViolations();
+      fixture.destroy();
+    }
   });
 });

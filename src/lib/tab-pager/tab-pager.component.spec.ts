@@ -3,6 +3,7 @@ import { fireEvent, render, screen } from '@testing-library/angular';
 import type { TabItem } from '../tabs/tabs.component';
 import { TabPageDirective } from './tab-page.directive';
 import { TabPagerComponent } from './tab-pager.component';
+import { runAxe } from '../../../testing/a11y';
 
 const TABS: TabItem[] = [
   { id: 'a', label: 'Offen', count: 2 },
@@ -298,5 +299,11 @@ describe('TabPagerComponent', () => {
     } finally {
       delete (document as { fonts?: unknown }).fonts;
     }
+  });
+
+  /** § NF/accessibility/conformance/000493: paged and plain. */
+  it.each([true, false])('has no axe violations (paged %s)', async (paged) => {
+    const view = await setup({ paged });
+    expect(await runAxe(view.container)).toHaveNoViolations();
   });
 });

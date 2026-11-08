@@ -151,6 +151,12 @@ textarea {
   outline: none;
 }
 
+// A heading takes the focus after a navigation (`RouteFocus`) to announce the page. It is no
+// control, so it shows no ring.
+:is(h1, h2)[tabindex='-1']:focus {
+  outline: none;
+}
+
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,
@@ -369,7 +375,8 @@ input[type='radio'] {
   display: inline-block;
   padding: 5px 7px;
   font: var(--fw-medium) 11px/1 var(--font-mono);
-  color: var(--color-text-subtle);
+  /* Muted, not subtle: the key text needs 4.5:1 on the surfaces of the search field. */
+  color: var(--color-text-muted);
   border: var(--border-width) solid var(--color-border);
   border-radius: var(--radius-sm);
   white-space: nowrap;
