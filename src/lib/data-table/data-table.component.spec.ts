@@ -6,6 +6,7 @@ import { CellDirective } from './cell.directive';
 import { type ColumnDef, DataTableComponent } from './data-table.component';
 import { FootCellDirective } from './foot-cell.directive';
 import { RowDetailDirective } from './row-detail.directive';
+import { runAxe } from '../../../testing/a11y';
 
 interface Row {
   id: number;
@@ -1659,5 +1660,19 @@ describe('DataTableComponent', () => {
       t.click();
       expect(t.opened).toEqual([ROWS[0]]);
     });
+  });
+
+  /** § NF/accessibility/conformance/000493: rows, empty, loading and selectable. */
+  it.each([
+    { rows: ROWS, loading: false, selectable: false },
+    { rows: [], loading: false, selectable: false },
+    { rows: [], loading: true, selectable: false },
+    { rows: ROWS, loading: false, selectable: true },
+  ])('has no axe violations (%o)', async (props) => {
+    const { container } = await render(
+      `<app-data-table [columns]="cols" [rows]="rows" [loading]="loading" [selectable]="selectable" emptyText="Keine Einträge" />`,
+      { imports: [DataTableComponent], componentProperties: { cols: COLS, ...props } },
+    );
+    expect(await runAxe(container)).toHaveNoViolations();
   });
 });
