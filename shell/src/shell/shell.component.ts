@@ -1,13 +1,16 @@
-import { NgTemplateOutlet } from '@angular/common';
+import { DOCUMENT, NgTemplateOutlet } from '@angular/common';
 import {
   ChangeDetectionStrategy,
   Component,
+  DestroyRef,
+  ElementRef,
   computed,
   contentChild,
   inject,
   input,
   output,
   signal,
+  viewChild,
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { type ActivatedRouteSnapshot, NavigationEnd, Router, RouterOutlet } from '@angular/router';
@@ -15,11 +18,13 @@ import {
   LoadBarComponent,
   MEDIA,
   PageFrame,
+  RouteFocus,
   ToastBarComponent,
   ToastComponent,
   ToastService,
   UiKitTranslatePipe,
   mediaQuery,
+  watchFocusReveal,
 } from '@stupa-makers/ui-kit';
 import { filter } from 'rxjs';
 import { BottomBarComponent } from '../bottom-bar/bottom-bar.component';
@@ -30,6 +35,13 @@ import type { ShellBrand, ShellFrame, ShellNavItem } from '../shell.types';
 /**
  * The frame of the app around ONE router outlet: the skip link, the navigation rail (the
  * bottom bar on a phone), the load bar and the toasts.
+ *
+ * Landmarks: the rail (the bottom bar on a phone) is the `banner` and holds the `nav`, the
+ * page is the `main`. The skip link is the first focusable element and moves the focus to
+ * `main` without a navigation, because `href="#main"` resolves against `<base href>` and
+ * would load the root page. After a navigation the focus goes to the heading of the new
+ * page ({@link RouteFocus}), and a sticky or fixed bar never covers the keyboard focus
+ * ({@link watchFocusReveal}).
  *
  * There is one router outlet for every frame. The frame only adds or removes the chrome
  * around it, so a change of frame (a sign-in, a projector view) never destroys and
@@ -118,6 +130,8 @@ export class ShellComponent {
   /** The search entry of the rail or of "More" was pressed. */
   readonly search = output<void>();
 
+  private readonly main = viewChild<ElementRef<HTMLElement>>('main');
+
   protected readonly markDir = contentChild(NavMarkDirective);
   protected readonly mark = computed(() => this.markDir()?.template ?? null);
 
@@ -163,6 +177,16 @@ export class ShellComponent {
       )
       .subscribe(() => this.readRoute());
     this.readRoute();
+    inject(RouteFocus).start(() => this.main()?.nativeElement);
+    inject(DestroyRef).onDestroy(watchFocusReveal(inject(DOCUMENT)));
+  }
+
+  /** The skip link: the focus goes to `main`, and the URL stays. */
+  protected skipToMain(event: Event): void {
+    event.preventDefault();
+    const main = this.main()?.nativeElement;
+    main?.focus();
+    main?.scrollIntoView?.({ block: 'start' });
   }
 
   /**
