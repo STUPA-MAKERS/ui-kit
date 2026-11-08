@@ -1,22 +1,6 @@
 @use '../../styles/breakpoints' as bp;
 @use '../../styles/frosted' as *;
 
-// A blur without tint from the top of the head up by `$height`, behind the glass of the bar
-// or of the head of the column above it (`lg__head--under`).
-@mixin lift-blur($height) {
-  @supports (backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px)) {
-    content: '';
-    position: absolute;
-    z-index: -1;
-    inset-inline: 0;
-    bottom: 100%;
-    height: $height;
-    -webkit-backdrop-filter: blur(10px) saturate(1.8);
-    backdrop-filter: blur(10px) saturate(1.8);
-    pointer-events: none;
-  }
-}
-
 :host {
   display: flex;
   flex-direction: column;
@@ -47,14 +31,14 @@
 // scroll, as frosted glass from screen edge to screen edge that ends in a hard edge with a
 // light shadow, so the month of the rows stays in view and the end of the glass is clear;
 // the next head pushes it away. Without the bar `top` is unset and it scrolls.
-// Two glass layers side by side show a seam: each blurs only what lies behind its own box,
-// so the foot of the bar and the top of the head blur different content. While the head
-// sits right under the bar (`lg__head--under`), a blur without tint therefore reaches up
-// from the head behind the bar (`--stb-height`, `::after`): the bar then blurs the same
-// blurred rows as the head, and no seam shows. The bar keeps its own glass in every state.
+// Two glass layers side by side show a seam: each blurs and tints only what lies behind
+// its own box. While the head sits right under the bar (`lg__head--under`), its glass
+// therefore reaches up behind the bar to the top of the bar (`--stb-height`), and the glass
+// of the bar keeps only its blur, without tint and without saturation (`base.scss`): one
+// tint layer, saturated once, and no line where the bar ends.
 // The classes follow the scroll one frame or more late while the page scrolls fast, so no
-// state may take glass away from the bar: a late class then only blurs a little more or
-// less, and no row shows sharp through the bar or the head.
+// state may take the blur away from the bar: a late class then only changes the tint for a
+// frame, and no row shows sharp through the bar or the head.
 @include bp.phone {
   .lg__head {
     position: sticky;
@@ -67,12 +51,14 @@
   .lg__head--stuck {
     box-shadow: var(--shadow-md);
   }
-  .lg__head--under::after {
-    @include lift-blur(var(--stb-height, 0px));
-  }
   // Glass and its shadow only while the head is stuck over its rows (`lg__head--stuck`).
   .lg__head:not(.lg__head--stuck) {
     @include frosted-rest(var(--stb-bg, var(--color-bg)));
+  }
+  @supports (backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px)) {
+    .lg__head--under::before {
+      top: calc(-1 * var(--stb-height, 0px));
+    }
   }
 }
 
