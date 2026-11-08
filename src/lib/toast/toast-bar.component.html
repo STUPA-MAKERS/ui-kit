@@ -1,9 +1,10 @@
-<div class="tbars" aria-live="polite" aria-atomic="false">
+<div class="tbars" aria-live="off">
   @for (toast of toastService.topBarToasts(); track toast.id) {
     <div
       class="tbar"
       [class.tbar--danger]="toast.barTone === 'danger'"
       role="status"
+      aria-live="off"
       animate.enter="motion-expand-in"
       animate.leave="motion-expand-out"
     >

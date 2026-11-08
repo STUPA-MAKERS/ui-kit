@@ -58,6 +58,9 @@ export type UiKitTextKey =
   | 'selection.count'
   | 'listDetail.back'
   | 'search.clear'
+  | 'search.results'
+  | 'search.resultsOne'
+  | 'search.none'
   | 'avatar.more'
   | 'viewer.close'
   | 'viewer.previous'
@@ -143,6 +146,9 @@ export const UI_KIT_DEFAULT_MESSAGES: Record<UiLang, UiKitMessages> = {
     'selection.count': '{count} ausgewählt',
     'listDetail.back': 'Zur Liste',
     'search.clear': 'Suche leeren',
+    'search.results': '{n} Treffer',
+    'search.resultsOne': '1 Treffer',
+    'search.none': 'Keine Treffer',
     'avatar.more': '{count} weitere',
     'viewer.close': 'Vorschau schließen',
     'viewer.previous': 'Vorherige Datei',
@@ -224,6 +230,9 @@ export const UI_KIT_DEFAULT_MESSAGES: Record<UiLang, UiKitMessages> = {
     'selection.count': '{count} selected',
     'listDetail.back': 'Back to list',
     'search.clear': 'Clear search',
+    'search.results': '{n} results',
+    'search.resultsOne': '1 result',
+    'search.none': 'No results',
     'avatar.more': '{count} more',
     'viewer.close': 'Close preview',
     'viewer.previous': 'Previous file',

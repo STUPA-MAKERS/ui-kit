@@ -46,6 +46,8 @@ export class CurrencyInputComponent implements ControlValueAccessor, Validator {
   private readonly intl = inject(UI_KIT_INTL);
 
   readonly placeholder = input('');
+  /** The id of the field; the label, the hint and the error refer to it. */
+  protected readonly id = `cur-${Math.random().toString(36).slice(2, 10)}`;
   readonly ariaLabel = input('');
   readonly name = input('');
   /** Optionales Feld-Label; gesetzt → volle Feld-Optik (Label/Hint/Error),

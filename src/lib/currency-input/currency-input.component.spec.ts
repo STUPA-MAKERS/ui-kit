@@ -157,12 +157,16 @@ describe('CurrencyInputComponent', () => {
     expect(container.querySelector('input')).toHaveAttribute('aria-invalid', 'true');
   });
 
-  it('uses the label as aria-label fallback and reflects the name attribute', async () => {
-    const { container } = await render(`<app-currency-input label="Betrag" name="amount" placeholder="0,00" />`, {
-      imports: [CurrencyInputComponent],
-    });
-    const input = container.querySelector('input') as HTMLInputElement;
-    expect(input).toHaveAttribute('aria-label', 'Betrag');
+  it('names the field by its label, links the hint and reflects the name attribute', async () => {
+    const { container } = await render(
+      `<app-currency-input label="Betrag" hint="Brutto" [required]="true" name="amount" placeholder="0,00" />`,
+      { imports: [CurrencyInputComponent] },
+    );
+    const input = screen.getByLabelText(/Betrag/) as HTMLInputElement;
+    expect(input).toBe(container.querySelector('input'));
+    expect(input).not.toHaveAttribute('aria-label');
+    expect(input).toHaveAttribute('aria-required', 'true');
+    expect(input).toHaveAccessibleDescription('Brutto');
     expect(input).toHaveAttribute('name', 'amount');
     expect(input).toHaveAttribute('placeholder', '0,00');
   });
@@ -321,6 +325,7 @@ describe('CurrencyInputComponent (typing and invalid text)', () => {
     });
     fireEvent.input(screen.getByLabelText('amount'), { target: { value: 'abc' } });
     expect(screen.getByRole('alert')).toHaveTextContent('Pflicht');
+    expect(screen.getByLabelText('amount')).toHaveAccessibleDescription('Pflicht');
   });
 });
 
