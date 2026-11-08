@@ -20,6 +20,11 @@ export class InputComponent implements ControlValueAccessor {
   @Input() type = 'text';
   @Input() placeholder = '';
   @Input() hint = '';
+  /**
+   * The language of the label and the hint when it is not the language of the page, for
+   * example a form text in a fallback language (WCAG 3.1.2). `null` keeps the page language.
+   */
+  @Input() textLang: string | null = null;
   @Input() error = '';
   @Input() required = false;
   /** Accessible name when the field has no visible label (for example a search field). */

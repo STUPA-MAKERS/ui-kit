@@ -39,6 +39,11 @@ export class DatepickerComponent implements ControlValueAccessor {
   @Input() label = '';
   @Input() ariaLabel = '';
   @Input() hint = '';
+  /**
+   * The language of the label and the hint when it is not the language of the page, for
+   * example a form text in a fallback language (WCAG 3.1.2). `null` keeps the page language.
+   */
+  @Input() textLang: string | null = null;
   @Input() error = '';
   @Input() required = false;
   @Input() min = '';

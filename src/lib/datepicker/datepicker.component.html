@@ -6,7 +6,7 @@
     [class.dp__box--disabled]="disabled()"
   >
     @if (label) {
-      <label class="dp__label" [for]="id">
+      <label class="dp__label" [for]="id" [attr.lang]="textLang">
         {{ label }}
         @if (required) {
           <span class="text-danger" aria-hidden="true">*</span>
@@ -53,7 +53,7 @@
     />
   </div>
   @if (hint && !error) {
-    <p class="dp__msg text-muted" [id]="id + '-hint'">{{ hint }}</p>
+    <p class="dp__msg text-muted" [id]="id + '-hint'" [attr.lang]="textLang">{{ hint }}</p>
   }
   @if (error) {
     <p class="dp__msg text-danger" [id]="id + '-error'" role="alert">{{ error }}</p>

@@ -8,7 +8,7 @@
     [class.fld__box--open]="open()"
   >
     @if (label()) {
-      <label class="fld__label" [id]="labelId()" [for]="id()">
+      <label class="fld__label" [id]="labelId()" [for]="id()" [attr.lang]="textLang()">
         {{ label() }}
         @if (required()) {
           <span class="fld__req" aria-hidden="true">*</span>
@@ -46,12 +46,12 @@
           [icon]="who.icon"
         />
       }
-      <span class="sel__value" [class.sel__value--empty]="!chosen()">{{ display() }}</span>
+      <span class="sel__value" [class.sel__value--empty]="!chosen()" [attr.lang]="chosen()?.lang ?? null">{{ display() }}</span>
     </button>
     <app-icon class="fld__chevron" name="down" [size]="18" />
   </div>
   @if (hint() && !error()) {
-    <p class="fld__msg fld__msg--hint" [id]="id() + '-hint'">{{ hint() }}</p>
+    <p class="fld__msg fld__msg--hint" [id]="id() + '-hint'" [attr.lang]="textLang()">{{ hint() }}</p>
   }
   @if (error()) {
     <p class="fld__msg fld__msg--error" [id]="id() + '-error'" role="alert">{{ error() }}</p>
@@ -83,7 +83,7 @@
         [icon]="who.icon"
       />
     }
-    <span class="sel__label" [class.sel__label--empty]="row.placeholder">{{ row.label }}</span>
+    <span class="sel__label" [class.sel__label--empty]="row.placeholder" [attr.lang]="row.lang">{{ row.label }}</span>
     @if (isChosen(row)) {
       <app-icon class="sel__check" name="check" [size]="18" />
     }

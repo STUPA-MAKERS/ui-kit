@@ -7,7 +7,7 @@
     [class.cur--disabled]="disabled()"
   >
     @if (label()) {
-      <label class="cur__label" [for]="id">
+      <label class="cur__label" [for]="id" [attr.lang]="textLang()">
         {{ label() }}
         @if (required()) {
           <span class="text-danger ms-[2px]" aria-hidden="true">*</span>
@@ -34,7 +34,7 @@
     <span class="cur__symbol" aria-hidden="true">€</span>
   </span>
   @if (hint() && !shownError()) {
-    <p class="cur__msg text-muted" [id]="id + '-hint'">{{ hint() }}</p>
+    <p class="cur__msg text-muted" [id]="id + '-hint'" [attr.lang]="textLang()">{{ hint() }}</p>
   }
   @if (shownError(); as msg) {
     <p class="cur__msg text-danger" [id]="id + '-error'" role="alert">{{ msg }}</p>
