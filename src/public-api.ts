@@ -79,6 +79,8 @@ export * from './lib/focus/focus-trap';
 export * from './lib/focus/focus-dialog.directive';
 export * from './lib/focus/route-focus';
 export * from './lib/focus/focus-reveal';
+export * from './lib/focus/first-invalid';
+export * from './lib/announce/announcer';
 export * from './lib/popover/anchored-popover';
 export * from './lib/signals/now-signal';
 export * from './lib/signals/media-query';

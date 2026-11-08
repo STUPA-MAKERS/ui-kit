@@ -47,10 +47,9 @@ let nextId = 0;
 export class CurrencyInputComponent implements ControlValueAccessor, Validator {
   private readonly intl = inject(UI_KIT_INTL);
 
-  /** The id of the native input, so the visible label names it. */
-  protected readonly inputId = `app-currency-${nextId++}`;
-
   readonly placeholder = input('');
+  /** The id of the field; the label, the hint and the error refer to it. */
+  protected readonly id = `app-currency-${nextId++}`;
   readonly ariaLabel = input('');
   readonly name = input('');
   /** Optionales Feld-Label; gesetzt → volle Feld-Optik (Label/Hint/Error),

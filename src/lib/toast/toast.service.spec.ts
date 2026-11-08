@@ -1,4 +1,5 @@
 import { TestBed } from '@angular/core/testing';
+import { Announcer } from '../announce/announcer';
 import { ToastService } from './toast.service';
 
 describe('ToastService', () => {
@@ -11,6 +12,20 @@ describe('ToastService', () => {
 
   afterEach(() => {
     jest.useRealTimers();
+  });
+
+  it('reads every toast out once, a fault in the assertive region (spec 000517)', () => {
+    const announce = jest.spyOn(TestBed.inject(Announcer), 'announce');
+    svc.show('Gespeichert', 'success');
+    svc.error('Nicht gespeichert');
+    svc.showAction({ message: 'Gelöscht', action: 'Rückgängig', closed: () => undefined });
+    svc.showNotice({ message: 'Offline', variant: 'danger' });
+    expect(announce.mock.calls).toEqual([
+      ['Gespeichert', 'polite'],
+      ['Nicht gespeichert', 'assertive'],
+      ['Gelöscht Rückgängig', 'polite'],
+      ['Offline', 'assertive'],
+    ]);
   });
 
   it('starts with no toasts', () => {
