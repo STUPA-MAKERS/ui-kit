@@ -13,11 +13,16 @@
   padding-top: 26px;
   cursor: text;
 }
+/* The label line gives the room above the text: 8px, a 16px line and 2px. */
+.ta:has(> .ta__label) {
+  padding-top: 0;
+}
 .ta--invalid {
   @include f.box-invalid;
 }
 .ta__label {
   @include f.label;
+  padding-bottom: 2px;
 }
 .ta:focus-within .ta__label {
   @include f.label-focus;

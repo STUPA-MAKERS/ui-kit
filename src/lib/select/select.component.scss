@@ -27,7 +27,7 @@
 }
 .fld__label {
   @include f.label;
-  right: 2.75rem;
+  padding-right: 2.75rem;
 }
 .fld__box:focus-within .fld__label,
 .fld__box--open .fld__label {

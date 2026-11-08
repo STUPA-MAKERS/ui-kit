@@ -26,11 +26,13 @@
     font-family: inherit;
     cursor: pointer;
   }
+  // A long label breaks into a second line, and the item grows, so a user text spacing
+  // (WCAG 1.4.12, app spec 000504) cuts no text.
   .#{$b}__label {
     max-width: 88px;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
+    overflow-wrap: anywhere;
+    hyphens: auto;
+    text-align: center;
   }
   .#{$b}__ind {
     position: relative;
