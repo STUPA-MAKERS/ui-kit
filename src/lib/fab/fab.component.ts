@@ -1,6 +1,10 @@
 import {
+  afterNextRender,
   ChangeDetectionStrategy,
   Component,
+  DestroyRef,
+  ElementRef,
+  Injectable,
   InjectionToken,
   inject,
   input,
@@ -20,6 +24,20 @@ export interface FabLink {
  * `@stupa-makers/ui-kit/shell`), so the main entry does not need the router.
  */
 export const FAB_LINK = new InjectionToken<FabLink>('FAB_LINK');
+
+/** How long a fab shown again waits for the leaving sheet of its form to drop the focus. */
+const FAB_FOCUS_WAIT_MS = 1000;
+
+/**
+ * The label of the fab that was pressed last and has not had the focus back since. A page
+ * hides its fab while the form that the fab opened is open, so the dialog or the sheet of
+ * the form finds no opener to give the focus back to. The fab that the page shows again
+ * takes it.
+ */
+@Injectable({ providedIn: 'root' })
+export class FabFocusReturn {
+  label: string | null = null;
+}
 
 /**
  * The floating main action of a page: one per page, at the bottom end of the content, on
@@ -57,6 +75,11 @@ export const FAB_LINK = new InjectionToken<FabLink>('FAB_LINK');
  *
  * Several floating buttons of one page sit side by side in an `app-fab-group`, which takes
  * the position at the bottom end; a fab in a group has no position of its own.
+ *
+ * A page that removes the fab while the form of the fab is open gets the focus back on
+ * the fab when it shows it again (spec 000513): a press notes the label, and the next fab
+ * with that label takes the focus if nothing has it. A fab that gets the focus back (the
+ * page kept it) clears the note.
  *
  * To open a route, use `FabLinkDirective` of `@stupa-makers/ui-kit/shell`
  * (`<app-fab link="/apply" …>`). A fab with a link opens the route and does not emit
@@ -109,8 +132,40 @@ export class FabComponent {
   /** The button was pressed (not emitted when a link is set). */
   readonly activate = output<void>();
 
+  private readonly back = inject(FabFocusReturn);
+
+  constructor() {
+    const host = inject<ElementRef<HTMLElement>>(ElementRef).nativeElement;
+    const doc = host.ownerDocument;
+    const take = (): void => {
+      if (!doc.activeElement || doc.activeElement === doc.body) host.querySelector('button')?.focus();
+    };
+    // The sheet of the form can still hold the focus while it leaves: the focus that it
+    // drops to nothing comes here.
+    const onOut = (event: FocusEvent): void => {
+      if (!event.relatedTarget) setTimeout(take);
+    };
+    const stopWaiting = (): void => doc.removeEventListener('focusout', onOut);
+    afterNextRender(() => {
+      if (this.back.label !== this.label()) return;
+      this.back.label = null;
+      take();
+      doc.addEventListener('focusout', onOut);
+      setTimeout(stopWaiting, FAB_FOCUS_WAIT_MS);
+    });
+    const clear = (): void => {
+      if (this.back.label === this.label()) this.back.label = null;
+    };
+    host.addEventListener('focusin', clear);
+    inject(DestroyRef).onDestroy(() => {
+      host.removeEventListener('focusin', clear);
+      stopWaiting();
+    });
+  }
+
   protected onClick(): void {
     if (this.loading() || this.disabled()) return;
+    this.back.label = this.label();
     if (this.link) this.link.open();
     else this.activate.emit();
   }

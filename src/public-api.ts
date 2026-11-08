@@ -76,6 +76,7 @@ export * from './lib/file-picker/file-picker.component';
 export * from './lib/move-buttons/move-buttons.component';
 export * from './lib/move-buttons/move-item';
 export * from './lib/focus/focus-trap';
+export * from './lib/focus/focus-dialog.directive';
 export * from './lib/popover/anchored-popover';
 export * from './lib/signals/now-signal';
 export * from './lib/signals/media-query';
