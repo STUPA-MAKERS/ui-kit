@@ -427,9 +427,12 @@ input[type='radio'] {
 // the glass of the bar, so the head carries the shadow at the end of the glass and the
 // bar has none (`StickyBarComponent`, `ListGroupComponent`). While the head sits right
 // under the bar (`lg__head--under`), the glass of the head reaches up behind the bar and
-// carries the tint of both, so the glass of the bar keeps only its blur: one tint layer,
-// saturated once, and no line where the bar ends. The rule reads the class of one
-// component and styles the other, so it lives here and not in either component.
+// carries the glass of both: one tint layer, saturated once. The glass of the bar lies on
+// top of it and keeps only a light blur: a full blur blurs the glass of the head a second
+// time and shows a line where the bar ends. The light blur stays because the classes
+// follow the scroll late, and no row may show sharp through the bar for that frame. The
+// rule reads the class of one component and styles the other, so it lives here and not in
+// either component.
 @include bp.phone {
   body:has(.lg__head--stuck) app-sticky-bar.stb--stuck {
     box-shadow: none;
@@ -437,8 +440,8 @@ input[type='radio'] {
   @supports (backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px)) {
     body:has(.lg__head--under) app-sticky-bar.stb--stuck::before {
       background: none;
-      -webkit-backdrop-filter: blur(10px);
-      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(2px);
+      backdrop-filter: blur(2px);
     }
   }
 }

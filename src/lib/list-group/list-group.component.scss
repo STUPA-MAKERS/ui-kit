@@ -34,7 +34,7 @@
 // Two glass layers side by side show a seam: each blurs and tints only what lies behind
 // its own box. While the head sits right under the bar (`lg__head--under`), its glass
 // therefore reaches up behind the bar to the top of the bar (`--stb-height`), and the glass
-// of the bar keeps only its blur, without tint and without saturation (`base.scss`): one
+// of the bar keeps only a light blur, without tint and without saturation (`base.scss`): one
 // tint layer, saturated once, and no line where the bar ends.
 // The classes follow the scroll one frame or more late while the page scrolls fast, so no
 // state may take the blur away from the bar: a late class then only changes the tint for a
@@ -68,7 +68,7 @@
 // hard edge while stuck.
 //
 // While it sits right under the head of the column (`lg__head--under`), its glass reaches up
-// to the top of the column, and the glass of the column keeps only its blur, without tint
+// to the top of the column, and the glass of the column keeps only a light blur, without tint
 // (`styles/list-detail.scss`). The tint of the whole head is then one layer, so no line
 // shows where the head of the column ends. The glass of the column keeps its blur in every
 // state: a class that follows the scroll late then only changes the tint for a frame, and
