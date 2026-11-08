@@ -56,6 +56,11 @@ export class CurrencyInputComponent implements ControlValueAccessor, Validator {
    *  leer → blankes Control (für eigene Label-Wrapper, z. B. Filter/Dialoge). */
   readonly label = input('');
   readonly hint = input('');
+  /**
+   * The language of the label and the hint when it is not the language of the page, for
+   * example a form text in a fallback language (WCAG 3.1.2). `null` keeps the page language.
+   */
+  readonly textLang = input<string | null>(null);
   readonly error = input('');
   readonly required = input(false);
   /** `lg`: the amount of a booking form, large and in the medium weight. */

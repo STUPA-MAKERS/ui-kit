@@ -47,4 +47,9 @@ export class FieldRowComponent {
   readonly value = input<string | number | null>(null);
   /** Show the value in the mono face: amounts, dates, short IDs. */
   readonly mono = input(false);
+  /**
+   * The language of the label when it is not the language of the page, for example a
+   * form text in a fallback language (WCAG 3.1.2). `null` keeps the page language.
+   */
+  readonly labelLang = input<string | null>(null);
 }

@@ -44,6 +44,8 @@ export interface SelectFieldOption extends SelectOption {
   readonly group?: string;
   /** The avatar in front of the label, in a list of persons (an assignee select). */
   readonly person?: AvatarPerson | null;
+  /** The language of the label when it is not the language of the page (WCAG 3.1.2). */
+  readonly lang?: string | null;
 }
 
 /** One row of the list: an option, or the placeholder row that clears the value. */
@@ -54,6 +56,7 @@ interface Row {
   readonly placeholder: boolean;
   readonly index: number;
   readonly person: AvatarPerson | null;
+  readonly lang: string | null;
 }
 
 /** Consecutive rows with the same group (or none). */
@@ -115,6 +118,11 @@ export class SelectFieldComponent implements ControlValueAccessor {
   readonly ariaLabel = input('');
   readonly placeholder = input('');
   readonly hint = input('');
+  /**
+   * The language of the label and the hint when it is not the language of the page, for
+   * example a form text in a fallback language (WCAG 3.1.2). `null` keeps the page language.
+   */
+  readonly textLang = input<string | null>(null);
   /** An error text: the field shows the error state and the text below it. */
   readonly error = input('');
   readonly required = input(false, { transform: booleanAttribute });
@@ -148,7 +156,7 @@ export class SelectFieldComponent implements ControlValueAccessor {
     const text = this.placeholder();
     const clear: readonly Row[] =
       text && this.clearable() && !this.required()
-        ? [{ value: '', label: text, disabled: false, placeholder: true, index: 0, person: null }]
+        ? [{ value: '', label: text, disabled: false, placeholder: true, index: 0, person: null, lang: null }]
         : [];
     const options = this.options().map((opt, i) => ({
       value: opt.value,
@@ -157,6 +165,7 @@ export class SelectFieldComponent implements ControlValueAccessor {
       placeholder: false,
       index: clear.length + i,
       person: opt.person ?? null,
+      lang: opt.lang ?? null,
     }));
     return [...clear, ...options];
   });
