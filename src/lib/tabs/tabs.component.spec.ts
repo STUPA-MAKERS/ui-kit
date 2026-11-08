@@ -41,10 +41,11 @@ describe('TabsComponent', () => {
     expect(screen.getByRole('tab', { name: 'Antrag' }).querySelector('.tabs__count')).toBeNull();
   });
 
-  it('names a tab with a count with a space before the count', async () => {
+  /** WCAG 2.5.3: the name comes from the visible text, so no aria-label can drop a part of it. */
+  it('names a tab with a count from its text, with a space before the count', async () => {
     await render(Host);
-    expect(screen.getByRole('tab', { name: 'Verlauf 4' })).toHaveAttribute('aria-label', 'Verlauf 4');
-    expect(screen.getByRole('tab', { name: 'Kommentare 0' })).toHaveAttribute('aria-label', 'Kommentare 0');
+    expect(screen.getByRole('tab', { name: 'Verlauf 4' })).not.toHaveAttribute('aria-label');
+    expect(screen.getByRole('tab', { name: 'Kommentare 0' })).not.toHaveAttribute('aria-label');
     expect(screen.getByRole('tab', { name: 'Antrag' })).not.toHaveAttribute('aria-label');
   });
 
