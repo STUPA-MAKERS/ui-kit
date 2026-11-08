@@ -7,6 +7,7 @@ import { BREAKPOINTS } from '../breakpoints/breakpoints';
 import { runAxe } from '../../../testing/a11y';
 import { drag, mediaMatching } from '../../../testing/touch';
 import { MEDIA } from '../breakpoints/breakpoints';
+import { RouteFocus } from '../focus/route-focus';
 import { SheetBarComponent, SheetBarTitleDirective } from '../sheet-bar/sheet-bar.component';
 import {
   LAYOUT_GUTTER,
@@ -267,15 +268,15 @@ describe('ListDetailLayoutComponent', () => {
   });
 
   describe('focus in the one-view layout', () => {
-    it('moves the focus to "Zur Liste" when a row opens, and back to the row', async () => {
+    it('moves the focus to the detail pane when a row opens, and back to the row', async () => {
       viewport(390);
       const view = await render(FocusHostComponent);
       const user = userEvent.setup();
       const row = screen.getByRole('button', { name: 'Lastenrad' });
       await user.click(row);
       await view.fixture.whenStable();
+      expect(view.container.querySelector('.ld__detail')).toHaveFocus();
       const back = screen.getByRole('button', { name: 'Zur Liste' });
-      expect(back).toHaveFocus();
 
       await user.click(back);
       await view.fixture.whenStable();
@@ -300,6 +301,8 @@ describe('ListDetailLayoutComponent', () => {
       row.focus();
       await user.keyboard('{Enter}');
       await view.fixture.whenStable();
+      expect(view.container.querySelector('.ld__detail')).toHaveFocus();
+      await user.tab();
       expect(screen.getByRole('button', { name: 'Zur Liste' })).toHaveFocus();
       await user.keyboard('{Enter}');
       await view.fixture.whenStable();
@@ -345,6 +348,26 @@ describe('ListDetailLayoutComponent', () => {
       view.fixture.detectChanges();
       await view.fixture.whenStable();
       expect(screen.getByRole('button', { name: 'Zur Liste' })).not.toHaveFocus();
+    });
+
+    it('makes the open detail the scope of RouteFocus and holds its focus on the way back', async () => {
+      viewport(390);
+      const view = await render(FocusHostComponent);
+      const focus = view.fixture.debugElement.injector.get(RouteFocus);
+      const scope = (): HTMLElement | null =>
+        (focus as unknown as { scopeFn: () => HTMLElement | null }).scopeFn();
+      const hold = jest.spyOn(focus, 'hold');
+      expect(scope()).toBeNull();
+      const user = userEvent.setup();
+      await user.click(screen.getByRole('button', { name: 'Lastenrad' }));
+      await view.fixture.whenStable();
+      expect(scope()).toBe(view.container.querySelector('.ld__detail'));
+      expect(hold).not.toHaveBeenCalled();
+      await user.click(screen.getByRole('button', { name: 'Zur Liste' }));
+      await view.fixture.whenStable();
+      expect(hold).toHaveBeenCalledTimes(1);
+      view.fixture.destroy();
+      expect((focus as unknown as { scopeFn: unknown }).scopeFn).toBeNull();
     });
 
     it('does not move the focus in the split layout', async () => {
