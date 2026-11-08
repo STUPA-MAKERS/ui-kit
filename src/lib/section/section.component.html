@@ -2,13 +2,13 @@
   <div class="section__lead">
     @switch (level()) {
       @case (2) {
-        <h2 class="section__title" [id]="titleId()">{{ heading() }}@if (required()) {<span class="section__req" aria-hidden="true"> *</span>}</h2>
+        <h2 class="section__title" [id]="titleId()" [attr.lang]="headingLang()">{{ heading() }}@if (required()) {<span class="section__req" aria-hidden="true"> *</span>}</h2>
       }
       @case (4) {
-        <h4 class="section__title" [id]="titleId()">{{ heading() }}@if (required()) {<span class="section__req" aria-hidden="true"> *</span>}</h4>
+        <h4 class="section__title" [id]="titleId()" [attr.lang]="headingLang()">{{ heading() }}@if (required()) {<span class="section__req" aria-hidden="true"> *</span>}</h4>
       }
       @default {
-        <h3 class="section__title" [id]="titleId()">{{ heading() }}@if (required()) {<span class="section__req" aria-hidden="true"> *</span>}</h3>
+        <h3 class="section__title" [id]="titleId()" [attr.lang]="headingLang()">{{ heading() }}@if (required()) {<span class="section__req" aria-hidden="true"> *</span>}</h3>
       }
     }
     @if (meta() !== null) {

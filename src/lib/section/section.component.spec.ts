@@ -15,6 +15,16 @@ describe('SectionComponent', () => {
     expect(await runAxe(container)).toHaveNoViolations();
   });
 
+  it('marks a title in another language with its lang, on every level', async () => {
+    await render(
+      `<app-section heading="Beleg" headingLang="de" [level]="2" /><app-section heading="Receipt" [level]="4" /><app-section heading="Kosten" headingLang="de" />`,
+      { imports: [SectionComponent] },
+    );
+    expect(screen.getByRole('heading', { level: 2, name: 'Beleg' })).toHaveAttribute('lang', 'de');
+    expect(screen.getByRole('heading', { level: 4, name: 'Receipt' })).not.toHaveAttribute('lang');
+    expect(screen.getByRole('heading', { level: 3, name: 'Kosten' })).toHaveAttribute('lang', 'de');
+  });
+
   it('puts an action at the end of the title row', async () => {
     const { container } = await render(
       `<app-section heading="Unterbuchungen"><button sectionAction type="button">Hinzufügen</button><p>Liste</p></app-section>`,

@@ -52,6 +52,11 @@ let nextId = 0;
 export class SectionComponent {
   /** The title of the section. */
   readonly heading = input.required<string>();
+  /**
+   * The language of the title when it is not the language of the page, for example a
+   * form text in a fallback language (WCAG 3.1.2). `null` keeps the page language.
+   */
+  readonly headingLang = input<string | null>(null);
   /** The heading level of the title. */
   readonly level = input<2 | 3 | 4>(3);
   /** The look of the title: `md` (accent, small) or `lg` (text colour, large). */
