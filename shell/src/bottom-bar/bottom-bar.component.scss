@@ -3,8 +3,8 @@
 @use '../../../src/styles/frosted' as *;
 
 // The safe-area padding keeps the entries above the gesture bar of an installed app
-// (viewport-fit=cover). A light shadow upwards sets the bar off the page instead of a rule;
-// `--bb-shadow` lets a page turn it off. The page scrolls under the bar, so the bar is frosted
+// (viewport-fit=cover). A hairline at its top edge (`edge-line`, the line of the glass bars
+// at the top) sets the bar off the page. The page scrolls under the bar, so the bar is frosted
 // glass that turns into the solid bar colour at its foot, so the bottom edge and the safe area
 // have exactly the colour of the system bar (`theme_color`) below it.
 :host {
@@ -22,7 +22,6 @@
   height: calc(var(--bottom-bar-height, 64px) + env(safe-area-inset-bottom));
   padding: 0 max(4px, var(--app-right-safe-area, 0px)) env(safe-area-inset-bottom)
     max(4px, var(--app-left-safe-area, 0px));
-  box-shadow: var(--bb-shadow, var(--shadow-md-up));
   --nav-mark-ring: var(--color-surface-3);
   @include press.chrome-text;
   @include frosted(
@@ -32,6 +31,7 @@
     $fade-stop: calc(100% - env(safe-area-inset-bottom) - 4px),
     $tint: 60%
   );
+  @include edge-line(top);
 }
 
 @include nav-items.bar-item;
