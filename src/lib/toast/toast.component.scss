@@ -1,4 +1,5 @@
 @use '../../styles/press';
+@use '../../styles/breakpoints' as bp;
 
 /* In the top layer (popover) the UA styles would stretch and frame the stack, so they are
    reset before the place is set. */
@@ -19,46 +20,69 @@
   display: flex;
   flex-direction: column;
   gap: var(--space-3);
-  max-width: min(92vw, 24rem);
+  width: min(92vw, 24rem);
 }
-/* A raised plate (surface 3). The variant colours only the leading edge: the message
-   itself says what happened. */
+/* The card on every width (specs 000565, 000566, 000568): the selection colour as glass, the
+   tint of the active item of the navigation; an error is the danger tint. A round tile shows
+   the icon, the message is centred, and the action and the close button are round tonal
+   icon buttons of 40px. A toast without an action keeps an empty slot of that size, so the
+   message stays centred. */
 .toast {
+  --toast-tile-bg: color-mix(in srgb, var(--color-text) 8%, transparent);
+  --toast-tile-fg: var(--color-text-muted);
   display: flex;
   align-items: center;
   gap: var(--space-3);
-  min-height: 48px;
-  padding: var(--space-2) var(--space-2) var(--space-2) var(--space-4);
-  border-radius: var(--radius-field);
+  min-height: 64px;
+  padding: var(--space-3);
+  border-radius: var(--radius-xl);
   box-shadow: var(--shadow-elevated);
-  border-inline-start: 3px solid var(--color-border-strong);
-  background: var(--color-surface-3);
+  background: color-mix(in srgb, var(--color-selected) 75%, transparent);
+  -webkit-backdrop-filter: blur(16px) saturate(1.8);
+  backdrop-filter: blur(16px) saturate(1.8);
   color: var(--color-text);
 }
 .toast--success {
-  border-color: var(--color-accent);
+  --toast-tile-fg: var(--color-accent-text);
 }
 .toast--warning {
-  border-color: var(--color-warning);
+  --toast-tile-fg: var(--color-warning);
 }
 .toast--danger {
-  border-color: var(--color-danger);
+  --toast-tile-fg: var(--color-danger);
+  background: color-mix(in srgb, var(--color-danger-subtle) 75%, transparent);
 }
-.toast--info {
-  border-color: var(--color-border-strong);
+.toast__tile {
+  display: grid;
+  place-items: center;
+  flex: none;
+  width: 40px;
+  height: 40px;
+  border-radius: var(--radius-pill);
+  background: var(--toast-tile-bg);
+  color: var(--toast-tile-fg);
+}
+/* The start icon of a notice shows in the tile. */
+.toast__icon:not(.toast__icon--end) {
+  display: none;
 }
 .toast__icon {
   flex: none;
   color: var(--color-text-muted);
 }
-/* An icon at the end has the 32px box of the buttons there, so it lines up with them. */
+/* An icon at the end has the box of the buttons there, so it lines up with them. */
 .toast__icon--end {
-  width: 32px;
-  height: 32px;
+  display: grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
 }
 .toast__msg {
   flex: 1;
+  min-width: 0;
+  text-align: center;
   font-size: var(--fs-body);
+  font-weight: var(--fw-medium);
   line-height: var(--lh-body);
 }
 .toast__close,
@@ -66,31 +90,40 @@
   flex: none;
   display: grid;
   place-items: center;
-  width: 32px;
-  height: 32px;
+  width: 40px;
+  height: 40px;
   padding: 0;
-  background: transparent;
+  background: var(--toast-tile-bg);
   border: 0;
   border-radius: var(--radius-pill);
   cursor: pointer;
-  color: var(--color-text-muted);
+  color: var(--color-text);
   transition: scale var(--motion-xs) var(--ease-standard);
   @include press.press;
 }
-/* The one action of a toast ("Rückgängig"): a text button in the text colour. */
+/* A text action of a caller that brings no icon: a tonal pill of the same height. */
 .toast__action {
   flex: none;
-  min-height: 32px;
-  padding: 0 var(--space-3);
+  min-height: 40px;
+  padding: 0 var(--space-4);
   border: 0;
   border-radius: var(--radius-pill);
-  background: transparent;
+  background: var(--toast-tile-bg);
   color: var(--color-text);
   font: inherit;
   font-weight: var(--fw-semibold);
   cursor: pointer;
   transition: scale var(--motion-xs) var(--ease-standard);
   @include press.press;
+}
+.toast:not(:has(.toast__iconAction, .toast__action, .toast__icon--end))::after {
+  content: '';
+  flex: none;
+  width: 40px;
+}
+/* With a close button the tile and the button already balance the message. */
+.toast:has(.toast__close):not(:has(.toast__iconAction, .toast__action, .toast__icon--end))::after {
+  content: none;
 }
 .toast__action:focus-visible,
 .toast__iconAction:focus-visible,
@@ -99,13 +132,10 @@
   outline-offset: 2px;
 }
 @media (hover: hover) {
-  .toast__action:hover {
-    background: var(--color-surface-4);
-  }
+  .toast__action:hover,
   .toast__iconAction:hover,
   .toast__close:hover {
-    background: var(--color-surface-4);
-    color: var(--color-text);
+    background: color-mix(in srgb, var(--color-text) 14%, transparent);
   }
 }
 
@@ -127,5 +157,46 @@
   to {
     opacity: 0;
     transform: translateY(var(--motion-shift-sm));
+  }
+}
+
+/* The phone (specs 000562-000564): the card sits at the top, under the top safe area, with a
+   gutter of 12px on each side. There is no close button: a swipe up or the time closes the
+   toast. `touch-action: none` gives the vertical swipe to the toast instead of to the page. */
+@include bp.phone {
+  .toasts {
+    inset-block-start: calc(env(safe-area-inset-top, 0px) + var(--space-3));
+    inset-block-end: auto;
+    inset-inline: var(--space-3);
+    width: auto;
+  }
+  .toast {
+    touch-action: none;
+    user-select: none;
+  }
+  .toast__close {
+    display: none;
+  }
+  /* The close button is hidden, so the empty slot balances the tile again. */
+  .toast:has(.toast__close):not(:has(.toast__iconAction, .toast__action, .toast__icon--end))::after {
+    content: '';
+  }
+  .toast--entering {
+    animation-name: toast-in-top;
+  }
+  .toast--leaving {
+    animation-name: toast-out-top;
+  }
+}
+@keyframes toast-in-top {
+  from {
+    opacity: 0;
+    transform: translateY(calc(-2 * var(--motion-shift-sm)));
+  }
+}
+@keyframes toast-out-top {
+  to {
+    opacity: 0;
+    transform: translateY(calc(-2 * var(--motion-shift-sm)));
   }
 }

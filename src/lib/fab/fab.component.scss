@@ -38,3 +38,36 @@
   background: var(--color-surface-3);
   color: var(--color-text);
 }
+
+// A phone fab folds to its icon while the page is scrolled down (spec 000567). The label of
+// the button is a flex row, so no space between the icon and the text is left over, and the
+// folded padding makes the button a 56px square inside its border. Reduced motion drops the
+// transitions (`base.scss`).
+:host ::ng-deep .btn--fab {
+  transition: padding var(--motion-base) var(--ease-standard);
+}
+:host ::ng-deep .btn--fab .btn__label {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-3);
+  transition: gap var(--motion-base) var(--ease-standard);
+}
+:host ::ng-deep .fab__label {
+  max-width: 14rem;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  transition:
+    max-width var(--motion-base) var(--ease-standard),
+    opacity var(--motion-fast) var(--ease-standard);
+}
+:host(.fab--folded) ::ng-deep .btn--fab {
+  padding: 0 calc((56px - var(--icon-size)) / 2 - var(--border-width, 1px));
+}
+:host(.fab--folded) ::ng-deep .btn--fab .btn__label {
+  gap: 0;
+}
+:host(.fab--folded) ::ng-deep .fab__label {
+  max-width: 0;
+  opacity: 0;
+}

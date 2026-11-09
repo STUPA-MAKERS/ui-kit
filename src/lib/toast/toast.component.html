@@ -7,7 +7,14 @@
       aria-live="off"
       animate.enter="toast--entering"
       animate.leave="toast--leaving"
+      (pointerdown)="swipeStart($event, toast.id)"
+      (pointermove)="swipeMove($event, toast.id)"
+      (pointerup)="swipeEnd($event, toast.id)"
+      (pointercancel)="swipeCancel($event)"
     >
+      <span class="toast__tile" aria-hidden="true">
+        <app-icon [name]="tileIcon(toast)" [size]="18" />
+      </span>
       @if (toast.icon && toast.iconPosition !== 'end') {
         <app-icon class="toast__icon" [name]="toast.icon" [size]="18" />
       }

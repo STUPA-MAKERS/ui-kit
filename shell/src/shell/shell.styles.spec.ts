@@ -28,11 +28,9 @@ describe('shell styles', () => {
     );
   });
 
-  it('puts the toasts above the bottom bar on a phone, and follows the inset of the bar', () => {
+  it('gives the toast host no box and leaves the phone toasts at the top', () => {
     expect(rule(shell, 'app-toast')).toMatch(/display: contents;/);
-    expect(rule(shell, '.frame--phone app-toast ::ng-deep .toasts')).toMatch(
-      /inset-block-end: calc\(var\(--app-bottom-inset\) \+ var\(--space-3\)\);/,
-    );
+    expect(shell).not.toContain('app-toast ::ng-deep .toasts');
   });
 
   it('puts the phone top bar in the column and gives the top safe area to the bar', () => {
