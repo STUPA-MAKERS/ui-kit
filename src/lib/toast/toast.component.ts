@@ -34,10 +34,11 @@ const TILE_ICON: Record<Toast['variant'], IconName> = {
  * above a dialog that opened after it, so a toast about a dialog shows above that dialog.
  * An empty stack has no size and takes no press.
  *
- * On a phone the stack sits at the top and shows only the newest toast (specs 000562,
- * 000563). The toast is a tinted glass card with a round tile and has no close button: a
- * swipe up or its time closes it (specs 000564, 000565). An action is a round icon button
- * (spec 000566).
+ * Every width shows a toast as a tinted glass card with a round tile, a centred message and
+ * round icon buttons (specs 000565, 000566, 000568). A wide screen keeps the stack at the
+ * bottom end with a close button. On a phone the stack sits at the top and shows only the
+ * newest toast, which has no close button: a swipe up or its time closes it (specs 000562,
+ * 000563, 000564).
  */
 @Component({
   selector: 'app-toast',
