@@ -124,6 +124,14 @@
 ::view-transition-new(bottom-bar) {
   animation: none;
 }
+// A named element is painted alone into its snapshot, so the glass of the bottom bar has no
+// backdrop there and shows the page under it unblurred while the page moves. The group of the
+// bar blurs the moving page under it instead, with the filter of the `frosted` glass; the
+// snapshot puts the tint of the bar on top.
+:root[data-motion]::view-transition-group(bottom-bar) {
+  -webkit-backdrop-filter: blur(10px) saturate(1.8);
+  backdrop-filter: blur(10px) saturate(1.8);
+}
 :root[data-motion='section']::view-transition-old(root) {
   animation: vt-fade-out var(--motion-xs) var(--ease-exit) both;
 }
