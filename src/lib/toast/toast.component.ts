@@ -3,6 +3,7 @@ import {
   Component,
   ElementRef,
   afterRenderEffect,
+  DestroyRef,
   inject,
   viewChild,
 } from '@angular/core';
@@ -53,9 +54,21 @@ export class ToastComponent {
 
   private readonly stack = viewChild<ElementRef<HTMLElement>>('stack');
 
-  /** The swipe in progress: the toast, the pointer and where it started. */
-  private swipe: { readonly id: number; readonly pointer: number; readonly y: number } | null =
-    null;
+  /**
+   * The swipe in progress: the card, its toast, the pointer, where it started and how far
+   * up it is. The window takes the moves and the end of the pointer, so the swipe ends also
+   * when the browser sends the end to another element or the finger leaves the card.
+   */
+  private swipe: {
+    readonly el: HTMLElement;
+    readonly id: number;
+    readonly pointer: number;
+    readonly y: number;
+    readonly dy: number;
+  } | null = null;
+
+  private readonly onMove = (event: PointerEvent): void => this.swipeMove(event);
+  private readonly onEnd = (event: PointerEvent): void => this.swipeEnd(event);
 
   /** The icon of the tile: the start icon of the toast, else the icon of its variant. */
   protected tileIcon(toast: Toast): IconName {
@@ -65,39 +78,50 @@ export class ToastComponent {
   /** A press on a phone toast starts a swipe. */
   protected swipeStart(event: PointerEvent, id: number): void {
     if (!this.toastService.phone()) return;
-    this.swipe = { id, pointer: event.pointerId, y: event.clientY };
+    if (this.swipe) this.finish(this.swipe, false);
+    const el = event.currentTarget as HTMLElement;
+    this.swipe = { el, id, pointer: event.pointerId, y: event.clientY, dy: 0 };
+    const win = el.ownerDocument.defaultView;
+    win?.addEventListener('pointermove', this.onMove, true);
+    win?.addEventListener('pointerup', this.onEnd, true);
+    win?.addEventListener('pointercancel', this.onEnd, true);
   }
 
   /** The toast follows the pointer upwards, never down. */
-  protected swipeMove(event: PointerEvent, id: number): void {
+  private swipeMove(event: PointerEvent): void {
     const swipe = this.swipe;
-    if (!swipe || swipe.id !== id || swipe.pointer !== event.pointerId) return;
+    if (!swipe || swipe.pointer !== event.pointerId) return;
     const dy = Math.min(0, event.clientY - swipe.y);
-    const el = event.currentTarget as HTMLElement;
+    this.swipe = { ...swipe, dy };
     if (dy === 0) {
-      this.reset(el);
+      this.reset(swipe.el);
       return;
     }
-    el.style.setProperty('transform', `translateY(${dy}px)`);
-    el.style.setProperty('opacity', String(Math.max(0.2, 1 + dy / 120)));
+    swipe.el.style.setProperty('transform', `translateY(${dy}px)`);
+    swipe.el.style.setProperty('opacity', String(Math.max(0.2, 1 + dy / 120)));
   }
 
-  /** A swipe far enough up closes the toast; a shorter one lets it go back. */
-  protected swipeEnd(event: PointerEvent, id: number): void {
+  /**
+   * The swipe ends: the release, or a cancel (the system took the gesture at the top edge
+   * of the screen). A swipe far enough up closes the toast, a shorter one lets it go back.
+   * Every end decides, so the card never stays half moved.
+   */
+  private swipeEnd(event: PointerEvent): void {
     const swipe = this.swipe;
-    if (!swipe || swipe.id !== id || swipe.pointer !== event.pointerId) return;
-    this.swipe = null;
-    if (swipe.y - event.clientY >= TOAST_SWIPE_CLOSE_PX) {
-      this.toastService.dismiss(id);
-      return;
-    }
-    this.reset(event.currentTarget as HTMLElement);
+    if (!swipe || swipe.pointer !== event.pointerId) return;
+    const up =
+      event.type === 'pointerup' ? Math.max(-swipe.dy, swipe.y - event.clientY) : -swipe.dy;
+    this.finish(swipe, up >= TOAST_SWIPE_CLOSE_PX);
   }
 
-  /** The browser took the pointer (a scroll, a system gesture): the toast goes back. */
-  protected swipeCancel(event: PointerEvent): void {
+  private finish(swipe: NonNullable<ToastComponent['swipe']>, close: boolean): void {
     this.swipe = null;
-    this.reset(event.currentTarget as HTMLElement);
+    const win = swipe.el.ownerDocument.defaultView;
+    win?.removeEventListener('pointermove', this.onMove, true);
+    win?.removeEventListener('pointerup', this.onEnd, true);
+    win?.removeEventListener('pointercancel', this.onEnd, true);
+    if (close) this.toastService.dismiss(swipe.id);
+    else this.reset(swipe.el);
   }
 
   private reset(el: HTMLElement): void {
@@ -106,6 +130,9 @@ export class ToastComponent {
   }
 
   constructor() {
+    inject(DestroyRef).onDestroy(() => {
+      if (this.swipe) this.finish(this.swipe, false);
+    });
     afterRenderEffect(() => {
       const count = this.toastService.stackToasts().length;
       const el = this.stack()?.nativeElement as
