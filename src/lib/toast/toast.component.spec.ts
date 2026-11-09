@@ -7,23 +7,42 @@ import { TOAST_SWIPE_CLOSE_PX, ToastComponent } from './toast.component';
 import { ToastService } from './toast.service';
 
 describe('ToastComponent + ToastService', () => {
-  it('puts the stack in the top layer and raises it for a new toast', async () => {
-    const show = jest.fn();
-    const proto = HTMLElement.prototype as HTMLElement & { showPopover?: () => void; hidePopover?: () => void };
-    const had = [proto.showPopover, proto.hidePopover];
+  it('puts the stack in the top layer for a toast and takes it out once the stack is empty', async () => {
+    type Pop = HTMLElement & { showPopover?: () => void; hidePopover?: () => void };
+    const proto = HTMLElement.prototype as Pop;
+    const had = [proto.showPopover, proto.hidePopover, proto.matches] as const;
+    const show = jest.fn(function (this: HTMLElement) {
+      this.dataset['open'] = '1';
+    });
+    const hide = jest.fn(function (this: HTMLElement) {
+      delete this.dataset['open'];
+    });
     proto.showPopover = show;
-    proto.hidePopover = jest.fn();
+    proto.hidePopover = hide;
+    proto.matches = function (this: HTMLElement, selector: string): boolean {
+      return selector === ':popover-open' ? this.dataset['open'] === '1' : had[2].call(this, selector);
+    };
     try {
       const { fixture } = await render(ToastComponent);
       expect(document.querySelector('.toasts')).toHaveAttribute('popover', 'manual');
-      const before = show.mock.calls.length;
-      expect(before).toBeGreaterThan(0);
-      fixture.debugElement.injector.get(ToastService).success('Gespeichert');
+      expect(show).not.toHaveBeenCalled();
+      const svc = fixture.debugElement.injector.get(ToastService);
+      const id = svc.show('Gespeichert', 'success', 0);
       fixture.detectChanges();
       await fixture.whenStable();
-      expect(show.mock.calls.length).toBeGreaterThan(before);
+      expect(show).toHaveBeenCalledTimes(1);
+      const second = svc.show('Noch einer', 'info', 0);
+      fixture.detectChanges();
+      await fixture.whenStable();
+      expect(show).toHaveBeenCalledTimes(2);
+      svc.dismiss(id);
+      svc.dismiss(second);
+      fixture.detectChanges();
+      await fixture.whenStable();
+      await new Promise((resolve) => setTimeout(resolve, 300));
+      expect((document.querySelector('.toasts') as HTMLElement).dataset['open']).toBeUndefined();
     } finally {
-      [proto.showPopover, proto.hidePopover] = had;
+      [proto.showPopover, proto.hidePopover, proto.matches] = had;
     }
   });
 
@@ -150,6 +169,8 @@ describe('ToastComponent on a phone (specs 000562-000566)', () => {
     toast.dispatchEvent(pointer('pointermove', 80));
     expect(toast.style.transform).toBe('translateY(-20px)');
     toast.dispatchEvent(pointer('pointerup', 100 - TOAST_SWIPE_CLOSE_PX));
+    expect(toast.style.visibility).toBe('hidden');
+    expect(toast.style.opacity).toBe('0');
     fixture.detectChanges();
     expect(screen.queryByRole('status')).toBeNull();
   });

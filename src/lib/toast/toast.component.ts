@@ -15,6 +15,11 @@ import { type Toast, ToastService } from './toast.service';
 /** How far up (px) a swipe must move a phone toast before the toast closes. */
 export const TOAST_SWIPE_CLOSE_PX = 40;
 
+/** How often (ms) the empty stack checks that its last toast has left. */
+const STACK_CLOSE_STEP_MS = 100;
+/** The longest wait (ms) for a leaving toast before the empty stack closes anyway. */
+const STACK_CLOSE_MAX_MS = 1500;
+
 /** The icon of the tile of a toast by its variant, when the toast brings no icon. */
 const TILE_ICON: Record<Toast['variant'], IconName> = {
   info: 'info',
@@ -30,10 +35,9 @@ const TILE_ICON: Record<Toast['variant'], IconName> = {
  * `Announcer` (spec 000517). A new toast closes and opens the stack popover to raise it,
  * and a screen reader can drop a message of a region that leaves the page and comes back.
  *
- * A dialog opens in the top layer, so the stack is in the top layer too, from the first
- * render on. A new toast raises the stack
- * above a dialog that opened after it, so a toast about a dialog shows above that dialog.
- * An empty stack has no size and takes no press.
+ * A dialog opens in the top layer, so the stack shows in the top layer too. A new toast
+ * raises the stack above a dialog that opened after it, so a toast about a dialog shows above that dialog.
+ * An empty stack leaves the top layer once its last toast has left.
  *
  * Every width shows a toast as a tinted glass card with a round tile, a centred message and
  * round icon buttons (specs 000565, 000566, 000568). A wide screen keeps the stack at the
@@ -120,8 +124,48 @@ export class ToastComponent {
     win?.removeEventListener('pointermove', this.onMove, true);
     win?.removeEventListener('pointerup', this.onEnd, true);
     win?.removeEventListener('pointercancel', this.onEnd, true);
-    if (close) this.toastService.dismiss(swipe.id);
-    else this.reset(swipe.el);
+    if (close) {
+      this.hide(swipe.el, swipe.dy);
+      this.toastService.dismiss(swipe.id);
+    } else this.reset(swipe.el);
+  }
+
+  /**
+   * A swiped toast goes on up and fades out on its own, and is hidden at the end. So it is
+   * gone also when the leave animation of the stack does not run on a device.
+   */
+  private hide(el: HTMLElement, dy: number): void {
+    const style = el.style;
+    style.setProperty(
+      'transition',
+      'opacity var(--motion-fast) var(--ease-exit), transform var(--motion-fast) var(--ease-exit), visibility 0s linear var(--motion-fast)',
+    );
+    style.setProperty('transform', `translateY(${dy - 48}px)`);
+    style.setProperty('opacity', '0');
+    style.setProperty('visibility', 'hidden');
+    style.setProperty('pointer-events', 'none');
+  }
+
+  /**
+   * Takes the empty stack out of the top layer once the last toast has left. A phone kept
+   * the last frame of a leaving toast on the screen while the empty stack stayed open, so
+   * the stack closes as soon as no toast is in it, and after `STACK_CLOSE_MAX_MS` at the
+   * latest.
+   */
+  private closeWhenEmpty(el: HTMLElement & { hidePopover?: () => void }, waited = 0): void {
+    setTimeout(() => {
+      if (this.toastService.stackToasts().length > 0) return;
+      const leaving = el.querySelector('.toast') !== null;
+      if (leaving && waited < STACK_CLOSE_MAX_MS) {
+        this.closeWhenEmpty(el, waited + STACK_CLOSE_STEP_MS);
+        return;
+      }
+      try {
+        if (el.matches(':popover-open')) el.hidePopover?.();
+      } catch {
+        // The engine does not know the selector (jsdom, old browsers).
+      }
+    }, STACK_CLOSE_STEP_MS);
   }
 
   private reset(el: HTMLElement): void {
@@ -145,7 +189,10 @@ export class ToastComponent {
       } catch {
         // The engine does not know the selector (jsdom, old browsers).
       }
-      if (open && count === 0) return;
+      if (count === 0) {
+        if (open) this.closeWhenEmpty(el);
+        return;
+      }
       if (open) el.hidePopover();
       el.showPopover();
     });
