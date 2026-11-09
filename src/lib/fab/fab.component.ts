@@ -2,6 +2,7 @@ import {
   afterNextRender,
   ChangeDetectionStrategy,
   Component,
+  computed,
   DestroyRef,
   ElementRef,
   Injectable,
@@ -9,9 +10,12 @@ import {
   inject,
   input,
   output,
+  signal,
 } from '@angular/core';
+import { MEDIA } from '../breakpoints/breakpoints';
 import { ButtonComponent } from '../button/button.component';
 import { IconComponent, type IconName } from '../icon/icon.component';
+import { mediaQuery } from '../signals/media-query';
 import { FabGroupComponent } from './fab-group.component';
 
 /** A route for a fab: a press opens it instead of emitting `activate`. */
@@ -24,6 +28,9 @@ export interface FabLink {
  * `@stupa-makers/ui-kit/shell`), so the main entry does not need the router.
  */
 export const FAB_LINK = new InjectionToken<FabLink>('FAB_LINK');
+
+/** How far (px) a scroll area must be down before a phone fab folds. */
+export const FAB_FOLD_SCROLL_PX = 8;
 
 /** How long a fab shown again waits for the leaving sheet of its form to drop the focus. */
 const FAB_FOCUS_WAIT_MS = 1000;
@@ -69,6 +76,11 @@ export class FabFocusReturn {
  * It sits below dialogs, sheets and drawers (`--z-sticky`). A page hides it while a
  * selection bar or a form with its own primary action is open.
  *
+ * On a phone the label folds away while the page is scrolled down (spec 000567): the fab
+ * shrinks to a 56px square with its icon in `--motion-base` and gets the label back at the
+ * top. Any scroll area that scrolls vertically counts, so a list pane folds it too; a row
+ * that scrolls only sideways does not. The label stays the accessible name.
+ *
  * `iconOnly` makes it the round 56px icon button; the label is then its accessible name
  * and its title. `tone="neutral"` gives it the surface of a secondary action, for example
  * "Reset" beside "Save".
@@ -95,6 +107,7 @@ export class FabFocusReturn {
     '[class.fab--contained]': 'contained()',
     '[class.fab--grouped]': 'grouped',
     '[class.fab--neutral]': "tone() === 'neutral'",
+    '[class.fab--folded]': 'folded()',
   },
   template: `<app-button
     variant="fab"
@@ -105,7 +118,7 @@ export class FabFocusReturn {
     [disabled]="disabled()"
     (click)="onClick()"
   >
-    <app-icon [name]="icon()" />{{ iconOnly() ? '' : label() }}
+    <app-icon [name]="icon()" />@if (!iconOnly()) {<span class="fab__label">{{ label() }}</span>}
   </app-button>`,
   styleUrl: './fab.component.scss',
 })
@@ -123,6 +136,12 @@ export class FabComponent {
   readonly iconOnly = input(false);
   /** `accent`: the main action. `neutral`: a secondary action beside it in a group. */
   readonly tone = input<'accent' | 'neutral'>('accent');
+
+  private readonly phone = mediaQuery(MEDIA.phone);
+  /** The last scroll area that moved is down from its top. */
+  private readonly scrolled = signal(false);
+  /** A phone fab with a label shows only its icon while the page is scrolled down. */
+  protected readonly folded = computed(() => this.phone() && this.scrolled() && !this.iconOnly());
 
   /** The fab sits in an `app-fab-group`, which positions it. */
   protected readonly grouped = !!inject(FabGroupComponent, { optional: true });
@@ -157,7 +176,16 @@ export class FabComponent {
       if (this.back.label === this.label()) this.back.label = null;
     };
     host.addEventListener('focusin', clear);
+    // Scroll events do not bubble, so the capture phase on the document sees every scroll area.
+    const onScroll = (event: Event): void => {
+      const target = event.target;
+      const area = target instanceof Element ? target : doc.scrollingElement;
+      if (!area || area.scrollHeight <= area.clientHeight) return;
+      this.scrolled.set(area.scrollTop > FAB_FOLD_SCROLL_PX);
+    };
+    doc.addEventListener('scroll', onScroll, { capture: true, passive: true });
     inject(DestroyRef).onDestroy(() => {
+      doc.removeEventListener('scroll', onScroll, { capture: true });
       host.removeEventListener('focusin', clear);
       stopWaiting();
     });

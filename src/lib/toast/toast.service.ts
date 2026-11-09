@@ -107,7 +107,7 @@ export class ToastService {
   readonly hasTopBar = computed(() => this.topBars() > 0);
 
   /** The viewport is a phone, the same query as the bottom bar of the shell. */
-  private readonly phone = mediaQuery(MEDIA.phone);
+  readonly phone = mediaQuery(MEDIA.phone);
 
   private readonly inTopBar = (t: Toast): boolean =>
     t.phonePlacement === 'top' && this.phone() && this.hasTopBar();
@@ -121,8 +121,14 @@ export class ToastService {
     const danger = (t: Toast): boolean => t.barTone === 'danger';
     return [...top.filter(danger), ...top.filter((t) => !danger(t))];
   });
-  /** The toasts of the stack: all others. */
-  readonly stackToasts = computed(() => this._toasts().filter((t) => !this.inTopBar(t)));
+  /**
+   * The toasts of the stack: all others. A phone shows only the newest one (spec 000563):
+   * a new toast replaces the visible one, and each toast was read out when it came.
+   */
+  readonly stackToasts = computed(() => {
+    const stack = this._toasts().filter((t) => !this.inTopBar(t));
+    return this.phone() ? stack.slice(-1) : stack;
+  });
 
   /** Zeigt einen Toast; `timeout=0` deaktiviert das automatische Schließen. */
   show(message: string, variant: ToastVariant = 'info', timeout = 4000): number {

@@ -1,7 +1,9 @@
 import { render, screen } from '@testing-library/angular';
 import userEvent from '@testing-library/user-event';
+import { matchOnly } from '../../../testing/media';
+import { MEDIA } from '../breakpoints/breakpoints';
 import { DefaultUiKitIntl, UI_KIT_INTL } from '../intl/intl';
-import { ToastComponent } from './toast.component';
+import { TOAST_SWIPE_CLOSE_PX, ToastComponent } from './toast.component';
 import { ToastService } from './toast.service';
 
 describe('ToastComponent + ToastService', () => {
@@ -105,5 +107,90 @@ describe('ToastComponent + ToastService', () => {
     );
     await userEvent.click(reload);
     expect(closed).toHaveBeenCalledWith('action');
+  });
+});
+
+describe('ToastComponent on a phone (specs 000562-000566)', () => {
+  let restore: () => void;
+  beforeEach(() => (restore = matchOnly(MEDIA.phone)));
+  afterEach(() => restore());
+
+  function pointer(type: string, clientY: number): MouseEvent {
+    const event = new MouseEvent(type, { bubbles: true, cancelable: true, clientY });
+    Object.defineProperty(event, 'pointerId', { value: 1 });
+    return event;
+  }
+
+  async function phoneToast(message = 'Gespeichert') {
+    const { fixture } = await render(ToastComponent);
+    const svc = fixture.debugElement.injector.get(ToastService);
+    svc.show(message, 'success', 0);
+    fixture.detectChanges();
+    return { fixture, svc, toast: await screen.findByRole('status') };
+  }
+
+  it('shows only the newest toast', async () => {
+    const { fixture, svc } = await phoneToast('Erste');
+    svc.show('Zweite', 'info', 0);
+    fixture.detectChanges();
+    expect(screen.getAllByRole('status')).toHaveLength(1);
+    expect(screen.getByRole('status')).toHaveTextContent('Zweite');
+    expect(svc.toasts()).toHaveLength(2);
+  });
+
+  it('shows the icon of the variant in the tile', async () => {
+    const { toast } = await phoneToast();
+    expect(toast.querySelector('.toast__tile app-icon')).toBeTruthy();
+    expect(toast.querySelector('.toast__tile')).toHaveAttribute('aria-hidden', 'true');
+  });
+
+  it('closes the toast on a swipe up', async () => {
+    const { fixture, toast } = await phoneToast();
+    toast.dispatchEvent(pointer('pointerdown', 100));
+    toast.dispatchEvent(pointer('pointermove', 80));
+    expect(toast.style.transform).toBe('translateY(-20px)');
+    toast.dispatchEvent(pointer('pointerup', 100 - TOAST_SWIPE_CLOSE_PX));
+    fixture.detectChanges();
+    expect(screen.queryByRole('status')).toBeNull();
+  });
+
+  it('lets a short swipe and a swipe down go back', async () => {
+    const { fixture, toast } = await phoneToast();
+    toast.dispatchEvent(pointer('pointerdown', 100));
+    toast.dispatchEvent(pointer('pointermove', 140));
+    expect(toast.style.transform).toBe('');
+    toast.dispatchEvent(pointer('pointermove', 90));
+    toast.dispatchEvent(pointer('pointerup', 90));
+    fixture.detectChanges();
+    expect(toast.style.transform).toBe('');
+    expect(screen.getByRole('status')).toBe(toast);
+    toast.dispatchEvent(pointer('pointerdown', 100));
+    toast.dispatchEvent(pointer('pointermove', 50));
+    toast.dispatchEvent(pointer('pointercancel', 50));
+    fixture.detectChanges();
+    expect(toast.style.transform).toBe('');
+    expect(screen.getByRole('status')).toBe(toast);
+  });
+});
+
+describe('ToastComponent on a wide screen', () => {
+  let restore: () => void;
+  beforeEach(() => (restore = matchOnly(MEDIA.notPhone)));
+  afterEach(() => restore());
+
+  it('keeps the whole stack and takes no swipe', async () => {
+    const { fixture } = await render(ToastComponent);
+    const svc = fixture.debugElement.injector.get(ToastService);
+    svc.show('Erste', 'info', 0);
+    svc.show('Zweite', 'info', 0);
+    fixture.detectChanges();
+    const toasts = await screen.findAllByRole('status');
+    expect(toasts).toHaveLength(2);
+    const down = new MouseEvent('pointerdown', { bubbles: true, clientY: 100 });
+    const up = new MouseEvent('pointerup', { bubbles: true, clientY: 0 });
+    toasts[0].dispatchEvent(down);
+    toasts[0].dispatchEvent(up);
+    fixture.detectChanges();
+    expect(screen.getAllByRole('status')).toHaveLength(2);
   });
 });

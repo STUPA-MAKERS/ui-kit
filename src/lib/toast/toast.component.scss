@@ -1,4 +1,5 @@
 @use '../../styles/press';
+@use '../../styles/breakpoints' as bp;
 
 /* In the top layer (popover) the UA styles would stretch and frame the stack, so they are
    reset before the place is set. */
@@ -22,7 +23,7 @@
   max-width: min(92vw, 24rem);
 }
 /* A raised plate (surface 3). The variant colours only the leading edge: the message
-   itself says what happened. */
+   itself says what happened. The tile is for the phone card only. */
 .toast {
   display: flex;
   align-items: center;
@@ -34,6 +35,9 @@
   border-inline-start: 3px solid var(--color-border-strong);
   background: var(--color-surface-3);
   color: var(--color-text);
+}
+.toast__tile {
+  display: none;
 }
 .toast--success {
   border-color: var(--color-accent);
@@ -127,5 +131,92 @@
   to {
     opacity: 0;
     transform: translateY(var(--motion-shift-sm));
+  }
+}
+
+/* The phone (specs 000562-000566): a card at the top, under the top safe area, with a
+   gutter of 12px on each side. It is the selection colour as glass, the tint of the active
+   item of the bottom bar; an error is the danger tint. The round tile shows the icon, the
+   message is centred, and an action is a round icon button. There is no close button: a
+   swipe up or the time closes the toast, and an empty slot of the size of the action keeps
+   the message centred. `touch-action: none` gives the vertical swipe to the toast instead
+   of to the page. */
+@include bp.phone {
+  .toasts {
+    inset-block-start: calc(env(safe-area-inset-top, 0px) + var(--space-3));
+    inset-block-end: auto;
+    inset-inline: var(--space-3);
+    max-width: none;
+  }
+  .toast {
+    --toast-tile-bg: color-mix(in srgb, var(--color-text) 8%, transparent);
+    --toast-tile-fg: var(--color-text-muted);
+    min-height: 64px;
+    padding: var(--space-3);
+    border: 0;
+    border-radius: var(--radius-xl);
+    background: color-mix(in srgb, var(--color-selected) 75%, transparent);
+    -webkit-backdrop-filter: blur(16px) saturate(1.8);
+    backdrop-filter: blur(16px) saturate(1.8);
+    touch-action: none;
+    user-select: none;
+  }
+  .toast--success {
+    --toast-tile-fg: var(--color-accent-text);
+  }
+  .toast--warning {
+    --toast-tile-fg: var(--color-warning);
+  }
+  .toast--danger {
+    --toast-tile-fg: var(--color-danger);
+    background: color-mix(in srgb, var(--color-danger-subtle) 75%, transparent);
+  }
+  .toast__tile {
+    display: grid;
+    place-items: center;
+    flex: none;
+    width: 40px;
+    height: 40px;
+    border-radius: var(--radius-pill);
+    background: var(--toast-tile-bg);
+    color: var(--toast-tile-fg);
+  }
+  /* The start icon of a notice shows in the tile. */
+  .toast__icon:not(.toast__icon--end),
+  .toast__close {
+    display: none;
+  }
+  .toast__msg {
+    text-align: center;
+    font-weight: var(--fw-medium);
+  }
+  .toast__iconAction {
+    width: 40px;
+    height: 40px;
+    background: color-mix(in srgb, var(--color-text) 8%, transparent);
+    color: var(--color-text);
+  }
+  .toast:not(:has(.toast__iconAction, .toast__action, .toast__icon--end))::after {
+    content: '';
+    flex: none;
+    width: 40px;
+  }
+  .toast--entering {
+    animation-name: toast-in-top;
+  }
+  .toast--leaving {
+    animation-name: toast-out-top;
+  }
+}
+@keyframes toast-in-top {
+  from {
+    opacity: 0;
+    transform: translateY(calc(-2 * var(--motion-shift-sm)));
+  }
+}
+@keyframes toast-out-top {
+  to {
+    opacity: 0;
+    transform: translateY(calc(-2 * var(--motion-shift-sm)));
   }
 }

@@ -1,6 +1,8 @@
 import { render, screen } from '@testing-library/angular';
 import userEvent from '@testing-library/user-event';
 import { runAxe } from '../../../testing/a11y';
+import { matchOnly } from '../../../testing/media';
+import { MEDIA } from '../breakpoints/breakpoints';
 import { FabGroupComponent } from './fab-group.component';
 import { FabComponent } from './fab.component';
 
@@ -149,5 +151,70 @@ describe('FabComponent icon only and FabGroupComponent', () => {
       imports: [FabComponent],
     });
     expect(container.querySelector('app-fab')).not.toHaveClass('fab--grouped');
+  });
+});
+
+describe('FabComponent folds on a phone (spec 000567)', () => {
+  let restore: () => void;
+  afterEach(() => restore());
+
+  /** A scroll area of 100px with 400px of content, scrolled to `top`. */
+  function scroll(area: HTMLElement, top: number, scrollHeight = 400): void {
+    Object.defineProperty(area, 'scrollHeight', { value: scrollHeight, configurable: true });
+    Object.defineProperty(area, 'clientHeight', { value: 100, configurable: true });
+    Object.defineProperty(area, 'scrollTop', { value: top, configurable: true });
+    area.dispatchEvent(new Event('scroll'));
+  }
+
+  async function phoneFab(template = `<div class="area"></div><app-fab label="Antrag erfassen" />`) {
+    const view = await setup(template);
+    return {
+      view,
+      fab: view.container.querySelector('app-fab') as HTMLElement,
+      area: view.container.querySelector('.area') as HTMLElement,
+    };
+  }
+
+  it('folds while the page is scrolled down and unfolds at the top, with the label as name', async () => {
+    restore = matchOnly(MEDIA.phone);
+    const { view, fab, area } = await phoneFab();
+    expect(fab).not.toHaveClass('fab--folded');
+    expect(fab.querySelector('.fab__label')).toHaveTextContent('Antrag erfassen');
+    scroll(area, 200);
+    view.fixture.detectChanges();
+    expect(fab).toHaveClass('fab--folded');
+    expect(screen.getByRole('button', { name: 'Antrag erfassen' })).toBeTruthy();
+    scroll(area, 0);
+    view.fixture.detectChanges();
+    expect(fab).not.toHaveClass('fab--folded');
+  });
+
+  it('ignores a row that scrolls only sideways', async () => {
+    restore = matchOnly(MEDIA.phone);
+    const { view, fab, area } = await phoneFab();
+    scroll(area, 200);
+    view.fixture.detectChanges();
+    const row = document.createElement('div');
+    view.container.appendChild(row);
+    scroll(row, 0, 100);
+    view.fixture.detectChanges();
+    expect(fab).toHaveClass('fab--folded');
+  });
+
+  it('does not fold on a wide screen', async () => {
+    restore = matchOnly(MEDIA.notPhone);
+    const { view, fab, area } = await phoneFab();
+    scroll(area, 200);
+    view.fixture.detectChanges();
+    expect(fab).not.toHaveClass('fab--folded');
+  });
+
+  it('does not fold as an icon button', async () => {
+    restore = matchOnly(MEDIA.phone);
+    const round = await phoneFab(`<div class="area"></div><app-fab label="Neu" [iconOnly]="true" />`);
+    scroll(round.area, 200);
+    round.view.fixture.detectChanges();
+    expect(round.fab).not.toHaveClass('fab--folded');
+    expect(round.fab.querySelector('.fab__label')).toBeNull();
   });
 });
