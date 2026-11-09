@@ -29,7 +29,7 @@
 // On a phone the head moves near the edge of the rows. Below a sticky search bar
 // (`app-sticky-bar` sets `--stb-bottom`) it sticks right under the bar while its rows
 // scroll, as frosted glass from screen edge to screen edge that ends in a hard edge with a
-// hairline (`--edge-line`), so the month of the rows stays in view and the end of the glass is clear;
+// hairline (`edge-line`), so the month of the rows stays in view and the end of the glass is clear;
 // the next head pushes it away. Without the bar `top` is unset and it scrolls.
 // Two glass layers side by side show a seam: each blurs and tints only what lies behind
 // its own box. While the head sits right under the bar (`lg__head--under`), its glass
@@ -49,7 +49,7 @@
     @include frosted(var(--stb-bg, var(--color-bg)), bottom);
   }
   .lg__head--stuck {
-    box-shadow: var(--edge-line);
+    @include edge-line;
   }
   // Glass and its line only while the head is stuck over its rows (`lg__head--stuck`).
   .lg__head:not(.lg__head--stuck) {

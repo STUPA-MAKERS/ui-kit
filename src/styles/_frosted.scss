@@ -115,6 +115,24 @@
    the content next to the box into it: the title below a bar shows as a glow in the bar,
    and the rows below a group head look faded. Put it on the state in which the element
    has not scrolled or is not stuck. */
+/* The hairline at the edge of a glass bar on a phone, the same line as the tab line of a
+   tab pager: on the last pixel row of the box at `$side` (`bottom` for a bar at the top,
+   `top` for a bar at the foot of the window). The line lies inside the box, on top of the
+   glass, so no gap shows between the glass and the line at any device pixel ratio; a line
+   outside the box (a `box-shadow`) meets the masked glass at a rounded pixel edge. It is the
+   `::after` of the host, which needs `position`. */
+@mixin edge-line($side: bottom) {
+  &::after {
+    content: '';
+    position: absolute;
+    inset-inline: 0;
+    #{$side}: 0;
+    height: var(--border-width);
+    background: var(--color-border);
+    pointer-events: none;
+  }
+}
+
 @mixin frosted-rest($color) {
   background: $color;
 
