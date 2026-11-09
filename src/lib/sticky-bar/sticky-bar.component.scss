@@ -46,9 +46,9 @@
 
 /* On a phone the bar is frosted glass from screen edge to screen edge (`--stb-bleed`, the
    gutter of the page): the rows that scroll under it show through blurred. The glass ends
-   in a hard edge with a light shadow while it is stuck, so the end of the glass is clear;
-   the glass replaces the fade of the solid bar. A stuck group head right under the bar
-   (`ListGroupComponent`) continues the glass, so then the head carries the shadow and the
+   in a hard edge with a hairline (`--edge-line`) while it is stuck, so the end of the glass
+   is clear; the glass replaces the fade of the solid bar. A stuck group head right under the
+   bar (`ListGroupComponent`) continues the glass, so then the head carries the line and the
    bar has none, and no line shows between the two (`base.scss`, because the rule reads a
    class of another component). The gap above the field is the gutter
    at the sides, so the stuck field sits as far from the top of the screen as from its
@@ -66,7 +66,7 @@
     display: none;
   }
   :host(.stb--stuck) {
-    box-shadow: var(--shadow-md);
+    box-shadow: var(--edge-line);
   }
   /* Glass only while rows scroll under the bar (`stb--stuck`). */
   :host(:not(.stb--stuck)) {

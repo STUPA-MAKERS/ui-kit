@@ -12,8 +12,8 @@
    The bar has no rule: it is frosted glass (`frosted`), a see-through tint of the page
    colour over a blur, so the content that scrolls under it shows through blurred. A light shadow lifts it
    off the content once it is condensed and the page has scrolled, because only then does content
-   run under it. A bar with a fixed title (`title`) is condensed from the start, so the shadow
-   waits for the scroll too. */
+   run under it; on a phone a hairline (`--edge-line`) marks the edge instead. A bar with a fixed
+   title (`title`) is condensed from the start, so the edge waits for the scroll too. */
 :host {
   --ld-bar-gutter: var(--layout-gutter);
   position: sticky;
@@ -49,6 +49,9 @@
 @include bp.phone {
   :host {
     --ld-bar-gutter: var(--space-4);
+  }
+  :host(.ld__bar--condensed.ld__bar--under) {
+    box-shadow: var(--edge-line);
   }
 }
 

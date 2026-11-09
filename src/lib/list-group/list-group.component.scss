@@ -29,7 +29,7 @@
 // On a phone the head moves near the edge of the rows. Below a sticky search bar
 // (`app-sticky-bar` sets `--stb-bottom`) it sticks right under the bar while its rows
 // scroll, as frosted glass from screen edge to screen edge that ends in a hard edge with a
-// light shadow, so the month of the rows stays in view and the end of the glass is clear;
+// hairline (`--edge-line`), so the month of the rows stays in view and the end of the glass is clear;
 // the next head pushes it away. Without the bar `top` is unset and it scrolls.
 // Two glass layers side by side show a seam: each blurs and tints only what lies behind
 // its own box. While the head sits right under the bar (`lg__head--under`), its glass
@@ -49,9 +49,9 @@
     @include frosted(var(--stb-bg, var(--color-bg)), bottom);
   }
   .lg__head--stuck {
-    box-shadow: var(--shadow-md);
+    box-shadow: var(--edge-line);
   }
-  // Glass and its shadow only while the head is stuck over its rows (`lg__head--stuck`).
+  // Glass and its line only while the head is stuck over its rows (`lg__head--stuck`).
   .lg__head:not(.lg__head--stuck) {
     @include frosted-rest(var(--stb-bg, var(--color-bg)));
   }
@@ -64,7 +64,7 @@
 
 // Side by side, in a list column whose head is glass over its rows (`.ld-pane--glass`,
 // `styles/list-detail.scss`), the head of a group sticks right under the head of the
-// column (`--ld-pane-top`), the same as on a phone but without a shadow: glass with a
+// column (`--ld-pane-top`), the same as on a phone but without a line: glass with a
 // hard edge while stuck.
 //
 // While it sits right under the head of the column (`lg__head--under`), its glass reaches up

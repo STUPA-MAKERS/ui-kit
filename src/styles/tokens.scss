@@ -131,6 +131,12 @@
   --radius-2xl: 24px; // dialogs and sheets
   --radius-pill: 999px;
   --border-width: 1px;
+  /* The hairline at the edge of a glass bar on a phone, the same line as the tab line of a
+     tab pager: below a bar at the top (`--edge-line`), above a bar at the foot of the
+     window (`--edge-line-up`). It is a `box-shadow` without blur, so it lies outside the
+     box and the glass of the bar keeps its full height. */
+  --edge-line: 0 var(--border-width) 0 0 var(--color-border);
+  --edge-line-up: 0 calc(-1 * var(--border-width)) 0 0 var(--color-border);
 
   // --- LAYOUT -----------------------------------------------------------------
   --layout-max-width: 1180px;
