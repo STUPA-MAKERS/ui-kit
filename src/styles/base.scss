@@ -434,8 +434,8 @@ input[type='radio'] {
 // rule reads the class of one component and styles the other, so it lives here and not in
 // either component.
 @include bp.phone {
-  body:has(.lg__head--stuck) app-sticky-bar.stb--stuck {
-    box-shadow: none;
+  body:has(.lg__head--stuck) app-sticky-bar.stb--stuck::after {
+    display: none;
   }
   @supports (backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px)) {
     body:has(.lg__head--under) app-sticky-bar.stb--stuck::before {
