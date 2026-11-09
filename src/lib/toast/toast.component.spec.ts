@@ -165,11 +165,43 @@ describe('ToastComponent on a phone (specs 000562-000566)', () => {
     expect(toast.style.transform).toBe('');
     expect(screen.getByRole('status')).toBe(toast);
     toast.dispatchEvent(pointer('pointerdown', 100));
-    toast.dispatchEvent(pointer('pointermove', 50));
-    toast.dispatchEvent(pointer('pointercancel', 50));
+    toast.dispatchEvent(pointer('pointermove', 80));
+    toast.dispatchEvent(pointer('pointercancel', 80));
     fixture.detectChanges();
     expect(toast.style.transform).toBe('');
     expect(screen.getByRole('status')).toBe(toast);
+  });
+
+  it('closes a toast that is far up when the system takes the gesture', async () => {
+    const { fixture, toast } = await phoneToast();
+    toast.dispatchEvent(pointer('pointerdown', 100));
+    toast.dispatchEvent(pointer('pointermove', 100 - TOAST_SWIPE_CLOSE_PX - 10));
+    toast.dispatchEvent(pointer('pointercancel', 0));
+    fixture.detectChanges();
+    expect(screen.queryByRole('status')).toBeNull();
+  });
+
+  it('ends the swipe when the browser sends the move and the release to another element', async () => {
+    const { fixture, toast } = await phoneToast();
+    toast.dispatchEvent(pointer('pointerdown', 100));
+    document.body.dispatchEvent(pointer('pointermove', 30));
+    expect(toast.style.transform).toBe('translateY(-70px)');
+    document.body.dispatchEvent(pointer('pointerup', 30));
+    fixture.detectChanges();
+    expect(screen.queryByRole('status')).toBeNull();
+  });
+
+  it('keeps a tap on the action a click', async () => {
+    const { fixture } = await render(ToastComponent);
+    const svc = fixture.debugElement.injector.get(ToastService);
+    const closed = jest.fn();
+    svc.showAction({ message: 'Archiviert', action: 'Rückgängig', actionIcon: 'undo', timeout: 0, closed });
+    fixture.detectChanges();
+    const button = await screen.findByRole('button', { name: 'Rückgängig' });
+    button.dispatchEvent(pointer('pointerdown', 100));
+    button.dispatchEvent(pointer('pointerup', 100));
+    await userEvent.click(button);
+    expect(closed).toHaveBeenCalledWith('action');
   });
 });
 
