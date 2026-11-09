@@ -3,7 +3,7 @@ import userEvent from '@testing-library/user-event';
 import { matchOnly } from '../../../testing/media';
 import { MEDIA } from '../breakpoints/breakpoints';
 import { DefaultUiKitIntl, UI_KIT_INTL } from '../intl/intl';
-import { TOAST_SWIPE_CLOSE_PX, ToastComponent } from './toast.component';
+import { TOAST_LEAVE_MAX_MS, TOAST_SWIPE_CLOSE_PX, ToastComponent } from './toast.component';
 import { ToastService } from './toast.service';
 
 describe('ToastComponent + ToastService', () => {
@@ -44,6 +44,43 @@ describe('ToastComponent + ToastService', () => {
     } finally {
       [proto.showPopover, proto.hidePopover, proto.matches] = had;
     }
+  });
+
+  it('takes a leaving toast out after the longest leave time, also when its animation never ends', async () => {
+    const { fixture } = await render(ToastComponent);
+    const leave = (
+      fixture.componentInstance as unknown as {
+        leave: (event: { target: Element; animationComplete: () => void }) => void;
+      }
+    ).leave.bind(fixture.componentInstance);
+    const el = document.createElement('div');
+    const stuck = { finished: new Promise<never>(() => undefined) };
+    (el as unknown as { getAnimations: () => unknown[] }).getAnimations = () => [stuck];
+    const animationComplete = jest.fn();
+    leave({ target: el, animationComplete });
+    expect(el).toHaveClass('toast--leaving');
+    expect(animationComplete).not.toHaveBeenCalled();
+    await new Promise((resolve) => setTimeout(resolve, TOAST_LEAVE_MAX_MS + 50));
+    expect(animationComplete).toHaveBeenCalledTimes(1);
+  });
+
+  it('takes a leaving toast out once, when its animation ends before the longest leave time', async () => {
+    const { fixture } = await render(ToastComponent);
+    const leave = (
+      fixture.componentInstance as unknown as {
+        leave: (event: { target: Element; animationComplete: () => void }) => void;
+      }
+    ).leave.bind(fixture.componentInstance);
+    const el = document.createElement('div');
+    (el as unknown as { getAnimations: () => unknown[] }).getAnimations = () => [
+      { finished: Promise.resolve() },
+    ];
+    const animationComplete = jest.fn();
+    leave({ target: el, animationComplete });
+    await new Promise((resolve) => setTimeout(resolve, 0));
+    expect(animationComplete).toHaveBeenCalledTimes(1);
+    await new Promise((resolve) => setTimeout(resolve, TOAST_LEAVE_MAX_MS + 50));
+    expect(animationComplete).toHaveBeenCalledTimes(1);
   });
 
   // Default language is DE (navigator pinned in setup-jest); the EN case flips it via the

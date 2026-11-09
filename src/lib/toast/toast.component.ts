@@ -1,4 +1,5 @@
 import {
+  type AnimationCallbackEvent,
   ChangeDetectionStrategy,
   Component,
   ElementRef,
@@ -19,6 +20,13 @@ export const TOAST_SWIPE_CLOSE_PX = 40;
 const STACK_CLOSE_STEP_MS = 100;
 /** The longest wait (ms) for a leaving toast before the empty stack closes anyway. */
 const STACK_CLOSE_MAX_MS = 1500;
+
+/**
+ * The longest time (ms) a leaving toast stays in the page. A phone can leave the leave
+ * animation without its end event (it does not run, or it ends unseen), and a toast that
+ * waits for that event stays on the screen for ever and takes no swipe.
+ */
+export const TOAST_LEAVE_MAX_MS = 400;
 
 /** The icon of the tile of a toast by its variant, when the toast brings no icon. */
 const TILE_ICON: Record<Toast['variant'], IconName> = {
@@ -77,6 +85,21 @@ export class ToastComponent {
   /** The icon of the tile: the start icon of the toast, else the icon of its variant. */
   protected tileIcon(toast: Toast): IconName {
     return toast.icon && toast.iconPosition !== 'end' ? toast.icon : TILE_ICON[toast.variant];
+  }
+
+  /**
+   * The leave of a toast: it plays its leave animation and goes when the animation is
+   * finished, or after `TOAST_LEAVE_MAX_MS` at the latest. The toast never waits for an
+   * event that a device does not send, so a toast whose time ran out always goes.
+   */
+  protected leave(event: AnimationCallbackEvent): void {
+    const el = event.target as HTMLElement;
+    el.classList.add('toast--leaving');
+    const done = (): void => event.animationComplete();
+    const running = el.getAnimations?.() ?? [];
+    const finished = Promise.all(running.map((a) => a.finished));
+    const late = new Promise<void>((resolve) => setTimeout(resolve, TOAST_LEAVE_MAX_MS));
+    void Promise.race([finished, late]).then(done, done);
   }
 
   /** A press on a phone toast starts a swipe. */

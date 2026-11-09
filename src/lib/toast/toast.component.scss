@@ -22,6 +22,12 @@
   gap: var(--space-3);
   width: min(92vw, 24rem);
 }
+/* The `display` above wins over the UA rule that hides a closed popover, so a closed stack
+   is hidden here. A stack that only left the top layer still had a box, and a phone kept
+   painting the last frame of its glass toast. */
+.toasts:not(:popover-open) {
+  display: none;
+}
 /* The card on every width (specs 000565, 000566, 000568): the selection colour as glass, the
    tint of the active item of the navigation; an error is the danger tint. A round tile shows
    the icon, the message is centred, and the action and the close button are round tonal
