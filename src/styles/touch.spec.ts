@@ -151,13 +151,18 @@ describe('touch rules in the stylesheets', () => {
     if (chrome) expect(scss).toContain('@include press.chrome-text;');
   });
 
-  it('tints a pressed segment and shrinks the whole control, because the control clips it', () => {
+  it('shrinks only the pressed pill of a segmented control, never the track', () => {
     const scss = read('../lib/segmented/segmented.component.scss');
-    expect(scss).toMatch(/\.seg \{[^}]*transition: scale var\(--motion-xs\) var\(--ease-standard\);\s*@include press\.press-part\('\.seg__opt'\);/);
-    expect(scss).not.toMatch(/@include press\.press;/);
+    expect(scss).toMatch(/\.seg \{[^}]*@include press\.press-pill\('\.seg__opt', '\.seg__opt--on', '\.seg__pill'\);/);
+    expect(scss).not.toMatch(/\.seg \{[^}]*transition: scale/);
+    expect(scss).not.toMatch(/@include press\.press(-part)?[;(]/);
+    expect(scss).toMatch(/\.seg__pill \{[^}]*transition: scale var\(--motion-xs\) var\(--ease-standard\);/);
+    expect(scss).toMatch(/\.seg__opt \{[^}]*scale var\(--motion-xs\) var\(--ease-standard\);/);
     expect(scss).toContain('@include press.chrome-text;');
     const press = read('_press.scss');
-    expect(press).toMatch(/@mixin press-part\(\$part, \$scale: row\) \{\s*&:has\(#\{\$part\}:active/);
+    expect(press).not.toContain('press-part');
+    expect(press).toMatch(/@mixin press-pill\(\$part, \$on, \$pill, \$scale: control\) \{/);
+    expect(press).toMatch(/&:has\(#\{\$on\}:active[^)]*\)\)\) > #\{\$pill\} \{/);
   });
 
   it.each([

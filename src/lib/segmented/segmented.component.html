@@ -1,9 +1,11 @@
 <div
+  #track
   class="seg"
   role="radiogroup"
   [attr.aria-label]="ariaLabel() || null"
   [attr.aria-disabled]="isDisabled() ? 'true' : null"
 >
+  <span #pill class="seg__pill" aria-hidden="true"></span>
   @for (opt of options(); track opt.value; let i = $index) {
     <button
       type="button"

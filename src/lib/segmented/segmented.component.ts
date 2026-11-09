@@ -1,12 +1,16 @@
 import {
   ChangeDetectionStrategy,
   Component,
+  DestroyRef,
   ElementRef,
+  afterNextRender,
+  afterRenderEffect,
   computed,
   inject,
   input,
   model,
   signal,
+  viewChild,
 } from '@angular/core';
 import { NG_VALUE_ACCESSOR, type ControlValueAccessor } from '@angular/forms';
 
@@ -36,7 +40,8 @@ export type SegmentedWidth = 'auto' | 'equal' | 'fill';
 /**
  * Segmented control: a small set of exclusive options in one row (Ausgabe/Einnahme,
  * Anwesend/Abwesend, a majority rule). It is a pill track, and the chosen option is a
- * filled pill in it (app spec 000561). A segment shows its label and never a count (app
+ * filled pill in it that slides to a new choice (app spec 000561). A press shrinks only
+ * that pill, never the track (app spec 000528). A segment shows its label and never a count (app
  * spec 000560). It follows the WAI-ARIA radio group pattern:
  * one tab stop, the arrow keys move the selection, Home and End jump to the ends.
  *
@@ -60,6 +65,8 @@ export type SegmentedWidth = 'auto' | 'equal' | 'fill';
 })
 export class SegmentedComponent implements ControlValueAccessor {
   private readonly host = inject<ElementRef<HTMLElement>>(ElementRef);
+  private readonly track = viewChild.required<ElementRef<HTMLElement>>('track');
+  private readonly pill = viewChild.required<ElementRef<HTMLElement>>('pill');
 
   readonly options = input<readonly SegmentedOption[]>([]);
   readonly value = model<string | null>(null);
@@ -84,6 +91,51 @@ export class SegmentedComponent implements ControlValueAccessor {
     return (current ?? opts.find((o) => !o.disabled))?.value ?? null;
   });
 
+
+  constructor() {
+    // The pill is one element behind the segments. It takes the box of the chosen segment
+    // after each render that changes the choice or the options, and after each resize (a
+    // label that wraps, a font that loads, a control that was hidden).
+    afterRenderEffect(() => this.placePill(this.chosenIndex()));
+    const observer =
+      typeof ResizeObserver === 'undefined'
+        ? null
+        : new ResizeObserver(() => this.placePill(this.chosenIndex()));
+    afterNextRender(() => {
+      const track = this.track().nativeElement;
+      observer?.observe(track);
+      track.querySelectorAll('[role="radio"]').forEach((opt) => observer?.observe(opt));
+    });
+    inject(DestroyRef).onDestroy(() => observer?.disconnect());
+  }
+
+  /**
+   * Move the pill to the box of the chosen segment. Without a chosen segment, or while the
+   * control has no layout (hidden, or a test without layout), the pill hides and the chosen
+   * segment paints its own fill (`seg--pill` is off). The slide turns on one frame after the
+   * first placement, so the pill does not slide in when the control shows.
+   */
+  private placePill(index: number): void {
+    const track = this.track().nativeElement;
+    const pill = this.pill().nativeElement;
+    const on = index < 0 ? null : track.querySelectorAll<HTMLElement>('[role="radio"]')[index];
+    if (!on || on.offsetWidth === 0) {
+      track.classList.remove('seg--pill', 'seg--slide');
+      return;
+    }
+    pill.style.setProperty('width', `${on.offsetWidth}px`);
+    pill.style.setProperty('height', `${on.offsetHeight}px`);
+    pill.style.setProperty('--seg-pill-x', `${on.offsetLeft}px`);
+    pill.style.setProperty('--seg-pill-y', `${on.offsetTop}px`);
+    if (track.classList.contains('seg--pill')) return;
+    track.classList.add('seg--pill');
+    requestAnimationFrame(() => track.classList.add('seg--slide'));
+  }
+
+  /** The index of the chosen option, or -1. */
+  private readonly chosenIndex = computed(() =>
+    this.options().findIndex((o) => o.value === this.value()),
+  );
 
   private onChange: (value: string) => void = () => {};
   onTouched: () => void = () => {};

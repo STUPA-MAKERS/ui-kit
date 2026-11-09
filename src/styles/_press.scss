@@ -56,17 +56,20 @@
   }
 }
 
-// The press of a part of a group that clips its parts to one rounded edge (a segment of a
-// segmented control): the pressed part tints, and the whole group shrinks. A part that
-// shrinks alone pulls its fill away from the border and the clipped edge of the group, and
-// the gap reads as a broken control. Use it on the group; `$part` is the selector of a part.
-// The group is wide, so it shrinks by the row amount by default.
-@mixin press-part($part, $scale: row) {
-  &:has(#{$part}:active:not(:disabled):not([aria-disabled='true'])) {
+// The press of a segment of a pill track (a segmented control) whose chosen segment is
+// painted by one sliding pill behind the segments. Only a pill shrinks, never the track:
+// the track has no border and clips nothing, so a pill that shrinks leaves no gap, while a
+// track that shrinks moves the whole row. A press on the chosen segment tints and shrinks
+// the sliding pill; a press on another segment tints that segment as a pill and shrinks it.
+// Use it on the track; `$part` is a segment, `$on` the chosen one, `$pill` the sliding pill.
+@mixin press-pill($part, $on, $pill, $scale: control) {
+  #{$part}:active:not(#{$on}):not(:disabled):not([aria-disabled='true']) {
+    background-image: linear-gradient(var(--press-tint), var(--press-tint));
     @include press-scale($scale);
   }
-  #{$part}:active:not(:disabled):not([aria-disabled='true']) {
+  &:has(#{$on}:active:not(:disabled):not([aria-disabled='true'])) > #{$pill} {
     background-image: linear-gradient(var(--press-tint), var(--press-tint));
+    @include press-scale($scale);
   }
 }
 

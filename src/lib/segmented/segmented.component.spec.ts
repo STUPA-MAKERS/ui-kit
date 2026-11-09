@@ -40,14 +40,46 @@ describe('SegmentedComponent', () => {
     expect(container.querySelector('app-segmented')).not.toHaveClass('seg-host--control');
   });
 
-  it('fades the selection instead of sliding an indicator', async () => {
+  it('has one sliding pill behind the segments, hidden from assistive technology', async () => {
     const { container } = await render(
       `<app-segmented ariaLabel="Regel" width="fill" [options]="opts" value="two_thirds" />`,
       { imports: [SegmentedComponent], componentProperties: { opts: RULES } },
     );
-    expect(container.querySelector('.seg__ind')).toBeNull();
+    const pills = container.querySelectorAll('.seg__pill');
+    expect(pills).toHaveLength(1);
+    expect(pills[0]).toHaveAttribute('aria-hidden', 'true');
     const radios = container.querySelectorAll('[role="radio"]');
     expect(radios[2]).toHaveClass('seg__opt--on');
+  });
+
+  it('paints the chosen segment itself while the control has no layout', async () => {
+    const { container } = await render(Host);
+    // jsdom has no layout: every box is 0 wide, so the pill is not placed.
+    expect(container.querySelector('.seg')).not.toHaveClass('seg--pill');
+  });
+
+  it('moves the pill to the box of the chosen segment', async () => {
+    const { container, fixture } = await render(Host);
+    const radios = [...container.querySelectorAll<HTMLElement>('[role="radio"]')];
+    const boxes = [
+      { left: 4, top: 4, width: 80, height: 36 },
+      { left: 86, top: 4, width: 96, height: 36 },
+    ];
+    radios.forEach((r, i) => {
+      Object.defineProperty(r, 'offsetLeft', { get: () => boxes[i].left });
+      Object.defineProperty(r, 'offsetTop', { get: () => boxes[i].top });
+      Object.defineProperty(r, 'offsetWidth', { get: () => boxes[i].width });
+      Object.defineProperty(r, 'offsetHeight', { get: () => boxes[i].height });
+    });
+    await userEvent.click(radios[1]);
+    fixture.detectChanges();
+    await fixture.whenStable();
+    const pill = container.querySelector<HTMLElement>('.seg__pill')!;
+    expect(container.querySelector('.seg')).toHaveClass('seg--pill');
+    expect(pill.style.width).toBe('96px');
+    expect(pill.style.height).toBe('36px');
+    expect(pill.style.getPropertyValue('--seg-pill-x')).toBe('86px');
+    expect(pill.style.getPropertyValue('--seg-pill-y')).toBe('4px');
   });
 
   it('takes the button height with size="control"', async () => {

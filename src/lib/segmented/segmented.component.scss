@@ -1,12 +1,17 @@
 @use '../../styles/press';
 
 :host {
+  /* The fill of the chosen pill: the primary colour mixed into the surface, so that it
+     stands out from the track in both themes. */
+  --seg-on-fill: color-mix(in srgb, var(--color-primary) 26%, var(--color-surface-1));
   display: inline-flex;
   max-width: 100%;
 }
 /* The track: a pill in a faint tint of the text colour, so that it shows on every surface
    (page, card, sheet) in both themes. It has no border and no dividers (app spec 000561). */
 .seg {
+  position: relative;
+  isolation: isolate;
   display: inline-flex;
   align-items: stretch;
   gap: 2px;
@@ -15,10 +20,37 @@
   padding: 4px;
   border-radius: var(--radius-pill);
   background: color-mix(in srgb, var(--color-text) 7%, transparent);
-  /* A press tints the segment and shrinks the whole control: a segment that shrinks alone
-     moves its pill away from the track (app spec 000528). */
+  /* A press shrinks only the pill of the pressed segment, never the track: the track has
+     no border and clips nothing, so a pill that shrinks leaves no gap (app spec 000528). */
+  @include press.press-pill('.seg__opt', '.seg__opt--on', '.seg__pill');
+}
+/* The chosen pill: one element behind the segments. The component sets its size and its
+   offset to the box of the chosen segment, so a new choice slides it there and gives it
+   the new width (app spec 000561). Until it is placed, the chosen segment paints its own
+   fill (below), so a control without layout still shows the choice. */
+.seg__pill {
+  position: absolute;
+  z-index: -1;
+  top: 0;
+  left: 0;
+  display: none;
+  translate: var(--seg-pill-x, 0) var(--seg-pill-y, 0);
+  border-radius: var(--radius-pill);
+  background: var(--seg-on-fill);
+  pointer-events: none;
   transition: scale var(--motion-xs) var(--ease-standard);
-  @include press.press-part('.seg__opt');
+}
+.seg--pill > .seg__pill {
+  display: block;
+}
+@media (prefers-reduced-motion: no-preference) {
+  .seg--slide > .seg__pill {
+    transition:
+      translate var(--motion-base) var(--ease-standard),
+      width var(--motion-base) var(--ease-standard),
+      height var(--motion-base) var(--ease-standard),
+      scale var(--motion-xs) var(--ease-standard);
+  }
 }
 .seg__opt {
   @include press.chrome-text;
@@ -35,10 +67,11 @@
   font-size: 0.84375rem; /* 13.5px */
   font-weight: var(--fw-medium);
   cursor: pointer;
-  /* A new selection fades: the old pill loses its fill while the new one gains it. */
+  /* The label colour changes while the pill slides. */
   transition:
-    background-color var(--motion-base) var(--ease-standard),
-    color var(--motion-base) var(--ease-standard);
+    background-color var(--motion-fast) var(--ease-standard),
+    color var(--motion-base) var(--ease-standard),
+    scale var(--motion-xs) var(--ease-standard);
 }
 @media (hover: hover) {
   .seg__opt:hover:not(:disabled):not(.seg__opt--on) {
@@ -46,12 +79,14 @@
     color: var(--color-text);
   }
 }
-/* The chosen pill: the primary colour mixed into the surface, so that it stands out from
-   the track in both themes. The bold label marks it too, so the fill is not the only sign. */
+/* The chosen segment: a bold label, so the fill is not the only sign. Its fill is the
+   sliding pill; it paints the fill itself only while the pill is not placed. */
 .seg__opt--on {
-  background: color-mix(in srgb, var(--color-primary) 26%, var(--color-surface-1));
   color: var(--color-on-selected);
   font-weight: var(--fw-semibold);
+}
+.seg:not(.seg--pill) > .seg__opt--on {
+  background: var(--seg-on-fill);
 }
 .seg__opt:disabled {
   opacity: 0.4;
