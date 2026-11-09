@@ -95,7 +95,7 @@ describe('touch rules in the stylesheets', () => {
     const scale = press.indexOf('scale: amount-of($scale);');
     expect(press.slice(0, scale).lastIndexOf('@media (prefers-reduced-motion: no-preference)'))
       .toBeGreaterThan(press.slice(0, scale).lastIndexOf('@mixin press-scale'));
-    expect(press.match(/@include press-scale\(\$scale\);/g)).toHaveLength(3);
+    expect(press.match(/@include press-scale\(\$scale\);/g)).toHaveLength(4);
     expect(read('base.scss')).toMatch(/-webkit-tap-highlight-color: transparent;/);
   });
 
@@ -162,7 +162,7 @@ describe('touch rules in the stylesheets', () => {
     const press = read('_press.scss');
     expect(press).not.toContain('press-part');
     expect(press).toMatch(/@mixin press-pill\(\$part, \$on, \$pill, \$scale: control\) \{/);
-    expect(press).toMatch(/&:has\(#\{\$on\}:active[^)]*\)\)\) > #\{\$pill\} \{/);
+    expect(press).toContain("&:has(#{$on}:active:not(:disabled):not([aria-disabled='true'])) > #{$pill} {");
   });
 
   it.each([
