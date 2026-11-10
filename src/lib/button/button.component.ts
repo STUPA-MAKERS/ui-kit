@@ -87,6 +87,11 @@ export class ButtonComponent {
   @Input() ariaExpanded: boolean | null = null;
   /** The id of the region that the button controls (`aria-controls`). */
   @Input() ariaControls: string | null = null;
+  /**
+   * A count at the end of a labelled button, on a round plate ("Kommentare 3"). `null`
+   * shows no plate. The plate is decorative: put the count into `ariaLabel` as well.
+   */
+  @Input() count: number | null = null;
   /** Hover-Tooltip; bei Icon-Buttons fällt er automatisch auf `ariaLabel` zurück. */
   @Input() title = '';
 

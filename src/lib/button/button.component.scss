@@ -362,6 +362,75 @@
 .btn--icon .btn__label ::ng-deep > app-icon {
   height: auto;
 }
+/* The count plate at the end of a labelled button (`count`). It is a flex item of the
+   button, so its centre is on the centre line of the button. The space after the text is
+   4px, as a word space. */
+.btn__count {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  min-width: 20px;
+  height: 20px;
+  margin-inline-start: calc(4px - var(--space-2));
+  padding: 0 6px;
+  border-radius: var(--radius-pill);
+  background: var(--color-surface-3);
+  color: var(--color-text-muted);
+  /* 11.5px: the baseline of the trimmed digits falls on a whole pixel, 4.0px below the
+     centre of the 20px plate. Blink draws text on a whole-pixel baseline, so at 12.5px the
+     digit moved 0.4px off the centre. */
+  font-size: var(--fs-cap);
+  font-weight: var(--fw-medium);
+}
+.btn__countN {
+  line-height: 1;
+}
+/* The centre of the capitals is on the centre line of the button (app spec 000603). The
+   line box of a text depends on the ascent and the descent of the font, and the capitals
+   sit about 1px off its middle: above it in a button, below it in the count plate. A box
+   trimmed to the capitals (`text-box`) has the capitals as its height, so the flex centre
+   of the button and of the plate is the centre of the capitals in every engine.
+   The label clips its overflow for the ellipsis. Its padding keeps the descenders, the
+   accents and the icon inside the clip box, and the negative margin of the same size
+   keeps the trimmed height for the layout. An icon in the label is as high as its glyph.
+   An inline icon has its centre on the centre of the capitals by its baseline offset. The
+   leading icon is placed on the button: its centre is on the centre of the end cap and
+   on the centre line, and the label keeps its room as padding. A float sat on the top of
+   the untrimmed line box, about 4px above the capitals. The label does not clip the icon,
+   because the button and not the label is its containing block. A browser without
+   `text-box` keeps the line box and the float. */
+@supports (text-box: trim-both cap alphabetic) {
+  .btn__countN {
+    text-box: trim-both cap alphabetic;
+  }
+  .btn:not(.btn--icon) .btn__label {
+    text-box: trim-both cap alphabetic;
+    padding-block: 0.5em;
+    margin-block: -0.5em;
+  }
+  .btn:not(.btn--icon) .btn__label ::ng-deep > app-icon {
+    height: var(--icon-size, 18px);
+    vertical-align: calc(0.5cap - var(--icon-size, 18px) / 2);
+  }
+  .btn:not(.btn--icon):not(.btn--fab) .btn__label ::ng-deep > app-icon:first-child,
+  .btn:not(.btn--icon):not(.btn--fab) .btn__label ::ng-deep > :first-child > app-icon:first-child {
+    position: absolute;
+    inset-block-start: calc(50% - var(--icon-size, 18px) / 2);
+    inset-inline-start: calc(var(--btn-h) / 2 - var(--icon-size, 18px) / 2 - var(--border-width));
+    float: none;
+    margin: 0;
+  }
+  :host ::ng-deep .btn:not(.btn--icon):not(.btn--fab) > .btn__label:has(> app-icon:first-child),
+  :host
+    ::ng-deep
+    .btn:not(.btn--icon):not(.btn--fab)
+    > .btn__label:has(> :first-child > app-icon:first-child) {
+    padding-inline-start: calc(
+      var(--btn-h) / 2 + var(--icon-size, 18px) / 2 - var(--border-width) + var(--space-2)
+    );
+  }
+}
 /* Spinner liegt ÜBER dem (unsichtbaren) Inhalt statt daneben: der Button
    behält beim Laden exakt seine Größe (kein Breiten-Sprung, #send-glitch). */
 .btn__spinner {
