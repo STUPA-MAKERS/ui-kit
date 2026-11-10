@@ -87,7 +87,7 @@
 .rowgroup.rowgroup--records > * {
   box-sizing: border-box;
   min-height: 4rem;
-  padding-inline: var(--space-5) var(--space-4);
+  padding: 10px var(--space-4) 10px var(--space-5);
 }
 .rowgroup__title {
   color: var(--color-text);

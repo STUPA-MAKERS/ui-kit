@@ -318,7 +318,7 @@ describe('motion and list pane partials', () => {
     expect(settings).toMatch(/padding: var\(--space-3\) var\(--space-4\);/);
     const records = block(rowgroup, '.rowgroup.rowgroup--records > * {');
     expect(records).toMatch(/min-height: 4rem;/);
-    expect(records).toMatch(/padding-inline: var\(--space-5\) var\(--space-4\);/);
+    expect(records).toMatch(/padding: 10px var\(--space-4\) 10px var\(--space-5\);/);
     const title = block(rowgroup, '.rowgroup__title {');
     const item = block(read('../lib/list-item/list-item.component.scss'), '\n.li__title {');
     for (const rule of ['font-size', 'font-weight', 'line-height']) {
