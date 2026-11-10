@@ -424,7 +424,7 @@ describe('DataTableComponent', () => {
     });
   });
 
-  describe('sticky head', () => {
+  describe('stickyHead', () => {
     it('marks the box only when the caller asks for a sticky head', async () => {
       const { container, rerender } = await render(
         `<app-data-table [columns]="cols" [rows]="rows" [stickyHead]="sticky" />`,
