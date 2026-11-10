@@ -1,3 +1,4 @@
+@use '../../styles/field' as f;
 @use '../../styles/skeleton-bar' as bar;
 @use '../../styles/press';
 @use '../../styles/display' as d;
@@ -452,6 +453,7 @@
 /* A selected row takes the selection colour, its pinned cells included. */
 .dt__table tbody tr.dt__row--selected td {
   background: var(--color-selected);
+  @include f.highlight-chosen($edge: false);
 }
 .dt__table tbody tr.dt__row--selected td.dt__cell--stickyEnd,
 .dt__table tbody tr.dt__row--selected td.dt__cell--stickyStart {
