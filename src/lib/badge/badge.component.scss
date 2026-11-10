@@ -1,3 +1,5 @@
+@use '../../styles/display' as d;
+
 /* Tag: a feature of the thing (NÖ, Stimmrecht, Pool). A small plate, radius 6. */
 .badge {
   display: inline-flex;
@@ -48,4 +50,14 @@
 }
 :host-context(:root[data-theme='dark']) .badge--custom {
   color: var(--badge-text-dark, var(--color-text));
+}
+
+/* Highlighted fields (app spec 000598): a tag is a black plate with yellow text, as the
+   count plate of a button, so it stands out on the page and on a yellow row. */
+@include d.host-on(fields) {
+  .badge--neutral,
+  .badge--accent {
+    background: var(--field-text);
+    color: var(--field-bg);
+  }
 }

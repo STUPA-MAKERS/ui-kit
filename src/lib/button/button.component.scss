@@ -239,6 +239,16 @@
     background: var(--field-text);
     color: var(--field-bg);
   }
+  /* The count plate is black with a yellow number, so it stands out on the yellow button;
+     on a pressed (black) button it turns round. */
+  .btn > .btn__count.num {
+    background: var(--field-text);
+    color: var(--field-bg);
+  }
+  [aria-pressed='true'] > .btn__count.num {
+    background: var(--field-bg);
+    color: var(--field-text);
+  }
 }
 @media (hover: hover) {
   @include d.host-on(fields) {

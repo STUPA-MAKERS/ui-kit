@@ -122,7 +122,8 @@
 
   // The black ring over the outer edge (`_field.scss` `ring`): the yellow background reaches
   // the outer edge, so its anti-aliased rim shows outside the black inset edge at a rounded
-  // corner. A 2px outline centred on the edge covers that rim. The rule is global, because
+  // corner. A 2px outline on the inner side of the edge covers that rim; it stays inside the
+  // box, because a scroll container cuts what is outside. The rule is global, because
   // it beats the component rules of every listed control.
   .chip,
   .sp,
@@ -138,11 +139,11 @@
   .btn--fab,
   input[type='radio'] {
     outline: 2px solid var(--field-text);
-    outline-offset: -1px;
+    outline-offset: -2px;
   }
   .btn--danger {
     outline: 2px solid var(--field-danger);
-    outline-offset: -1px;
+    outline-offset: -2px;
   }
 
   // An icon button that a page draws itself (a button or a link with an accessible name and
@@ -158,7 +159,7 @@
     color: var(--field-text);
     box-shadow: inset 0 0 0 2px var(--field-text);
     outline: 2px solid var(--field-text);
-    outline-offset: -1px;
+    outline-offset: -2px;
   }
   :is(button, a)[aria-label][aria-pressed='true']:has(> app-icon:only-child, > svg:only-child):not(
       .btn,
@@ -185,7 +186,7 @@
     color: var(--field-text);
     box-shadow: var(--field-edge);
     outline: 2px solid var(--field-text);
-    outline-offset: -1px;
+    outline-offset: -2px;
   }
 
   // A native radio button: the same yellow box, a black dot when checked.

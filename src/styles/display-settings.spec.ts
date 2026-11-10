@@ -118,6 +118,12 @@ describe('highlightedButtons (§000598)', () => {
       /\.btn--danger \{\s*background: var\(--field-bg\);\s*color: var\(--field-danger\);/,
     );
   });
+  it('makes the count plate black with a yellow number', () => {
+    const button = readFileSync(join(STYLES, '../lib/button/button.component.scss'), 'utf8');
+    expect(button).toMatch(
+      /\.btn > \.btn__count\.num \{\s*background: var\(--field-text\);\s*color: var\(--field-bg\);/,
+    );
+  });
 });
 
 describe('highlightedChips (§000598)', () => {
@@ -146,11 +152,11 @@ describe('highlightedOwnChecks (§000598)', () => {
 describe('highlightedRing (§000598)', () => {
   it('covers the outer rim of every yellow surface with a black ring', () => {
     expect(DISPLAY).toMatch(
-      /\.sp,[\s\S]*?input\[type='radio'\] \{\s*outline: 2px solid var\(--field-text\);\s*outline-offset: -1px;/,
+      /\.sp,[\s\S]*?input\[type='radio'\] \{\s*outline: 2px solid var\(--field-text\);\s*outline-offset: -2px;/,
     );
     const field = readFileSync(join(STYLES, '_field.scss'), 'utf8');
     expect(field).toMatch(
-      /@mixin -ring \{\s*outline: 2px solid var\(--field-text\);\s*outline-offset: -1px;/,
+      /@mixin -ring \{\s*outline: 2px solid var\(--field-text\);\s*outline-offset: -2px;/,
     );
   });
 });
@@ -280,5 +286,27 @@ describe('settingsFollowChoice (§000219, §000594)', () => {
 
   it('turns off the press scale with less motion', () => {
     expect(DISPLAY).toMatch(/--press-scale: 1;\s*--press-scale-control: 1;/);
+  });
+});
+
+describe('highlightedTagsAndBars (§000598)', () => {
+  it('makes a tag a black plate with yellow text', () => {
+    const css = readFileSync(join(STYLES, '../lib/badge/badge.component.scss'), 'utf8');
+    expect(css).toMatch(
+      /\.badge--neutral,\s*\.badge--accent \{\s*background: var\(--field-text\);\s*color: var\(--field-bg\);/,
+    );
+  });
+  it('makes the bar a yellow plate with black parts', () => {
+    const css = readFileSync(join(STYLES, '../lib/seg-bar/seg-bar.component.scss'), 'utf8');
+    expect(css).toMatch(/\.bar__seg--filled,\s*\.bar__seg--muted \{\s*background: var\(--field-text\);/);
+    expect(css).toMatch(/& \{[^}]*padding: 2px;[^}]*background: var\(--field-bg\);/);
+  });
+});
+
+describe('ringInside (§000598)', () => {
+  it('keeps the ring inside the box, so a scroll container does not cut it', () => {
+    const field = readFileSync(join(STYLES, '_field.scss'), 'utf8');
+    expect(field).not.toContain('outline-offset: -1px');
+    expect(DISPLAY).not.toContain('outline-offset: -1px');
   });
 });

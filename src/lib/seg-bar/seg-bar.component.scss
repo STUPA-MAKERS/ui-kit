@@ -1,3 +1,5 @@
+@use '../../styles/display' as d;
+
 :host {
   display: flex;
   gap: 3px;
@@ -54,4 +56,44 @@
 .bar__rest {
   flex: 1 1 0;
   background: var(--color-surface-4);
+}
+
+/* Highlighted fields (app spec 000598): the bar is a yellow plate, and the parts are black
+   in it. The plate keeps the bar readable on a dark page too, where a black part alone
+   would not show. The plate adds 2px on each side (1px for the thin bar), so the parts
+   keep their height. */
+@include d.host-on(fields) {
+  & {
+    box-sizing: border-box;
+    height: 10px;
+    padding: 2px;
+    border-radius: 5px;
+    background: var(--field-bg);
+  }
+  .bar__seg--filled,
+  .bar__seg--muted {
+    background: var(--field-text);
+  }
+  .bar__seg--second {
+    background: color-mix(in srgb, var(--field-text) 50%, var(--field-bg));
+  }
+  .bar__seg--error {
+    background: var(--field-danger);
+  }
+  .bar__rest {
+    background: transparent;
+  }
+}
+:host-context(:root[data-fields='highlight']).bar--thin {
+  height: 6px;
+  padding: 1px;
+  border-radius: 3px;
+}
+:host-context(:root[data-fields='highlight']).bar--fat {
+  height: 14px;
+  border-radius: 7px;
+}
+:host-context(:root[data-fields='highlight']).bar--xl {
+  height: 24px;
+  border-radius: 12px;
 }

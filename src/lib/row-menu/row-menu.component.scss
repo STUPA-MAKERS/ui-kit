@@ -94,7 +94,7 @@
     backdrop-filter: none;
     box-shadow: var(--field-edge), var(--shadow-elevated);
     outline: 2px solid var(--field-text);
-    outline-offset: -1px;
+    outline-offset: -2px;
   }
   .rm__menu:focus {
     outline: 2px solid var(--field-text);
@@ -107,7 +107,7 @@
     color: var(--field-text);
     box-shadow: inset 0 0 0 2px var(--field-text);
     outline: 2px solid var(--field-text);
-    outline-offset: -1px;
+    outline-offset: -2px;
   }
   .rm__trigger--on {
     background: var(--field-text);
