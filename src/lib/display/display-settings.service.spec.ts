@@ -2,7 +2,7 @@ import { TestBed } from '@angular/core/testing';
 import { UI_KIT_THEME_DEFAULTS } from '../theme/theme.config';
 import { reducedMotion } from '../motion/motion';
 import { motionReduced } from '../gesture/gesture';
-import { DisplaySettingsService, GLASS_RENEW } from './display-settings.service';
+import { DisplaySettingsService } from './display-settings.service';
 
 /** App spec 000594: a display setting follows the system until the person sets it. */
 const KEY = `${UI_KIT_THEME_DEFAULTS.storageKey}.display`;
@@ -23,7 +23,7 @@ describe('DisplaySettingsService (§000594)', () => {
       addEventListener: (_: string, cb: (e: MediaQueryListEvent) => void) => (handlers[query] = cb),
       removeEventListener: () => {},
     }));
-    ['data-contrast', 'data-display-motion', 'data-transparency', 'data-fields', GLASS_RENEW].forEach((a) =>
+    ['data-contrast', 'data-display-motion', 'data-transparency', 'data-fields'].forEach((a) =>
       root.removeAttribute(a),
     );
     TestBed.resetTestingModule();
@@ -108,28 +108,6 @@ describe('DisplaySettingsService (§000594)', () => {
     svc.set('motion', true);
     expect(root.hasAttribute('data-motion')).toBe(false);
     expect(root.getAttribute('data-display-motion')).toBe('reduce');
-  });
-
-  it('renews the glass for two frames after a change, not at the start', () => {
-    const frames: FrameRequestCallback[] = [];
-    const raf = jest.spyOn(window, 'requestAnimationFrame').mockImplementation((cb) => {
-      frames.push(cb);
-      return frames.length;
-    });
-    const svc = service();
-    expect(root.hasAttribute(GLASS_RENEW)).toBe(false);
-    svc.set('contrast', true);
-    expect(root.hasAttribute(GLASS_RENEW)).toBe(true);
-    frames.shift()!(0);
-    expect(root.hasAttribute(GLASS_RENEW)).toBe(true);
-    frames.shift()!(0);
-    expect(root.hasAttribute(GLASS_RENEW)).toBe(false);
-    svc.reset();
-    expect(root.hasAttribute(GLASS_RENEW)).toBe(true);
-    frames.splice(0).forEach((cb) => cb(0));
-    frames.splice(0).forEach((cb) => cb(0));
-    expect(root.hasAttribute(GLASS_RENEW)).toBe(false);
-    raf.mockRestore();
   });
 
   it('ignores a stored value that is no JSON object', () => {

@@ -66,17 +66,6 @@
   }
 }
 
-// While `DisplaySettingsService` renews the glass after a change, for two frames: no
-// backdrop filter, so the browser builds every glass layer again.
-:root[data-glass-renew] {
-  *,
-  *::before,
-  *::after {
-    -webkit-backdrop-filter: none !important;
-    backdrop-filter: none !important;
-  }
-}
-
 // --- Highlighted fields (000598) ---------------------------------------------
 // Black on yellow in both themes. `_field.scss`, `_check.scss` and the switch read the
 // tokens. Black on the yellow has a contrast of 16.6:1; the black edge separates the
