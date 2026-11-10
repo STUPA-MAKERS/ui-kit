@@ -131,6 +131,18 @@ describe('highlightedChips (§000598)', () => {
   });
 });
 
+describe('highlightedOwnChecks (§000598)', () => {
+  it.each(['filter-select/filter-select.component.scss', 'data-table/data-table.component.scss'])(
+    '%s draws its own check box from the check tokens',
+    (file) => {
+      const css = readFileSync(join(STYLES, '../lib', file), 'utf8');
+      expect(css).toContain('var(--check-on, var(--color-accent))');
+      expect(css).toContain('var(--check-edge, var(--color-border-strong))');
+      expect(css).toContain('var(--check-checked-edge, none)');
+    },
+  );
+});
+
 describe('highlightedChosenRow (§000598)', () => {
   it.each([
     ['select/select.component.scss', ".sel__option[aria-selected='true']"],

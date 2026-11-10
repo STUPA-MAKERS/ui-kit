@@ -115,12 +115,12 @@
   width: 18px;
   height: 18px;
   border-radius: 5px;
-  box-shadow: inset 0 0 0 2px var(--color-border-strong);
-  color: var(--color-on-accent);
+  box-shadow: inset 0 0 0 2px var(--check-edge, var(--color-border-strong));
+  color: var(--check-mark, var(--color-on-accent));
 }
 .fs__box--on {
-  background: var(--color-accent);
-  box-shadow: none;
+  background: var(--check-on, var(--color-accent));
+  box-shadow: var(--check-checked-edge, none);
 }
 
 .fs__sep {
