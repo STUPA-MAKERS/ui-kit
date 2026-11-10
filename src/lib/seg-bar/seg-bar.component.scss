@@ -97,3 +97,12 @@
   height: 24px;
   border-radius: 12px;
 }
+
+/* Very high contrast (app spec 000605): the second part is a black outline in the yellow
+   plate, not a mixed colour, so the bar keeps the four colours. */
+@include d.host-on(veryHigh) {
+  .bar__seg--second {
+    background: transparent;
+    box-shadow: inset 0 0 0 2px var(--field-text);
+  }
+}

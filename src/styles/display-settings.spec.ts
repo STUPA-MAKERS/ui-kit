@@ -310,3 +310,45 @@ describe('ringInside (§000598)', () => {
     expect(DISPLAY).not.toContain('outline-offset: -1px');
   });
 });
+
+describe('veryHighContrast (§000605)', () => {
+  const start = DISPLAY.indexOf(":root[data-theme][data-very-high-contrast='on']");
+  const block = DISPLAY.slice(start, DISPLAY.indexOf('}', start));
+  const rules = DISPLAY.slice(DISPLAY.indexOf('@include d.on(veryHigh)'));
+  const FOUR = ['#000000', '#ffffff', '#ffff00', '#ff8a8a'];
+
+  it('uses only the four colours for every colour token', () => {
+    const values = [...block.matchAll(/--vh-(?:bg|fg|hi|err):\s*(#[0-9a-f]{6});/g)].map((m) => m[1]);
+    expect(values).toEqual(FOUR);
+    const colours = [...block.matchAll(/(--color-[\w-]+):\s*([^;]+);/g)].filter(
+      ([, name]) => name !== '--color-scrim',
+    );
+    expect(colours.length).toBeGreaterThan(30);
+    for (const [, , value] of colours) expect(value).toMatch(/^var\(--vh-(bg|fg|hi|err)\)$/);
+  });
+
+  it('gives text 21:1 and errors and controls more than 7:1 on black', () => {
+    expect(ratio('#ffffff', '#000000')).toBeCloseTo(21, 0);
+    expect(ratio('#ffff00', '#000000')).toBeGreaterThan(7);
+    expect(ratio('#ff8a8a', '#000000')).toBeGreaterThan(7);
+  });
+
+  it('removes every shadow', () => {
+    const shadows = [...block.matchAll(/(--shadow-[\w-]+):\s*([^;]+);/g)];
+    expect(shadows.length).toBeGreaterThan(5);
+    for (const [, , value] of shadows) expect(value).toBe('none');
+  });
+
+  it('draws a white edge on the surfaces and turns a state into text with an edge', () => {
+    for (const surface of ['.card', '.dialog', '.ss', '.rm__menu', '.sel__menu', '.dt--boxed']) {
+      expect(rules).toContain(surface);
+    }
+    expect(rules).toMatch(/outline: var\(--vh-edge\)/);
+    expect(rules).toMatch(/\.badge--status,\s*app-status-text \{[^}]*box-shadow: inset 0 0 0 2px var\(--vh-fg\)/);
+  });
+
+  it('underlines a link and draws a disabled button with a dashed edge', () => {
+    expect(rules).toMatch(/text-decoration: underline/);
+    expect(rules).toMatch(/outline: 2px dashed var\(--vh-fg\)/);
+  });
+});

@@ -8,8 +8,14 @@ import { UI_KIT_THEME } from '../theme/theme.config';
  * - `transparency`: opaque surfaces instead of glass (system: `prefers-reduced-transparency`).
  * - `fields`: input fields black on yellow. No system setting asks for it, so it is off
  *   until the person turns it on.
+ * - `veryHigh`: very high contrast in four colours (app specs 000605, 000606). It has no
+ *   system setting either. While it is on, every other setting and the dark theme are in
+ *   effect, whatever their choice is.
  */
-export type DisplaySetting = 'contrast' | 'motion' | 'transparency' | 'fields';
+export type DisplaySetting = 'contrast' | 'motion' | 'transparency' | 'fields' | 'veryHigh';
+
+/** The settings that very high contrast turns on (app spec 000606). */
+export const VERY_HIGH_INCLUDES: readonly DisplaySetting[] = ['contrast', 'motion', 'transparency', 'fields'];
 
 /** The choices of a person. A setting that is missing follows the system. */
 export type DisplayChoices = Partial<Record<DisplaySetting, boolean>>;
@@ -20,6 +26,7 @@ export const DISPLAY_MEDIA: Readonly<Record<DisplaySetting, string | null>> = {
   motion: '(prefers-reduced-motion: reduce)',
   transparency: '(prefers-reduced-transparency: reduce)',
   fields: null,
+  veryHigh: null,
 };
 
 /** The attribute on `<html>` and its value for on and for off, which the styles read. */
@@ -28,6 +35,7 @@ export const DISPLAY_ATTRIBUTES: Readonly<Record<DisplaySetting, readonly [strin
   motion: ['data-display-motion', 'reduce', 'full'],
   transparency: ['data-transparency', 'reduce', 'full'],
   fields: ['data-fields', 'highlight', 'normal'],
+  veryHigh: ['data-very-high-contrast', 'on', 'off'],
 };
 
 const SETTINGS = Object.keys(DISPLAY_MEDIA) as readonly DisplaySetting[];
@@ -60,15 +68,22 @@ export class DisplaySettingsService {
   /** The person has set at least one setting. */
   readonly hasChoice = computed(() => Object.keys(this._choices()).length > 0);
 
-  /** The state in effect of each setting. */
+  /**
+   * The state in effect of each setting. Very high contrast turns the settings of
+   * {@link VERY_HIGH_INCLUDES} on and leaves their choices as they are, so they apply again
+   * when it goes off.
+   */
   readonly effective = computed<Record<DisplaySetting, boolean>>(() => {
     const choices = this._choices();
     const system = this._system();
-    return Object.fromEntries(SETTINGS.map((s) => [s, choices[s] ?? system[s]])) as Record<
-      DisplaySetting,
-      boolean
-    >;
+    const veryHigh = choices.veryHigh ?? system.veryHigh;
+    return Object.fromEntries(
+      SETTINGS.map((s) => [s, (veryHigh && VERY_HIGH_INCLUDES.includes(s)) || (choices[s] ?? system[s])]),
+    ) as Record<DisplaySetting, boolean>;
   });
+
+  /** Very high contrast is on: the other switches and the theme are locked (app spec 000606). */
+  readonly veryHigh = computed(() => this.effective().veryHigh);
 
   /** Call this once at app start. It adds the system listeners and writes the attributes. */
   init(): void {
