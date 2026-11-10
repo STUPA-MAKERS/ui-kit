@@ -107,6 +107,25 @@ describe('highlightedFields (§000598)', () => {
   });
 });
 
+describe('highlightedFab (§000598)', () => {
+  it('makes a FAB black on yellow with the field edge', () => {
+    const button = readFileSync(join(STYLES, '../lib/button/button.component.scss'), 'utf8');
+    expect(button).toMatch(
+      /@include d\.host-on\(fields\) \{\s*\.btn--fab \{\s*background: var\(--field-bg\);\s*color: var\(--field-text\);/,
+    );
+  });
+});
+
+describe('highlightedFocus (§000598)', () => {
+  it('draws the focus as a black ring with a yellow ring outside it', () => {
+    expect(DISPLAY).toMatch(/--field-focus: 0 0 0 3px #000000, 0 0 0 6px #ffe600;/);
+    expect(DISPLAY).toMatch(/outline: 3px solid #000000 !important;/);
+    expect(DISPLAY).toMatch(/box-shadow: 0 0 0 6px #ffe600 !important;/);
+    const field = readFileSync(join(STYLES, '_field.scss'), 'utf8');
+    expect(field).toMatch(/box-shadow: var\(--field-focus, inset 0 0 0 var\(--focus-width, 2px\)/);
+  });
+});
+
 describe('lessTransparency (§000596)', () => {
   it('makes the glass solid and removes the blur', () => {
     expect(DISPLAY).toMatch(/--glass-tint: 100%;/);

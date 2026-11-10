@@ -59,7 +59,7 @@
   }
 }
 .pal__field:focus-within {
-  box-shadow: inset 0 0 0 2px var(--color-accent);
+  box-shadow: var(--field-focus, inset 0 0 0 2px var(--color-accent));
 }
 .pal__glass {
   flex: none;

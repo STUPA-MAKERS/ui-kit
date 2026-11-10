@@ -1,4 +1,5 @@
 @use '../../styles/press';
+@use '../../styles/display' as d;
 
 :host {
   display: inline-flex;
@@ -202,6 +203,15 @@
 .btn--fab,
 .btn--fab.btn--icon {
   --icon-size: 20px;
+}
+/* Highlighted fields (app spec 000598): a FAB is black on yellow with a black edge, as a
+   field. */
+@include d.host-on(fields) {
+  .btn--fab {
+    background: var(--field-bg);
+    color: var(--field-text);
+    box-shadow: var(--field-edge), var(--shadow-elevated);
+  }
 }
 @media (hover: hover) {
   .btn--fab:hover:not(:disabled) {

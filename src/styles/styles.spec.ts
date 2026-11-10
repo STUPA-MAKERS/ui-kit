@@ -35,7 +35,7 @@ describe('design-system rules in the stylesheets', () => {
       'box-shadow: var(--field-edge, none);',
     ]);
     expect(box).toMatch(
-      /&:focus-within\s*\{\s*box-shadow: inset 0 0 0 var\(--focus-width, 2px\) var\(--color-focus-ring\)/,
+      /&:focus-within\s*\{\s*box-shadow: var\(--field-focus, inset 0 0 0 var\(--focus-width, 2px\) var\(--color-focus-ring\)\)/,
     );
     expect(block(FIELD, '@mixin control {')).not.toMatch(/box-shadow\s*:/);
     expect(block(FIELD, '@mixin box-invalid {')).toMatch(/inset 0 0 0 2px var\(--color-danger\)/);
