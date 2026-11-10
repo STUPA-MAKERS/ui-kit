@@ -1,14 +1,22 @@
-import { booleanAttribute, ChangeDetectionStrategy, Component, computed, input, numberAttribute } from '@angular/core';
-import { IconComponent, type IconName } from '../icon/icon.component';
+import {
+  booleanAttribute,
+  ChangeDetectionStrategy,
+  Component,
+  computed,
+  input,
+  numberAttribute,
+} from "@angular/core";
+import { IconComponent, type IconName } from "../icon/icon.component";
 
 /** Bar widths in percent of the ghost rows, title and sub line. Uneven, so they read as text. */
-const GHOST_ROWS: readonly { readonly title: number; readonly sub: number }[] = [
-  { title: 62, sub: 34 },
-  { title: 48, sub: 28 },
-  { title: 70, sub: 40 },
-  { title: 52, sub: 30 },
-  { title: 44, sub: 26 },
-];
+const GHOST_ROWS: readonly { readonly title: number; readonly sub: number }[] =
+  [
+    { title: 62, sub: 34 },
+    { title: 48, sub: 28 },
+    { title: 70, sub: 40 },
+    { title: 52, sub: 30 },
+    { title: 44, sub: 26 },
+  ];
 
 /**
  * The shape of the ghost rows: the real rows of the list they stand in for.
@@ -25,16 +33,16 @@ const GHOST_ROWS: readonly { readonly title: number; readonly sub: number }[] = 
  * - `text`: lines of running text (a protocol text).
  */
 export type EmptyStateShape =
-  | 'row'
-  | 'choice'
-  | 'person'
-  | 'date'
-  | 'agenda'
-  | 'file'
-  | 'table'
-  | 'card'
-  | 'chat'
-  | 'text';
+  | "row"
+  | "choice"
+  | "person"
+  | "date"
+  | "agenda"
+  | "file"
+  | "table"
+  | "card"
+  | "chat"
+  | "text";
 
 /**
  * One shape for "there is nothing here", in two looks.
@@ -54,13 +62,16 @@ export type EmptyStateShape =
  * height, for a card, a tab or a dialog.
  */
 @Component({
-  selector: 'app-empty-state',
+  selector: "app-empty-state",
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [IconComponent],
-  templateUrl: './empty-state.component.html',
-  styleUrl: './empty-state.component.scss',
-  host: { '[class.es-host--fill]': 'fill()', '[class.es-host--plain]': 'plain()' },
+  templateUrl: "./empty-state.component.html",
+  styleUrl: "./empty-state.component.scss",
+  host: {
+    "[class.es-host--fill]": "fill()",
+    "[class.es-host--plain]": "plain()",
+  },
 })
 export class EmptyStateComponent {
   /** Short statement of what is missing. Never an error code on its own. */
@@ -72,9 +83,9 @@ export class EmptyStateComponent {
   /** No ghost rows: the look for everything that is not an empty list. */
   readonly plain = input(false, { transform: booleanAttribute });
   /** Muted glyph above the message of a `plain` state. A `code` takes its place. */
-  readonly icon = input<IconName>('file');
+  readonly icon = input<IconName>("file");
   /** The shape of the ghost rows, after the real rows of the list. */
-  readonly shape = input<EmptyStateShape>('row');
+  readonly shape = input<EmptyStateShape>("row");
   /** Number of ghost rows, 1 to 5. A small box (a dashboard tile) passes fewer. */
   readonly rows = input(5, { transform: numberAttribute });
   /**
@@ -87,7 +98,8 @@ export class EmptyStateComponent {
    * other state a plain line, so a list inside a page adds no heading.
    */
   readonly level = input<number | undefined, unknown>(undefined, {
-    transform: (v: unknown) => (v == null || v === '' ? undefined : numberAttribute(v)),
+    transform: (v: unknown) =>
+      v == null || v === "" ? undefined : numberAttribute(v),
   });
 
   protected readonly headingLevel = computed(() => {
@@ -97,6 +109,17 @@ export class EmptyStateComponent {
   });
 
   protected readonly ghosts = computed(() =>
-    GHOST_ROWS.slice(0, Math.min(GHOST_ROWS.length, Math.max(1, this.rows() || 1))),
+    GHOST_ROWS.slice(
+      0,
+      Math.min(GHOST_ROWS.length, Math.max(1, this.rows() || 1)),
+    ),
+  );
+
+  /**
+   * One ghost row: it is lower than the message, so it grows to the height of the message
+   * and shows no bars. Bars beside the heading look like a list that is still loading.
+   */
+  protected readonly one = computed(
+    () => !this.plain() && this.ghosts().length === 1,
   );
 }
