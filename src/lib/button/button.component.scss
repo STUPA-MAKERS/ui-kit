@@ -362,6 +362,31 @@
 .btn--icon .btn__label ::ng-deep > app-icon {
   height: auto;
 }
+/* The count plate at the end of a labelled button (`count`, app spec 000604). It is a
+   flex item of the button, so its centre is on the centre line of the button (app spec
+   000603). Inside the label, the 20px plate made the line box higher than the 18px text
+   line, so the text and the icon moved about 1px up and the plate sat 1px below them.
+   The space after the text is 4px, as a word space. */
+.btn__count {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  min-width: 20px;
+  height: 20px;
+  margin-inline-start: calc(4px - var(--space-2));
+  padding: 0 6px;
+  border-radius: var(--radius-pill);
+  background: var(--color-surface-3);
+  color: var(--color-text-muted);
+  /* 11.5px: the browser draws text on a whole-pixel baseline. At 11.5px that baseline puts
+     the digits in the centre of the 20px plate; at 12.5px they sat 0.5px low. */
+  font-size: var(--fs-cap);
+  font-weight: var(--fw-medium);
+}
+.btn__countN {
+  line-height: 1;
+}
 /* Spinner liegt ÜBER dem (unsichtbaren) Inhalt statt daneben: der Button
    behält beim Laden exakt seine Größe (kein Breiten-Sprung, #send-glitch). */
 .btn__spinner {

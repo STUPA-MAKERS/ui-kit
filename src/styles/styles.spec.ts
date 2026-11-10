@@ -95,6 +95,19 @@ describe('design-system rules in the stylesheets', () => {
     expect(base).toMatch(/display: inline-flex/);
   });
 
+  it('puts the count plate beside the label and trims the chip text (app spec 000603)', () => {
+    const count = block(read('../lib/button/button.component.scss'), '.btn__count {');
+    expect(count).toMatch(/flex: none/);
+    expect(count).toMatch(/height: 20px/);
+    const chip = block(
+      read('../lib/filter-select/filter-select.component.scss'),
+      '@supports (text-box: trim-both cap alphabetic) {',
+    );
+    expect(chip).toMatch(/\.fs__text \{[^}]*text-box: trim-both cap alphabetic/);
+    // The padding keeps the descenders in the clip box; the margin keeps the trimmed height.
+    expect(chip).toMatch(/padding-block: 0\.5em;\s*margin-block: -0\.5em/);
+  });
+
   it('centres a projected icon and text in the button label', () => {
     const scss = read('../lib/button/button.component.scss');
     expect(block(scss, '.btn__label ::ng-deep > * {')).toMatch(/vertical-align: top/);

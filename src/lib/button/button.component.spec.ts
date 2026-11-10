@@ -44,6 +44,27 @@ describe('ButtonComponent', () => {
     expect(label?.textContent?.trim()).toBe('Buchung');
   });
 
+  it('shows a count plate after the label (app spec 000604)', async () => {
+    await render(
+      `<app-button variant="text" ariaLabel="Kommentare öffnen, 3" [count]="3"><app-icon name="chat" /> Kommentare</app-button>`,
+      { imports: [ButtonComponent, IconComponent] },
+    );
+    const btn = screen.getByRole('button', { name: 'Kommentare öffnen, 3' });
+    const plate = btn.querySelector('.btn__count');
+    expect(plate).toHaveAttribute('aria-hidden', 'true');
+    expect(plate?.textContent?.trim()).toBe('3');
+    // The plate is a flex item of the button, not part of the clipped label.
+    expect(plate?.parentElement).toBe(btn);
+    expect(btn.querySelector('.btn__label .btn__count')).toBeNull();
+  });
+
+  it('shows a zero count and no plate without a count', async () => {
+    const { rerender } = await render(ButtonComponent, { inputs: { count: 0 } });
+    expect(document.querySelector('.btn__count')?.textContent?.trim()).toBe('0');
+    await rerender({ inputs: { count: null } });
+    expect(document.querySelector('.btn__count')).toBeNull();
+  });
+
   it('exposes an accessible name via ariaLabel for icon buttons', async () => {
     await render(`<app-button [iconOnly]="true" ariaLabel="Entfernen">✕</app-button>`, {
       imports: [ButtonComponent],
