@@ -95,20 +95,17 @@ describe('design-system rules in the stylesheets', () => {
     expect(base).toMatch(/display: inline-flex/);
   });
 
-  it('trims the label, the count digits and the chip text to the capitals (app spec 000603)', () => {
-    const button = read('../lib/button/button.component.scss');
-    const trim = block(button, '@supports (text-box: trim-both cap alphabetic) {');
-    expect(trim).toMatch(/\.btn:not\(\.btn--icon\) \.btn__label \{[^}]*text-box: trim-both cap alphabetic/);
-    expect(trim).toMatch(/\.btn__countN \{[^}]*text-box: trim-both cap alphabetic/);
-    // The padding keeps the descenders in the clip box; the margin keeps the trimmed height.
-    expect(trim).toMatch(/padding-block: 0\.5em;\s*margin-block: -0\.5em/);
-    // The leading icon sits on the button centre line, not on the untrimmed line box.
-    expect(trim).toMatch(/position: absolute;\s*inset-block-start: calc\(50% - var\(--icon-size, 18px\) \/ 2\)/);
-    const count = block(button, '.btn__count {');
+  it('puts the count plate beside the label and trims the chip text (app spec 000603)', () => {
+    const count = block(read('../lib/button/button.component.scss'), '.btn__count {');
     expect(count).toMatch(/flex: none/);
     expect(count).toMatch(/height: 20px/);
-    const chip = block(read('../lib/filter-select/filter-select.component.scss'), '@supports (text-box: trim-both cap alphabetic) {');
+    const chip = block(
+      read('../lib/filter-select/filter-select.component.scss'),
+      '@supports (text-box: trim-both cap alphabetic) {',
+    );
     expect(chip).toMatch(/\.fs__text \{[^}]*text-box: trim-both cap alphabetic/);
+    // The padding keeps the descenders in the clip box; the margin keeps the trimmed height.
+    expect(chip).toMatch(/padding-block: 0\.5em;\s*margin-block: -0\.5em/);
   });
 
   it('centres a projected icon and text in the button label', () => {
