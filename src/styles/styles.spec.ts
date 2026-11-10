@@ -316,7 +316,7 @@ describe('motion and list pane partials', () => {
     const settings = block(rowgroup, '.rowgroup.rowgroup--settings > * {');
     expect(settings).toMatch(/min-height: 56px;/);
     expect(settings).toMatch(/padding: var\(--space-3\) var\(--space-4\);/);
-    const records = block(rowgroup, '.rowgroup.rowgroup--records > * {');
+    const records = block(rowgroup, '.rowgroup.rowgroup--records > *,\n.rowgroup__record {');
     expect(records).toMatch(/min-height: 4rem;/);
     expect(records).toMatch(/padding: 10px var\(--space-4\) 10px var\(--space-5\);/);
     const title = block(rowgroup, '.rowgroup__title {');

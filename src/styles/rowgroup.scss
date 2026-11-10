@@ -84,7 +84,10 @@
 // the anatomy of `app-list-item`. A row is at least 64px high and its content starts 24px
 // from the left edge. `.rowgroup__title` is the title of the row, in the size, the weight
 // and the colour of the title of `app-list-item`.
-.rowgroup.rowgroup--records > * {
+// `.rowgroup__record` gives the same anatomy to a row that is not a child of the group, for
+// example the head of a row that opens.
+.rowgroup.rowgroup--records > *,
+.rowgroup__record {
   box-sizing: border-box;
   min-height: 4rem;
   padding: 10px var(--space-4) 10px var(--space-5);
