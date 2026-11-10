@@ -1,5 +1,6 @@
 @use '../../styles/breakpoints' as bp;
 @use '../../styles/frosted' as *;
+@use '../../styles/display' as d;
 
 /* Sticky at the top of the viewport, below the shell header and the safe area. Below the
    bar of a one-view page (`.ld-under-bar` sets `--ld-sticky-top`) it sticks below that
@@ -74,8 +75,8 @@
   }
 }
 
-@media (prefers-reduced-motion: reduce) {
-  :host::after {
+@include d.host-on(motion) {
+  &::after {
     transition: none;
   }
 }

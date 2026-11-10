@@ -1,6 +1,7 @@
 @use '../../styles/breakpoints' as bp;
 @use '../../styles/surface';
 @use '../../styles/frosted' as *;
+@use '../../styles/display' as d;
 
 .ss__scrim {
   position: fixed;
@@ -82,7 +83,7 @@
 .ss--dragging {
   transition: none;
 }
-@media (prefers-reduced-motion: reduce) {
+@include d.host-on(motion) {
   .ss--bottom {
     transition: none;
   }

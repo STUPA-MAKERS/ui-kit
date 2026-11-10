@@ -1,3 +1,5 @@
+@use '../../styles/display' as d;
+
 .lb {
   position: fixed;
   top: env(safe-area-inset-top, 0);
@@ -30,7 +32,7 @@
     left: 100%;
   }
 }
-@media (prefers-reduced-motion: reduce) {
+@include d.host-on(motion) {
   .lb,
   .lb::after {
     animation: none;

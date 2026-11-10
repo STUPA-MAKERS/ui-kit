@@ -1,6 +1,7 @@
 @use '../../../src/styles/breakpoints' as bp;
 @use '../../../src/styles/frosted' as *;
 @use '../../../src/styles/press';
+@use '../../../src/styles/display' as d;
 
 .pal__scrim {
   position: fixed;
@@ -117,7 +118,7 @@
     transform: rotate(360deg);
   }
 }
-@media (prefers-reduced-motion: reduce) {
+@include d.host-on(motion) {
   .pal__spinner {
     animation-duration: 2s;
   }

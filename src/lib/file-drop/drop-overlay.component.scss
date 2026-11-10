@@ -1,3 +1,5 @@
+@use '../../styles/display' as d;
+
 /* The frame over the parent (`fit="box"`), in the look of the invoices page. */
 :host {
   position: absolute;
@@ -47,8 +49,8 @@
     opacity: 0;
   }
 }
-@media (prefers-reduced-motion: reduce) {
-  :host {
+@include d.host-on(motion) {
+  & {
     animation: none;
   }
 }

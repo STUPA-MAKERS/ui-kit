@@ -30,11 +30,16 @@ const FIELD = read('_field.scss');
 describe('design-system rules in the stylesheets', () => {
   it('draws fields without a shadow at rest; only focus and error draw an inside line', () => {
     const box = block(FIELD, '@mixin box {');
-    expect(restingState(box)).not.toMatch(/box-shadow\s*:/);
-    expect(box).toMatch(/&:focus-within\s*\{\s*box-shadow: inset 0 0 0 2px var\(--color-focus-ring\)/);
+    // At rest only the edge of a highlighted field (§000598), which is unset otherwise.
+    expect(restingState(box).match(/box-shadow\s*:[^;]*;/g)).toEqual([
+      'box-shadow: var(--field-edge, none);',
+    ]);
+    expect(box).toMatch(
+      /&:focus-within\s*\{\s*box-shadow: inset 0 0 0 var\(--focus-width, 2px\) var\(--color-focus-ring\)/,
+    );
     expect(block(FIELD, '@mixin control {')).not.toMatch(/box-shadow\s*:/);
     expect(block(FIELD, '@mixin box-invalid {')).toMatch(/inset 0 0 0 2px var\(--color-danger\)/);
-    expect(box).toMatch(/background: var\(--color-surface-sunken\)/);
+    expect(box).toMatch(/background: var\(--field-bg, var\(--color-surface-sunken\)\)/);
     expect(box).toMatch(/border-radius: var\(--radius-field\)/);
   });
 

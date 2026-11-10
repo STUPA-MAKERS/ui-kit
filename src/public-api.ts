@@ -26,6 +26,7 @@ export * from './lib/loading/loading.interceptor';
 export * from './lib/theme/theme.config';
 export * from './lib/theme/theme.service';
 export * from './lib/motion/motion';
+export * from './lib/display/display-settings.service';
 export * from './lib/page-frame/page-frame';
 
 // --- components -------------------------------------------------------------

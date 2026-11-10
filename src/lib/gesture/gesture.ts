@@ -1,5 +1,6 @@
 import { MEDIA } from '../breakpoints/breakpoints';
 import { matchesMedia } from '../signals/media-query';
+import { reducedMotion } from '../motion/motion';
 
 /**
  * The shared rules of the touch gestures of the kit (swipe back, row swipe) and of an app
@@ -23,9 +24,9 @@ export function touchGesturesOn(): boolean {
   return matchesMedia(MEDIA.phone) && matchesMedia(MEDIA.coarse);
 }
 
-/** The person asks the system for less motion. */
+/** The person asks for less motion (see {@link reducedMotion}). */
 export function motionReduced(): boolean {
-  return matchesMedia(MEDIA.reducedMotion);
+  return reducedMotion();
 }
 
 /**

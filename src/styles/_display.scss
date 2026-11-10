@@ -1,0 +1,52 @@
+// The display settings of a device (app specs 000594-000598). The `DisplaySettingsService`
+// writes the setting in effect to an attribute on `<html>`, always with a value: the system
+// setting, or the choice of the person, which overrides it. A style reads the attribute,
+// never the media query, because a media query cannot follow the choice of the person.
+//
+// `on($setting)` is for a global stylesheet, `host-on($setting)` for a component
+// stylesheet, where `:host-context` reaches `<html>` through the encapsulation. Inside
+// `host-on`, write the rules of the host itself as `&` at the top level of the content,
+// not as `:host`.
+//
+// Settings: `motion` (less motion), `contrast` (more contrast), `transparency` (no glass),
+// `fields` (input fields black on yellow).
+
+$-attributes: (
+  motion: "[data-motion='reduce']",
+  contrast: "[data-contrast='more']",
+  transparency: "[data-transparency='reduce']",
+  fields: "[data-fields='highlight']",
+);
+
+@function -root($setting) {
+  @if not map-has-key($-attributes, $setting) {
+    @error 'Unknown display setting `#{$setting}`.';
+  }
+  @return ':root' + map-get($-attributes, $setting);
+}
+
+// The rules apply while the setting is on. In a global stylesheet.
+@mixin on($setting) {
+  @if & {
+    #{-root($setting)} & {
+      @content;
+    }
+  } @else {
+    #{-root($setting)} {
+      @content;
+    }
+  }
+}
+
+// The rules apply while the setting is on. In a component stylesheet.
+@mixin host-on($setting) {
+  @if & {
+    :host-context(#{-root($setting)}) & {
+      @content;
+    }
+  } @else {
+    :host-context(#{-root($setting)}) {
+      @content;
+    }
+  }
+}

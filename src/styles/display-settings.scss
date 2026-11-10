@@ -1,0 +1,95 @@
+// The global rules of the display settings (app specs 000594-000598). Consume it from the
+// global stylesheet of an app after `tokens` and `base`:
+//   @use 'display-settings';
+// The `DisplaySettingsService` writes the attributes on `<html>`; `_display.scss` has
+// the mixins for a component stylesheet.
+@use 'display' as d;
+
+// --- More contrast (000595) --------------------------------------------------
+// Text at least 7:1 to every surface of its theme, edges and control borders at least
+// 4.5:1, a focus ring of 3 px. `contrast.spec.ts` checks the pairs. The light rule
+// excludes the dark theme, because both rules have the same specificity.
+:root:not([data-theme='dark'])[data-contrast='more'] {
+  --color-text-muted: #2b302d;
+  --color-text-subtle: #353a37;
+  --color-border: #545a56;
+  --color-border-strong: #3a3f3c;
+  --color-accent-text: #1f4029;
+  --color-primary: #1f4029;
+  --color-focus-ring: #1f4029;
+  --color-danger: #7a1912;
+  --color-warning: #5c3c00;
+}
+:root[data-theme='dark'][data-contrast='more'] {
+  --color-text-muted: #d6dad7;
+  --color-text-subtle: #c4c9c5;
+  --color-border: #a0a6a2;
+  --color-border-strong: #b9beba;
+  --color-accent-text: #b5dcc1;
+  --color-primary: #b5dcc1;
+  --color-focus-ring: #b5dcc1;
+  --color-danger: #f6bdb5;
+  --color-warning: #ecc98d;
+}
+@include d.on(contrast) {
+  --focus-width: 3px;
+
+  :focus-visible {
+    outline-width: 3px !important;
+  }
+}
+
+// --- Less motion (000219) ----------------------------------------------------
+// `base.scss` cuts every animation and transition. A pressed control does not shrink.
+@include d.on(motion) {
+  --press-scale: 1;
+  --press-scale-control: 1;
+}
+
+// --- Less transparency (000596) ----------------------------------------------
+// The glass mixins of `_frosted.scss` read the tint and the blur from these tokens, so a
+// glass surface turns into its solid colour.
+@include d.on(transparency) {
+  --glass-tint: 100%;
+  --glass-blur: none;
+
+  *,
+  *::before,
+  *::after {
+    -webkit-backdrop-filter: none !important;
+    backdrop-filter: none !important;
+  }
+}
+
+// --- Highlighted fields (000598) ---------------------------------------------
+// Black on yellow in both themes. `_field.scss`, `_check.scss` and the switch read the
+// tokens. Black on the yellow has a contrast of 16.6:1; the black edge separates the
+// field from a light surface, the yellow from a dark one.
+@include d.on(fields) {
+  --field-bg: #ffe600;
+  --field-bg-hover: #ffd900;
+  --field-text: #000000;
+  --field-label: #000000;
+  --field-edge: inset 0 0 0 2px #000000;
+  --check-bg: #ffe600;
+  --check-edge: #000000;
+  --check-on: #ffe600;
+  --check-mark: #000000;
+  --check-checked-edge: inset 0 0 0 2px #000000;
+
+  // A native radio button: the same yellow box, a black dot when checked.
+  input[type='radio'] {
+    appearance: none;
+    -webkit-appearance: none;
+    display: inline-grid;
+    place-content: center;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background: var(--check-bg);
+    box-shadow: inset 0 0 0 2px var(--check-edge);
+  }
+  input[type='radio']:checked {
+    background: radial-gradient(circle, var(--check-mark) 0 5px, var(--check-bg) 5.5px);
+  }
+}

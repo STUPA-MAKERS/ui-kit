@@ -1,3 +1,5 @@
+@use 'display' as d;
+
 // Reset + Basis-Element-Styles. Nutzt ausschließlich Semantic-Tokens.
 @use 'press';
 @use 'breakpoints' as bp;
@@ -157,7 +159,8 @@ textarea {
   outline: none;
 }
 
-@media (prefers-reduced-motion: reduce) {
+@include d.on(motion) {
+  &,
   *,
   *::before,
   *::after {

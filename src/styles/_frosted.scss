@@ -8,7 +8,9 @@
    (`z-index` or `isolation`), so the glass at `z-index: -1` stays behind its content.
 
    Without `backdrop-filter` the element keeps the solid `$color`, because a plain
-   see-through surface puts the text behind it under its own text.
+   see-through surface puts the text behind it under its own text. With less transparency
+   (app spec 000596) `--glass-tint` is 100 % and the backdrop filter is gone, so every
+   glass of this file is the solid `$color`.
 
    `$edges`: the edges where content passes under the element, `top`, `bottom` or both.
    `$fade-to`: a colour that the glass turns into towards its foot, for a bar that sits on
@@ -43,11 +45,11 @@
       @if $fade-to {
         background: linear-gradient(
           to bottom,
-          color-mix(in srgb, #{$color} #{$tint}, transparent) #{$top},
+          color-mix(in srgb, #{$color} var(--glass-tint, #{$tint}), transparent) #{$top},
           #{$fade-to} #{if($fade-stop, $fade-stop, calc(100% - #{$bottom}))}
         );
       } @else {
-        background: color-mix(in srgb, #{$color} #{$tint}, transparent);
+        background: color-mix(in srgb, #{$color} var(--glass-tint, #{$tint}), transparent);
       }
       -webkit-backdrop-filter: blur(10px) saturate(1.8);
       backdrop-filter: blur(10px) saturate(1.8);
@@ -93,7 +95,7 @@
         transparent calc(100% - var(--space-4)),
         #{$color}
       ),
-      color-mix(in srgb, #{$color} 55%, transparent);
+      color-mix(in srgb, #{$color} var(--glass-tint, 55%), transparent);
     mask-image:
       linear-gradient(to bottom, #000 #{$edge}, transparent #{$edge}),
       radial-gradient(circle at 100% 100%, transparent #{$inner}, #000 #{$radius}),
@@ -137,7 +139,7 @@
   background: $color;
 
   @supports (backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px)) {
-    background: color-mix(in srgb, #{$color} #{$tint}, transparent);
+    background: color-mix(in srgb, #{$color} var(--glass-tint, #{$tint}), transparent);
     $filter: blur($blur) saturate(1.8);
     @if $lift {
       $filter: blur($blur) saturate(1.8) brightness($lift);
