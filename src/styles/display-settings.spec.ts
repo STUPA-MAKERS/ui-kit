@@ -111,7 +111,7 @@ describe('highlightedButtons (§000598)', () => {
   it('makes every button with a surface black on yellow with the field edge', () => {
     const button = readFileSync(join(STYLES, '../lib/button/button.component.scss'), 'utf8');
     expect(button).toMatch(
-      /\.btn--fill,\s*\.btn--tonal,\s*\.btn--outlined \{\s*(\/\*[^*]*\*\/\s*)?background: var\(--field-bg\);\s*color: var\(--field-text\);/,
+      /\.btn--fill,\s*\.btn--tonal,\s*\.btn--outlined,\s*\.btn--text:not\(\.btn--icon\) \{\s*(\/\*[^*]*\*\/\s*)?background: var\(--field-bg\);\s*color: var\(--field-text\);/,
     );
     expect(button).toMatch(/\.btn--fab \{\s*background: var\(--field-bg\);/);
     expect(button).toMatch(
@@ -129,6 +129,18 @@ describe('highlightedChips (§000598)', () => {
       /\.chip\.on \{[^}]*background: var\(--field-text\);\s*color: var\(--field-bg\);/,
     );
   });
+});
+
+describe('highlightedOwnChecks (§000598)', () => {
+  it.each(['filter-select/filter-select.component.scss', 'data-table/data-table.component.scss'])(
+    '%s draws its own check box from the check tokens',
+    (file) => {
+      const css = readFileSync(join(STYLES, '../lib', file), 'utf8');
+      expect(css).toContain('var(--check-on, var(--color-accent))');
+      expect(css).toContain('var(--check-edge, var(--color-border-strong))');
+      expect(css).toContain('var(--check-checked-edge, none)');
+    },
+  );
 });
 
 describe('highlightedChosenRow (§000598)', () => {

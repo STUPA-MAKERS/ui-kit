@@ -199,9 +199,9 @@ describe('design-system rules in the stylesheets', () => {
     const box = block(scss, '\n.dt__check {');
     // No native box: it is a grey filled square in the dark theme.
     expect(box).toMatch(/appearance: none/);
-    expect(box).toMatch(/box-shadow: inset 0 0 0 2px var\(--color-border-strong\)/);
-    expect(block(scss, '.dt__check:checked {')).toMatch(/background: var\(--color-accent\)/);
-    expect(block(scss, '.dt__check:indeterminate {')).toMatch(/background: var\(--color-accent\)/);
+    expect(box).toMatch(/box-shadow: inset 0 0 0 2px var\(--check-edge, var\(--color-border-strong\)\)/);
+    expect(block(scss, '.dt__check:checked {')).toMatch(/background: var\(--check-on, var\(--color-accent\)\)/);
+    expect(block(scss, '.dt__check:indeterminate {')).toMatch(/background: var\(--check-on, var\(--color-accent\)\)/);
     expect(block(scss, '.dt__check:focus-visible {')).toMatch(/outline: 2px solid var\(--color-focus-ring\)/);
     // A flex label, so the box sits in the middle of the cell and not on a baseline.
     const hit = block(scss, '\n.dt__checkHit {');
