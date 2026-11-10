@@ -162,6 +162,16 @@ export class DataTableComponent
    * `surface.context` from `styles/_surface.scss`.
    */
   @Input() surface: 'sheet' | 'rowgroup' = 'sheet';
+  /**
+   * Keeps the header row in view while the rows scroll. The header sticks to the top of
+   * the nearest scroll container around the table, for example a panel of the page.
+   *
+   * The table then does not scroll sideways by itself, because a box that scrolls sideways
+   * is also the box a sticky header sticks to, and that box never scrolls up or down. The
+   * columns must fit the width: give the wide text column no fixed width and let it wrap or
+   * clamp.
+   */
+  @Input() stickyHead = false;
   /** Stable track key per row (index otherwise). */
   @Input() rowKey?: (row: unknown, index: number) => unknown;
   /** Makes rows clickable (cursor/tab/enter) and emits `rowClick`. */

@@ -38,7 +38,12 @@
   display: flex;
   flex-direction: column;
   gap: 2px;
-  mask-image: radial-gradient(closest-side, rgb(0 0 0 / 2%), rgb(0 0 0 / 12%) 55%, rgb(0 0 0 / 50%));
+  mask-image: radial-gradient(
+    closest-side,
+    rgb(0 0 0 / 2%),
+    rgb(0 0 0 / 12%) 55%,
+    rgb(0 0 0 / 50%)
+  );
 }
 
 .es__ghost {
@@ -61,6 +66,19 @@
 .es__ghost:last-child {
   border-bottom-left-radius: var(--radius-lg);
   border-bottom-right-radius: var(--radius-lg);
+}
+
+/* One ghost row: the row is lower than the message, so it stretches to the height of the
+   message and is one plain surface. Bars beside the heading would look like a load. The
+   mask is off, because the message covers the centre of the row and nothing shows through. */
+.es--one .es__ghosts {
+  align-self: stretch;
+  mask-image: none;
+}
+.es__ghost--one {
+  height: 100%;
+  box-sizing: border-box;
+  border-radius: var(--radius-lg);
 }
 
 /* A pick list of a dialog: the 52px rows with the radio ring of the "TOP hinzufügen" list,
