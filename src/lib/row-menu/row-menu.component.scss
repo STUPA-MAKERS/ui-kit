@@ -1,3 +1,4 @@
+@use '../../styles/field' as f;
 @use '../../styles/option-menu' as om;
 @use '../../styles/press';
 @use '../../styles/frosted' as *;
@@ -190,4 +191,8 @@
   margin: 0;
   padding: var(--space-3) calc(var(--space-4) - 6px);
   color: var(--color-text-muted);
+}
+
+.rm__item[aria-checked='true'] {
+  @include f.highlight-chosen;
 }

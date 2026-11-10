@@ -188,3 +188,7 @@
 .sel__empty {
   @include om.empty;
 }
+
+.sel__option[aria-selected='true'] {
+  @include f.highlight-chosen;
+}

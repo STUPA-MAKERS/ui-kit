@@ -107,12 +107,38 @@ describe('highlightedFields (§000598)', () => {
   });
 });
 
-describe('highlightedFab (§000598)', () => {
-  it('makes a FAB black on yellow with the field edge', () => {
+describe('highlightedButtons (§000598)', () => {
+  it('makes every button with a surface black on yellow with the field edge', () => {
     const button = readFileSync(join(STYLES, '../lib/button/button.component.scss'), 'utf8');
     expect(button).toMatch(
-      /@include d\.host-on\(fields\) \{\s*\.btn--fab \{\s*background: var\(--field-bg\);\s*color: var\(--field-text\);/,
+      /\.btn--fill,\s*\.btn--tonal,\s*\.btn--outlined \{\s*(\/\*[^*]*\*\/\s*)?background: var\(--field-bg\);\s*color: var\(--field-text\);/,
     );
+    expect(button).toMatch(/\.btn--fab \{\s*background: var\(--field-bg\);/);
+    expect(button).toMatch(
+      /\.btn--danger \{\s*background: var\(--field-bg\);\s*color: var\(--field-danger\);/,
+    );
+  });
+});
+
+describe('highlightedChips (§000598)', () => {
+  it('makes a filter chip black on yellow and an active one yellow on black', () => {
+    expect(DISPLAY).toMatch(
+      /\.chip \{[^}]*background: var\(--field-bg\);[^}]*box-shadow: var\(--field-edge\);/,
+    );
+    expect(DISPLAY).toMatch(
+      /\.chip\.on \{[^}]*background: var\(--field-text\);\s*color: var\(--field-bg\);/,
+    );
+  });
+});
+
+describe('highlightedChosenRow (§000598)', () => {
+  it.each([
+    ['select/select.component.scss', ".sel__option[aria-selected='true']"],
+    ['filter-select/filter-select.component.scss', ".fs__option[aria-selected='true']"],
+    ['row-menu/row-menu.component.scss', ".rm__item[aria-checked='true']"],
+  ])('%s paints the chosen row black on yellow', (file, selector) => {
+    const css = readFileSync(join(STYLES, '../lib', file), 'utf8');
+    expect(css).toContain(`${selector} {\n  @include f.highlight-chosen;\n}`);
   });
 });
 
@@ -147,7 +173,9 @@ describe('settingsFollowChoice (§000219, §000594)', () => {
   it('no stylesheet asks a system media query of a display setting', () => {
     const files = [...scssFiles(join(STYLES, '..')), ...scssFiles(join(STYLES, '../../shell'))];
     const offenders = files.filter((f) =>
-      /@media[^{]*prefers-(reduced-motion|contrast|reduced-transparency)/.test(readFileSync(f, 'utf8')),
+      /@media[^{]*prefers-(reduced-motion|contrast|reduced-transparency)/.test(
+        readFileSync(f, 'utf8'),
+      ),
     );
     expect(offenders).toEqual([]);
   });

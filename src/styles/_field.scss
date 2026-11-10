@@ -100,6 +100,49 @@
   hyphens: auto;
 }
 
+// A field that draws its own surface (a wrapper around a bare control, or the control
+// itself) instead of `box`: with highlighted fields (app spec 000598) it is black on yellow
+// with the black edge and the double focus ring, and the symbols and the placeholder in it
+// are black. `$global: true` is for a stylesheet without encapsulation.
+@mixin highlight-surface($global: false) {
+  @if $global {
+    @include d.on(fields) {
+      @include -highlight-surface;
+    }
+  } @else {
+    @include d.host-on(fields) {
+      @include -highlight-surface;
+    }
+  }
+}
+/* The chosen row of a menu or list of options (000598): black on yellow with the black edge. */
+@mixin highlight-chosen {
+  @include d.host-on(fields) {
+    --color-text: var(--field-text);
+    --color-text-muted: var(--field-text);
+    --color-text-subtle: var(--field-text);
+    --color-accent-text: var(--field-text);
+    background: var(--field-bg);
+    color: var(--field-text);
+    box-shadow: var(--field-edge);
+  }
+}
+
+@mixin -highlight-surface {
+  --color-text: var(--field-text);
+  --color-text-muted: var(--field-text);
+  --color-text-subtle: var(--field-text);
+  --color-accent-text: var(--field-text);
+  border-color: var(--field-text);
+  background: var(--field-bg);
+  color: var(--field-text);
+  box-shadow: var(--field-edge);
+
+  &:focus-within {
+    box-shadow: var(--field-focus);
+  }
+}
+
 // The label while the control has focus.
 @mixin label-focus {
   color: var(--field-label, var(--color-accent-text));

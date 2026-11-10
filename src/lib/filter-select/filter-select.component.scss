@@ -1,3 +1,5 @@
+@use '../../styles/display' as d;
+@use '../../styles/field' as f;
 @use '../../styles/option-menu' as om;
 @use '../../styles/press';
 
@@ -172,4 +174,15 @@
 
 .fs__empty {
   @include om.empty;
+}
+
+.fs__option[aria-selected='true'] {
+  @include f.highlight-chosen;
+}
+
+// The highlighted chip is black on yellow, so its icon is black too (000598).
+@include d.host-on(fields) {
+  .fs__chip--md:not(.on) app-icon {
+    color: inherit;
+  }
 }
