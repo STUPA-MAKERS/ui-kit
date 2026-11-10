@@ -1,3 +1,5 @@
+import { scrollBehavior } from '../motion/motion';
+
 /** The controls that a failed submit can send the focus to. */
 const INVALID_CONTROL = [
   'input[aria-invalid="true"]',
@@ -22,7 +24,7 @@ export function focusFirstInvalid(root: ParentNode): HTMLElement | null {
   );
   if (!control) return null;
   control.focus({ preventScroll: true });
-  control.scrollIntoView?.({ behavior: 'smooth', block: 'center' });
+  control.scrollIntoView?.({ behavior: scrollBehavior(), block: 'center' });
   return control;
 }
 
@@ -33,5 +35,5 @@ export function focusFirstInvalid(root: ParentNode): HTMLElement | null {
  */
 export function revealFirstInvalid(root: ParentNode | null): void {
   if (!root || focusFirstInvalid(root)) return;
-  root.querySelector<HTMLElement>('[role="alert"]')?.scrollIntoView?.({ behavior: 'smooth', block: 'center' });
+  root.querySelector<HTMLElement>('[role="alert"]')?.scrollIntoView?.({ behavior: scrollBehavior(), block: 'center' });
 }

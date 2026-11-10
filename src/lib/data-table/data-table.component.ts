@@ -22,6 +22,7 @@ import {
   signal,
 } from '@angular/core';
 import { UiKitTranslatePipe } from '../intl/translate.pipe';
+import { scrollBehavior } from '../motion/motion';
 import { toggled } from '../util/immutable';
 import { CellDirective } from './cell.directive';
 import { FootCellDirective } from './foot-cell.directive';
@@ -596,8 +597,7 @@ export class DataTableComponent
   private step(direction: -1 | 1): void {
     const el = this.scroller?.nativeElement;
     if (!el) return;
-    const reduced = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches ?? false;
-    el.scrollBy({ left: direction * SCROLL_STEP, behavior: reduced ? 'auto' : 'smooth' });
+    el.scrollBy({ left: direction * SCROLL_STEP, behavior: scrollBehavior() });
   }
 
   /**

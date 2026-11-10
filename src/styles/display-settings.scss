@@ -4,6 +4,7 @@
 // The `DisplaySettingsService` writes the attributes on `<html>`; `_display.scss` has
 // the mixins for a component stylesheet.
 @use 'display' as d;
+@use 'very-high' as vh;
 
 // --- More contrast (000595) --------------------------------------------------
 // Text at least 7:1 to every surface of its theme, edges and control borders at least
@@ -94,30 +95,12 @@
   :focus-visible:not(
       textarea,
       select,
-      input:not([type='checkbox'], [type='radio'], [type='range'], [type='button'], [type='submit'])
+      input:not([type='checkbox'], [type='radio'], [type='range'], [type='button'], [type='submit']),
+      [tabindex='-1']
     ) {
     outline: 3px solid #ffe600 !important;
     outline-offset: 0 !important;
     box-shadow: inset 0 0 0 3px #000000 !important;
-  }
-
-  // A filter chip is a pill button: black on yellow with the black edge. An active filter is
-  // yellow on black, like a pressed toggle button.
-  .chip {
-    --color-text: var(--field-text);
-    --color-text-muted: var(--field-text);
-    border-color: var(--field-text);
-    background: var(--field-bg);
-    color: var(--field-text);
-    box-shadow: inset 0 0 0 1px var(--field-text);
-  }
-  .chip.on {
-    --color-text: var(--field-bg);
-    --color-text-muted: var(--field-bg);
-    --color-on-selected: var(--field-bg);
-    background: var(--field-text);
-    color: var(--field-bg);
-    box-shadow: inset 0 0 0 2px var(--field-bg);
   }
 
   // The black ring over the outer edge (`_field.scss` `ring`): the yellow background reaches
@@ -161,35 +144,8 @@
     outline: 2px solid var(--field-text);
     outline-offset: -2px;
   }
-  :is(button, a)[aria-label][aria-pressed='true']:has(> app-icon:only-child, > svg:only-child):not(
-      .btn,
-      .chip
-    ),
-  :is(button, a)[aria-label][aria-expanded='true']:has(> app-icon:only-child, > svg:only-child):not(
-      .btn,
-      .chip
-    ) {
-    background: var(--field-text);
-    color: var(--field-bg);
-  }
 
-  // The open tab of a tab bar: black on yellow with the black edge, like a chosen row. The
-  // rule is global, so it reaches a tab bar that a page draws itself (`role='tab'`), and its
-  // selector beats the hover of a component.
-  [role='tablist'] [role='tab'][aria-selected='true'] {
-    --color-text: var(--field-text);
-    --color-text-muted: var(--field-text);
-    --color-accent-text: var(--field-text);
-    padding-inline: var(--space-3);
-    border-radius: var(--radius-md);
-    background: var(--field-bg);
-    color: var(--field-text);
-    box-shadow: var(--field-edge);
-    outline: 2px solid var(--field-text);
-    outline-offset: -2px;
-  }
-
-  // A native radio button: the same yellow box, a black dot when checked.
+  // A native radio button: the box of a check box as a circle, with a dot when checked.
   input[type='radio'] {
     appearance: none;
     -webkit-appearance: none;
@@ -207,14 +163,6 @@
 }
 @media (hover: hover) {
   @include d.on(fields) {
-    .chip:hover {
-      background: var(--field-bg-hover);
-      color: var(--field-text);
-    }
-    .chip.on:hover {
-      background: var(--field-text);
-      color: var(--field-bg);
-    }
     :is(button, a)[aria-label]:not([aria-pressed='true'], [aria-expanded='true']):has(
         > app-icon:only-child,
         > svg:only-child
@@ -263,7 +211,9 @@
 
   --color-accent: var(--vh-hi);
   --color-on-accent: var(--vh-bg);
-  --color-accent-text: var(--vh-hi);
+  // White: an accent text is no control. A control gets its yellow from the rules below
+  // (000614), so a text that a person cannot press is never yellow.
+  --color-accent-text: var(--vh-fg);
   --color-accent-container: var(--vh-bg);
   --color-on-accent-container: var(--vh-fg);
 
@@ -304,8 +254,14 @@
   // The yellow of 000598 turns into the pure yellow of the four colours.
   --field-bg: var(--vh-hi);
   --field-bg-hover: var(--vh-hi);
-  --check-bg: var(--vh-hi);
+  // A check box and a switch are filled only when on (000620).
+  --check-bg: var(--vh-bg);
+  --check-edge: var(--vh-hi);
   --check-on: var(--vh-hi);
+  --check-checked-edge: none;
+  // The neutral colour of a text, an icon and an edge on the fill around it: white on the
+  // black page, black inside a yellow fill (000621).
+  --vh-ink: var(--vh-fg);
   --field-focus: inset 0 0 0 3px #000000, 0 0 0 3px var(--vh-hi);
 }
 @include d.on(veryHigh) {
@@ -344,8 +300,14 @@
   }
 
   // A person's avatar: a white ring, because its plate is black like the page.
+  // Its letters are white also inside a yellow fill, and yellow inside a control (000614).
   app-avatar {
+    color: var(--vh-fg) !important;
     box-shadow: inset 0 0 0 2px var(--vh-fg);
+  }
+  :is(button, a[href]) app-avatar {
+    color: var(--vh-hi) !important;
+    box-shadow: inset 0 0 0 2px var(--vh-hi);
   }
 
   // A scroll area ends in a white line instead of a fade, at each end past which more
@@ -442,8 +404,8 @@
     align-items: center;
     padding: 2px var(--space-2);
     border-radius: var(--radius-sm);
-    color: var(--vh-fg) !important;
-    box-shadow: inset 0 0 0 2px var(--vh-fg);
+    color: var(--vh-ink) !important;
+    box-shadow: inset 0 0 0 2px var(--vh-ink);
   }
 
   // A link is yellow and underlined.
@@ -475,8 +437,179 @@
   :focus-visible:not(
       textarea,
       select,
-      input:not([type='checkbox'], [type='radio'], [type='range'], [type='button'], [type='submit'])
+      input:not([type='checkbox'], [type='radio'], [type='range'], [type='button'], [type='submit']),
+      [tabindex='-1']
     ) {
     outline-color: var(--vh-hi) !important;
+    // A control with the yellow edge keeps a yellow ring inside the black one, so its
+    // focus differs from its edge.
+    box-shadow:
+      inset 0 0 0 3px var(--vh-bg),
+      inset 0 0 0 6px var(--vh-hi) !important;
+  }
+}
+
+// --- The controls in very high contrast (000614 to 000621) -------------------
+// Everything that a person can press shows yellow: as a fill, as an edge or as its text.
+// `_very-high.scss` has the three forms. The rules are
+// global and `!important`, because they replace the look that each component draws for
+// the highlighted fields. Their selectors stay below the weight of the focus rule above,
+// so the focus ring wins.
+@include d.on(veryHigh) {
+  // The base rule (000614): a link and a button without a look of its own have yellow
+  // text. The selector has no `!important`, so a filled control keeps its black text.
+  :is(a[href], button, summary, [role='button'], [role='link']) {
+    color: var(--vh-press, var(--vh-hi));
+  }
+  // A field that is a button (a select, the search field of the start page) is a yellow
+  // fill, so its text is black.
+  button:is(.field__control, .sel__control, .sp__field) {
+    color: var(--vh-bg);
+  }
+
+  // A choice (000615): a segmented control, a tab bar, a chip, a toggle button and the
+  // button of a menu.
+  .seg {
+    background: var(--vh-bg) !important;
+    box-shadow: none !important;
+  }
+  .seg__opt,
+  [role='tablist'] [role='tab'],
+  .chip,
+  .rm__trigger,
+  .btn[aria-pressed='false'],
+  .btn[aria-expanded='false'],
+  :is(button, a)[aria-label][aria-pressed='false']:has(> app-icon:only-child, > svg:only-child),
+  :is(button, a)[aria-label][aria-expanded='false']:has(> app-icon:only-child, > svg:only-child) {
+    @include vh.edge;
+  }
+  .seg__opt--on,
+  [role='tablist'] [role='tab'][aria-selected='true'],
+  .chip.on,
+  .rm__trigger--on,
+  .btn[aria-pressed='true'],
+  .btn[aria-expanded='true'],
+  :is(button, a)[aria-label][aria-pressed='true']:has(> app-icon:only-child, > svg:only-child),
+  :is(button, a)[aria-label][aria-expanded='true']:has(> app-icon:only-child, > svg:only-child) {
+    @include vh.fill;
+  }
+
+  // The navigation (000616): yellow text and icons, no edge. The open entry keeps its pill.
+  .rail__item,
+  .bb__item,
+  .am__trigger,
+  .am__item:not(.am__item--field) {
+    @include vh.ink(var(--vh-hi));
+    color: var(--vh-hi) !important;
+  }
+  .rail__item.is-active .rail__ind,
+  .bb__item.is-active .bb__ind {
+    --vh-ink: var(--vh-bg);
+  }
+
+  // A menu (000617): black with the white edge of a surface, yellow rows, white headings.
+  .am--popover {
+    outline: var(--vh-edge);
+    outline-offset: -2px;
+  }
+  .rm__menu,
+  .fs__menu,
+  .sel__menu,
+  .ac__list,
+  .rc__pop {
+    @include vh.ink(var(--vh-hi));
+    --color-danger: var(--vh-err);
+    background: var(--vh-bg) !important;
+    color: var(--vh-fg) !important;
+    box-shadow: none !important;
+    outline: var(--vh-edge) !important;
+    outline-offset: -2px !important;
+  }
+  .rm__item,
+  .fs__option,
+  .sel__option,
+  .ac__option,
+  .fs__reset {
+    @include vh.text;
+  }
+  .rm__item--danger {
+    color: var(--vh-err) !important;
+  }
+  .rm__cap,
+  .fs__cap,
+  .sel__cap {
+    color: var(--vh-fg) !important;
+  }
+  .rm__sep,
+  .fs__sep {
+    background: var(--vh-fg) !important;
+  }
+  .rm__item:is([aria-checked='true'], [aria-current='true']),
+  .fs__option[aria-selected='true'],
+  .sel__option[aria-selected='true'],
+  .ac__option[aria-selected='true'] {
+    @include vh.fill;
+  }
+  // The row under the pointer or with the focus: a yellow edge.
+  .rm__item:focus-visible,
+  .fs__option:focus-visible,
+  .sel__option:focus-visible,
+  .sel__option--active,
+  .ac__option--active {
+    outline: 2px solid var(--vh-hi) !important;
+    outline-offset: -2px !important;
+  }
+
+  // A row that opens something (000619): a yellow title, the rest stays white.
+  .li__title,
+  tr.dt__row--clickable > td:first-child,
+  tr.dt__row--clickable > td.dt__cell--check + td {
+    color: var(--vh-hi) !important;
+  }
+  .li--on,
+  .dt__table tbody tr.dt__row--selected > td {
+    @include vh.ink(var(--vh-bg));
+    --color-danger: var(--field-danger);
+  }
+  .li--on .li__title,
+  .dt__table tbody tr.dt__row--selected > td {
+    color: var(--vh-bg) !important;
+  }
+
+  // A step of a stepper that a person can go back to: a yellow label.
+  .stepper__body--button .stepper__label {
+    color: var(--vh-hi) !important;
+  }
+  .is-active > .stepper__body--button .stepper__label,
+  .skip-link {
+    color: var(--vh-bg) !important;
+  }
+
+  // A check box, a radio button and a switch (000620): a yellow edge when off, a yellow
+  // fill when on. The tokens `--check-*` give the fills.
+  .cbx__input,
+  .fs__box,
+  .dt__check,
+  .sw__track:not(:disabled),
+  input:is([type='checkbox'], [type='radio']) {
+    outline: 2px solid var(--vh-hi) !important;
+    outline-offset: -2px !important;
+  }
+  input[type='radio'] {
+    box-shadow: none;
+  }
+  input[type='radio']:checked {
+    background: radial-gradient(circle, var(--vh-bg) 0 5px, var(--vh-hi) 5.5px);
+  }
+
+  // Everything on a yellow fill is black (000621): a field, a button, a toast.
+  .field,
+  .sp,
+  .btn:not(:disabled, [aria-disabled='true'], [aria-pressed='false'], [aria-expanded='false']),
+  .toast {
+    --vh-ink: var(--vh-bg);
+    --vh-press: var(--vh-bg);
+    --color-border: var(--vh-bg);
+    --color-border-strong: var(--vh-bg);
   }
 }

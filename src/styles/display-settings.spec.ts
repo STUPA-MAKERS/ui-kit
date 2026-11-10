@@ -4,6 +4,8 @@
  *
  * - §000595 more contrast: text 7:1 to every surface of its theme, edges 4.5:1.
  * - §000598 highlighted fields: black on yellow at 7:1 or more.
+ * - §000614 to §000623: the forms of a control in very high contrast, the focus of a script and
+ *   the motion of a script.
  * - §000219, §000596: every style reads the attribute of the setting, no stylesheet asks
  *   the media query itself, because a media query cannot follow the choice of a person.
  */
@@ -13,6 +15,8 @@ import { join } from 'node:path';
 const STYLES = __dirname;
 const DISPLAY = readFileSync(join(STYLES, 'display-settings.scss'), 'utf8');
 const TOKENS = readFileSync(join(STYLES, 'tokens.scss'), 'utf8');
+const FORMS = readFileSync(join(STYLES, '_very-high.scss'), 'utf8');
+const BASE = readFileSync(join(STYLES, 'base.scss'), 'utf8');
 
 function channel(c: number): number {
   const s = c / 255;
@@ -126,17 +130,6 @@ describe('highlightedButtons (§000598)', () => {
   });
 });
 
-describe('highlightedChips (§000598)', () => {
-  it('makes a filter chip black on yellow and an active one yellow on black', () => {
-    expect(DISPLAY).toMatch(
-      /\.chip \{[^}]*background: var\(--field-bg\);[^}]*box-shadow: inset 0 0 0 1px var\(--field-text\);/,
-    );
-    expect(DISPLAY).toMatch(
-      /\.chip\.on \{[^}]*background: var\(--field-text\);\s*color: var\(--field-bg\);/,
-    );
-  });
-});
-
 describe('highlightedOwnChecks (§000598)', () => {
   it.each(['filter-select/filter-select.component.scss', 'data-table/data-table.component.scss'])(
     '%s draws its own check box from the check tokens',
@@ -239,14 +232,6 @@ describe('listItemTrail', () => {
   });
 });
 
-describe('highlightedTab (§000598)', () => {
-  it('paints the open tab black on yellow with the black edge', () => {
-    expect(DISPLAY).toMatch(
-      /\[role='tablist'\] \[role='tab'\]\[aria-selected='true'\] \{[^}]*background: var\(--field-bg\);[^}]*box-shadow: var\(--field-edge\);/,
-    );
-  });
-});
-
 describe('highlightedPicked (§000598)', () => {
   it('draws the choice of an autocomplete black in a highlighted field', () => {
     const ac = readFileSync(join(STYLES, '../lib/autocomplete/autocomplete.component.scss'), 'utf8');
@@ -344,11 +329,180 @@ describe('veryHighContrast (§000605)', () => {
       expect(rules).toContain(surface);
     }
     expect(rules).toMatch(/outline: var\(--vh-edge\)/);
-    expect(rules).toMatch(/\.badge--status,\s*app-status-text \{[^}]*box-shadow: inset 0 0 0 2px var\(--vh-fg\)/);
+    expect(rules).toMatch(/\.badge--status,\s*app-status-text \{[^}]*box-shadow: inset 0 0 0 2px var\(--vh-ink\)/);
   });
 
   it('underlines a link and draws a disabled button with a dashed edge', () => {
     expect(rules).toMatch(/text-decoration: underline/);
     expect(rules).toMatch(/outline: 2px dashed var\(--vh-fg\)/);
+  });
+});
+
+/** The source files with this extension under `dir`, without the specs. */
+function sources(dir: string, ext: string): string[] {
+  return readdirSync(dir).flatMap((name) => {
+    const path = join(dir, name);
+    if (statSync(path).isDirectory()) return name === 'node_modules' ? [] : sources(path, ext);
+    return name.endsWith(ext) && !name.endsWith(`.spec${ext}`) ? [path] : [];
+  });
+}
+
+/** The rules of the controls in very high contrast: the last block of the stylesheet. */
+const CONTROLS = DISPLAY.slice(DISPLAY.indexOf('// --- The controls in very high contrast'));
+
+/** The declarations of the rule in `CONTROLS` whose selector list has this selector. */
+function controlRule(selector: string): string {
+  const esc = selector.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  const m = CONTROLS.match(new RegExp(`(?:^|\\n)\\s*${esc}(?:,[^{]*)? \\{([^}]*)\\}`));
+  if (!m) throw new Error(`No rule ${selector}`);
+  return m[1];
+}
+
+describe('everyControlShowsYellow (§000614)', () => {
+  it('gives a link and a button without a look of its own yellow text', () => {
+    expect(CONTROLS).toMatch(
+      /:is\(a\[href\], button, summary, \[role='button'\], \[role='link'\]\) \{\s*color: var\(--vh-press, var\(--vh-hi\)\);/,
+    );
+  });
+
+  it('keeps the accent text white, so a text that is no control is not yellow', () => {
+    expect(DISPLAY).toMatch(/--color-accent-text: var\(--vh-fg\);/);
+  });
+
+  it('has the three forms: a yellow fill, a yellow edge and yellow text', () => {
+    expect(FORMS).toMatch(/@mixin fill \{[^}]*background: var\(--vh-hi\) !important;\s*color: var\(--vh-bg\) !important;/);
+    expect(FORMS).toMatch(
+      /@mixin edge \{[^}]*background: var\(--vh-bg\) !important;\s*color: var\(--vh-hi\) !important;[^}]*outline: 2px solid var\(--vh-hi\) !important;/,
+    );
+    expect(FORMS).toMatch(/@mixin text \{[^}]*color: var\(--vh-hi\) !important;/);
+  });
+});
+
+describe('chosenIsYellowFill (§000615)', () => {
+  const CHOICES: readonly (readonly [string, string])[] = [
+    ['.seg__opt', '.seg__opt--on'],
+    ["[role='tablist'] [role='tab']", "[role='tablist'] [role='tab'][aria-selected='true']"],
+    ['.chip', '.chip.on'],
+    ['.rm__trigger', '.rm__trigger--on'],
+    [".btn[aria-pressed='false']", ".btn[aria-pressed='true']"],
+    [".btn[aria-expanded='false']", ".btn[aria-expanded='true']"],
+  ];
+
+  it.each(CHOICES)('%s has the edge and %s has the fill', (other, chosen) => {
+    const edge = CONTROLS.slice(CONTROLS.indexOf('  .seg__opt,'), CONTROLS.indexOf('@include vh.edge;'));
+    const fill = CONTROLS.slice(CONTROLS.indexOf('  .seg__opt--on,'), CONTROLS.indexOf('@include vh.fill;'));
+    expect(edge).toContain(`${other},`.replace(/,$/, ''));
+    expect(fill).toContain(chosen);
+  });
+
+  it('the fields block draws no second look for a chip, a tab or a pressed button', () => {
+    const fields = DISPLAY.slice(DISPLAY.indexOf('@include d.on(fields)'), DISPLAY.indexOf('// --- Very high contrast'));
+    expect(fields).not.toMatch(/\.chip\.on \{/);
+    expect(fields).not.toMatch(/\[role='tab'\]/);
+    expect(fields).not.toMatch(/\[aria-pressed='true'\]:has/);
+  });
+});
+
+describe('navigationYellowText (§000616)', () => {
+  it('gives the entries of the rail and of the bottom bar yellow text without an edge', () => {
+    const body = controlRule('.rail__item');
+    expect(body).toMatch(/color: var\(--vh-hi\) !important;/);
+    expect(body).not.toMatch(/outline|box-shadow/);
+    expect(CONTROLS).toMatch(/\.rail__item,\s*\.bb__item,\s*\.am__trigger,/);
+  });
+});
+
+describe('menusBlackYellowRows (§000617)', () => {
+  it('makes every menu black with the white edge', () => {
+    const body = controlRule('.rm__menu');
+    expect(body).toMatch(/background: var\(--vh-bg\) !important;/);
+    expect(body).toMatch(/outline: var\(--vh-edge\) !important;/);
+    for (const menu of ['.fs__menu', '.sel__menu', '.ac__list', '.rc__pop']) {
+      expect(CONTROLS).toMatch(new RegExp(`\\${menu},?\\s`));
+    }
+  });
+
+  it('gives a row yellow text, the chosen row the fill, a heading white and a destructive row light red', () => {
+    expect(controlRule('.rm__item')).toContain('@include vh.text;');
+    expect(controlRule(".rm__item:is([aria-checked='true'], [aria-current='true'])")).toContain('@include vh.fill;');
+    expect(controlRule('.rm__cap')).toMatch(/color: var\(--vh-fg\) !important;/);
+    expect(controlRule('.rm__item--danger')).toMatch(/color: var\(--vh-err\) !important;/);
+  });
+});
+
+describe('rowTitleYellow (§000619)', () => {
+  it('makes the title of a list row and of a table row yellow', () => {
+    expect(controlRule('.li__title')).toMatch(/color: var\(--vh-hi\) !important;/);
+    expect(CONTROLS).toContain('tr.dt__row--clickable > td:first-child');
+  });
+
+  it('makes the text of the open row black', () => {
+    expect(controlRule('.li--on .li__title')).toMatch(/color: var\(--vh-bg\) !important;/);
+  });
+});
+
+describe('switchOffEdgeOnFill (§000620)', () => {
+  it('fills the box only when on', () => {
+    const start = DISPLAY.indexOf(":root[data-theme][data-very-high-contrast='on']");
+    const tokens = DISPLAY.slice(start, DISPLAY.indexOf('\n}', start));
+    expect(tokens).toMatch(/--check-bg: var\(--vh-bg\);/);
+    expect(tokens).toMatch(/--check-edge: var\(--vh-hi\);/);
+    expect(tokens).toMatch(/--check-on: var\(--vh-hi\);/);
+  });
+
+  it('draws the yellow edge on every box and the track of a switch that a person can use', () => {
+    const body = controlRule('.cbx__input');
+    expect(body).toMatch(/outline: 2px solid var\(--vh-hi\) !important;/);
+    expect(CONTROLS).toContain('.sw__track:not(:disabled)');
+  });
+
+  it('gives the switch a yellow thumb when off and a black thumb when on', () => {
+    const sw = readFileSync(join(STYLES, '../lib/switch/switch.component.scss'), 'utf8');
+    expect(sw).toMatch(/\.sw__thumb \{\s*background: #ffff00;/);
+    expect(sw).toMatch(/\.sw__track--on \.sw__thumb \{\s*background: #000000;/);
+  });
+});
+
+describe('textOnYellowIsBlack (§000621)', () => {
+  it('a fill turns the texts, the icons and the edges inside it black', () => {
+    expect(FORMS).toMatch(/@mixin fill \{\s*@include ink\(var\(--vh-bg\), var\(--vh-bg\)\);/);
+    expect(FORMS).toContain('--vh-press: #{$press};');
+    for (const token of ['--vh-ink', '--color-text', '--color-text-muted', '--color-border', '--color-accent-text']) {
+      expect(FORMS).toContain(`${token}: #{$ink};`);
+    }
+  });
+
+  it('a status box reads the ink of the fill around it, and an avatar keeps light letters on its black plate', () => {
+    expect(DISPLAY).toMatch(/app-status-text \{[^}]*color: var\(--vh-ink\) !important;/);
+    expect(DISPLAY).toMatch(/app-avatar \{\s*color: var\(--vh-fg\) !important;\s*box-shadow: inset 0 0 0 2px var\(--vh-fg\);/);
+  });
+});
+
+describe('noRingOnScriptFocus (§000622)', () => {
+  it('the focus rules of the highlighted fields and of very high contrast exclude a script focus', () => {
+    const rules = [...DISPLAY.matchAll(/:focus-visible:not\(([^{]*)\) \{/g)].map((m) => m[1]);
+    expect(rules.length).toBe(2);
+    for (const rule of rules) expect(rule).toContain("[tabindex='-1']");
+  });
+
+  it('a heading or a title that a script focuses has no outline', () => {
+    expect(BASE).toMatch(/:is\(h1, h2, h3, h4, h5, h6, p, section, main\)\[tabindex='-1'\]:focus \{\s*outline: none;/);
+  });
+});
+
+describe('scriptsReadMotionSetting (§000623)', () => {
+  const files = [...sources(join(STYLES, '..'), '.ts'), ...sources(join(STYLES, '../../shell'), '.ts')];
+
+  it('no script reads the system motion setting itself', () => {
+    const allowed = /(breakpoints|display-settings\.service)\.ts$/;
+    const offenders = files.filter(
+      (f) => !allowed.test(f) && /prefers-reduced-motion/.test(readFileSync(f, 'utf8')),
+    );
+    expect(offenders).toEqual([]);
+  });
+
+  it('no script starts a smooth scroll without the motion setting', () => {
+    const offenders = files.filter((f) => /behavior:\s*['"]smooth['"]/.test(readFileSync(f, 'utf8')));
+    expect(offenders).toEqual([]);
   });
 });

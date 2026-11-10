@@ -1,4 +1,4 @@
-import { reducedMotion, withViewTransition } from './motion';
+import { reducedMotion, scrollBehavior, withViewTransition } from './motion';
 
 const REDUCED = '(prefers-reduced-motion: reduce)';
 const original = window.matchMedia;
@@ -32,6 +32,15 @@ describe('reducedMotion', () => {
   it('is false without matchMedia', () => {
     (window.matchMedia as unknown) = undefined;
     expect(reducedMotion()).toBe(false);
+  });
+});
+
+describe('scrollBehavior (§000623)', () => {
+  it('is smooth, and instant while less motion is in effect', () => {
+    media({});
+    expect(scrollBehavior()).toBe('smooth');
+    document.documentElement.setAttribute('data-display-motion', 'reduce');
+    expect(scrollBehavior()).toBe('auto');
   });
 });
 

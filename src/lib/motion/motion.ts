@@ -13,6 +13,14 @@ export function reducedMotion(): boolean {
   return matchesMedia(MEDIA.reducedMotion);
 }
 
+/**
+ * The behaviour of a scroll that a script starts: instant while the person asks for
+ * reduced motion, smooth otherwise (app spec 000623).
+ */
+export function scrollBehavior(): ScrollBehavior {
+  return reducedMotion() ? 'auto' : 'smooth';
+}
+
 type TransitionDocument = Document & { readonly startViewTransition?: (update: () => void) => unknown };
 
 /**
