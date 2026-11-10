@@ -115,6 +115,19 @@
     }
   }
 }
+/* The chosen row of a menu or list of options (000598): black on yellow with the black edge. */
+@mixin highlight-chosen {
+  @include d.host-on(fields) {
+    --color-text: var(--field-text);
+    --color-text-muted: var(--field-text);
+    --color-text-subtle: var(--field-text);
+    --color-accent-text: var(--field-text);
+    background: var(--field-bg);
+    color: var(--field-text);
+    box-shadow: var(--field-edge);
+  }
+}
+
 @mixin -highlight-surface {
   --color-text: var(--field-text);
   --color-text-muted: var(--field-text);

@@ -1,3 +1,4 @@
+@use '../../styles/field' as f;
 @use '../../styles/option-menu' as om;
 @use '../../styles/press';
 
@@ -172,4 +173,8 @@
 
 .fs__empty {
   @include om.empty;
+}
+
+.fs__option[aria-selected='true'] {
+  @include f.highlight-chosen;
 }

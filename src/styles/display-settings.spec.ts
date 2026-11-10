@@ -118,6 +118,17 @@ describe('highlightedButtons (§000598)', () => {
   });
 });
 
+describe('highlightedChosenRow (§000598)', () => {
+  it.each([
+    ['select/select.component.scss', ".sel__option[aria-selected='true']"],
+    ['filter-select/filter-select.component.scss', ".fs__option[aria-selected='true']"],
+    ['row-menu/row-menu.component.scss', ".rm__item[aria-checked='true']"],
+  ])('%s paints the chosen row black on yellow', (file, selector) => {
+    const css = readFileSync(join(STYLES, '../lib', file), 'utf8');
+    expect(css).toContain(`${selector} {\n  @include f.highlight-chosen;\n}`);
+  });
+});
+
 describe('highlightedFocus (§000598)', () => {
   it('draws the focus as a black inner ring with a yellow ring outside it', () => {
     expect(DISPLAY).toMatch(/--field-focus: inset 0 0 0 3px #000000, 0 0 0 3px #ffe600;/);
