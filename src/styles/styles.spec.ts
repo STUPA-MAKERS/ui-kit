@@ -310,4 +310,20 @@ describe('motion and list pane partials', () => {
     expect(frame).toContain('@include fade.fade-y(var(--#{$b}-fade));');
     expect(pane).toContain("@use 'scroll-fade' as fade;");
   });
+
+  it('gives settings rows 56px and record rows the anatomy of the list item', () => {
+    const rowgroup = read('rowgroup.scss');
+    const settings = block(rowgroup, '.rowgroup.rowgroup--settings > * {');
+    expect(settings).toMatch(/min-height: 56px;/);
+    expect(settings).toMatch(/padding: var\(--space-3\) var\(--space-4\);/);
+    const records = block(rowgroup, '.rowgroup.rowgroup--records > * {');
+    expect(records).toMatch(/min-height: 4rem;/);
+    expect(records).toMatch(/padding-inline: var\(--space-5\) var\(--space-4\);/);
+    const title = block(rowgroup, '.rowgroup__title {');
+    const item = block(read('../lib/list-item/list-item.component.scss'), '\n.li__title {');
+    for (const rule of ['font-size', 'font-weight', 'line-height']) {
+      const value = new RegExp(`${rule}: [^;]+;`);
+      expect(title.match(value)?.[0]).toBe(item.match(value)?.[0]);
+    }
+  });
 });

@@ -60,7 +60,8 @@ Use the breakpoints in a stylesheet with `@use 'breakpoints' as bp;` and
 
 The styles entry also holds the global loading placeholders (`.skel`, `.skel-text`,
 `.skel-box`, `.skel-progress`), the layout box `.page-shell`, the row groups and click rows
-(`rowgroup.scss`: `.rowgroup`, `.rowgroup--bg1`, `.rowgroup--bg3`, `.hitrow`) and the
+(`rowgroup.scss`: `.rowgroup`, `.rowgroup--bg1`, `.rowgroup--bg3`, `.rowgroup--settings`,
+`.rowgroup--records` with `.rowgroup__title`, `.hitrow`) and the
 list/detail geometry (`list-detail.scss`: `--ld-list-width`, `--ld-gap`, `.ld-pane`). An app
 that loads the partials one by one adds `@include meta.load-css('rowgroup')` and
 `@include meta.load-css('list-detail')` and `@include meta.load-css('motion')` at the place in its cascade where they belong. These partials emit no CSS
