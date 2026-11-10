@@ -27,6 +27,7 @@
   color: var(--field-text, inherit);
   box-shadow: var(--field-edge, none);
   border-radius: var(--radius-field);
+  @include ring;
   transition:
     box-shadow var(--motion-fast) var(--ease-standard),
     background-color var(--motion-fast) var(--ease-standard);
@@ -115,6 +116,25 @@
     }
   }
 }
+/* The black ring over the outer edge of a yellow surface (000598). The yellow background
+   reaches the outer edge, so its anti-aliased rim shows outside the black inset edge at a
+   rounded corner. A 2px outline centred on the edge covers that rim with black. */
+@mixin ring($global: false) {
+  @if $global {
+    @include d.on(fields) {
+      @include -ring;
+    }
+  } @else {
+    @include d.host-on(fields) {
+      @include -ring;
+    }
+  }
+}
+@mixin -ring {
+  outline: 2px solid var(--field-text);
+  outline-offset: -1px;
+}
+
 /* The chosen row of a menu, a list or a table (000598): black on yellow with the black edge.
    A table cell takes no edge, because each cell would draw its own. */
 @mixin highlight-chosen($edge: true) {
@@ -130,6 +150,7 @@
     color: var(--field-text);
     @if $edge {
       box-shadow: var(--field-edge);
+      @include -ring;
     }
   }
 }
@@ -143,6 +164,7 @@
   background: var(--field-bg);
   color: var(--field-text);
   box-shadow: var(--field-edge);
+  @include -ring;
 
   &:focus-within {
     box-shadow: var(--field-focus);

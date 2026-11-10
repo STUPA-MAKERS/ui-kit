@@ -120,6 +120,31 @@
     box-shadow: inset 0 0 0 2px var(--field-bg);
   }
 
+  // The black ring over the outer edge (`_field.scss` `ring`): the yellow background reaches
+  // the outer edge, so its anti-aliased rim shows outside the black inset edge at a rounded
+  // corner. A 2px outline centred on the edge covers that rim. The rule is global, because
+  // it beats the component rules of every listed control.
+  .chip,
+  .sp,
+  .cbx__input,
+  .sw__track,
+  .fs__box,
+  .dt__check,
+  .seg__opt--on,
+  .btn--fill,
+  .btn--tonal,
+  .btn--outlined,
+  .btn--text:not(.btn--icon),
+  .btn--fab,
+  input[type='radio'] {
+    outline: 2px solid var(--field-text);
+    outline-offset: -1px;
+  }
+  .btn--danger {
+    outline: 2px solid var(--field-danger);
+    outline-offset: -1px;
+  }
+
   // A native radio button: the same yellow box, a black dot when checked.
   input[type='radio'] {
     appearance: none;
