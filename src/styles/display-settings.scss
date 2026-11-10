@@ -81,20 +81,23 @@
   --check-on: #ffe600;
   --check-mark: #000000;
   --check-checked-edge: inset 0 0 0 2px #000000;
-  // The focus: a black ring and a yellow ring outside it, so it shows on a light and on a
-  // dark surface. A field draws it as a shadow; its own outline is then off.
-  --field-focus: 0 0 0 3px #000000, 0 0 0 6px #ffe600;
+  // The focus: a black ring on the inside of the edge and a yellow ring outside it, so it
+  // shows on a light and on a dark surface. A field draws it as a shadow; its own outline is
+  // then off. The field rows have gaps, so no neighbour covers the outer ring.
+  --field-focus: inset 0 0 0 3px #000000, 0 0 0 3px #ffe600;
   --field-focus-outline: none;
 
-  // Every other focused element (a button, a link, a checkbox): the same double ring.
+  // Every other focused element (a button, a link, a checkbox): the same double ring. The
+  // yellow ring is the outline, which paints above a neighbour that touches the element, and
+  // the black ring is an inner shadow, which no neighbour can cover.
   :focus-visible:not(
       textarea,
       select,
       input:not([type='checkbox'], [type='radio'], [type='range'], [type='button'], [type='submit'])
     ) {
-    outline: 3px solid #000000 !important;
+    outline: 3px solid #ffe600 !important;
     outline-offset: 0 !important;
-    box-shadow: 0 0 0 6px #ffe600 !important;
+    box-shadow: inset 0 0 0 3px #000000 !important;
   }
 
   // A native radio button: the same yellow box, a black dot when checked.

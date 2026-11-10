@@ -117,10 +117,10 @@ describe('highlightedFab (§000598)', () => {
 });
 
 describe('highlightedFocus (§000598)', () => {
-  it('draws the focus as a black ring with a yellow ring outside it', () => {
-    expect(DISPLAY).toMatch(/--field-focus: 0 0 0 3px #000000, 0 0 0 6px #ffe600;/);
-    expect(DISPLAY).toMatch(/outline: 3px solid #000000 !important;/);
-    expect(DISPLAY).toMatch(/box-shadow: 0 0 0 6px #ffe600 !important;/);
+  it('draws the focus as a black inner ring with a yellow ring outside it', () => {
+    expect(DISPLAY).toMatch(/--field-focus: inset 0 0 0 3px #000000, 0 0 0 3px #ffe600;/);
+    expect(DISPLAY).toMatch(/outline: 3px solid #ffe600 !important;/);
+    expect(DISPLAY).toMatch(/box-shadow: inset 0 0 0 3px #000000 !important;/);
     const field = readFileSync(join(STYLES, '_field.scss'), 'utf8');
     expect(field).toMatch(/box-shadow: var\(--field-focus, inset 0 0 0 var\(--focus-width, 2px\)/);
   });
