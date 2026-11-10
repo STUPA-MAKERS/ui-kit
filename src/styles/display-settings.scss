@@ -402,8 +402,13 @@
 
   // The open tab: a yellow plate that stands clear of the line of the tab bar, so the line
   // runs through unbroken and the plate does not merge into it.
-  [role='tablist'] [role='tab'][aria-selected='true'] {
+  // Every tab takes the same room, so the texts of all tabs stay on one line.
+  [role='tablist'] [role='tab'] {
     margin-block: 4px 6px;
+    padding-inline: var(--space-3);
+    border-radius: var(--radius-md);
+  }
+  [role='tablist'] [role='tab'][aria-selected='true'] {
     box-shadow: none;
   }
   .tp__ink {
