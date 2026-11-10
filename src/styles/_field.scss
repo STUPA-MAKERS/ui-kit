@@ -11,7 +11,11 @@
 // make the box yellow with a black edge, and the label, the value and the placeholder
 // black. Without the setting the tokens are not set, and the fallbacks give the look above.
 
+@use 'display' as d;
+
 // The box around the control. Put `position: relative` content (label, icons) in it.
+// A highlighted field turns the muted and subtle text inside it (a placeholder, a
+// chevron, a suffix, an icon) black as well. The mixin is for a component stylesheet.
 @mixin box {
   position: relative;
   display: flex;
@@ -37,6 +41,11 @@
   }
   &:focus-within {
     box-shadow: inset 0 0 0 var(--focus-width, 2px) var(--color-focus-ring);
+  }
+  @include d.host-on(fields) {
+    --color-text-muted: var(--field-text);
+    --color-text-subtle: var(--field-text);
+    --color-accent-text: var(--field-text);
   }
 }
 
