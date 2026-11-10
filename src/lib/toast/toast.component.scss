@@ -1,5 +1,6 @@
 @use '../../styles/press';
 @use '../../styles/breakpoints' as bp;
+@use '../../styles/display' as d;
 
 /* In the top layer (popover) the UA styles would stretch and frame the stack, so they are
    reset before the place is set. */
@@ -142,6 +143,34 @@
   .toast__iconAction:hover,
   .toast__close:hover {
     background: color-mix(in srgb, var(--color-text) 14%, transparent);
+  }
+}
+
+/* Highlighted fields (app spec 000598): the card is black on yellow with the black edge and
+   no glass, the tile and the buttons are black on a black tint. An error toast keeps the
+   yellow and takes the dark red of the field for its edge and its symbol. The outline is the
+   ring of a yellow surface (`_field.scss`): it covers the yellow rim at the corners. */
+@include d.host-on(fields) {
+  .toast,
+  .toast--danger {
+    --color-text: var(--field-text);
+    --color-text-muted: var(--field-text);
+    --color-accent-text: var(--field-text);
+    --color-warning: var(--field-text);
+    --color-danger: var(--field-danger);
+    --toast-tile-bg: color-mix(in srgb, var(--field-text) 10%, transparent);
+    background: var(--field-bg);
+    color: var(--field-text);
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+    box-shadow: var(--field-edge), var(--shadow-elevated);
+    outline: 2px solid var(--field-text);
+    outline-offset: -1px;
+  }
+  .toast--danger {
+    --toast-tile-fg: var(--field-danger);
+    box-shadow: inset 0 0 0 2px var(--field-danger), var(--shadow-elevated);
+    outline-color: var(--field-danger);
   }
 }
 

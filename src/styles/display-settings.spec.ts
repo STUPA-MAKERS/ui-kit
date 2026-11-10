@@ -187,6 +187,21 @@ describe('highlightedFocus (§000598)', () => {
   });
 });
 
+describe('highlightedToasts (§000598)', () => {
+  it('makes the toast card and the toast bar black on yellow with the black edge', () => {
+    const toast = readFileSync(join(STYLES, '../lib/toast/toast.component.scss'), 'utf8');
+    expect(toast).toMatch(
+      /background: var\(--field-bg\);\s*color: var\(--field-text\);\s*-webkit-backdrop-filter: none;/,
+    );
+    expect(toast).toContain('box-shadow: var(--field-edge), var(--shadow-elevated);');
+    expect(toast).toContain(
+      'box-shadow: inset 0 0 0 2px var(--field-danger), var(--shadow-elevated);',
+    );
+    const bar = readFileSync(join(STYLES, '../lib/toast/toast-bar.component.scss'), 'utf8');
+    expect(bar).toMatch(/--tbar-fg: var\(--field-text\);\s*background: var\(--field-bg\);/);
+  });
+});
+
 describe('lessTransparency (§000596)', () => {
   it('makes the glass solid and removes the blur', () => {
     expect(DISPLAY).toMatch(/--glass-tint: 100%;/);
