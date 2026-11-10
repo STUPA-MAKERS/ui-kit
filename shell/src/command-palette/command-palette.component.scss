@@ -56,6 +56,9 @@
     --color-text: var(--field-text);
     --color-text-muted: var(--field-text);
     --color-text-subtle: var(--field-text);
+    // Very high contrast: the close button in the field is black too (app spec 000621).
+    --vh-ink: var(--field-text);
+    --vh-press: var(--field-text);
   }
 }
 .pal__field:focus-within {

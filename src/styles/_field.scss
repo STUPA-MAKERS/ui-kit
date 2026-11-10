@@ -47,6 +47,10 @@
     --color-text-muted: var(--field-text);
     --color-text-subtle: var(--field-text);
     --color-accent-text: var(--field-text);
+    --color-border: var(--field-text);
+    --color-border-strong: var(--field-text);
+    --vh-ink: var(--field-text);
+    --vh-press: var(--field-text);
     // A dark red with 7:1 on the yellow, for the asterisk of a required field and the error
     // edge: the red of the dark theme is too light on the yellow.
     --color-danger: var(--field-danger);
@@ -147,6 +151,10 @@
     --color-warning: var(--field-text);
     --color-danger: var(--field-danger);
     --color-on-selected: var(--field-text);
+    --color-border: var(--field-text);
+    --color-border-strong: var(--field-text);
+    --vh-ink: var(--field-text);
+    --vh-press: var(--field-text);
     background: var(--field-bg);
     color: var(--field-text);
     @if $edge {
@@ -161,6 +169,11 @@
   --color-text-muted: var(--field-text);
   --color-text-subtle: var(--field-text);
   --color-accent-text: var(--field-text);
+  --color-border: var(--field-text);
+  --color-border-strong: var(--field-text);
+  // Very high contrast: the neutral colour and the colour of a plain button on the fill.
+  --vh-ink: var(--field-text);
+  --vh-press: var(--field-text);
   border-color: var(--field-text);
   background: var(--field-bg);
   color: var(--field-text);

@@ -153,9 +153,10 @@ textarea {
   outline: none;
 }
 
-// A heading takes the focus after a navigation (`RouteFocus`) to announce the page. It is no
-// control, so it shows no ring.
-:is(h1, h2)[tabindex='-1']:focus {
+// A heading or a title takes the focus from a script (after a navigation, `RouteFocus`, or
+// when a detail opens) so that a screen reader announces it. It is no control, so it shows no
+// ring (app spec 000622).
+:is(h1, h2, h3, h4, h5, h6, p, section, main)[tabindex='-1']:focus {
   outline: none;
 }
 

@@ -76,6 +76,14 @@
 /* Very high contrast (app spec 000605): a disabled switch is not faded. Its label is white,
    its track has a dashed white edge and no fill, and its thumb is white. */
 @include d.host-on(veryHigh) {
+  // Off: black with the yellow edge and a yellow thumb. On: yellow with a black thumb (app
+  // spec 000620).
+  .sw__thumb {
+    background: #ffff00;
+  }
+  .sw__track--on .sw__thumb {
+    background: #000000;
+  }
   .sw--disabled {
     opacity: 1;
   }
