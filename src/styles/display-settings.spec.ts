@@ -107,12 +107,14 @@ describe('highlightedFields (§000598)', () => {
   });
 });
 
-describe('highlightedFab (§000598)', () => {
-  it('makes a FAB black on yellow with the field edge', () => {
+describe('highlightedButtons (§000598)', () => {
+  it('makes every button with a surface black on yellow with the field edge', () => {
     const button = readFileSync(join(STYLES, '../lib/button/button.component.scss'), 'utf8');
     expect(button).toMatch(
-      /@include d\.host-on\(fields\) \{\s*\.btn--fab \{\s*background: var\(--field-bg\);\s*color: var\(--field-text\);/,
+      /\.btn--fill,\s*\.btn--tonal,\s*\.btn--outlined \{\s*background: var\(--field-bg\);\s*color: var\(--field-text\);/,
     );
+    expect(button).toMatch(/\.btn--fab \{\s*background: var\(--field-bg\);/);
+    expect(button).toMatch(/\.btn--danger \{\s*background: var\(--field-bg\);\s*color: var\(--field-danger\);/);
   });
 });
 
