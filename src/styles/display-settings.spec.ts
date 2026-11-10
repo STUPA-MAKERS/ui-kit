@@ -123,7 +123,7 @@ describe('highlightedButtons (§000598)', () => {
 describe('highlightedChips (§000598)', () => {
   it('makes a filter chip black on yellow and an active one yellow on black', () => {
     expect(DISPLAY).toMatch(
-      /\.chip \{[^}]*background: var\(--field-bg\);[^}]*box-shadow: var\(--field-edge\);/,
+      /\.chip \{[^}]*background: var\(--field-bg\);[^}]*box-shadow: inset 0 0 0 1px var\(--field-text\);/,
     );
     expect(DISPLAY).toMatch(
       /\.chip\.on \{[^}]*background: var\(--field-text\);\s*color: var\(--field-bg\);/,
@@ -141,6 +141,18 @@ describe('highlightedOwnChecks (§000598)', () => {
       expect(css).toContain('var(--check-checked-edge, none)');
     },
   );
+});
+
+describe('highlightedRing (§000598)', () => {
+  it('covers the outer rim of every yellow surface with a black ring', () => {
+    expect(DISPLAY).toMatch(
+      /\.sp,[\s\S]*?input\[type='radio'\] \{\s*outline: 2px solid var\(--field-text\);\s*outline-offset: -1px;/,
+    );
+    const field = readFileSync(join(STYLES, '_field.scss'), 'utf8');
+    expect(field).toMatch(
+      /@mixin -ring \{\s*outline: 2px solid var\(--field-text\);\s*outline-offset: -1px;/,
+    );
+  });
 });
 
 describe('highlightedChosenRow (§000598)', () => {
