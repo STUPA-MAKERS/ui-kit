@@ -114,7 +114,20 @@ describe('highlightedButtons (§000598)', () => {
       /\.btn--fill,\s*\.btn--tonal,\s*\.btn--outlined \{\s*(\/\*[^*]*\*\/\s*)?background: var\(--field-bg\);\s*color: var\(--field-text\);/,
     );
     expect(button).toMatch(/\.btn--fab \{\s*background: var\(--field-bg\);/);
-    expect(button).toMatch(/\.btn--danger \{\s*background: var\(--field-bg\);\s*color: var\(--field-danger\);/);
+    expect(button).toMatch(
+      /\.btn--danger \{\s*background: var\(--field-bg\);\s*color: var\(--field-danger\);/,
+    );
+  });
+});
+
+describe('highlightedChips (§000598)', () => {
+  it('makes a filter chip black on yellow and an active one yellow on black', () => {
+    expect(DISPLAY).toMatch(
+      /\.chip \{[^}]*background: var\(--field-bg\);[^}]*box-shadow: var\(--field-edge\);/,
+    );
+    expect(DISPLAY).toMatch(
+      /\.chip\.on \{[^}]*background: var\(--field-text\);\s*color: var\(--field-bg\);/,
+    );
   });
 });
 
@@ -160,7 +173,9 @@ describe('settingsFollowChoice (§000219, §000594)', () => {
   it('no stylesheet asks a system media query of a display setting', () => {
     const files = [...scssFiles(join(STYLES, '..')), ...scssFiles(join(STYLES, '../../shell'))];
     const offenders = files.filter((f) =>
-      /@media[^{]*prefers-(reduced-motion|contrast|reduced-transparency)/.test(readFileSync(f, 'utf8')),
+      /@media[^{]*prefers-(reduced-motion|contrast|reduced-transparency)/.test(
+        readFileSync(f, 'utf8'),
+      ),
     );
     expect(offenders).toEqual([]);
   });
