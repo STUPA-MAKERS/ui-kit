@@ -111,7 +111,7 @@ describe('highlightedButtons (§000598)', () => {
   it('makes every button with a surface black on yellow with the field edge', () => {
     const button = readFileSync(join(STYLES, '../lib/button/button.component.scss'), 'utf8');
     expect(button).toMatch(
-      /\.btn--fill,\s*\.btn--tonal,\s*\.btn--outlined,\s*\.btn--text:not\(\.btn--icon\) \{\s*(\/\*[^*]*\*\/\s*)?background: var\(--field-bg\);\s*color: var\(--field-text\);/,
+      /\.btn--fill,\s*\.btn--tonal,\s*\.btn--outlined,\s*\.btn--text \{\s*(\/\*[^*]*\*\/\s*)?background: var\(--field-bg\);\s*color: var\(--field-text\);/,
     );
     expect(button).toMatch(/\.btn--fab \{\s*background: var\(--field-bg\);/);
     expect(button).toMatch(
@@ -203,15 +203,16 @@ describe('highlightedToasts (§000598)', () => {
 });
 
 describe('highlightedRowMenu (§000598)', () => {
-  it('gives the menu of a chosen row the colours of the page and the open button yellow on black', () => {
-    expect(DISPLAY).toContain('--page-text: var(--color-text);');
-    expect(DISPLAY).toContain('--page-danger: var(--color-danger);');
-    const field = readFileSync(join(STYLES, '_field.scss'), 'utf8');
-    expect(field).toMatch(/@mixin page-colours \{\s*--color-text: var\(--page-text\);/);
+  it('makes the row menu black on yellow and the open button yellow on black', () => {
     const rm = readFileSync(join(STYLES, '../lib/row-menu/row-menu.component.scss'), 'utf8');
-    expect(rm).toMatch(/\.rm__menu \{\s*@include f\.page-colours;\s*\}/);
     expect(rm).toMatch(
-      /\.rm__trigger--on:hover \{\s*background: var\(--field-text\);\s*color: var\(--field-bg\);/,
+      /\.rm__menu \{[^}]*--color-danger: var\(--field-danger\);[^}]*background: var\(--field-bg\);[^}]*box-shadow: var\(--field-edge\), var\(--shadow-elevated\);/,
+    );
+    expect(rm).toMatch(
+      /\.rm__trigger--on \{\s*background: var\(--field-text\);\s*color: var\(--field-bg\);/,
+    );
+    expect(DISPLAY).toMatch(
+      /:is\(button, a\)\[aria-label\]:has\(> app-icon:only-child, > svg:only-child\):not\(\.btn, \.chip\) \{[^}]*background: var\(--field-bg\);/,
     );
   });
 });
@@ -221,6 +222,29 @@ describe('fabTextCentred', () => {
     const button = readFileSync(join(STYLES, '../lib/button/button.component.scss'), 'utf8');
     expect(button).toMatch(/\.btn--fab \.btn__label \{\s*padding-block-end: 1px;/);
     expect(button).toMatch(/> app-icon \{\s*margin-block-start: 1px;/);
+  });
+});
+
+describe('listItemTrail', () => {
+  it('lets the pointer through the trailing slot except on its controls', () => {
+    const li = readFileSync(join(STYLES, '../lib/list-item/list-item.component.scss'), 'utf8');
+    expect(li).toMatch(/\.li__trail \{\s*position: relative;\s*z-index: 1;\s*pointer-events: none;/);
+    expect(li).toMatch(/\[tabindex\]:not\(\[tabindex='-1'\]\)\s*\) \{\s*pointer-events: auto;/);
+  });
+});
+
+describe('highlightedTab (§000598)', () => {
+  it('paints the open tab black on yellow with the black edge', () => {
+    expect(DISPLAY).toMatch(
+      /\[role='tablist'\] \[role='tab'\]\[aria-selected='true'\] \{[^}]*background: var\(--field-bg\);[^}]*box-shadow: var\(--field-edge\);/,
+    );
+  });
+});
+
+describe('highlightedPicked (§000598)', () => {
+  it('draws the choice of an autocomplete black in a highlighted field', () => {
+    const ac = readFileSync(join(STYLES, '../lib/autocomplete/autocomplete.component.scss'), 'utf8');
+    expect(ac).toMatch(/\.ac__picked \{[^}]*color: var\(--field-text, var\(--color-text\)\);/);
   });
 });
 

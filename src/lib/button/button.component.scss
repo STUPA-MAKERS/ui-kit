@@ -204,15 +204,14 @@
 .btn--fab.btn--icon {
   --icon-size: 20px;
 }
-/* Highlighted fields (app spec 000598): every button with a surface (filled, tonal,
-   outlined, FAB) is black on yellow with a black edge, as a field. A destructive button is
-   dark red on yellow. A text button with a label gets the same surface; an icon button
-   keeps none. */
+/* Highlighted fields (app spec 000598): every button (filled, tonal, outlined, text, FAB,
+   with a label or as an icon button) is black on yellow with a black edge, as a field. A
+   destructive button is dark red on yellow. */
 @include d.host-on(fields) {
   .btn--fill,
   .btn--tonal,
   .btn--outlined,
-  .btn--text:not(.btn--icon) {
+  .btn--text {
     /* The 1px border and a 1px inset make the 2px edge; the ring of display-settings.scss
        covers the outer rim. */
     background: var(--field-bg);
@@ -236,7 +235,7 @@
   /* A toggle that is on turns round: yellow on black. */
   .btn--tonal[aria-pressed='true'],
   .btn--outlined[aria-pressed='true'],
-  .btn--text:not(.btn--icon)[aria-pressed='true'] {
+  .btn--text[aria-pressed='true'] {
     background: var(--field-text);
     color: var(--field-bg);
   }
@@ -246,7 +245,7 @@
     .btn--fill:hover:not(:disabled),
     .btn--tonal:hover:not(:disabled):not([aria-pressed='true']),
     .btn--outlined:hover:not(:disabled):not([aria-pressed='true']),
-    .btn--text:not(.btn--icon):hover:not(:disabled):not([aria-pressed='true']),
+    .btn--text:hover:not(:disabled):not([aria-pressed='true']),
     .btn--danger:hover:not(:disabled),
     .btn--fab:hover:not(:disabled) {
       background: var(--field-bg-hover);

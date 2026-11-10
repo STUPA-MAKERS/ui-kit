@@ -88,18 +88,6 @@
   --field-focus: inset 0 0 0 3px #000000, 0 0 0 3px #ffe600;
   --field-focus-outline: none;
 
-  // The colours of the page, as `<html>` computes them for the theme and the contrast. A
-  // chosen row repaints the colour tokens black on yellow for everything in it, and a menu
-  // that opens from the row is in it in the DOM, although it is drawn in the top layer on
-  // its own surface. The menu takes these back (`_field.scss`, `page-colours`).
-  --page-text: var(--color-text);
-  --page-text-muted: var(--color-text-muted);
-  --page-text-subtle: var(--color-text-subtle);
-  --page-accent-text: var(--color-accent-text);
-  --page-warning: var(--color-warning);
-  --page-danger: var(--color-danger);
-  --page-on-selected: var(--color-on-selected);
-
   // Every other focused element (a button, a link, a checkbox): the same double ring. The
   // yellow ring is the outline, which paints above a neighbour that touches the element, and
   // the black ring is an inner shadow, which no neighbour can cover.
@@ -146,7 +134,7 @@
   .btn--fill,
   .btn--tonal,
   .btn--outlined,
-  .btn--text:not(.btn--icon),
+  .btn--text,
   .btn--fab,
   input[type='radio'] {
     outline: 2px solid var(--field-text);
@@ -154,6 +142,49 @@
   }
   .btn--danger {
     outline: 2px solid var(--field-danger);
+    outline-offset: -1px;
+  }
+
+  // An icon button that a page draws itself (a button or a link with an accessible name and
+  // only a symbol in it, no text): black on yellow with the black edge, like the icon
+  // buttons of the kit. The rule is global and its selector beats the component rules, also
+  // their hover, because each page names its icon buttons differently. A button inside the
+  // kit's own controls is excluded by its class.
+  :is(button, a)[aria-label]:has(> app-icon:only-child, > svg:only-child):not(.btn, .chip) {
+    --color-text: var(--field-text);
+    --color-text-muted: var(--field-text);
+    --color-accent-text: var(--field-text);
+    background: var(--field-bg);
+    color: var(--field-text);
+    box-shadow: inset 0 0 0 2px var(--field-text);
+    outline: 2px solid var(--field-text);
+    outline-offset: -1px;
+  }
+  :is(button, a)[aria-label][aria-pressed='true']:has(> app-icon:only-child, > svg:only-child):not(
+      .btn,
+      .chip
+    ),
+  :is(button, a)[aria-label][aria-expanded='true']:has(> app-icon:only-child, > svg:only-child):not(
+      .btn,
+      .chip
+    ) {
+    background: var(--field-text);
+    color: var(--field-bg);
+  }
+
+  // The open tab of a tab bar: black on yellow with the black edge, like a chosen row. The
+  // rule is global, so it reaches a tab bar that a page draws itself (`role='tab'`), and its
+  // selector beats the hover of a component.
+  [role='tablist'] [role='tab'][aria-selected='true'] {
+    --color-text: var(--field-text);
+    --color-text-muted: var(--field-text);
+    --color-accent-text: var(--field-text);
+    padding-inline: var(--space-3);
+    border-radius: var(--radius-md);
+    background: var(--field-bg);
+    color: var(--field-text);
+    box-shadow: var(--field-edge);
+    outline: 2px solid var(--field-text);
     outline-offset: -1px;
   }
 
@@ -182,6 +213,13 @@
     .chip.on:hover {
       background: var(--field-text);
       color: var(--field-bg);
+    }
+    :is(button, a)[aria-label]:not([aria-pressed='true'], [aria-expanded='true']):has(
+        > app-icon:only-child,
+        > svg:only-child
+      ):not(.btn, .chip):hover {
+      background: var(--field-bg-hover);
+      color: var(--field-text);
     }
   }
 }

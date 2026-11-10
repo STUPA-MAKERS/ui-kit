@@ -135,10 +135,31 @@
   align-items: center;
   gap: var(--space-2);
 }
-/* Controls in the trailing slot stay above the stretched title. */
+/* Controls in the trailing slot stay above the stretched title. The rest of the slot (an
+   amount, a date, a symbol) lets the pointer through to the title, so a click on it opens
+   the row and shows the pointer of a link, not the text cursor. */
 .li__trail {
   position: relative;
   z-index: 1;
+  pointer-events: none;
+}
+.li__trail
+  ::ng-deep
+  :is(
+    a[href],
+    button,
+    input,
+    select,
+    textarea,
+    label,
+    summary,
+    [role='button'],
+    [role='checkbox'],
+    [role='switch'],
+    [role='menuitem'],
+    [tabindex]:not([tabindex='-1'])
+  ) {
+  pointer-events: auto;
 }
 
 .li__body {
