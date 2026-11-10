@@ -88,6 +88,18 @@
   --field-focus: inset 0 0 0 3px #000000, 0 0 0 3px #ffe600;
   --field-focus-outline: none;
 
+  // The colours of the page, as `<html>` computes them for the theme and the contrast. A
+  // chosen row repaints the colour tokens black on yellow for everything in it, and a menu
+  // that opens from the row is in it in the DOM, although it is drawn in the top layer on
+  // its own surface. The menu takes these back (`_field.scss`, `page-colours`).
+  --page-text: var(--color-text);
+  --page-text-muted: var(--color-text-muted);
+  --page-text-subtle: var(--color-text-subtle);
+  --page-accent-text: var(--color-accent-text);
+  --page-warning: var(--color-warning);
+  --page-danger: var(--color-danger);
+  --page-on-selected: var(--color-on-selected);
+
   // Every other focused element (a button, a link, a checkbox): the same double ring. The
   // yellow ring is the outline, which paints above a neighbour that touches the element, and
   // the black ring is an inner shadow, which no neighbour can cover.

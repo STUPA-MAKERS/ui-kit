@@ -155,6 +155,18 @@
   }
 }
 
+/* The colours of the page for a surface of its own inside a highlighted row or field, such as
+   a menu that opens from the row (000598). Inside `d.host-on(fields)` or `d.on(fields)`. */
+@mixin page-colours {
+  --color-text: var(--page-text);
+  --color-text-muted: var(--page-text-muted);
+  --color-text-subtle: var(--page-text-subtle);
+  --color-accent-text: var(--page-accent-text);
+  --color-warning: var(--page-warning);
+  --color-danger: var(--page-danger);
+  --color-on-selected: var(--page-on-selected);
+}
+
 @mixin -highlight-surface {
   --color-text: var(--field-text);
   --color-text-muted: var(--field-text);

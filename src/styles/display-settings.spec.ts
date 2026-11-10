@@ -202,6 +202,28 @@ describe('highlightedToasts (§000598)', () => {
   });
 });
 
+describe('highlightedRowMenu (§000598)', () => {
+  it('gives the menu of a chosen row the colours of the page and the open button yellow on black', () => {
+    expect(DISPLAY).toContain('--page-text: var(--color-text);');
+    expect(DISPLAY).toContain('--page-danger: var(--color-danger);');
+    const field = readFileSync(join(STYLES, '_field.scss'), 'utf8');
+    expect(field).toMatch(/@mixin page-colours \{\s*--color-text: var\(--page-text\);/);
+    const rm = readFileSync(join(STYLES, '../lib/row-menu/row-menu.component.scss'), 'utf8');
+    expect(rm).toMatch(/\.rm__menu \{\s*@include f\.page-colours;\s*\}/);
+    expect(rm).toMatch(
+      /\.rm__trigger--on:hover \{\s*background: var\(--field-text\);\s*color: var\(--field-bg\);/,
+    );
+  });
+});
+
+describe('fabTextCentred', () => {
+  it('raises the text of a FAB by 0.5px and keeps its icon in place', () => {
+    const button = readFileSync(join(STYLES, '../lib/button/button.component.scss'), 'utf8');
+    expect(button).toMatch(/\.btn--fab \.btn__label \{\s*padding-block-end: 1px;/);
+    expect(button).toMatch(/> app-icon \{\s*margin-block-start: 1px;/);
+  });
+});
+
 describe('lessTransparency (§000596)', () => {
   it('makes the glass solid and removes the blur', () => {
     expect(DISPLAY).toMatch(/--glass-tint: 100%;/);

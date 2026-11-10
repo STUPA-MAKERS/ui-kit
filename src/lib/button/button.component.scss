@@ -438,3 +438,15 @@
 .btn--fab .btn__label ::ng-deep > app-icon {
   height: auto;
 }
+/* The text sits 0.5px higher than the centre of its line box, so the capitals are centred on
+   the button. IBM Plex Sans has more room above the capitals (ascent 1.025em) than below the
+   baseline (descent 0.275em), so the centred line box put the capitals about 0.5px low; a
+   browser that does not snap the baseline to a whole pixel (Firefox) showed that offset. The
+   1px below the label raises the centre of the text by 0.5px, and the 1px above the icon
+   keeps the icon where it was. */
+.btn--fab .btn__label {
+  padding-block-end: 1px;
+}
+.btn--fab .btn__label ::ng-deep > app-icon {
+  margin-block-start: 1px;
+}
