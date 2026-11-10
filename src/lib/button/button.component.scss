@@ -213,24 +213,25 @@
   .btn--tonal,
   .btn--outlined,
   .btn--text:not(.btn--icon) {
-    /* The border is black too, so no yellow shows outside the edge. */
+    /* The 1px border and a 1px inset make the 2px edge; the ring of display-settings.scss
+       covers the outer rim. */
     background: var(--field-bg);
     color: var(--field-text);
     border-color: var(--field-text);
-    box-shadow: var(--field-edge);
+    box-shadow: inset 0 0 0 1px var(--field-text);
     filter: none;
   }
   .btn--danger {
     background: var(--field-bg);
     color: var(--field-danger);
     border-color: var(--field-danger);
-    box-shadow: inset 0 0 0 2px var(--field-danger);
+    box-shadow: inset 0 0 0 1px var(--field-danger);
   }
   .btn--fab {
     background: var(--field-bg);
     color: var(--field-text);
     border-color: var(--field-text);
-    box-shadow: var(--field-edge), var(--shadow-elevated);
+    box-shadow: inset 0 0 0 1px var(--field-text), var(--shadow-elevated);
   }
   /* A toggle that is on turns round: yellow on black. */
   .btn--tonal[aria-pressed='true'],

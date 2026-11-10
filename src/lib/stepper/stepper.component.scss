@@ -1,3 +1,5 @@
+@use '../../styles/field' as f;
+@use '../../styles/display' as d;
 @use '../../styles/press';
 
 .stepper {
@@ -123,6 +125,7 @@
 }
 .stepper--vertical .is-active .stepper__body {
   background: var(--color-selected);
+  @include f.highlight-chosen;
 }
 .stepper--vertical .is-active .stepper__label {
   color: var(--color-on-selected);
@@ -130,6 +133,16 @@
 .stepper--vertical .is-active .stepper__marker {
   background: var(--color-accent);
   color: var(--color-on-accent);
+}
+/* On the yellow current step the marker turns round: yellow on black (000598). */
+@include d.host-on(fields) {
+  .stepper--vertical .is-active .stepper__label {
+    color: var(--field-text);
+  }
+  .stepper--vertical .is-active .stepper__marker {
+    background: var(--field-text);
+    color: var(--field-bg);
+  }
 }
 .stepper--vertical .is-done .stepper__marker {
   background: transparent;
