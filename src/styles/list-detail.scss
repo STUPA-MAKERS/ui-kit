@@ -128,6 +128,34 @@ body:has(app-tab-pager) app-list-detail-bar.ld__bar--condensed.ld__bar--condense
     mask-image: none;
   }
 }
+// The scroll bar of the rows starts at the lower edge of the head (000601). The rows reach
+// up under the head, so their native bar starts at the top edge of the screen: its track
+// ran through the head and the thumb went under the glass. Only a track margin moves it
+// down, and only the `::-webkit-scrollbar` parts have one, so they draw the thin grey bar
+// of the app here. Chrome ignores them while `scrollbar-width` or `scrollbar-color` is set,
+// so both go back to `auto`. Firefox has no such parts and keeps the thin bar over the
+// full height, because the reset to `auto` only applies where the parts exist. A touch
+// screen shows no bar (`base.scss`), so this is for a fine pointer only.
+@media not ((hover: none) and (pointer: coarse)) {
+  @supports selector(::-webkit-scrollbar) {
+    .ld-pane--glass > .ld-pane__rows.ld-pane__rows.ld-pane__rows.ld-pane__rows {
+      scrollbar-width: auto;
+      scrollbar-color: auto;
+    }
+    .ld-pane--glass > .ld-pane__rows::-webkit-scrollbar {
+      width: 8px;
+    }
+    .ld-pane--glass > .ld-pane__rows::-webkit-scrollbar-thumb {
+      border: 2px solid transparent;
+      border-radius: 4px;
+      background: #5a5a5a padding-box;
+    }
+    .ld-pane--glass > .ld-pane__rows::-webkit-scrollbar-track {
+      margin-top: var(--ld-pane-top);
+      background: transparent;
+    }
+  }
+}
 // The rows run down to the bottom edge of the screen, and a floating button in the column
 // (`app-fab` `contained`) sits `--ld-pane-drop` higher, so the end of the rows keeps room for
 // the button above that edge.
