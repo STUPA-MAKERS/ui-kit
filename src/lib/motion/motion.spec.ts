@@ -9,7 +9,7 @@ function media(matches: Record<string, boolean>): void {
 
 afterEach(() => {
   window.matchMedia = original;
-  document.documentElement.removeAttribute('data-motion');
+  document.documentElement.removeAttribute('data-display-motion');
 });
 
 describe('reducedMotion', () => {
@@ -22,10 +22,10 @@ describe('reducedMotion', () => {
 
   it('follows the setting in effect on <html> before the system (§000219)', () => {
     media({ [REDUCED]: true });
-    document.documentElement.setAttribute('data-motion', 'full');
+    document.documentElement.setAttribute('data-display-motion', 'full');
     expect(reducedMotion()).toBe(false);
     media({});
-    document.documentElement.setAttribute('data-motion', 'reduce');
+    document.documentElement.setAttribute('data-display-motion', 'reduce');
     expect(reducedMotion()).toBe(true);
   });
 

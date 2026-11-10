@@ -25,7 +25,7 @@ export const DISPLAY_MEDIA: Readonly<Record<DisplaySetting, string | null>> = {
 /** The attribute on `<html>` and its value for on and for off, which the styles read. */
 export const DISPLAY_ATTRIBUTES: Readonly<Record<DisplaySetting, readonly [string, string, string]>> = {
   contrast: ['data-contrast', 'more', 'normal'],
-  motion: ['data-motion', 'reduce', 'full'],
+  motion: ['data-display-motion', 'reduce', 'full'],
   transparency: ['data-transparency', 'reduce', 'full'],
   fields: ['data-fields', 'highlight', 'normal'],
 };

@@ -3,11 +3,12 @@ import { matchesMedia } from '../signals/media-query';
 
 /**
  * True when the person asks for reduced motion. The `DisplaySettingsService` writes the
- * setting in effect (the system setting or the choice of the person) to `data-motion` on
- * `<html>`. Without that attribute the system setting applies.
+ * setting in effect (the system setting or the choice of the person) to
+ * `data-display-motion` on `<html>`. Without that attribute the system setting applies.
+ * `data-motion` is not this setting: it names a running route transition (`motion.scss`).
  */
 export function reducedMotion(): boolean {
-  const motion = document.documentElement.getAttribute('data-motion');
+  const motion = document.documentElement.getAttribute('data-display-motion');
   if (motion !== null) return motion === 'reduce';
   return matchesMedia(MEDIA.reducedMotion);
 }
