@@ -1,3 +1,5 @@
+@use '../../styles/display' as d;
+
 :host {
   display: flex;
   flex-direction: column;
@@ -69,4 +71,21 @@
   font-size: var(--fs-small);
   line-height: var(--lh-small);
   color: var(--color-text-muted);
+}
+
+/* Very high contrast (app spec 000605): a disabled switch is not faded. Its label is white,
+   its track has a dashed white edge and no fill, and its thumb is white. */
+@include d.host-on(veryHigh) {
+  .sw--disabled {
+    opacity: 1;
+  }
+  .sw--disabled .sw__track {
+    background: #000000;
+    box-shadow: none;
+    outline: 2px dashed #ffffff;
+    outline-offset: -2px;
+  }
+  .sw--disabled .sw__thumb {
+    background: #ffffff;
+  }
 }

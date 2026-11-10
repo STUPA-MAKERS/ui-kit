@@ -224,3 +224,259 @@
     }
   }
 }
+
+// --- Very high contrast (000605) ---------------------------------------------
+// Four colours: black backgrounds, white text, icons and edges, yellow controls (the
+// highlighted fields above, which are on too) and light red errors. The service turns the
+// other settings and the dark theme on, so their rules apply as well; this block comes
+// last and its selector has the weight of the contrast rules, so its tokens win. The
+// tokens are literal values, because the accent of the branding writes the `--c-*`
+// palette on `<html>`.
+:root[data-theme][data-very-high-contrast='on'] {
+  color-scheme: dark;
+
+  --vh-bg: #000000;
+  --vh-fg: #ffffff;
+  --vh-hi: #ffff00;
+  --vh-err: #ff8a8a;
+  --vh-edge: 2px solid var(--vh-fg);
+
+  --color-bg: var(--vh-bg);
+  --color-bg-elevated: var(--vh-bg);
+  --color-surface: var(--vh-bg);
+  --color-surface-sunken: var(--vh-bg);
+  --color-surface-raised: var(--vh-bg);
+  --color-surface-1: var(--vh-bg);
+  --color-surface-2: var(--vh-bg);
+  --color-surface-3: var(--vh-bg);
+  --color-surface-4: var(--vh-bg);
+  --color-pop: var(--vh-bg);
+  --color-glass-1: var(--vh-bg);
+  --color-glass-2: var(--vh-bg);
+  --color-border: var(--vh-fg);
+  --color-border-strong: var(--vh-fg);
+
+  --color-text: var(--vh-fg);
+  --color-text-muted: var(--vh-fg);
+  --color-text-subtle: var(--vh-fg);
+  --color-text-inverse: var(--vh-bg);
+
+  --color-accent: var(--vh-hi);
+  --color-on-accent: var(--vh-bg);
+  --color-accent-text: var(--vh-hi);
+  --color-accent-container: var(--vh-bg);
+  --color-on-accent-container: var(--vh-fg);
+
+  --color-primary: var(--vh-hi);
+  --color-primary-hover: var(--vh-hi);
+  --color-primary-active: var(--vh-hi);
+  --color-primary-subtle: var(--vh-bg);
+  --color-on-primary: var(--vh-bg);
+  --color-focus-ring: var(--vh-hi);
+
+  --color-selected: var(--vh-hi);
+  --color-on-selected: var(--vh-bg);
+
+  --color-success: var(--vh-fg);
+  --color-success-subtle: var(--vh-bg);
+  --color-warning: var(--vh-fg);
+  --color-warning-subtle: var(--vh-bg);
+  --color-danger: var(--vh-err);
+  --color-danger-subtle: var(--vh-bg);
+  --color-on-danger: var(--vh-bg);
+  --color-info: var(--vh-fg);
+  --color-info-subtle: var(--vh-bg);
+
+  --color-scrim: rgba(0, 0, 0, 0.85);
+
+  --shadow-sm: none;
+  --shadow-md: none;
+  --shadow-md-up: none;
+  --shadow-lg: none;
+  --shadow-elevated: none;
+  --shadow-cut: none;
+  --shadow-cut-start: none;
+  --shadow-cut-strong: none;
+  --shadow-cut-start-strong: none;
+
+  --border-width: 2px;
+
+  // The yellow of 000598 turns into the pure yellow of the four colours.
+  --field-bg: var(--vh-hi);
+  --field-bg-hover: var(--vh-hi);
+  --check-bg: var(--vh-hi);
+  --check-on: var(--vh-hi);
+  --field-focus: inset 0 0 0 3px #000000, 0 0 0 3px var(--vh-hi);
+}
+@include d.on(veryHigh) {
+  // Every surface has a white edge, because no shade sets it apart from the black page. The
+  // edge is an outline on the inner side: it paints over the children and stays inside a
+  // box that cuts its overflow.
+  .card,
+  .empty-state,
+  .dialog,
+  .ss,
+  .rm__menu,
+  .fs__menu,
+  .sel__menu,
+  .rc__pop,
+  .ac__list,
+  .dt--boxed,
+  .skel--panel,
+  .db,
+  .selbar {
+    outline: var(--vh-edge);
+    outline-offset: -2px;
+  }
+
+  // A grouped list: its rows paint over an outline, so the edge is a layer on top.
+  .rowgroup {
+    position: relative;
+  }
+  .rowgroup::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: 2;
+    border: var(--vh-edge);
+    border-radius: var(--radius-lg);
+    pointer-events: none;
+  }
+
+  // A person's avatar: a white ring, because its plate is black like the page.
+  app-avatar {
+    box-shadow: inset 0 0 0 2px var(--vh-fg);
+  }
+
+  // A scroll area ends in a white line instead of a fade, at each end past which more
+  // content lies (the classes of the scroll-fade directive).
+  .is-fade-start,
+  .is-fade-end {
+    -webkit-mask-image: none !important;
+    mask-image: none !important;
+  }
+  [appScrollFade='y'].is-fade-start {
+    box-shadow: inset 0 2px 0 var(--vh-fg);
+  }
+  [appScrollFade='y'].is-fade-end {
+    box-shadow: inset 0 -2px 0 var(--vh-fg);
+  }
+  [appScrollFade='y'].is-fade-start.is-fade-end {
+    box-shadow:
+      inset 0 2px 0 var(--vh-fg),
+      inset 0 -2px 0 var(--vh-fg);
+  }
+  :not([appScrollFade='y']).is-fade-start {
+    box-shadow: inset 2px 0 0 var(--vh-fg);
+  }
+  :not([appScrollFade='y']).is-fade-end {
+    box-shadow: inset -2px 0 0 var(--vh-fg);
+  }
+  :not([appScrollFade='y']).is-fade-start.is-fade-end {
+    box-shadow:
+      inset 2px 0 0 var(--vh-fg),
+      inset -2px 0 0 var(--vh-fg);
+  }
+
+  // A yellow date block (a live meeting) needs no white edge: the yellow sets it apart.
+  app-date-block.db--live .db {
+    outline: none;
+  }
+
+  // The detail pane of a split page is a box that cuts its content at the bottom: it has
+  // the white edge of a surface.
+  // A border, not an outline: the content scrolls over an outline of a scroll container.
+  .ld--split .ld__detail {
+    box-sizing: border-box;
+    border: var(--vh-edge);
+  }
+
+  // The rail and the bottom bar: a white line toward the page.
+  // A border, because the glass layer of the bar paints over an inset shadow.
+  nav.bb {
+    border-top: var(--vh-edge) !important;
+  }
+  nav.rail {
+    box-shadow: inset -2px 0 0 var(--vh-fg) !important;
+  }
+
+  // The open tab: a yellow plate that stands clear of the line of the tab bar, so the line
+  // runs through unbroken and the plate does not merge into it.
+  // Every tab takes the same room, so the texts of all tabs stay on one line.
+  [role='tablist'] [role='tab'] {
+    margin-block: 4px 6px;
+    padding-inline: var(--space-3);
+    border-radius: var(--radius-md);
+  }
+  [role='tablist'] [role='tab'][aria-selected='true'] {
+    box-shadow: none;
+  }
+  .tp__ink {
+    display: none;
+  }
+
+  // The open item of the rail and of the bottom bar: black on a yellow pill.
+  .rail__item.is-active .rail__ind,
+  .bb__item.is-active .bb__ind {
+    color: var(--vh-bg) !important;
+  }
+  .rail__item.is-active,
+  .bb__item.is-active {
+    color: var(--vh-hi) !important;
+  }
+  .rail__ind::before,
+  .bb__ind::before {
+    background: var(--vh-hi);
+  }
+
+  // A heading is white; yellow marks only what a person can use.
+  .section__title,
+  .lg__head {
+    color: var(--vh-fg) !important;
+  }
+
+  // A state shows by its text, not by its colour: white text with a white edge.
+  .badge--status,
+  app-status-text {
+    display: inline-flex;
+    align-items: center;
+    padding: 2px var(--space-2);
+    border-radius: var(--radius-sm);
+    color: var(--vh-fg) !important;
+    box-shadow: inset 0 0 0 2px var(--vh-fg);
+  }
+
+  // A link is yellow and underlined.
+  a[href]:not([class]),
+  :is(p, dd, td, .md, .link-row) a[href]:not(.btn, [role]),
+  .link {
+    color: var(--vh-hi) !important;
+    text-decoration: underline;
+  }
+
+  // A disabled control: white text and a dashed white edge, no fill.
+  .btn:disabled,
+  [aria-disabled='true'].btn {
+    background: var(--vh-bg) !important;
+    color: var(--vh-fg) !important;
+    opacity: 1 !important;
+    outline: 2px dashed var(--vh-fg) !important;
+    outline-offset: -2px !important;
+    box-shadow: none !important;
+  }
+
+  // No glass, no gradient and no tint: every pseudo layer of a glass surface goes.
+  .ld-pane--glass::before,
+  .ld-pane--glass::after {
+    display: none;
+  }
+
+  // The yellow of the focus ring of 000598, in the pure yellow.
+  :focus-visible:not(
+      textarea,
+      select,
+      input:not([type='checkbox'], [type='radio'], [type='range'], [type='button'], [type='submit'])
+    ) {
+    outline-color: var(--vh-hi) !important;
+  }
+}

@@ -23,7 +23,7 @@ describe('DisplaySettingsService (§000594)', () => {
       addEventListener: (_: string, cb: (e: MediaQueryListEvent) => void) => (handlers[query] = cb),
       removeEventListener: () => {},
     }));
-    ['data-contrast', 'data-display-motion', 'data-transparency', 'data-fields'].forEach((a) =>
+    ['data-contrast', 'data-display-motion', 'data-transparency', 'data-fields', 'data-very-high-contrast'].forEach((a) =>
       root.removeAttribute(a),
     );
     TestBed.resetTestingModule();
@@ -47,6 +47,7 @@ describe('DisplaySettingsService (§000594)', () => {
       motion: false,
       transparency: false,
       fields: false,
+      veryHigh: false,
     });
     expect(root.getAttribute('data-contrast')).toBe('more');
     expect(root.getAttribute('data-display-motion')).toBe('full');
@@ -69,19 +70,26 @@ describe('DisplaySettingsService (§000594)', () => {
     system['(prefers-reduced-motion: reduce)'] = true;
     const svc = service();
     svc.set('motion', false);
-    svc.set('fields', true);
+    svc.set('transparency', true);
     expect(root.getAttribute('data-display-motion')).toBe('full');
     expect(reducedMotion()).toBe(false);
-    expect(root.getAttribute('data-fields')).toBe('highlight');
+    expect(root.getAttribute('data-transparency')).toBe('reduce');
     expect(JSON.parse(localStorage.getItem(KEY)!)).toEqual({
       motion: false,
-      fields: true,
+      transparency: true,
     });
     handlers['(prefers-reduced-motion: reduce)']({
       matches: true,
     } as MediaQueryListEvent);
     expect(root.getAttribute('data-display-motion')).toBe('full');
     expect(svc.hasChoice()).toBe(true);
+  });
+
+  it('ignores a stored choice of the highlighted fields, which follow very high contrast (§000598)', () => {
+    localStorage.setItem(KEY, JSON.stringify({ fields: true }));
+    const svc = service();
+    expect(svc.choices()).toEqual({});
+    expect(root.getAttribute('data-fields')).toBe('normal');
   });
 
   it('reads the stored choices after a reload', () => {
@@ -131,5 +139,35 @@ describe('DisplaySettingsService (§000594)', () => {
   it('follows no system setting without matchMedia', () => {
     (window.matchMedia as unknown) = undefined;
     expect(service().effective().motion).toBe(false);
+  });
+
+  it('turns every other setting on with very high contrast and keeps their choices (§000606)', () => {
+    const svc = service();
+    svc.set('motion', false);
+    svc.set('veryHigh', true);
+    expect(svc.veryHigh()).toBe(true);
+    expect(svc.effective()).toEqual({
+      contrast: true,
+      motion: true,
+      transparency: true,
+      fields: true,
+      veryHigh: true,
+    });
+    expect(root.getAttribute('data-very-high-contrast')).toBe('on');
+    expect(root.getAttribute('data-display-motion')).toBe('reduce');
+    expect(svc.choices()).toEqual({ motion: false, veryHigh: true });
+    svc.set('veryHigh', false);
+    expect(svc.effective().motion).toBe(false);
+    expect(svc.effective().fields).toBe(false);
+    expect(root.getAttribute('data-very-high-contrast')).toBe('off');
+  });
+
+  it('starts very high contrast off and turns it off on reset (§000606)', () => {
+    const svc = service();
+    expect(svc.veryHigh()).toBe(false);
+    svc.set('veryHigh', true);
+    svc.reset();
+    expect(svc.veryHigh()).toBe(false);
+    expect(root.getAttribute('data-very-high-contrast')).toBe('off');
   });
 });

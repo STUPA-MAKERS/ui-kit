@@ -6,13 +6,22 @@ import { UI_KIT_THEME } from '../theme/theme.config';
  * - `contrast`: more contrast for text, edges and the focus ring (system: `prefers-contrast`).
  * - `motion`: less motion (system: `prefers-reduced-motion`).
  * - `transparency`: opaque surfaces instead of glass (system: `prefers-reduced-transparency`).
- * - `fields`: input fields black on yellow. No system setting asks for it, so it is off
- *   until the person turns it on.
+ * - `fields`: input fields black on yellow (app spec 000598). It has no switch of its own:
+ *   it is on exactly while very high contrast is on.
+ * - `veryHigh`: very high contrast in four colours (app specs 000605, 000606). It has no
+ *   system setting, so it is off until the person turns it on. While it is on, every other
+ *   setting and the dark theme are in effect, whatever their choice is.
  */
-export type DisplaySetting = 'contrast' | 'motion' | 'transparency' | 'fields';
+export type DisplaySetting = 'contrast' | 'motion' | 'transparency' | 'fields' | 'veryHigh';
+
+/** The settings that very high contrast turns on (app spec 000606). */
+export const VERY_HIGH_INCLUDES: readonly DisplaySetting[] = ['contrast', 'motion', 'transparency', 'fields'];
+
+/** A setting that a person can choose: every one except `fields`, which follows `veryHigh`. */
+export type DisplayChoice = Exclude<DisplaySetting, 'fields'>;
 
 /** The choices of a person. A setting that is missing follows the system. */
-export type DisplayChoices = Partial<Record<DisplaySetting, boolean>>;
+export type DisplayChoices = Partial<Record<DisplayChoice, boolean>>;
 
 /** The system query of each setting, or `null` where the system has none. */
 export const DISPLAY_MEDIA: Readonly<Record<DisplaySetting, string | null>> = {
@@ -20,6 +29,7 @@ export const DISPLAY_MEDIA: Readonly<Record<DisplaySetting, string | null>> = {
   motion: '(prefers-reduced-motion: reduce)',
   transparency: '(prefers-reduced-transparency: reduce)',
   fields: null,
+  veryHigh: null,
 };
 
 /** The attribute on `<html>` and its value for on and for off, which the styles read. */
@@ -28,9 +38,11 @@ export const DISPLAY_ATTRIBUTES: Readonly<Record<DisplaySetting, readonly [strin
   motion: ['data-display-motion', 'reduce', 'full'],
   transparency: ['data-transparency', 'reduce', 'full'],
   fields: ['data-fields', 'highlight', 'normal'],
+  veryHigh: ['data-very-high-contrast', 'on', 'off'],
 };
 
 const SETTINGS = Object.keys(DISPLAY_MEDIA) as readonly DisplaySetting[];
+const CHOICES = SETTINGS.filter((s): s is DisplayChoice => s !== 'fields');
 
 function matchList(query: string | null): MediaQueryList | null {
   if (query === null || typeof window.matchMedia !== 'function') return null;
@@ -60,15 +72,23 @@ export class DisplaySettingsService {
   /** The person has set at least one setting. */
   readonly hasChoice = computed(() => Object.keys(this._choices()).length > 0);
 
-  /** The state in effect of each setting. */
+  /**
+   * The state in effect of each setting. Very high contrast turns the settings of
+   * {@link VERY_HIGH_INCLUDES} on and leaves their choices as they are, so they apply again
+   * when it goes off.
+   */
   readonly effective = computed<Record<DisplaySetting, boolean>>(() => {
     const choices = this._choices();
     const system = this._system();
-    return Object.fromEntries(SETTINGS.map((s) => [s, choices[s] ?? system[s]])) as Record<
-      DisplaySetting,
-      boolean
-    >;
+    const veryHigh = choices.veryHigh ?? system.veryHigh;
+    const own = (s: DisplaySetting): boolean => (s === 'fields' ? false : (choices[s] ?? system[s]));
+    return Object.fromEntries(
+      SETTINGS.map((s) => [s, (veryHigh && VERY_HIGH_INCLUDES.includes(s)) || own(s)]),
+    ) as Record<DisplaySetting, boolean>;
   });
+
+  /** Very high contrast is on: the other switches and the theme are locked (app spec 000606). */
+  readonly veryHigh = computed(() => this.effective().veryHigh);
 
   /** Call this once at app start. It adds the system listeners and writes the attributes. */
   init(): void {
@@ -82,7 +102,7 @@ export class DisplaySettingsService {
   }
 
   /** Set one setting for this device; it overrides the system. */
-  set(setting: DisplaySetting, on: boolean): void {
+  set(setting: DisplayChoice, on: boolean): void {
     this._choices.update((choices) => ({ ...choices, [setting]: on }));
     this.persist();
     this.apply();
@@ -116,7 +136,7 @@ export class DisplaySettingsService {
       if (raw === null || typeof raw !== 'object') return {};
       const record = raw as Record<string, unknown>;
       return Object.fromEntries(
-        SETTINGS.filter((s) => typeof record[s] === 'boolean').map((s) => [s, record[s]]),
+        CHOICES.filter((s) => typeof record[s] === 'boolean').map((s) => [s, record[s]]),
       ) as DisplayChoices;
     } catch {
       /* storage blocked or the value is no JSON: the system applies */

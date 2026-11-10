@@ -2,6 +2,7 @@ import { TestBed } from '@angular/core/testing';
 import { provideUiKit } from '../intl/intl';
 import { UI_KIT_THEME_DEFAULTS } from './theme.config';
 import { ThemeService } from './theme.service';
+import { DisplaySettingsService } from '../display/display-settings.service';
 
 const KEY = UI_KIT_THEME_DEFAULTS.storageKey;
 const THEME_COLOR = UI_KIT_THEME_DEFAULTS.background;
@@ -37,6 +38,22 @@ describe('ThemeService', () => {
     svc.init();
     expect(svc.preference()).toBe('system');
     expect(svc.resolved()).toBe('light');
+    expect(document.documentElement.getAttribute('data-theme')).toBe('light');
+  });
+
+  it('shows the dark theme while very high contrast is on and keeps the preference (§000606)', () => {
+    localStorage.setItem(KEY, 'light');
+    const svc = service();
+    svc.init();
+    const display = TestBed.inject(DisplaySettingsService);
+    display.set('veryHigh', true);
+    TestBed.tick();
+    expect(svc.resolved()).toBe('dark');
+    expect(svc.locked()).toBe(true);
+    expect(document.documentElement.getAttribute('data-theme')).toBe('dark');
+    expect(svc.preference()).toBe('light');
+    display.set('veryHigh', false);
+    TestBed.tick();
     expect(document.documentElement.getAttribute('data-theme')).toBe('light');
   });
 

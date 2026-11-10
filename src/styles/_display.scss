@@ -9,13 +9,15 @@
 // not as `:host`.
 //
 // Settings: `motion` (less motion), `contrast` (more contrast), `transparency` (no glass),
-// `fields` (input fields black on yellow).
+// `fields` (input fields black on yellow), `veryHigh` (four colours; it turns the
+// others on too, so a rule of another setting also applies under it).
 
 $-attributes: (
   motion: "[data-display-motion='reduce']",
   contrast: "[data-contrast='more']",
   transparency: "[data-transparency='reduce']",
   fields: "[data-fields='highlight']",
+  veryHigh: "[data-very-high-contrast='on']",
 );
 
 @function -root($setting) {
