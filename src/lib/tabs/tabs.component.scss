@@ -1,4 +1,5 @@
 @use '../../styles/press';
+@use '../../styles/display' as d;
 
 :host {
   display: block;
@@ -60,4 +61,12 @@
 }
 .tabs__tab:focus-visible {
   outline-offset: -2px;
+}
+
+/* More contrast (app spec 000595): the bar of the open tab in the accent text colour, which
+   holds 4.5:1 to the surface. */
+@include d.host-on(contrast) {
+  .tabs__tab--on {
+    box-shadow: inset 0 -3px 0 var(--color-accent-text);
+  }
 }

@@ -18,8 +18,9 @@
      controls on a dialog or a sheet (`glass-content`). On the solid page it gives the step
      of `surface-2`. A parent sets `--sp-bg` to a different surface where the field needs
      more contrast. */
-  background: var(--sp-bg, color-mix(in srgb, var(--color-text) 6%, transparent));
-  color: var(--color-text-muted);
+  background: var(--field-bg, var(--sp-bg, color-mix(in srgb, var(--color-text) 6%, transparent)));
+  color: var(--field-text, var(--color-text-muted));
+  box-shadow: var(--field-edge, none);
   font-size: var(--fs-md);
 }
 :host(.sp--md) .sp {
@@ -124,7 +125,7 @@
   padding: 0;
   border: 0;
   background: transparent;
-  color: var(--color-text);
+  color: var(--field-text, var(--color-text));
   font: inherit;
   outline: none;
 }
@@ -134,7 +135,7 @@
   display: none;
 }
 .sp__input::placeholder {
-  color: var(--color-text-muted);
+  color: var(--field-label, var(--color-text-muted));
   opacity: 1;
 }
 

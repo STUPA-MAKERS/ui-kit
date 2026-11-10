@@ -37,6 +37,11 @@
   :focus-visible {
     outline-width: 3px !important;
   }
+
+  // An active filter chip keeps a strong edge: the selection fill alone is too faint.
+  .chip.on {
+    border-color: var(--color-border-strong);
+  }
 }
 
 // --- Less motion (000219) ----------------------------------------------------

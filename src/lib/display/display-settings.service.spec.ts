@@ -23,7 +23,7 @@ describe('DisplaySettingsService (§000594)', () => {
       addEventListener: (_: string, cb: (e: MediaQueryListEvent) => void) => (handlers[query] = cb),
       removeEventListener: () => {},
     }));
-    ['data-contrast', 'data-motion', 'data-transparency', 'data-fields'].forEach((a) =>
+    ['data-contrast', 'data-display-motion', 'data-transparency', 'data-fields'].forEach((a) =>
       root.removeAttribute(a),
     );
     TestBed.resetTestingModule();
@@ -42,9 +42,14 @@ describe('DisplaySettingsService (§000594)', () => {
   it('follows the system settings and writes every attribute', () => {
     system['(prefers-contrast: more)'] = true;
     const svc = service();
-    expect(svc.effective()).toEqual({ contrast: true, motion: false, transparency: false, fields: false });
+    expect(svc.effective()).toEqual({
+      contrast: true,
+      motion: false,
+      transparency: false,
+      fields: false,
+    });
     expect(root.getAttribute('data-contrast')).toBe('more');
-    expect(root.getAttribute('data-motion')).toBe('full');
+    expect(root.getAttribute('data-display-motion')).toBe('full');
     expect(root.getAttribute('data-transparency')).toBe('full');
     expect(root.getAttribute('data-fields')).toBe('normal');
     expect(svc.hasChoice()).toBe(false);
@@ -52,8 +57,10 @@ describe('DisplaySettingsService (§000594)', () => {
 
   it('follows a live change of the system while there is no choice', () => {
     service();
-    handlers['(prefers-reduced-motion: reduce)']({ matches: true } as MediaQueryListEvent);
-    expect(root.getAttribute('data-motion')).toBe('reduce');
+    handlers['(prefers-reduced-motion: reduce)']({
+      matches: true,
+    } as MediaQueryListEvent);
+    expect(root.getAttribute('data-display-motion')).toBe('reduce');
     expect(reducedMotion()).toBe(true);
     expect(motionReduced()).toBe(true);
   });
@@ -63,12 +70,17 @@ describe('DisplaySettingsService (§000594)', () => {
     const svc = service();
     svc.set('motion', false);
     svc.set('fields', true);
-    expect(root.getAttribute('data-motion')).toBe('full');
+    expect(root.getAttribute('data-display-motion')).toBe('full');
     expect(reducedMotion()).toBe(false);
     expect(root.getAttribute('data-fields')).toBe('highlight');
-    expect(JSON.parse(localStorage.getItem(KEY)!)).toEqual({ motion: false, fields: true });
-    handlers['(prefers-reduced-motion: reduce)']({ matches: true } as MediaQueryListEvent);
-    expect(root.getAttribute('data-motion')).toBe('full');
+    expect(JSON.parse(localStorage.getItem(KEY)!)).toEqual({
+      motion: false,
+      fields: true,
+    });
+    handlers['(prefers-reduced-motion: reduce)']({
+      matches: true,
+    } as MediaQueryListEvent);
+    expect(root.getAttribute('data-display-motion')).toBe('full');
     expect(svc.hasChoice()).toBe(true);
   });
 
@@ -87,6 +99,15 @@ describe('DisplaySettingsService (§000594)', () => {
     expect(svc.hasChoice()).toBe(false);
     expect(localStorage.getItem(KEY)).toBeNull();
     expect(root.getAttribute('data-transparency')).toBe('reduce');
+  });
+
+  it('leaves data-motion to the route transitions', () => {
+    // `:root[data-motion]` names the rail and the bottom bar for a view transition, and a
+    // named element is a backdrop root: the glass over it would no longer blur the page.
+    const svc = service();
+    svc.set('motion', true);
+    expect(root.hasAttribute('data-motion')).toBe(false);
+    expect(root.getAttribute('data-display-motion')).toBe('reduce');
   });
 
   it('ignores a stored value that is no JSON object', () => {

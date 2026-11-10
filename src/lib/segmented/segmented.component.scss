@@ -1,4 +1,5 @@
 @use '../../styles/press';
+@use '../../styles/display' as d;
 
 :host {
   display: inline-flex;
@@ -109,4 +110,15 @@
 :host(.seg-host--control) .seg {
   min-height: 0;
   height: var(--control-height);
+}
+
+/* More contrast (app spec 000595): the track gets an edge and the chosen pill a strong one,
+   so the choice does not rest on a faint fill. */
+@include d.host-on(contrast) {
+  .seg {
+    box-shadow: inset 0 0 0 1px var(--color-border);
+  }
+  .seg__opt--on {
+    box-shadow: inset 0 0 0 2px var(--color-border-strong);
+  }
 }
