@@ -424,6 +424,21 @@ describe('DataTableComponent', () => {
     });
   });
 
+  describe('sticky head', () => {
+    it('marks the box only when the caller asks for a sticky head', async () => {
+      const { container, rerender } = await render(
+        `<app-data-table [columns]="cols" [rows]="rows" [stickyHead]="sticky" />`,
+        {
+          imports: [DataTableComponent],
+          componentProperties: { cols: COLS, rows: ROWS, sticky: true },
+        },
+      );
+      expect(container.querySelector('.dt')).toHaveClass('dt--sticky-head');
+      await rerender({ componentProperties: { cols: COLS, rows: ROWS, sticky: false } });
+      expect(container.querySelector('.dt')).not.toHaveClass('dt--sticky-head');
+    });
+  });
+
   describe('sticky column', () => {
     const STICKY: ColumnDef[] = [
       { key: 'name', label: 'Name' },

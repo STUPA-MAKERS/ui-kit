@@ -6,6 +6,7 @@
   class="dt"
   [class.dt--boxed]="boxed && (loading || rows.length > 0)"
   [class.dt--rowgroup]="surface === 'rowgroup' && (loading || rows.length > 0)"
+  [class.dt--sticky-head]="stickyHead"
   [class.dt--cut-start]="hiddenStart()"
   [class.dt--cut-end]="hiddenEnd()"
   [class.dt--cut-hot]="cutHot()"

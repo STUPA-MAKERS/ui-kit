@@ -852,3 +852,45 @@
     }
   }
 }
+
+/* THE STICKY HEAD — `stickyHead`. The header row stays at the top of the scroll container
+   around the table while the rows pass under it. `position: sticky` binds to the nearest
+   ancestor that scrolls, and the scroller of the table scrolls sideways, so it would catch
+   the header and never move. `overflow: clip` cuts like `hidden` but makes no scroll
+   container, so the header reaches the scroll container of the page. The wrapper of a row
+   group clips the same way and keeps its round corners.
+
+   The table collapses its borders, and a collapsed border belongs to the table, not to the
+   cell: it stays behind when the cell sticks, and the rows show through it. The header
+   therefore draws its rule (and in a row group the gap) as an inset shadow inside the cell
+   and has no bottom border. */
+.dt--sticky-head,
+.dt--sticky-head.dt--rowgroup {
+  overflow: clip;
+}
+.dt--sticky-head .dt__scroll {
+  overflow: clip;
+  scrollbar-gutter: auto;
+}
+.dt--sticky-head .dt__table th {
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  border-bottom: 0;
+  padding-bottom: calc(10px + var(--border-width));
+  box-shadow: inset 0 calc(-1 * var(--border-width)) 0 var(--color-border);
+}
+.dt--sticky-head.dt--rowgroup .dt__table th {
+  padding-bottom: calc(10px + 2px);
+  box-shadow: inset 0 -2px 0 var(--dt-gap, var(--color-bg));
+}
+.dt--sticky-head .dt__table th.dt__cell--stickyEnd {
+  box-shadow:
+    inset 0 calc(-1 * var(--border-width)) 0 var(--color-border),
+    calc(-1 * var(--pin-overhang)) 0 0 0 var(--pin-bg);
+}
+.dt--sticky-head.dt--rowgroup .dt__table th.dt__cell--stickyEnd {
+  box-shadow:
+    inset 0 -2px 0 var(--dt-gap, var(--color-bg)),
+    calc(-1 * var(--pin-overhang)) 0 0 0 var(--pin-bg);
+}
