@@ -88,7 +88,7 @@ describe('moreContrast (§000595)', () => {
 describe('highlightedFields (§000598)', () => {
   it('sets black text, label and mark on yellow, with a black edge', () => {
     const yellow = DISPLAY.match(/--field-bg: (#[0-9a-f]{6});/)![1];
-    for (const token of ['--field-text', '--field-label', '--check-mark']) {
+    for (const token of ['--field-text', '--field-label', '--check-mark', '--field-danger']) {
       const fg = DISPLAY.match(new RegExp(`${token}: (#[0-9a-f]{6});`))![1];
       expect(ratio(fg, yellow)).toBeGreaterThanOrEqual(7);
     }
