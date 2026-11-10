@@ -29,7 +29,7 @@
 }
 
 .lfld__value {
-  color: var(--color-text);
+  color: var(--field-text, var(--color-text));
   overflow-wrap: anywhere;
 }
 

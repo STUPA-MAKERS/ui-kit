@@ -111,11 +111,17 @@ describe('highlightedButtons (§000598)', () => {
   it('makes every button with a surface black on yellow with the field edge', () => {
     const button = readFileSync(join(STYLES, '../lib/button/button.component.scss'), 'utf8');
     expect(button).toMatch(
-      /\.btn--fill,\s*\.btn--tonal,\s*\.btn--outlined,\s*\.btn--text:not\(\.btn--icon\) \{\s*(\/\*[^*]*\*\/\s*)?background: var\(--field-bg\);\s*color: var\(--field-text\);/,
+      /\.btn--fill,\s*\.btn--tonal,\s*\.btn--outlined,\s*\.btn--text \{\s*(\/\*[^*]*\*\/\s*)?background: var\(--field-bg\);\s*color: var\(--field-text\);/,
     );
     expect(button).toMatch(/\.btn--fab \{\s*background: var\(--field-bg\);/);
     expect(button).toMatch(
       /\.btn--danger \{\s*background: var\(--field-bg\);\s*color: var\(--field-danger\);/,
+    );
+  });
+  it('makes the count plate black with a yellow number', () => {
+    const button = readFileSync(join(STYLES, '../lib/button/button.component.scss'), 'utf8');
+    expect(button).toMatch(
+      /\.btn > \.btn__count\.num \{\s*background: var\(--field-text\);\s*color: var\(--field-bg\);/,
     );
   });
 });
@@ -146,11 +152,11 @@ describe('highlightedOwnChecks (§000598)', () => {
 describe('highlightedRing (§000598)', () => {
   it('covers the outer rim of every yellow surface with a black ring', () => {
     expect(DISPLAY).toMatch(
-      /\.sp,[\s\S]*?input\[type='radio'\] \{\s*outline: 2px solid var\(--field-text\);\s*outline-offset: -1px;/,
+      /\.sp,[\s\S]*?input\[type='radio'\] \{\s*outline: 2px solid var\(--field-text\);\s*outline-offset: -2px;/,
     );
     const field = readFileSync(join(STYLES, '_field.scss'), 'utf8');
     expect(field).toMatch(
-      /@mixin -ring \{\s*outline: 2px solid var\(--field-text\);\s*outline-offset: -1px;/,
+      /@mixin -ring \{\s*outline: 2px solid var\(--field-text\);\s*outline-offset: -2px;/,
     );
   });
 });
@@ -202,6 +208,54 @@ describe('highlightedToasts (§000598)', () => {
   });
 });
 
+describe('highlightedRowMenu (§000598)', () => {
+  it('makes the row menu black on yellow and the open button yellow on black', () => {
+    const rm = readFileSync(join(STYLES, '../lib/row-menu/row-menu.component.scss'), 'utf8');
+    expect(rm).toMatch(
+      /\.rm__menu \{[^}]*--color-danger: var\(--field-danger\);[^}]*background: var\(--field-bg\);[^}]*box-shadow: var\(--field-edge\), var\(--shadow-elevated\);/,
+    );
+    expect(rm).toMatch(
+      /\.rm__trigger--on \{\s*background: var\(--field-text\);\s*color: var\(--field-bg\);/,
+    );
+    expect(DISPLAY).toMatch(
+      /:is\(button, a\)\[aria-label\]:has\(> app-icon:only-child, > svg:only-child\):not\(\.btn, \.chip\) \{[^}]*background: var\(--field-bg\);/,
+    );
+  });
+});
+
+describe('fabTextCentred', () => {
+  it('raises the text of a FAB by 0.5px and keeps its icon in place', () => {
+    const button = readFileSync(join(STYLES, '../lib/button/button.component.scss'), 'utf8');
+    expect(button).toMatch(/\.btn--fab \.btn__label \{\s*padding-block-end: 1px;/);
+    expect(button).toMatch(/> app-icon \{\s*margin-block-start: 1px;/);
+  });
+});
+
+describe('listItemTrail', () => {
+  it('lets the pointer through the trailing slot except on its controls', () => {
+    const li = readFileSync(join(STYLES, '../lib/list-item/list-item.component.scss'), 'utf8');
+    expect(li).toMatch(/\.li__trail \{\s*position: relative;\s*z-index: 1;\s*pointer-events: none;/);
+    expect(li).toMatch(/\[tabindex\]:not\(\[tabindex='-1'\]\)\s*\) \{\s*pointer-events: auto;/);
+  });
+});
+
+describe('highlightedTab (§000598)', () => {
+  it('paints the open tab black on yellow with the black edge', () => {
+    expect(DISPLAY).toMatch(
+      /\[role='tablist'\] \[role='tab'\]\[aria-selected='true'\] \{[^}]*background: var\(--field-bg\);[^}]*box-shadow: var\(--field-edge\);/,
+    );
+  });
+});
+
+describe('highlightedPicked (§000598)', () => {
+  it('draws the choice of an autocomplete black in a highlighted field', () => {
+    const ac = readFileSync(join(STYLES, '../lib/autocomplete/autocomplete.component.scss'), 'utf8');
+    expect(ac).toMatch(/\.ac__picked \{[^}]*color: var\(--field-text, var\(--color-text\)\);/);
+    const ta = readFileSync(join(STYLES, '../lib/textarea/textarea.component.scss'), 'utf8');
+    expect(ta).toContain('color: var(--field-text, var(--color-text));');
+  });
+});
+
 describe('lessTransparency (§000596)', () => {
   it('makes the glass solid and removes the blur', () => {
     expect(DISPLAY).toMatch(/--glass-tint: 100%;/);
@@ -232,5 +286,27 @@ describe('settingsFollowChoice (§000219, §000594)', () => {
 
   it('turns off the press scale with less motion', () => {
     expect(DISPLAY).toMatch(/--press-scale: 1;\s*--press-scale-control: 1;/);
+  });
+});
+
+describe('highlightedTagsAndBars (§000598)', () => {
+  it('makes a tag a black plate with yellow text', () => {
+    const css = readFileSync(join(STYLES, '../lib/badge/badge.component.scss'), 'utf8');
+    expect(css).toMatch(
+      /\.badge--neutral,\s*\.badge--accent \{\s*background: var\(--field-text\);\s*color: var\(--field-bg\);/,
+    );
+  });
+  it('makes the bar a yellow plate with black parts', () => {
+    const css = readFileSync(join(STYLES, '../lib/seg-bar/seg-bar.component.scss'), 'utf8');
+    expect(css).toMatch(/\.bar__seg--filled,\s*\.bar__seg--muted \{\s*background: var\(--field-text\);/);
+    expect(css).toMatch(/& \{[^}]*padding: 2px;[^}]*background: var\(--field-bg\);/);
+  });
+});
+
+describe('ringInside (§000598)', () => {
+  it('keeps the ring inside the box, so a scroll container does not cut it', () => {
+    const field = readFileSync(join(STYLES, '_field.scss'), 'utf8');
+    expect(field).not.toContain('outline-offset: -1px');
+    expect(DISPLAY).not.toContain('outline-offset: -1px');
   });
 });

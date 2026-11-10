@@ -47,7 +47,9 @@
   width: 100%;
   min-width: 0;
   padding: 2px var(--space-2) 8px var(--space-4);
-  color: var(--color-text);
+  /* Black in a highlighted field (000598): the box changes only the muted colours, because
+     the hits below it are in the box and keep the colours of the page. */
+  color: var(--field-text, var(--color-text));
 }
 .ac__picked ::ng-deep [acPickedIcon] {
   flex: none;

@@ -118,7 +118,8 @@
 }
 /* The black ring over the outer edge of a yellow surface (000598). The yellow background
    reaches the outer edge, so its anti-aliased rim shows outside the black inset edge at a
-   rounded corner. A 2px outline centred on the edge covers that rim with black. */
+   rounded corner. A 2px outline on the inner side of the edge covers that rim with black.
+   It stays inside the box, because a scroll container cuts what is outside. */
 @mixin ring($global: false) {
   @if $global {
     @include d.on(fields) {
@@ -132,7 +133,7 @@
 }
 @mixin -ring {
   outline: 2px solid var(--field-text);
-  outline-offset: -1px;
+  outline-offset: -2px;
 }
 
 /* The chosen row of a menu, a list or a table (000598): black on yellow with the black edge.

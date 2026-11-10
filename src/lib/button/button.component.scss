@@ -204,15 +204,14 @@
 .btn--fab.btn--icon {
   --icon-size: 20px;
 }
-/* Highlighted fields (app spec 000598): every button with a surface (filled, tonal,
-   outlined, FAB) is black on yellow with a black edge, as a field. A destructive button is
-   dark red on yellow. A text button with a label gets the same surface; an icon button
-   keeps none. */
+/* Highlighted fields (app spec 000598): every button (filled, tonal, outlined, text, FAB,
+   with a label or as an icon button) is black on yellow with a black edge, as a field. A
+   destructive button is dark red on yellow. */
 @include d.host-on(fields) {
   .btn--fill,
   .btn--tonal,
   .btn--outlined,
-  .btn--text:not(.btn--icon) {
+  .btn--text {
     /* The 1px border and a 1px inset make the 2px edge; the ring of display-settings.scss
        covers the outer rim. */
     background: var(--field-bg);
@@ -236,9 +235,19 @@
   /* A toggle that is on turns round: yellow on black. */
   .btn--tonal[aria-pressed='true'],
   .btn--outlined[aria-pressed='true'],
-  .btn--text:not(.btn--icon)[aria-pressed='true'] {
+  .btn--text[aria-pressed='true'] {
     background: var(--field-text);
     color: var(--field-bg);
+  }
+  /* The count plate is black with a yellow number, so it stands out on the yellow button;
+     on a pressed (black) button it turns round. */
+  .btn > .btn__count.num {
+    background: var(--field-text);
+    color: var(--field-bg);
+  }
+  [aria-pressed='true'] > .btn__count.num {
+    background: var(--field-bg);
+    color: var(--field-text);
   }
 }
 @media (hover: hover) {
@@ -246,7 +255,7 @@
     .btn--fill:hover:not(:disabled),
     .btn--tonal:hover:not(:disabled):not([aria-pressed='true']),
     .btn--outlined:hover:not(:disabled):not([aria-pressed='true']),
-    .btn--text:not(.btn--icon):hover:not(:disabled):not([aria-pressed='true']),
+    .btn--text:hover:not(:disabled):not([aria-pressed='true']),
     .btn--danger:hover:not(:disabled),
     .btn--fab:hover:not(:disabled) {
       background: var(--field-bg-hover);
@@ -437,4 +446,16 @@
 }
 .btn--fab .btn__label ::ng-deep > app-icon {
   height: auto;
+}
+/* The text sits 0.5px higher than the centre of its line box, so the capitals are centred on
+   the button. IBM Plex Sans has more room above the capitals (ascent 1.025em) than below the
+   baseline (descent 0.275em), so the centred line box put the capitals about 0.5px low; a
+   browser that does not snap the baseline to a whole pixel (Firefox) showed that offset. The
+   1px below the label raises the centre of the text by 0.5px, and the 1px above the icon
+   keeps the icon where it was. */
+.btn--fab .btn__label {
+  padding-block-end: 1px;
+}
+.btn--fab .btn__label ::ng-deep > app-icon {
+  margin-block-start: 1px;
 }

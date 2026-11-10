@@ -165,7 +165,7 @@
     backdrop-filter: none;
     box-shadow: var(--field-edge), var(--shadow-elevated);
     outline: 2px solid var(--field-text);
-    outline-offset: -1px;
+    outline-offset: -2px;
   }
   .toast--danger {
     --toast-tile-fg: var(--field-danger);
