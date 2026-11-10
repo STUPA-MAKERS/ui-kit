@@ -120,7 +120,7 @@
   --color-text-muted: var(--field-text);
   --color-text-subtle: var(--field-text);
   --color-accent-text: var(--field-text);
-  border-color: transparent;
+  border-color: var(--field-text);
   background: var(--field-bg);
   color: var(--field-text);
   box-shadow: var(--field-edge);

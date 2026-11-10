@@ -211,21 +211,23 @@
   .btn--fill,
   .btn--tonal,
   .btn--outlined {
+    /* The border is black too, so no yellow shows outside the edge. */
     background: var(--field-bg);
     color: var(--field-text);
-    border-color: transparent;
+    border-color: var(--field-text);
     box-shadow: var(--field-edge);
     filter: none;
   }
   .btn--danger {
     background: var(--field-bg);
     color: var(--field-danger);
-    border-color: transparent;
+    border-color: var(--field-danger);
     box-shadow: inset 0 0 0 2px var(--field-danger);
   }
   .btn--fab {
     background: var(--field-bg);
     color: var(--field-text);
+    border-color: var(--field-text);
     box-shadow: var(--field-edge), var(--shadow-elevated);
   }
   /* A toggle that is on turns round: yellow on black. */
