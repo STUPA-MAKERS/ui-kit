@@ -70,19 +70,26 @@ describe('DisplaySettingsService (§000594)', () => {
     system['(prefers-reduced-motion: reduce)'] = true;
     const svc = service();
     svc.set('motion', false);
-    svc.set('fields', true);
+    svc.set('transparency', true);
     expect(root.getAttribute('data-display-motion')).toBe('full');
     expect(reducedMotion()).toBe(false);
-    expect(root.getAttribute('data-fields')).toBe('highlight');
+    expect(root.getAttribute('data-transparency')).toBe('reduce');
     expect(JSON.parse(localStorage.getItem(KEY)!)).toEqual({
       motion: false,
-      fields: true,
+      transparency: true,
     });
     handlers['(prefers-reduced-motion: reduce)']({
       matches: true,
     } as MediaQueryListEvent);
     expect(root.getAttribute('data-display-motion')).toBe('full');
     expect(svc.hasChoice()).toBe(true);
+  });
+
+  it('ignores a stored choice of the highlighted fields, which follow very high contrast (§000598)', () => {
+    localStorage.setItem(KEY, JSON.stringify({ fields: true }));
+    const svc = service();
+    expect(svc.choices()).toEqual({});
+    expect(root.getAttribute('data-fields')).toBe('normal');
   });
 
   it('reads the stored choices after a reload', () => {

@@ -343,14 +343,22 @@
     pointer-events: none;
   }
 
+  // A person's avatar: a white ring, because its plate is black like the page.
+  app-avatar {
+    box-shadow: inset 0 0 0 2px var(--vh-fg);
+  }
+
   // A yellow date block (a live meeting) needs no white edge: the yellow sets it apart.
   app-date-block.db--live .db {
     outline: none;
   }
 
-  // A vertical line between the list and the detail of a split page.
-  .ld--split .ld__list {
-    border-inline-end: var(--vh-edge);
+  // The detail pane of a split page is a box that cuts its content at the bottom: it has
+  // the white edge of a surface.
+  // A border, not an outline: the content scrolls over an outline of a scroll container.
+  .ld--split .ld__detail {
+    box-sizing: border-box;
+    border: var(--vh-edge);
   }
 
   // The rail and the bottom bar: a white line toward the page.
@@ -376,6 +384,10 @@
   .rail__item.is-active .rail__ind,
   .bb__item.is-active .bb__ind {
     color: var(--vh-bg) !important;
+  }
+  .rail__item.is-active,
+  .bb__item.is-active {
+    color: var(--vh-hi) !important;
   }
   .rail__ind::before,
   .bb__ind::before {
