@@ -343,12 +343,33 @@
     pointer-events: none;
   }
 
+  // A yellow date block (a live meeting) needs no white edge: the yellow sets it apart.
+  app-date-block.db--live .db {
+    outline: none;
+  }
+
+  // A vertical line between the list and the detail of a split page.
+  .ld--split .ld__list {
+    border-inline-end: var(--vh-edge);
+  }
+
   // The rail and the bottom bar: a white line toward the page.
+  // A border, because the glass layer of the bar paints over an inset shadow.
   nav.bb {
-    box-shadow: inset 0 2px 0 var(--vh-fg) !important;
+    border-top: var(--vh-edge) !important;
   }
   nav.rail {
     box-shadow: inset -2px 0 0 var(--vh-fg) !important;
+  }
+
+  // The open tab: a yellow plate that stands clear of the line of the tab bar, so the line
+  // runs through unbroken and the plate does not merge into it.
+  [role='tablist'] [role='tab'][aria-selected='true'] {
+    margin-block: 4px 6px;
+    box-shadow: none;
+  }
+  .tp__ink {
+    display: none;
   }
 
   // The open item of the rail and of the bottom bar: black on a yellow pill.
@@ -370,7 +391,9 @@
   // A state shows by its text, not by its colour: white text with a white edge.
   .badge--status,
   app-status-text {
-    padding: 0 var(--space-1);
+    display: inline-flex;
+    align-items: center;
+    padding: 2px var(--space-2);
     border-radius: var(--radius-sm);
     color: var(--vh-fg) !important;
     box-shadow: inset 0 0 0 2px var(--vh-fg);
