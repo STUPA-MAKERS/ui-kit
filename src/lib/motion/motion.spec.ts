@@ -9,6 +9,7 @@ function media(matches: Record<string, boolean>): void {
 
 afterEach(() => {
   window.matchMedia = original;
+  document.documentElement.removeAttribute('data-motion');
 });
 
 describe('reducedMotion', () => {
@@ -17,6 +18,15 @@ describe('reducedMotion', () => {
     expect(reducedMotion()).toBe(true);
     media({});
     expect(reducedMotion()).toBe(false);
+  });
+
+  it('follows the setting in effect on <html> before the system (§000219)', () => {
+    media({ [REDUCED]: true });
+    document.documentElement.setAttribute('data-motion', 'full');
+    expect(reducedMotion()).toBe(false);
+    media({});
+    document.documentElement.setAttribute('data-motion', 'reduce');
+    expect(reducedMotion()).toBe(true);
   });
 
   it('is false without matchMedia', () => {

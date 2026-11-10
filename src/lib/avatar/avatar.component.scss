@@ -1,3 +1,5 @@
+@use '../../styles/display' as d;
+
 /* A person: initials in a 40px circle (32px small, 22px extra small), or the Gravatar image over them. */
 :host {
   position: relative;
@@ -50,7 +52,7 @@
 :host(.av--img) .av__letters {
   visibility: hidden;
 }
-@media (prefers-reduced-motion: reduce) {
+@include d.host-on(motion) {
   .av__img {
     transition: none;
   }

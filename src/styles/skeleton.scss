@@ -1,3 +1,5 @@
+@use 'display' as d;
+
 // Global loading placeholders. Consume from the global stylesheet of an app:
 //   @use 'skeleton';
 @use 'skeleton-bar' as bar;
@@ -49,7 +51,7 @@ td:first-child > .skel--bar {
   border: var(--border-width) solid var(--color-border);
   background: var(--color-surface);
 }
-@media (prefers-reduced-motion: reduce) {
+@include d.on(motion) {
   .skel {
     animation: none;
   }
@@ -156,7 +158,7 @@ td:first-child > .skel--bar {
   top: auto;
   bottom: 0;
 }
-@media (prefers-reduced-motion: reduce) {
+@include d.on(motion) {
   .skel-text,
   .skel-box,
   .skel-progress::after {

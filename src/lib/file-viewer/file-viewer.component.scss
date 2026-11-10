@@ -1,4 +1,5 @@
 @use '../../styles/press';
+@use '../../styles/display' as d;
 /* The viewer is dark in both themes, like the Nextcloud viewer: the file is the only
    bright surface. The colours are local, so they do not follow the light theme. */
 .fv {
@@ -291,7 +292,7 @@
   animation: fv-fade-out var(--motion-base, 200ms) var(--ease-exit, ease-in) forwards;
 }
 
-@media (prefers-reduced-motion: reduce) {
+@include d.host-on(motion) {
   .fv--entering,
   .fv--leaving,
   .fv--entering .fv__stage > .fv__image,

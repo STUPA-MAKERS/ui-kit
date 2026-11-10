@@ -1,8 +1,14 @@
 import { MEDIA } from '../breakpoints/breakpoints';
 import { matchesMedia } from '../signals/media-query';
 
-/** True when the person asks the system for reduced motion. */
+/**
+ * True when the person asks for reduced motion. The `DisplaySettingsService` writes the
+ * setting in effect (the system setting or the choice of the person) to `data-motion` on
+ * `<html>`. Without that attribute the system setting applies.
+ */
 export function reducedMotion(): boolean {
+  const motion = document.documentElement.getAttribute('data-motion');
+  if (motion !== null) return motion === 'reduce';
   return matchesMedia(MEDIA.reducedMotion);
 }
 

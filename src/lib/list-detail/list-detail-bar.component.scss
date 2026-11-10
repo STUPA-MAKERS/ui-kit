@@ -1,6 +1,7 @@
 @use '../../styles/breakpoints' as bp;
 @use '../../styles/press';
 @use '../../styles/frosted' as *;
+@use '../../styles/display' as d;
 
 /* One view at a time: the bar at the top of the detail. It stays at the top of the
    window while the page scrolls under it, so the way back and the actions are always in
@@ -125,8 +126,8 @@
   opacity: 1;
   transform: none;
 }
-@media (prefers-reduced-motion: reduce) {
-  :host,
+@include d.host-on(motion) {
+  &,
   .ld__barTitle,
   .ld__barSub {
     transition: none;

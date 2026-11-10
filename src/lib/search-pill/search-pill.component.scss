@@ -1,4 +1,5 @@
 @use '../../styles/press';
+@use '../../styles/display' as d;
 
 :host {
   display: block;
@@ -75,7 +76,7 @@
     transform: rotate(360deg);
   }
 }
-@media (prefers-reduced-motion: reduce) {
+@include d.host-on(motion) {
   .sp__spinner {
     animation-duration: 2s;
   }

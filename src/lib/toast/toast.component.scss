@@ -43,7 +43,7 @@
   padding: var(--space-3);
   border-radius: var(--radius-xl);
   box-shadow: var(--shadow-elevated);
-  background: color-mix(in srgb, var(--color-selected) 75%, transparent);
+  background: color-mix(in srgb, var(--color-selected) var(--glass-tint, 75%), transparent);
   -webkit-backdrop-filter: blur(16px) saturate(1.8);
   backdrop-filter: blur(16px) saturate(1.8);
   color: var(--color-text);

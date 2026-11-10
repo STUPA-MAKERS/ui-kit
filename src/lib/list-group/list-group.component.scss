@@ -96,7 +96,7 @@
         transparent calc(100% - var(--space-4)),
         var(--stb-bg, var(--color-bg))
       ),
-      color-mix(in srgb, var(--stb-bg, var(--color-bg)) 55%, transparent);
+      color-mix(in srgb, var(--stb-bg, var(--color-bg)) var(--glass-tint, 55%), transparent);
   }
 }
 // While stuck, the glass of the head runs into its rows with round inner corners, as the

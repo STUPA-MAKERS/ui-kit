@@ -34,9 +34,7 @@
 // the navigation). Use it inside the `:active` rule.
 @mixin press-scale($scale: control) {
   @if $scale != none {
-    @media (prefers-reduced-motion: no-preference) {
-      scale: amount-of($scale);
-    }
+    scale: amount-of($scale);
   }
 }
 

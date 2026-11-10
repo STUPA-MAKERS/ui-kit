@@ -91,10 +91,12 @@ describe('touch rules in the stylesheets', () => {
     expect(press).toMatch(/@mixin press-on\(\$child, \$scale: row\)/);
     expect(press).toMatch(/@return var\(--press-scale-control\);/);
     expect(press).toMatch(/@return var\(--press-scale\);/);
-    // The scale never runs with reduced motion, and every press includes the scale.
-    const scale = press.indexOf('scale: amount-of($scale);');
-    expect(press.slice(0, scale).lastIndexOf('@media (prefers-reduced-motion: no-preference)'))
-      .toBeGreaterThan(press.slice(0, scale).lastIndexOf('@mixin press-scale'));
+    // The scale never runs with reduced motion: both amounts are 1 then. Every press
+    // includes the scale.
+    expect(press).toMatch(/scale: amount-of\(\$scale\);/);
+    expect(read('display-settings.scss')).toMatch(
+      /@include d\.on\(motion\) \{\s*--press-scale: 1;\s*--press-scale-control: 1;\s*\}/,
+    );
     expect(press.match(/@include press-scale\(\$scale\);/g)).toHaveLength(3);
     expect(read('base.scss')).toMatch(/-webkit-tap-highlight-color: transparent;/);
   });
