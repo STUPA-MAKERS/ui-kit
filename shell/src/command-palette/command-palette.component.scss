@@ -50,8 +50,16 @@
   background: var(--field-bg, var(--color-surface-2));
   box-shadow: var(--field-edge, none);
 }
+// Highlighted fields (app spec 000598): every symbol in the field is black on the yellow.
+@include d.host-on(fields) {
+  .pal__field {
+    --color-text: var(--field-text);
+    --color-text-muted: var(--field-text);
+    --color-text-subtle: var(--field-text);
+  }
+}
 .pal__field:focus-within {
-  box-shadow: inset 0 0 0 2px var(--color-accent);
+  box-shadow: var(--field-focus, inset 0 0 0 2px var(--color-accent));
 }
 .pal__glass {
   flex: none;

@@ -27,8 +27,18 @@
   height: 2.75rem;
   font-size: var(--fs-body);
 }
+/* Highlighted fields (app spec 000598): the symbols and buttons in the pill, the trailing
+   slot included, are black on the yellow like the text. */
+@include d.host-on(fields) {
+  .sp {
+    --color-text: var(--field-text);
+    --color-text-muted: var(--field-text);
+    --color-text-subtle: var(--field-text);
+    --color-accent-text: var(--field-text);
+  }
+}
 .sp:focus-within {
-  box-shadow: inset 0 0 0 2px var(--color-focus-ring);
+  box-shadow: var(--field-focus, inset 0 0 0 2px var(--color-focus-ring));
 }
 
 /* The field fills the pill up to the trailing slot. */

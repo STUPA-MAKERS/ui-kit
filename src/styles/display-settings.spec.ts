@@ -88,7 +88,7 @@ describe('moreContrast (§000595)', () => {
 describe('highlightedFields (§000598)', () => {
   it('sets black text, label and mark on yellow, with a black edge', () => {
     const yellow = DISPLAY.match(/--field-bg: (#[0-9a-f]{6});/)![1];
-    for (const token of ['--field-text', '--field-label', '--check-mark']) {
+    for (const token of ['--field-text', '--field-label', '--check-mark', '--field-danger']) {
       const fg = DISPLAY.match(new RegExp(`${token}: (#[0-9a-f]{6});`))![1];
       expect(ratio(fg, yellow)).toBeGreaterThanOrEqual(7);
     }
@@ -104,6 +104,25 @@ describe('highlightedFields (§000598)', () => {
     expect(check).toMatch(/var\(--check-edge, var\(--color-border-strong\)\)/);
     const sw = readFileSync(join(STYLES, '../lib/switch/switch.component.scss'), 'utf8');
     expect(sw).toMatch(/var\(--check-bg, var\(--color-surface-4\)\)/);
+  });
+});
+
+describe('highlightedFab (§000598)', () => {
+  it('makes a FAB black on yellow with the field edge', () => {
+    const button = readFileSync(join(STYLES, '../lib/button/button.component.scss'), 'utf8');
+    expect(button).toMatch(
+      /@include d\.host-on\(fields\) \{\s*\.btn--fab \{\s*background: var\(--field-bg\);\s*color: var\(--field-text\);/,
+    );
+  });
+});
+
+describe('highlightedFocus (§000598)', () => {
+  it('draws the focus as a black inner ring with a yellow ring outside it', () => {
+    expect(DISPLAY).toMatch(/--field-focus: inset 0 0 0 3px #000000, 0 0 0 3px #ffe600;/);
+    expect(DISPLAY).toMatch(/outline: 3px solid #ffe600 !important;/);
+    expect(DISPLAY).toMatch(/box-shadow: inset 0 0 0 3px #000000 !important;/);
+    const field = readFileSync(join(STYLES, '_field.scss'), 'utf8');
+    expect(field).toMatch(/box-shadow: var\(--field-focus, inset 0 0 0 var\(--focus-width, 2px\)/);
   });
 });
 
