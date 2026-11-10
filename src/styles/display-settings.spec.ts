@@ -54,7 +54,7 @@ const THEMES = {
   },
 };
 
-describe('More contrast (§000595)', () => {
+describe('moreContrast (§000595)', () => {
   for (const [theme, { block, surfaces }] of Object.entries(THEMES)) {
     describe(theme, () => {
       const text = [
@@ -85,7 +85,7 @@ describe('More contrast (§000595)', () => {
   });
 });
 
-describe('Highlighted fields (§000598)', () => {
+describe('highlightedFields (§000598)', () => {
   it('sets black text, label and mark on yellow, with a black edge', () => {
     const yellow = DISPLAY.match(/--field-bg: (#[0-9a-f]{6});/)![1];
     for (const token of ['--field-text', '--field-label', '--check-mark']) {
@@ -107,7 +107,7 @@ describe('Highlighted fields (§000598)', () => {
   });
 });
 
-describe('Less transparency (§000596)', () => {
+describe('lessTransparency (§000596)', () => {
   it('makes the glass solid and removes the blur', () => {
     expect(DISPLAY).toMatch(/--glass-tint: 100%;/);
     expect(DISPLAY).toMatch(/backdrop-filter: none !important;/);
@@ -124,7 +124,7 @@ function scssFiles(dir: string): string[] {
   });
 }
 
-describe('Settings follow the choice of the person (§000219, §000594)', () => {
+describe('settingsFollowChoice (§000219, §000594)', () => {
   it('no stylesheet asks a system media query of a display setting', () => {
     const files = [...scssFiles(join(STYLES, '..')), ...scssFiles(join(STYLES, '../../shell'))];
     const offenders = files.filter((f) =>
