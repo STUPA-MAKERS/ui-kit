@@ -245,6 +245,8 @@ describe('highlightedPicked (§000598)', () => {
   it('draws the choice of an autocomplete black in a highlighted field', () => {
     const ac = readFileSync(join(STYLES, '../lib/autocomplete/autocomplete.component.scss'), 'utf8');
     expect(ac).toMatch(/\.ac__picked \{[^}]*color: var\(--field-text, var\(--color-text\)\);/);
+    const ta = readFileSync(join(STYLES, '../lib/textarea/textarea.component.scss'), 'utf8');
+    expect(ta).toContain('color: var(--field-text, var(--color-text));');
   });
 });
 
