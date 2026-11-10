@@ -32,6 +32,9 @@ export const DISPLAY_ATTRIBUTES: Readonly<Record<DisplaySetting, readonly [strin
 
 const SETTINGS = Object.keys(DISPLAY_MEDIA) as readonly DisplaySetting[];
 
+/** The attribute that draws the glass again after a change (see `renewGlass`). */
+export const GLASS_RENEW = 'data-glass-renew';
+
 function matchList(query: string | null): MediaQueryList | null {
   if (query === null || typeof window.matchMedia !== 'function') return null;
   return window.matchMedia(query);
@@ -86,6 +89,7 @@ export class DisplaySettingsService {
     this._choices.update((choices) => ({ ...choices, [setting]: on }));
     this.persist();
     this.apply();
+    this.renewGlass();
   }
 
   /** Remove every choice: each setting follows the system again. */
@@ -93,6 +97,21 @@ export class DisplaySettingsService {
     this._choices.set({});
     this.persist();
     this.apply();
+    this.renewGlass();
+  }
+
+  /**
+   * Draws every glass surface again after a change of a setting. A browser can lose the
+   * backdrop filter of the glass that is already on screen when the attributes on `<html>`
+   * change, and draws it again only after a reload or a change of the tab. The attribute
+   * `data-glass-renew` removes every backdrop filter for two frames (`display-settings.scss`),
+   * so the browser builds the glass again.
+   */
+  private renewGlass(): void {
+    if (typeof requestAnimationFrame !== 'function') return;
+    const root = document.documentElement;
+    root.setAttribute(GLASS_RENEW, '');
+    requestAnimationFrame(() => requestAnimationFrame(() => root.removeAttribute(GLASS_RENEW)));
   }
 
   private apply(): void {

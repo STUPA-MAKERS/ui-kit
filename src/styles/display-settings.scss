@@ -37,6 +37,11 @@
   :focus-visible {
     outline-width: 3px !important;
   }
+
+  // An active filter chip keeps a strong edge: the selection fill alone is too faint.
+  .chip.on {
+    border-color: var(--color-border-strong);
+  }
 }
 
 // --- Less motion (000219) ----------------------------------------------------
@@ -53,6 +58,17 @@
   --glass-tint: 100%;
   --glass-blur: none;
 
+  *,
+  *::before,
+  *::after {
+    -webkit-backdrop-filter: none !important;
+    backdrop-filter: none !important;
+  }
+}
+
+// While `DisplaySettingsService` renews the glass after a change, for two frames: no
+// backdrop filter, so the browser builds every glass layer again.
+:root[data-glass-renew] {
   *,
   *::before,
   *::after {
