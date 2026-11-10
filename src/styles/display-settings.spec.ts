@@ -154,6 +154,17 @@ describe('highlightedChosenRow (§000598)', () => {
   });
 });
 
+describe('highlightedCurrentRow (§000598)', () => {
+  it('paints the current list row and a selected table row black on yellow', () => {
+    const li = readFileSync(join(STYLES, '../lib/list-item/list-item.component.scss'), 'utf8');
+    expect(li).toMatch(/\.li--on \{[^}]*@include f\.highlight-chosen;/);
+    const dt = readFileSync(join(STYLES, '../lib/data-table/data-table.component.scss'), 'utf8');
+    expect(dt).toMatch(
+      /tr\.dt__row--selected td \{[^}]*@include f\.highlight-chosen\(\$edge: false\);/,
+    );
+  });
+});
+
 describe('highlightedFocus (§000598)', () => {
   it('draws the focus as a black inner ring with a yellow ring outside it', () => {
     expect(DISPLAY).toMatch(/--field-focus: inset 0 0 0 3px #000000, 0 0 0 3px #ffe600;/);
