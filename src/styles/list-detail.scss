@@ -23,6 +23,9 @@
 // application, a search bar) sticks below the bar, not under it.
 .ld-under-bar {
   --ld-sticky-top: calc(var(--ld-bar-height) + env(safe-area-inset-top, 0px));
+  // The bar above the head is the edge, so the glass of the head does not turn into the
+  // page colour at its top (`glass-top-fade`).
+  --glass-top-fade: 0px;
 }
 
 // A page with tabs (`app-tab-pager`) sticks its tab line right under the bar as glass, so
@@ -149,9 +152,11 @@ body:has(app-tab-pager) app-list-detail-bar.ld__bar--condensed.ld__bar--condense
 @supports (backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px)) {
   .ld-pane--glass::before {
     height: calc(var(--ld-pane-top) + 64px);
-    // The sides turn into the solid page colour, so the glass shows no edge against the
-    // page beside the column and nothing behind it shows through there.
+    // The sides and the top edge of the screen turn into the solid page colour, so the
+    // glass shows no edge against the page beside and above the column and nothing behind
+    // it shows through there (`glass-top-fade`).
     background:
+      glass-top-fade(var(--stb-bg, var(--color-bg))),
       linear-gradient(
         to right,
         var(--stb-bg, var(--color-bg)),
@@ -180,7 +185,9 @@ body:has(app-tab-pager) app-list-detail-bar.ld__bar--condensed.ld__bar--condense
   }
   @supports (backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px)) {
     .ld-pane--glass::before {
-      background: color-mix(in srgb, var(--stb-bg, var(--color-bg)) var(--glass-tint, 55%), transparent);
+      background:
+        glass-top-fade(var(--stb-bg, var(--color-bg))),
+        color-mix(in srgb, var(--stb-bg, var(--color-bg)) var(--glass-tint, 55%), transparent);
     }
   }
   .ld-pane--glass::after {
@@ -211,7 +218,7 @@ body:has(app-tab-pager) app-list-detail-bar.ld__bar--condensed.ld__bar--condense
 @include bp.not-phone {
   .ld-pane--glass::before {
     --ld-corner: 0px;
-    @include glass-corners(var(--stb-bg, var(--color-bg)), var(--ld-corner));
+    @include glass-corners(var(--stb-bg, var(--color-bg)), var(--ld-corner), $top-fade: true);
   }
   .ld-pane--glass.ld-pane--scrolled::before {
     --ld-corner: var(--radius-xl);

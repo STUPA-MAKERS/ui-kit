@@ -56,8 +56,13 @@
     @include frosted-rest(var(--stb-bg, var(--color-bg)));
   }
   @supports (backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px)) {
+    // Up there the glass reaches the top edge of the screen, so it turns into the page
+    // colour at that edge, as the glass of the bar does (`glass-top-fade`).
     .lg__head--under::before {
       top: calc(-1 * var(--stb-height, 0px));
+      background:
+        glass-top-fade(var(--stb-bg, var(--color-bg))),
+        color-mix(in srgb, var(--stb-bg, var(--color-bg)) var(--glass-tint, 55%), transparent);
     }
   }
 }
@@ -108,4 +113,9 @@
   :host-context(.ld-pane--glass) .lg__head--under::before {
     top: calc(-1 * var(--ld-pane-top, 0px));
   }
+}
+// Reaching up to the top of the column, the glass reaches the top edge of the screen and
+// turns into the page colour there, as the glass of the column does (`glass-top-fade`).
+:host-context(.ld-pane--glass) .lg__head--under::before {
+  @include glass-corners(var(--stb-bg, var(--color-bg)), var(--radius-xl), $top-fade: true);
 }

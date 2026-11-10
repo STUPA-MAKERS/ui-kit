@@ -69,6 +69,16 @@
   :host(.stb--stuck) {
     box-shadow: var(--shadow-md);
   }
+  /* The bar sticks at the top edge of the screen, so its glass turns into the page colour
+     at that edge and the rows run out there instead of cutting sharp (`glass-top-fade`).
+     Below the bar of a one-view page the top fade is 0 (`.ld-under-bar`). */
+  @supports (backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px)) {
+    :host::before {
+      background:
+        glass-top-fade(var(--stb-bg, var(--color-bg))),
+        color-mix(in srgb, var(--stb-bg, var(--color-bg)) var(--glass-tint, 55%), transparent);
+    }
+  }
   /* Glass only while rows scroll under the bar (`stb--stuck`). */
   :host(:not(.stb--stuck)) {
     @include frosted-rest(var(--stb-bg, var(--color-bg)));
