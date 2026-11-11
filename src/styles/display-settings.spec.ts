@@ -275,6 +275,17 @@ describe('settingsFollowChoice (§000219, §000594)', () => {
 });
 
 describe('highlightedTagsAndBars (§000598)', () => {
+  it('draws the white edge around the track of a segmented control (000615)', () => {
+    const rule = /\n {2}\.seg \{([^}]*)\}/.exec(DISPLAY)?.[1] ?? '';
+    expect(rule).toMatch(/outline: var\(--vh-edge\);\s*outline-offset: -2px;/);
+    expect(rule).toMatch(/padding: 6px;/);
+  });
+
+  it('draws the scroll lines of the rail on the outer side of its list (000605)', () => {
+    expect(DISPLAY).toMatch(/\.rail__main\.is-fade-start \{\s*box-shadow: 0 -2px 0 var\(--vh-fg\);/);
+    expect(DISPLAY).toMatch(/\.rail__main\.is-fade-end \{\s*box-shadow: 0 2px 0 var\(--vh-fg\);/);
+  });
+
   it('makes a tag a black plate with yellow text', () => {
     const css = readFileSync(join(STYLES, '../lib/badge/badge.component.scss'), 'utf8');
     expect(css).toMatch(
