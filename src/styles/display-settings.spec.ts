@@ -303,14 +303,14 @@ describe('veryHighContrast (§000605)', () => {
   const FOUR = ['#000000', '#ffffff', '#ffff00', '#ff8a8a'];
 
   it('draws the edge around each row of a grouped list, not around the group', () => {
-    expect(rules).toMatch(/\n  \.rowgroup > \*::after \{[^}]*border: var\(--vh-edge\);\s*border-radius: inherit;/);
-    expect(rules).toMatch(/\n  \.rowgroup > \* \{\s*position: relative;\s*border-radius: var\(--radius-lg\);/);
-    expect(rules).toMatch(/\n  \.rowgroup \{\s*gap: var\(--space-2\);/);
+    expect(rules).toMatch(/\n {2}\.rowgroup > \*::after \{[^}]*border: var\(--vh-edge\);\s*border-radius: inherit;/);
+    expect(rules).toMatch(/\n {2}\.rowgroup > \* \{\s*position: relative;\s*border-radius: var\(--radius-lg\);/);
+    expect(rules).toMatch(/\n {2}\.rowgroup \{\s*gap: var\(--space-2\);/);
     expect(rules).not.toMatch(/\.rowgroup::after/);
   });
 
   it('keeps the head of a list column a solid black layer over its rows, with a white line while rows are under it', () => {
-    const head = rules.match(/\n  \.ld-pane--glass::before \{([^}]*)\}/)?.[1] ?? '';
+    const head = rules.match(/\n {2}\.ld-pane--glass::before \{([^}]*)\}/)?.[1] ?? '';
     expect(head).toMatch(/height: var\(--ld-pane-top\) !important;/);
     expect(head).toMatch(/background: var\(--vh-bg\) !important;/);
     expect(head).toMatch(/backdrop-filter: none !important;/);

@@ -89,6 +89,8 @@
   --field-focus: inset 0 0 0 3px #000000, 0 0 0 3px #ffe600;
   --field-focus-outline: none;
 
+  // A rich text area (`contenteditable`) is a field like a textarea: the surface around it
+  // shows the focus, so it takes no ring of its own.
   // Every other focused element (a button, a link, a checkbox): the same double ring. The
   // yellow ring is the outline, which paints above a neighbour that touches the element, and
   // the black ring is an inner shadow, which no neighbour can cover.
@@ -96,6 +98,7 @@
       textarea,
       select,
       input:not([type='checkbox'], [type='radio'], [type='range'], [type='button'], [type='submit']),
+      [contenteditable='true'],
       [tabindex='-1']
     ) {
     outline: 3px solid #ffe600 !important;
@@ -459,6 +462,7 @@
       textarea,
       select,
       input:not([type='checkbox'], [type='radio'], [type='range'], [type='button'], [type='submit']),
+      [contenteditable='true'],
       [tabindex='-1']
     ) {
     outline-color: var(--vh-hi) !important;
