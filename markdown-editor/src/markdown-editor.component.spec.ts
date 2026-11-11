@@ -681,4 +681,51 @@ describe('MarkdownEditorComponent', () => {
     const view = await render(`<app-markdown-editor value="x" />`, { imports: [MarkdownEditorComponent] });
     expect(editorEl(view.container)).not.toHaveAttribute('aria-label');
   });
+  describe('blackout mark', () => {
+    function editorOf(view: { fixture: { debugElement: { children: { componentInstance: unknown }[] } } }) {
+      return view.fixture.debugElement.children[0].componentInstance as MarkdownEditorComponent;
+    }
+    function markdownOf(cmp: MarkdownEditorComponent): string {
+      return (cmp as unknown as { editor: { storage: { markdown: { getMarkdown: () => string } } } }).editor.storage
+        .markdown.getMarkdown();
+    }
+
+    it('reads %%Name%% as a marked segment with the tooltip and writes it back', async () => {
+      const md = 'Die Antragstellerin %%Lena Hoffmann%% stellt vor.';
+      const view = await render(`<app-markdown-editor [value]="md" blackoutTitle="Wird öffentlich geschwärzt" />`, {
+        imports: [MarkdownEditorComponent],
+        componentProperties: { md },
+      });
+      const mark = editorEl(view.container).querySelector('span.mde-blackout') as HTMLElement;
+      expect(mark.textContent).toBe('Lena Hoffmann');
+      expect(mark.getAttribute('title')).toBe('Wird öffentlich geschwärzt');
+      expect(markdownOf(editorOf(view))).toBe(md);
+    });
+
+    it('keeps an escaped, an empty and an open marker as text', async () => {
+      const md = 'Rabatt 50 \\%%, leer %%%% und offen %%Anna';
+      const view = await render(`<app-markdown-editor [value]="md" />`, {
+        imports: [MarkdownEditorComponent],
+        componentProperties: { md },
+      });
+      expect(editorEl(view.container).querySelectorAll('span.mde-blackout')).toHaveLength(0);
+    });
+
+    it('switches the mark on a selection and reports it as active', async () => {
+      const view = await render(Host);
+      const host = view.fixture.componentInstance;
+      const cmp = editorOf(view);
+      const editor = (
+        cmp as unknown as { editor: { commands: { insertContent: (c: string) => void; selectAll: () => void } } }
+      ).editor;
+      editor.commands.insertContent('Lena');
+      editor.commands.selectAll();
+      cmp.toggleFormat('blackout');
+      expect(cmp.activeFormats().has('blackout')).toBe(true);
+      expect(host.changes.at(-1)).toContain('%%Lena%%');
+      cmp.toggleFormat('blackout');
+      expect(cmp.activeFormats().has('blackout')).toBe(false);
+      expect(host.changes.at(-1)).not.toContain('%%');
+    });
+  });
 });

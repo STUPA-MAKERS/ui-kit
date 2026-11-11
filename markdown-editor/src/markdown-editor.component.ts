@@ -26,6 +26,7 @@ import type { EditorView } from '@tiptap/pm/view';
 import { Focus, Placeholder } from '@tiptap/extensions';
 import StarterKit from '@tiptap/starter-kit';
 import { Markdown } from 'tiptap-markdown';
+import { Blackout } from './blackout.extension';
 import { BlockMathMarkdown, InlineMathMarkdown } from './math.extension';
 import {
   IMAGE_UPLOAD_TYPES,
@@ -51,9 +52,9 @@ const KATEX_OPTIONS = { throwOnError: false };
  * A format that a toolbar of the consumer can switch: a heading (level 2, because level 1
  * is the heading of the document), bold, italic and a bullet list.
  */
-export type MarkdownFormat = 'heading' | 'bold' | 'italic' | 'bulletList' | 'blockquote';
+export type MarkdownFormat = 'heading' | 'bold' | 'italic' | 'bulletList' | 'blockquote' | 'blackout';
 
-const FORMATS: readonly MarkdownFormat[] = ['heading', 'bold', 'italic', 'bulletList', 'blockquote'];
+const FORMATS: readonly MarkdownFormat[] = ['heading', 'bold', 'italic', 'bulletList', 'blockquote', 'blackout'];
 
 /** An image that an upload stored: its canonical path and its alt text. */
 export interface MarkdownImageRef {
@@ -120,6 +121,7 @@ const ACTIVE_CHECK: Record<MarkdownFormat, { readonly name: string; readonly att
   italic: { name: 'italic' },
   bulletList: { name: 'bulletList' },
   blockquote: { name: 'blockquote' },
+  blackout: { name: 'blackout' },
 };
 
 /** Set an attribute, or remove it for `null`. */
@@ -177,6 +179,8 @@ export class MarkdownEditorComponent implements OnDestroy {
   readonly disabled = input<boolean>(false);
   /** Text of the empty document. */
   readonly placeholder = input<string>('');
+  /** The tooltip of a segment that the public protocol blacks out. */
+  readonly blackoutTitle = input<string>('');
   /**
    * The accessible name of the editable area. The area is a `role="textbox"`, so a
    * screen reader needs a name for it (WCAG 4.1.2).
@@ -279,6 +283,7 @@ export class MarkdownEditorComponent implements OnDestroy {
             MarkdownTableHeader,
             MarkdownTableCell,
             MarkdownImage,
+            Blackout.configure({ title: () => this.blackoutTitle() }),
           ],
           editorProps: {
             transformPastedHTML: (html) => stripForeignImages(html),
@@ -365,6 +370,9 @@ export class MarkdownEditorComponent implements OnDestroy {
         break;
       case 'blockquote':
         chain.toggleBlockquote().run();
+        break;
+      case 'blackout':
+        chain.toggleBlackout().run();
         break;
     }
   }

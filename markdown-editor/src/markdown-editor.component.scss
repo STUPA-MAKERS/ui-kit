@@ -535,3 +535,12 @@ app-markdown-editor .mde__tableMenu .rm__trigger {
   height: var(--mde-table-bar);
   margin-top: var(--mde-table-gap);
 }
+
+/* A segment that the public protocol blacks out. */
+.mde__host .ProseMirror .mde-blackout {
+  outline: 1.5px dashed var(--color-text-muted);
+  outline-offset: 1px;
+  border-radius: 3px;
+  background: color-mix(in srgb, var(--color-text) 8%, transparent);
+  padding: 0 2px;
+}
