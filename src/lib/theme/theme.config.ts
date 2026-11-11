@@ -22,6 +22,12 @@ export interface UiKitThemeConfig {
    * `--color-bg` of the tokens and with the tags in `index.html`.
    */
   readonly background: Readonly<Record<ResolvedTheme, string>>;
+  /**
+   * The bars while very high contrast is on (app spec 000605): its page is black whatever
+   * the theme is, so the bars take `background`, and the service links `manifest`, whose
+   * colours are black too. `manifest: null` keeps the manifest of the dark theme.
+   */
+  readonly veryHigh: { readonly background: string; readonly manifest: string | null };
 }
 
 /** Options of `provideUiKit({ theme })`: every field is optional and falls back to the default. */
@@ -38,6 +44,10 @@ export const UI_KIT_THEME_DEFAULTS: UiKitThemeConfig = {
     light: '#f6f7f5',
     dark: '#101211',
   },
+  veryHigh: {
+    background: '#000000',
+    manifest: 'manifest.webmanifest?scheme=contrast',
+  },
 };
 
 /** DI token of the theme settings. `provideUiKit({ theme })` sets it. */
@@ -52,5 +62,6 @@ export function uiKitThemeConfig(options: UiKitThemeOptions = {}): UiKitThemeCon
     storageKey: options.storageKey ?? UI_KIT_THEME_DEFAULTS.storageKey,
     manifest: options.manifest === undefined ? UI_KIT_THEME_DEFAULTS.manifest : options.manifest,
     background: options.background ?? UI_KIT_THEME_DEFAULTS.background,
+    veryHigh: options.veryHigh ?? UI_KIT_THEME_DEFAULTS.veryHigh,
   };
 }

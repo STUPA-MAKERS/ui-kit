@@ -179,6 +179,19 @@ describe('ThemeService', () => {
       expect(metas.map((m) => m.getAttribute('content'))).toEqual([THEME_COLOR.dark, THEME_COLOR.dark]);
     });
 
+    it('colours the bars black while very high contrast is on, in every theme (§000411)', () => {
+      const svc = service();
+      svc.init();
+      svc.setPreference('light');
+      const display = TestBed.inject(DisplaySettingsService);
+      display.set('veryHigh', true);
+      TestBed.tick();
+      expect(metas.map((m) => m.getAttribute('content'))).toEqual(['#000000', '#000000']);
+      display.set('veryHigh', false);
+      TestBed.tick();
+      expect(metas.map((m) => m.getAttribute('content'))).toEqual([THEME_COLOR.light, THEME_COLOR.light]);
+    });
+
     it('uses the background tokens of the design system by default', () => {
       expect(THEME_COLOR).toEqual({ light: '#f6f7f5', dark: '#101211' });
     });
@@ -212,6 +225,18 @@ describe('ThemeService', () => {
       svc.setPreference('dark');
       expect(link.getAttribute('href')).toBe('manifest.webmanifest?scheme=dark');
       svc.setPreference('light');
+      expect(link.getAttribute('href')).toBe('manifest.webmanifest');
+    });
+
+    it('links the black manifest while very high contrast is on (§000411)', () => {
+      const svc = service();
+      svc.init();
+      const display = TestBed.inject(DisplaySettingsService);
+      display.set('veryHigh', true);
+      TestBed.tick();
+      expect(link.getAttribute('href')).toBe('manifest.webmanifest?scheme=contrast');
+      display.set('veryHigh', false);
+      TestBed.tick();
       expect(link.getAttribute('href')).toBe('manifest.webmanifest');
     });
 
