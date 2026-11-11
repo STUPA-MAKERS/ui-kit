@@ -437,11 +437,13 @@
 
 /* The fab holds its icon and its text in one row, 12px apart (the gap of `.btn--fab`).
    The label is that row: the gap of the button reaches only the label itself. The icon
-   is larger than the text line, so the label does not clip it. */
+   is larger than the text line, so the label does not clip it. A folded fab sets
+   `--fab-label-gap` to 0 (`fab.component.scss`): a custom property inherits, so the fold
+   does not depend on which component stylesheet the page added last. */
 .btn--fab .btn__label {
   display: inline-flex;
   align-items: center;
-  gap: var(--space-3);
+  gap: var(--fab-label-gap, var(--space-3));
   overflow: visible;
 }
 .btn--fab .btn__label ::ng-deep > app-icon {
