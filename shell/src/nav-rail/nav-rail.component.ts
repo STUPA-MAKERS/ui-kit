@@ -2,10 +2,15 @@ import { NgTemplateOutlet } from '@angular/common';
 import {
   ChangeDetectionStrategy,
   Component,
+  ElementRef,
   TemplateRef,
+  afterNextRender,
   computed,
+  inject,
+  Injector,
   input,
   output,
+  viewChild,
 } from '@angular/core';
 import { RouterLink, RouterLinkActive } from '@angular/router';
 import {
@@ -24,6 +29,9 @@ import type { ShellBrand, ShellNavItem } from '../shell.types';
  * a spacer, the `[railTools]` slot (for example a help menu), the `end` entries, the
  * `[railEnd]` slot (for example an `app-rail-button`) and the `[railAccount]` slot at the
  * foot.
+ *
+ * The `main` entries scroll when the rail is too low for them. The rail scrolls the active
+ * entry fully into view when the page loads and after each change of the route.
  *
  * The app filters `items` by permission; the rail shows what it gets. `app-shell` renders
  * the rail and fills its slots.
@@ -57,6 +65,9 @@ export class NavRailComponent {
   /** The palette shortcut, for `aria-keyshortcuts`. */
   readonly searchKeys = searchShortcutKeys();
 
+  private readonly injector = inject(Injector);
+  private readonly main = viewChild<ElementRef<HTMLElement>>('main');
+
   readonly mainItems = computed(() => this.items().filter((i) => i.place === 'main'));
   readonly endItems = computed(() => this.items().filter((i) => i.place === 'end'));
 
@@ -69,4 +80,22 @@ export class NavRailComponent {
     const mark = this.brand().mark;
     return typeof mark === 'string' ? mark : null;
   });
+
+  /**
+   * Scroll the list of main entries so that `entry` is fully in view. Runs after the next
+   * render, because an entry reports itself as active before the list has its size.
+   */
+  reveal(entry: HTMLElement): void {
+    afterNextRender(
+      () => {
+        const main = this.main()?.nativeElement;
+        if (!main) return;
+        const box = main.getBoundingClientRect();
+        const item = entry.getBoundingClientRect();
+        if (item.top < box.top) main.scrollTop -= box.top - item.top;
+        else if (item.bottom > box.bottom) main.scrollTop += item.bottom - box.bottom;
+      },
+      { injector: this.injector },
+    );
+  }
 }
