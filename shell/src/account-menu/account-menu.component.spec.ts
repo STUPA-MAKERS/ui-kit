@@ -164,7 +164,8 @@ describe('AccountMenuComponent', () => {
 
   describe('settings', () => {
     it('reports the dark design switch', async () => {
-      const { events } = await setup({ variant: 'sheet' });
+      const { events } = await setup();
+      await userEvent.click(trigger());
       const sw = screen.getByRole('switch', { name: 'Dunkles Design' });
       expect(sw).toHaveAttribute('aria-checked', 'false');
       await userEvent.click(sw);
@@ -198,6 +199,12 @@ describe('AccountMenuComponent', () => {
       expect(screen.queryByRole('button', { name: /^Konto:/ })).not.toBeInTheDocument();
       expect(screen.getByRole('group', { name: 'Konto' })).toBeInTheDocument();
       expect(screen.getByText('Mia Member')).toBeInTheDocument();
+    });
+
+    it('shows no dark design switch: the sheet that holds it has the display settings', async () => {
+      await setup({ variant: 'sheet' });
+      expect(screen.queryByRole('switch', { name: 'Dunkles Design' })).not.toBeInTheDocument();
+      expect(screen.getByRole('button', { name: 'Sprache: Deutsch' })).toBeInTheDocument();
     });
 
     it('takes the popover with `auto` above the phone width', async () => {

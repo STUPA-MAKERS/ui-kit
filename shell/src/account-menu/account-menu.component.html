@@ -13,7 +13,9 @@
   <div class="am__items" role="presentation" (click)="onItemsClick($event)">
     <ng-content select="[accountItems]" />
   </div>
-  <div class="am__sep" role="separator"></div>
+  @if (languages().length > 1 || look() === 'popover') {
+    <div class="am__sep" role="separator"></div>
+  }
   @if (languages().length > 1) {
     <div class="am__item am__item--field">
       <app-icon name="globe" [size]="19" />
@@ -30,12 +32,16 @@
       </span>
     </div>
   }
-  <div class="am__item am__item--field">
-    <app-icon name="moon" [size]="19" />
-    <app-switch class="am__grow" [checked]="dark()" (checkedChange)="darkChange.emit($event)">{{
-      'account.darkMode' | uiKitT
-    }}</app-switch>
-  </div>
+  <!-- The sheet has no switch of its own: the "More" sheet that holds it shows the dark
+       design in its display settings, and one setting has one switch on a screen. -->
+  @if (look() === 'popover') {
+    <div class="am__item am__item--field">
+      <app-icon name="moon" [size]="19" />
+      <app-switch class="am__grow" [checked]="dark()" (checkedChange)="darkChange.emit($event)">{{
+        'account.darkMode' | uiKitT
+      }}</app-switch>
+    </div>
+  }
   <div class="am__sep" role="separator"></div>
   <button type="button" class="am__item" (click)="signOut()">
     <app-icon name="logout" [size]="19" />{{ 'account.logout' | uiKitT }}
