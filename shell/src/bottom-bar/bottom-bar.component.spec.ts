@@ -21,7 +21,7 @@ async function setup(opts: { searchable?: boolean; more?: boolean; barKeys?: str
       [morePaths]="['/account']" [mark]="m" (search)="search()">
       <app-bar-button barEnd icon="moon" label="Dunkel" />
       <div more role="group" aria-label="Hilfe"><button type="button">Problem melden</button></div>
-      <div more class="wiki"><a href="#wiki">Wiki</a><p>Hinweis zur Hilfe</p></div>
+      <div more class="wiki"><a href="#wiki">Wiki</a><p>Hinweis zur Hilfe</p><span role="switch" aria-checked="false" tabindex="0">Mehr Kontrast</span><span role="button" tabindex="0" data-more-keep>Zurücksetzen</span></div>
       <div moreAccount class="account">Ada Admin</div>
     </app-bottom-bar>`,
     {
@@ -137,6 +137,17 @@ describe('BottomBarComponent', () => {
       const { fixture } = await setup();
       await openSheet(fixture);
       await userEvent.click(screen.getByText('Hinweis zur Hilfe'));
+      fixture.detectChanges();
+      expect(sheet()).toBeInTheDocument();
+    });
+
+    it('keeps the sheet open after a click on a switch or on a control marked data-more-keep', async () => {
+      const { fixture } = await setup();
+      await openSheet(fixture);
+      await userEvent.click(screen.getByRole('switch', { name: 'Mehr Kontrast' }));
+      fixture.detectChanges();
+      expect(sheet()).toBeInTheDocument();
+      await userEvent.click(screen.getByRole('button', { name: 'Zurücksetzen' }));
       fixture.detectChanges();
       expect(sheet()).toBeInTheDocument();
     });

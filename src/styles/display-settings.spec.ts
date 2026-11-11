@@ -302,6 +302,13 @@ describe('veryHighContrast (§000605)', () => {
   const rules = DISPLAY.slice(DISPLAY.indexOf('@include d.on(veryHigh)'));
   const FOUR = ['#000000', '#ffffff', '#ffff00', '#ff8a8a'];
 
+  it('draws the edge around each row of a grouped list, not around the group', () => {
+    expect(rules).toMatch(/\n  \.rowgroup > \*::after \{[^}]*border: var\(--vh-edge\);\s*border-radius: inherit;/);
+    expect(rules).toMatch(/\n  \.rowgroup > \* \{\s*position: relative;\s*border-radius: var\(--radius-lg\);/);
+    expect(rules).toMatch(/\n  \.rowgroup \{\s*gap: var\(--space-2\);/);
+    expect(rules).not.toMatch(/\.rowgroup::after/);
+  });
+
   it('keeps the head of a list column a solid black layer over its rows, with a white line while rows are under it', () => {
     const head = rules.match(/\n  \.ld-pane--glass::before \{([^}]*)\}/)?.[1] ?? '';
     expect(head).toMatch(/height: var\(--ld-pane-top\) !important;/);

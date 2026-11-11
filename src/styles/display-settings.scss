@@ -285,17 +285,24 @@
     outline-offset: -2px;
   }
 
-  // A grouped list: its rows paint over an outline, so the edge is a layer on top.
+  // A grouped list: each row is a surface of its own, so each row has the edge and all
+  // four round corners, and the rows sit further apart. The group has no edge, because an
+  // edge around the group does not show where one row ends.
   .rowgroup {
-    position: relative;
+    gap: var(--space-2);
   }
-  .rowgroup::after {
+  // The content of a row paints over an outline of the row, so the edge is a layer on top.
+  .rowgroup > * {
+    position: relative;
+    border-radius: var(--radius-lg);
+  }
+  .rowgroup > *::after {
     content: '';
     position: absolute;
     inset: 0;
     z-index: 2;
     border: var(--vh-edge);
-    border-radius: var(--radius-lg);
+    border-radius: inherit;
     pointer-events: none;
   }
 
