@@ -79,9 +79,11 @@
         color-mix(in srgb, var(--stb-bg, var(--color-bg)) var(--glass-tint, 55%), transparent);
     }
   }
-  /* Glass only while rows scroll under the bar (`stb--stuck`). */
+  /* Glass only while rows scroll under the bar (`stb--stuck`). At rest the bar has no
+     colour of its own: its top padding reaches over the lower edge of the page header, so
+     a solid bar cuts the outline of a round button in that header. */
   :host(:not(.stb--stuck)) {
-    @include frosted-rest(var(--stb-bg, var(--color-bg)));
+    @include frosted-rest(transparent);
   }
 }
 
