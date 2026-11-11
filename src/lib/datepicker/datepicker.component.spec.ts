@@ -329,4 +329,52 @@ describe('DatepickerComponent', () => {
     expect(input).toBeInTheDocument();
     expect(input).toHaveAttribute('required');
   });
+
+  describe('relative shortcuts (000700, 000701)', () => {
+    beforeEach(() => {
+      jest.useFakeTimers({ doNotFake: ['nextTick', 'setImmediate', 'queueMicrotask'] });
+      jest.setSystemTime(new Date(2026, 10, 11, 9, 0));
+    });
+    afterEach(() => jest.useRealTimers());
+
+    @Component({
+      standalone: true,
+      imports: [DatepickerComponent, FormsModule],
+      template: `<app-datepicker label="Stichtag" [(ngModel)]="v" />`,
+    })
+    class Host {
+      v = '2026-06-07';
+    }
+
+    async function setup(): Promise<{ input: HTMLInputElement; host: () => Host }> {
+      const { fixture } = await render(Host);
+      await fixture.whenStable();
+      fixture.detectChanges();
+      return { input: textInput(), host: () => fixture.componentInstance };
+    }
+
+    it('resolves a shortcut on blur and shows the date', async () => {
+      const { input, host } = await setup();
+      fireEvent.input(input, { target: { value: '+1w' } });
+      fireEvent.blur(input);
+      expect(host().v).toBe('2026-11-18');
+      expect(input.value).toBe('18.11.2026');
+    });
+
+    it('resolves a shortcut on Enter without a blur', async () => {
+      const { input, host } = await setup();
+      fireEvent.input(input, { target: { value: '-1d' } });
+      fireEvent.keyDown(input, { key: 'Enter' });
+      expect(host().v).toBe('2026-11-10');
+      expect(input.value).toBe('10.11.2026');
+    });
+
+    it('restores the last value for an unknown shortcut', async () => {
+      const { input, host } = await setup();
+      fireEvent.input(input, { target: { value: '+1x' } });
+      fireEvent.blur(input);
+      expect(host().v).toBe('2026-06-07');
+      expect(input.value).toBe('07.06.2026');
+    });
+  });
 });

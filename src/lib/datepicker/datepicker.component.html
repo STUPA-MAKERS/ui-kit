@@ -28,6 +28,7 @@
       [attr.required]="required ? '' : null"
       (input)="onText($any($event.target).value)"
       (blur)="onBlur()"
+      (keydown.enter)="onEnter()"
     />
     <button
       type="button"
