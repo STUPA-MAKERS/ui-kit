@@ -92,8 +92,8 @@ export class NavRailComponent {
         if (!main) return;
         const box = main.getBoundingClientRect();
         const item = entry.getBoundingClientRect();
-        if (item.top < box.top) main.scrollTop -= box.top - item.top;
-        else if (item.bottom > box.bottom) main.scrollTop += item.bottom - box.bottom;
+        if (item.top < box.top) main.scrollBy({ top: item.top - box.top });
+        else if (item.bottom > box.bottom) main.scrollBy({ top: item.bottom - box.bottom });
       },
       { injector: this.injector },
     );

@@ -125,6 +125,10 @@ describe('NavRailComponent', () => {
     const entry = within(rail()).getByRole('link', { name: /^Aufgaben/ });
     const rect = (top: number, bottom: number) => ({ top, bottom }) as DOMRect;
     jest.spyOn(main, 'getBoundingClientRect').mockReturnValue(rect(100, 300));
+    // jsdom has no layout and no `scrollBy`: the stand-in moves `scrollTop` as a browser does.
+    main.scrollBy = ((o: ScrollToOptions) => {
+      main.scrollTop += o.top ?? 0;
+    }) as typeof main.scrollBy;
     jest.spyOn(entry, 'getBoundingClientRect').mockReturnValue(rect(360, 424));
 
     await router.navigateByUrl('/tasks');
