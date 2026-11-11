@@ -330,7 +330,7 @@ describe('DatepickerComponent', () => {
     expect(input).toHaveAttribute('required');
   });
 
-  describe('relative shortcuts (000700, 000701)', () => {
+  describe('relative shortcuts (§000700, §000701)', () => {
     beforeEach(() => {
       jest.useFakeTimers({ doNotFake: ['nextTick', 'setImmediate', 'queueMicrotask'] });
       jest.setSystemTime(new Date(2026, 10, 11, 9, 0));

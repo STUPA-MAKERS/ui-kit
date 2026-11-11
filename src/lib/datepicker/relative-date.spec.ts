@@ -1,6 +1,6 @@
 import { resolveRelativeDate } from './relative-date';
 
-/** Specs 000700 and 000702: shortcuts relative to today, month-end stop, left to right. */
+/** §000700 §000702 shortcuts relative to today, month-end stop, left to right. */
 describe('resolveRelativeDate', () => {
   const today = new Date(2026, 10, 11); // 11.11.2026
 
