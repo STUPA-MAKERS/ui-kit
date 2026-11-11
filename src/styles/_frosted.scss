@@ -147,9 +147,13 @@
    `$blur`: a large box such as a bottom sheet takes more, so the rows behind it do not
    read through its text. `$lift`: a brightness for the backdrop, for a box over a scrim:
    the scrim darkens the glass of a light theme, so the fields in the box lose their
-   contrast to it. On a dark theme the backdrop is near black, so the lift changes little. */
+   contrast to it. On a dark theme the backdrop is near black, so the lift changes little.
+   `--pop-edge`: very high contrast sets it to the white edge of a surface (app spec
+   000605), so every floating box has the edge and none needs a rule of its own. */
 @mixin frosted-pop($color, $tint: 92%, $blur: 16px, $lift: null) {
   background: $color;
+  outline: var(--pop-edge, none);
+  outline-offset: var(--pop-edge-offset, 0);
 
   @supports (backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px)) {
     background: color-mix(in srgb, #{$color} var(--glass-tint, #{$tint}), transparent);
@@ -170,12 +174,13 @@
    the same in both. The levels keep their order (1 < 2 < 3 < 4), so a hover or a nested
    surface still steps up. Put it on the wrappers inside the glass. The glass itself reads
    `--color-glass-1` or `--color-glass-2`, which this mixin never changes, so a dialog or a
-   sheet that opens inside the content keeps the tint of the first level. */
+   sheet that opens inside the content keeps the tint of the first level. `--glass-flat`:
+   very high contrast sets it to the page colour, so no grey shade is left on the glass. */
 @mixin glass-content {
-  --color-bg-elevated: color-mix(in srgb, var(--color-text) 5%, transparent);
-  --color-surface: color-mix(in srgb, var(--color-text) 5%, transparent);
-  --color-surface-1: color-mix(in srgb, var(--color-text) 5%, transparent);
-  --color-surface-2: color-mix(in srgb, var(--color-text) 6%, transparent);
-  --color-surface-3: color-mix(in srgb, var(--color-text) 9%, transparent);
-  --color-surface-4: color-mix(in srgb, var(--color-text) 13%, transparent);
+  --color-bg-elevated: var(--glass-flat, color-mix(in srgb, var(--color-text) 5%, transparent));
+  --color-surface: var(--glass-flat, color-mix(in srgb, var(--color-text) 5%, transparent));
+  --color-surface-1: var(--glass-flat, color-mix(in srgb, var(--color-text) 5%, transparent));
+  --color-surface-2: var(--glass-flat, color-mix(in srgb, var(--color-text) 6%, transparent));
+  --color-surface-3: var(--glass-flat, color-mix(in srgb, var(--color-text) 9%, transparent));
+  --color-surface-4: var(--glass-flat, color-mix(in srgb, var(--color-text) 13%, transparent));
 }

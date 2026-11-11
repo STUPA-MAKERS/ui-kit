@@ -24,14 +24,16 @@
     </button>
   }
 
-  <div class="rail__main" appScrollFade="y">
+  <div #main class="rail__main" appScrollFade="y">
     @for (item of mainItems(); track item.key) {
       <a
+        #entry
         class="rail__item"
         [routerLink]="item.path"
         routerLinkActive="is-active"
         ariaCurrentWhenActive="page"
         [routerLinkActiveOptions]="{ exact: item.exact ?? false }"
+        (isActiveChange)="$event && reveal(entry)"
       >
         <span class="rail__ind">
           <app-icon [name]="item.icon" [size]="22" />

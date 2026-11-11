@@ -204,6 +204,11 @@
   --color-pop: var(--vh-bg);
   --color-glass-1: var(--vh-bg);
   --color-glass-2: var(--vh-bg);
+  // The surfaces on a glass box are the page colour too, and every floating box
+  // (`frosted-pop`) has the white edge of a surface (000605).
+  --glass-flat: var(--vh-bg);
+  --pop-edge: var(--vh-edge);
+  --pop-edge-offset: -2px;
   --color-border: var(--vh-fg);
   --color-border-strong: var(--vh-fg);
 
@@ -348,6 +353,19 @@
     box-shadow:
       inset 2px 0 0 var(--vh-fg),
       inset -2px 0 0 var(--vh-fg);
+  }
+  // The rail draws the lines on the outer side of its list, because the plate of an entry
+  // under the pointer paints over a line on the inner side.
+  .rail__main.is-fade-start {
+    box-shadow: 0 -2px 0 var(--vh-fg);
+  }
+  .rail__main.is-fade-end {
+    box-shadow: 0 2px 0 var(--vh-fg);
+  }
+  .rail__main.is-fade-start.is-fade-end {
+    box-shadow:
+      0 -2px 0 var(--vh-fg),
+      0 2px 0 var(--vh-fg);
   }
 
   // A yellow date block (a live meeting) needs no white edge: the yellow sets it apart.
@@ -494,9 +512,14 @@
 
   // A choice (000615): a segmented control, a tab bar, a chip, a toggle button and the
   // button of a menu.
+  // The track of a segmented control is a group, so it has the white edge of a surface. It
+  // has 2px more room at each side, so the white edge stands clear of the yellow segments.
   .seg {
+    padding: 6px;
     background: var(--vh-bg) !important;
     box-shadow: none !important;
+    outline: var(--vh-edge);
+    outline-offset: -2px;
   }
   .seg__opt,
   [role='tablist'] [role='tab'],

@@ -36,6 +36,15 @@ export interface FilterSelectOption {
   readonly person?: FilterSelectPerson | null;
 }
 
+/**
+ * The text of a filter chip: the name of the filter alone while no value is chosen, else
+ * the name, a colon and the value ("Status", "Status: Offen"). A page that builds the text
+ * of its chip itself uses this function, so that every chip follows one pattern.
+ */
+export function filterChipText(name: string, value?: string | null): string {
+  return value ? `${name}: ${value}` : name;
+}
+
 let nextId = 0;
 
 /** Space between the list and the edge of the viewport, in px. */
@@ -55,7 +64,8 @@ const TYPEAHEAD_RESET = 600;
  *   stays open. `resetLabel` adds a button that clears all values.
  * - Desktop: a list under the chip (popover). Phone (< 768 px): the shared bottom sheet.
  * - The whole chip is the button. The chip shows `text`, else the label of the current
- *   value, else `label`.
+ *   value, else `label`. With `filled` and without `text` it shows `label` while no value is
+ *   chosen and "label: value" while one is (`filterChipText`).
  * - Keyboard (WAI-ARIA listbox): Enter, Space or Arrow Down open the list on the current
  *   value, Arrow Up on the last choice. In the list the arrows move, Home and End jump,
  *   a typed letter jumps to the next choice that starts with it, Enter and Space choose,
@@ -139,7 +149,8 @@ export class FilterSelectComponent {
     if (own) return own;
     if (!this.multiple()) {
       const hit = this.options().find((o) => o.value === this.value());
-      if (hit) return hit.label;
+      if (hit && !this.filled()) return hit.label;
+      if (hit && this.isSet()) return filterChipText(this.label(), hit.label);
     }
     return this.label();
   });
