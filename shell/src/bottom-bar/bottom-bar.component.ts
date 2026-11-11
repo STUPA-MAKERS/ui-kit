@@ -28,7 +28,8 @@ import { ShellMoreSheet } from './more-sheet';
  * With `more` false the bar has no "More" entry; give every entry a key in `barKeys`
  * then. The sheet closes after each navigation, and after a click on a link or a button in
  * the `[more]` slot (an action such as "Report a problem" that opens a dialog, or a link
- * that leaves the app). A click on empty space of the sheet keeps it open. The content of the
+ * that leaves the app). A click on empty space of the sheet keeps it open, and so does a
+ * switch, a check box or a control marked `data-more-keep`. The content of the
  * slot can also close it with `ShellMoreSheet.close()`. "More" is the active entry while
  * the page belongs to one of its entries or starts with one of `morePaths`.
  */
@@ -105,14 +106,19 @@ export class BottomBarComponent {
     inject(DestroyRef).onDestroy(unregister);
   }
 
-  /** A click on a link or a button of the `[more]` slot closes the sheet. */
+  /**
+   * A click on a link or a button of the `[more]` slot closes the sheet. A switch, a check
+   * box and a control marked `data-more-keep` keep it open, because the person sets a
+   * value there and may set the next one.
+   */
   onSlotClick(event: Event): void {
     const { target, currentTarget } = event;
     if (!(target instanceof Element) || !(currentTarget instanceof Element)) return;
     const hit = target.closest(
       'a[href], button, [role="button"], [role="menuitem"], [role="link"]',
     );
-    if (hit && currentTarget.contains(hit) && !hit.matches(':disabled')) {
+    const keeps = '[role="switch"], [role="checkbox"], [data-more-keep]';
+    if (hit && currentTarget.contains(hit) && !hit.matches(':disabled') && !hit.closest(keeps)) {
       this.moreOpen.set(false);
     }
   }

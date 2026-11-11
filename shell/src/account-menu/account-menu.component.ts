@@ -26,7 +26,8 @@ import type { ShellLanguage } from '../shell.types';
 
 /**
  * `popover`: the avatar at the foot of the rail, which opens the menu beside the rail.
- * `sheet`: the menu content only, inline in the "More" sheet of the phone bar.
+ * `sheet`: the menu content only, inline in the "More" sheet of the phone bar. It has no
+ * dark design switch, because that sheet shows the dark design in its display settings.
  * `auto`: `sheet` on a phone, else `popover`. Use it for the `[shellAccount]` slot of
  * `app-shell`, which shows the same element in the rail or in the "More" sheet.
  */

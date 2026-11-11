@@ -89,6 +89,8 @@
   --field-focus: inset 0 0 0 3px #000000, 0 0 0 3px #ffe600;
   --field-focus-outline: none;
 
+  // A rich text area (`contenteditable`) is a field like a textarea: the surface around it
+  // shows the focus, so it takes no ring of its own.
   // Every other focused element (a button, a link, a checkbox): the same double ring. The
   // yellow ring is the outline, which paints above a neighbour that touches the element, and
   // the black ring is an inner shadow, which no neighbour can cover.
@@ -96,6 +98,7 @@
       textarea,
       select,
       input:not([type='checkbox'], [type='radio'], [type='range'], [type='button'], [type='submit']),
+      [contenteditable='true'],
       [tabindex='-1']
     ) {
     outline: 3px solid #ffe600 !important;
@@ -285,17 +288,24 @@
     outline-offset: -2px;
   }
 
-  // A grouped list: its rows paint over an outline, so the edge is a layer on top.
+  // A grouped list: each row is a surface of its own, so each row has the edge and all
+  // four round corners, and the rows sit further apart. The group has no edge, because an
+  // edge around the group does not show where one row ends.
   .rowgroup {
-    position: relative;
+    gap: var(--space-2);
   }
-  .rowgroup::after {
+  // The content of a row paints over an outline of the row, so the edge is a layer on top.
+  .rowgroup > * {
+    position: relative;
+    border-radius: var(--radius-lg);
+  }
+  .rowgroup > *::after {
     content: '';
     position: absolute;
     inset: 0;
     z-index: 2;
     border: var(--vh-edge);
-    border-radius: var(--radius-lg);
+    border-radius: inherit;
     pointer-events: none;
   }
 
@@ -427,8 +437,22 @@
     box-shadow: none !important;
   }
 
-  // No glass, no gradient and no tint: every pseudo layer of a glass surface goes.
-  .ld-pane--glass::before,
+  // No glass, no gradient and no tint. The head of a list column stays a layer over its
+  // rows, because the rows scroll under it: the layer is solid black and as high as the
+  // head, so no row shows through the title and the filters. Its shadow goes.
+  .ld-pane--glass::before {
+    height: var(--ld-pane-top) !important;
+    background: var(--vh-bg) !important;
+    -webkit-backdrop-filter: none !important;
+    backdrop-filter: none !important;
+    -webkit-mask-image: none !important;
+    mask-image: none !important;
+  }
+  // While rows are under the head, a white line ends it, as the edge of a surface does.
+  .ld-pane--glass.ld-pane--scrolled::before {
+    box-sizing: border-box;
+    border-bottom: var(--vh-edge);
+  }
   .ld-pane--glass::after {
     display: none;
   }
@@ -438,6 +462,7 @@
       textarea,
       select,
       input:not([type='checkbox'], [type='radio'], [type='range'], [type='button'], [type='submit']),
+      [contenteditable='true'],
       [tabindex='-1']
     ) {
     outline-color: var(--vh-hi) !important;
@@ -497,10 +522,16 @@
   // The navigation (000616): yellow text and icons, no edge. The open entry keeps its pill.
   .rail__item,
   .bb__item,
+  .more__item,
   .am__trigger,
   .am__item:not(.am__item--field) {
     @include vh.ink(var(--vh-hi));
     color: var(--vh-hi) !important;
+  }
+  // The open entry of the "Mehr" sheet is a row, so it is filled as the chosen row of a
+  // menu is: black text and a black icon on yellow.
+  .more__item.is-active {
+    @include vh.fill;
   }
   .rail__item.is-active .rail__ind,
   .bb__item.is-active .bb__ind {
