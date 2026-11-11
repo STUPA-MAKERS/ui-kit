@@ -302,6 +302,16 @@ describe('veryHighContrast (§000605)', () => {
   const rules = DISPLAY.slice(DISPLAY.indexOf('@include d.on(veryHigh)'));
   const FOUR = ['#000000', '#ffffff', '#ffff00', '#ff8a8a'];
 
+  it('keeps the head of a list column a solid black layer over its rows, with a white line while rows are under it', () => {
+    const head = rules.match(/\n  \.ld-pane--glass::before \{([^}]*)\}/)?.[1] ?? '';
+    expect(head).toMatch(/height: var\(--ld-pane-top\) !important;/);
+    expect(head).toMatch(/background: var\(--vh-bg\) !important;/);
+    expect(head).toMatch(/backdrop-filter: none !important;/);
+    expect(head).toMatch(/mask-image: none !important;/);
+    expect(head).not.toMatch(/display: none/);
+    expect(rules).toMatch(/\.ld-pane--glass\.ld-pane--scrolled::before \{[^}]*border-bottom: var\(--vh-edge\);/);
+  });
+
   it('uses only the four colours for every colour token', () => {
     const values = [...block.matchAll(/--vh-(?:bg|fg|hi|err):\s*(#[0-9a-f]{6});/g)].map((m) => m[1]);
     expect(values).toEqual(FOUR);
@@ -408,7 +418,11 @@ describe('navigationYellowText (§000616)', () => {
     const body = controlRule('.rail__item');
     expect(body).toMatch(/color: var\(--vh-hi\) !important;/);
     expect(body).not.toMatch(/outline|box-shadow/);
-    expect(CONTROLS).toMatch(/\.rail__item,\s*\.bb__item,\s*\.am__trigger,/);
+    expect(CONTROLS).toMatch(/\.rail__item,\s*\.bb__item,\s*\.more__item,\s*\.am__trigger,/);
+  });
+
+  it('fills the open entry of the "Mehr" sheet, so its text and its icon are black on yellow', () => {
+    expect(controlRule('.more__item.is-active')).toContain('@include vh.fill;');
   });
 });
 

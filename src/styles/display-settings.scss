@@ -427,8 +427,22 @@
     box-shadow: none !important;
   }
 
-  // No glass, no gradient and no tint: every pseudo layer of a glass surface goes.
-  .ld-pane--glass::before,
+  // No glass, no gradient and no tint. The head of a list column stays a layer over its
+  // rows, because the rows scroll under it: the layer is solid black and as high as the
+  // head, so no row shows through the title and the filters. Its shadow goes.
+  .ld-pane--glass::before {
+    height: var(--ld-pane-top) !important;
+    background: var(--vh-bg) !important;
+    -webkit-backdrop-filter: none !important;
+    backdrop-filter: none !important;
+    -webkit-mask-image: none !important;
+    mask-image: none !important;
+  }
+  // While rows are under the head, a white line ends it, as the edge of a surface does.
+  .ld-pane--glass.ld-pane--scrolled::before {
+    box-sizing: border-box;
+    border-bottom: var(--vh-edge);
+  }
   .ld-pane--glass::after {
     display: none;
   }
@@ -497,10 +511,16 @@
   // The navigation (000616): yellow text and icons, no edge. The open entry keeps its pill.
   .rail__item,
   .bb__item,
+  .more__item,
   .am__trigger,
   .am__item:not(.am__item--field) {
     @include vh.ink(var(--vh-hi));
     color: var(--vh-hi) !important;
+  }
+  // The open entry of the "Mehr" sheet is a row, so it is filled as the chosen row of a
+  // menu is: black text and a black icon on yellow.
+  .more__item.is-active {
+    @include vh.fill;
   }
   .rail__item.is-active .rail__ind,
   .bb__item.is-active .bb__ind {
