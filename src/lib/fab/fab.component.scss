@@ -43,13 +43,22 @@
 // the button is a flex row, so no space between the icon and the text is left over, and the
 // folded padding makes the button a 56px square inside its border. Reduced motion drops the
 // transitions (`base.scss`).
-:host ::ng-deep .btn--fab {
-  transition: padding var(--motion-base) var(--ease-standard);
+//
+// A rule here that sets a property the button sets too has the same specificity as the rule
+// of the button, so the stylesheet that the page added last wins, and that is the one of the
+// component that the page created first. The gap therefore goes through `--fab-label-gap`,
+// and the transition of the button is `.btn.btn--fab`, one class more than `.btn`; it keeps
+// the transitions of the button and adds the padding.
+:host ::ng-deep .btn.btn--fab {
+  transition:
+    background-color var(--motion-fast) var(--ease-standard),
+    color var(--motion-fast) var(--ease-standard),
+    border-color var(--motion-fast) var(--ease-standard),
+    filter var(--motion-fast) var(--ease-standard),
+    scale var(--motion-xs) var(--ease-standard),
+    padding var(--motion-base) var(--ease-standard);
 }
 :host ::ng-deep .btn--fab .btn__label {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--space-3);
   transition: gap var(--motion-base) var(--ease-standard);
 }
 :host ::ng-deep .fab__label {
@@ -64,8 +73,8 @@
 :host(.fab--folded) ::ng-deep .btn--fab {
   padding: 0 calc((56px - var(--icon-size)) / 2 - var(--border-width, 1px));
 }
-:host(.fab--folded) ::ng-deep .btn--fab .btn__label {
-  gap: 0;
+:host(.fab--folded) {
+  --fab-label-gap: 0px;
 }
 :host(.fab--folded) ::ng-deep .fab__label {
   max-width: 0;
