@@ -26,8 +26,9 @@
   box-shadow: var(--shadow-elevated);
   @include frosted-pop(var(--color-pop));
 
+  // The focus draws no ring, and it keeps the edge of very high contrast (`--pop-edge`).
   &:focus {
-    outline: none;
+    outline: var(--pop-edge, none);
   }
 }
 

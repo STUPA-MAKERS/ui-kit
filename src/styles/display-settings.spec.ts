@@ -286,6 +286,17 @@ describe('highlightedTagsAndBars (§000598)', () => {
     expect(DISPLAY).toMatch(/\.rail__main\.is-fade-end \{\s*box-shadow: 0 2px 0 var\(--vh-fg\);/);
   });
 
+  it('draws the white edge around every floating box and leaves no grey on a glass box (000605)', () => {
+    const frosted = readFileSync(join(STYLES, '_frosted.scss'), 'utf8');
+    const pop = /@mixin frosted-pop\([^)]*\) \{([\s\S]*?)\n\}/.exec(frosted)?.[1] ?? '';
+    expect(pop).toMatch(/outline: var\(--pop-edge, none\);\s*outline-offset: var\(--pop-edge-offset, 0\);/);
+    const content = /@mixin glass-content \{([\s\S]*?)\n\}/.exec(frosted)?.[1] ?? '';
+    const lines = content.split('\n').filter((l) => l.includes('--color-'));
+    expect(lines.length).toBe(6);
+    for (const line of lines) expect(line).toContain(': var(--glass-flat, color-mix(');
+    expect(DISPLAY).toMatch(/--glass-flat: var\(--vh-bg\);\s*--pop-edge: var\(--vh-edge\);\s*--pop-edge-offset: -2px;/);
+  });
+
   it('makes a tag a black plate with yellow text', () => {
     const css = readFileSync(join(STYLES, '../lib/badge/badge.component.scss'), 'utf8');
     expect(css).toMatch(

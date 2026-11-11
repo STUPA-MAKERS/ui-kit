@@ -204,6 +204,11 @@
   --color-pop: var(--vh-bg);
   --color-glass-1: var(--vh-bg);
   --color-glass-2: var(--vh-bg);
+  // The surfaces on a glass box are the page colour too, and every floating box
+  // (`frosted-pop`) has the white edge of a surface (000605).
+  --glass-flat: var(--vh-bg);
+  --pop-edge: var(--vh-edge);
+  --pop-edge-offset: -2px;
   --color-border: var(--vh-fg);
   --color-border-strong: var(--vh-fg);
 
