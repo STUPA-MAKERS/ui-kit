@@ -12,6 +12,7 @@ import {
 import { NG_VALUE_ACCESSOR, type ControlValueAccessor } from '@angular/forms';
 import { UI_KIT_INTL } from '../intl/intl';
 import { UiKitTranslatePipe } from '../intl/translate.pipe';
+import { resolveRelativeDate } from './relative-date';
 
 let nextId = 0;
 
@@ -22,7 +23,8 @@ let nextId = 0;
  *
  * Bedienung: tippen im Textfeld (locale-Reihenfolge) **oder** den nativen Kalender
  * über den Kalender-Button öffnen (`showPicker()`; das native Feld bleibt unsichtbar,
- * nur sein Kalender-Popup erscheint). `ControlValueAccessor` → Reactive Forms/`ngModel`.
+ * nur sein Kalender-Popup erscheint). Shortcuts relative to today (`+1w`, `-1d`, `+1m-2d`,
+ * specs 000700-000702) resolve on blur and on Enter; the value is always the ISO date. `ControlValueAccessor` → Reactive Forms/`ngModel`.
  */
 @Component({
   selector: 'app-datepicker',
@@ -88,7 +90,16 @@ export class DatepickerComponent implements ControlValueAccessor {
 
   onBlur(): void {
     this.onTouched();
-    const iso = this.parse(this.display());
+    this.resolve();
+  }
+
+  /** Enter resolves too, because a form sent with Enter does not blur the field first (000701). */
+  onEnter(): void {
+    this.resolve();
+  }
+
+  private resolve(): void {
+    const iso = this.parse(this.display()) || resolveRelativeDate(this.display());
     if (iso) {
       this.commit(iso);
     } else if (!this.display().trim()) {
