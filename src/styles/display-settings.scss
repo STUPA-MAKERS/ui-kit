@@ -294,6 +294,13 @@
     outline: none !important;
   }
 
+  // The one ghost row of an empty state (000597) is a surface: black with the white edge,
+  // because its grey tint is no colour of the mode.
+  .es--one .es__ghost {
+    background: var(--vh-bg) !important;
+    border: var(--vh-edge);
+  }
+
   // A sheet from the side stands 8px clear of the window on every side, as on the phone,
   // so its edge runs round all four sides and no side of it lies on the edge of the window.
   .ss--end,
