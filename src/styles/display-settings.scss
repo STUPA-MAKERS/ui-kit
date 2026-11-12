@@ -274,8 +274,9 @@
 }
 @include d.on(veryHigh) {
   // Every surface has a white edge, because no shade sets it apart from the black page. The
-  // edge is an outline on the inner side: it paints over the children and stays inside a
-  // box that cuts its overflow.
+  // edge is a border: a box cuts its content at the inner side of its border, so no child,
+  // no scroll area inside it and no head that sticks paints over the edge. An outline does
+  // not hold: a scroll area inside the box scrolls on a layer of its own above it.
   .card,
   .empty-state,
   .dialog,
@@ -289,8 +290,23 @@
   .skel--panel,
   .db,
   .selbar {
-    outline: var(--vh-edge);
-    outline-offset: -2px;
+    border: var(--vh-edge) !important;
+    outline: none !important;
+  }
+
+  // A sheet from the side stands 8px clear of the window on every side, as on the phone,
+  // so its edge runs round all four sides and no side of it lies on the edge of the window.
+  .ss--end,
+  .ss--start {
+    top: calc(8px + env(safe-area-inset-top, 0px));
+    bottom: calc(8px + env(safe-area-inset-bottom, 0px));
+    border-radius: var(--radius-xl);
+  }
+  .ss--end {
+    right: calc(8px + env(safe-area-inset-right, 0px));
+  }
+  .ss--start {
+    left: calc(8px + env(safe-area-inset-left, 0px));
   }
 
   // A grouped list: each row is a surface of its own, so each row has the edge and all
@@ -326,33 +342,31 @@
   }
 
   // A scroll area ends in a white line instead of a fade, at each end past which more
-  // content lies (the classes of the scroll-fade directive).
+  // content lies (the classes of the scroll-fade directive). The line is a border, because
+  // the content of a box paints over an inset shadow of the box. The border is there at
+  // all times and only turns white, so the content does not move when the line appears.
   .is-fade-start,
   .is-fade-end {
     -webkit-mask-image: none !important;
     mask-image: none !important;
   }
+  [appScrollFade='y'] {
+    border-block: 2px solid transparent !important;
+  }
+  [appScrollFade]:not([appScrollFade='y']) {
+    border-inline: 2px solid transparent !important;
+  }
   [appScrollFade='y'].is-fade-start {
-    box-shadow: inset 0 2px 0 var(--vh-fg);
+    border-top-color: var(--vh-fg) !important;
   }
   [appScrollFade='y'].is-fade-end {
-    box-shadow: inset 0 -2px 0 var(--vh-fg);
+    border-bottom-color: var(--vh-fg) !important;
   }
-  [appScrollFade='y'].is-fade-start.is-fade-end {
-    box-shadow:
-      inset 0 2px 0 var(--vh-fg),
-      inset 0 -2px 0 var(--vh-fg);
+  [appScrollFade]:not([appScrollFade='y']).is-fade-start {
+    border-inline-start-color: var(--vh-fg) !important;
   }
-  :not([appScrollFade='y']).is-fade-start {
-    box-shadow: inset 2px 0 0 var(--vh-fg);
-  }
-  :not([appScrollFade='y']).is-fade-end {
-    box-shadow: inset -2px 0 0 var(--vh-fg);
-  }
-  :not([appScrollFade='y']).is-fade-start.is-fade-end {
-    box-shadow:
-      inset 2px 0 0 var(--vh-fg),
-      inset -2px 0 0 var(--vh-fg);
+  [appScrollFade]:not([appScrollFade='y']).is-fade-end {
+    border-inline-end-color: var(--vh-fg) !important;
   }
   // The rail draws the lines on the outer side of its list, because the plate of an entry
   // under the pointer paints over a line on the inner side.
@@ -563,8 +577,8 @@
 
   // A menu (000617): black with the white edge of a surface, yellow rows, white headings.
   .am--popover {
-    outline: var(--vh-edge);
-    outline-offset: -2px;
+    border: var(--vh-edge) !important;
+    outline: none !important;
   }
   .rm__menu,
   .fs__menu,
@@ -576,8 +590,8 @@
     background: var(--vh-bg) !important;
     color: var(--vh-fg) !important;
     box-shadow: none !important;
-    outline: var(--vh-edge) !important;
-    outline-offset: -2px !important;
+    border: var(--vh-edge) !important;
+    outline: none !important;
   }
   .rm__item,
   .fs__option,
