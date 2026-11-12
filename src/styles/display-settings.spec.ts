@@ -367,8 +367,24 @@ describe('veryHighContrast (§000605)', () => {
     for (const surface of ['.card', '.dialog', '.ss', '.rm__menu', '.sel__menu', '.dt--boxed']) {
       expect(rules).toContain(surface);
     }
-    expect(rules).toMatch(/outline: var\(--vh-edge\)/);
+    expect(rules).toMatch(/\.selbar \{\s*border: var\(--vh-edge\) !important;\s*outline: none !important;/);
     expect(rules).toMatch(/\.badge--status,\s*app-status-text \{[^}]*box-shadow: inset 0 0 0 2px var\(--vh-ink\)/);
+  });
+
+  it('keeps the edges in view while content scrolls: borders, not outlines or inset shadows', () => {
+    expect(rules).toMatch(/\[appScrollFade='y'\] \{\s*border-block: 2px solid transparent !important;/);
+    expect(rules).toMatch(/\[appScrollFade='y'\]\.is-fade-start \{\s*border-top-color: var\(--vh-fg\) !important;/);
+    expect(rules).toMatch(/\[appScrollFade='y'\]\.is-fade-end \{\s*border-bottom-color: var\(--vh-fg\) !important;/);
+    expect(rules).not.toMatch(/\[appScrollFade='y'\]\.is-fade-start \{\s*box-shadow/);
+  });
+
+  it('draws the one ghost row of an empty state black with the white edge', () => {
+    expect(rules).toMatch(/\.es--one \.es__ghost \{\s*background: var\(--vh-bg\) !important;\s*border: var\(--vh-edge\);/);
+  });
+
+  it('sets a side sheet clear of the window, so its edge runs round all four sides', () => {
+    expect(rules).toMatch(/\.ss--end,\s*\.ss--start \{\s*top: calc\(8px[^}]*border-radius: var\(--radius-xl\);/);
+    expect(rules).toMatch(/\.ss--end \{\s*right: calc\(8px/);
   });
 
   it('underlines a link and draws a disabled button with a dashed edge', () => {
@@ -459,7 +475,7 @@ describe('menusBlackYellowRows (§000617)', () => {
   it('makes every menu black with the white edge', () => {
     const body = controlRule('.rm__menu');
     expect(body).toMatch(/background: var\(--vh-bg\) !important;/);
-    expect(body).toMatch(/outline: var\(--vh-edge\) !important;/);
+    expect(body).toMatch(/border: var\(--vh-edge\) !important;\s*outline: none !important;/);
     for (const menu of ['.fs__menu', '.sel__menu', '.ac__list', '.rc__pop']) {
       expect(CONTROLS).toMatch(new RegExp(`\\${menu},?\\s`));
     }
