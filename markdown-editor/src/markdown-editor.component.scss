@@ -629,3 +629,14 @@ app-markdown-editor .mde__tableMenu .rm__trigger {
 .mde__host .ProseMirror .mde-doc__pages:not(:empty)::before {
   content: '· ';
 }
+/* Very high contrast: every surface is the page colour, so the badge keeps the text
+   colour of its field and shows its edge in that colour. */
+:root[data-very-high-contrast='on'] .mde__host .ProseMirror .mde-doc {
+  background: transparent;
+  border: 2px solid currentColor;
+}
+:root[data-very-high-contrast='on'] .mde__host .ProseMirror .mde-doc__icon,
+:root[data-very-high-contrast='on'] .mde__host .ProseMirror .mde-doc__kind,
+:root[data-very-high-contrast='on'] .mde__host .ProseMirror .mde-doc__pages {
+  color: inherit;
+}
