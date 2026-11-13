@@ -566,9 +566,13 @@ app-markdown-editor .mde__tableMenu .rm__trigger {
   width: 5.5ch;
   text-align: center;
 }
-.mde__host .ProseMirror .mde-time-note__time:hover:not(:disabled),
 .mde__host .ProseMirror .mde-time-note__time:focus-visible {
   border-color: var(--color-border-strong);
+}
+@media (hover: hover) {
+  .mde__host .ProseMirror .mde-time-note__time:hover:not(:disabled) {
+    border-color: var(--color-border-strong);
+  }
 }
 .mde__host .ProseMirror .mde-time-note__time:disabled {
   opacity: 1;
