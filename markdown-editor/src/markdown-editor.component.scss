@@ -83,7 +83,7 @@ app-markdown-editor {
   border-collapse: collapse;
   table-layout: auto;
   min-width: 50%;
-  font-size: var(--fs-sm);
+  font-size: var(--fs-small);
 }
 .mde__host .ProseMirror th,
 .mde__host .ProseMirror td {
@@ -215,7 +215,7 @@ app-markdown-editor {
 }
 .mde__host .ProseMirror .mde__voteBody {
   color: var(--color-text-muted);
-  font-size: var(--fs-sm);
+  font-size: var(--fs-small);
 }
 .mde__host .ProseMirror .mde__voteCounts {
   display: flex;
@@ -235,7 +235,7 @@ app-markdown-editor {
   text-align: right;
 }
 .mde__host .ProseMirror .mde__voteLabel {
-  font-size: var(--fs-sm);
+  font-size: var(--fs-small);
   line-height: 1.25rem;
   color: var(--color-text-muted);
 }
@@ -279,7 +279,7 @@ app-markdown-editor {
    them, the abstentions come last and muted. */
 .mde__host .ProseMirror .mde__voteStatus {
   margin-left: auto;
-  font-size: var(--fs-sm);
+  font-size: var(--fs-small);
   font-weight: var(--fw-semibold);
   white-space: nowrap;
   color: var(--color-accent-text);
@@ -304,7 +304,7 @@ app-markdown-editor {
 }
 .mde__host .ProseMirror .mde__elName {
   min-width: 0;
-  font-size: var(--fs-sm);
+  font-size: var(--fs-small);
   color: var(--color-text-muted);
   overflow-wrap: anywhere;
 }
@@ -429,7 +429,7 @@ app-markdown-editor {
   margin-left: 6px;
 }
 .mde__host .ProseMirror .mde__pollFoot {
-  font-size: var(--fs-sm);
+  font-size: var(--fs-small);
   color: var(--color-text-subtle);
 }
 
@@ -543,4 +543,34 @@ app-markdown-editor .mde__tableMenu .rm__trigger {
   border-radius: 3px;
   background: color-mix(in srgb, var(--color-text) 8%, transparent);
   padding: 0 2px;
+}
+
+/* A time note: one grey, centered line with its time, as in the protocol PDF. The time
+   field is part of the line and keeps the size of its text. */
+.mde__host .ProseMirror .mde-time-note {
+  margin: var(--space-2) 0;
+  text-align: center;
+  color: var(--color-text-muted);
+  font-size: var(--fs-small);
+}
+.mde__host .ProseMirror .mde-time-note__head {
+  white-space: nowrap;
+}
+.mde__host .ProseMirror .mde-time-note__time {
+  font: inherit;
+  color: inherit;
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: var(--radius-sm);
+  padding: 0 2px;
+}
+.mde__host .ProseMirror .mde-time-note__time:hover:not(:disabled),
+.mde__host .ProseMirror .mde-time-note__time:focus-visible {
+  border-color: var(--color-border-strong);
+}
+.mde__host .ProseMirror .mde-time-note__time:disabled {
+  opacity: 1;
+}
+.mde__host .ProseMirror .mde-time-note__time::-webkit-calendar-picker-indicator {
+  display: none;
 }

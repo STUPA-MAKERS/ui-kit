@@ -27,6 +27,7 @@ import { Focus, Placeholder } from '@tiptap/extensions';
 import StarterKit from '@tiptap/starter-kit';
 import { Markdown } from 'tiptap-markdown';
 import { Blackout } from './blackout.extension';
+import { TimeNote } from './time-note.extension';
 import { BlockMathMarkdown, InlineMathMarkdown } from './math.extension';
 import {
   IMAGE_UPLOAD_TYPES,
@@ -145,8 +146,9 @@ function setAttr(el: HTMLElement, name: string, value: string | null): void {
  * unchanged in the Markdown and shows its alt text. Links `[label](target)` keep their
  * target (web, `mailto:`, a path of the platform); markdown-it keeps a `javascript:` or
  * `data:` target as plain text. With `imageUpload`, a paste or a drop of image files
- * uploads them; `insertImage`, `insertTable`, `tableCommand`, `pickImage`, `setLink` and
- * `unsetLink` serve a toolbar of the consumer.
+ * uploads them; `insertImage`, `insertTable`, `insertTimeNote`, `tableCommand`, `pickImage`,
+ * `setLink` and `unsetLink` serve a toolbar of the consumer. A time note
+ * (`time-note.extension.ts`) is one grey, centered line with an editable time.
  *
  * While an editable editor has the focus and the cursor is in a table, the table shows
  * its own controls: a grip on the top edge of the cursor's column and one on the start
@@ -181,6 +183,10 @@ export class MarkdownEditorComponent implements OnDestroy {
   readonly placeholder = input<string>('');
   /** The tooltip of a segment that the public protocol blacks out. */
   readonly blackoutTitle = input<string>('');
+  /** The text after the time of a time note, for example "Uhr". */
+  readonly timeNoteSuffix = input<string>('Uhr');
+  /** The accessible name of the time field of a time note. */
+  readonly timeNoteLabel = input<string>('');
   /**
    * The accessible name of the editable area. The area is a `role="textbox"`, so a
    * screen reader needs a name for it (WCAG 4.1.2).
@@ -284,6 +290,10 @@ export class MarkdownEditorComponent implements OnDestroy {
             MarkdownTableCell,
             MarkdownImage,
             Blackout.configure({ title: () => this.blackoutTitle() }),
+            TimeNote.configure({
+              suffix: () => this.timeNoteSuffix(),
+              timeLabel: () => this.timeNoteLabel(),
+            }),
           ],
           editorProps: {
             transformPastedHTML: (html) => stripForeignImages(html),
@@ -416,6 +426,16 @@ export class MarkdownEditorComponent implements OnDestroy {
     const editor = this.editor;
     if (!editor || !editor.isEditable) return false;
     return editor.chain().focus().extendMarkRange('link').unsetLink().run();
+  }
+
+  /**
+   * Insert a time note (`> [!anmerkung HH:MM]`) after the block of the cursor and put the
+   * cursor in its text. A time that is no `HH:MM` inserts nothing and returns false.
+   */
+  insertTimeNote(time: string): boolean {
+    const editor = this.editor;
+    if (!editor || !editor.isEditable) return false;
+    return editor.chain().focus().insertTimeNote(time).run();
   }
 
   /** Insert a table with a header row at the cursor. */
