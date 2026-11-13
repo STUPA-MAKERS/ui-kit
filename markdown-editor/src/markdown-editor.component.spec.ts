@@ -745,7 +745,7 @@ describe('MarkdownEditorComponent', () => {
         { imports: [MarkdownEditorComponent], componentProperties: { md } },
       );
       const note = editorEl(view.container).querySelector('.mde-time-note') as HTMLElement;
-      const field = note.querySelector('input[type="time"]') as HTMLInputElement;
+      const field = note.querySelector('input.mde-time-note__time') as HTMLInputElement;
       expect(field.value).toBe('18:42');
       expect(field.getAttribute('aria-label')).toBe('Uhrzeit der Anmerkung');
       expect(note.querySelector('.mde-blackout')?.textContent).toBe('Max Muster');
@@ -769,10 +769,13 @@ describe('MarkdownEditorComponent', () => {
       const md = '> [!anmerkung 18:42] Pause';
       const view = await render(Host, { componentProperties: { value: signal(md) } as Partial<Host> });
       const host = view.fixture.componentInstance;
-      const field = editorEl(view.container).querySelector('input[type="time"]') as HTMLInputElement;
+      const field = editorEl(view.container).querySelector('input.mde-time-note__time') as HTMLInputElement;
       field.value = '19:10';
       field.dispatchEvent(new Event('change'));
       expect(host.changes.at(-1)).toBe('> [!anmerkung 19:10] Pause');
+      field.value = '7 Uhr';
+      field.dispatchEvent(new Event('change'));
+      expect(field.value).toBe('19:10');
     });
 
     it('keeps a time that is no time of the day as a quote', async () => {

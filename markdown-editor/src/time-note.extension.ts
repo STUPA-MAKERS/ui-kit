@@ -3,7 +3,8 @@ import { Node, mergeAttributes } from '@tiptap/core';
 /**
  * A time note of a protocol: `> [!anmerkung HH:MM] text` in Markdown, one line.
  *
- * The editor shows the note as one grey, centered line: a time field, the time suffix of
+ * The editor shows the note as one grey, centered line: a time field (`HH:MM` as text, so
+ * the format never follows a 12-hour locale of the browser), the time suffix of
  * the consumer and the text. The text holds inline Markdown and the blackout marks
  * (`%%Name%%`), because markdown-it reads the text with its inline rules. The time field
  * changes the time of the note, so the time stays editable after the insert.
@@ -160,7 +161,11 @@ export const TimeNote = Node.create<TimeNoteOptions>({
     const options = this.options;
     return ({ node, getPos, editor }) => {
       const field = element('input', {
-        type: 'time',
+        type: 'text',
+        inputmode: 'numeric',
+        maxlength: '5',
+        size: '5',
+        autocomplete: 'off',
         class: 'mde-time-note__time',
         value: node.attrs['time'] as string,
         'aria-label': options.timeLabel(),
@@ -174,7 +179,13 @@ export const TimeNote = Node.create<TimeNoteOptions>({
       field.addEventListener('change', () => {
         const time = normalTime(field.value);
         const pos = typeof getPos === 'function' ? getPos() : undefined;
-        if (time === null || pos === undefined) return;
+        if (pos === undefined) return;
+        if (time === null) {
+          // A text that is no time of the day goes back to the time of the note.
+          const current = editor.state.doc.nodeAt(pos)?.attrs['time'] as string | undefined;
+          Reflect.set(field, 'value', current ?? (node.attrs['time'] as string));
+          return;
+        }
         editor.view.dispatch(editor.state.tr.setNodeAttribute(pos, 'time', time));
       });
       return {

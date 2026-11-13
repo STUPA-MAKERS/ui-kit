@@ -563,6 +563,8 @@ app-markdown-editor .mde__tableMenu .rm__trigger {
   border: 1px solid transparent;
   border-radius: var(--radius-sm);
   padding: 0 2px;
+  width: 5.5ch;
+  text-align: center;
 }
 .mde__host .ProseMirror .mde-time-note__time:hover:not(:disabled),
 .mde__host .ProseMirror .mde-time-note__time:focus-visible {
@@ -571,9 +573,7 @@ app-markdown-editor .mde__tableMenu .rm__trigger {
 .mde__host .ProseMirror .mde-time-note__time:disabled {
   opacity: 1;
 }
-.mde__host .ProseMirror .mde-time-note__time::-webkit-calendar-picker-indicator {
-  display: none;
-}
+
 
 /* An embedded PDF: one inline file badge (`document.extension.ts`). */
 .mde__host .ProseMirror .mde-doc {
