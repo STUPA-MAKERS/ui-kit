@@ -574,3 +574,58 @@ app-markdown-editor .mde__tableMenu .rm__trigger {
 .mde__host .ProseMirror .mde-time-note__time::-webkit-calendar-picker-indicator {
   display: none;
 }
+
+/* An embedded PDF: one inline file badge (`document.extension.ts`). */
+.mde__host .ProseMirror .mde-doc {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  max-width: 100%;
+  margin: 0 1px;
+  padding: 1px var(--space-2) 1px 6px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  background: var(--color-surface-2);
+  color: var(--color-text);
+  font-size: var(--fs-small);
+  line-height: 1.5;
+  vertical-align: baseline;
+  cursor: pointer;
+  user-select: none;
+}
+@media (hover: hover) {
+  .mde__host .ProseMirror .mde-doc:hover {
+    background: var(--color-surface-3);
+  }
+}
+.mde__host .ProseMirror .mde-doc:focus-visible,
+.mde__host .ProseMirror-focused .mde-doc.ProseMirror-selectednode {
+  outline: 2px solid var(--color-focus-ring);
+  outline-offset: 1px;
+}
+.mde__host .ProseMirror .mde-doc__icon {
+  flex: none;
+  width: 16px;
+  height: 16px;
+  color: var(--color-text-muted);
+}
+.mde__host .ProseMirror .mde-doc__kind {
+  flex: none;
+  font-size: 0.75em;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  color: var(--color-text-muted);
+}
+.mde__host .ProseMirror .mde-doc__name {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.mde__host .ProseMirror .mde-doc__pages {
+  flex: none;
+  color: var(--color-text-muted);
+}
+.mde__host .ProseMirror .mde-doc__pages:not(:empty)::before {
+  content: '· ';
+}

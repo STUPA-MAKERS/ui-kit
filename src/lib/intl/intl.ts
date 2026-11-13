@@ -80,6 +80,9 @@ export type UiKitTextKey =
   | 'editorTable.addRow'
   | 'editorTable.addColumn'
   | 'editorTable.delete'
+  | 'editorDocument.open'
+  | 'editorDocument.pages'
+  | 'editorDocument.page'
   | 'pwa.updateReady'
   | 'pwa.reload'
   | 'pwa.offline'
@@ -168,6 +171,9 @@ export const UI_KIT_DEFAULT_MESSAGES: Record<UiLang, UiKitMessages> = {
     'editorTable.addRow': 'Zeile hinzufügen',
     'editorTable.addColumn': 'Spalte hinzufügen',
     'editorTable.delete': 'Tabelle löschen',
+    'editorDocument.open': 'PDF öffnen: {name}',
+    'editorDocument.pages': '{n} Seiten',
+    'editorDocument.page': '1 Seite',
     'pwa.updateReady': 'Eine neue Version der App ist bereit.',
     'pwa.reload': 'Neu laden',
     'pwa.offline': 'Keine Verbindung',
@@ -252,6 +258,9 @@ export const UI_KIT_DEFAULT_MESSAGES: Record<UiLang, UiKitMessages> = {
     'editorTable.addRow': 'Add row',
     'editorTable.addColumn': 'Add column',
     'editorTable.delete': 'Delete table',
+    'editorDocument.open': 'Open PDF: {name}',
+    'editorDocument.pages': '{n} pages',
+    'editorDocument.page': '1 page',
     'pwa.updateReady': 'A new version of the app is ready.',
     'pwa.reload': 'Reload',
     'pwa.offline': 'You are offline',
