@@ -23,7 +23,7 @@
     "build": "ng build ui-kit",
     "test": "jest",
     "lint": "eslint .",
-    "lint:functional": "eslint . --max-warnings 145",
+    "lint:functional": "eslint . --max-warnings 142",
     "typecheck": "tsc -p tsconfig.lib.json --noEmit"
   },
   "peerDependencies": {

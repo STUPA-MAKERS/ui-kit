@@ -728,4 +728,64 @@ describe('MarkdownEditorComponent', () => {
       expect(host.changes.at(-1)).not.toContain('%%');
     });
   });
+
+  describe('time note', () => {
+    function editorOf(view: { fixture: { debugElement: { children: { componentInstance: unknown }[] } } }) {
+      return view.fixture.debugElement.children[0].componentInstance as MarkdownEditorComponent;
+    }
+    function markdownOf(cmp: MarkdownEditorComponent): string {
+      return (cmp as unknown as { editor: { storage: { markdown: { getMarkdown: () => string } } } }).editor.storage
+        .markdown.getMarkdown();
+    }
+
+    it('reads a time note with a blackout mark and writes it back', async () => {
+      const md = 'Vorher.\n\n> [!anmerkung 18:42] %%Max Muster%% verlässt **die** Sitzung';
+      const view = await render(
+        `<app-markdown-editor [value]="md" timeNoteSuffix="Uhr" timeNoteLabel="Uhrzeit der Anmerkung" />`,
+        { imports: [MarkdownEditorComponent], componentProperties: { md } },
+      );
+      const note = editorEl(view.container).querySelector('.mde-time-note') as HTMLElement;
+      const field = note.querySelector('input.mde-time-note__time') as HTMLInputElement;
+      expect(field.value).toBe('18:42');
+      expect(field.getAttribute('aria-label')).toBe('Uhrzeit der Anmerkung');
+      expect(note.querySelector('.mde-blackout')?.textContent).toBe('Max Muster');
+      expect(note.textContent).toContain('Uhr');
+      expect(markdownOf(editorOf(view))).toBe(md);
+    });
+
+    it('inserts a note with the time and puts the cursor in its text', async () => {
+      const view = await render(Host);
+      const host = view.fixture.componentInstance;
+      const cmp = editorOf(view);
+      const editor = (cmp as unknown as { editor: { commands: { insertContent: (c: string) => void } } }).editor;
+      editor.commands.insertContent('Text');
+      expect(cmp.insertTimeNote('9:05')).toBe(true);
+      editor.commands.insertContent('Anna geht');
+      expect(host.changes.at(-1)).toBe('Text\n\n> [!anmerkung 09:05] Anna geht');
+      expect(cmp.insertTimeNote('25:00')).toBe(false);
+    });
+
+    it('changes the time through the time field', async () => {
+      const md = '> [!anmerkung 18:42] Pause';
+      const view = await render(Host, { componentProperties: { value: signal(md) } as Partial<Host> });
+      const host = view.fixture.componentInstance;
+      const field = editorEl(view.container).querySelector('input.mde-time-note__time') as HTMLInputElement;
+      field.value = '19:10';
+      field.dispatchEvent(new Event('change'));
+      expect(host.changes.at(-1)).toBe('> [!anmerkung 19:10] Pause');
+      field.value = '7 Uhr';
+      field.dispatchEvent(new Event('change'));
+      expect(field.value).toBe('19:10');
+    });
+
+    it('keeps a time that is no time of the day as a quote', async () => {
+      const md = '> [!anmerkung 25:00] x';
+      const view = await render(`<app-markdown-editor [value]="md" />`, {
+        imports: [MarkdownEditorComponent],
+        componentProperties: { md },
+      });
+      expect(editorEl(view.container).querySelector('.mde-time-note')).toBeNull();
+      expect(editorEl(view.container).querySelector('blockquote')).not.toBeNull();
+    });
+  });
 });
