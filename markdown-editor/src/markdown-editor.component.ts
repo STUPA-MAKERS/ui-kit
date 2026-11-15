@@ -26,7 +26,7 @@ import type { EditorView } from '@tiptap/pm/view';
 import { Focus, Placeholder } from '@tiptap/extensions';
 import StarterKit from '@tiptap/starter-kit';
 import { Markdown } from 'tiptap-markdown';
-import { Blackout } from './blackout.extension';
+import { Blackout, BlackoutBlock } from './blackout.extension';
 import { TimeNote } from './time-note.extension';
 import {
   DOCUMENT_UPLOAD_TYPES,
@@ -331,6 +331,7 @@ export class MarkdownEditorComponent implements OnDestroy {
             MarkdownTableCell,
             MarkdownImage,
             Blackout.configure({ title: () => this.blackoutTitle() }),
+            BlackoutBlock.configure({ title: () => this.blackoutTitle() }),
             TimeNote.configure({
               suffix: () => this.timeNoteSuffix(),
               timeLabel: () => this.timeNoteLabel(),
@@ -698,7 +699,11 @@ export class MarkdownEditorComponent implements OnDestroy {
     const inTable = editor.isActive('table');
     if (inTable !== this.inTable()) this.inTable.set(inTable);
     const next = new Set(
-      FORMATS.filter((f) => editor.isActive(ACTIVE_CHECK[f].name, ACTIVE_CHECK[f].attrs ?? {})),
+      FORMATS.filter(
+        (f) =>
+          editor.isActive(ACTIVE_CHECK[f].name, ACTIVE_CHECK[f].attrs ?? {}) ||
+          (f === 'blackout' && editor.isActive('blackoutBlock')),
+      ),
     );
     const prev = this.activeFormats();
     if (FORMATS.every((f) => next.has(f) === prev.has(f))) return;

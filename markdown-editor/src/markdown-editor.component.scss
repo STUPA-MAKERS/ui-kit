@@ -545,6 +545,22 @@ app-markdown-editor .mde__tableMenu .rm__trigger {
   padding: 0 2px;
 }
 
+/* A blacked-out block: its blocks in one box with the dashed edge of a segment. */
+.mde__host .ProseMirror .mde-blackout-block {
+  outline: 1.5px dashed var(--color-text-muted);
+  outline-offset: 2px;
+  border-radius: 4px;
+  background: color-mix(in srgb, var(--color-text) 8%, transparent);
+  padding: 4px 8px;
+  margin: 0.5em 0;
+  > :first-child {
+    margin-top: 0;
+  }
+  > :last-child {
+    margin-bottom: 0;
+  }
+}
+
 /* A time note: one grey, centered line with its time, as in the protocol PDF. The time
    field is part of the line and keeps the size of its text. */
 .mde__host .ProseMirror .mde-time-note {
