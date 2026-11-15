@@ -1,4 +1,5 @@
 import { Mark, Node, markInputRule, mergeAttributes } from '@tiptap/core';
+import type { Node as PmNode, ResolvedPos } from '@tiptap/pm/model';
 
 /**
  * A segment that the public protocol blacks out: `%%Name%%` in Markdown.
@@ -141,6 +142,30 @@ interface BlockSerializerState {
   closeBlock(node: unknown): void;
 }
 
+/**
+ * The blackout block that holds the selection: an ancestor of its start, or a block that
+ * spans the whole selection (a select-all starts in front of the block).
+ */
+function enclosingBlock(
+  doc: PmNode,
+  $from: ResolvedPos,
+  from: number,
+  to: number,
+): { readonly pos: number; readonly node: PmNode } | null {
+  const depth = Array.from({ length: $from.depth }, (_v, i) => $from.depth - i).find(
+    (d) => $from.node(d).type.name === 'blackoutBlock',
+  );
+  if (depth !== undefined) return { pos: $from.before(depth), node: $from.node(depth) };
+  const found: { pos: number; node: PmNode }[] = [];
+  doc.nodesBetween(from, to, (node, pos) => {
+    if (node.type.name !== 'blackoutBlock') return true;
+    // eslint-disable-next-line functional/immutable-data -- nodesBetween reports by callback
+    if (pos <= from && pos + node.nodeSize >= to) found.push({ pos, node });
+    return false;
+  });
+  return found[0] ?? null;
+}
+
 export interface BlackoutOptions {
   /** The tooltip of a marked segment. */
   readonly title: () => string;
@@ -167,16 +192,17 @@ export const Blackout = Mark.create<BlackoutOptions>({
     return {
       toggleBlackout:
         () =>
-        ({ state, commands }) => {
-          const { $from, $to, empty } = state.selection;
-          const inBlock = Array.from({ length: $from.depth }, (_v, i) => $from.node(i + 1)).some(
-            (n) => n.type.name === 'blackoutBlock',
-          );
-          const marked = state.doc.rangeHasMark($from.pos, $to.pos, this.type) || !!this.type.isInSet($from.marks());
-          if (inBlock && !marked) return commands.lift('blackoutBlock');
-          const manyBlocks = !$from.sameParent($to);
-          const emptyLine = empty && $from.parent.isTextblock && $from.parent.content.size === 0;
-          if (manyBlocks || emptyLine) return commands.wrapIn('blackoutBlock');
+        ({ state, tr, dispatch, commands }) => {
+          const { $from, $to, from, to, empty } = state.selection;
+          const oneBlock = $from.sameParent($to) && $from.parent.isTextblock;
+          const marked =
+            oneBlock && (state.doc.rangeHasMark(from, to, this.type) || !!this.type.isInSet($from.marks()));
+          const block = enclosingBlock(state.doc, $from, from, to);
+          if (block && !marked) {
+            if (dispatch) tr.replaceWith(block.pos, block.pos + block.node.nodeSize, block.node.content);
+            return true;
+          }
+          if (!oneBlock || (empty && $from.parent.content.size === 0)) return commands.wrapIn('blackoutBlock');
           return commands.toggleMark(this.name);
         },
     };
