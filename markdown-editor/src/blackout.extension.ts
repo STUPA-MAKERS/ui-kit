@@ -1,4 +1,6 @@
-import { Mark, markInputRule, mergeAttributes } from '@tiptap/core';
+import { Mark, Node, markInputRule, mergeAttributes } from '@tiptap/core';
+import type { Node as PmNode, ResolvedPos } from '@tiptap/pm/model';
+import type { EditorState } from '@tiptap/pm/state';
 
 /**
  * A segment that the public protocol blacks out: `%%Name%%` in Markdown.
@@ -7,6 +9,12 @@ import { Mark, markInputRule, mergeAttributes } from '@tiptap/core';
  * markdown-it reads the `%%` pairs on the way in, the serializer writes them back on the
  * way out. A `\%%` is a literal `%%`. The marked text is plain text: the mark excludes
  * every other mark.
+ *
+ * A block that the public protocol blacks out: two lines that hold only `%%`, with any
+ * blocks between them (paragraphs, lists, images, embedded PDFs). The node shows its blocks
+ * in one box with the dashed outline and the tooltip. `toggleBlackout` switches the mark on
+ * a selection in one block, and the block on a selection over more than one block, on an
+ * empty paragraph and in a block.
  */
 
 interface MdToken {
@@ -52,6 +60,136 @@ function blackoutPlugin(md: MarkdownIt): void {
     `<span data-blackout="">${md.utils.escapeHtml(tokens[idx].content)}</span>`;
 }
 
+interface MdBlockToken {
+  // eslint-disable-next-line functional/prefer-readonly-type -- markdown-it hands out mutable tokens; a rule must write them
+  map: [number, number] | null;
+  // eslint-disable-next-line functional/prefer-readonly-type -- markdown-it hands out mutable tokens; a rule must write them
+  block: boolean;
+}
+interface MdBlockState {
+  readonly src: string;
+  readonly bMarks: readonly number[];
+  readonly eMarks: readonly number[];
+  readonly tShift: readonly number[];
+  readonly md: { readonly block: { tokenize(state: MdBlockState, start: number, end: number): void } };
+  // eslint-disable-next-line functional/prefer-readonly-type -- markdown-it hands out mutable state; a rule must write it
+  line: number;
+  // eslint-disable-next-line functional/prefer-readonly-type -- markdown-it hands out mutable state; a rule must write it
+  lineMax: number;
+  // eslint-disable-next-line functional/prefer-readonly-type -- markdown-it hands out mutable state; a rule must write it
+  parentType: string;
+  push(type: string, tag: string, nesting: number): MdBlockToken;
+}
+interface MarkdownItBlock {
+  readonly block: {
+    readonly ruler: {
+      before(
+        name: string,
+        rule: string,
+        fn: (state: MdBlockState, start: number, end: number, silent: boolean) => boolean,
+        options: { readonly alt: readonly string[] },
+      ): void;
+    };
+  };
+  readonly renderer: { readonly rules: Record<string, () => string> };
+}
+
+/** A fence line of a blackout block: only `%%`. */
+const FENCE = /^[ \t]*%%[ \t]*$/;
+
+function lineOf(state: MdBlockState, line: number): string {
+  return state.src.slice(state.bMarks[line], state.eMarks[line]);
+}
+
+/** A fence line opens a block up to the next fence line. Without one, the line is text. */
+function blackoutBlockRule(state: MdBlockState, startLine: number, endLine: number, silent: boolean): boolean {
+  if (!FENCE.test(lineOf(state, startLine))) return false;
+  const close = Array.from({ length: Math.max(0, endLine - startLine - 1) }, (_v, i) => startLine + 1 + i).find(
+    (line) => FENCE.test(lineOf(state, line)),
+  );
+  if (close === undefined) return false;
+  if (silent) return true;
+  const oldParent = state.parentType;
+  const oldMax = state.lineMax;
+  /* eslint-disable functional/immutable-data -- markdown-it hands out mutable tokens and state; a rule must write them */
+  state.parentType = 'blackout_block';
+  state.lineMax = close;
+  const open = state.push('blackout_block_open', 'div', 1);
+  open.block = true;
+  open.map = [startLine, close + 1];
+  state.md.block.tokenize(state, startLine + 1, close);
+  state.push('blackout_block_close', 'div', -1).block = true;
+  state.parentType = oldParent;
+  state.lineMax = oldMax;
+  state.line = close + 1;
+  /* eslint-enable functional/immutable-data */
+  return true;
+}
+
+function blackoutBlockPlugin(md: MarkdownItBlock): void {
+  md.block.ruler.before('fence', 'blackout_block', blackoutBlockRule, {
+    alt: ['paragraph', 'reference', 'blockquote', 'list'],
+  });
+  // eslint-disable-next-line functional/immutable-data -- markdown-it keeps its renderer rules in a mutable map
+  md.renderer.rules['blackout_block_open'] = () => '<div data-blackout-block="">';
+  // eslint-disable-next-line functional/immutable-data -- markdown-it keeps its renderer rules in a mutable map
+  md.renderer.rules['blackout_block_close'] = () => '</div>\n';
+}
+
+interface BlockSerializerState {
+  write(text: string): void;
+  ensureNewLine(): void;
+  renderContent(node: unknown): void;
+  closeBlock(node: unknown): void;
+}
+
+/**
+ * The blackout block that holds the selection: an ancestor of its start, or the one block
+ * in the range when every other text block of the range is empty (a select-all also takes
+ * the empty paragraph that the editor keeps after a block).
+ */
+function enclosingBlock(
+  doc: PmNode,
+  $from: ResolvedPos,
+  from: number,
+  to: number,
+): { readonly pos: number; readonly node: PmNode } | null {
+  const depth = Array.from({ length: $from.depth }, (_v, i) => $from.depth - i).find(
+    (d) => $from.node(d).type.name === 'blackoutBlock',
+  );
+  if (depth !== undefined) return { pos: $from.before(depth), node: $from.node(depth) };
+  const blocks: { pos: number; node: PmNode }[] = [];
+  const outside: PmNode[] = [];
+  doc.nodesBetween(from, to, (node, pos) => {
+    if (node.type.name === 'blackoutBlock') {
+      // eslint-disable-next-line functional/immutable-data -- nodesBetween reports by callback
+      blocks.push({ pos, node });
+      return false;
+    }
+    // eslint-disable-next-line functional/immutable-data -- nodesBetween reports by callback
+    if (node.isTextblock && node.content.size > 0) outside.push(node);
+    return !node.isTextblock;
+  });
+  return blocks.length === 1 && outside.length === 0 ? blocks[0] : null;
+}
+
+/** The number of text blocks that the range touches. */
+function textblocksIn(doc: PmNode, from: number, to: number): number {
+  const found: PmNode[] = [];
+  doc.nodesBetween(from, to, (node) => {
+    // eslint-disable-next-line functional/immutable-data -- nodesBetween reports by callback
+    if (node.isTextblock) found.push(node);
+    return !node.isTextblock;
+  });
+  return found.length;
+}
+
+/** True if the selection lies in a blackout block: the format bar shows the format as active. */
+export function inBlackoutBlock(state: EditorState): boolean {
+  const { $from, from, to } = state.selection;
+  return enclosingBlock(state.doc, $from, from, to) !== null;
+}
+
 export interface BlackoutOptions {
   /** The tooltip of a marked segment. */
   readonly title: () => string;
@@ -78,8 +216,19 @@ export const Blackout = Mark.create<BlackoutOptions>({
     return {
       toggleBlackout:
         () =>
-        ({ commands }) =>
-          commands.toggleMark(this.name),
+        ({ state, tr, dispatch, commands }) => {
+          const { $from, from, to, empty } = state.selection;
+          const oneBlock = textblocksIn(state.doc, from, to) <= 1;
+          const marked =
+            oneBlock && (state.doc.rangeHasMark(from, to, this.type) || !!this.type.isInSet($from.marks()));
+          const block = enclosingBlock(state.doc, $from, from, to);
+          if (block && !marked) {
+            if (dispatch) tr.replaceWith(block.pos, block.pos + block.node.nodeSize, block.node.content);
+            return true;
+          }
+          if (!oneBlock || (empty && $from.parent.content.size === 0)) return commands.wrapIn('blackoutBlock');
+          return commands.toggleMark(this.name);
+        },
     };
   },
   addKeyboardShortcuts() {
@@ -95,6 +244,50 @@ export const Blackout = Mark.create<BlackoutOptions>({
         parse: {
           setup(md: MarkdownIt) {
             blackoutPlugin(md);
+          },
+        },
+      },
+    };
+  },
+});
+
+/** The block node of a blacked-out block. */
+export const BlackoutBlock = Node.create<BlackoutOptions>({
+  name: 'blackoutBlock',
+  group: 'block',
+  content: 'block+',
+  defining: true,
+  addOptions() {
+    return { title: () => '' };
+  },
+  parseHTML() {
+    return [{ tag: 'div[data-blackout-block]' }];
+  },
+  renderHTML({ HTMLAttributes }) {
+    return [
+      'div',
+      mergeAttributes(HTMLAttributes, {
+        'data-blackout-block': '',
+        class: 'mde-blackout-block',
+        title: this.options.title(),
+      }),
+      0,
+    ];
+  },
+  addStorage() {
+    return {
+      markdown: {
+        serialize(state: BlockSerializerState, node: unknown) {
+          state.write('%%');
+          state.ensureNewLine();
+          state.renderContent(node);
+          state.ensureNewLine();
+          state.write('%%');
+          state.closeBlock(node);
+        },
+        parse: {
+          setup(md: MarkdownItBlock) {
+            blackoutBlockPlugin(md);
           },
         },
       },

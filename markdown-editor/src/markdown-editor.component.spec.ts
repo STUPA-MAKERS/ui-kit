@@ -729,6 +729,55 @@ describe('MarkdownEditorComponent', () => {
     });
   });
 
+  describe('blackout block', () => {
+    function editorOf(view: { fixture: { debugElement: { children: { componentInstance: unknown }[] } } }) {
+      return view.fixture.debugElement.children[0].componentInstance as MarkdownEditorComponent;
+    }
+    function markdownOf(cmp: MarkdownEditorComponent): string {
+      return (cmp as unknown as { editor: { storage: { markdown: { getMarkdown: () => string } } } }).editor.storage
+        .markdown.getMarkdown();
+    }
+
+    it('reads a block between two %% lines with its paragraphs and writes it back', async () => {
+      const md = 'Vorher.\n\n%%\nErster Absatz\n\n- Punkt\n%%\n\nDanach.';
+      const view = await render(`<app-markdown-editor [value]="md" blackoutTitle="Wird öffentlich geschwärzt" />`, {
+        imports: [MarkdownEditorComponent],
+        componentProperties: { md },
+      });
+      const block = editorEl(view.container).querySelector('div.mde-blackout-block') as HTMLElement;
+      expect(block.getAttribute('title')).toBe('Wird öffentlich geschwärzt');
+      expect(block.querySelector('p')?.textContent).toBe('Erster Absatz');
+      expect(block.querySelector('li')?.textContent).toBe('Punkt');
+      const out = markdownOf(editorOf(view));
+      expect(out).toMatch(/^Vorher\.\n\n%%\nErster Absatz\n\n- Punkt\n+%%\n\nDanach\.$/);
+    });
+
+    it('keeps a %% line without its closing line as text', async () => {
+      const md = 'Vorher.\n%%\nOffen';
+      const view = await render(`<app-markdown-editor [value]="md" />`, {
+        imports: [MarkdownEditorComponent],
+        componentProperties: { md },
+      });
+      expect(editorEl(view.container).querySelectorAll('div.mde-blackout-block')).toHaveLength(0);
+    });
+
+    it('wraps a selection over two paragraphs in a block and lifts it again', async () => {
+      const view = await render(Host);
+      const host = view.fixture.componentInstance;
+      const cmp = editorOf(view);
+      const editor = (
+        cmp as unknown as { editor: { commands: { setContent: (c: string) => void; selectAll: () => void } } }
+      ).editor;
+      editor.commands.setContent('Erster\n\nZweiter');
+      editor.commands.selectAll();
+      cmp.toggleFormat('blackout');
+      expect(host.changes.at(-1)).toMatch(/^%%\nErster\n\nZweiter\n+%%$/);
+      expect(cmp.activeFormats().has('blackout')).toBe(true);
+      cmp.toggleFormat('blackout');
+      expect(host.changes.at(-1)).toBe('Erster\n\nZweiter');
+    });
+  });
+
   describe('time note', () => {
     function editorOf(view: { fixture: { debugElement: { children: { componentInstance: unknown }[] } } }) {
       return view.fixture.debugElement.children[0].componentInstance as MarkdownEditorComponent;
