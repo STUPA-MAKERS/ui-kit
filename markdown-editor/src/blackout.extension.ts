@@ -1,5 +1,6 @@
 import { Mark, Node, markInputRule, mergeAttributes } from '@tiptap/core';
 import type { Node as PmNode, ResolvedPos } from '@tiptap/pm/model';
+import type { EditorState } from '@tiptap/pm/state';
 
 /**
  * A segment that the public protocol blacks out: `%%Name%%` in Markdown.
@@ -166,6 +167,23 @@ function enclosingBlock(
   return found[0] ?? null;
 }
 
+/** The number of text blocks that the range touches. */
+function textblocksIn(doc: PmNode, from: number, to: number): number {
+  const found: PmNode[] = [];
+  doc.nodesBetween(from, to, (node) => {
+    // eslint-disable-next-line functional/immutable-data -- nodesBetween reports by callback
+    if (node.isTextblock) found.push(node);
+    return !node.isTextblock;
+  });
+  return found.length;
+}
+
+/** True if the selection lies in a blackout block: the format bar shows the format as active. */
+export function inBlackoutBlock(state: EditorState): boolean {
+  const { $from, from, to } = state.selection;
+  return enclosingBlock(state.doc, $from, from, to) !== null;
+}
+
 export interface BlackoutOptions {
   /** The tooltip of a marked segment. */
   readonly title: () => string;
@@ -194,7 +212,7 @@ export const Blackout = Mark.create<BlackoutOptions>({
         () =>
         ({ state, tr, dispatch, commands }) => {
           const { $from, $to, from, to, empty } = state.selection;
-          const oneBlock = $from.sameParent($to) && $from.parent.isTextblock;
+          const oneBlock = textblocksIn(state.doc, from, to) <= 1;
           const marked =
             oneBlock && (state.doc.rangeHasMark(from, to, this.type) || !!this.type.isInSet($from.marks()));
           const block = enclosingBlock(state.doc, $from, from, to);

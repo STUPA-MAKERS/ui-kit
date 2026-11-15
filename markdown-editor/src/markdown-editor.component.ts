@@ -26,7 +26,7 @@ import type { EditorView } from '@tiptap/pm/view';
 import { Focus, Placeholder } from '@tiptap/extensions';
 import StarterKit from '@tiptap/starter-kit';
 import { Markdown } from 'tiptap-markdown';
-import { Blackout, BlackoutBlock } from './blackout.extension';
+import { Blackout, BlackoutBlock, inBlackoutBlock } from './blackout.extension';
 import { TimeNote } from './time-note.extension';
 import {
   DOCUMENT_UPLOAD_TYPES,
@@ -702,7 +702,7 @@ export class MarkdownEditorComponent implements OnDestroy {
       FORMATS.filter(
         (f) =>
           editor.isActive(ACTIVE_CHECK[f].name, ACTIVE_CHECK[f].attrs ?? {}) ||
-          (f === 'blackout' && editor.isActive('blackoutBlock')),
+          (f === 'blackout' && inBlackoutBlock(editor.state)),
       ),
     );
     const prev = this.activeFormats();
