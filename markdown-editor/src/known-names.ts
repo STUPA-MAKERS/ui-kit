@@ -37,12 +37,10 @@ const fold = (s: string): string => s.toLocaleLowerCase();
 
 /** The last names of each first name, compared without case. */
 function lastNames(names: readonly KnownName[]): ReadonlyMap<string, readonly string[]> {
-  const out = new Map<string, string[]>();
-  for (const { first, last } of names) {
+  return names.reduce<ReadonlyMap<string, readonly string[]>>((acc, { first, last }) => {
     const key = fold(first);
-    out.set(key, [...(out.get(key) ?? []), fold(last)]);
-  }
-  return out;
+    return new Map([...acc, [key, [...(acc.get(key) ?? []), fold(last)]]]);
+  }, new Map());
 }
 
 /** True if one of the last names starts with the text. */

@@ -21,15 +21,15 @@ function lineText(state: EditorState): string | null {
   const $from = selection.$from;
   const parent = $from.parent;
   if (!parent.isTextblock || parent.type.spec.code) return null;
-  for (let d = $from.depth; d > 0; d--) {
-    if ($from.node(d).type.name === 'blackoutBlock') return null;
-  }
-  let text = '';
-  parent.forEach((node) => {
-    const masked =
-      !node.isText || node.marks.some((m) => m.type.name === 'blackout' || m.type.spec.code === true);
-    text += masked ? MASK.repeat(node.nodeSize) : (node.text ?? '');
-  });
+  const ancestors = Array.from({ length: $from.depth }, (_v, i) => $from.node(i + 1));
+  if (ancestors.some((n) => n.type.name === 'blackoutBlock')) return null;
+  const text = Array.from({ length: parent.childCount }, (_v, i) => parent.child(i))
+    .map((node) =>
+      !node.isText || node.marks.some((m) => m.type.name === 'blackout' || m.type.spec.code === true)
+        ? MASK.repeat(node.nodeSize)
+        : (node.text ?? ''),
+    )
+    .join('');
   return text.slice(0, $from.parentOffset);
 }
 
@@ -47,6 +47,24 @@ export function autoBlackoutTransaction(
   return closeHistory(state.tr.addMark(start + match.from, start + match.to, mark.create()));
 }
 
+/** Notes a typed character between the input and the next view update. */
+class TypedFlag {
+  private typed = false;
+
+  /** Note a typed character. False lets the editor insert it. */
+  set(): false {
+    this.typed = true;
+    return false;
+  }
+
+  /** True once after a typed character. */
+  take(): boolean {
+    const typed = this.typed;
+    this.typed = false;
+    return typed;
+  }
+}
+
 /**
  * Black out a known name right after it is typed (000969). Only typed text counts: a
  * paste and a drop do not set the marker. The marker is a history step of its own, so
@@ -62,7 +80,7 @@ export const AutoBlackout = Extension.create<AutoBlackoutOptions>({
   addProseMirrorPlugins() {
     const options = this.options;
     const mark = this.editor.schema.marks['blackout'];
-    let typed = false;
+    const typed = new TypedFlag();
     const apply = (view: EditorView): void => {
       const names = options.names();
       if (!mark || !names || view.isDestroyed) return;
@@ -75,15 +93,11 @@ export const AutoBlackout = Extension.create<AutoBlackoutOptions>({
       new Plugin({
         key: new PluginKey('autoBlackout'),
         props: {
-          handleTextInput: () => {
-            typed = true;
-            return false;
-          },
+          handleTextInput: () => typed.set(),
         },
         view: () => ({
           update: (view) => {
-            if (!typed) return;
-            typed = false;
+            if (!typed.take()) return;
             queueMicrotask(() => apply(view));
           },
         }),
