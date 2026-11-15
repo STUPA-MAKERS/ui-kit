@@ -211,7 +211,7 @@ export const Blackout = Mark.create<BlackoutOptions>({
       toggleBlackout:
         () =>
         ({ state, tr, dispatch, commands }) => {
-          const { $from, $to, from, to, empty } = state.selection;
+          const { $from, from, to, empty } = state.selection;
           const oneBlock = textblocksIn(state.doc, from, to) <= 1;
           const marked =
             oneBlock && (state.doc.rangeHasMark(from, to, this.type) || !!this.type.isInSet($from.marks()));
