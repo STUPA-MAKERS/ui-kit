@@ -778,6 +778,67 @@ describe('MarkdownEditorComponent', () => {
     });
   });
 
+  describe('automatic blackout of known names (000969)', () => {
+    type Pm = {
+      state: { selection: { from: number; to: number }; tr: { insertText: (t: string, f: number, to: number) => unknown } };
+      someProp: (name: string, f: (fn: (...a: unknown[]) => boolean) => boolean) => boolean | undefined;
+      dispatch: (tr: unknown) => void;
+    };
+    type Ed = {
+      view: Pm;
+      commands: { insertContent: (c: string) => void; undo: () => void; setContent: (c: string) => void };
+      storage: { markdown: { getMarkdown: () => string } };
+    };
+    function editorOf(view: { fixture: { debugElement: { children: { componentInstance: unknown }[] } } }): Ed {
+      const cmp = view.fixture.debugElement.children[0].componentInstance as MarkdownEditorComponent;
+      return (cmp as unknown as { editor: Ed }).editor;
+    }
+    /** Type the text character by character, as the keyboard does. */
+    async function type(ed: Ed, text: string): Promise<void> {
+      for (const ch of text) {
+        const pm = ed.view;
+        const { from, to } = pm.state.selection;
+        if (!pm.someProp('handleTextInput', (f) => f(pm, from, to, ch))) {
+          pm.dispatch(pm.state.tr.insertText(ch, from, to));
+        }
+        await Promise.resolve();
+      }
+    }
+    const names = (): readonly { first: string; last: string }[] => [{ first: 'Lena', last: 'Hoffmann' }];
+    async function setup(md = ''): Promise<Ed> {
+      const view = await render(`<app-markdown-editor [value]="md" [knownNames]="names" />`, {
+        imports: [MarkdownEditorComponent],
+        componentProperties: { md, names },
+      });
+      return editorOf(view);
+    }
+
+    it('marks a known full name after the space and one undo keeps the name', async () => {
+      const ed = await setup();
+      await type(ed, 'Es spricht lena hoffmann.');
+      expect(ed.storage.markdown.getMarkdown()).toBe('Es spricht %%lena hoffmann%%.');
+      ed.commands.undo();
+      expect(ed.storage.markdown.getMarkdown()).toBe('Es spricht lena hoffmann.');
+    });
+
+    it('marks the first name when the second word deviates', async () => {
+      const ed = await setup();
+      await type(ed, 'Lena sagt');
+      expect(ed.storage.markdown.getMarkdown()).toBe('%%Lena%% sagt');
+    });
+
+    it('marks nothing in a block, in a marked name or on a paste', async () => {
+      const ed = await setup('%%\nIntern\n%%');
+      await type(ed, 'Lena Hoffmann, ');
+      const md = ed.storage.markdown.getMarkdown();
+      expect(md).toContain('Lena Hoffmann, ');
+      expect(md).not.toContain('%%Lena');
+      ed.commands.setContent('');
+      ed.commands.insertContent('Lena Hoffmann ');
+      expect(ed.storage.markdown.getMarkdown()).not.toContain('%%');
+    });
+  });
+
   describe('time note', () => {
     function editorOf(view: { fixture: { debugElement: { children: { componentInstance: unknown }[] } } }) {
       return view.fixture.debugElement.children[0].componentInstance as MarkdownEditorComponent;

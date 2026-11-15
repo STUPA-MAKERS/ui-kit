@@ -26,7 +26,9 @@ import type { EditorView } from '@tiptap/pm/view';
 import { Focus, Placeholder } from '@tiptap/extensions';
 import StarterKit from '@tiptap/starter-kit';
 import { Markdown } from 'tiptap-markdown';
+import { AutoBlackout } from './auto-blackout.extension';
 import { Blackout, BlackoutBlock, inBlackoutBlock } from './blackout.extension';
+import type { KnownName } from './known-names';
 import { TimeNote } from './time-note.extension';
 import {
   DOCUMENT_UPLOAD_TYPES,
@@ -247,6 +249,12 @@ export class MarkdownEditorComponent implements OnDestroy {
   readonly documentUpload = input<MarkdownDocumentUploader | null>(null);
   /** The page count of an embedded PDF for its badge; `null` shows no count. */
   readonly documentInfo = input<MarkdownDocumentInfo | null>(null);
+  /**
+   * The known names for the automatic blackout (000969): the editor puts the blackout
+   * mark around a known name right after it is typed. The editor reads the function at
+   * each typed character, so a list that loads later takes effect. `null` turns it off.
+   */
+  readonly knownNames = input<(() => readonly KnownName[]) | null>(null);
   /** A click, Enter or Space on the badge of an embedded PDF. */
   readonly documentOpen = output<MarkdownDocumentRef>();
 
@@ -332,6 +340,7 @@ export class MarkdownEditorComponent implements OnDestroy {
             MarkdownImage,
             Blackout.configure({ title: () => this.blackoutTitle() }),
             BlackoutBlock.configure({ title: () => this.blackoutTitle() }),
+            AutoBlackout.configure({ names: () => this.knownNames()?.() ?? null }),
             TimeNote.configure({
               suffix: () => this.timeNoteSuffix(),
               timeLabel: () => this.timeNoteLabel(),
