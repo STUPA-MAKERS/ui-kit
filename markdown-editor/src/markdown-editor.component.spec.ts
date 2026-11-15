@@ -768,7 +768,7 @@ describe('MarkdownEditorComponent', () => {
       const editor = (
         cmp as unknown as { editor: { commands: { setContent: (c: string) => void; selectAll: () => void } } }
       ).editor;
-      editor.commands.setContent('<p>Erster</p><p>Zweiter</p>');
+      editor.commands.setContent('Erster\n\nZweiter');
       editor.commands.selectAll();
       cmp.toggleFormat('blackout');
       expect(host.changes.at(-1)).toMatch(/^%%\nErster\n\nZweiter\n+%%$/);
