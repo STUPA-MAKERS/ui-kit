@@ -144,8 +144,9 @@ interface BlockSerializerState {
 }
 
 /**
- * The blackout block that holds the selection: an ancestor of its start, or a block that
- * spans the whole selection (a select-all starts in front of the block).
+ * The blackout block that holds the selection: an ancestor of its start, or the one block
+ * in the range when every other text block of the range is empty (a select-all also takes
+ * the empty paragraph that the editor keeps after a block).
  */
 function enclosingBlock(
   doc: PmNode,
@@ -157,14 +158,19 @@ function enclosingBlock(
     (d) => $from.node(d).type.name === 'blackoutBlock',
   );
   if (depth !== undefined) return { pos: $from.before(depth), node: $from.node(depth) };
-  const found: { pos: number; node: PmNode }[] = [];
+  const blocks: { pos: number; node: PmNode }[] = [];
+  const outside: PmNode[] = [];
   doc.nodesBetween(from, to, (node, pos) => {
-    if (node.type.name !== 'blackoutBlock') return true;
+    if (node.type.name === 'blackoutBlock') {
+      // eslint-disable-next-line functional/immutable-data -- nodesBetween reports by callback
+      blocks.push({ pos, node });
+      return false;
+    }
     // eslint-disable-next-line functional/immutable-data -- nodesBetween reports by callback
-    if (pos <= from && pos + node.nodeSize >= to) found.push({ pos, node });
-    return false;
+    if (node.isTextblock && node.content.size > 0) outside.push(node);
+    return !node.isTextblock;
   });
-  return found[0] ?? null;
+  return blocks.length === 1 && outside.length === 0 ? blocks[0] : null;
 }
 
 /** The number of text blocks that the range touches. */
