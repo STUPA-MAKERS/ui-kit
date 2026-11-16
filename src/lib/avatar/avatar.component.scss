@@ -1,6 +1,7 @@
 @use '../../styles/display' as d;
 
-/* A person: initials in a 40px circle (32px small, 22px extra small), or the Gravatar image over them. */
+/* A person: initials in a 40px circle (64px large, 32px small, 22px extra small), or the
+   Gravatar image over them. */
 :host {
   position: relative;
   overflow: hidden;
@@ -17,6 +18,11 @@
   font-weight: var(--fw-semibold);
   line-height: 1;
   user-select: none;
+}
+:host(.av--lg) {
+  width: 4rem;
+  height: 4rem;
+  font-size: 1.375rem;
 }
 :host(.av--sm) {
   width: 2rem;
