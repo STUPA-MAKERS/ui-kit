@@ -1,6 +1,6 @@
 @use '../../styles/display' as d;
 
-/* A person: initials in a 40px circle (96px extra large, 32px small, 22px extra small), or the
+/* A person: initials in a 40px circle (64px large, 32px small, 22px extra small), or the
    Gravatar image over them. */
 :host {
   position: relative;
@@ -19,10 +19,10 @@
   line-height: 1;
   user-select: none;
 }
-:host(.av--xl) {
-  width: 6rem;
-  height: 6rem;
-  font-size: 2rem;
+:host(.av--lg) {
+  width: 4rem;
+  height: 4rem;
+  font-size: 1.375rem;
 }
 :host(.av--sm) {
   width: 2rem;

@@ -4,10 +4,10 @@ import { UI_KIT_INTL } from '../intl/intl';
 import { UI_KIT_AVATAR_SOURCE } from './avatar-source';
 
 /**
- * The size of an avatar: 96px (`xl`, the head of a profile page), 40px (`md`), 32px (`sm`) or
+ * The size of an avatar: 64px (`lg`, the head of a profile page), 40px (`md`), 32px (`sm`) or
  * 22px (`xs`, in a dense tile).
  */
-export type AvatarSize = 'xl' | 'md' | 'sm' | 'xs';
+export type AvatarSize = 'lg' | 'md' | 'sm' | 'xs';
 
 /**
  * The initials of a name: the first letter of the first and of the last word.
@@ -28,9 +28,9 @@ export function initials(name: string): string {
 }
 
 /** The edge length of an avatar in CSS pixels, per size. */
-const AVATAR_PX: Record<AvatarSize, number> = { xl: 96, md: 40, sm: 32, xs: 22 };
+const AVATAR_PX: Record<AvatarSize, number> = { lg: 64, md: 40, sm: 32, xs: 22 };
 /** The edge length of the icon in the circle of an avatar without a person, per size. */
-const ICON_PX: Record<AvatarSize, number> = { xl: 44, md: 20, sm: 16, xs: 13 };
+const ICON_PX: Record<AvatarSize, number> = { lg: 28, md: 20, sm: 16, xs: 13 };
 
 /**
  * A person in front of a text (a select option, a chip): its name, its principal id for
@@ -65,7 +65,7 @@ export interface AvatarPerson {
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [IconComponent],
   host: {
-    '[class.av--xl]': "size() === 'xl'",
+    '[class.av--lg]': "size() === 'lg'",
     '[class.av--sm]': "size() === 'sm'",
     '[class.av--xs]': "size() === 'xs'",
     '[class.av--accent]': 'accent()',
