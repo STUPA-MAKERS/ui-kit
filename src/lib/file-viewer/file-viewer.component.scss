@@ -76,10 +76,11 @@
   padding: 0 var(--space-2, 0.5rem) 0 var(--space-4, 1rem);
   /* Frosted glass over the page behind the viewer (spec 001084). The dark tint keeps
      the white name and buttons above 4.5:1 on a light page. With less transparency the
-     glass is the solid tint. */
+     glass is the solid tint. The glass reaches below the bar, because a blur sees only
+     the backdrop inside its box and the page at the lower edge would stay sharp. */
   position: relative;
   z-index: 1;
-  @include frosted(var(--fv-glass), $edges: (), $reach: 0px, $tint: 62%);
+  @include frosted(var(--fv-glass), $edges: (bottom), $reach: 64px, $tint: 62%);
   padding-top: env(safe-area-inset-top, 0px);
   box-sizing: content-box;
 }
