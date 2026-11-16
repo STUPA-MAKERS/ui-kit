@@ -14,10 +14,20 @@
   --fv-bar-height: 3rem; /* 48px */
   --fv-nav-size: 3rem;
 
+  /* The viewer opens in the top layer (popover), so no sheet, card or dialog that holds it
+     clips it. The UA styles of a popover would shrink and centre it, so they are reset. The
+     z-index holds where the browser has no popover API. Toasts stay on top. */
   position: fixed;
   inset: 0;
-  /* Above dialogs: the viewer can open from inside one. Toasts stay on top. */
   z-index: calc(var(--z-dialog, 1300) + 50);
+  width: auto;
+  height: auto;
+  max-width: none;
+  max-height: none;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  overflow: hidden;
   display: flex;
   flex-direction: column;
   background: var(--fv-backdrop);
