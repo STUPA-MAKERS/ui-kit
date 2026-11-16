@@ -4,7 +4,8 @@
    bright surface. The colours are local, so they do not follow the light theme. */
 .fv {
   --fv-backdrop: rgba(8, 10, 9, 0.94);
-  --fv-bar: rgba(0, 0, 0, 0.72);
+  --fv-glass: #080a09;
+  --fv-bar-shade: rgba(0, 0, 0, 0.35);
   --fv-text: #ffffff;
   --fv-text-muted: var(--c-dark-onv, #b3b8b4);
   --fv-hover: rgba(255, 255, 255, 0.12);
@@ -14,13 +15,32 @@
   --fv-bar-height: 3rem; /* 48px */
   --fv-nav-size: 3rem;
 
+  /* The viewer opens in the top layer (popover), so no sheet, card or dialog that holds it
+     clips it. The UA styles of a popover would shrink and centre it, so they are reset. The
+     z-index holds where the browser has no popover API. Toasts stay on top. */
   position: fixed;
   inset: 0;
-  /* Above dialogs: the viewer can open from inside one. Toasts stay on top. */
   z-index: calc(var(--z-dialog, 1300) + 50);
+  width: auto;
+  height: auto;
+  max-width: none;
+  max-height: none;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  overflow: hidden;
   display: flex;
   flex-direction: column;
+  /* One dark frosted glass over the whole page behind the viewer (spec 001084): the
+     page shows only as a dark blur. The page under it is blurred as well (base.scss). With less transparency (000596) `--glass-tint` is
+     100 %, so the viewer is the solid tint. Without backdrop-filter it keeps the
+     near-solid backdrop. */
   background: var(--fv-backdrop);
+  @supports (backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px)) {
+    background: color-mix(in srgb, var(--fv-glass) var(--glass-tint, 84%), transparent);
+    -webkit-backdrop-filter: blur(40px) saturate(1.4);
+    backdrop-filter: blur(40px) saturate(1.4);
+  }
   color: var(--fv-text);
   color-scheme: dark;
   outline: none;
@@ -62,7 +82,11 @@
   gap: var(--space-2, 0.5rem);
   height: var(--fv-bar-height);
   padding: 0 var(--space-2, 0.5rem) 0 var(--space-4, 1rem);
-  background: var(--fv-bar);
+  /* The bar lies on the glass of the viewer and darkens it a step more, so it is at
+     least as dark as the rest of the viewer (spec 001084). */
+  position: relative;
+  z-index: 1;
+  background: var(--fv-bar-shade);
   padding-top: env(safe-area-inset-top, 0px);
   box-sizing: content-box;
 }

@@ -449,3 +449,13 @@ input[type='radio'] {
     }
   }
 }
+
+// The file viewer covers the screen with dark glass (app spec 001084). A phone browser
+// leaves fixed and sticky bars with a glass of their own (the page head, the bottom bar)
+// out of the backdrop blur of the viewer, so their text stays sharp under it. While the
+// viewer is open the page itself is blurred as well. The viewer lies in the top layer, so
+// the filter of its ancestors does not reach it. The rule reads the viewer and styles the
+// page, so it lives here.
+body:has(.fv:popover-open) > * {
+  filter: blur(16px);
+}
