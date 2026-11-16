@@ -1,11 +1,11 @@
 @use '../../styles/press';
 @use '../../styles/display' as d;
-@use '../../styles/frosted' as *;
 /* The viewer is dark in both themes, like the Nextcloud viewer: the file is the only
    bright surface. The colours are local, so they do not follow the light theme. */
 .fv {
   --fv-backdrop: rgba(8, 10, 9, 0.94);
   --fv-glass: #080a09;
+  --fv-bar-shade: rgba(0, 0, 0, 0.35);
   --fv-text: #ffffff;
   --fv-text-muted: var(--c-dark-onv, #b3b8b4);
   --fv-hover: rgba(255, 255, 255, 0.12);
@@ -31,8 +31,16 @@
   overflow: hidden;
   display: flex;
   flex-direction: column;
-  /* The stage carries the backdrop; the bar is glass over the page (spec 001084). */
-  background: transparent;
+  /* One dark frosted glass over the whole page behind the viewer (spec 001084): the
+     page shows only as a dark blur. The phone bottom bar hides under it (base.scss). With less transparency (000596) `--glass-tint` is
+     100 %, so the viewer is the solid tint. Without backdrop-filter it keeps the
+     near-solid backdrop. */
+  background: var(--fv-backdrop);
+  @supports (backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px)) {
+    background: color-mix(in srgb, var(--fv-glass) var(--glass-tint, 84%), transparent);
+    -webkit-backdrop-filter: blur(40px) saturate(1.4);
+    backdrop-filter: blur(40px) saturate(1.4);
+  }
   color: var(--fv-text);
   color-scheme: dark;
   outline: none;
@@ -74,13 +82,11 @@
   gap: var(--space-2, 0.5rem);
   height: var(--fv-bar-height);
   padding: 0 var(--space-2, 0.5rem) 0 var(--space-4, 1rem);
-  /* Frosted glass over the page behind the viewer (spec 001084). The dark tint keeps
-     the white name and buttons above 4.5:1 on a light page. With less transparency the
-     glass is the solid tint. The glass reaches below the bar, because a blur sees only
-     the backdrop inside its box and the page at the lower edge would stay sharp. */
+  /* The bar lies on the glass of the viewer and darkens it a step more, so it is at
+     least as dark as the rest of the viewer (spec 001084). */
   position: relative;
   z-index: 1;
-  @include frosted(var(--fv-glass), $edges: (bottom), $reach: 64px, $tint: 62%);
+  background: var(--fv-bar-shade);
   padding-top: env(safe-area-inset-top, 0px);
   box-sizing: content-box;
 }
@@ -152,7 +158,6 @@
 .fv__stage {
   position: relative;
   flex: 1 1 auto;
-  background: var(--fv-backdrop);
   min-height: 0;
   display: flex;
   align-items: center;

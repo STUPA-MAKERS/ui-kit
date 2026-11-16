@@ -449,3 +449,11 @@ input[type='radio'] {
     }
   }
 }
+
+// The file viewer covers the screen with dark glass (app spec 001084). A phone browser
+// does not blur the fixed bottom bar into that glass, so its icons stay sharp under the
+// viewer. The bar is hidden while the viewer is open: under the dark glass it is only a
+// blur of the page anyway. The rule reads the viewer and styles the bar, so it lives here.
+body:has(.fv:popover-open) .bb {
+  visibility: hidden;
+}
