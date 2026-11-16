@@ -1,10 +1,11 @@
 @use '../../styles/press';
 @use '../../styles/display' as d;
+@use '../../styles/frosted' as *;
 /* The viewer is dark in both themes, like the Nextcloud viewer: the file is the only
    bright surface. The colours are local, so they do not follow the light theme. */
 .fv {
   --fv-backdrop: rgba(8, 10, 9, 0.94);
-  --fv-bar: rgba(0, 0, 0, 0.72);
+  --fv-glass: #080a09;
   --fv-text: #ffffff;
   --fv-text-muted: var(--c-dark-onv, #b3b8b4);
   --fv-hover: rgba(255, 255, 255, 0.12);
@@ -30,7 +31,8 @@
   overflow: hidden;
   display: flex;
   flex-direction: column;
-  background: var(--fv-backdrop);
+  /* The stage carries the backdrop; the bar is glass over the page (spec 001084). */
+  background: transparent;
   color: var(--fv-text);
   color-scheme: dark;
   outline: none;
@@ -72,7 +74,12 @@
   gap: var(--space-2, 0.5rem);
   height: var(--fv-bar-height);
   padding: 0 var(--space-2, 0.5rem) 0 var(--space-4, 1rem);
-  background: var(--fv-bar);
+  /* Frosted glass over the page behind the viewer (spec 001084). The dark tint keeps
+     the white name and buttons above 4.5:1 on a light page. With less transparency the
+     glass is the solid tint. */
+  position: relative;
+  z-index: 1;
+  @include frosted(var(--fv-glass), $edges: (), $reach: 0px, $tint: 62%);
   padding-top: env(safe-area-inset-top, 0px);
   box-sizing: content-box;
 }
@@ -144,6 +151,7 @@
 .fv__stage {
   position: relative;
   flex: 1 1 auto;
+  background: var(--fv-backdrop);
   min-height: 0;
   display: flex;
   align-items: center;
