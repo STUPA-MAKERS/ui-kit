@@ -2,8 +2,6 @@
   "extends": "./tsconfig.json",
   "compilerOptions": {
     "outDir": "./out-tsc/spec",
-    "module": "CommonJS",
-    "moduleResolution": "bundler",
     "esModuleInterop": true,
     "types": ["jest", "node"],
     "paths": {
