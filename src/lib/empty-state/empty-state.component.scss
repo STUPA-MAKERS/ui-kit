@@ -20,15 +20,10 @@
   justify-content: center;
 }
 
-/* The face of an empty list centres in the free height of the list: the host grows in a
-   flex-column parent, and it is at least most of a screen high where the parent is only
-   as high as its content (the phone list that scrolls with the page). */
+/* Small, in its own height, in a section, a tile or a dialog. In the list column of a
+   list-detail page, `list-detail.scss` makes it large and centres it in the free height. */
 :host(.es-host--face) {
-  display: flex;
-  flex: 1 0 auto;
-  flex-direction: column;
-  justify-content: center;
-  min-height: min(60dvh, 32rem);
+  --es-face: 88px;
 }
 
 /* Ghost rows in the geometry of the list rows, faint and hidden from the screen reader,
@@ -176,25 +171,32 @@
   padding-block: var(--space-4);
 }
 .es--face .es__msg {
-  gap: 0;
-  padding: var(--space-3) var(--space-4) 0;
+  padding: var(--space-2) var(--space-4) 0;
 }
-.es--face .es__action:empty {
+/* Below the face, one small muted hint with a crossed-out lens. No body, no action: the
+   way on is in the filter row of the list. */
+.es--face .es__msg {
+  flex-direction: row;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: var(--space-2);
+  color: var(--color-text-muted);
+}
+.es--face .es__heading {
+  font-size: var(--fs-sm, 0.875rem);
+  line-height: 1.25rem;
+  font-weight: var(--fw-medium);
+}
+.es--face .es__body,
+.es--face .es__action {
   display: none;
 }
-/* The face says it: the message is for the screen reader only. */
-.es--face .es__heading,
-.es--face .es__body {
-  position: absolute;
-  width: 1px;
-  height: 1px;
-  overflow: hidden;
-  clip-path: inset(50%);
-  white-space: nowrap;
+.es__hintIcon {
+  flex: none;
 }
 .es__face {
-  width: 132px;
-  height: 106px;
+  width: var(--es-face);
+  height: calc(var(--es-face) * 106 / 132);
   overflow: visible;
 }
 .es__face * {

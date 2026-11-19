@@ -89,8 +89,9 @@ export type EmptyStateShape =
  * motion (000219) the face is a still picture. It serves an empty list and a search
  * without a match.
  *
- * One row (`rows="1"`, a section or a small tile): one faint row surface that holds the
- * message (000613). The face would not fit there.
+ * In the list column of a list-detail page (`.ld-pane`) the face is large and centres in
+ * the free height. Everywhere else (a section of a detail, a tile, a dialog) it is small
+ * and keeps its own height. `rows` and `shape` no longer change the look.
  *
  * `plain`: no ghost rows, a muted glyph above the message. It serves everything that is
  * not a list: a detail pane with nothing open, a missing record (`code`), a page the
@@ -164,8 +165,8 @@ export class EmptyStateComponent {
     () => !this.plain() && this.ghosts().length === 1,
   );
 
-  /** An empty list of two or more rows: the face in its ring of dots, no ghost rows. */
-  protected readonly face = computed(() => !this.plain() && !this.one());
+  /** Every empty list, section and tile: the face in its ring of dots, no ghost rows. */
+  protected readonly face = computed(() => !this.plain());
 
   protected readonly dots = FACE_DOTS;
 }

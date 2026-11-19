@@ -1,4 +1,4 @@
-<div class="es" [class.es--plain]="plain()" [class.es--one]="one()" [class.es--face]="face()">
+<div class="es" [class.es--plain]="plain()" [class.es--face]="face()">
   @if (face()) {
     <svg class="es__face" viewBox="0 0 132 106" aria-hidden="true" focusable="false">
       @for (d of dots; track $index) {
@@ -27,16 +27,14 @@
       </g>
       <path class="es__mouth" d="M58 63.5q9-3 18 0" />
     </svg>
-  } @else if (one()) {
-    <div class="es__ghosts" aria-hidden="true">
-      <div class="es__ghost es__ghost--one"></div>
-    </div>
   }
   <div class="es__msg">
     @if (code(); as c) {
       <p class="es__code">{{ c }}</p>
     } @else if (plain()) {
       <app-icon class="es__icon" [name]="icon()" [size]="32" />
+    } @else if (face()) {
+      <app-icon class="es__hintIcon" name="searchOff" [size]="18" />
     }
     @switch (headingLevel()) {
       @case (1) {
