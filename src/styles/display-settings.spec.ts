@@ -281,9 +281,10 @@ describe('highlightedTagsAndBars (§000598)', () => {
     expect(rule).toMatch(/padding: 6px;/);
   });
 
-  it('draws the scroll lines of the rail on the outer side of its list (000605)', () => {
-    expect(DISPLAY).toMatch(/\.rail__main\.is-fade-start \{\s*box-shadow: 0 -2px 0 var\(--vh-fg\);/);
-    expect(DISPLAY).toMatch(/\.rail__main\.is-fade-end \{\s*box-shadow: 0 2px 0 var\(--vh-fg\);/);
+  /** The scroll part of the rail is a surface with the white edge, and draws no scroll line (app 001331). */
+  it('draws the white edge around the scroll surface of the rail, and no scroll line', () => {
+    expect(DISPLAY).toMatch(/\.rail__main \{\s*border: var\(--vh-edge\) !important;/);
+    expect(DISPLAY).not.toMatch(/\.rail__main\.is-fade/);
   });
 
   it('draws the white edge around every floating box and leaves no grey on a glass box (000605)', () => {
@@ -341,6 +342,13 @@ describe('veryHighContrast (§000605)', () => {
     expect(rules).toMatch(/\.ld-pane--glass\.ld-pane--scrolled::before \{[^}]*border-bottom: var\(--vh-edge\);/);
   });
 
+  /** On a wide screen the rows lie in a frame with the white edge below the head (app 000527). */
+  it('frames the rows of a list column on a wide screen', () => {
+    expect(rules).toMatch(
+      /\.ld-pane--glass > \.ld-pane__rows\.ld-pane__rows\.ld-pane__rows\.ld-pane__rows \{[^}]*border: var\(--vh-edge\) !important;\s*border-radius: var\(--radius-xl\);/,
+    );
+  });
+
   it('uses only the four colours for every colour token', () => {
     const values = [...block.matchAll(/--vh-(?:bg|fg|hi|err):\s*(#[0-9a-f]{6});/g)].map((m) => m[1]);
     expect(values).toEqual(FOUR);
@@ -371,11 +379,10 @@ describe('veryHighContrast (§000605)', () => {
     expect(rules).toMatch(/\.badge--status,\s*app-status-text \{[^}]*box-shadow: inset 0 0 0 2px var\(--vh-ink\)/);
   });
 
-  it('keeps the edges in view while content scrolls: borders, not outlines or inset shadows', () => {
-    expect(rules).toMatch(/\[appScrollFade='y'\] \{\s*border-block: 2px solid transparent !important;/);
-    expect(rules).toMatch(/\[appScrollFade='y'\]\.is-fade-start \{\s*border-top-color: var\(--vh-fg\) !important;/);
-    expect(rules).toMatch(/\[appScrollFade='y'\]\.is-fade-end \{\s*border-bottom-color: var\(--vh-fg\) !important;/);
-    expect(rules).not.toMatch(/\[appScrollFade='y'\]\.is-fade-start \{\s*box-shadow/);
+  /** Content cuts at the drawn edge of its surface, so a scroll area draws no line of its own (app 000193). */
+  it('draws no line at the ends of a scroll area', () => {
+    expect(rules).not.toMatch(/\[appScrollFade/);
+    expect(rules).not.toMatch(/\.is-fade-(start|end)/);
   });
 
   it('draws the one ghost row of an empty state black with the white edge', () => {

@@ -106,23 +106,11 @@
   }
 }
 .dialog__body {
-  /* Vertikales Padding reserviert die Fade-Zone als Leerraum: im Ruhezustand wird
-     nur dieser Rand ausgeblendet (kein Anschnitt von Inhalt/Fokus-Ring #15), beim
-     Scrollen blendet der Inhalt oben/unten in den Dialog-Hintergrund — wie das
-     Protokoll-Timeline und die Budget-Bäume. */
+  /* The content cuts hard at the edges of the body (app spec 000193). */
   padding: var(--space-4) var(--space-5);
   overflow-y: auto;
   font-size: var(--fs-body);
   line-height: var(--lh-body);
-  --fade: linear-gradient(
-    to bottom,
-    transparent,
-    #000 var(--space-4),
-    #000 calc(100% - var(--space-4)),
-    transparent
-  );
-  -webkit-mask-image: var(--fade);
-  mask-image: var(--fade);
 }
 .dialog__footer {
   display: flex;
@@ -183,7 +171,6 @@
     padding: var(--space-2) var(--space-2) var(--space-2) var(--space-4);
   }
   .dialog__body {
-    /* Fade-Zone (var(--space-4)) als Leerraum behalten, sonst Anschnitt am Rand. */
     padding: var(--space-4) var(--space-4);
   }
   .dialog__footer {

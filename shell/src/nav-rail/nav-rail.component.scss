@@ -1,5 +1,4 @@
 @use '../../../src/styles/press';
-@use '../../../src/styles/scroll-fade' as fade;
 @use '../../../src/styles/nav-items';
 
 :host {
@@ -23,12 +22,17 @@
   flex: 0 1 auto;
   flex-direction: column;
   align-items: center;
-  width: 100%;
+  // The scroll part lies on a surface of its own, and the items cut hard at its rounded
+  // edge (app specs 000193, 001331). It is 24px narrower than the rail, so the edge keeps
+  // clear of the line between the rail and the page.
+  width: calc(100% - 24px);
   min-height: 0;
+  padding-block: 6px;
   overflow-y: auto;
   overscroll-behavior: contain;
   scrollbar-width: thin;
-  @include fade.fade-y(var(--space-5));
+  border-radius: var(--radius-xl);
+  background: var(--color-surface-1);
 }
 
 .rail__brand {
