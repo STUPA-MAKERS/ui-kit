@@ -169,10 +169,11 @@ $-host: ':is(app-button, a.btn-link, app-row-menu)';
     background-color: var(--vh-hi) !important;
     color: var(--vh-bg) !important;
   }
-  // The focus ring of very high contrast (`display-settings.scss`) stays on a focused button.
+  // The yellow edge of a single button (`display-settings.scss`) gives way to the black gaps:
+  // its colour goes clear. The focus ring of very high contrast stays on a focused button.
   .btn-grp.btn-grp.btn-grp :is(.btn, .rm__trigger):not(:focus-visible) {
     box-shadow: none !important;
-    outline: none !important;
+    outline-color: transparent !important;
   }
   .btn-grp.btn-grp.btn-grp .btn__count {
     background: var(--vh-bg) !important;
