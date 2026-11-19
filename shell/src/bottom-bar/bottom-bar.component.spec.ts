@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { ChangeDetectionStrategy, Component } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { Router, provideRouter } from '@angular/router';
 import { render, screen, within } from '@testing-library/angular';
@@ -10,7 +10,7 @@ import { BarButtonComponent } from '../nav-item/nav-item-buttons';
 import { BottomBarComponent } from './bottom-bar.component';
 import { ShellMoreSheet } from './more-sheet';
 
-@Component({ standalone: true, template: 'page' })
+@Component({ changeDetection: ChangeDetectionStrategy.Eager, standalone: true, template: 'page' })
 class StubPage {}
 
 async function setup(opts: { searchable?: boolean; more?: boolean; barKeys?: string[] } = {}) {

@@ -1,4 +1,4 @@
-import { Component, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, signal } from '@angular/core';
 import { fireEvent, render, screen } from '@testing-library/angular';
 import userEvent from '@testing-library/user-event';
 import { ChipGroupComponent, type ChipOption } from './chip-group.component';
@@ -10,6 +10,7 @@ const OPTIONS: ChipOption[] = [
 ];
 
 @Component({
+  changeDetection: ChangeDetectionStrategy.Eager,
   standalone: true,
   imports: [ChipGroupComponent],
   template: `<span id="cap">Zahlungsart</span>

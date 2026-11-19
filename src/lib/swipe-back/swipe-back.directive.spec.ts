@@ -1,4 +1,4 @@
-import { Component, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, signal } from '@angular/core';
 import { render } from '@testing-library/angular';
 import { MEDIA } from '../breakpoints/breakpoints';
 import { takeGestureNavigation } from '../gesture/gesture';
@@ -6,6 +6,7 @@ import { drag, mediaMatching, touch } from '../../../testing/touch';
 import { SwipeBackDirective } from './swipe-back.directive';
 
 @Component({
+  changeDetection: ChangeDetectionStrategy.Eager,
   standalone: true,
   imports: [SwipeBackDirective],
   template: `

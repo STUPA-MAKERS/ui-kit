@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { ChangeDetectionStrategy, Component } from '@angular/core';
 import { render } from '@testing-library/angular';
 import { ScrollFadeDirective } from './scroll-fade.directive';
 
@@ -19,6 +19,7 @@ class ResizeObserverStub {
 }
 
 @Component({
+  changeDetection: ChangeDetectionStrategy.Eager,
   standalone: true,
   imports: [ScrollFadeDirective],
   template: `<div appScrollFade class="strip">content</div>`,
@@ -26,6 +27,7 @@ class ResizeObserverStub {
 class Host {}
 
 @Component({
+  changeDetection: ChangeDetectionStrategy.Eager,
   standalone: true,
   imports: [ScrollFadeDirective],
   template: `<ul appScrollFade="y" class="list"><li>a</li></ul>`,

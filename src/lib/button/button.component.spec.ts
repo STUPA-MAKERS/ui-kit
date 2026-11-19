@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { ChangeDetectionStrategy, Component } from '@angular/core';
 import { render, screen } from '@testing-library/angular';
 import userEvent from '@testing-library/user-event';
 import { ButtonComponent, buttonLook, type ButtonVariant } from './button.component';
@@ -92,6 +92,7 @@ describe('ButtonComponent', () => {
 
   it('does not emit click when disabled', async () => {
     @Component({
+      changeDetection: ChangeDetectionStrategy.Eager,
       standalone: true,
       imports: [ButtonComponent],
       template: `<app-button [disabled]="true"><span (click)="onClick()">Go</span></app-button>`,

@@ -1,4 +1,5 @@
 import {
+  ChangeDetectionStrategy,
   type AfterViewInit,
   Component,
   DestroyRef,
@@ -11,17 +12,27 @@ import { Router, RouterOutlet, provideRouter } from '@angular/router';
 import { render, screen, waitFor } from '@testing-library/angular';
 import { RouteFocus } from './route-focus';
 
-@Component({ standalone: true, template: '<h1>Seite A</h1><a href="/b">Weiter</a>' })
+@Component({
+  changeDetection: ChangeDetectionStrategy.Eager,
+  standalone: true, template: '<h1>Seite A</h1><a href="/b">Weiter</a>'
+})
 class PageA {}
 
-@Component({ standalone: true, template: '<h1>Seite B</h1>' })
+@Component({
+  changeDetection: ChangeDetectionStrategy.Eager,
+  standalone: true, template: '<h1>Seite B</h1>'
+})
 class PageB {}
 
-@Component({ standalone: true, template: '<p>Ohne Überschrift</p>' })
+@Component({
+  changeDetection: ChangeDetectionStrategy.Eager,
+  standalone: true, template: '<p>Ohne Überschrift</p>'
+})
 class PageNone {}
 
 /** Shows its heading only after its "data" arrived. */
 @Component({
+  changeDetection: ChangeDetectionStrategy.Eager,
   standalone: true,
   template: `@if (ready()) {
     <h1>Spät</h1>
@@ -36,7 +47,10 @@ class PageLate {
   }
 }
 
-@Component({ standalone: true, template: '<h1>Formular</h1><input aria-label="Name" #field />' })
+@Component({
+  changeDetection: ChangeDetectionStrategy.Eager,
+  standalone: true, template: '<h1>Formular</h1><input aria-label="Name" #field />'
+})
 class PageAutofocus implements AfterViewInit {
   private readonly field = viewChild.required<ElementRef<HTMLInputElement>>('field');
   ngAfterViewInit(): void {
@@ -46,6 +60,7 @@ class PageAutofocus implements AfterViewInit {
 
 /** A list page whose detail pane is the scope of the focus. */
 @Component({
+  changeDetection: ChangeDetectionStrategy.Eager,
   standalone: true,
   imports: [RouterOutlet],
   template: `<h1>Liste</h1>
@@ -63,10 +78,14 @@ class PageList {
   }
 }
 
-@Component({ standalone: true, template: '<h2>Eintrag 1</h2>' })
+@Component({
+  changeDetection: ChangeDetectionStrategy.Eager,
+  standalone: true, template: '<h2>Eintrag 1</h2>'
+})
 class PageItem {}
 
 @Component({
+  changeDetection: ChangeDetectionStrategy.Eager,
   standalone: true,
   imports: [RouterOutlet],
   template: `<main #main tabindex="-1"><router-outlet /></main>`,
@@ -82,6 +101,8 @@ async function setup() {
   const view = await render(Host, {
     providers: [
       provideRouter([
+        // The render runs the first navigation of the app, so it lands on the first page.
+        { path: '', redirectTo: 'a', pathMatch: 'full' },
         { path: 'a', component: PageA },
         { path: 'b', component: PageB },
         { path: 'none', component: PageNone },

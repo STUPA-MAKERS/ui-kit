@@ -1,9 +1,12 @@
-import { Component } from '@angular/core';
+import { ChangeDetectionStrategy, Component } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { MEDIA } from '../breakpoints/breakpoints';
 import { matchesMedia, mediaQuery } from './media-query';
 
-@Component({ selector: 'app-media-host', standalone: true, template: '' })
+@Component({
+  changeDetection: ChangeDetectionStrategy.Eager,
+  selector: 'app-media-host', standalone: true, template: ''
+})
 class Host {
   readonly phone = mediaQuery(MEDIA.phone);
 }

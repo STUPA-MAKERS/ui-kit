@@ -1,4 +1,4 @@
-import { Component, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, signal } from '@angular/core';
 import { fireEvent, render, screen } from '@testing-library/angular';
 import type { TabItem } from '../tabs/tabs.component';
 import { TabPageDirective } from './tab-page.directive';
@@ -13,6 +13,7 @@ const TABS: TabItem[] = [
 ];
 
 @Component({
+  changeDetection: ChangeDetectionStrategy.Eager,
   standalone: true,
   imports: [TabPagerComponent, TabPageDirective],
   template: `

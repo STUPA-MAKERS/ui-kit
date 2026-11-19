@@ -1,10 +1,11 @@
-import { Component, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, signal } from '@angular/core';
 import { render } from '@testing-library/angular';
 import { MarkdownEditorComponent } from './markdown-editor.component';
 import { parseElection, parsePoll, type VoteCalloutResolver } from './vote-callout.extension';
 import { runAxe } from '../../testing/a11y';
 
 @Component({
+  changeDetection: ChangeDetectionStrategy.Eager,
   standalone: true,
   imports: [MarkdownEditorComponent],
   template: `<app-markdown-editor

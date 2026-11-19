@@ -1,4 +1,4 @@
-import { Component, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, signal } from '@angular/core';
 import { render } from '@testing-library/angular';
 import { MEDIA } from '../breakpoints/breakpoints';
 import { ListItemComponent } from '../list-item/list-item.component';
@@ -9,6 +9,7 @@ const ARCHIVE: RowSwipeAction = { id: 'archive', label: 'Archivieren', icon: 'ar
 const SHARE: RowSwipeAction = { id: 'share', label: 'Öffentliche Links', icon: 'link' };
 
 @Component({
+  changeDetection: ChangeDetectionStrategy.Eager,
   standalone: true,
   imports: [ListItemComponent],
   template: `

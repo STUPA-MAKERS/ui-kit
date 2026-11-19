@@ -1,4 +1,4 @@
-import { Component, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { Router, provideRouter } from '@angular/router';
 import { fireEvent, render, screen } from '@testing-library/angular';
@@ -7,12 +7,13 @@ import { runAxe } from '../../../testing/a11y';
 import { StatusTextComponent } from '../status-text/status-text.component';
 import { ListItemComponent } from './list-item.component';
 
-@Component({ standalone: true, template: '' })
+@Component({ changeDetection: ChangeDetectionStrategy.Eager, standalone: true, template: '' })
 class BlankComponent {}
 
 const LONG = 'Sondersitzung des AStA-Vorstands zur Haushaltsplanung 2027 mit Referatsleitungen';
 
 @Component({
+  changeDetection: ChangeDetectionStrategy.Eager,
   standalone: true,
   imports: [ListItemComponent],
   template: `
@@ -31,6 +32,7 @@ class HostComponent {
 }
 
 @Component({
+  changeDetection: ChangeDetectionStrategy.Eager,
   standalone: true,
   imports: [ListItemComponent, StatusTextComponent],
   template: `
@@ -44,6 +46,7 @@ class HostComponent {
 class StatusSubHostComponent {}
 
 @Component({
+  changeDetection: ChangeDetectionStrategy.Eager,
   standalone: true,
   imports: [ListItemComponent, StatusTextComponent],
   template: `
@@ -126,6 +129,7 @@ describe('ListItemComponent', () => {
 
   it('says whether an expand row is open, and only for an expand row', async () => {
     @Component({
+      changeDetection: ChangeDetectionStrategy.Eager,
       standalone: true,
       imports: [ListItemComponent],
       template: `

@@ -1,4 +1,4 @@
-import { Component, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, signal } from '@angular/core';
 import { render, screen } from '@testing-library/angular';
 import userEvent from '@testing-library/user-event';
 import { UI_KIT_INTL, uiKitIntlFromLang } from '../intl/intl';
@@ -108,6 +108,7 @@ describe('DataTableComponent', () => {
 
   it('renders a custom cell template via appCell with the row context', async () => {
     @Component({
+      changeDetection: ChangeDetectionStrategy.Eager,
       standalone: true,
       imports: [DataTableComponent, CellDirective],
       template: `<app-data-table [columns]="cols" [rows]="rows">
@@ -172,6 +173,7 @@ describe('DataTableComponent', () => {
 
   it('renders an expandable detail row only for expanded rows', async () => {
     @Component({
+      changeDetection: ChangeDetectionStrategy.Eager,
       standalone: true,
       imports: [DataTableComponent, RowDetailDirective],
       template: `<app-data-table [columns]="cols" [rows]="rows" [isExpanded]="isExpanded">
@@ -194,6 +196,7 @@ describe('DataTableComponent', () => {
 
   it('does not render detail rows when no isExpanded predicate is provided', async () => {
     @Component({
+      changeDetection: ChangeDetectionStrategy.Eager,
       standalone: true,
       imports: [DataTableComponent, RowDetailDirective],
       template: `<app-data-table [columns]="cols" [rows]="rows">
@@ -212,6 +215,7 @@ describe('DataTableComponent', () => {
 
   it('rebuilds the cell map when projected cell templates change', async () => {
     @Component({
+      changeDetection: ChangeDetectionStrategy.Eager,
       standalone: true,
       imports: [DataTableComponent, CellDirective],
       template: `<app-data-table [columns]="cols" [rows]="rows">

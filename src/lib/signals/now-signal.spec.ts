@@ -1,4 +1,4 @@
-import { Component, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { nowSignal } from './now-signal';
 
@@ -8,7 +8,10 @@ describe('nowSignal', () => {
   afterEach(() => jest.useRealTimers());
 
   it('ticks and stops with its host', () => {
-    @Component({ selector: 'app-clock-host', standalone: true, template: '' })
+    @Component({
+      changeDetection: ChangeDetectionStrategy.Eager,
+      selector: 'app-clock-host', standalone: true, template: ''
+    })
     class Host {
       readonly now = nowSignal(1000);
     }
@@ -26,7 +29,10 @@ describe('nowSignal', () => {
 
   it('ticks only while it is active', () => {
     const on = signal(false);
-    @Component({ selector: 'app-gated-host', standalone: true, template: '' })
+    @Component({
+      changeDetection: ChangeDetectionStrategy.Eager,
+      selector: 'app-gated-host', standalone: true, template: ''
+    })
     class Host {
       readonly now = nowSignal(1000, on);
     }

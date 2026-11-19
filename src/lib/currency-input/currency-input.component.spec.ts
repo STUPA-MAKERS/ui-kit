@@ -1,4 +1,4 @@
-import { Component, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, signal } from '@angular/core';
 import { FormControl, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { fireEvent, render, screen } from '@testing-library/angular';
 import { DefaultUiKitIntl, UI_KIT_INTL, uiKitIntlFromLang } from '../intl/intl';
@@ -13,6 +13,7 @@ function intlProvider(lang: 'de' | 'en') {
 }
 
 @Component({
+  changeDetection: ChangeDetectionStrategy.Eager,
   standalone: true,
   imports: [CurrencyInputComponent, FormsModule],
   template: `<app-currency-input [ngModel]="value()" (ngModelChange)="value.set($event)" ariaLabel="amount" />`,
@@ -313,6 +314,7 @@ describe('CurrencyInputComponent (typing and invalid text)', () => {
 
   it('makes a reactive form control invalid for invalid text', async () => {
     @Component({
+      changeDetection: ChangeDetectionStrategy.Eager,
       standalone: true,
       imports: [CurrencyInputComponent, ReactiveFormsModule],
       template: `<app-currency-input [formControl]="ctrl" ariaLabel="amount" />`,
@@ -342,6 +344,7 @@ describe('CurrencyInputComponent (typing and invalid text)', () => {
 describe('CurrencyInputComponent (EN locale)', () => {
   it('reads "12,345" as twelve thousand and rejects 3 decimals', async () => {
     @Component({
+      changeDetection: ChangeDetectionStrategy.Eager,
       standalone: true,
       imports: [CurrencyInputComponent, FormsModule],
       template: `<app-currency-input [ngModel]="value()" (ngModelChange)="value.set($event)" ariaLabel="amount" />`,
@@ -361,6 +364,7 @@ describe('CurrencyInputComponent (EN locale)', () => {
 
   it('uses a dot decimal separator for editing and en-GB grouping for display', async () => {
     @Component({
+      changeDetection: ChangeDetectionStrategy.Eager,
       standalone: true,
       imports: [CurrencyInputComponent, FormsModule],
       template: `<app-currency-input [ngModel]="value()" (ngModelChange)="value.set($event)" ariaLabel="amount" />`,
@@ -379,6 +383,7 @@ describe('CurrencyInputComponent (EN locale)', () => {
 
   it('formats with the format locale of the host app', async () => {
     @Component({
+      changeDetection: ChangeDetectionStrategy.Eager,
       standalone: true,
       imports: [CurrencyInputComponent, FormsModule],
       template: `<app-currency-input [ngModel]="value()" (ngModelChange)="value.set($event)" ariaLabel="amount" />`,
