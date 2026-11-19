@@ -123,16 +123,15 @@
   border-radius: var(--radius-pill);
   background: var(--color-border-strong);
 }
-.ss--bottom .ss__head {
-  padding-top: var(--space-2);
-}
-
+/* The capitals of the title sit as far below the top edge, or below the handle of a bottom
+   sheet, as the title sits from the side (24px): 12px of the header are above them (the
+   28px title is centred on the 40px close button, 6px, and 6px of its line). */
 .ss__head {
   display: flex;
   flex: none;
   align-items: center;
   gap: var(--space-3);
-  padding: 20px var(--space-4) var(--space-1) var(--space-5);
+  padding: calc(var(--space-5) - 12px) var(--space-4) var(--space-1) var(--space-5);
 }
 .ss__title {
   flex: 1 1 0;
