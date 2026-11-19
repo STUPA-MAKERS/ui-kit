@@ -326,7 +326,8 @@ describe('motion and list pane partials', () => {
   });
 });
 
-describe('the head of a list column on a wide screen (app spec 001500)', () => {
+// App spec 001500: the head of a list column on a wide screen.
+describe('WideListHead', () => {
   const scss = read('list-detail.scss');
 
   it('shows the title only to a screen reader', () => {
