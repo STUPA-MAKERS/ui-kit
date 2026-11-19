@@ -89,7 +89,11 @@ $-host: ':is(app-button, a.btn-link, app-row-menu)';
 }
 @media (hover: hover) {
   .btn-grp.btn-grp :is(.btn, .rm__trigger):hover:not(:disabled) {
-    background-color: color-mix(in srgb, var(--color-on-accent-container) 8%, var(--color-accent-container));
+    background-color: color-mix(
+      in srgb,
+      var(--color-on-accent-container) 8%,
+      var(--color-accent-container)
+    );
     color: var(--color-on-accent-container);
     filter: none;
   }
@@ -136,7 +140,9 @@ $-host: ':is(app-button, a.btn-link, app-row-menu)';
 }
 @media (hover: hover) {
   .btn-grp.btn-grp
-    :is(.btn[aria-pressed='true'], .btn[aria-expanded='true'], .rm__trigger--on):hover:not(:disabled) {
+    :is(.btn[aria-pressed='true'], .btn[aria-expanded='true'], .rm__trigger--on):hover:not(
+      :disabled
+    ) {
     background-color: color-mix(in srgb, var(--color-on-accent) 8%, var(--color-accent));
     color: var(--color-on-accent);
   }
@@ -172,16 +178,22 @@ $-host: ':is(app-button, a.btn-link, app-row-menu)';
     background: var(--vh-bg) !important;
     color: var(--vh-hi) !important;
   }
-  .btn-grp.btn-grp.btn-grp :is(.btn[aria-pressed='true'], .btn[aria-expanded='true'], .rm__trigger--on) {
+  .btn-grp.btn-grp.btn-grp
+    :is(.btn[aria-pressed='true'], .btn[aria-expanded='true'], .rm__trigger--on) {
     --color-text: var(--vh-hi);
     background-color: var(--vh-bg) !important;
     color: var(--vh-hi) !important;
   }
-  .btn-grp.btn-grp.btn-grp :is(.btn[aria-pressed='true'], .btn[aria-expanded='true'], .rm__trigger--on):not(:focus-visible) {
+  .btn-grp.btn-grp.btn-grp
+    :is(.btn[aria-pressed='true'], .btn[aria-expanded='true'], .rm__trigger--on):not(
+      :focus-visible
+    ) {
     outline: 2px solid var(--vh-hi) !important;
     outline-offset: -2px !important;
   }
-  .btn-grp.btn-grp.btn-grp :is(.btn[aria-pressed='true'], .btn[aria-expanded='true'], .rm__trigger--on) .btn__count {
+  .btn-grp.btn-grp.btn-grp
+    :is(.btn[aria-pressed='true'], .btn[aria-expanded='true'], .rm__trigger--on)
+    .btn__count {
     background: var(--vh-hi) !important;
     color: var(--vh-bg) !important;
   }
