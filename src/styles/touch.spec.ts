@@ -81,7 +81,7 @@ describe('touch rules in the stylesheets', () => {
 
   it('defines one press tint and draws it as a ripple that grows from the press (001314)', () => {
     const tokens = read('tokens.scss');
-    expect(tokens).toMatch(/--press-tint: color-mix\(in srgb, currentColor 10%, transparent\);/);
+    expect(tokens).toMatch(/--press-tint: color-mix\(in srgb, currentColor 16%, transparent\);/);
     expect(tokens).not.toContain('--press-scale');
     const press = read('_press.scss');
     expect(press).toMatch(
