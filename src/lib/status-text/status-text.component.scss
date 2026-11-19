@@ -22,3 +22,18 @@
 :host(.st--error) {
   color: var(--color-danger);
 }
+
+/* The status of a page or detail head (app spec 001305): a pill tinted in its colour.
+   Very high contrast drops the tint and keeps the white edge of a state
+   (display-settings.scss). */
+:host(.st--badge) {
+  height: 24px;
+  padding: 0 10px;
+  border-radius: var(--radius-pill);
+  background: color-mix(in srgb, currentColor 14%, transparent);
+  font-size: var(--fs-small);
+  line-height: 1;
+  font-weight: var(--fw-semibold);
+  vertical-align: middle;
+  align-self: center;
+}

@@ -456,6 +456,12 @@
     color: var(--vh-ink) !important;
     box-shadow: inset 0 0 0 2px var(--vh-ink);
   }
+  // A status badge (app spec 001305) keeps its pill, without the tint.
+  app-status-text.st--badge {
+    padding: 0 10px;
+    border-radius: var(--radius-pill);
+    background: none;
+  }
 
   // A link is yellow and underlined.
   a[href]:not([class]),
