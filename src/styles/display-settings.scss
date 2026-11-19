@@ -3,6 +3,7 @@
 //   @use 'display-settings';
 // The `DisplaySettingsService` writes the attributes on `<html>`; `_display.scss` has
 // the mixins for a component stylesheet.
+@use 'breakpoints' as bp;
 @use 'display' as d;
 @use 'very-high' as vh;
 
@@ -344,45 +345,11 @@
     box-shadow: inset 0 0 0 2px var(--vh-hi);
   }
 
-  // A scroll area ends in a white line instead of a fade, at each end past which more
-  // content lies (the classes of the scroll-fade directive). The line is a border, because
-  // the content of a box paints over an inset shadow of the box. The border is there at
-  // all times and only turns white, so the content does not move when the line appears.
-  .is-fade-start,
-  .is-fade-end {
-    -webkit-mask-image: none !important;
-    mask-image: none !important;
-  }
-  [appScrollFade='y'] {
-    border-block: 2px solid transparent !important;
-  }
-  [appScrollFade]:not([appScrollFade='y']) {
-    border-inline: 2px solid transparent !important;
-  }
-  [appScrollFade='y'].is-fade-start {
-    border-top-color: var(--vh-fg) !important;
-  }
-  [appScrollFade='y'].is-fade-end {
-    border-bottom-color: var(--vh-fg) !important;
-  }
-  [appScrollFade]:not([appScrollFade='y']).is-fade-start {
-    border-inline-start-color: var(--vh-fg) !important;
-  }
-  [appScrollFade]:not([appScrollFade='y']).is-fade-end {
-    border-inline-end-color: var(--vh-fg) !important;
-  }
-  // The rail draws the lines on the outer side of its list, because the plate of an entry
-  // under the pointer paints over a line on the inner side.
-  .rail__main.is-fade-start {
-    box-shadow: 0 -2px 0 var(--vh-fg);
-  }
-  .rail__main.is-fade-end {
-    box-shadow: 0 2px 0 var(--vh-fg);
-  }
-  .rail__main.is-fade-start.is-fade-end {
-    box-shadow:
-      0 -2px 0 var(--vh-fg),
-      0 2px 0 var(--vh-fg);
+  // A scroll area draws no line at its ends: its content cuts at the edge of a surface,
+  // and that edge is drawn (app spec 000193). The scroll part of the rail is such a surface
+  // (app spec 001441).
+  .rail__main {
+    border: var(--vh-edge) !important;
   }
 
   // A yellow date block (a live meeting) needs no white edge: the yellow sets it apart.
@@ -489,10 +456,31 @@
     -webkit-mask-image: none !important;
     mask-image: none !important;
   }
-  // While rows are under the head, a white line ends it, as the edge of a surface does.
-  .ld-pane--glass.ld-pane--scrolled::before {
-    box-sizing: border-box;
-    border-bottom: var(--vh-edge);
+  // On a wide screen the rows of the column lie in a frame with a white edge that starts
+  // below the head (app spec 000527): they do not reach up under the head, and they cut at
+  // the frame.
+  @include bp.not-phone {
+    .ld-pane--glass > .ld-pane__rows.ld-pane__rows.ld-pane__rows.ld-pane__rows {
+      margin-top: 0 !important;
+      padding-top: 0 !important;
+      scroll-padding-top: 0 !important;
+      border: var(--vh-edge) !important;
+      border-radius: var(--radius-xl);
+    }
+    .ld-pane--glass > .ld-pane__rows::-webkit-scrollbar-track {
+      margin-top: 0 !important;
+    }
+    .ld-pane--glass::before {
+      display: none;
+    }
+  }
+  // On a phone a white line ends the head while rows are under it, as the edge of a
+  // surface does.
+  @include bp.phone {
+    .ld-pane--glass.ld-pane--scrolled::before {
+      box-sizing: border-box;
+      border-bottom: var(--vh-edge);
+    }
   }
   .ld-pane--glass::after {
     display: none;
