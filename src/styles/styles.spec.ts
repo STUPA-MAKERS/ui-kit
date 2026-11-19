@@ -99,11 +99,9 @@ describe('design-system rules in the stylesheets', () => {
     const count = block(read('../lib/button/button.component.scss'), '.btn__count {');
     expect(count).toMatch(/flex: none/);
     expect(count).toMatch(/height: 20px/);
-    const chip = block(
-      read('../lib/filter-select/filter-select.component.scss'),
-      '@supports (text-box: trim-both cap alphabetic) {',
-    );
-    expect(chip).toMatch(/\.fs__text \{[^}]*text-box: trim-both cap alphabetic/);
+    // One global rule for every chip, not one per component.
+    const chip = block(read('base.scss'), '@supports (text-box: trim-both cap alphabetic) {');
+    expect(chip).toMatch(/\.chip > :is\(\.ell, \.chip__text\) \{[^}]*text-box: trim-both cap alphabetic/);
     // The padding keeps the descenders in the clip box; the margin keeps the trimmed height.
     expect(chip).toMatch(/padding-block: 0\.5em;\s*margin-block: -0\.5em/);
   });
