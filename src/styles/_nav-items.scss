@@ -43,8 +43,7 @@
     height: 32px;
     border-radius: 16px;
     transition:
-      background-color var(--motion-fast) var(--ease-standard),
-      scale var(--motion-xs) var(--ease-standard);
+      background-color var(--motion-fast) var(--ease-standard);
   }
   @media (hover: hover) {
     .#{$b}__item:hover .#{$b}__ind {
@@ -88,11 +87,19 @@
     border-radius: inherit;
     pointer-events: none;
   }
-  .#{$b}__item:active .#{$b}__ind::after {
-    background: var(--press-tint);
+  // The item is the control, and its indicator pill shows the ripple from its centre.
+  .#{$b}__item {
+    @include press.host;
   }
-  .#{$b}__item:active .#{$b}__ind {
-    @include press.press-scale;
+  .#{$b}__item:active .#{$b}__ind::after,
+  .#{$b}__item[data-press-key] .#{$b}__ind::after {
+    --ripple-x: 50%;
+    --ripple-y: 50%;
+    --ripple-r: 32px;
+    @include press.paint;
+  }
+  .#{$b}__item[data-press-out]:not(:active) .#{$b}__ind::after {
+    @include press.fade;
   }
   .#{$b}__item:focus-visible {
     outline: none;
@@ -150,7 +157,6 @@
     width: 56px;
     height: 32px;
     border-radius: 16px;
-    transition: scale var(--motion-xs) var(--ease-standard);
   }
   .#{$b}__item.is-active {
     color: var(--color-text);
@@ -188,11 +194,19 @@
     border-radius: inherit;
     pointer-events: none;
   }
-  .#{$b}__item:active .#{$b}__ind::after {
-    background: var(--press-tint);
+  // The item is the control, and its indicator pill shows the ripple from its centre.
+  .#{$b}__item {
+    @include press.host;
   }
-  .#{$b}__item:active .#{$b}__ind {
-    @include press.press-scale;
+  .#{$b}__item:active .#{$b}__ind::after,
+  .#{$b}__item[data-press-key] .#{$b}__ind::after {
+    --ripple-x: 50%;
+    --ripple-y: 50%;
+    --ripple-r: 32px;
+    @include press.paint;
+  }
+  .#{$b}__item[data-press-out]:not(:active) .#{$b}__ind::after {
+    @include press.fade;
   }
   .#{$b}__item:focus-visible {
     outline: none;

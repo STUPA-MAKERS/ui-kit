@@ -32,6 +32,7 @@ export * from './lib/page-frame/page-frame';
 // --- components -------------------------------------------------------------
 export * from './lib/button/button.component';
 export * from './lib/button/button-link.component';
+export * from './lib/button-group/button-group.component';
 export * from './lib/switch/switch.component';
 export * from './lib/segmented/segmented.component';
 export * from './lib/tabs/tabs.component';
@@ -123,6 +124,7 @@ export * from './lib/scroll-fade/scroll-fade.directive';
 export * from './lib/truncated/truncated.directive';
 export * from './lib/long-press/long-press.directive';
 export * from './lib/press-select/press-select.directive';
+export * from './lib/press-ripple/press-ripple';
 export * from './lib/swipe-back/swipe-back.directive';
 export * from './lib/row-swipe/row-swipe.directive';
 export * from './lib/gesture/gesture';

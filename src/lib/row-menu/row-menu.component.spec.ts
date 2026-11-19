@@ -1,4 +1,4 @@
-import { Component, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, signal } from '@angular/core';
 import { fireEvent, render, screen, waitFor } from '@testing-library/angular';
 import userEvent from '@testing-library/user-event';
 import { runAxe } from '../../../testing/a11y';
@@ -18,6 +18,7 @@ const SECTIONS: RowMenuSection[] = [
 ];
 
 @Component({
+  changeDetection: ChangeDetectionStrategy.Eager,
   standalone: true,
   imports: [RowMenuComponent],
   template: `

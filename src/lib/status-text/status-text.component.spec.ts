@@ -38,4 +38,22 @@ describe('StatusTextComponent', () => {
     expect(container.querySelector('[role]')).toBeNull();
     expect(await runAxe(container)).toHaveNoViolations();
   });
+
+  it('is a chip in a head', async () => {
+    const { container } = await render(
+      `<app-status-text kind="warn" chip>Protokoll-Entwurf</app-status-text>`,
+      { imports: [StatusTextComponent] },
+    );
+    const host = container.querySelector('app-status-text') as HTMLElement;
+    expect(host.classList.contains('st--chip')).toBe(true);
+    expect(host.classList.contains('st--warn')).toBe(true);
+    expect(await runAxe(container)).toHaveNoViolations();
+  });
+
+  it('is no chip by default', async () => {
+    const { container } = await render(`<app-status-text>Eingereicht</app-status-text>`, {
+      imports: [StatusTextComponent],
+    });
+    expect(container.querySelector('app-status-text')?.classList.contains('st--chip')).toBe(false);
+  });
 });

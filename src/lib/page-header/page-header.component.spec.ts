@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { render, screen } from '@testing-library/angular';
 import { runAxe } from '../../../testing/a11y';
 import { ListDetailBarComponent } from '../list-detail/list-detail-bar.component';
@@ -7,6 +7,7 @@ import { PageHeaderComponent } from './page-header.component';
 
 /** A page of a one-view layout on a phone: the frame shows the bar, the page has its header. */
 @Component({
+  changeDetection: ChangeDetectionStrategy.Eager,
   standalone: true,
   imports: [ListDetailBarComponent, PageHeaderComponent],
   providers: [ListDetailNav],

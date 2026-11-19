@@ -105,7 +105,6 @@
   border-radius: var(--radius-pill);
   cursor: pointer;
   color: var(--color-text);
-  transition: scale var(--motion-xs) var(--ease-standard);
   @include press.press;
 }
 /* A text action of a caller that brings no icon: a tonal pill of the same height. */
@@ -120,7 +119,6 @@
   font: inherit;
   font-weight: var(--fw-semibold);
   cursor: pointer;
-  transition: scale var(--motion-xs) var(--ease-standard);
   @include press.press;
 }
 .toast:not(:has(.toast__iconAction, .toast__action, .toast__icon--end))::after {

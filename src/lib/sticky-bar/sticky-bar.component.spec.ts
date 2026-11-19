@@ -1,8 +1,9 @@
-import { Component, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, signal } from '@angular/core';
 import { render } from '@testing-library/angular';
 import { StickyBarComponent, scrollParent, watchSiblings } from './sticky-bar.component';
 
 @Component({
+  changeDetection: ChangeDetectionStrategy.Eager,
   standalone: true,
   imports: [StickyBarComponent],
   template: `<app-sticky-bar [sticky]="sticky()"><input aria-label="Suche" /></app-sticky-bar>`,
@@ -13,6 +14,7 @@ class Host {
 
 /** The bar in a box that scrolls by itself (the body of the admin sheet). */
 @Component({
+  changeDetection: ChangeDetectionStrategy.Eager,
   standalone: true,
   imports: [StickyBarComponent],
   template: `<div class="pane" style="overflow-y: auto; padding-top: 32px">

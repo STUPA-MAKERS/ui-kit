@@ -1,4 +1,4 @@
-import { Component, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { render, screen } from '@testing-library/angular';
 import userEvent from '@testing-library/user-event';
@@ -8,6 +8,7 @@ import { Announcer } from '../announce/announcer';
 import { SEARCH_RESULTS_SETTLE_MS, SearchPillComponent } from './search-pill.component';
 
 @Component({
+  changeDetection: ChangeDetectionStrategy.Eager,
   standalone: true,
   imports: [SearchPillComponent],
   template: `
@@ -21,6 +22,7 @@ class FilterHostComponent {
 }
 
 @Component({
+  changeDetection: ChangeDetectionStrategy.Eager,
   standalone: true,
   imports: [SearchPillComponent],
   template: `
@@ -174,6 +176,7 @@ describe('SearchPillComponent', () => {
 });
 
 @Component({
+  changeDetection: ChangeDetectionStrategy.Eager,
   standalone: true,
   imports: [SearchPillComponent],
   template: `<app-search-pill placeholder="Suchen" [busy]="busy()" [results]="count()" [(value)]="query" />`,

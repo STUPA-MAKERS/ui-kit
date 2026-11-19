@@ -58,7 +58,6 @@
   color: var(--color-text-muted);
   cursor: pointer;
   border-radius: var(--radius-pill);
-  transition: scale var(--motion-xs) var(--ease-standard);
   @include press.press;
 }
 @media (hover: hover) {

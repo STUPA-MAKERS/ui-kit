@@ -1,8 +1,9 @@
-import { Component, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, signal } from '@angular/core';
 import { fireEvent, render } from '@testing-library/angular';
 import { FileDropDirective, isFileDrag } from './file-drop.directive';
 
 @Component({
+  changeDetection: ChangeDetectionStrategy.Eager,
   standalone: true,
   imports: [FileDropDirective],
   template: `
@@ -26,6 +27,7 @@ class HostComponent {
 }
 
 @Component({
+  changeDetection: ChangeDetectionStrategy.Eager,
   standalone: true,
   imports: [FileDropDirective],
   template: `

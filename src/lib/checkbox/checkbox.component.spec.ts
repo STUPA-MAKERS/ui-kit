@@ -1,4 +1,4 @@
-import { Component, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, signal } from '@angular/core';
 import { FormControl, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { render, screen } from '@testing-library/angular';
 import userEvent from '@testing-library/user-event';
@@ -14,6 +14,7 @@ describe('CheckboxComponent', () => {
 
   it('writes the model value into the checked state', async () => {
     @Component({
+      changeDetection: ChangeDetectionStrategy.Eager,
       standalone: true,
       imports: [CheckboxComponent, FormsModule],
       template: `<app-checkbox [(ngModel)]="on">X</app-checkbox>`,
@@ -29,6 +30,7 @@ describe('CheckboxComponent', () => {
 
   it('emits model changes when toggled', async () => {
     @Component({
+      changeDetection: ChangeDetectionStrategy.Eager,
       standalone: true,
       imports: [CheckboxComponent, FormsModule],
       template: `<app-checkbox [(ngModel)]="on">X</app-checkbox>`,
@@ -43,6 +45,7 @@ describe('CheckboxComponent', () => {
 
   it('disables the native control via the CVA', async () => {
     @Component({
+      changeDetection: ChangeDetectionStrategy.Eager,
       standalone: true,
       imports: [CheckboxComponent, ReactiveFormsModule],
       template: `<app-checkbox [formControl]="ctrl">X</app-checkbox>`,
@@ -66,6 +69,7 @@ describe('CheckboxComponent', () => {
 
   it('shows the mixed state through the native control', async () => {
     @Component({
+      changeDetection: ChangeDetectionStrategy.Eager,
       standalone: true,
       imports: [CheckboxComponent],
       template: `<app-checkbox [indeterminate]="mixed()">Alle</app-checkbox>`,
@@ -97,6 +101,7 @@ describe('CheckboxComponent', () => {
 
   it('keeps the mixed state after a click until the host clears it', async () => {
     @Component({
+      changeDetection: ChangeDetectionStrategy.Eager,
       standalone: true,
       imports: [CheckboxComponent, FormsModule],
       template: `<app-checkbox [indeterminate]="true" [(ngModel)]="on">Alle</app-checkbox>`,

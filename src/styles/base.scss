@@ -12,10 +12,44 @@
 
 * {
   margin: 0;
-  // Browser-Default beim Antippen ist ein rechteckiger Highlight-Kasten, der die
-  // Rundung der Kachel ignoriert ("innerer Kasten"). App-weit entfernen — das
-  // Tap-Feedback liefert stattdessen die :active-Tönung der ganzen Kachel.
+  // The tap highlight of the browser is a square box that ignores the corners of the tile.
+  // It is off everywhere, because the ripple of the press (`_press.scss`) is the feedback.
   -webkit-tap-highlight-color: transparent;
+}
+
+// The ripple of a press (`_press.scss`). The properties are registered so that the keyframes
+// can animate them, and they do not inherit, so a ripple in a row does not start again in
+// each child. `--press-host` marks the element that paints the ripple for `press-ripple.ts`.
+@property --press-ripple {
+  syntax: '<length>';
+  inherits: false;
+  initial-value: 0px;
+}
+@property --press-fade {
+  syntax: '<percentage>';
+  inherits: false;
+  initial-value: 100%;
+}
+@property --press-host {
+  syntax: '<integer>';
+  inherits: false;
+  initial-value: 0;
+}
+@keyframes press-ripple {
+  from {
+    --press-ripple: 0px;
+  }
+  to {
+    --press-ripple: var(--ripple-r, 150vmax);
+  }
+}
+@keyframes press-fade {
+  from {
+    --press-fade: 100%;
+  }
+  to {
+    --press-fade: 0%;
+  }
 }
 
 // A touch screen: a press and hold on the interface (a heading, a label, a row title, a
@@ -405,7 +439,6 @@ input[type='radio'] {
   font-weight: var(--fw-medium);
   white-space: nowrap;
   cursor: pointer;
-  transition: scale var(--motion-xs) var(--ease-standard);
   @include press.press;
 }
 @media (hover: hover) {
@@ -448,4 +481,14 @@ input[type='radio'] {
       backdrop-filter: blur(2px);
     }
   }
+}
+
+// The file viewer covers the screen with dark glass (app spec 001084). A phone browser
+// leaves fixed and sticky bars with a glass of their own (the page head, the bottom bar)
+// out of the backdrop blur of the viewer, so their text stays sharp under it. While the
+// viewer is open the page itself is blurred as well. The viewer lies in the top layer, so
+// the filter of its ancestors does not reach it. The rule reads the viewer and styles the
+// page, so it lives here.
+body:has(.fv:popover-open) > * {
+  filter: blur(16px);
 }

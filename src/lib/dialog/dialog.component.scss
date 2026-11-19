@@ -60,7 +60,9 @@
   align-items: flex-start;
   justify-content: space-between;
   gap: var(--space-4);
-  padding: var(--space-5) var(--space-4) var(--space-2) var(--space-5);
+  /* The capitals of the title sit as far below the top edge as the title sits from the side
+     (24px): 12px of the header are above them (6px centring padding, 6px of the 28px line). */
+  padding: calc(var(--space-5) - 12px) var(--space-4) var(--space-2) var(--space-5);
 }
 .dialog__heading {
   display: flex;
@@ -96,7 +98,7 @@
   border-radius: var(--radius-pill);
   color: var(--color-text-muted);
   cursor: pointer;
-  transition: background-color var(--motion-fast) var(--ease-standard), scale var(--motion-xs) var(--ease-standard);
+  transition: background-color var(--motion-fast) var(--ease-standard);
   @include press.press;
 }
 @media (hover: hover) {
@@ -106,23 +108,11 @@
   }
 }
 .dialog__body {
-  /* Vertikales Padding reserviert die Fade-Zone als Leerraum: im Ruhezustand wird
-     nur dieser Rand ausgeblendet (kein Anschnitt von Inhalt/Fokus-Ring #15), beim
-     Scrollen blendet der Inhalt oben/unten in den Dialog-Hintergrund — wie das
-     Protokoll-Timeline und die Budget-Bäume. */
+  /* The content cuts hard at the edges of the body (app spec 000193). */
   padding: var(--space-4) var(--space-5);
   overflow-y: auto;
   font-size: var(--fs-body);
   line-height: var(--lh-body);
-  --fade: linear-gradient(
-    to bottom,
-    transparent,
-    #000 var(--space-4),
-    #000 calc(100% - var(--space-4)),
-    transparent
-  );
-  -webkit-mask-image: var(--fade);
-  mask-image: var(--fade);
 }
 .dialog__footer {
   display: flex;
@@ -179,11 +169,12 @@
     border-radius: 999px;
     background: var(--color-border-strong);
   }
+  /* On the sheet the handle is the top: the capitals of the title sit as far below the
+     handle as the title sits from the side (16px). */
   .dialog__header {
-    padding: var(--space-2) var(--space-2) var(--space-2) var(--space-4);
+    padding: calc(var(--space-4) - 12px) var(--space-2) var(--space-2) var(--space-4);
   }
   .dialog__body {
-    /* Fade-Zone (var(--space-4)) als Leerraum behalten, sonst Anschnitt am Rand. */
     padding: var(--space-4) var(--space-4);
   }
   .dialog__footer {

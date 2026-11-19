@@ -1,4 +1,4 @@
-import { Component, ElementRef, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, ElementRef, inject } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { elementSize, observeElementSize, type ElementSize } from './element-size';
 
@@ -24,7 +24,10 @@ describe('elementSize', () => {
   });
 
   it('follows the content box and stops with its host', () => {
-    @Component({ selector: 'app-size-host', standalone: true, template: '' })
+    @Component({
+      changeDetection: ChangeDetectionStrategy.Eager,
+      selector: 'app-size-host', standalone: true, template: ''
+    })
     class Host {
       private readonly el = inject(ElementRef<HTMLElement>);
       readonly size = elementSize(() => this.el.nativeElement);
@@ -40,7 +43,10 @@ describe('elementSize', () => {
 
   it('reads the border box from the element', () => {
     const seen: ElementSize[] = [];
-    @Component({ selector: 'app-border-host', standalone: true, template: '' })
+    @Component({
+      changeDetection: ChangeDetectionStrategy.Eager,
+      selector: 'app-border-host', standalone: true, template: ''
+    })
     class Host {
       private readonly el = inject(ElementRef<HTMLElement>);
       constructor() {
@@ -61,7 +67,10 @@ describe('elementSize', () => {
     // @ts-expect-error -- a browser without the API
     delete globalThis.ResizeObserver;
     const seen: ElementSize[] = [];
-    @Component({ selector: 'app-old-host', standalone: true, template: '' })
+    @Component({
+      changeDetection: ChangeDetectionStrategy.Eager,
+      selector: 'app-old-host', standalone: true, template: ''
+    })
     class Host {
       private readonly el = inject(ElementRef<HTMLElement>);
       constructor() {

@@ -23,7 +23,9 @@
   width: min(680px, calc(100vw - 2 * var(--space-4)));
   max-height: calc(100dvh - 96px - var(--space-6));
   overflow: hidden;
-  border-radius: var(--radius-2xl);
+  /* Concentric with the search pill inset in it: the radius of the pill (half its height)
+     plus its inset (`--space-3`), so the corner and the pill keep one even gap. */
+  border-radius: calc(var(--control-height-lg) / 2 + var(--space-3));
   color: var(--color-text);
   box-shadow: var(--shadow-elevated);
   /* Frosted glass like a dialog (`frosted-pop` with the same tint, blur and lift), and the
@@ -97,12 +99,22 @@
   background: transparent;
   color: var(--color-text-muted);
   cursor: pointer;
-  transition: scale var(--motion-xs) var(--ease-standard);
   @include press.press;
 }
 .pal__close:focus-visible {
   outline: 2px solid var(--color-focus-ring);
   outline-offset: -2px;
+}
+/* The Esc key is a pill of 32px, inset 10px from the end, top and bottom of the 52px field,
+   so its end is concentric with the field (radius 26 - 10 = 16). */
+.pal__esc {
+  display: grid;
+  place-items: center;
+  height: 32px;
+  min-width: 32px;
+  margin-inline-end: 4px;
+  padding: 0 10px;
+  border-radius: var(--radius-pill);
 }
 .pal__x {
   display: none;
@@ -159,8 +171,7 @@
   padding: var(--space-2) 14px;
   border-radius: var(--radius-field);
   cursor: pointer;
-  transition: scale var(--motion-xs) var(--ease-standard);
-  @include press.press($scale: row);
+  @include press.press;
 }
 .pal__row--active {
   background: var(--color-surface-3);
@@ -229,6 +240,7 @@ app-status-text.pal__rowSub {
   display: flex;
   flex: none;
   align-items: center;
+  justify-content: center;
   gap: 18px;
   padding: 10px 22px 14px;
   font-size: var(--fs-small);
@@ -244,7 +256,6 @@ app-status-text.pal__rowSub {
   .pal {
     top: calc(var(--space-4) + var(--app-top-safe-area, 0px));
     max-height: calc(100dvh - 2 * var(--space-4) - var(--app-top-safe-area, 0px));
-    border-radius: var(--radius-xl);
   }
   .pal__keys,
   .pal__enter {

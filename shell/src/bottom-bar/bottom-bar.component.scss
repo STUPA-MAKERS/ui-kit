@@ -71,8 +71,7 @@
   text-align: start;
   text-decoration: none;
   cursor: pointer;
-  transition: scale var(--motion-xs) var(--ease-standard);
-  @include press.press($scale: row);
+  @include press.press;
 }
 .more__item > app-icon {
   flex: none;

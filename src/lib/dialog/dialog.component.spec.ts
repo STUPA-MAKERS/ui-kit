@@ -1,3 +1,5 @@
+import { readFileSync } from 'node:fs';
+import { join } from 'node:path';
 import { fireEvent, render, screen } from '@testing-library/angular';
 import userEvent from '@testing-library/user-event';
 import { ButtonComponent } from '../button/button.component';
@@ -379,5 +381,16 @@ describe('DialogComponent', () => {
     expect(paneEl.style.transform).toBe('');
     // touchend without an active drag → no-op (no throw, no close).
     expect(() => cmp.onDragEnd(makeTouch(200, 50))).not.toThrow();
+  });
+});
+
+describe('DialogComponent head', () => {
+  /** § NF/usability/layout/001341: the capitals of the title sit as far from the top as from the side. */
+  it('sets the top padding of the head from the side distance less the 12px above the capitals', () => {
+    // jsdom applies no component styles, so this reads the SCSS.
+    const scss = readFileSync(join(__dirname, 'dialog.component.scss'), 'utf8');
+    const start = scss.indexOf('.dialog__header {');
+    const rule = scss.slice(start, scss.indexOf('}', start));
+    expect(rule).toMatch(/padding: calc\(var\(--space-[45]\) - 12px\)/);
   });
 });

@@ -271,3 +271,31 @@ body:has(app-tab-pager) app-list-detail-bar.ld__bar--condensed.ld__bar--condense
     backdrop-filter: blur(2px);
   }
 }
+
+// On a wide screen the head of the column is solid in the page colour, not glass (app spec
+// 000527): the rows cut hard at its lower edge (000193). A group head right under it is solid
+// too. The tint of 100 % turns every glass layer of the column into the solid colour, as the
+// setting for less transparency does.
+@include bp.not-phone {
+  .ld-pane--glass {
+    --glass-tint: 100%;
+  }
+  .ld-pane--glass::before,
+  .ld-pane--glass .lg__head::before {
+    -webkit-backdrop-filter: none !important;
+    backdrop-filter: none !important;
+  }
+}
+
+// The face of an empty list (`app-empty-state`) in the list column: large, and centred in
+// the free height of the list. The host grows in a flex-column parent, and it is at least
+// most of a screen high where the parent is only as high as its content (the phone list
+// that scrolls with the page).
+.ld-pane app-empty-state.es-host--face {
+  --es-face: 132px;
+  display: flex;
+  flex: 1 0 auto;
+  flex-direction: column;
+  justify-content: center;
+  min-height: min(60dvh, 32rem);
+}

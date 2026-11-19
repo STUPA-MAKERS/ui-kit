@@ -1,5 +1,5 @@
 /** Fixtures of the specs of the shell entry: entries, bar keys, a brand and a nav mark. */
-import { Component, input } from '@angular/core';
+import { ChangeDetectionStrategy, Component, input } from '@angular/core';
 import type { ShellBrand, ShellNavItem } from '../shell/src/shell.types';
 import type { NavMarkPart } from '../shell/src/nav-mark.directive';
 
@@ -66,6 +66,7 @@ export const BRAND: ShellBrand = {
 
 /** A mark like the one of an app: a count on "Aufgaben" and "Tickets". */
 @Component({
+  changeDetection: ChangeDetectionStrategy.Eager,
   selector: 'app-test-mark',
   standalone: true,
   template: `

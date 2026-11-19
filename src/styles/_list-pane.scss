@@ -7,7 +7,6 @@
 // `frame($b)` writes the whole frame of a list page from these parts, for a page that
 // needs no rule of its own.
 @use 'breakpoints' as bp;
-@use 'scroll-fade' as fade;
 
 @mixin stack {
   display: flex;
@@ -165,7 +164,6 @@
   }
   .#{$b}--split .#{$b}__scroll {
     @include split-scroll(--#{$b}-fade);
-    @include fade.fade-y(var(--#{$b}-fade));
   }
   .#{$b}--split .#{$b}__scroll > * {
     flex: none;

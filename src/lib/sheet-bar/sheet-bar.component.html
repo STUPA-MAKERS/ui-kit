@@ -10,5 +10,5 @@
 <!-- The actions render here, or in the bar of the list/detail layout while it shows. -->
 <ng-template #actions><ng-content /></ng-template>
 @if (!docked()) {
-  <div class="sheet-bar__actions"><ng-container *ngTemplateOutlet="actions" /></div>
+  <div class="sheet-bar__actions btn-grp"><ng-container *ngTemplateOutlet="actions" /></div>
 }

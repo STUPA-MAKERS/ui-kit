@@ -98,10 +98,9 @@
   background: var(--li-bg, transparent);
   color: var(--li-color, var(--color-text));
   transition:
-    background-color var(--motion-fast) var(--ease-standard),
-    scale var(--motion-xs) var(--ease-standard);
-  /* The title is the control (its ::after covers the row), so the row tints and shrinks a
-     little while the title is pressed, not while a button in the trail is. */
+    background-color var(--motion-fast) var(--ease-standard);
+  /* The title is the control (its ::after covers the row), so the row ripples while the
+     title is pressed, not while a button in the trail is. */
   @include press.press-on('.li__title');
 }
 /* `--li-hover` lets a list on surface 2 pick a hover that differs from its rows. */

@@ -1,4 +1,4 @@
-import { Component, ElementRef, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, ElementRef, inject } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import {
   anchorOutOfView,
@@ -98,7 +98,10 @@ describe('watchAnchoredPopover', () => {
     const close = jest.fn();
     const follow = jest.fn();
     let open = true;
-    @Component({ selector: 'app-pop-host', standalone: true, template: '<div class="own"></div>' })
+    @Component({
+      changeDetection: ChangeDetectionStrategy.Eager,
+      selector: 'app-pop-host', standalone: true, template: '<div class="own"></div>'
+    })
     class Host {
       private readonly el = inject(ElementRef<HTMLElement>).nativeElement as HTMLElement;
       constructor() {
