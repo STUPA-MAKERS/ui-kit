@@ -349,6 +349,13 @@ describe('veryHighContrast (§000605)', () => {
     );
   });
 
+  /** The column drops to the screen edge; the frame ends the gutter above it, round. */
+  it('ends the frame of the rows above the bottom edge of the screen', () => {
+    expect(rules).toMatch(
+      /\.ld-pane--glass > \.ld-pane__rows\.ld-pane__rows\.ld-pane__rows\.ld-pane__rows \{[^}]*margin-bottom: var\(--ld-pane-drop, 0px\) !important;/,
+    );
+  });
+
   it('uses only the four colours for every colour token', () => {
     const values = [...block.matchAll(/--vh-(?:bg|fg|hi|err):\s*(#[0-9a-f]{6});/g)].map((m) => m[1]);
     expect(values).toEqual(FOUR);
