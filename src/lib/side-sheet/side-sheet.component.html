@@ -32,16 +32,18 @@
       }
       <header class="ss__head">
         <h2 class="ss__title" [id]="id">{{ heading() }}</h2>
-        <ng-content select="[sheet-actions]" />
-        <app-button
-          class="ss__close"
-          variant="text"
-          [iconOnly]="true"
-          [ariaLabel]="'dialog.close' | uiKitT"
-          (click)="close()"
-        >
-          <app-icon name="x" />
-        </app-button>
+        <div class="ss__actions btn-grp">
+          <ng-content select="[sheet-actions]" />
+          <app-button
+            class="ss__close"
+            variant="text"
+            [iconOnly]="true"
+            [ariaLabel]="'dialog.close' | uiKitT"
+            (click)="close()"
+          >
+            <app-icon name="x" />
+          </app-button>
+        </div>
       </header>
     </div>
     <div

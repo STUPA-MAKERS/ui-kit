@@ -63,6 +63,42 @@
           }
         </div>
       }
+      @for (group of groups(); track group.key) {
+        <div class="more__group">
+          <button
+            type="button"
+            class="more__item"
+            [attr.aria-expanded]="isOpen(group.key)"
+            [attr.aria-controls]="'more-group-' + group.key"
+            (click)="toggle(group.key)"
+          >
+            <app-icon [name]="group.icon" [size]="20" />
+            <span class="ell more__label">{{ group.label }}</span>
+            <app-icon class="more__chev" [class.is-open]="isOpen(group.key)" name="down" [size]="18" />
+          </button>
+          <div
+            class="more__sub"
+            role="group"
+            [id]="'more-group-' + group.key"
+            [attr.aria-label]="group.label"
+            [hidden]="!isOpen(group.key)"
+          >
+            @for (item of group.items; track item.key) {
+              <a
+                class="more__item"
+                [routerLink]="item.path"
+                routerLinkActive="is-active"
+                ariaCurrentWhenActive="page"
+                [routerLinkActiveOptions]="{ exact: item.exact ?? false }"
+                (click)="closeMore()"
+              >
+                <app-icon [name]="item.icon" [size]="20" />
+                <span class="ell more__label">{{ item.label }}</span>
+              </a>
+            }
+          </div>
+        </div>
+      }
       @if (searchable()) {
         <div class="more__group">
           <button type="button" class="more__item" (click)="onSearch()">

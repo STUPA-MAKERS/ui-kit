@@ -441,6 +441,19 @@ input[type='radio'] {
   cursor: pointer;
   @include press.press;
 }
+/* The centre of the capitals of a chip text is on the centre line of the chip, the same line
+   as the centre of its icons (app spec 000603). The text box is trimmed to the capitals, and
+   the flex centre of the chip is their centre. The padding keeps the descenders inside the
+   clip box of the ellipsis, and the negative margin of the same size keeps the trimmed
+   height for the layout. A text node cannot be trimmed, so a chip puts its text in a span
+   (`.ell` or `.chip__text`). */
+@supports (text-box: trim-both cap alphabetic) {
+  .chip > :is(.ell, .chip__text) {
+    text-box: trim-both cap alphabetic;
+    padding-block: 0.5em;
+    margin-block: -0.5em;
+  }
+}
 @media (hover: hover) {
   .chip:hover {
     background: var(--color-surface-2);

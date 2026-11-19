@@ -96,3 +96,22 @@
   outline: 2px solid var(--color-focus-ring);
   outline-offset: -2px;
 }
+
+// A group: the row that opens it, with a chevron that turns while it is open, and its
+// entries indented below it.
+.more__chev {
+  flex: none;
+  color: var(--color-text-muted);
+  transition: rotate var(--motion-fast) var(--ease-standard);
+}
+.more__chev.is-open {
+  rotate: 180deg;
+}
+.more__sub {
+  display: flex;
+  flex-direction: column;
+  padding-inline-start: var(--space-6);
+}
+.more__sub[hidden] {
+  display: none;
+}

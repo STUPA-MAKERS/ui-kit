@@ -2,6 +2,7 @@
 //   @use 'list-detail';
 @use 'breakpoints' as bp;
 @use 'frosted' as *;
+@use 'display' as d;
 
 // Every page with a list or a navigation column beside a sheet takes the width of that
 // column and the gap to the sheet from these two tokens (`app-list-detail` reads them).
@@ -33,6 +34,72 @@
 // class is doubled to win over the shadow of the bar component.
 body:has(app-tab-pager) app-list-detail-bar.ld__bar--condensed.ld__bar--condensed {
   box-shadow: none;
+}
+
+// The head of a list column on a wide screen (app spec 001500). The navigation already
+// marks the page, so the title of the column shows only to a screen reader: a large title
+// over the search bar stood off its edge and repeated the name of the active item. The
+// buttons of the header (`app-page-header` `pane`) stand at the end of the first line of
+// the filter bar (the search bar, or the chips where there is no search), as high as the
+// control at the start of that line, and that control ends before them. The header reports
+// the width of its buttons as `--ph-pane-actions` on the column. The header sticks with the
+// filter bar, so the buttons stay beside it while the page scrolls. A header without
+// buttons takes no room. A phone keeps its title line.
+@include bp.not-phone {
+  .ld-pane > app-page-header.ph--pane .ph__text.ph__text {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    margin: -1px;
+    padding: 0;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    white-space: nowrap;
+    border: 0;
+  }
+  .ld-pane > app-page-header.ph--pane:not(:has(.ph__actions > *)),
+  .ld-pane:has(> .ld-pane__filters > :first-child) > app-page-header.ph--pane {
+    height: 0;
+    margin-bottom: calc(-1 * var(--space-3));
+  }
+  .ld-pane > app-page-header.ph--pane:not(:has(.ph__actions > *)) .ph__bar.ph__bar,
+  .ld-pane:has(> .ld-pane__filters > :first-child) > app-page-header.ph--pane .ph__bar.ph__bar {
+    min-height: 0;
+    height: 0;
+  }
+  .ld-pane:has(> .ld-pane__filters > :first-child) > app-page-header.ph--pane {
+    --ph-pane-h: var(--control-height-sm);
+    position: sticky;
+    top: var(--ld-sticky-top, calc(var(--layout-header-height, 0px) + env(safe-area-inset-top, 0px)));
+    z-index: var(--z-sticky);
+  }
+  .ld-pane:has(> .ld-pane__filters > app-search-pill:first-child) > app-page-header.ph--pane {
+    --ph-pane-h: var(--control-height-lg);
+  }
+  .ld-pane:has(> .ld-pane__filters > app-search-pill.sp--md:first-child) > app-page-header.ph--pane {
+    --ph-pane-h: 2.75rem;
+  }
+  .ld-pane:has(> .ld-pane__filters > :first-child) > app-page-header.ph--pane .ph__actions.ph__actions {
+    --btn-grp-h: var(--ph-pane-h);
+    position: absolute;
+    top: 0;
+    inset-inline-end: 0;
+    height: var(--ph-pane-h);
+    min-height: 0;
+    margin: 0;
+  }
+  .ld-pane:has(> app-page-header.ph--pane .ph__actions > *) > .ld-pane__filters > :first-child {
+    margin-inline-end: calc(var(--ph-pane-actions, 0px) + var(--space-3));
+  }
+}
+// In the very high contrast the search bar has a black inner ring of 2px (`display-settings`),
+// so its yellow is 4px lower than its box. The buttons beside it are as high as the yellow.
+@include d.on(veryHigh) {
+  @include bp.not-phone {
+    .ld-pane:has(> .ld-pane__filters > app-search-pill:first-child) > app-page-header.ph--pane .ph__actions.ph__actions {
+      --btn-grp-h: calc(var(--ph-pane-h) - 4px);
+    }
+  }
 }
 
 // The list column of such a page, in this order: the header, the search bar with its
