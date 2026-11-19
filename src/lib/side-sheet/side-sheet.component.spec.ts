@@ -1,4 +1,4 @@
-import { Component, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, signal } from '@angular/core';
 import { DialogComponent } from '../dialog/dialog.component';
 import { fireEvent, render, screen, waitFor } from '@testing-library/angular';
 import userEvent from '@testing-library/user-event';
@@ -6,6 +6,7 @@ import { runAxe } from '../../../testing/a11y';
 import { SideSheetComponent, type SheetSide } from './side-sheet.component';
 
 @Component({
+  changeDetection: ChangeDetectionStrategy.Eager,
   standalone: true,
   imports: [SideSheetComponent],
   template: `
@@ -37,6 +38,7 @@ class HostComponent {
 }
 
 @Component({
+  changeDetection: ChangeDetectionStrategy.Eager,
   standalone: true,
   imports: [SideSheetComponent, DialogComponent],
   template: `

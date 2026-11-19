@@ -1,4 +1,4 @@
-import { Component, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, signal } from '@angular/core';
 import { FormControl, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { fireEvent, render, screen, within } from '@testing-library/angular';
 import userEvent from '@testing-library/user-event';
@@ -14,6 +14,7 @@ const OPTIONS: SelectFieldOption[] = [
 ];
 
 @Component({
+  changeDetection: ChangeDetectionStrategy.Eager,
   standalone: true,
   imports: [FormsModule, SelectFieldComponent],
   template: `
@@ -51,6 +52,7 @@ class ModelHost {
 }
 
 @Component({
+  changeDetection: ChangeDetectionStrategy.Eager,
   standalone: true,
   imports: [ReactiveFormsModule, SelectFieldComponent],
   template: `<app-select label="Art" [options]="options" [formControl]="control" />`,
@@ -61,6 +63,7 @@ class ReactiveHost {
 }
 
 @Component({
+  changeDetection: ChangeDetectionStrategy.Eager,
   standalone: true,
   imports: [SelectFieldComponent],
   template: `<app-select label="Signal" [options]="options" [(value)]="choice" />`,

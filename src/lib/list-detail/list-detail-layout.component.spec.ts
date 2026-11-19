@@ -1,6 +1,6 @@
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
-import { Component, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, signal } from '@angular/core';
 import { render, screen } from '@testing-library/angular';
 import userEvent from '@testing-library/user-event';
 import { BREAKPOINTS } from '../breakpoints/breakpoints';
@@ -17,6 +17,7 @@ import {
 } from './list-detail-layout.component';
 
 @Component({
+  changeDetection: ChangeDetectionStrategy.Eager,
   standalone: true,
   imports: [ListDetailLayoutComponent],
   template: `
@@ -31,6 +32,7 @@ class HostComponent {
 }
 
 @Component({
+  changeDetection: ChangeDetectionStrategy.Eager,
   standalone: true,
   imports: [ListDetailLayoutComponent],
   template: `
@@ -51,6 +53,7 @@ class FocusHostComponent {
 
 /** A detail with its own way back: the layout shows no "Zur Liste". */
 @Component({
+  changeDetection: ChangeDetectionStrategy.Eager,
   standalone: true,
   imports: [ListDetailLayoutComponent],
   template: `
@@ -68,6 +71,7 @@ class OwnBackHostComponent {
 
 /** A detail whose sheet bar has a title and an action, as every detail sheet of the app. */
 @Component({
+  changeDetection: ChangeDetectionStrategy.Eager,
   standalone: true,
   imports: [ListDetailLayoutComponent, SheetBarComponent, SheetBarTitleDirective],
   template: `

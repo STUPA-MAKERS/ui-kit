@@ -1,11 +1,12 @@
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
-import { Component, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { SheetBarComponent, SheetBarKickerDirective, SheetBarTitleDirective } from './sheet-bar.component';
 import { runAxe } from '../../../testing/a11y';
 
 @Component({
+  changeDetection: ChangeDetectionStrategy.Eager,
   standalone: true,
   imports: [SheetBarComponent],
   template: `
@@ -21,6 +22,7 @@ class HostComponent {
 }
 
 @Component({
+  changeDetection: ChangeDetectionStrategy.Eager,
   standalone: true,
   imports: [SheetBarComponent, SheetBarKickerDirective],
   template: `
@@ -33,6 +35,7 @@ class HostComponent {
 class SlotHostComponent {}
 
 @Component({
+  changeDetection: ChangeDetectionStrategy.Eager,
   standalone: true,
   imports: [SheetBarComponent, SheetBarTitleDirective],
   template: `

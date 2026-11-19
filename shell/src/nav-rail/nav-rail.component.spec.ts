@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { ChangeDetectionStrategy, Component } from '@angular/core';
 import { Router, provideRouter } from '@angular/router';
 import { render, screen, within } from '@testing-library/angular';
 import { runAxe } from '../../../testing/a11y';
@@ -8,7 +8,7 @@ import type { ShellBrand } from '../shell.types';
 import { BRAND, NAV, TestMarkComponent } from '../../../testing/shell';
 import { NavRailComponent } from './nav-rail.component';
 
-@Component({ standalone: true, template: 'page' })
+@Component({ changeDetection: ChangeDetectionStrategy.Eager, standalone: true, template: 'page' })
 class StubPage {}
 
 async function renderRail(inputs: { searchable?: boolean; brand?: ShellBrand } = {}) {

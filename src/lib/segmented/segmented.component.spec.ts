@@ -1,4 +1,4 @@
-import { Component, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, signal } from '@angular/core';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
 import { render, screen } from '@testing-library/angular';
 import userEvent from '@testing-library/user-event';
@@ -16,6 +16,7 @@ const RULES: SegmentedOption[] = [
 ];
 
 @Component({
+  changeDetection: ChangeDetectionStrategy.Eager,
   standalone: true,
   imports: [SegmentedComponent],
   template: `<app-segmented ariaLabel="Art" [options]="options" [(value)]="value" />`,
@@ -145,6 +146,7 @@ describe('SegmentedComponent', () => {
 
   it('works as a form control and follows its disabled state', async () => {
     @Component({
+      changeDetection: ChangeDetectionStrategy.Eager,
       standalone: true,
       imports: [SegmentedComponent, ReactiveFormsModule],
       template: `<app-segmented ariaLabel="Anwesenheit" [options]="opts" [formControl]="ctrl" />`,
@@ -190,6 +192,7 @@ describe('SegmentedComponent', () => {
     ['fill', ['seg-host--fill']],
   ] as const)('sets the width class of %s', async (width, classes) => {
     @Component({
+      changeDetection: ChangeDetectionStrategy.Eager,
       standalone: true,
       imports: [SegmentedComponent],
       template: `<app-segmented ariaLabel="Art" [options]="opts" [width]="width" />`,

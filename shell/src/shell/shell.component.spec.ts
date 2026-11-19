@@ -1,4 +1,4 @@
-import { Component, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { RouterTestingHarness } from '@angular/router/testing';
 import { Router, provideRouter, type Routes } from '@angular/router';
@@ -12,7 +12,10 @@ import { BarButtonComponent, RailButtonComponent } from '../nav-item/nav-item-bu
 import type { ShellFrame } from '../shell.types';
 import { ShellComponent } from './shell.component';
 
-@Component({ standalone: true, template: '<h1>Seite</h1>' })
+@Component({
+  changeDetection: ChangeDetectionStrategy.Eager,
+  standalone: true, template: '<h1>Seite</h1>'
+})
 class StubPage {}
 
 const ROUTES: Routes = [
@@ -417,6 +420,7 @@ describe('ShellComponent', () => {
 
 /** The shell inside the component of a layout route, as an app with a layout route has it. */
 @Component({
+  changeDetection: ChangeDetectionStrategy.Eager,
   standalone: true,
   imports: [ShellComponent],
   template: `<app-shell frame="rail" [nav]="nav" [barKeys]="barKeys" [brand]="brand" />`,

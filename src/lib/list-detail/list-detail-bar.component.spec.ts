@@ -1,4 +1,11 @@
-import { Component, type ElementRef, type TemplateRef, signal, viewChild } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  type ElementRef,
+  type TemplateRef,
+  signal,
+  viewChild,
+} from '@angular/core';
 import { render, screen } from '@testing-library/angular';
 import userEvent from '@testing-library/user-event';
 import { SheetBarComponent, SheetBarTitleDirective } from '../sheet-bar/sheet-bar.component';
@@ -7,6 +14,7 @@ import { ListDetailNav, dockInListDetailBar } from './list-detail-nav';
 
 /** A page header that hands its meta text to the bar as the second line. */
 @Component({
+  changeDetection: ChangeDetectionStrategy.Eager,
   selector: 'app-test-header',
   standalone: true,
   template: `
@@ -34,6 +42,7 @@ class SubtitleHeader {
 
 /** A panel outside `app-list-detail` (the card drawer of a board) with the bar of the layout. */
 @Component({
+  changeDetection: ChangeDetectionStrategy.Eager,
   standalone: true,
   imports: [ListDetailBarComponent, ListDetailNavDirective, SheetBarComponent, SheetBarTitleDirective],
   template: `

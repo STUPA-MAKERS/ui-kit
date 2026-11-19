@@ -1,10 +1,11 @@
-import { Component, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { fireEvent, render, screen } from '@testing-library/angular';
 import { TimeInputComponent } from './time-input.component';
 import { runAxe } from '../../../testing/a11y';
 
 @Component({
+  changeDetection: ChangeDetectionStrategy.Eager,
   standalone: true,
   imports: [FormsModule, TimeInputComponent],
   template: `<app-time-input label="Zeit" [ngModel]="value()" (ngModelChange)="value.set($event)" />`,

@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { ChangeDetectionStrategy, Component } from '@angular/core';
 import { provideRouter, RouterLink } from '@angular/router';
 import { render, screen } from '@testing-library/angular';
 import userEvent from '@testing-library/user-event';
@@ -6,7 +6,7 @@ import { IconComponent } from '@stupa-makers/ui-kit';
 import { runAxe } from '../../../testing/a11y';
 import { AccountMenuComponent, type AccountMenuVariant } from './account-menu.component';
 
-@Component({ standalone: true, template: '' })
+@Component({ changeDetection: ChangeDetectionStrategy.Eager, standalone: true, template: '' })
 class StubPage {}
 
 const LANGUAGES = [
