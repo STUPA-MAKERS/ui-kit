@@ -23,7 +23,7 @@
   flex-direction: column;
   align-items: center;
   // The scroll part lies on a surface of its own, and the items cut hard at its rounded
-  // edge (app specs 000193, 001351). It is 24px narrower than the rail, so the edge keeps
+  // edge (app specs 000193, 001441). It is 24px narrower than the rail, so the edge keeps
   // clear of the line between the rail and the page.
   width: calc(100% - 24px);
   min-height: 0;

@@ -281,7 +281,7 @@ describe('highlightedTagsAndBars (§000598)', () => {
     expect(rule).toMatch(/padding: 6px;/);
   });
 
-  /** The scroll part of the rail is a surface with the white edge, and draws no scroll line (app 001351). */
+  /** The scroll part of the rail is a surface with the white edge, and draws no scroll line (app 001441). */
   it('draws the white edge around the scroll surface of the rail, and no scroll line', () => {
     expect(DISPLAY).toMatch(/\.rail__main \{\s*border: var\(--vh-edge\) !important;/);
     expect(DISPLAY).not.toMatch(/\.rail__main\.is-fade/);
