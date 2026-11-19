@@ -13,7 +13,7 @@ STUPA-Workflow platform so the same look & feel can be reused across projects.
   are wired through injection tokens, with built-in DE/EN defaults so the kit works out of
   the box.
 
-> Angular **20+**. Components use the `app-` selector prefix.
+> Angular **22+**. Components use the `app-` selector prefix.
 
 ## Install
 
