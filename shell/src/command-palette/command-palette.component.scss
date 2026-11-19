@@ -97,7 +97,6 @@
   background: transparent;
   color: var(--color-text-muted);
   cursor: pointer;
-  transition: scale var(--motion-xs) var(--ease-standard);
   @include press.press;
 }
 .pal__close:focus-visible {
@@ -159,8 +158,7 @@
   padding: var(--space-2) 14px;
   border-radius: var(--radius-field);
   cursor: pointer;
-  transition: scale var(--motion-xs) var(--ease-standard);
-  @include press.press($scale: row);
+  @include press.press;
 }
 .pal__row--active {
   background: var(--color-surface-3);
