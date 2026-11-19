@@ -456,9 +456,9 @@
     color: var(--vh-ink) !important;
     box-shadow: inset 0 0 0 2px var(--vh-ink);
   }
-  // A status badge (app spec 001305) keeps its pill, without the tint.
-  app-status-text.st--badge {
-    padding: 0 10px;
+  // A status chip (app spec 001305) keeps its pill, on the black page.
+  app-status-text.st--chip {
+    padding: 0 var(--space-3);
     border-radius: var(--radius-pill);
     background: none;
   }

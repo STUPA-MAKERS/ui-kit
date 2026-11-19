@@ -23,14 +23,15 @@
   color: var(--color-danger);
 }
 
-/* The status of a page or detail head (app spec 001305): a pill tinted in its colour.
-   Very high contrast drops the tint and keeps the white edge of a state
-   (display-settings.scss). */
-:host(.st--badge) {
-  height: 24px;
-  padding: 0 10px;
+/* The status of a page or detail head (app spec 001305): the chip look of `app-chip` (the
+   grey pill on surface 2), with the text in the colour of the status. Very high contrast
+   keeps the white edge of a state (display-settings.scss). */
+:host(.st--chip) {
+  min-height: 28px;
+  box-sizing: border-box;
+  padding: 0 var(--space-3);
   border-radius: var(--radius-pill);
-  background: color-mix(in srgb, currentColor 14%, transparent);
+  background: var(--color-surface-2);
   font-size: var(--fs-small);
   line-height: 1;
   font-weight: var(--fw-semibold);

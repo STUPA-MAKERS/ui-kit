@@ -14,14 +14,15 @@ export type StatusKind = 'accent' | 'warn' | 'error' | 'neutral' | 'muted';
 
 /**
  * A status as text in its colour: no dot, no pill, no plate. In the head of a page or a
- * detail (`badge`) it is a pill tinted in its colour, centred on its line (app spec 001305).
+ * detail (`chip`) it is a chip: the grey pill of `app-chip` with the text in its colour,
+ * centred on its line (app spec 001305).
  *
  * The caller gives the label as content and the colour as `kind`. The host app maps
  * each of its states to a kind and a label:
  *
  * ```html
  * <app-status-text kind="warn">In Prüfung</app-status-text>
- * <app-status-text kind="accent" badge>Bewilligt</app-status-text>
+ * <app-status-text kind="accent" chip>Bewilligt</app-status-text>
  * ```
  *
  * A tag (a feature of a thing such as NÖ or Pool) is not a status. Use `app-badge` for it.
@@ -33,7 +34,7 @@ export type StatusKind = 'accent' | 'warn' | 'error' | 'neutral' | 'muted';
   host: {
     class: 'st',
     '[class]': "'st--' + kind()",
-    '[class.st--badge]': 'badge()',
+    '[class.st--chip]': 'chip()',
   },
   templateUrl: './status-text.component.html',
   styleUrl: './status-text.component.scss',
@@ -41,6 +42,6 @@ export type StatusKind = 'accent' | 'warn' | 'error' | 'neutral' | 'muted';
 export class StatusTextComponent {
   /** The colour of the status. */
   readonly kind = input<StatusKind>('neutral');
-  /** The status of a page or detail head: a tinted pill instead of plain text. */
-  readonly badge = input(false, { transform: booleanAttribute });
+  /** The status of a page or detail head: a chip instead of plain text. */
+  readonly chip = input(false, { transform: booleanAttribute });
 }
