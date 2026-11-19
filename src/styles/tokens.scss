@@ -161,10 +161,10 @@
   --motion-shift-sm: 8px;
   --motion-shift-md: 24px;
   --motion-scale-in: 0.96;
-  // Press: the tint of a pressed control is its own text colour at 10 %, so it darkens a
+  // Press: the tint of a pressed control is its own text colour at 16 %, so it darkens a
   // light surface and lightens a dark one in both themes. It paints the ripple of a press
   // (`_press.scss`).
-  --press-tint: color-mix(in srgb, currentColor 10%, transparent);
+  --press-tint: color-mix(in srgb, currentColor 16%, transparent);
   // A skeleton shows only after this delay, so a fast load shows no flash.
   --skeleton-delay: 300ms;
 
