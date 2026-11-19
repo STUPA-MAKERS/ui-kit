@@ -106,14 +106,15 @@
   outline: 2px solid var(--color-focus-ring);
   outline-offset: -2px;
 }
-/* The Esc key fills the close button: a pill of 40px, inset 6px from the end, top and bottom
-   of the 52px field, so its end is concentric with the field (radius 26 - 6 = 20). */
+/* The Esc key is a pill of 32px, inset 10px from the end, top and bottom of the 52px field,
+   so its end is concentric with the field (radius 26 - 10 = 16). */
 .pal__esc {
   display: grid;
   place-items: center;
-  height: 40px;
-  min-width: 40px;
-  padding: 0 12px;
+  height: 32px;
+  min-width: 32px;
+  margin-inline-end: 4px;
+  padding: 0 10px;
   border-radius: var(--radius-pill);
 }
 .pal__x {
