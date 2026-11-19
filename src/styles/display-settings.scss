@@ -46,11 +46,7 @@
 }
 
 // --- Less motion (000219) ----------------------------------------------------
-// `base.scss` cuts every animation and transition. A pressed control does not shrink.
-@include d.on(motion) {
-  --press-scale: 1;
-  --press-scale-control: 1;
-}
+// `base.scss` cuts every animation and transition, so a press shows its tint at once.
 
 // --- Less transparency (000596) ----------------------------------------------
 // The glass mixins of `_frosted.scss` read the tint and the blur from these tokens, so a

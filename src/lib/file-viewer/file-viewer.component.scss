@@ -9,7 +9,6 @@
   --fv-text: #ffffff;
   --fv-text-muted: var(--c-dark-onv, #b3b8b4);
   --fv-hover: rgba(255, 255, 255, 0.12);
-  --fv-press: rgba(255, 255, 255, 0.2);
   --fv-image-surface: var(--c-dark-c3, #262a27);
   --fv-focus: var(--c-dark-pt, #8dbb9d);
   --fv-bar-height: 3rem; /* 48px */
@@ -134,8 +133,7 @@
   color: var(--fv-text);
   cursor: pointer;
   transition: background-color var(--motion-fast, 120ms) var(--ease-standard, ease),
-    opacity var(--motion-fast, 120ms) var(--ease-standard, ease),
-    scale var(--motion-xs) var(--ease-standard);
+    opacity var(--motion-fast, 120ms) var(--ease-standard, ease);
 }
 @media (hover: hover) {
   .fv__btn:hover:not(:disabled),
@@ -143,10 +141,9 @@
     background: var(--fv-hover);
   }
 }
-.fv__btn:active:not(:disabled),
-.fv__actions ::ng-deep .fv__btn:active:not(:disabled) {
-  background: var(--fv-press);
-  @include press.press-scale;
+.fv__btn,
+.fv__actions ::ng-deep .fv__btn {
+  @include press.press;
 }
 .fv__btn:disabled,
 .fv__actions ::ng-deep .fv__btn:disabled {

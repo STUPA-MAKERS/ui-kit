@@ -79,26 +79,28 @@ describe('touch rules in the stylesheets', () => {
     expect(offenders).toEqual([]);
   });
 
-  it('defines one press tint and two press scales, for a row and for a control', () => {
+  it('defines one press tint and draws it as a ripple that grows from the press (001314)', () => {
     const tokens = read('tokens.scss');
     expect(tokens).toMatch(/--press-tint: color-mix\(in srgb, currentColor 10%, transparent\);/);
-    expect(tokens).toMatch(/--press-scale: 0\.98;/);
-    expect(tokens).toMatch(/--press-scale-control: 0\.94;/);
+    expect(tokens).not.toContain('--press-scale');
     const press = read('_press.scss');
-    expect(press).toMatch(/linear-gradient\(var\(--press-tint\), var\(--press-tint\)\)/);
-    // A control shrinks by default; a row asks for the smaller amount.
-    expect(press).toMatch(/@mixin press\(\$scale: control\)/);
-    expect(press).toMatch(/@mixin press-on\(\$child, \$scale: row\)/);
-    expect(press).toMatch(/@return var\(--press-scale-control\);/);
-    expect(press).toMatch(/@return var\(--press-scale\);/);
-    // The scale never runs with reduced motion: both amounts are 1 then. Every press
-    // includes the scale.
-    expect(press).toMatch(/scale: amount-of\(\$scale\);/);
-    expect(read('display-settings.scss')).toMatch(
-      /@include d\.on\(motion\) \{\s*--press-scale: 1;\s*--press-scale-control: 1;\s*\}/,
+    expect(press).toMatch(
+      /radial-gradient\(\s*circle at var\(--ripple-x, 50%\) var\(--ripple-y, 50%\),\s*var\(--press-tint\) var\(--press-ripple\),\s*transparent var\(--press-ripple\)\s*\)/,
     );
-    expect(press.match(/@include press-scale\(\$scale\);/g)).toHaveLength(3);
-    expect(read('base.scss')).toMatch(/-webkit-tap-highlight-color: transparent;/);
+    expect(press).toMatch(/animation: press-ripple var\(--motion-slow\) var\(--ease-standard\) forwards;/);
+    expect(press).toMatch(/animation: press-fade var\(--motion-base\) var\(--ease-standard\) forwards;/);
+    expect(press).toMatch(/@mixin press \{\s*@include host;/);
+    expect(press).toMatch(/@mixin press-on\(\$child\) \{\s*@include host;/);
+    expect(press).not.toMatch(/\bscale:/);
+    const base = read('base.scss');
+    for (const prop of ['--press-ripple', '--press-fade', '--press-host']) {
+      expect(base).toMatch(new RegExp(`@property ${prop} \\{[^}]*inherits: false;`));
+    }
+    expect(base).toMatch(/@keyframes press-ripple \{[\s\S]*?--press-ripple: var\(--ripple-r, 150vmax\);/);
+    // With less motion every animation runs to its end at once, so the tint shows at once.
+    expect(base).toMatch(/animation-duration: 0\.01ms !important;/);
+    expect(read('display-settings.scss')).not.toContain('--press-scale');
+    expect(base).toMatch(/-webkit-tap-highlight-color: transparent;/);
   });
 
   it('reads the press uses of a stylesheet with their own transition', () => {
@@ -111,21 +113,22 @@ describe('touch rules in the stylesheets', () => {
     ]);
   });
 
-  it('shrinks every pressed element of the kit and eases it back on the release', () => {
-    const offenders = kitStyles().flatMap((file) =>
-      pressUses(readFileSync(file, 'utf8'))
-        .filter((u) => u.include.includes('$scale: none') || !u.transition?.includes('scale var(--motion-xs)'))
-        .map((u) => `${relative(ROOT, file)}: ${u.selector}`),
-    );
+  it('shrinks no pressed element of the kit, because the ripple replaces the shrink', () => {
+    const offenders = kitStyles()
+      .filter((file) => {
+        const text = readFileSync(file, 'utf8');
+        return /press-scale|scale var\(--motion-xs\)|\$scale/.test(text);
+      })
+      .map((file) => relative(ROOT, file));
     expect(offenders).toEqual([]);
   });
 
-  it('gives a press state of its own (outside the mixins) the scale too', () => {
+  it('paints the ripple in a press state of its own (outside the mixins)', () => {
     const offenders = kitStyles()
       .filter((file) => !file.endsWith('_press.scss'))
       .filter((file) => {
         const text = readFileSync(file, 'utf8').replace(/\/\*[\s\S]*?\*\//g, '').replace(/\/\/[^\n]*/g, '');
-        return /:active\b/.test(text) && !text.includes('@include press.press-scale');
+        return /:active\b/.test(text) && !text.includes('@include press.paint');
       })
       .map((file) => relative(ROOT, file));
     expect(offenders).toEqual([]);
@@ -136,8 +139,9 @@ describe('touch rules in the stylesheets', () => {
     ['menu row', '../lib/row-menu/row-menu.component.scss'],
     ['card', '../lib/card/card.component.scss'],
     ['autocomplete option', '../lib/autocomplete/autocomplete.component.scss'],
-  ])('shrinks a %s by the row amount, because it is wide', (_name, path) => {
-    expect(read(path)).toContain('@include press.press($scale: row);');
+    ['tab', '../lib/tabs/tabs.component.scss'],
+  ])('ripples a %s, also when it is wide', (_name, path) => {
+    expect(read(path)).toContain('@include press.press;');
   });
 
   it.each([
@@ -153,13 +157,13 @@ describe('touch rules in the stylesheets', () => {
     if (chrome) expect(scss).toContain('@include press.chrome-text;');
   });
 
-  it('tints a pressed segment and shrinks the whole control, because the control clips it', () => {
+  it('ripples only inside a pressed segment and never shrinks the control (001315)', () => {
     const scss = read('../lib/segmented/segmented.component.scss');
-    expect(scss).toMatch(/\.seg \{[^}]*transition: scale var\(--motion-xs\) var\(--ease-standard\);\s*@include press\.press-part\('\.seg__opt'\);/);
+    expect(scss).toMatch(/\.seg \{[^}]*@include press\.press-part\('\.seg__opt'\);/);
     expect(scss).not.toMatch(/@include press\.press;/);
     expect(scss).toContain('@include press.chrome-text;');
     const press = read('_press.scss');
-    expect(press).toMatch(/@mixin press-part\(\$part, \$scale: row\) \{\s*&:has\(#\{\$part\}:active/);
+    expect(press).toMatch(/@mixin press-part\(\$part\) \{\s*#\{\$part\} \{\s*@include host;/);
   });
 
   it.each([
@@ -174,13 +178,6 @@ describe('touch rules in the stylesheets', () => {
     ['menu row', '../lib/row-menu/row-menu.component.scss', /\.rm__item \{[^}]*border-radius: var\(--radius-md\);/],
   ])('rounds the %s inside the menu', (_name, path, radius) => {
     expect(read(path)).toMatch(radius);
-  });
-
-  it('shrinks a pressed tab without a tint, because the line under it is its only state', () => {
-    const scss = read('../lib/tabs/tabs.component.scss');
-    expect(scss).not.toContain('@include press.press;');
-    expect(scss).toMatch(/\.tabs__tab:active:not\(:disabled\) \{\s*@include press\.press-scale;/);
-    expect(scss).toContain('@include press.chrome-text;');
   });
 
   it('keeps the interface unselectable on a touch screen, and the content selectable', () => {

@@ -16,9 +16,7 @@
   padding: 4px;
   border-radius: var(--radius-pill);
   background: color-mix(in srgb, var(--color-text) 7%, transparent);
-  /* A press tints the segment and shrinks the whole control: a segment that shrinks alone
-     moves its pill away from the track (app spec 000528). */
-  transition: scale var(--motion-xs) var(--ease-standard);
+  /* A press ripples inside the pressed segment only, inside the track (app spec 001315). */
   @include press.press-part('.seg__opt');
 }
 .seg__opt {
