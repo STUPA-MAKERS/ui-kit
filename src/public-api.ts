@@ -32,6 +32,7 @@ export * from './lib/page-frame/page-frame';
 // --- components -------------------------------------------------------------
 export * from './lib/button/button.component';
 export * from './lib/button/button-link.component';
+export * from './lib/button-group/button-group.component';
 export * from './lib/switch/switch.component';
 export * from './lib/segmented/segmented.component';
 export * from './lib/tabs/tabs.component';
