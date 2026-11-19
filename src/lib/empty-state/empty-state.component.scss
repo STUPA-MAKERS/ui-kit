@@ -173,8 +173,7 @@
 .es--face .es__msg {
   padding: var(--space-2) var(--space-4) 0;
 }
-/* Below the face, one small muted hint with a crossed-out lens. No body, no action: the
-   way on is in the filter row of the list. */
+/* Below the face, one small muted hint with a crossed-out lens. No body. */
 .es--face .es__msg {
   flex-direction: row;
   flex-wrap: wrap;
@@ -187,9 +186,14 @@
   line-height: 1.25rem;
   font-weight: var(--fw-medium);
 }
-.es--face .es__body,
-.es--face .es__action {
+.es--face .es__body {
   display: none;
+}
+/* A way on that creates something (Info bearbeiten, Als freier TOP) stays, small, below the
+   hint. A reset of the filters is not projected: it is in the filter row of the list. */
+.es--face .es__action:not(:empty) {
+  flex-basis: 100%;
+  margin-top: var(--space-2);
 }
 .es__hintIcon {
   flex: none;
