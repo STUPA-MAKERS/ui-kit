@@ -16,13 +16,14 @@ import { NavigationEnd, Router, RouterLink, RouterLinkActive } from '@angular/ro
 import { IconComponent, SideSheetComponent, UiKitTranslatePipe } from '@stupa-makers/ui-kit';
 import { filter } from 'rxjs';
 import type { NavMarkContext } from '../nav-mark.directive';
-import type { ShellNavItem } from '../shell.types';
+import { navGroups, type ShellNavItem } from '../shell.types';
 import { ShellMoreSheet } from './more-sheet';
 
 /**
  * The phone navigation (viewport < 768px): the entries of `barKeys`, the `[barEnd]` slot
  * (for example an `app-bar-button`), then "More". "More" opens a bottom sheet in this
- * order: the other entries (with their count mark), the search, the `[more]` slot (extra
+ * order: the other entries (with their count mark), the groups of entries (each a row that
+ * opens and closes its entries; a group with the active page is open), the search, the `[more]` slot (extra
  * groups, for example a help menu) and the `[moreAccount]` slot (the account menu).
  *
  * With `more` false the bar has no "More" entry; give every entry a key in `barKeys`
@@ -73,23 +74,45 @@ export class BottomBarComponent {
 
   /** The bar entries, in bar order. */
   readonly barItems = computed<ShellNavItem[]>(() => {
-    const visible = this.items();
+    const visible = this.items().filter((i) => !i.group);
     return this.barKeys()
       .map((key) => visible.find((i) => i.key === key))
       .filter((i): i is ShellNavItem => !!i);
   });
 
   /** The other entries, in rail order: they go into the "More" sheet. */
-  readonly moreItems = computed<ShellNavItem[]>(() => {
-    const keys = this.barKeys();
-    return this.items().filter((i) => !keys.includes(i.key));
+  private readonly restItems = computed<ShellNavItem[]>(() => {
+    const inBar = this.barItems();
+    return this.items().filter((i) => !inBar.includes(i));
   });
+
+  /** The entries of "More" outside a group. */
+  readonly moreItems = computed<ShellNavItem[]>(() => this.restItems().filter((i) => !i.group));
+
+  /** The groups of "More", after its other entries; each opens and closes. */
+  readonly groups = computed(() => navGroups(this.restItems()));
+
+  /** The groups the person opened (true) or closed (false). */
+  private readonly chosen = signal<ReadonlyMap<string, boolean>>(new Map());
+
+  /** A group is open when the person opened it, else while it holds the active page. */
+  isOpen(key: string): boolean {
+    const choice = this.chosen().get(key);
+    if (choice !== undefined) return choice;
+    const path = this.url().split(/[?#]/)[0];
+    const inside = (base: string): boolean => path === base || path.startsWith(`${base}/`);
+    return this.groups().some((g) => g.key === key && g.items.some((i) => inside(i.path)));
+  }
+
+  toggle(key: string): void {
+    this.chosen.set(new Map(this.chosen()).set(key, !this.isOpen(key)));
+  }
 
   /** "More" is the active entry while the page belongs to one of its entries or paths. */
   readonly moreActive = computed(() => {
     const path = this.url().split(/[?#]/)[0];
     const inside = (base: string): boolean => path === base || path.startsWith(`${base}/`);
-    return this.morePaths().some(inside) || this.moreItems().some((i) => inside(i.path));
+    return this.morePaths().some(inside) || this.restItems().some((i) => inside(i.path));
   });
 
   constructor() {

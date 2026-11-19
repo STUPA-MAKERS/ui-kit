@@ -47,6 +47,43 @@
         }
       </a>
     }
+    @for (group of groups(); track group.key) {
+      <button
+        type="button"
+        class="rail__item rail__group"
+        [class.is-open]="isOpen(group.key)"
+        [attr.aria-expanded]="isOpen(group.key)"
+        [attr.aria-controls]="'rail-group-' + group.key"
+        (click)="toggle(group.key, sub)"
+      >
+        <span class="rail__ind"><app-icon [name]="group.icon" [size]="22" /></span>
+        <span class="rail__label">{{ group.label }}</span>
+        <app-icon class="rail__chev" name="down" [size]="14" />
+      </button>
+      <div
+        #sub
+        class="rail__sub"
+        role="group"
+        [id]="'rail-group-' + group.key"
+        [attr.aria-label]="group.label"
+        [hidden]="!isOpen(group.key)"
+      >
+        @for (item of group.items; track item.key) {
+          <a
+            #entry
+            class="rail__item"
+            [routerLink]="item.path"
+            routerLinkActive="is-active"
+            ariaCurrentWhenActive="page"
+            [routerLinkActiveOptions]="{ exact: item.exact ?? false }"
+            (isActiveChange)="$event && activeInGroup(group.key, entry)"
+          >
+            <span class="rail__ind"><app-icon [name]="item.icon" [size]="22" /></span>
+            <span class="rail__label">{{ item.label }}</span>
+          </a>
+        }
+      </div>
+    }
   </div>
 
   <div class="rail__spacer"></div>
