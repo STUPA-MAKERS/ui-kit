@@ -31,13 +31,37 @@
   display: none;
 }
 
+// A group of small buttons (`size="sm"`, inside a list row or a card) is as high as a small button.
+.btn-grp:has(.btn--sm) {
+  --btn-grp-h: var(--control-height-sm);
+}
+.btn-grp.btn-grp .btn--sm {
+  padding: 0 var(--space-3);
+  font-size: 0.8125rem;
+}
+.btn-grp.btn-grp .btn--icon.btn--sm {
+  width: 40px;
+  padding: 0;
+}
+
+// A group of full-width buttons (`[block]="true"`, the ballot of a vote) fills its row, and
+// its buttons share the width equally.
+.btn-grp:has(> .btn-block) {
+  display: flex;
+  width: 100%;
+}
+.btn-grp > .btn-block {
+  flex: 1 1 0;
+  min-width: max-content;
+}
+
 // The radius of each side, set on the host of a button and read by the button inside it. A
 // button rounds its start when no button stands right before it, and its end when no button
 // follows right after it. So a button between two other controls (a language switch, a
 // search field) is a pill of its own, and a block behind `@if` that renders nothing leaves
 // no gap in the shape. The hosts are the elements that hold a button: `app-button`,
-// `a[appButton]` (`.btn-link`) and `app-row-menu`.
-$-host: ':is(app-button, a.btn-link, app-row-menu)';
+// `a[appButton]` (`.btn-link`), `app-row-menu` and a segment of the page (`.btn-grp__seg`).
+$-host: ':is(app-button, a.btn-link, app-row-menu, .btn-grp__seg)';
 .btn-grp #{$-host} {
   --btn-grp-s: var(--btn-grp-in);
   --btn-grp-e: var(--btn-grp-in);
@@ -47,6 +71,14 @@ $-host: ':is(app-button, a.btn-link, app-row-menu)';
 }
 .btn-grp #{$-host}:not(:has(+ #{$-host})) {
   --btn-grp-e: var(--btn-grp-out);
+}
+
+// A segment that holds a button and a mark on it (a count badge) is an element of the page
+// with the class `btn-grp__seg`. It takes part in the shape like a button, and the button in
+// it takes the radius of the segment.
+.btn-grp .btn-grp__seg.btn-grp__seg > :is(app-button, a.btn-link, app-row-menu) {
+  --btn-grp-s: inherit;
+  --btn-grp-e: inherit;
 }
 
 // A page may wrap its head actions in an element of its own (a toolbar with a language switch
