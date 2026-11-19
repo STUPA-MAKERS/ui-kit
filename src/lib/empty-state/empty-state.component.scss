@@ -20,6 +20,17 @@
   justify-content: center;
 }
 
+/* The face of an empty list centres in the free height of the list: the host grows in a
+   flex-column parent, and it is at least most of a screen high where the parent is only
+   as high as its content (the phone list that scrolls with the page). */
+:host(.es-host--face) {
+  display: flex;
+  flex: 1 0 auto;
+  flex-direction: column;
+  justify-content: center;
+  min-height: min(60dvh, 32rem);
+}
+
 /* Ghost rows in the geometry of the list rows, faint and hidden from the screen reader,
    and over them the message on a radial scrim. The rows mix the text colour into
    transparent and the scrim is a mask on the rows, so the state reads the same on every
@@ -162,18 +173,24 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding-block: var(--space-6);
+  padding-block: var(--space-4);
 }
 .es--face .es__msg {
-  padding-top: var(--space-2);
+  gap: 0;
+  padding: var(--space-3) var(--space-4) 0;
 }
-.es--face .es__heading {
-  font-size: 1.375rem;
-  line-height: 1.75rem;
-  font-weight: var(--fw-bold);
+.es--face .es__action:empty {
+  display: none;
 }
-.es--face .es__action:not(:empty) {
-  margin-top: var(--space-1);
+/* The face says it: the message is for the screen reader only. */
+.es--face .es__heading,
+.es--face .es__body {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
 }
 .es__face {
   width: 132px;
