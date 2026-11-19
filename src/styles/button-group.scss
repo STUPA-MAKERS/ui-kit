@@ -129,11 +129,17 @@ $-host: ':is(app-button, a.btn-link, app-row-menu)';
 
 // Selected: an open menu, an open sheet or a pressed toggle. The accent fill, and the button
 // rounds all four corners.
-.btn-grp.btn-grp
-  :is(.btn[aria-pressed='true'], .btn[aria-expanded='true'], .rm__trigger--on, .rm__trigger--on:hover) {
+.btn-grp.btn-grp :is(.btn[aria-pressed='true'], .btn[aria-expanded='true'], .rm__trigger--on) {
   border-radius: var(--btn-grp-out);
   background-color: var(--color-accent);
   color: var(--color-on-accent);
+}
+@media (hover: hover) {
+  .btn-grp.btn-grp
+    :is(.btn[aria-pressed='true'], .btn[aria-expanded='true'], .rm__trigger--on):hover:not(:disabled) {
+    background-color: color-mix(in srgb, var(--color-on-accent) 8%, var(--color-accent));
+    color: var(--color-on-accent);
+  }
 }
 
 // Disabled: a faint surface and the text at 38 %, without the fade of a single button.
