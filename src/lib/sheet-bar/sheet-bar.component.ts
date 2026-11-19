@@ -105,7 +105,10 @@ export class SheetBarComponent {
   /**
    * Let the icon buttons reach into the padding of the sheet, so the glyph of the last
    * button lines up with the end edge of the content. Set it only on a sheet with side
-   * padding: without one the bar would make the pane scroll sideways.
+   * padding: without one the bar would make the pane scroll sideways. The buttons of the
+   * bar form a button group with a surface (001350), and the surface of the last button
+   * ends on the end edge of the content, so the bar reaches in only while it holds no
+   * button.
    */
   readonly bleed = input(false);
 
