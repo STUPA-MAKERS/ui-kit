@@ -325,3 +325,21 @@ describe('motion and list pane partials', () => {
     }
   });
 });
+
+describe('the head of a list column on a wide screen (app spec 001500)', () => {
+  const scss = read('list-detail.scss');
+
+  it('shows the title only to a screen reader', () => {
+    expect(scss).toMatch(/\.ld-pane > app-page-header\.ph--pane \.ph__text\.ph__text \{[^}]*clip: rect\(0 0 0 0\)/);
+  });
+
+  it('puts the buttons at the end of the first filter line, as high as the search bar', () => {
+    expect(scss).toMatch(/app-search-pill:first-child\) > app-page-header\.ph--pane \{\s*--ph-pane-h: var\(--control-height-lg\);/);
+    expect(scss).toMatch(/\.ph__actions\.ph__actions \{\s*--btn-grp-h: var\(--ph-pane-h\);\s*position: absolute;/);
+    expect(scss).toContain('margin-inline-end: calc(var(--ph-pane-actions, 0px) + var(--space-3));');
+  });
+
+  it('matches the yellow of the search bar in the very high contrast', () => {
+    expect(scss).toContain('--btn-grp-h: calc(var(--ph-pane-h) - 4px);');
+  });
+});
