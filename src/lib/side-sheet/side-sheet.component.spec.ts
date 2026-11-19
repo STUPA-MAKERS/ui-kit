@@ -1,3 +1,5 @@
+import { readFileSync } from 'node:fs';
+import { join } from 'node:path';
 import { ChangeDetectionStrategy, Component, signal } from '@angular/core';
 import { DialogComponent } from '../dialog/dialog.component';
 import { fireEvent, render, screen, waitFor } from '@testing-library/angular';
@@ -468,5 +470,16 @@ describe('SideSheetComponent', () => {
       expect(animationComplete).toHaveBeenCalled();
       expect(sheet.shown()).toBe(true);
     });
+  });
+});
+
+describe('SideSheetComponent head', () => {
+  /** § NF/usability/layout/001341: the capitals of the title sit as far from the top as from the side. */
+  it('sets the top padding of the head from the side distance less the 12px above the capitals', () => {
+    // jsdom applies no component styles, so this reads the SCSS.
+    const scss = readFileSync(join(__dirname, 'side-sheet.component.scss'), 'utf8');
+    const start = scss.indexOf('.ss__head {');
+    const rule = scss.slice(start, scss.indexOf('}', start));
+    expect(rule).toMatch(/padding: calc\(var\(--space-[45]\) - 12px\)/);
   });
 });

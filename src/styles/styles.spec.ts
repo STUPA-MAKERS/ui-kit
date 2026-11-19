@@ -305,8 +305,8 @@ describe('motion and list pane partials', () => {
     const frame = block(pane, '@mixin frame($b) {');
     expect(frame).toContain('@include stack;');
     expect(frame).toContain('@include split-scroll(--#{$b}-fade);');
-    expect(frame).toContain('@include fade.fade-y(var(--#{$b}-fade));');
-    expect(pane).toContain("@use 'scroll-fade' as fade;");
+    expect(frame).not.toContain('fade.fade-y');
+    expect(pane).not.toContain("@use 'scroll-fade'");
   });
 
   it('gives settings rows 56px and record rows the anatomy of the list item', () => {
