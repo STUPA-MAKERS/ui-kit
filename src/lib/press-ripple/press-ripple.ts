@@ -15,19 +15,22 @@ const TEXT_FIELD = 'input, textarea, select, [contenteditable]:not([contentedita
  * `start` ripples.
  */
 export function pressHost(start: Element | null): HTMLElement | null {
-  for (let el = start; el && el.tagName !== 'BODY' && el.tagName !== 'HTML'; el = el.parentElement) {
-    if (!(el instanceof HTMLElement)) continue;
-    const view = el.ownerDocument.defaultView;
-    if (view?.getComputedStyle(el).getPropertyValue('--press-host').trim() === '1') return el;
-  }
-  return null;
+  if (!start || start.tagName === 'BODY' || start.tagName === 'HTML') return null;
+  const view = start.ownerDocument.defaultView;
+  const marked =
+    start instanceof HTMLElement && view?.getComputedStyle(start).getPropertyValue('--press-host').trim() === '1';
+  return marked ? start : pressHost(start.parentElement);
 }
 
 /** The cells that paint a table row: each one paints its part of the ripple of the row. */
-function painters(host: HTMLElement): HTMLElement[] {
-  return host instanceof HTMLTableRowElement
-    ? [host, ...Array.from(host.cells)]
-    : [host];
+function painters(host: HTMLElement): readonly HTMLElement[] {
+  return host instanceof HTMLTableRowElement ? [host, ...Array.from(host.cells)] : [host];
+}
+
+/** A point on the screen, in client pixels. */
+export interface PressPoint {
+  readonly x: number;
+  readonly y: number;
 }
 
 /**
@@ -35,16 +38,88 @@ function painters(host: HTMLElement): HTMLElement[] {
  * radius is the distance from the point to the farthest corner of the host, so the circle
  * covers the host when it ends. A point of null is the centre (a press with a key).
  */
-export function placeRipple(host: HTMLElement, point: { x: number; y: number } | null): void {
+export function placeRipple(host: HTMLElement, point: PressPoint | null): void {
   const box = host.getBoundingClientRect();
   const x = point ? point.x : box.left + box.width / 2;
   const y = point ? point.y : box.top + box.height / 2;
   const r = Math.hypot(Math.max(x - box.left, box.right - x), Math.max(y - box.top, box.bottom - y));
-  for (const el of painters(host)) {
+  painters(host).forEach((el) => {
     const own = el.getBoundingClientRect();
     el.style.setProperty('--ripple-x', `${x - own.left}px`);
     el.style.setProperty('--ripple-y', `${y - own.top}px`);
     el.style.setProperty('--ripple-r', `${Math.ceil(r)}px`);
+  });
+}
+
+/** A host whose tint fades out, and the timer that ends the fade. */
+interface Fade {
+  readonly host: HTMLElement;
+  readonly timer: ReturnType<typeof setTimeout>;
+}
+
+/**
+ * The listeners of `installPressRipple`: the point of a pointer press, the press with Enter
+ * or Space, and the fade after the release.
+ */
+class PressRipple {
+  private fades: readonly Fade[] = [];
+  private pointerHost: HTMLElement | null = null;
+  private keyHost: HTMLElement | null = null;
+
+  readonly onPointerDown = (event: PointerEvent): void => {
+    if (event.button !== 0) return;
+    const host = pressHost(event.target as Element | null);
+    if (!host) return;
+    this.stopFade(host);
+    placeRipple(host, { x: event.clientX, y: event.clientY });
+    this.pointerHost = host;
+  };
+
+  readonly onPointerUp = (): void => {
+    if (this.pointerHost) this.fadeOut(this.pointerHost);
+    this.pointerHost = null;
+  };
+
+  readonly onKeyDown = (event: KeyboardEvent): void => {
+    if (event.repeat || !PRESS_KEYS.has(event.key) || this.keyHost) return;
+    const target = event.target as Element | null;
+    if (!target || target.closest(TEXT_FIELD)) return;
+    const host = pressHost(target);
+    if (!host) return;
+    this.stopFade(host);
+    placeRipple(host, null);
+    host.setAttribute('data-press-key', '');
+    this.keyHost = host;
+  };
+
+  /** A key that goes up, or a focus that leaves while the key is down, ends the press. */
+  readonly onKeyUp = (event: Event): void => {
+    const host = this.keyHost;
+    if (!host || (event instanceof KeyboardEvent && !PRESS_KEYS.has(event.key))) return;
+    this.keyHost = null;
+    host.removeAttribute('data-press-key');
+    this.fadeOut(host);
+  };
+
+  /** Stop every pending fade. */
+  dispose(): void {
+    this.fades.forEach((fade) => clearTimeout(fade.timer));
+    this.fades = [];
+  }
+
+  private fadeOut(host: HTMLElement): void {
+    this.stopFade(host);
+    // A new attribute starts the fade again, also when the last fade still runs.
+    void host.offsetWidth;
+    host.setAttribute('data-press-out', '');
+    const timer = setTimeout(() => this.stopFade(host), PRESS_FADE_MS);
+    this.fades = [...this.fades, { host, timer }];
+  }
+
+  private stopFade(host: HTMLElement): void {
+    this.fades.filter((fade) => fade.host === host).forEach((fade) => clearTimeout(fade.timer));
+    this.fades = this.fades.filter((fade) => fade.host !== host);
+    host.removeAttribute('data-press-out');
   }
 }
 
@@ -54,82 +129,20 @@ export function placeRipple(host: HTMLElement, point: { x: number; y: number } |
  * release. Returns the function that removes the listeners.
  */
 export function installPressRipple(doc: Document): () => void {
-  const fading = new Map<HTMLElement, ReturnType<typeof setTimeout>>();
-  let pointerHost: HTMLElement | null = null;
-  let keyHost: HTMLElement | null = null;
-
-  const fadeOut = (host: HTMLElement): void => {
-    clearTimeout(fading.get(host));
-    host.removeAttribute('data-press-out');
-    // A new attribute starts the fade again, also when the last fade still runs.
-    void host.offsetWidth;
-    host.setAttribute('data-press-out', '');
-    fading.set(
-      host,
-      setTimeout(() => {
-        fading.delete(host);
-        host.removeAttribute('data-press-out');
-      }, PRESS_FADE_MS),
-    );
-  };
-
-  const stopFade = (host: HTMLElement): void => {
-    clearTimeout(fading.get(host));
-    fading.delete(host);
-    host.removeAttribute('data-press-out');
-  };
-
-  const onPointerDown = (event: PointerEvent): void => {
-    if (event.button !== 0) return;
-    const host = pressHost(event.target as Element | null);
-    if (!host) return;
-    stopFade(host);
-    placeRipple(host, { x: event.clientX, y: event.clientY });
-    pointerHost = host;
-  };
-
-  const onPointerUp = (): void => {
-    if (pointerHost) fadeOut(pointerHost);
-    pointerHost = null;
-  };
-
-  const onKeyDown = (event: KeyboardEvent): void => {
-    if (event.repeat || !PRESS_KEYS.has(event.key) || keyHost) return;
-    const target = event.target as Element | null;
-    if (!target || target.closest(TEXT_FIELD)) return;
-    const host = pressHost(target);
-    if (!host) return;
-    stopFade(host);
-    placeRipple(host, null);
-    host.setAttribute('data-press-key', '');
-    keyHost = host;
-  };
-
-  // A key that goes up, or a focus that leaves while the key is down, ends the press.
-  const onKeyUp = (event: Event): void => {
-    if (!keyHost || (event instanceof KeyboardEvent && !PRESS_KEYS.has(event.key))) return;
-    const host = keyHost;
-    keyHost = null;
-    host.removeAttribute('data-press-key');
-    fadeOut(host);
-  };
-
+  const ripple = new PressRipple();
   const options = { capture: true, passive: true } as const;
-  doc.addEventListener('pointerdown', onPointerDown, options);
-  doc.addEventListener('pointerup', onPointerUp, options);
-  doc.addEventListener('pointercancel', onPointerUp, options);
-  doc.addEventListener('keydown', onKeyDown, options);
-  doc.addEventListener('keyup', onKeyUp, options);
-  doc.addEventListener('focusout', onKeyUp, options);
+  const listeners = [
+    ['pointerdown', ripple.onPointerDown],
+    ['pointerup', ripple.onPointerUp],
+    ['pointercancel', ripple.onPointerUp],
+    ['keydown', ripple.onKeyDown],
+    ['keyup', ripple.onKeyUp],
+    ['focusout', ripple.onKeyUp],
+  ] as const;
+  listeners.forEach(([type, listener]) => doc.addEventListener(type, listener as EventListener, options));
   return () => {
-    doc.removeEventListener('pointerdown', onPointerDown, options);
-    doc.removeEventListener('pointerup', onPointerUp, options);
-    doc.removeEventListener('pointercancel', onPointerUp, options);
-    doc.removeEventListener('keydown', onKeyDown, options);
-    doc.removeEventListener('keyup', onKeyUp, options);
-    doc.removeEventListener('focusout', onKeyUp, options);
-    for (const timer of fading.values()) clearTimeout(timer);
-    fading.clear();
+    listeners.forEach(([type, listener]) => doc.removeEventListener(type, listener as EventListener, options));
+    ripple.dispose();
   };
 }
 
