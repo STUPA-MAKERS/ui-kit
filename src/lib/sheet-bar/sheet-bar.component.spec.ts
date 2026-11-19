@@ -141,6 +141,13 @@ describe('SheetBarComponent styles', () => {
     expect(rule(':host(.sheet-bar--docked) .sheet-bar__title')).toContain('min-height: 0;');
   });
 
+  /** § NF/usability/layout/001340: the capitals of the title sit as far from the top as the title from the side. */
+  it('derives the top padding of a title bar from the side padding of the sheet', () => {
+    expect(rule(':host(.sheet-bar--title)')).toContain(
+      'padding-top: max(0px, calc(var(--sheet-bar-inset, var(--space-6)) - var(--sheet-bar-cap, 20px)));',
+    );
+  });
+
   /** § NF/accessibility/conformance/000493: kicker text, kicker slot and title slot. */
   it('has no axe violations in each variant', async () => {
     for (const host of [HostComponent, SlotHostComponent, TitleHostComponent]) {
