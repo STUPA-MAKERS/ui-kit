@@ -347,7 +347,7 @@
 
   // A scroll area draws no line at its ends: its content cuts at the edge of a surface,
   // and that edge is drawn (app spec 000193). The scroll part of the rail is such a surface
-  // (app spec 001331).
+  // (app spec 001351).
   .rail__main {
     border: var(--vh-edge) !important;
   }
