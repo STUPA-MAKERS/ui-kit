@@ -23,7 +23,9 @@
   width: min(680px, calc(100vw - 2 * var(--space-4)));
   max-height: calc(100dvh - 96px - var(--space-6));
   overflow: hidden;
-  border-radius: var(--radius-2xl);
+  /* Concentric with the search pill inset in it: the radius of the pill (half its height)
+     plus its inset (`--space-3`), so the corner and the pill keep one even gap. */
+  border-radius: calc(var(--control-height-lg) / 2 + var(--space-3));
   color: var(--color-text);
   box-shadow: var(--shadow-elevated);
   /* Frosted glass like a dialog (`frosted-pop` with the same tint, blur and lift), and the
@@ -242,7 +244,6 @@ app-status-text.pal__rowSub {
   .pal {
     top: calc(var(--space-4) + var(--app-top-safe-area, 0px));
     max-height: calc(100dvh - 2 * var(--space-4) - var(--app-top-safe-area, 0px));
-    border-radius: var(--radius-xl);
   }
   .pal__keys,
   .pal__enter {
