@@ -466,6 +466,10 @@
       scroll-padding-top: 0 !important;
       border: var(--vh-edge) !important;
       border-radius: var(--radius-xl);
+      // The column runs down to the bottom edge of the screen (`--ld-pane-drop`). The frame
+      // ends the gutter above it, so its round corners show and its sides do not run into
+      // the edge of the screen.
+      margin-bottom: var(--ld-pane-drop, 0px) !important;
     }
     .ld-pane--glass > .ld-pane__rows::-webkit-scrollbar-track {
       margin-top: 0 !important;
