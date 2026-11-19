@@ -103,6 +103,12 @@ export class ListDetailLayoutComponent {
    * its actions.
    */
   readonly backButton = input(true);
+  /**
+   * The bar shows the title of the detail compact from the start, and the big title stays
+   * hidden. A detail whose page header docks in the bar (the administration) sets it, so
+   * the bar names the page.
+   */
+  readonly barTitle = input(false);
   /** The content width from which the panes sit side by side. */
   readonly splitMin = input(LIST_DETAIL_SPLIT_MIN);
 

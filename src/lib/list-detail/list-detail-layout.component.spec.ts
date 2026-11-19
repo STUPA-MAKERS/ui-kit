@@ -9,6 +9,7 @@ import { drag, mediaMatching } from '../../../testing/touch';
 import { MEDIA } from '../breakpoints/breakpoints';
 import { RouteFocus } from '../focus/route-focus';
 import { SheetBarComponent, SheetBarTitleDirective } from '../sheet-bar/sheet-bar.component';
+import { PageHeaderComponent } from '../page-header/page-header.component';
 import {
   LAYOUT_GUTTER,
   LIST_DETAIL_SPLIT_MIN,
@@ -92,6 +93,19 @@ class SheetHostComponent {
   readonly open = signal(true);
   readonly titled = signal(true);
 }
+
+@Component({
+  changeDetection: ChangeDetectionStrategy.Eager,
+  standalone: true,
+  imports: [ListDetailLayoutComponent, PageHeaderComponent],
+  template: `
+    <app-list-detail [detailOpen]="true" [barTitle]="true">
+      <ul list aria-label="Bereiche"><li>Benutzer</li></ul>
+      <section detail aria-label="Detail"><app-page-header title="Benutzer" /></section>
+    </app-list-detail>
+  `,
+})
+class PageHostComponent {}
 
 /** Drives the ResizeObserver of the layout: the last observer created gets the width. */
 let resize: ((width: number) => void) | null = null;
@@ -259,6 +273,15 @@ describe('ListDetailLayoutComponent', () => {
       const sheetBar = view.container.querySelector('app-sheet-bar') as HTMLElement;
       expect(sheetBar).not.toHaveClass('sheet-bar--docked');
       expect(sheetBar.contains(menu())).toBe(true);
+    });
+
+    it('with barTitle names the page in the bar from the start', async () => {
+      viewport(390, 358);
+      const view = await render(PageHostComponent);
+      view.fixture.detectChanges();
+      const b = bar(view.container);
+      expect(b).toHaveClass('ld__bar--condensed');
+      expect(b?.querySelector('.ld__barTitle')?.textContent?.trim()).toBe('Benutzer');
     });
 
     it('keeps the way back when the sheet bar goes away', async () => {
