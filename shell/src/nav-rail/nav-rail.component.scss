@@ -54,7 +54,9 @@
 @include nav-items.rail-item;
 
 // A group: the entry that opens it carries a chevron under its label, which turns while the
-// group is open. The entries of the open group sit on one surface below it.
+// group is open. The entries of the open group follow below it on the same surface: a second
+// surface inside the scroll surface would clash with its edge. A short line above and below
+// marks where the group starts and ends.
 .rail__group {
   gap: 2px;
 }
@@ -70,10 +72,9 @@
   flex: none;
   flex-direction: column;
   align-items: center;
-  width: calc(100% - 8px);
+  width: calc(100% - 24px);
   padding: 4px 0;
-  border-radius: var(--radius-lg);
-  background: var(--color-surface-2);
+  border-block: 1px solid var(--color-border);
 }
 .rail__sub[hidden] {
   display: none;
