@@ -331,7 +331,13 @@ describe('WideListHead', () => {
   const scss = read('list-detail.scss');
 
   it('shows the title only to a screen reader', () => {
-    expect(scss).toMatch(/\.ld-pane > app-page-header\.ph--pane \.ph__text\.ph__text \{[^}]*clip: rect\(0 0 0 0\)/);
+    expect(scss).toMatch(
+      /\.ld-pane:has\(> \.ld-pane__filters > :first-child\) > app-page-header\.ph--pane \.ph__text\.ph__text \{[^}]*clip: rect\(0 0 0 0\)/,
+    );
+  });
+
+  it('keeps the title of a column without a filter bar', () => {
+    expect(scss).not.toMatch(/^\s*\.ld-pane > app-page-header\.ph--pane[^{]*\{/m);
   });
 
   it('puts the buttons at the end of the first filter line, as high as the search bar', () => {

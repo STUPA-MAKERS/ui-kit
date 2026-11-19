@@ -44,9 +44,10 @@ body:has(app-tab-pager) app-list-detail-bar.ld__bar--condensed.ld__bar--condense
 // control at the start of that line, and that control ends before them. The header reports
 // the width of its buttons as `--ph-pane-actions` on the column. The header sticks with the
 // filter bar, so the buttons stay beside it while the page scrolls. A header without
-// buttons takes no room. A phone keeps its title line.
+// buttons takes no room. A column without a filter bar (Konto) keeps its title line, because
+// nothing else names the page there. A phone keeps its title line.
 @include bp.not-phone {
-  .ld-pane > app-page-header.ph--pane .ph__text.ph__text {
+  .ld-pane:has(> .ld-pane__filters > :first-child) > app-page-header.ph--pane .ph__text.ph__text {
     position: absolute;
     width: 1px;
     height: 1px;
@@ -57,12 +58,10 @@ body:has(app-tab-pager) app-list-detail-bar.ld__bar--condensed.ld__bar--condense
     white-space: nowrap;
     border: 0;
   }
-  .ld-pane > app-page-header.ph--pane:not(:has(.ph__actions > *)),
   .ld-pane:has(> .ld-pane__filters > :first-child) > app-page-header.ph--pane {
     height: 0;
     margin-bottom: calc(-1 * var(--space-3));
   }
-  .ld-pane > app-page-header.ph--pane:not(:has(.ph__actions > *)) .ph__bar.ph__bar,
   .ld-pane:has(> .ld-pane__filters > :first-child) > app-page-header.ph--pane .ph__bar.ph__bar {
     min-height: 0;
     height: 0;
