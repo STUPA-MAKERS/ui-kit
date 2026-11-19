@@ -20,7 +20,6 @@
   background: transparent;
   color: var(--color-text-muted);
   cursor: pointer;
-  transition: scale var(--motion-xs) var(--ease-standard);
   @include press.press;
 }
 /* A text button (`text`), for example the "…" of a breadcrumb: the height of a line,
@@ -167,8 +166,7 @@
   font-weight: var(--fw-medium);
   text-align: start;
   cursor: pointer;
-  transition: scale var(--motion-xs) var(--ease-standard);
-  @include press.press($scale: row);
+  @include press.press;
 }
 .rm__item:focus-visible {
   background: var(--color-surface-4);

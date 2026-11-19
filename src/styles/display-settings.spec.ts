@@ -269,8 +269,8 @@ describe('settingsFollowChoice (§000219, §000594)', () => {
     expect(offenders).toEqual([]);
   });
 
-  it('turns off the press scale with less motion', () => {
-    expect(DISPLAY).toMatch(/--press-scale: 1;\s*--press-scale-control: 1;/);
+  it('leaves the press to the cut animations of less motion, so the tint shows at once', () => {
+    expect(DISPLAY).not.toContain('--press-scale');
   });
 });
 

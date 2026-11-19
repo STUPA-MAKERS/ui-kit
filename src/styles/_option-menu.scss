@@ -11,8 +11,8 @@
 //
 // The padding is 6px on every side, so the rows sit inset from the edge of the menu. The
 // hover, the focus and the press of a row then show as a rounded tile inside the menu, the
-// same as an option of the autocomplete. A full-width row that shrinks on press leaves a
-// gap on both sides and reads as a loose grey block.
+// same as an option of the autocomplete. A full-width row that ripples edge to edge reads as
+// a loose grey block.
 @mixin menu($padding: 6px, $radius: var(--radius-field)) {
   position: fixed;
   inset: auto;
@@ -95,8 +95,7 @@
   font-weight: var(--fw-medium);
   text-align: start;
   cursor: pointer;
-  transition: scale var(--motion-xs) var(--ease-standard);
-  @include press.press($scale: row);
+  @include press.press;
 }
 
 // The hover and the active row: surface 4 on the surface-3 menu.

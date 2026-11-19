@@ -57,9 +57,8 @@
   font: inherit;
   text-align: start;
   cursor: pointer;
-  transition: scale var(--motion-xs) var(--ease-standard);
   // The press of a row: the whole bar is one control that spans the window.
-  @include press.press($scale: row);
+  @include press.press;
 }
 .tbar__row--button:focus-visible {
   outline: 2px solid var(--tbar-fg);
@@ -90,7 +89,6 @@
   background: transparent;
   color: var(--tbar-fg);
   cursor: pointer;
-  transition: scale var(--motion-xs) var(--ease-standard);
   @include press.press;
 }
 .tbar__action {

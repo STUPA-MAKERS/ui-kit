@@ -31,12 +31,12 @@
   font-weight: var(--fw-medium);
   white-space: nowrap;
   cursor: pointer;
-  transition: color var(--motion-fast) var(--ease-standard), scale var(--motion-xs) var(--ease-standard);
+  transition: color var(--motion-fast) var(--ease-standard);
 }
-/* A tab shows its state by the line under it only: a press shrinks it but paints no tint,
-   because a tint behind the label reads as a second selected state. */
-.tabs__tab:active:not(:disabled) {
-  @include press.press-scale;
+/* A press ripples like every control (001314). The ripple fades out after the release, so it
+   does not read as a second selected state next to the line under the tab. */
+.tabs__tab {
+  @include press.press;
 }
 @media (hover: hover) {
   .tabs__tab:hover:not(:disabled) {

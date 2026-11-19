@@ -15,10 +15,9 @@
 }
 .card--interactive {
   transition:
-    background-color var(--motion-fast) var(--ease-standard),
-    scale var(--motion-xs) var(--ease-standard);
-  // A pressed card tints and shrinks a little (`_press.scss`).
-  @include press.press($scale: row);
+    background-color var(--motion-fast) var(--ease-standard);
+  // A pressed card ripples (`_press.scss`).
+  @include press.press;
 }
 @media (hover: hover) {
   .card--interactive:hover {
