@@ -19,7 +19,7 @@
     }
   </div>
   @if (!docked()) {
-    <div class="ph__actions"><ng-container *ngTemplateOutlet="actions" /></div>
+    <div class="ph__actions btn-grp"><ng-container *ngTemplateOutlet="actions" /></div>
   }
 </div>
 <ng-template #actions><ng-content select="[actions]" /></ng-template>

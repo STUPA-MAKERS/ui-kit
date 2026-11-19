@@ -286,3 +286,16 @@ body:has(app-tab-pager) app-list-detail-bar.ld__bar--condensed.ld__bar--condense
     backdrop-filter: none !important;
   }
 }
+
+// The face of an empty list (`app-empty-state`) in the list column: large, and centred in
+// the free height of the list. The host grows in a flex-column parent, and it is at least
+// most of a screen high where the parent is only as high as its content (the phone list
+// that scrolls with the page).
+.ld-pane app-empty-state.es-host--face {
+  --es-face: 132px;
+  display: flex;
+  flex: 1 0 auto;
+  flex-direction: column;
+  justify-content: center;
+  min-height: min(60dvh, 32rem);
+}

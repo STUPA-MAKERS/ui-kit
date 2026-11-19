@@ -8,7 +8,10 @@
   min-width: 0;
   min-height: 60px;
 }
-:host(.sheet-bar--bleed) {
+/* The buttons of the bar are a button group with a surface (001350), so the end of the
+   last surface is the end of the content: the bar reaches into the padding only while it
+   holds no button. */
+:host(.sheet-bar--bleed:not(:has(.btn-grp :is(.btn, .rm__trigger)))) {
   margin-inline-end: calc(-1 * var(--space-3));
 }
 

@@ -1,0 +1,209 @@
+// The connected button group of a page head or a detail head (`app-button-group`, app spec
+// 001350). It styles the buttons of other components, so the rules are global. Each rule
+// doubles the group class: the rules of a button component carry the attribute of their
+// encapsulation, and a single class would tie with them.
+//
+// The class `btn-grp` sits on `app-button-group` and on the action slots of the heads of the
+// kit (`app-sheet-bar`, `app-page-header`, the bar of `app-list-detail`), so every head
+// shows its buttons as one group without markup in the page.
+//
+// The shape: every button has a radius of 8px; the first and the last button round their
+// outer ends to half the height. The ends are half the height and not a large number,
+// because the browser scales ALL radii of a box down when two radii on one side add up to
+// more than the side, and the 8px inner corners would then shrink to nothing.
+@use 'display' as d;
+
+.btn-grp {
+  --btn-grp-h: var(--control-height);
+  --btn-grp-in: 8px;
+  --btn-grp-out: calc(var(--btn-grp-h) / 2);
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  gap: 2px;
+}
+// The gap holds against the layout class that a page puts on the group (a footer row with
+// a gap of its own), so the group class weighs more than one class with its encapsulation.
+.btn-grp.btn-grp.btn-grp {
+  gap: 2px;
+}
+.btn-grp:empty {
+  display: none;
+}
+
+// The radius of each side, set on the host of a button and read by the button inside it. A
+// button rounds its start when no button stands right before it, and its end when no button
+// follows right after it. So a button between two other controls (a language switch, a
+// search field) is a pill of its own, and a block behind `@if` that renders nothing leaves
+// no gap in the shape. The hosts are the elements that hold a button: `app-button`,
+// `a[appButton]` (`.btn-link`) and `app-row-menu`.
+$-host: ':is(app-button, a.btn-link, app-row-menu)';
+.btn-grp #{$-host} {
+  --btn-grp-s: var(--btn-grp-in);
+  --btn-grp-e: var(--btn-grp-in);
+}
+.btn-grp #{$-host}:not(#{$-host} + *) {
+  --btn-grp-s: var(--btn-grp-out);
+}
+.btn-grp #{$-host}:not(:has(+ #{$-host})) {
+  --btn-grp-e: var(--btn-grp-out);
+}
+
+// A page may wrap its head actions in an element of its own (a toolbar with a language switch
+// and a button). The buttons in it touch like the buttons of the group, and another control
+// stands 8px away from the buttons beside it.
+.btn-grp > :not(#{$-host}):has(> #{$-host}) {
+  gap: 2px;
+}
+.btn-grp #{$-host} + :not(#{$-host}) {
+  margin-inline-start: 6px;
+}
+.btn-grp :not(#{$-host}):has(+ #{$-host}) {
+  margin-inline-end: 6px;
+}
+
+// The button: a tonal surface in the accent container colour, 40px high, label in medium
+// weight. `background-color`, not `background`: the ripple of the press is a background image.
+.btn-grp.btn-grp :is(.btn, .rm__trigger) {
+  height: var(--btn-grp-h);
+  min-width: 48px;
+  padding: 0 var(--space-4);
+  gap: var(--space-2);
+  border: 0;
+  border-radius: var(--btn-grp-s) var(--btn-grp-e) var(--btn-grp-e) var(--btn-grp-s);
+  background-color: var(--color-accent-container);
+  color: var(--color-on-accent-container);
+  font-size: var(--fs-body);
+  font-weight: var(--fw-medium);
+  box-shadow: none;
+  transition:
+    background-color var(--motion-fast) var(--ease-standard),
+    color var(--motion-fast) var(--ease-standard),
+    border-radius var(--motion-fast) var(--ease-standard);
+}
+.btn-grp.btn-grp :is(.btn--icon, .rm__trigger:not(.rm__trigger--text)) {
+  width: 48px;
+  padding: 0;
+  aspect-ratio: auto;
+  --icon-size: 20px;
+}
+@media (hover: hover) {
+  .btn-grp.btn-grp :is(.btn, .rm__trigger):hover:not(:disabled) {
+    background-color: color-mix(
+      in srgb,
+      var(--color-on-accent-container) 8%,
+      var(--color-accent-container)
+    );
+    color: var(--color-on-accent-container);
+    filter: none;
+  }
+}
+
+// The count of a button sits on the tonal surface.
+.btn-grp.btn-grp .btn__count {
+  background: color-mix(in srgb, var(--color-on-accent-container) 14%, transparent);
+  color: inherit;
+}
+
+// A destructive action (a rejection) is the tonal surface of the danger colour: the danger
+// container with the danger text.
+.btn-grp.btn-grp .btn--danger {
+  background-color: var(--color-danger-subtle);
+  color: var(--color-danger);
+}
+@media (hover: hover) {
+  .btn-grp.btn-grp .btn--danger:hover:not(:disabled) {
+    background-color: color-mix(in srgb, var(--color-danger) 14%, var(--color-danger-subtle));
+    color: var(--color-danger);
+  }
+}
+
+// A footer group (a dialog footer, a confirm row: `btn-grp--main`) keeps the accent fill of
+// its main button (`variant="fill"`), so the confirm and the cancel differ at a glance.
+.btn-grp--main.btn-grp--main .btn--fill:not(:disabled) {
+  background-color: var(--color-accent);
+  color: var(--color-on-accent);
+}
+@media (hover: hover) {
+  .btn-grp--main.btn-grp--main .btn--fill:hover:not(:disabled) {
+    background-color: color-mix(in srgb, var(--color-on-accent) 8%, var(--color-accent));
+    color: var(--color-on-accent);
+  }
+}
+
+// Selected: an open menu, an open sheet or a pressed toggle. The accent fill, and the button
+// rounds all four corners.
+.btn-grp.btn-grp :is(.btn[aria-pressed='true'], .btn[aria-expanded='true'], .rm__trigger--on) {
+  border-radius: var(--btn-grp-out);
+  background-color: var(--color-accent);
+  color: var(--color-on-accent);
+}
+@media (hover: hover) {
+  .btn-grp.btn-grp
+    :is(.btn[aria-pressed='true'], .btn[aria-expanded='true'], .rm__trigger--on):hover:not(
+      :disabled
+    ) {
+    background-color: color-mix(in srgb, var(--color-on-accent) 8%, var(--color-accent));
+    color: var(--color-on-accent);
+  }
+}
+
+// Disabled: a faint surface and the text at 38 %, without the fade of a single button.
+.btn-grp.btn-grp .btn:disabled {
+  opacity: 1;
+  filter: none;
+  background-color: color-mix(in srgb, var(--color-text) 10%, transparent);
+  color: color-mix(in srgb, var(--color-text) 38%, transparent);
+}
+
+// Very high contrast (000605): every button is yellow with black text, so the 2px gaps show
+// black between them. A selected button is black with a yellow edge, a disabled one black
+// with a dashed yellow edge. The declarations are `!important`, because the global rules
+// of very high contrast set the look of every button with `!important`. The group class
+// stands three times here, because the global rule for an icon button that a page draws
+// itself (`display-settings.scss`) weighs more than two classes.
+@include d.on(veryHigh) {
+  .btn-grp.btn-grp.btn-grp :is(.btn, .rm__trigger) {
+    --color-text: var(--vh-bg);
+    --color-on-accent-container: var(--vh-bg);
+    background-color: var(--vh-hi) !important;
+    color: var(--vh-bg) !important;
+  }
+  // The yellow edge of a single button (`display-settings.scss`) gives way to the black gaps:
+  // its colour goes clear. The focus ring of very high contrast stays on a focused button.
+  .btn-grp.btn-grp.btn-grp :is(.btn, .rm__trigger):not(:focus-visible) {
+    box-shadow: none !important;
+    outline-color: transparent !important;
+  }
+  .btn-grp.btn-grp.btn-grp .btn__count {
+    background: var(--vh-bg) !important;
+    color: var(--vh-hi) !important;
+  }
+  .btn-grp.btn-grp.btn-grp
+    :is(.btn[aria-pressed='true'], .btn[aria-expanded='true'], .rm__trigger--on) {
+    --color-text: var(--vh-hi);
+    background-color: var(--vh-bg) !important;
+    color: var(--vh-hi) !important;
+  }
+  .btn-grp.btn-grp.btn-grp
+    :is(.btn[aria-pressed='true'], .btn[aria-expanded='true'], .rm__trigger--on):not(
+      :focus-visible
+    ) {
+    outline: 2px solid var(--vh-hi) !important;
+    outline-offset: -2px !important;
+  }
+  .btn-grp.btn-grp.btn-grp
+    :is(.btn[aria-pressed='true'], .btn[aria-expanded='true'], .rm__trigger--on)
+    .btn__count {
+    background: var(--vh-hi) !important;
+    color: var(--vh-bg) !important;
+  }
+  .btn-grp.btn-grp.btn-grp .btn:disabled {
+    --color-text: var(--vh-hi);
+    background-color: var(--vh-bg) !important;
+    color: var(--vh-hi) !important;
+    outline: 2px dashed var(--vh-hi) !important;
+    outline-offset: -2px !important;
+    box-shadow: none !important;
+  }
+}

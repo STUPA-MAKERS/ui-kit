@@ -105,6 +105,17 @@
   outline: 2px solid var(--color-focus-ring);
   outline-offset: -2px;
 }
+/* The Esc key is a pill of 32px, inset 10px from the end, top and bottom of the 52px field,
+   so its end is concentric with the field (radius 26 - 10 = 16). */
+.pal__esc {
+  display: grid;
+  place-items: center;
+  height: 32px;
+  min-width: 32px;
+  margin-inline-end: 4px;
+  padding: 0 10px;
+  border-radius: var(--radius-pill);
+}
 .pal__x {
   display: none;
 }
@@ -229,6 +240,7 @@ app-status-text.pal__rowSub {
   display: flex;
   flex: none;
   align-items: center;
+  justify-content: center;
   gap: 18px;
   padding: 10px 22px 14px;
   font-size: var(--fs-small);

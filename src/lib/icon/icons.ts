@@ -108,6 +108,7 @@ export type IconName =
   | 'right'
   | 'scan'
   | 'search'
+  | 'searchOff'
   | 'send'
   | 'shapes'
   | 'shield'
@@ -246,6 +247,7 @@ const SHAPES: Record<string, readonly IconShape[]> = {
   right: [{ t: 'path', d: 'm9 6 6 6-6 6' }],
   scan: [{ t: 'path', d: 'M3 7V5a2 2 0 0 1 2-2h2' }, { t: 'path', d: 'M17 3h2a2 2 0 0 1 2 2v2' }, { t: 'path', d: 'M21 17v2a2 2 0 0 1-2 2h-2' }, { t: 'path', d: 'M7 21H5a2 2 0 0 1-2-2v-2' }, { t: 'path', d: 'M7 12h10' }],
   search: [{ t: 'circle', cx: '11', cy: '11', r: '7' }, { t: 'path', d: 'm20 20-3.5-3.5' }],
+  searchOff: [{ t: 'circle', cx: '11', cy: '11', r: '7' }, { t: 'path', d: 'm20 20-3.5-3.5' }, { t: 'path', d: 'm8.6 8.6 4.8 4.8m0-4.8-4.8 4.8' }],
   // The plane is drawn 0.9 times its full size and moved down and left, so its area
   // centroid sits on the middle of the box. At full size the centroid was 1.8 units right
   // of and above the middle, and the plane looked raised next to a label.
@@ -394,6 +396,7 @@ export const ICON_NAMES: readonly IconName[] = [
   'right',
   'scan',
   'search',
+  'searchOff',
   'send',
   'shapes',
   'shield',
