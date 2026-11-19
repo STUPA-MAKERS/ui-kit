@@ -1,3 +1,5 @@
+@use "../../styles/display" as d;
+
 :host {
   display: block;
   width: 100%;
@@ -13,7 +15,8 @@
   flex-direction: column;
   justify-content: flex-start;
 }
-:host(.es-host--fill.es-host--plain) {
+:host(.es-host--fill.es-host--plain),
+:host(.es-host--fill.es-host--face) {
   justify-content: center;
 }
 
@@ -57,17 +60,6 @@
   background: color-mix(in srgb, var(--color-text) 6%, transparent);
 }
 
-/* The geometry of `.rowgroup` and `app-list-item`: rows 2px apart, 4rem high, only the
-   outer corners round. */
-.es__ghost:first-child {
-  border-top-left-radius: var(--radius-lg);
-  border-top-right-radius: var(--radius-lg);
-}
-.es__ghost:last-child {
-  border-bottom-left-radius: var(--radius-lg);
-  border-bottom-right-radius: var(--radius-lg);
-}
-
 /* One ghost row: the row is lower than the message, so it stretches to the height of the
    message and is one plain surface. Bars beside the heading would look like a load. The
    mask is off, because the message covers the centre of the row and nothing shows through. */
@@ -79,149 +71,6 @@
   height: 100%;
   box-sizing: border-box;
   border-radius: var(--radius-lg);
-}
-
-/* A pick list of a dialog: the 52px rows with the radio ring of the "TOP hinzufügen" list,
-   each one round. */
-.es__ghosts--choice .es__ghost--choice {
-  min-height: 52px;
-  padding: 6px 14px;
-  border-radius: var(--radius-lg);
-}
-
-.es__ghostLead {
-  flex: none;
-  box-sizing: border-box;
-  background: color-mix(in srgb, var(--color-text) 12%, transparent);
-}
-.es__ghostLead--ring {
-  width: 20px;
-  height: 20px;
-  border: 1.5px solid color-mix(in srgb, var(--color-text) 32%, transparent);
-  border-radius: var(--radius-pill);
-  background: none;
-}
-.es__ghostLead--avatar {
-  width: 32px;
-  height: 32px;
-  border-radius: var(--radius-pill);
-}
-/* The size of `app-date-block`. */
-.es__ghostLead--date {
-  width: 3rem;
-  height: 3.25rem;
-  border-radius: var(--radius-field);
-}
-.es__ghostLead--number {
-  width: 24px;
-  height: 24px;
-  border-radius: var(--radius-sm);
-}
-.es__ghostLead--file {
-  width: 32px;
-  height: 36px;
-  border-radius: var(--radius-sm);
-}
-
-/* The tag at the end of a plain row (a state, a count). */
-.es__ghostChip {
-  flex: none;
-  width: 56px;
-  height: 18px;
-  border-radius: var(--radius-pill);
-  background: color-mix(in srgb, var(--color-text) 10%, transparent);
-}
-.es__ghostChip--short {
-  width: 36px;
-}
-.es__ghostDot {
-  flex: none;
-  width: 22px;
-  height: 22px;
-  margin-left: auto;
-  border-radius: var(--radius-pill);
-  background: color-mix(in srgb, var(--color-text) 12%, transparent);
-}
-
-/* A data table: cells in columns, the last one at the end. */
-.es__ghost--table {
-  display: grid;
-  grid-template-columns: 2fr 1.2fr 1fr 0.8fr;
-  align-items: center;
-  gap: var(--space-4);
-  min-height: 48px;
-}
-.es__ghost--table .es__ghostBar--end {
-  justify-self: end;
-}
-
-/* A to-do card: title, sub line, a foot of chips and an avatar. */
-.es__ghost--card {
-  flex-direction: column;
-  align-items: stretch;
-  gap: 8px;
-  min-height: 0;
-  padding: 12px 14px;
-  border-radius: var(--radius-lg);
-}
-.es__ghost--card + .es__ghost--card {
-  margin-top: 6px;
-}
-.es__ghostFoot {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  margin-top: 4px;
-}
-
-/* A conversation: bubbles on the left, own ones on the right. */
-.es__ghosts--chat {
-  gap: 10px;
-}
-.es__ghosts--chat .es__ghost--chat {
-  flex-direction: column;
-  align-items: stretch;
-  gap: 6px;
-  max-width: 80%;
-  min-height: 0;
-  padding: 10px 14px;
-  border-radius: 16px;
-}
-.es__ghost--mine {
-  align-self: flex-end;
-}
-
-/* Running text: lines, no row boxes. */
-.es__ghosts--text {
-  gap: 10px;
-}
-.es__ghost--text {
-  flex-direction: column;
-  align-items: stretch;
-  gap: 8px;
-  min-height: 0;
-  padding: 0;
-  background: none;
-}
-
-.es__ghostText {
-  display: flex;
-  flex: 1 1 auto;
-  flex-direction: column;
-  gap: 6px;
-  min-width: 0;
-}
-
-.es__ghostBar {
-  display: block;
-  height: 10px;
-  border-radius: 6px;
-  background: color-mix(in srgb, var(--color-text) 18%, transparent);
-}
-
-.es__ghostBar--sub {
-  height: 8px;
-  background: color-mix(in srgb, var(--color-text) 12%, transparent);
 }
 
 .es__msg {
@@ -301,4 +150,111 @@
 
 .es--plain .es__action:not(:empty) {
   margin-top: var(--space-5);
+}
+
+/* An empty list: a flat face in a ring of faint dots above the message (app spec 001330).
+   The face blinks every 3.2 s and glances aside; each dot wobbles and flickers on its own
+   period, so the ring never moves in step. Everything mixes the text colour into
+   transparent, so it reads on every surface and in both themes. It runs without end, and
+   the switch "Weniger Bewegung" stops it (000219), which is the pause that WCAG 2.2.2 asks
+   for. */
+.es--face {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding-block: var(--space-6);
+}
+.es--face .es__msg {
+  padding-top: var(--space-2);
+}
+.es--face .es__heading {
+  font-size: 1.375rem;
+  line-height: 1.75rem;
+  font-weight: var(--fw-bold);
+}
+.es--face .es__action:not(:empty) {
+  margin-top: var(--space-1);
+}
+.es__face {
+  width: 132px;
+  height: 106px;
+  overflow: visible;
+}
+.es__face * {
+  transform-box: fill-box;
+  transform-origin: center;
+}
+.es__eye {
+  fill: color-mix(in srgb, var(--color-text) 14%, transparent);
+}
+.es__pupil {
+  fill: color-mix(in srgb, var(--color-text) 62%, transparent);
+}
+.es__mouth {
+  fill: none;
+  stroke: color-mix(in srgb, var(--color-text) 62%, transparent);
+  stroke-width: 3;
+  stroke-linecap: round;
+}
+.es__dot {
+  fill: color-mix(in srgb, var(--color-text) 45%, transparent);
+  animation: es-flicker 6s ease-in-out infinite;
+}
+.es__dotWobble {
+  animation: es-wobble 5s ease-in-out infinite alternate;
+}
+.es__eyes {
+  animation: es-blink 3.2s linear infinite;
+}
+.es__pupils {
+  animation: es-look 9.6s var(--ease-standard) infinite;
+}
+@keyframes es-blink {
+  0%, 86% { scale: 1 1; }
+  90% { scale: 1 0.1; }
+  94%, 100% { scale: 1 1; }
+}
+@keyframes es-look {
+  0%, 30% { translate: 0 0; }
+  36%, 52% { translate: -3px 0; }
+  58%, 74% { translate: 3px 0; }
+  80%, 100% { translate: 0 0; }
+}
+@keyframes es-wobble {
+  0% { translate: 0 0; }
+  33% { translate: 0.6px -0.5px; }
+  66% { translate: -0.5px 0.6px; }
+  100% { translate: 0.4px 0.3px; }
+}
+@keyframes es-flicker {
+  0%, 100% { opacity: 0.55; }
+  30% { opacity: 0.35; }
+  45% { opacity: 0.5; }
+  70% { opacity: 0.3; }
+}
+
+/* Less motion: the still picture. */
+@include d.host-on(motion) {
+  .es__face * {
+    animation: none;
+  }
+}
+
+/* Very high contrast: white on black, never yellow, because yellow means "press" (000614).
+   The dots stand still at full strength, a flicker of white on black is too harsh. */
+@include d.host-on(veryHigh) {
+  .es__eye {
+    fill: var(--color-text);
+  }
+  .es__pupil {
+    fill: var(--vh-bg, #000);
+  }
+  .es__mouth {
+    stroke: var(--color-text);
+  }
+  .es__dot {
+    fill: var(--color-text);
+    opacity: 1;
+    animation: none;
+  }
 }
