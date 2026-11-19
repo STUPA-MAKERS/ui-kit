@@ -45,17 +45,7 @@
   /* A chip that is wider than its text keeps the text beside the icon or the avatar. */
   text-align: start;
 }
-/* The centre of the capitals is on the centre line of the chip (app spec 000603): the text
-   box is trimmed to the capitals, and the flex centre of the chip is their centre. The
-   padding keeps the descenders inside the clip box of the ellipsis, and the negative
-   margin of the same size keeps the trimmed height for the layout. */
-@supports (text-box: trim-both cap alphabetic) {
-  .fs__text {
-    text-box: trim-both cap alphabetic;
-    padding-block: 0.5em;
-    margin-block: -0.5em;
-  }
-}
+/* The text is trimmed to its capitals by the global chip rule (`base.scss`, app spec 000603). */
 .fs__av {
   flex: none;
 }

@@ -18,7 +18,7 @@
       @if (check() && opt.value === value()) {
         <app-icon name="check" [size]="14" />
       }
-      {{ opt.label }}
+      <span class="chip__text">{{ opt.label }}</span>
     </button>
   }
 </div>
