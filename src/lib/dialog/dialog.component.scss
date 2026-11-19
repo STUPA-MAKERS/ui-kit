@@ -60,7 +60,9 @@
   align-items: flex-start;
   justify-content: space-between;
   gap: var(--space-4);
-  padding: var(--space-5) var(--space-4) var(--space-2) var(--space-5);
+  /* The capitals of the title sit as far below the top edge as the title sits from the side
+     (24px): 12px of the header are above them (6px centring padding, 6px of the 28px line). */
+  padding: calc(var(--space-5) - 12px) var(--space-4) var(--space-2) var(--space-5);
 }
 .dialog__heading {
   display: flex;
@@ -167,8 +169,10 @@
     border-radius: 999px;
     background: var(--color-border-strong);
   }
+  /* On the sheet the handle is the top: the capitals of the title sit as far below the
+     handle as the title sits from the side (16px). */
   .dialog__header {
-    padding: var(--space-2) var(--space-2) var(--space-2) var(--space-4);
+    padding: calc(var(--space-4) - 12px) var(--space-2) var(--space-2) var(--space-4);
   }
   .dialog__body {
     padding: var(--space-4) var(--space-4);
