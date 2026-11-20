@@ -5,6 +5,7 @@ import { of } from 'rxjs';
 import { fakePorts, minimalConfig } from '../../../testing/framework';
 import { provideFramework } from './framework';
 import { FrameworkSearchComponent } from './framework-search.component';
+import { runAxe } from '../../../testing/a11y';
 
 async function setUp() {
   const search = jest.fn(() =>
@@ -53,5 +54,11 @@ describe('FrameworkSearchComponent', () => {
     component.onQuery('a');
     jest.advanceTimersByTime(200);
     expect(search).not.toHaveBeenCalled();
+  });
+
+  // §NF/accessibility/conformance/000493
+  it('has no axe violations', async () => {
+    const { fixture } = await setUp();
+    expect(await runAxe(fixture.nativeElement)).toHaveNoViolations();
   });
 });

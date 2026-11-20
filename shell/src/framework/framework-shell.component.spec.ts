@@ -7,6 +7,7 @@ import userEvent from '@testing-library/user-event';
 import { fakePorts, fullConfig, minimalConfig } from '../../../testing/framework';
 import { provideFramework, type FrameworkConfig } from './framework';
 import { FrameworkShellComponent } from './framework-shell.component';
+import { runAxe } from '../../../testing/a11y';
 
 @Component({
   changeDetection: ChangeDetectionStrategy.Eager,
@@ -87,5 +88,11 @@ describe('FrameworkShellComponent', () => {
     fixture.detectChanges();
     await fixture.whenStable();
     expect(fixture.nativeElement.querySelector('app-framework-public-header')).not.toBeNull();
+  });
+
+  // §NF/accessibility/conformance/000493
+  it('has no axe violations in the rail frame', async () => {
+    const { view } = await setUp(fullConfig());
+    expect(await runAxe(view.container)).toHaveNoViolations();
   });
 });

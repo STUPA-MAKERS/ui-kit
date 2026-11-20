@@ -5,6 +5,7 @@ import userEvent from '@testing-library/user-event';
 import { DisplaySettingsService, type Action } from '@stupa-makers/ui-kit';
 
 import { ShellMenuComponent, type ShellMenuKind } from './shell-menu.component';
+import { runAxe } from '../../../testing/a11y';
 
 async function setUp(menu: ShellMenuKind, items: readonly Action[] = [], reportBarrier = false) {
   const action = jest.fn();
@@ -61,5 +62,16 @@ describe('ShellMenuComponent', () => {
   it('hides "Barriere melden" by default', async () => {
     await setUp('a11y');
     expect(screen.queryByRole('button', { name: 'Barriere melden' })).toBeNull();
+  });
+
+  // §NF/accessibility/conformance/000493
+  it('has no axe violations in the a11y menu', async () => {
+    const { view } = await setUp('a11y', [], true);
+    expect(await runAxe(view.container)).toHaveNoViolations();
+  });
+
+  it('has no axe violations in the help menu', async () => {
+    const { view } = await setUp('help', [{ key: 'report', label: 'Problem melden' }]);
+    expect(await runAxe(view.container)).toHaveNoViolations();
   });
 });
