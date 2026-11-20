@@ -44,7 +44,7 @@ flowchart LR
 ```
 
 - **Config** (002207, 002225, 002226): one `provideFramework()` with brand, navigation, menus,
-  languages, text overrides and the ports `session`, `search`, `avatar`, `navMarks`, `report`,
+  languages, text overrides and the ports `session`, `search`, `avatar`, `navMarks`,
   `upload`, `live`.
 - **Routes** (002224): `listDetailRoutes()` and `screenRoute()` set the title, the motion and the
   focus.

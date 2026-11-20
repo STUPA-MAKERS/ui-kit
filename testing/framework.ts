@@ -15,7 +15,6 @@ export function fakePorts(overrides: Partial<FrameworkPorts> = {}): FrameworkPor
     search: () => of([]),
     avatar: () => null,
     navMarks: signal({}),
-    report: jest.fn(async () => undefined),
     upload: jest.fn(async (file: File) => ({ url: `/files/${file.name}`, name: file.name })),
     live: signal('online'),
     display: { load: jest.fn(async () => null), save: jest.fn(async () => undefined) },

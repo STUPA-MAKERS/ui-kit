@@ -21,7 +21,6 @@ interface FrameworkPorts {
   readonly search?: (q: string) => Observable<readonly SearchHit[]>;    // 2 characters and more (STUPA-Workflow:000329)
   readonly avatar?: (person: PersonRef) => string | null;
   readonly navMarks?: Signal<Record<string, 'new' | 'warn' | null>>;    // never a count
-  readonly report?: (r: { kind: 'barrier' | 'problem'; text: string; page: string }) => Promise<void>;
   readonly upload?: (file: File) => Promise<{ readonly url: string; readonly name: string }>;
   readonly live?: Signal<'online' | 'reconnecting' | 'offline'>;        // 000678
   readonly display?: { load(): Promise<DisplayPrefs | null>; save(p: DisplayPrefs): Promise<void> };

@@ -45,7 +45,6 @@ export interface FrameworkPorts {
   readonly avatar?: (person: PersonRef) => string | null;
   /** A key gives a mark, never a count. */
   readonly navMarks?: Signal<Record<string, 'new' | 'warn' | null>>;
-  readonly report?: (r: { readonly kind: 'barrier' | 'problem'; readonly text: string; readonly page: string }) => Promise<void>;
   readonly upload?: (file: File) => Promise<{ readonly url: string; readonly name: string }>;
   readonly live?: Signal<'online' | 'reconnecting' | 'offline'>;
   readonly display?: {
@@ -154,13 +153,11 @@ export function frameworkParts(config: FrameworkConfig): Signal<{
   readonly help: boolean;
   readonly account: boolean;
   readonly footer: boolean;
-  readonly report: boolean;
 }> {
   return computed(() => ({
     search: config.ports.search !== undefined,
     help: (config.help?.items().length ?? 0) > 0,
     account: config.ports.session.person() !== null,
     footer: (config.footer?.links.length ?? 0) > 0,
-    report: config.ports.report !== undefined,
   }));
 }

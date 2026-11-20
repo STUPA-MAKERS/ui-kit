@@ -83,7 +83,6 @@ describe('frameworkParts', () => {
       help: false,
       account: false,
       footer: false,
-      report: false,
     });
   });
 
@@ -93,7 +92,6 @@ describe('frameworkParts', () => {
       help: true,
       account: true,
       footer: true,
-      report: true,
     });
   });
 
