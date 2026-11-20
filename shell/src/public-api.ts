@@ -22,3 +22,4 @@ export * from './framework/framework';
 export * from './framework/framework-shell.component';
 export * from './framework/routes';
 export * from './shell-menu/shell-menu.component';
+export * from './framework/framework-search.component';

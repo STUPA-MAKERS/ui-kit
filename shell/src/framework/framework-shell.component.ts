@@ -18,7 +18,9 @@ import { NavMarkDirective } from '../nav-mark.directive';
 import { ShellComponent } from '../shell/shell.component';
 import { ShellMenuComponent } from '../shell-menu/shell-menu.component';
 import type { ShellBrand } from '../shell.types';
+import { CommandPalette } from '../command-palette/command-palette.service';
 import { FRAMEWORK, frameworkParts } from './framework';
+import { FrameworkSearchComponent } from './framework-search.component';
 import { FOCUS_H1 } from './routes';
 
 /**
@@ -42,6 +44,7 @@ import { FOCUS_H1 } from './routes';
     NavMarkDirective,
     AccountMenuComponent,
     ShellMenuComponent,
+    FrameworkSearchComponent,
     RouterLink,
     IconComponent,
     UiKitTranslatePipe,
@@ -54,7 +57,7 @@ import { FOCUS_H1 } from './routes';
       [barKeys]="config.bar()"
       [brand]="brand()"
       [searchable]="parts().search"
-      (search)="search.emit()"
+      (search)="openSearch()"
     >
       <ng-template appNavMark let-key let-part="part">
         @if (marks()[key]; as mark) {
@@ -153,6 +156,10 @@ import { FOCUS_H1 } from './routes';
         </app-account-menu>
       }
 
+      @if (shell.current() === 'rail' && parts().search) {
+        <app-framework-search shellOverlays />
+      }
+
       @if (footerShown()) {
         <nav shellFooter class="fw-footer">
           @for (link of config.footer?.links ?? []; track link.label) {
@@ -195,8 +202,6 @@ export class FrameworkShellComponent {
   protected readonly theme = inject(ThemeService);
   protected readonly parts = frameworkParts(this.config);
 
-  /** The search entry of the rail or of "More" was pressed. */
-  readonly search = output<void>();
   /** An item of a menu without a route or a link was chosen: its key. */
   readonly action = output<string>();
 
@@ -245,6 +250,13 @@ export class FrameworkShellComponent {
   protected readonly accountItems = computed<readonly Action[]>(
     () => this.config.account?.items() ?? [],
   );
+  private readonly palette = inject(CommandPalette);
+
+  /** The search entry of the rail or of "More" was pressed: the palette of the search port opens. */
+  protected openSearch(): void {
+    this.palette.open();
+  }
+
   protected readonly helpItems = computed<readonly Action[]>(() => this.config.help?.items() ?? []);
   protected readonly footerShown = computed(() => this.parts().footer);
 }

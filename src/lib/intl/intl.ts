@@ -113,6 +113,7 @@ export type UiKitTextKey =
   | 'palette.placeholder'
   | 'palette.close'
   | 'palette.empty'
+  | 'palette.pages'
   | 'palette.truncated'
   | 'palette.keysSelect'
   | 'palette.keysOpen'
@@ -216,6 +217,7 @@ export const UI_KIT_DEFAULT_MESSAGES: Record<UiLang, UiKitMessages> = {
     'palette.placeholder': 'Suchen …',
     'palette.close': 'Suche schließen',
     'palette.empty': 'Nichts gefunden.',
+    'palette.pages': 'Seiten',
     'palette.truncated': 'Es gibt weitere Treffer. Suchbegriff eingrenzen.',
     'palette.keysSelect': 'Auswählen',
     'palette.keysOpen': 'Öffnen',
@@ -315,6 +317,7 @@ export const UI_KIT_DEFAULT_MESSAGES: Record<UiLang, UiKitMessages> = {
     'palette.placeholder': 'Search …',
     'palette.close': 'Close search',
     'palette.empty': 'Nothing found.',
+    'palette.pages': 'Pages',
     'palette.truncated': 'There are more results. Narrow the query.',
     'palette.keysSelect': 'Select',
     'palette.keysOpen': 'Open',
