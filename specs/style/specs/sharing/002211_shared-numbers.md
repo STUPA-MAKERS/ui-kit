@@ -5,7 +5,9 @@ kind: style
 status: approved
 owner: frederikbeimgraben
 updated: 2026-11-20
-implementation: null
+implementation:
+  - scripts/check_specs.py
+  - .github/workflows/ci.yml
 scope:
   - specs
 ---

@@ -5,7 +5,8 @@ kind: style
 status: approved
 owner: frederikbeimgraben
 updated: 2026-11-20
-implementation: null
+implementation:
+  - src/lib/screen/load-state.ts
 scope:
   - src/lib
 ---

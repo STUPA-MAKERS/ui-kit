@@ -5,7 +5,9 @@ kind: style
 status: approved
 owner: frederikbeimgraben
 updated: 2026-11-20
-implementation: null
+implementation:
+  - src/lib/screen/screen.types.ts
+  - src/lib/screen/actions.ts
 scope:
   - src/lib
 ---
