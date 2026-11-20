@@ -286,11 +286,14 @@ describe('motion and list pane partials', () => {
     expect(motion).toMatch(/:root\[data-motion\] \.frame__rail \{\n {2}background: var\(--color-bg\);/);
   });
 
-  it('keeps the bottom bar glass while the page moves: its group blurs the page under it', () => {
-    const motion = read('motion.scss');
-    expect(motion).toMatch(
-      /:root\[data-motion\]::view-transition-group\(bottom-bar\) \{\n {2}-webkit-backdrop-filter: blur\(10px\) saturate\(1\.8\);\n {2}backdrop-filter: blur\(10px\) saturate\(1\.8\);/,
+  it('keeps the bottom bar opaque while the page moves: no backdrop, no see-through', () => {
+    expect(read('motion.scss')).not.toContain('::view-transition-group(bottom-bar) {');
+    const bar = block(
+      read('../../shell/src/bottom-bar/bottom-bar.component.scss'),
+      ':host-context([data-motion]) .bb::before {',
     );
+    expect(bar).toContain('backdrop-filter: none;');
+    expect(bar).toMatch(/color-mix\(in srgb, var\(--color-surface-3\) var\(--glass-tint, 60%\), var\(--color-bg\)\)/);
   });
 
   it('times every motion with the tokens, never a literal duration', () => {
