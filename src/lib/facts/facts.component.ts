@@ -21,6 +21,7 @@ import { ChangeDetectionStrategy, Component, ViewEncapsulation, input } from '@a
  * ```
  */
 @Component({
+  // eslint-disable-next-line @angular-eslint/component-selector
   selector: 'dl[appFacts]',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
