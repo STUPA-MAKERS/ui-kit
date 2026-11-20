@@ -2,7 +2,7 @@
 id: "002221"
 title: A kit component holds its UI state and the app holds the data
 kind: style
-status: draft
+status: approved
 owner: frederikbeimgraben
 updated: 2026-11-20
 implementation: null

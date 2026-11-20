@@ -2,7 +2,7 @@
 id: "002223"
 title: The texts of the kit have keys that an admin can override
 kind: style
-status: draft
+status: approved
 owner: frederikbeimgraben
 updated: 2026-11-20
 implementation: null

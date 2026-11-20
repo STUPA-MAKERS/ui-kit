@@ -2,7 +2,7 @@
 id: "002215"
 title: An entry point imports only the layers below it
 kind: style
-status: draft
+status: approved
 owner: frederikbeimgraben
 updated: 2026-11-20
 implementation: null

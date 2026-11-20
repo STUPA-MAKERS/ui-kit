@@ -2,7 +2,7 @@
 id: "002224"
 title: An app builds the routes of a screen with a kit helper
 kind: style
-status: draft
+status: approved
 owner: frederikbeimgraben
 updated: 2026-11-20
 implementation: null

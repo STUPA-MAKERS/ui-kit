@@ -2,7 +2,7 @@
 id: "002216"
 title: A screen has a head, a body and fixed places for the rest
 kind: style
-status: draft
+status: approved
 owner: frederikbeimgraben
 updated: 2026-11-20
 implementation: null

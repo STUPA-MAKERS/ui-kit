@@ -2,7 +2,7 @@
 id: "002227"
 title: Each domain view has a contract spec before it is built
 kind: style
-status: draft
+status: approved
 owner: frederikbeimgraben
 updated: 2026-11-20
 implementation: null

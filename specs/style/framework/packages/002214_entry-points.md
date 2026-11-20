@@ -2,7 +2,7 @@
 id: "002214"
 title: The kit has six kinds of entry points
 kind: style
-status: draft
+status: approved
 owner: frederikbeimgraben
 updated: 2026-11-20
 implementation: null

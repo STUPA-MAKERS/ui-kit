@@ -2,7 +2,7 @@
 id: "002228"
 title: The kit tests a view, the app tests its adapter
 kind: style
-status: draft
+status: approved
 owner: frederikbeimgraben
 updated: 2026-11-20
 implementation: null

@@ -2,7 +2,7 @@
 id: "002229"
 title: A change of a public kit API comes with the change of every app
 kind: style
-status: draft
+status: approved
 owner: frederikbeimgraben
 updated: 2026-11-20
 implementation: null

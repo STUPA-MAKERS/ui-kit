@@ -25,19 +25,19 @@ number space (`S/specs/sharing/002211`).
 | [S/specs/sharing/002211](style/specs/sharing/002211_shared-numbers.md) | The kit and its apps share one number space | approved |
 | [S/specs/sharing/002212](style/specs/sharing/002212_cross-repo-reference.md) | A reference to a spec of another repository names the repository | approved |
 | [S/framework/architecture/002213](style/framework/architecture/002213_style-ratchet.md) | The style lines of an app only fall until they reach zero | approved |
-| [S/framework/packages/002214](style/framework/packages/002214_entry-points.md) | The kit has six kinds of entry points | draft |
-| [S/framework/packages/002215](style/framework/packages/002215_layer-direction.md) | An entry point imports only the layers below it | draft |
-| [S/framework/screens/002216](style/framework/screens/002216_screen-anatomy.md) | A screen has a head, a body and fixed places for the rest | draft |
-| [S/framework/screens/002217](style/framework/screens/002217_screen-inputs.md) | A screen takes its frame as data and its content as slots | draft |
-| [S/framework/screens/002218](style/framework/screens/002218_list-detail-contract.md) | The list/detail screen owns the list, the panes and the URL state | draft |
+| [S/framework/packages/002214](style/framework/packages/002214_entry-points.md) | The kit has six kinds of entry points | approved |
+| [S/framework/packages/002215](style/framework/packages/002215_layer-direction.md) | An entry point imports only the layers below it | approved |
+| [S/framework/screens/002216](style/framework/screens/002216_screen-anatomy.md) | A screen has a head, a body and fixed places for the rest | approved |
+| [S/framework/screens/002217](style/framework/screens/002217_screen-inputs.md) | A screen takes its frame as data and its content as slots | approved |
+| [S/framework/screens/002218](style/framework/screens/002218_list-detail-contract.md) | The list/detail screen owns the list, the panes and the URL state | approved |
 | [S/framework/actions/002219](style/framework/actions/002219_action-model.md) | An action is data, and the screen places it | draft |
-| [S/framework/state/002220](style/framework/state/002220_load-state.md) | A load state is one type for every view | draft |
-| [S/framework/state/002221](style/framework/state/002221_ui-state-in-kit.md) | A kit component holds its UI state and the app holds the data | draft |
+| [S/framework/state/002220](style/framework/state/002220_load-state.md) | A load state is one type for every view | approved |
+| [S/framework/state/002221](style/framework/state/002221_ui-state-in-kit.md) | A kit component holds its UI state and the app holds the data | approved |
 | [S/framework/forms/002222](style/framework/forms/002222_form-definition.md) | A form is built from a definition | draft |
-| [S/framework/texts/002223](style/framework/texts/002223_kit-catalogue.md) | The texts of the kit have keys that an admin can override | draft |
-| [S/framework/config/002224](style/framework/config/002224_routes-from-helpers.md) | An app builds the routes of a screen with a kit helper | draft |
-| [S/framework/config/002225](style/framework/config/002225_ports.md) | App data reaches the shell only through ports | draft |
-| [S/framework/config/002226](style/framework/config/002226_display-settings-in-shell.md) | The display settings and the accessibility menu are part of the shell | draft |
-| [S/framework/views/002227](style/framework/views/002227_view-contract.md) | Each domain view has a contract spec before it is built | draft |
-| [S/framework/testing/002228](style/framework/testing/002228_tests-in-kit.md) | The kit tests a view, the app tests its adapter | draft |
-| [S/framework/testing/002229](style/framework/testing/002229_api-change.md) | A change of a public kit API comes with the change of every app | draft |
+| [S/framework/texts/002223](style/framework/texts/002223_kit-catalogue.md) | The texts of the kit have keys that an admin can override | approved |
+| [S/framework/config/002224](style/framework/config/002224_routes-from-helpers.md) | An app builds the routes of a screen with a kit helper | approved |
+| [S/framework/config/002225](style/framework/config/002225_ports.md) | App data reaches the shell only through ports | approved |
+| [S/framework/config/002226](style/framework/config/002226_display-settings-in-shell.md) | The display settings and the accessibility menu are part of the shell | approved |
+| [S/framework/views/002227](style/framework/views/002227_view-contract.md) | Each domain view has a contract spec before it is built | approved |
+| [S/framework/testing/002228](style/framework/testing/002228_tests-in-kit.md) | The kit tests a view, the app tests its adapter | approved |
+| [S/framework/testing/002229](style/framework/testing/002229_api-change.md) | A change of a public kit API comes with the change of every app | approved |

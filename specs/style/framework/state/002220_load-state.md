@@ -2,7 +2,7 @@
 id: "002220"
 title: A load state is one type for every view
 kind: style
-status: draft
+status: approved
 owner: frederikbeimgraben
 updated: 2026-11-20
 implementation: null
