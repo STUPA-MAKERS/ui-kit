@@ -41,6 +41,10 @@
      row. That is what this reservation was always for. */
   scrollbar-gutter: stable;
 }
+.dt__scroll:focus-visible {
+  outline: 2px solid var(--color-focus-ring);
+  outline-offset: -2px;
+}
 
 /* THE CUT — where the scrolling content passes beneath the pinned column.
 

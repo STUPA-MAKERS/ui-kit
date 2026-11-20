@@ -1218,6 +1218,19 @@ describe('DataTableComponent', () => {
       expect(h.scroll.scrollLeft).toBe(300);
     });
 
+    it('lets the keyboard focus the scroller only while the table is wider than its box', async () => {
+      const h = await harness();
+      h.wide();
+      h.scroll.dispatchEvent(new Event('scroll'));
+      await h.setRows(ROWS);
+      expect(h.scroll).toHaveAttribute('tabindex', '0');
+
+      h.collapsed();
+      h.scroll.dispatchEvent(new Event('scroll'));
+      await h.setRows(ROWS);
+      expect(h.scroll).not.toHaveAttribute('tabindex');
+    });
+
     it('does not overwrite the kept position with the clamp that empties the box', async () => {
       const h = await harness();
       h.wide();
