@@ -69,8 +69,8 @@ export class ListDetailBarComponent {
 
   /**
    * The page or a panel around the bar has scrolled, so content runs under the bar: only
-   * then is the bar glass (`ld__bar--under`). At rest the glass would blur the content
-   * below the bar into it.
+   * then does the bar take the bar colour (`ld__bar--under`). At rest it keeps the page
+   * colour.
    */
   protected readonly under = signal(false);
 

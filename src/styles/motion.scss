@@ -124,9 +124,8 @@
 ::view-transition-new(bottom-bar) {
   animation: none;
 }
-// A named element is painted alone into its snapshot, so the glass of the bottom bar has no
-// backdrop there. The bar turns opaque while `data-motion` is set (`bottom-bar.component.scss`),
-// so the moving page never shows through it.
+// A named element is painted alone into its snapshot. The bottom bar is solid
+// (`bottom-bar.component.scss`), so the moving page never shows through it.
 :root[data-motion='section']::view-transition-old(root) {
   animation: vt-fade-out var(--motion-xs) var(--ease-exit) both;
 }

@@ -55,14 +55,14 @@ export class ListGroupComponent {
 
   /**
    * The head sticks over its rows (on a phone below a sticky search bar): it has moved
-   * down from the top of its group. Only then is it glass with a fade below it
-   * (`lg__head--stuck`); at rest the glass would blur the first row into the head.
+   * down from the top of its group. Only then does it take the bar colour
+   * (`lg__head--stuck`); at rest it has the colour of the page.
    */
   protected readonly stuck = signal(false);
   /**
    * The stuck head sits right under the sticky search bar and is not pushed away by the
-   * end of its group. Only then does its glass reach up behind the bar
-   * (`lg__head--under`), so bar and head are one glass surface without a seam between them.
+   * end of its group. Only then does the head of a list column hide its
+   * own round corners (`lg__head--under`), so only the lowest head has them.
    */
   protected readonly under = signal(false);
 

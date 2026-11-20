@@ -15,15 +15,15 @@ import { ancestors, nextSiblings } from '../util/dom-walk';
  * A bar that never scrolls away: the search field of a list page and its filter chips.
  *
  * The bar is `position: sticky` at the top of the viewport, below the shell header and
- * the safe area (`--layout-header-height`, `env(safe-area-inset-top)`). It has the page
- * background, so the rows that scroll under it do not show through. While rows are under
- * it (the bar is "stuck"), the rows cut at its lower edge with round inner corners. On a
- * phone the bar is frosted glass from edge to edge instead, with a hard lower edge.
+ * the safe area (`--layout-header-height`, `env(safe-area-inset-top)`). It is solid, so the
+ * rows that scroll under it do not show through. While rows are under it (the bar is
+ * "stuck") it takes the bar colour (`--color-bar`, app spec 002010), and on a wide screen
+ * the rows cut at its lower edge with round inner corners. On a phone the bar runs from
+ * edge to edge, with a straight lower edge.
  *
  * The scroll container gets `--stb-bottom`, the offset of the lower edge of the stuck bar,
  * so the head of a group of rows (`app-list-group`) sticks right below the bar, and
- * `--stb-height`, the height of the bar, so the glass of that head can reach up behind the
- * bar and be one surface with it.
+ * `--stb-height`, the height of the bar.
  *
  * Put the bar as a direct child of the element that holds the list, not into a small
  * wrapper: a sticky element stays inside its parent, so a parent as high as the bar holds
@@ -31,8 +31,8 @@ import { ancestors, nextSiblings } from '../util/dom-walk';
  *
  * In a list/detail column whose rows scroll by themselves (side by side, `.ld-pane`), the
  * bar never sticks: the column keeps the search above its scrolling rows. The bar then
- * makes the head of the column one glass surface over the rows: it marks the column
- * `.ld-pane--glass` and the rows `.ld-pane__rows`, sets `--ld-pane-head` (the height of the
+ * makes the head of the column one solid surface over the rows: it marks the column
+ * `.ld-pane--head` and the rows `.ld-pane__rows`, sets `--ld-pane-head` (the height of the
  * head with the gap below it), `--ld-pane-lift` and `--ld-pane-drop` (the gaps from the
  * column to the top and the bottom edge of the screen) and `.ld-pane--scrolled` while rows are under the head
  * (`styles/list-detail.scss`).
@@ -152,7 +152,7 @@ export class StickyBarComponent {
   }
 
   /**
-   * The glass head of a list column whose rows scroll by themselves: mark the column and
+   * The head of a list column whose rows scroll by themselves: mark the column and
    * the rows, and set the height of the head and the scrolled state.
    */
   private measureRows(): void {
@@ -169,7 +169,7 @@ export class StickyBarComponent {
     const padding = parseFloat(getComputedStyle(pane).paddingTop) || 0;
     const head = rows.offsetTop - pulled - padding;
     pane.style.setProperty('--ld-pane-head', `${Math.round(head)}px`);
-    // The column reaches up to the top edge of the screen, so the glass and the rows under
+    // The column reaches up to the top edge of the screen, so the head and the rows under
     // it do too: the lift is the gap between the box that holds the column and that edge.
     const box = pane.parentElement?.getBoundingClientRect();
     const lift = Math.max(0, box?.top ?? 0);
@@ -188,7 +188,7 @@ export class StickyBarComponent {
       old.removeEventListener('scroll', this.onRowsScroll);
       old.classList.remove('ld-pane__rows');
       const pane = old.parentElement;
-      pane?.classList.remove('ld-pane--glass', 'ld-pane--scrolled');
+      pane?.classList.remove('ld-pane--head', 'ld-pane--scrolled');
       pane?.style.removeProperty('--ld-pane-head');
       pane?.style.removeProperty('--ld-pane-lift');
       pane?.style.removeProperty('--ld-pane-drop');
@@ -197,7 +197,7 @@ export class StickyBarComponent {
     if (rows && this.onRowsScroll) {
       rows.addEventListener('scroll', this.onRowsScroll, { passive: true });
       rows.classList.add('ld-pane__rows');
-      rows.parentElement?.classList.add('ld-pane--glass');
+      rows.parentElement?.classList.add('ld-pane--head');
     }
   }
 

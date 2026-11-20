@@ -198,6 +198,9 @@
   --color-surface-2: var(--vh-bg);
   --color-surface-3: var(--vh-bg);
   --color-surface-4: var(--vh-bg);
+  --color-bar: var(--vh-bg);
+  // A scrolled head ends in the white edge of a surface (`bar`, app spec 002010).
+  --bar-edge: inset 0 -2px 0 var(--vh-fg);
   --color-pop: var(--vh-bg);
   --color-glass-1: var(--vh-bg);
   --color-glass-2: var(--vh-bg);
@@ -366,7 +369,6 @@
   }
 
   // The rail and the bottom bar: a white line toward the page.
-  // A border, because the glass layer of the bar paints over an inset shadow.
   nav.bb {
     border-top: var(--vh-edge) !important;
   }
@@ -431,22 +433,13 @@
     box-shadow: none !important;
   }
 
-  // No glass, no gradient and no tint. The head of a list column stays a layer over its
-  // rows, because the rows scroll under it: the layer is solid black and as high as the
-  // head, so no row shows through the title and the filters. Its shadow goes.
-  .ld-pane--glass::before {
-    height: var(--ld-pane-top) !important;
-    background: var(--vh-bg) !important;
-    -webkit-backdrop-filter: none !important;
-    backdrop-filter: none !important;
-    -webkit-mask-image: none !important;
-    mask-image: none !important;
-  }
+  // The head of a list column stays a layer over its rows, because the rows scroll under
+  // it: it is black, and while rows are under it it ends in the white edge (`--bar-edge`).
   // On a wide screen the rows of the column lie in a frame with a white edge that starts
   // below the head (app spec 000527): they do not reach up under the head, and they cut at
-  // the frame.
+  // the frame, so the head needs neither the edge nor the round corners.
   @include bp.not-phone {
-    .ld-pane--glass > .ld-pane__rows.ld-pane__rows.ld-pane__rows.ld-pane__rows {
+    .ld-pane--head > .ld-pane__rows.ld-pane__rows.ld-pane__rows.ld-pane__rows {
       margin-top: 0 !important;
       padding-top: 0 !important;
       scroll-padding-top: 0 !important;
@@ -457,23 +450,13 @@
       // the edge of the screen.
       margin-bottom: var(--ld-pane-drop, 0px) !important;
     }
-    .ld-pane--glass > .ld-pane__rows::-webkit-scrollbar-track {
+    .ld-pane--head > .ld-pane__rows::-webkit-scrollbar-track {
       margin-top: 0 !important;
     }
-    .ld-pane--glass::before {
+    .ld-pane--head::before,
+    .ld-pane--head::after {
       display: none;
     }
-  }
-  // On a phone a white line ends the head while rows are under it, as the edge of a
-  // surface does.
-  @include bp.phone {
-    .ld-pane--glass.ld-pane--scrolled::before {
-      box-sizing: border-box;
-      border-bottom: var(--vh-edge);
-    }
-  }
-  .ld-pane--glass::after {
-    display: none;
   }
 
   // The yellow of the focus ring of 000598, in the pure yellow.
@@ -525,6 +508,7 @@
   .seg__opt,
   .chip,
   .rm__trigger,
+  .ld__back,
   .btn[aria-pressed='false'],
   .btn[aria-expanded='false'],
   :is(button, a)[aria-label][aria-pressed='false']:has(> app-icon:only-child, > svg:only-child),

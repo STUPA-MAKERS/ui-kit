@@ -286,16 +286,6 @@ describe('motion and list pane partials', () => {
     expect(motion).toMatch(/:root\[data-motion\] \.frame__rail \{\n {2}background: var\(--color-bg\);/);
   });
 
-  it('keeps the bottom bar opaque while the page moves: no backdrop, no see-through', () => {
-    expect(read('motion.scss')).not.toContain('::view-transition-group(bottom-bar) {');
-    const bar = block(
-      read('../../shell/src/bottom-bar/bottom-bar.component.scss'),
-      ':host-context([data-motion]) .bb::before {',
-    );
-    expect(bar).toContain('backdrop-filter: none;');
-    expect(bar).toMatch(/color-mix\(in srgb, var\(--color-surface-3\) var\(--glass-tint, 60%\), var\(--color-bg\)\)/);
-  });
-
   it('times every motion with the tokens, never a literal duration', () => {
     const motion = read('motion.scss');
     for (const m of motion.matchAll(/animation(?:-duration)?\s*:([^;]*);/g)) {
@@ -364,27 +354,47 @@ describe('StickyBarCut', () => {
 
   it('draws round inner corners below the bar, not a fade', () => {
     expect(scss).not.toMatch(/linear-gradient\(to bottom, var\(--stb-bg/);
-    expect(scss).toMatch(/:host::after \{[^}]*radial-gradient\(\s*circle at 100% 100%/);
-    expect(scss).toMatch(/:host::after \{[^}]*radial-gradient\(\s*circle at 0 100%/);
+    expect(scss).toMatch(/:host::after \{[^}]*@include bar-corners\(/);
+    const corners = block(read('_frosted.scss'), '@mixin bar-corners($radius) {');
+    expect(corners).toMatch(/radial-gradient\(\s*circle at 100% 100%/);
+    expect(corners).toMatch(/radial-gradient\(circle at 0 100%/);
   });
 });
 
 /**
- * A wide list column keeps its solid head in every state (app 001931). `lg__head--under`
- * follows the scroll late, so the state "a group head is under the head" must not make the
- * head of the column clear: rows would show between and behind the search and the filters.
+ * Bars and heads that content scrolls under are solid (app 002010): no blur, no tint, no
+ * shadow. At rest they have the colour they sit on, scrolled the bar colour. Only a floating
+ * box (`frosted-pop`) keeps the glass.
  */
-describe('SolidWideHead', () => {
-  const scss = read('list-detail.scss');
+describe('SolidBars', () => {
+  const BARS = [
+    '../../shell/src/bottom-bar/bottom-bar.component.scss',
+    '../lib/sticky-bar/sticky-bar.component.scss',
+    '../lib/list-detail/list-detail-bar.component.scss',
+    '../lib/list-group/list-group.component.scss',
+    '../lib/tab-pager/tab-pager.component.scss',
+    'list-detail.scss',
+  ];
 
-  it('keeps the colour of the head while a group head is under it', () => {
-    const empty = scss.indexOf('.ld-pane--glass:has(.lg__head--under)::before {\n    background: none;');
-    const solid = scss.search(
-      /\.ld-pane--glass:has\(\.lg__head--under\)::before \{\s*background: var\(--stb-bg, var\(--color-bg\)\);\s*\}/,
-    );
-    expect(empty).toBeGreaterThan(-1);
-    expect(solid).toBeGreaterThan(empty);
-    const wide = scss.lastIndexOf('@include bp.not-phone {', solid);
-    expect(wide).toBeGreaterThan(empty);
+  it('has no glass, no fade of glass and no shadow in a bar', () => {
+    for (const path of BARS) {
+      const scss = read(path);
+      expect(scss).not.toMatch(/backdrop-filter/);
+      expect(scss).not.toMatch(/frosted\(|frosted-rest|glass-corners|glass-top-fade/);
+      expect(scss).not.toMatch(/box-shadow: var\(--shadow/);
+      expect(scss).toMatch(/@include bar\(/);
+    }
+  });
+
+  it('gives a scrolled bar the bar colour and the edge of very high contrast', () => {
+    const mixin = block(read('_frosted.scss'), '@mixin bar($color, $scrolled: false) {');
+    expect(mixin).toMatch(/background: var\(--color-bar\);\s*box-shadow: var\(--bar-edge, none\);/);
+    for (const path of BARS.slice(1)) expect(read(path)).toMatch(/\$scrolled: true/);
+  });
+
+  it('defines the bar colour per theme as surface 3', () => {
+    const tokens = read('tokens.scss');
+    expect(tokens).toContain('--color-bar: var(--c-light-c3);');
+    expect(tokens).toContain('--color-bar: var(--c-dark-c3);');
   });
 });

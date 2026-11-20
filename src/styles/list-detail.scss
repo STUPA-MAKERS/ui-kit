@@ -24,16 +24,6 @@
 // application, a search bar) sticks below the bar, not under it.
 .ld-under-bar {
   --ld-sticky-top: calc(var(--ld-bar-height) + env(safe-area-inset-top, 0px));
-  // The bar above the head is the edge, so the glass of the head does not turn into the
-  // page colour at its top (`glass-top-fade`).
-  --glass-top-fade: 0px;
-}
-
-// A page with tabs (`app-tab-pager`) sticks its tab line right under the bar as glass, so
-// the bar casts no shadow there: the bar and the tab line read as one glass head. The
-// class is doubled to win over the shadow of the bar component.
-body:has(app-tab-pager) app-list-detail-bar.ld__bar--condensed.ld__bar--condensed {
-  box-shadow: none;
 }
 
 // The head of a list column on a wide screen (app spec 001500). The navigation already
@@ -138,18 +128,15 @@ body:has(app-tab-pager) app-list-detail-bar.ld__bar--condensed.ld__bar--condense
 
 // Side by side, the rows of the column scroll in an element of their own (the next
 // scroll container after the search bar). The search bar (`StickyBarComponent`) then
-// marks the column `.ld-pane--glass`, the rows `.ld-pane__rows`, and sets `--ld-pane-head`,
+// marks the column `.ld-pane--head`, the rows `.ld-pane__rows`, and sets `--ld-pane-head`,
 // the height of the head of the column (header, search bar and what follows it) with the
 // gap below it. `--ld-pane-top` adds the lift: the head counted from the top edge of the
-// screen. The rows reach up under the head, and the head is one frosted glass
-// surface over them, the same as the search bar on a phone: one glass layer for the
-// whole head (`::before`), because two layers side by side show a seam where each one
-// stops to blur. The glass ends in a hard edge without a shadow while rows are under it
-// (`.ld-pane--scrolled`); the rows have no fades. At rest
-// there is no glass, because it would blur the first row into the head.
-.ld-pane--glass {
+// screen. The rows reach up under the head, and the head is one solid layer over them
+// (`::before`), so the header, the search bar and the filters have one colour in every
+// state. The rows have no fades.
+.ld-pane--head {
   // The column reaches up to the top edge of the screen (`--ld-pane-lift`, the padding of
-  // the page above it), so the glass and the rows under it end at that edge, not at a
+  // the page above it), so the head and the rows under it end at that edge, not at a
   // line below it; the padding keeps the header where it was. It also reaches down to the
   // bottom edge (`--ld-pane-drop`), so the rows run out at the edge of the screen.
   --ld-pane-top: calc(var(--ld-pane-lift, 0px) + var(--ld-pane-head, 0px));
@@ -169,16 +156,12 @@ body:has(app-tab-pager) app-list-detail-bar.ld__bar--condensed.ld__bar--condense
   > .ld-pane__filters::after {
     display: none;
   }
-  // On a phone the bar is glass of its own (`StickyBarComponent`), solid at rest. Over the
-  // glass of the column it adds nothing: a second layer shows a seam, and at rest its solid
-  // colour cuts the rows below the head. The repeated class wins over the host style of the
-  // bar.
+  // The search bar has a colour of its own (`StickyBarComponent`). Over the head of the
+  // column it adds nothing, and its own state can differ from the state of the column for
+  // a frame. The repeated class wins over the host style of the bar.
   > .ld-pane__filters.ld-pane__filters.ld-pane__filters {
     background: transparent;
     box-shadow: none;
-  }
-  > .ld-pane__filters.ld-pane__filters.ld-pane__filters::before {
-    display: none;
   }
   // The repeated class wins over a page rule that sets the padding of its rows (the nav
   // of the admin frame sets `padding: 0 …`), which would put the first rows under the head.
@@ -189,10 +172,8 @@ body:has(app-tab-pager) app-list-detail-bar.ld__bar--condensed.ld__bar--condense
     padding-top: var(--ld-pane-top);
     scroll-padding-top: var(--ld-pane-top);
   }
-  // No fades in the rows: the glass and its edge show that rows are under the head, and
-  // the rows run to the bottom edge of the screen. A mask on the rows would also make them
-  // the backdrop root of the glass of a stuck group head, which then blurs nothing. The
-  // repeated class wins over the fade of the page (`fade-y`), which can carry three
+  // No fades in the rows: the colour of the head shows that rows are under it, and the rows
+  // run to the bottom edge of the screen. The repeated class wins over the fade of the page (`fade-y`), which can carry three
   // classes and the attribute of the component.
   > .ld-pane__rows.ld-pane__rows.ld-pane__rows.ld-pane__rows {
     -webkit-mask-image: none;
@@ -201,7 +182,7 @@ body:has(app-tab-pager) app-list-detail-bar.ld__bar--condensed.ld__bar--condense
 }
 // The scroll bar of the rows starts at the lower edge of the head (000601). The rows reach
 // up under the head, so their native bar starts at the top edge of the screen: its track
-// ran through the head and the thumb went under the glass. Only a track margin moves it
+// ran through the head and the thumb went under the head. Only a track margin moves it
 // down, and only the `::-webkit-scrollbar` parts have one, so they draw the thin grey bar
 // of the app here. Chrome ignores them while `scrollbar-width` or `scrollbar-color` is set,
 // so both go back to `auto`. Firefox has no such parts and keeps the thin bar over the
@@ -209,19 +190,19 @@ body:has(app-tab-pager) app-list-detail-bar.ld__bar--condensed.ld__bar--condense
 // screen shows no bar (`base.scss`), so this is for a fine pointer only.
 @media not ((hover: none) and (pointer: coarse)) {
   @supports selector(::-webkit-scrollbar) {
-    .ld-pane--glass > .ld-pane__rows.ld-pane__rows.ld-pane__rows.ld-pane__rows {
+    .ld-pane--head > .ld-pane__rows.ld-pane__rows.ld-pane__rows.ld-pane__rows {
       scrollbar-width: auto;
       scrollbar-color: auto;
     }
-    .ld-pane--glass > .ld-pane__rows::-webkit-scrollbar {
+    .ld-pane--head > .ld-pane__rows::-webkit-scrollbar {
       width: 8px;
     }
-    .ld-pane--glass > .ld-pane__rows::-webkit-scrollbar-thumb {
+    .ld-pane--head > .ld-pane__rows::-webkit-scrollbar-thumb {
       border: 2px solid transparent;
       border-radius: 4px;
       background: #5a5a5a padding-box;
     }
-    .ld-pane--glass > .ld-pane__rows::-webkit-scrollbar-track {
+    .ld-pane--head > .ld-pane__rows::-webkit-scrollbar-track {
       margin-top: var(--ld-pane-top);
       background: transparent;
     }
@@ -230,11 +211,15 @@ body:has(app-tab-pager) app-list-detail-bar.ld__bar--condensed.ld__bar--condense
 // The rows run down to the bottom edge of the screen, and a floating button in the column
 // (`app-fab` or `app-fab-group` `contained`) sits `--ld-pane-drop` higher, so the end of the
 // rows keeps room for the button above that edge.
-.ld-pane--glass:is(:has(.fab--contained), :has(.fab-group--contained))
+.ld-pane--head:is(:has(.fab--contained), :has(.fab-group--contained))
   > .ld-pane__rows.ld-pane__rows.ld-pane__rows.ld-pane__rows {
   padding-bottom: calc(56px + var(--space-6) + var(--ld-pane-drop, 0px));
 }
-.ld-pane--glass::before {
+// The head of the column: one solid layer from the top edge of the screen to the lower edge
+// of the head, behind the header, the search bar and the filters (`bar`, app spec 002010).
+// At rest it has the page colour. While rows are under it (`.ld-pane--scrolled`) it takes the
+// bar colour, the step in colour marks the edge, and it has no shadow.
+.ld-pane--head::before {
   content: '';
   position: absolute;
   inset-inline: 0;
@@ -242,128 +227,29 @@ body:has(app-tab-pager) app-list-detail-bar.ld__bar--condensed.ld__bar--condense
   z-index: 1;
   height: var(--ld-pane-top);
   pointer-events: none;
+  @include bar(var(--stb-bg, var(--color-bg)));
 }
-// The glass reaches `$reach` (64px) below the head and a mask cuts it back, so the blur at
-// the edge sees the rows around it (`frosted`, `_frosted.scss`). Without `backdrop-filter`
-// the head is solid.
-.ld-pane--glass::before {
-  background: var(--stb-bg, var(--color-bg));
+.ld-pane--head.ld-pane--scrolled::before {
+  @include bar(var(--stb-bg, var(--color-bg)), $scrolled: true);
 }
-@supports (backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px)) {
-  .ld-pane--glass::before {
-    height: calc(var(--ld-pane-top) + 64px);
-    // The sides and the top edge of the screen turn into the solid page colour, so the
-    // glass shows no edge against the page beside and above the column and nothing behind
-    // it shows through there (`glass-top-fade`).
-    background:
-      glass-top-fade(var(--stb-bg, var(--color-bg))),
-      linear-gradient(
-        to right,
-        var(--stb-bg, var(--color-bg)),
-        transparent var(--space-4),
-        transparent calc(100% - var(--space-4)),
-        var(--stb-bg, var(--color-bg))
-      ),
-      color-mix(in srgb, var(--stb-bg, var(--color-bg)) var(--glass-tint, 55%), transparent);
-    -webkit-backdrop-filter: blur(10px) saturate(1.8);
-    backdrop-filter: blur(10px) saturate(1.8);
-    mask-image: linear-gradient(to bottom, #000 calc(100% - 64px), transparent calc(100% - 64px));
-  }
-}
-
-// On a phone the glass of the head of the column ends in the light shadow of every phone
-// list bar (`StickyBarComponent`) while rows are under it (`.ld-pane--scrolled`). The glass
-// itself carries a mask, which would cut a shadow off, so a box of the size of the head
-// casts it, and a clip leaves only the shadow below the head. A thin line would cast a
-// shadow too faint to see. A group head right under the head of the column carries the
-// shadow itself (`ListGroupComponent`).
-// The glass and its shadow run from screen edge to screen edge over the gutter of the page
-// (`--stb-bleed`), as the phone list bar does, so the glass has no side fade there.
+// On a phone the head runs from screen edge to screen edge over the gutter of the page
+// (`--stb-bleed`), as the phone list bar does, and ends in a straight edge.
 @include bp.phone {
-  .ld-pane--glass::before {
+  .ld-pane--head::before {
     inset-inline: calc(-1 * var(--stb-bleed, var(--space-4)));
   }
-  @supports (backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px)) {
-    .ld-pane--glass::before {
-      background:
-        glass-top-fade(var(--stb-bg, var(--color-bg))),
-        color-mix(in srgb, var(--stb-bg, var(--color-bg)) var(--glass-tint, 55%), transparent);
-    }
-  }
-  .ld-pane--glass::after {
-    content: '';
-    position: absolute;
-    inset-inline: calc(-1 * var(--stb-bleed, var(--space-4)));
-    top: 0;
+}
+// On a wide screen the rows run into the scrolled head with round inner corners at both
+// sides of the column (`bar-corners`). A group head right under the head of the column
+// carries the corners itself (`ListGroupComponent`).
+@include bp.not-phone {
+  .ld-pane--head.ld-pane--scrolled::after {
+    @include bar-corners(var(--radius-xl));
+    top: var(--ld-pane-top);
     z-index: 1;
-    height: var(--ld-pane-top);
-    box-shadow: var(--shadow-md);
-    clip-path: inset(100% 0 -32px 0);
-    opacity: 0;
-    pointer-events: none;
-    transition: opacity var(--motion-fast) var(--ease-standard);
   }
-  .ld-pane--glass.ld-pane--scrolled::after {
-    opacity: 1;
-  }
-  .ld-pane--glass:has(.lg__head--under)::after {
+  .ld-pane--head:has(.lg__head--under)::after {
     display: none;
-  }
-}
-
-// On a wide screen the glass of the head runs into the rows with round inner corners at
-// both sides of the column (`glass-corners`), while rows are under it. At rest the corners
-// would blur the top corners of the first row. A group head right under the head of the
-// column carries the corners itself (`ListGroupComponent`).
-@include bp.not-phone {
-  .ld-pane--glass::before {
-    --ld-corner: 0px;
-    @include glass-corners(var(--stb-bg, var(--color-bg)), var(--ld-corner), $top-fade: true);
-  }
-  .ld-pane--glass.ld-pane--scrolled::before {
-    --ld-corner: var(--radius-xl);
-  }
-  .ld-pane--glass:has(.lg__head--under)::before {
-    --ld-corner: 0px;
-  }
-}
-
-// A group head right under the head of the column carries the glass of the whole head
-// (`ListGroupComponent`): one tint layer, saturated once. The glass of the column lies on
-// top of it and keeps only a light blur, without tint and without saturation. A full blur
-// there blurs the glass of the head a second time: the head of the column then shows a
-// line where it ends, and its sides lose the turn into the page colour, because the blur
-// pulls the glass over them. The light blur stays because the classes follow the scroll
-// late: for a frame the head of the column can lack the glass of the group head, and no
-// row may show sharp through it then.
-@supports (backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px)) {
-  .ld-pane--glass:has(.lg__head--under)::before {
-    background: none;
-    -webkit-backdrop-filter: blur(2px);
-    backdrop-filter: blur(2px);
-  }
-}
-
-// On a wide screen the head of the column is solid in the page colour, not glass (app spec
-// 000527): the rows cut hard at its lower edge (000193). A group head right under it is solid
-// too. The tint of 100 % turns every glass layer of the column into the solid colour, as the
-// setting for less transparency does.
-@include bp.not-phone {
-  .ld-pane--glass {
-    --glass-tint: 100%;
-  }
-  .ld-pane--glass::before,
-  .ld-pane--glass .lg__head::before {
-    -webkit-backdrop-filter: none !important;
-    backdrop-filter: none !important;
-  }
-  // The solid head keeps its colour while a group head is right under it. The rule above
-  // empties the glass of the column for that state, and here no blur is left either, so the
-  // head would be clear. The class `lg__head--under` follows the scroll one frame or more
-  // late: on a fast scroll, rows and the group head pushed up by the next one then showed
-  // between and behind the search field and the filters (app spec 001931).
-  .ld-pane--glass:has(.lg__head--under)::before {
-    background: var(--stb-bg, var(--color-bg));
   }
 }
 
