@@ -356,6 +356,14 @@ body:has(app-tab-pager) app-list-detail-bar.ld__bar--condensed.ld__bar--condense
     -webkit-backdrop-filter: none !important;
     backdrop-filter: none !important;
   }
+  // The solid head keeps its colour while a group head is right under it. The rule above
+  // empties the glass of the column for that state, and here no blur is left either, so the
+  // head would be clear. The class `lg__head--under` follows the scroll one frame or more
+  // late: on a fast scroll, rows and the group head pushed up by the next one then showed
+  // between and behind the search field and the filters (app spec 001931).
+  .ld-pane--glass:has(.lg__head--under)::before {
+    background: var(--stb-bg, var(--color-bg));
+  }
 }
 
 // The face of an empty list (`app-empty-state`) in the list column: large, and centred in
