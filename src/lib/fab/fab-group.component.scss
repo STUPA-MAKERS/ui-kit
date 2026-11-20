@@ -25,7 +25,7 @@
   --fab-end: var(--space-4);
   --fab-foot: var(--space-4);
 }
-// A glass list column reaches down to the bottom edge of the screen (`--ld-pane-drop`), so
+// A list column with a head over its rows reaches down to the bottom edge of the screen (`--ld-pane-drop`), so
 // the group keeps the gap that the column had before it reached the edge.
 :host(.fab-group--contained) {
   position: absolute;

@@ -3,10 +3,10 @@
 @use '../../../src/styles/frosted' as *;
 
 // The safe-area padding keeps the entries above the gesture bar of an installed app
-// (viewport-fit=cover). A light shadow upwards sets the bar off the page instead of a rule;
-// `--bb-shadow` lets a page turn it off. The page scrolls under the bar, so the bar is frosted
-// glass that turns into the solid bar colour at its foot, so the bottom edge and the safe area
-// have exactly the colour of the system bar (`theme_color`) below it.
+// (viewport-fit=cover). The bar is solid in the bar colour (`bar`, app spec 002010), the
+// same colour down into the safe area, so its foot meets the system bar of the phone
+// (`theme_color`) without an edge. It has no shadow: the step from the body to the bar
+// colour marks the edge, and no resting surface of the body has that colour (002011).
 :host {
   display: block;
 }
@@ -22,32 +22,9 @@
   height: calc(var(--bottom-bar-height, 64px) + env(safe-area-inset-bottom));
   padding: 0 max(4px, var(--app-right-safe-area, 0px)) env(safe-area-inset-bottom)
     max(4px, var(--app-left-safe-area, 0px));
-  box-shadow: var(--bb-shadow, var(--shadow-md-up));
-  --nav-mark-ring: var(--color-surface-3);
+  --nav-mark-ring: var(--color-bar);
   @include press.chrome-text;
-  @include frosted(
-    var(--color-surface-3),
-    top,
-    $fade-to: var(--color-surface-3),
-    $fade-stop: calc(100% - env(safe-area-inset-bottom) - 4px),
-    $tint: 60%
-  );
-}
-
-// During a route transition the bar is painted alone into its view transition snapshot, so
-// its glass has no backdrop there: the blur sees nothing and the moving page shows through
-// the tint. Some GPUs also drop a backdrop filter on the snapshot group. The glass is
-// therefore opaque while `<html data-motion>` is set: the same gradient as the glass, mixed
-// into the page colour instead of into transparency, so over the page colour the bar does not
-// change, and the moving page never shows through it.
-:host-context([data-motion]) .bb::before {
-  -webkit-backdrop-filter: none;
-  backdrop-filter: none;
-  background: linear-gradient(
-    to bottom,
-    color-mix(in srgb, var(--color-surface-3) var(--glass-tint, 60%), var(--color-bg)) 64px,
-    var(--color-surface-3) calc(100% - env(safe-area-inset-bottom) - 4px)
-  );
+  @include bar(var(--color-bar));
 }
 
 @include nav-items.bar-item;

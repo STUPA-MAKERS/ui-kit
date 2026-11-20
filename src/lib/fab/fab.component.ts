@@ -66,8 +66,8 @@ export class FabFocusReturn {
  *   padding of a sheet, so the button clears its round corner, and `--pane-foot-gap`
  *   replaces the gutter below it.
  * - `contained`: absolute at the bottom end of the nearest positioned ancestor, for a list
- *   pane beside a detail pane (`.ld-pane` is positioned). A glass column reaches down to the
- *   bottom edge of the screen, so the button adds its `--ld-pane-drop` to the gap below it.
+ *   pane beside a detail pane (`.ld-pane` is positioned). A list column with a head over
+ *   its rows reaches down to the bottom edge of the screen, so the button adds its `--ld-pane-drop` to the gap below it.
  *
  * The button floats over the content, so the end of what scrolls below it keeps room for
  * it: a list pane pads its end by `calc(56px + var(--space-6))` (see `frame` of

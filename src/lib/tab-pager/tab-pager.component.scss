@@ -35,27 +35,20 @@
   pointer-events: none;
 }
 /* On a phone, and below the bar of a one-view detail (`.ld-under-bar`, also on a wide
-   screen), the tab line sticks under the top bar of the page (`--ld-sticky-top`) as
-   frosted glass, so the tabs stay in reach while the page scrolls. The glass is cut at the
-   tab line, because the line is a real edge. */
+   screen), the tab line sticks under the top bar of the page (`--ld-sticky-top`), so the
+   tabs stay in reach while the page scrolls. It is solid (`bar`, app spec 002010): at rest
+   in the colour of the page, stuck under the bar in the bar colour, the same as the bar
+   above it, so the two read as one head. The tab line is the edge. */
 @mixin sticky-tabs($bar: '.tp__bar') {
   #{$bar} {
     position: sticky;
     top: var(--ld-sticky-top, 0px);
     z-index: calc(var(--z-sticky) - 1);
     isolation: isolate;
-    @include frosted(var(--tab-pager-bar-bg, var(--color-bg)), bottom);
+    @include bar(var(--tab-pager-bar-bg, var(--color-bg)));
 
-    // Stuck, it sits on the glass of the head bar, which reaches over it (`watchStuck`).
     &.tp__bar--stuck {
-      z-index: calc(var(--z-sticky) + 1);
-    }
-    &.tp__bar--stuck::before {
-      display: none;
-    }
-    // Not stuck, nothing runs under the line, so it is solid.
-    &:not(.tp__bar--stuck) {
-      @include frosted-rest(var(--tab-pager-bar-bg, var(--color-bg)));
+      @include bar(var(--tab-pager-bar-bg, var(--color-bg)), $scrolled: true);
     }
   }
 }
