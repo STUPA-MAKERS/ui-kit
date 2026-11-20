@@ -8,7 +8,7 @@ screenshots with the accessibility views before the merge.
 | --- | --- | --- | --- |
 | M0 | kit | Specs (#213), `scripts/check_specs.py` with the shared number space and `ui-kit:` references, CI job `specs`, entry points `/screens` and `/views/*`, the shared types of 002230 to 002236, the import-boundary lint (002215). | CI green, no visual change. |
 | M1 | spec-explorer | Resolve `ui-kit:` and `STUPA-Workflow:` references and link them to the other repository. | A reference in the app opens the kit spec. |
-| M2 | kit + app | Move the 248 specs and split the 11 (MIGRATION.md). The app rewrites its `§` references to `§ui-kit:`. After app #1096/#1097 and kit #214 merge. | `check_specs.py` green in both repositories. |
+| M2 | kit + app | Move the 270 specs (248 of the list, 7 newer, 15 replaced ones that follow their successor) and split the 11 into a kit spec (002281 to 002291) and an app spec. The app rewrites its `§` references to `§ui-kit:`. Done in kit #213 and app #1101; the kit merges first. | `check_specs.py` green in both repositories. |
 | M3 | kit + app | Showcase app with fixtures (002209); the style ratchet in the app CI (002213) with the current count. | Ratchet job green. |
 | M4 | kit + app | `provideFramework()`, ports, display settings and the accessibility menu in the shell (002260 to 002264); the app moves its shell config. | Screenshots of the shell in all modes. |
 | M5 | kit | Screens: list/detail, detail, form, settings, public, status (002240 to 002246); overlays (002251 to 002253); `app-form` on signal forms (002255, 002256). | Showcase pages and jest-axe green. |

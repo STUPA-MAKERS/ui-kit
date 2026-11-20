@@ -22,7 +22,7 @@ interface FrameworkConfig {
   readonly account?: { readonly items: Signal<readonly Action[]> };
   readonly help?: { readonly items: Signal<readonly Action[]>; readonly wikiUrl?: string };
   readonly footer?: { readonly links: readonly { label: string; link: RouteLink }[] };
-  readonly a11yStatement: RouteLink;                       // 000496
+  readonly a11yStatement: RouteLink;                       // STUPA-Workflow:000496
   readonly languages: readonly ShellLanguage[];
   readonly texts?: Signal<Record<string, string>>;         // overrides of kit.* (002223)
   readonly theme: { readonly storageKey: string; readonly manifest?: Record<'light' | 'dark', string> };

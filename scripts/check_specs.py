@@ -381,7 +381,6 @@ def _section_refs(ids: dict[str, Spec], partner: set[str] | None) -> list[str]:
     `PARTNER_SPECS` is set. Any other repository name is an error.
     """
     errors: list[str] = []
-    moving = _moving_numbers()
     for folder in CODE_DIRS:
         if not (ROOT / folder).is_dir():
             continue
@@ -392,7 +391,7 @@ def _section_refs(ids: dict[str, Spec], partner: set[str] | None) -> list[str]:
             for repo, ref in SECTION_REF.findall(text):
                 rel = path.relative_to(ROOT)
                 if repo in ("", REPO):
-                    if ref not in ids and ref[-6:] not in moving:
+                    if ref not in ids:
                         errors.append(f"{rel}: §{ref} names no spec (000032)")
                 elif repo == PARTNER:
                     if partner is not None and ref not in partner:
@@ -400,19 +399,6 @@ def _section_refs(ids: dict[str, Spec], partner: set[str] | None) -> list[str]:
                 else:
                     errors.append(f"{rel}: §{repo}:{ref} names an unknown repository (002212)")
     return errors
-
-
-def _moving_numbers() -> set[str]:
-    """Return the numbers that `specs/MIGRATION.md` still lists as moving here.
-
-    Until a spec has moved, the code of the kit already refers to it without a repository
-    name, so such a reference counts as resolved while the list holds its number.
-    """
-    migration = SPECS / "MIGRATION.md"
-    if not migration.is_file():
-        return set()
-    text = migration.read_text(encoding="utf-8").split("## Stay")[0]
-    return set(re.findall(r"^\| ([0-9]{6}) \|", text, re.M))
 
 
 def _partner_ids() -> tuple[set[str], dict[str, str]] | None:

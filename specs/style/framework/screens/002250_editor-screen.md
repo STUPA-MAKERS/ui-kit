@@ -29,7 +29,7 @@ Outputs: `save`, `discard`, `langChange`.
 
 Behaviour:
 
-- The editor opens without the list (001482); the inspector is a side sheet; on a phone the
+- The editor opens without the list (STUPA-Workflow:001482); the inspector is a side sheet; on a phone the
   inspector is a bottom sheet.
 
 Reason: Every full-page editor then has the same head, save and discard.

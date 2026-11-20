@@ -27,7 +27,7 @@ none: { readonly heading: string; readonly icon: IconName } // "Kein … geöffn
 config?: { readonly param?: string; readonly listWidth?: 'normal' | 'wide' }
 ```
 
-Slots: `screenRow` (optional, replaces the content of a row with kit components), `screenListHead` (optional, a block above the rows, for example the running meeting of 001302).
+Slots: `screenRow` (optional, replaces the content of a row with kit components), `screenListHead` (optional, a block above the rows, for example the running meeting of STUPA-Workflow:001302).
 
 Outputs: `query: ListQuery`, `action: { key, ids? }`, `more: void`, `refresh: void` (pull to refresh).
 

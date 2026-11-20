@@ -26,7 +26,7 @@ Outputs: `send: { text, visibility?, files }`, `action: { id, key }`.
 Behaviour:
 
 - The composer has the same gap below as at its side (000602).
-- The visibility switch names who reads the message (001691).
+- The visibility switch names who reads the message (STUPA-Workflow:001691).
 
 Reason: Every comment thread then looks the same.
 

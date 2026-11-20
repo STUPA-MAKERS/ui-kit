@@ -1,0 +1,15 @@
+---
+id: "000195"
+title: The phone bottom bar is fixed
+kind: non-functional
+status: approved
+owner: frederikbeimgraben
+updated: 2026-11-20
+implementation: null
+scope:
+  - shell
+---
+
+# The phone bottom bar is fixed
+
+The phone bottom bar must show Start, Anträge, Sitzungen and Aufgaben, then "Mehr".

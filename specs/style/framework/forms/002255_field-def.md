@@ -22,7 +22,7 @@ type FieldDef =
   | Base & { kind: 'number' | 'money'; min?: number; max?: number; step?: number; currency?: string }
   | Base & { kind: 'date' | 'date-range' | 'time'; min?: string; max?: string; shortcuts?: boolean } // 000700
   | Base & { kind: 'select' | 'multi-select'; options: readonly SelectOption[]; search?: boolean }
-  | Base & { kind: 'tree-select'; tree: readonly TreeOption[]; leavesOnly?: boolean }         // 001031
+  | Base & { kind: 'tree-select'; tree: readonly TreeOption[]; leavesOnly?: boolean }         // STUPA-Workflow:001031
   | Base & { kind: 'checkbox' | 'switch' }
   | Base & { kind: 'file'; accept?: string; maxBytes?: number; multiple?: boolean }             // through the upload port
   | Base & { kind: 'markdown'; tools?: readonly string[] }

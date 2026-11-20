@@ -90,7 +90,8 @@ route wiring. A change of a public kit API ships with the pull request of every 
 
 ## Migration (002210 to 002213)
 
-`specs/MIGRATION.md` lists the specs that move from STUPA-Workflow. The style lines of an app may
+The specs of look and behaviour moved from STUPA-Workflow to `specs/requirements/` with their
+numbers; a mixed spec was split into a kit spec and an app spec that names it. The style lines of an app may
 only fall until they reach zero (002213). The order: shell config and screens on every page
 first, then the domain views one by one, then the Spec-Explorer as the second app.
 

@@ -17,7 +17,7 @@ scope:
 ```ts
 interface FrameworkPorts {
   readonly session: { readonly frame: Signal<'rail' | 'public' | 'pending'>; readonly person: Signal<PersonRef | null>; logout(): void };
-  readonly search?: (q: string) => Observable<readonly SearchHit[]>;    // 2 characters and more (000329)
+  readonly search?: (q: string) => Observable<readonly SearchHit[]>;    // 2 characters and more (STUPA-Workflow:000329)
   readonly avatar?: (person: PersonRef) => string | null;
   readonly navMarks?: Signal<Record<string, 'new' | 'warn' | null>>;    // never a count
   readonly report?: (r: { kind: 'barrier' | 'problem'; text: string; page: string }) => Promise<void>;

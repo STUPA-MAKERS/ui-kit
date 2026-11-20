@@ -22,7 +22,7 @@ value: Record<string, unknown>
 step: number
 errors?: Record<string, string>
 submit: { readonly label: string; readonly busy?: boolean }
-intro?: { readonly groups: readonly ChoiceGroup[] } // a choice step before the form, for example the Antragsart (001181)
+intro?: { readonly groups: readonly ChoiceGroup[] } // a choice step before the form, for example the Antragsart (STUPA-Workflow:001181)
 ```
 
 Slots: none.

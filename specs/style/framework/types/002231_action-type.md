@@ -41,7 +41,7 @@ The kit must place actions so:
 | --- | --- | --- | --- |
 | `head` | icon button in the head button group | icon button in the head button group | the first one in the head (000197), the rest in ⋮ |
 | `menu` | ⋮ menu | ⋮ menu | ⋮ menu |
-| `fab` | FAB, more than one as a FAB group (001982) | FAB | FAB that folds on scroll (000567) |
+| `fab` | FAB, more than one as a FAB group (STUPA-Workflow:001982) | FAB | FAB that folds on scroll (000567) |
 
 Every screen must take an optional input `headSlots: HeadSlots` that overrides how many `head`
 actions stay in the head at each width; the rest goes into the ⋮ menu. An action with `overflow:
@@ -50,7 +50,7 @@ actions stay in the head at each width; the rest goes into the ⋮ menu. An acti
 applies.
 
 A `danger` action must stand last in its menu section and be red (000400). An action with
-`confirm.word` must ask the person to type the word (000303). A view must show an action in one
+`confirm.word` must ask the person to type the word (STUPA-Workflow:000303). A view must show an action in one
 place only (000671).
 
 Reason: A fixed type lets the kit apply every button and menu rule without the app.

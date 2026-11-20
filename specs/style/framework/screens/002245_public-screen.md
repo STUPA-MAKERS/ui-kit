@@ -27,7 +27,7 @@ Outputs: none.
 Behaviour:
 
 - The public header with its button group (001356) and the footer with the link to the
-  accessibility statement (000496).
+  accessibility statement (STUPA-Workflow:000496).
 - The content fills its width or is centred (000201).
 
 Reason: Every public page then has the same header, footer and width.
