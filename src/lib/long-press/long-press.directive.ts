@@ -9,16 +9,20 @@ export const LONG_PRESS_SLOP = 8;
 const CLICK_AFTER_MS = 600;
 
 /**
- * The host element whose long press is held now. A press often changes the layout under the finger
- * (a selection bar and check boxes show, the title link of a row becomes a button). The
- * pressed element can then leave the DOM, so the release and its click land on another
- * host. While a press is held, the `contextmenu` of the browser on another host does
- * nothing, and the click of the release does not reach any element of the page.
+ * The attribute that marks the host whose long press is held now. A press often changes the
+ * layout under the finger (a selection bar and check boxes show, the title link of a row
+ * becomes a button). The pressed element can then leave the DOM, so the release and its
+ * click land on another host. While a press is held, the `contextmenu` of the browser on
+ * another host does nothing, and the click of the release does not reach any element.
  */
-let holding: HTMLElement | null = null;
+const HELD = 'data-long-press-held';
+
+function holding(): Element | null {
+  return document.querySelector(`[${HELD}]`);
+}
 
 function endHold(event: Event): void {
-  holding = null;
+  holding()?.removeAttribute(HELD);
   document.removeEventListener('pointerup', endHold, true);
   document.removeEventListener('pointercancel', endHold, true);
   if (event.type !== 'pointerup') return;
@@ -49,7 +53,7 @@ function endHold(event: Event): void {
  * menu of the host (the context menu key, Shift+F10, a right click) emits `appLongPress`
  * too, so the keyboard reaches the same menu. While the long press of one host is held, the
  * `contextmenu` on another host does nothing, and the click of its release reaches no
- * element (see `holding`).
+ * element (see `HELD`).
  *
  * While `appLongPressOff` is true the directive does nothing. Without it the host has the
  * class `long-press`, which turns off the text callout of a touch device.
@@ -90,7 +94,7 @@ export class LongPressDirective {
     this.el.addEventListener('click', onClick, true);
     inject(DestroyRef).onDestroy(() => {
       this.el.removeEventListener('click', onClick, true);
-      if (holding === this.el) endHold(new Event('pointercancel'));
+      if (holding() === this.el) endHold(new Event('pointercancel'));
       this.cancel();
     });
   }
@@ -127,7 +131,8 @@ export class LongPressDirective {
     if (this.off()) return;
     event.preventDefault();
     if (this.fired) return;
-    if (holding && holding !== this.el) return;
+    const held = holding();
+    if (held && held !== this.el) return;
     if (this.timer) {
       // The browser of a touch device can open its menu before the timer: the press wins.
       this.fire();
@@ -147,11 +152,13 @@ export class LongPressDirective {
   private fire(): void {
     this.cancel();
     this.fired = true;
-    if (holding === null) {
+    const held = holding();
+    if (held === null) {
       document.addEventListener('pointerup', endHold, true);
       document.addEventListener('pointercancel', endHold, true);
     }
-    holding = this.el;
+    held?.removeAttribute(HELD);
+    this.el.setAttribute(HELD, '');
     haptic('tick');
     this.pressed.emit();
   }
