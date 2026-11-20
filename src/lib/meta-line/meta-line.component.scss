@@ -1,0 +1,26 @@
+// The line stays in the inline flow of its place, as hand-written dots did, so it changes no
+// line height. Each part after the first keeps 16px before it, and its dot stands in that room,
+// outside the box of the part: a part with an edge (a status chip in very high contrast) does
+// not draw its edge around the dot. The styles are not encapsulated, because they style the
+// parts that the page projects.
+$-sep: 16px;
+
+.ml,
+.ml__parts {
+  display: inline;
+}
+.ml__parts > * + * {
+  position: relative;
+  margin-inline-start: $-sep;
+}
+.ml__parts > * + *::before {
+  position: absolute;
+  inset-inline-end: 100%;
+  width: $-sep;
+  color: var(--color-text-subtle);
+  font-family: var(--font-sans);
+  font-weight: var(--fw-regular, 400);
+  text-align: center;
+  content: '·';
+  content: '·' / '';
+}
