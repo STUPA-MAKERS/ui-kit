@@ -27,7 +27,9 @@ interface Action {
   readonly href?: string;                     // an external link, opens in a new tab
   readonly confirm?: ConfirmSpec;
   readonly group?: string;                    // the section of the ⋮ menu
+  readonly overflow?: 'auto' | 'never' | 'always'; // manual override of the ⋮ placement, default 'auto'
 }
+interface HeadSlots { readonly phone?: number; readonly narrow?: number; readonly wide?: number; } // icon buttons in the head per width
 interface ConfirmSpec { readonly title: string; readonly text?: string; readonly confirmLabel: string; readonly word?: string; }
 ```
 
@@ -38,6 +40,12 @@ The kit must place actions so:
 | `head` | icon button in the head button group | icon button in the head button group | the first one in the head (000197), the rest in ⋮ |
 | `menu` | ⋮ menu | ⋮ menu | ⋮ menu |
 | `fab` | FAB, more than one as a FAB group (001982) | FAB | FAB that folds on scroll (000567) |
+
+Every screen must take an optional input `headSlots: HeadSlots` that overrides how many `head`
+actions stay in the head at each width; the rest goes into the ⋮ menu. An action with `overflow:
+'never'` must stay in the head at every width and counts against the slots; an action with
+`overflow: 'always'` must go into the ⋮ menu at every width. Without an override the table above
+applies.
 
 A `danger` action must stand last in its menu section and be red (000400). An action with
 `confirm.word` must ask the person to type the word (000303). A view must show an action in one
