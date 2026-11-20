@@ -60,6 +60,8 @@ export interface FrameworkConfig {
     readonly name: string;
     readonly home: string;
     readonly mark: string | { readonly light: string; readonly dark: string };
+    /** The wordmark of the public header; without it the header shows the mark. */
+    readonly wordmark?: string | { readonly light: string; readonly dark: string };
     readonly accent?: string;
     readonly favicon?: string;
   };
@@ -67,6 +69,8 @@ export interface FrameworkConfig {
   /** The keys of the entries of the phone bar, in bar order. */
   readonly bar: Signal<readonly string[]>;
   readonly account?: { readonly items: Signal<readonly Action[]> };
+  /** The actions of the public header, for example "Anmelden". */
+  readonly publicHead?: { readonly actions: Signal<readonly Action[]> };
   readonly help?: { readonly items: Signal<readonly Action[]>; readonly wikiUrl?: string };
   readonly footer?: { readonly links: readonly { readonly label: string; readonly link: RouteLink }[] };
   readonly a11yStatement: RouteLink;

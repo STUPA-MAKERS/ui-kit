@@ -2,7 +2,7 @@
 id: "002260"
 title: provideFramework takes one FrameworkConfig
 kind: style
-status: approved
+status: draft
 owner: frederikbeimgraben
 updated: 2026-11-20
 implementation:
@@ -18,11 +18,13 @@ scope:
 ```ts
 interface FrameworkConfig {
   readonly brand: { readonly name: string; readonly home: string; readonly mark: string | { light: string; dark: string };
+                     readonly wordmark?: string | { light: string; dark: string };   // public header, else the mark
                      readonly accent?: string; readonly favicon?: string };
   readonly nav: Signal<readonly ShellNavItem[]>;           // the existing ShellNavItem
   readonly bar: Signal<readonly string[]>;                 // keys of the phone bar, in bar order
   readonly account?: { readonly items: Signal<readonly Action[]> };
   readonly help?: { readonly items: Signal<readonly Action[]>; readonly wikiUrl?: string };
+  readonly publicHead?: { readonly actions: Signal<readonly Action[]> };   // "Anmelden" of the public header
   readonly footer?: { readonly links: readonly { label: string; link: RouteLink }[] };
   readonly a11yStatement: RouteLink;                       // STUPA-Workflow:000496
   readonly languages: readonly ShellLanguage[];

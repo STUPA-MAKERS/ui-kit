@@ -28,10 +28,22 @@ async function setUp(config: FrameworkConfig) {
 
 // §S/framework/shell/002263
 describe('FrameworkShellComponent', () => {
-  it('shows the public frame without rail and account menu for nobody', async () => {
-    await setUp(minimalConfig());
-    expect(screen.queryByRole('navigation', { name: 'Hauptnavigation' })).toBeNull();
+  it('shows the public header without rail and account menu for nobody', async () => {
+    const { action } = await setUp({
+      ...minimalConfig(),
+      publicHead: { actions: signal([{ key: 'login', label: 'Anmelden' }]) },
+    });
     expect(screen.queryByText('Ada Lovelace')).toBeNull();
+    expect(screen.getByRole('link', { name: 'Demo, Start' })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Barrierefreiheit' })).toBeInTheDocument();
+    await userEvent.click(screen.getByRole('button', { name: 'Anmelden' }));
+    expect(action).toHaveBeenCalledWith('login');
+  });
+
+  it('shows the a11y and help menus in the rail frame', async () => {
+    await setUp(fullConfig());
+    expect(screen.getAllByRole('button', { name: 'Barrierefreiheit' }).length).toBeGreaterThan(0);
+    expect(screen.getAllByRole('button', { name: 'Hilfe' }).length).toBeGreaterThan(0);
   });
 
   it('shows the entries of the config in the rail frame', async () => {

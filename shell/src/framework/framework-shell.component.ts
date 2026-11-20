@@ -20,6 +20,7 @@ import { ShellMenuComponent } from '../shell-menu/shell-menu.component';
 import type { ShellBrand } from '../shell.types';
 import { CommandPalette } from '../command-palette/command-palette.service';
 import { FRAMEWORK, frameworkParts } from './framework';
+import { FrameworkPublicHeaderComponent } from './framework-public-header.component';
 import { FrameworkSearchComponent } from './framework-search.component';
 import { FOCUS_H1 } from './routes';
 
@@ -45,6 +46,7 @@ import { FOCUS_H1 } from './routes';
     AccountMenuComponent,
     ShellMenuComponent,
     FrameworkSearchComponent,
+    FrameworkPublicHeaderComponent,
     RouterLink,
     IconComponent,
     UiKitTranslatePipe,
@@ -154,6 +156,10 @@ import { FOCUS_H1 } from './routes';
             }
           </ng-container>
         </app-account-menu>
+      }
+
+      @if (shell.current() === 'public') {
+        <app-framework-public-header shellPublicHeader (action)="action.emit($event)" />
       }
 
       @if (shell.current() === 'rail' && parts().search) {
