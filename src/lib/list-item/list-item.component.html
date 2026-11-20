@@ -30,7 +30,7 @@
       <span class="li-sw__label">{{ a.label }}</span><app-icon class="li-sw__icon" [name]="a.icon" [size]="22" />
     </div>
   }
-<div #fg class="li" [class.li--on]="selected()" [class.li--wrap]="wrap()" [class.li--subWrap]="subWrap()" (pointerenter)="measure()">
+<div #fg class="li" [class.li--on]="selected() || checked()" [class.li--wrap]="wrap()" [class.li--subWrap]="subWrap()" (pointerenter)="measure()">
   <span class="li__lead"><ng-content select="[lead]" /></span>
   <span class="li__body">
     <span class="li__head">

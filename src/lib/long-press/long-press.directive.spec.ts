@@ -18,6 +18,23 @@ class HostComponent {
   clicks = 0;
 }
 
+@Component({
+  changeDetection: ChangeDetectionStrategy.Eager,
+  standalone: true,
+  imports: [LongPressDirective],
+  template: `
+    <div (click)="clicks = clicks + 1">
+      <div data-testid="a" appLongPress (appLongPress)="a = a + 1"></div>
+      <div data-testid="b" appLongPress (appLongPress)="b = b + 1"></div>
+    </div>
+  `,
+})
+class TwoHostsComponent {
+  a = 0;
+  b = 0;
+  clicks = 0;
+}
+
 function pointer(type: string, init: MouseEventInit & { isPrimary?: boolean } = {}): MouseEvent {
   const event = new MouseEvent(type, { bubbles: true, cancelable: true, ...init });
   if (init.isPrimary !== undefined) Object.defineProperty(event, 'isPrimary', { value: init.isPrimary });
@@ -156,6 +173,51 @@ describe('LongPressDirective', () => {
     inner.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter', bubbles: true }));
     inner.click();
     expect(host.clicks).toBe(1);
+  });
+
+  it('ignores the menu of the browser and the click on another host while a press is held', async () => {
+    const { fixture } = await render(TwoHostsComponent);
+    const cmp = fixture.componentInstance;
+    const a = screen.getByTestId('a');
+    const b = screen.getByTestId('b');
+    a.dispatchEvent(pointer('pointerdown'));
+    jest.advanceTimersByTime(LONG_PRESS_MS);
+    expect(cmp.a).toBe(1);
+    // The layout moved: the menu of the browser and the release land on the next host.
+    const menu = pointer('contextmenu');
+    b.dispatchEvent(menu);
+    expect(menu.defaultPrevented).toBe(true);
+    expect(cmp.b).toBe(0);
+    b.dispatchEvent(pointer('pointerup'));
+    const click = pointer('click');
+    b.dispatchEvent(click);
+    expect(click.defaultPrevented).toBe(true);
+    expect(cmp.clicks).toBe(0);
+    // After the release the next host opens again, and the next click passes.
+    b.dispatchEvent(pointer('contextmenu'));
+    expect(cmp.b).toBe(1);
+    b.dispatchEvent(pointer('click'));
+    expect(cmp.clicks).toBe(1);
+    // A cancelled press swallows no click.
+    b.dispatchEvent(pointer('pointerdown'));
+    jest.advanceTimersByTime(LONG_PRESS_MS);
+    b.dispatchEvent(pointer('pointercancel'));
+    a.dispatchEvent(pointer('contextmenu'));
+    expect(cmp.a).toBe(2);
+    a.dispatchEvent(pointer('click'));
+    expect(cmp.clicks).toBe(2);
+  });
+
+  it('lets a click pass that comes long after the release', async () => {
+    const { fixture } = await render(TwoHostsComponent);
+    const cmp = fixture.componentInstance;
+    const a = screen.getByTestId('a');
+    a.dispatchEvent(pointer('pointerdown'));
+    jest.advanceTimersByTime(LONG_PRESS_MS);
+    screen.getByTestId('b').dispatchEvent(pointer('pointerup'));
+    jest.advanceTimersByTime(1000);
+    screen.getByTestId('b').dispatchEvent(pointer('click'));
+    expect(cmp.clicks).toBe(1);
   });
 
   it('does nothing while off', async () => {
