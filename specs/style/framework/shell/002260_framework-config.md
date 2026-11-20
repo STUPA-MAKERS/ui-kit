@@ -2,7 +2,7 @@
 id: "002260"
 title: provideFramework takes one FrameworkConfig
 kind: style
-status: draft
+status: approved
 owner: frederikbeimgraben
 updated: 2026-11-20
 implementation:
