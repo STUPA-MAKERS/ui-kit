@@ -93,3 +93,59 @@ route wiring. A change of a public kit API ships with the pull request of every 
 `specs/MIGRATION.md` lists the specs that move from STUPA-Workflow. The style lines of an app may
 only fall until they reach zero (002213). The order: shell config and screens on every page
 first, then the domain views one by one, then the Spec-Explorer as the second app.
+
+## Contracts
+
+| Part | Specs |
+| --- | --- |
+| Shared types | 002230 `ScreenHead`, 002231 `Action`, 002232 `ListRow`, 002233 `FilterDef`/`SortDef`/`SearchDef`, 002234 `LoadState`, 002235 `ScreenTab`, 002236 `RouteLink` |
+| Screens | 002240 list/detail, 002241 detail, 002242 form, 002243 wizard, 002244 settings, 002245 public, 002246 status, 002247 board, 002248 calendar, 002249 graph, 002250 editor |
+| Overlays | 002251 dialog, 002252 sheets, 002253 toasts |
+| Forms | 002255 `FormDef`/`FieldDef`, 002256 form behaviour |
+| Shell | 002260 `FrameworkConfig`, 002261 `FrameworkPorts`, 002262 route helpers, 002263 frames, 002264 menus |
+| Views | 002270 graph, 002271 board, 002272 calendar, 002273 protocol, 002274 voting, 002275 meeting, 002276 chat, 002277 flow editor, 002278 form editor, 002279 plan table, 002280 activity |
+
+## Example: the Anträge list after the move
+
+Route (002262):
+
+```ts
+listDetailRoutes({
+  path: 'applications', title: 'applications.list.title',
+  list: ApplicationsListPage, detail: ApplicationDetailPage,
+});
+```
+
+Page wiring (002200, 002240): the whole template of the list page.
+
+```html
+<app-list-detail-screen
+  [head]="{ title: 'applications.list.title' | t }"
+  [rows]="rows()" [search]="search()" [filters]="filters()" [sort]="sort()"
+  [actions]="actions()" [selection]="selection()" [none]="none()"
+  (query)="query.set($event)" (action)="onAction($event)" (more)="more()" />
+```
+
+Adapter (002204): pure and tested in the app.
+
+```ts
+export const toRow = (a: ApplicationSummary, t: Translate): ListRow => ({
+  id: a.id,
+  title: a.title,
+  meta: [a.number, a.applicantName, formatMoney(a.requested)],
+  status: { label: t(`status.${a.state}`), kind: statusKind(a.state) },
+});
+```
+
+Actions (002231): the app gives only what and how important.
+
+```ts
+actions = computed<Action[]>(() => [
+  { key: 'apply', label: t('applications.apply'), icon: 'form', kind: 'main', priority: 'fab' },
+  { key: 'capture', label: t('applications.capture'), icon: 'add', priority: 'fab' },
+  { key: 'export', label: t('applications.export'), icon: 'download', group: 'export' },
+]);
+```
+
+The page has no `.scss` file, no class and no layout element. Today the same page is about 600
+lines of template and SCSS.

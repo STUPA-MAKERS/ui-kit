@@ -41,3 +41,42 @@ number space (`S/specs/sharing/002211`).
 | [S/framework/views/002227](style/framework/views/002227_view-contract.md) | Each domain view has a contract spec before it is built | approved |
 | [S/framework/testing/002228](style/framework/testing/002228_tests-in-kit.md) | The kit tests a view, the app tests its adapter | approved |
 | [S/framework/testing/002229](style/framework/testing/002229_api-change.md) | A change of a public kit API comes with the change of every app | approved |
+| [S/framework/types/002230](style/framework/types/002230_screen-head.md) | The head of a screen is a ScreenHead | draft |
+| [S/framework/types/002231](style/framework/types/002231_action-type.md) | The Action type has a fixed set of fields | draft |
+| [S/framework/types/002232](style/framework/types/002232_list-row.md) | A row of a list is a ListRow | draft |
+| [S/framework/types/002233](style/framework/types/002233_filter-sort-search.md) | Filters, sort and search are FilterDef, SortDef and SearchDef | draft |
+| [S/framework/types/002234](style/framework/types/002234_load-state-type.md) | LoadState has four cases | draft |
+| [S/framework/types/002235](style/framework/types/002235_screen-tab.md) | A tab of a screen is a ScreenTab with a slot | draft |
+| [S/framework/types/002236](style/framework/types/002236_route-link.md) | A link is a RouteLink | draft |
+| [S/framework/screens/002240](style/framework/screens/002240_list-detail-screen.md) | The list/detail screen has a fixed interface | draft |
+| [S/framework/screens/002241](style/framework/screens/002241_detail-screen.md) | The detail screen has a fixed interface | draft |
+| [S/framework/screens/002242](style/framework/screens/002242_form-screen.md) | The form screen has a fixed interface | draft |
+| [S/framework/screens/002243](style/framework/screens/002243_wizard-screen.md) | The wizard screen has a fixed interface | draft |
+| [S/framework/screens/002244](style/framework/screens/002244_settings-screen.md) | The settings screen has a fixed interface | draft |
+| [S/framework/screens/002245](style/framework/screens/002245_public-screen.md) | The public screen has a fixed interface | draft |
+| [S/framework/screens/002246](style/framework/screens/002246_status-screen.md) | The status screen has a fixed interface | draft |
+| [S/framework/screens/002247](style/framework/screens/002247_board-screen.md) | The board screen has a fixed interface | draft |
+| [S/framework/screens/002248](style/framework/screens/002248_calendar-screen.md) | The calendar screen has a fixed interface | draft |
+| [S/framework/screens/002249](style/framework/screens/002249_graph-screen.md) | The graph screen has a fixed interface | draft |
+| [S/framework/screens/002250](style/framework/screens/002250_editor-screen.md) | The editor screen has a fixed interface | draft |
+| [S/framework/overlays/002251](style/framework/overlays/002251_dialog.md) | A dialog has a head, a body and a footer group | draft |
+| [S/framework/overlays/002252](style/framework/overlays/002252_sheets.md) | Side sheets, bottom sheets and select sheets have one frame | draft |
+| [S/framework/overlays/002253](style/framework/overlays/002253_toasts.md) | A toast is sent through the toast service | draft |
+| [S/framework/forms/002255](style/framework/forms/002255_field-def.md) | A field of a form is a FieldDef of a fixed kind | draft |
+| [S/framework/forms/002256](style/framework/forms/002256_form-behaviour.md) | A form reports its value, its validity and its dirty state | draft |
+| [S/framework/shell/002260](style/framework/shell/002260_framework-config.md) | provideFramework takes one FrameworkConfig | draft |
+| [S/framework/shell/002261](style/framework/shell/002261_port-types.md) | The ports have fixed types | draft |
+| [S/framework/shell/002262](style/framework/shell/002262_route-helpers.md) | The route helpers have fixed signatures | draft |
+| [S/framework/shell/002263](style/framework/shell/002263_frames.md) | The shell has four frames | draft |
+| [S/framework/shell/002264](style/framework/shell/002264_menus.md) | The help, accessibility and account menus come from the shell | draft |
+| [S/framework/views/002270](style/framework/views/002270_graph-view.md) | The graph view takes nodes and edges | draft |
+| [S/framework/views/002271](style/framework/views/002271_board-view.md) | The board view takes columns and cards | draft |
+| [S/framework/views/002272](style/framework/views/002272_calendar-view.md) | The calendar view takes entries | draft |
+| [S/framework/views/002273](style/framework/views/002273_protocol-view.md) | The protocol view is the Markdown editor with the protocol tools | draft |
+| [S/framework/views/002274](style/framework/views/002274_voting-view.md) | The voting view takes a VoteCard and a Ballot | draft |
+| [S/framework/views/002275](style/framework/views/002275_meeting-view.md) | The meeting view takes the agenda, the attendance and the dock | draft |
+| [S/framework/views/002276](style/framework/views/002276_chat-view.md) | The chat view takes messages and a composer | draft |
+| [S/framework/views/002277](style/framework/views/002277_flow-editor-view.md) | The flow editor takes a FlowGraph | draft |
+| [S/framework/views/002278](style/framework/views/002278_form-editor-view.md) | The form editor edits a FormDef | draft |
+| [S/framework/views/002279](style/framework/views/002279_plan-table-view.md) | The plan table takes rows as a tree | draft |
+| [S/framework/views/002280](style/framework/views/002280_activity-view.md) | The activity view takes entries | draft |
