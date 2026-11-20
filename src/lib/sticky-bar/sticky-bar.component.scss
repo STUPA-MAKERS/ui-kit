@@ -8,7 +8,6 @@
    stuck; the same negative margin keeps the bar at its place in the flow. */
 :host {
   --stb-pad: var(--space-2);
-  --stb-fade: var(--space-4);
   position: sticky;
   top: var(--ld-sticky-top, calc(var(--layout-header-height, 0px) + env(safe-area-inset-top, 0px)));
   /* Above the rows, below the floating action button and the phone bar (`--z-sticky`). */
@@ -29,14 +28,31 @@
   z-index: var(--z-dialog);
 }
 
-/* The fade below the bar: only while rows scroll under it. */
+/* The cut below the bar: only while rows scroll under it. The rows cut hard at the lower
+   edge of the bar, with round inner corners at both sides (`--stb-corner`), so they run
+   into the bar as into the edge of a surface and do not fade (app spec 000193). Two
+   quarter rings of the colour of the bar fill the corners; between them the strip is
+   transparent. */
 :host::after {
+  --stb-corner: var(--radius-xl);
   content: '';
   position: absolute;
   inset-inline: 0;
   top: 100%;
-  height: var(--stb-fade);
-  background: linear-gradient(to bottom, var(--stb-bg, var(--color-bg)), transparent);
+  height: var(--stb-corner);
+  background:
+    radial-gradient(
+        circle at 100% 100%,
+        transparent calc(var(--stb-corner) - 0.5px),
+        var(--stb-bg, var(--color-bg)) var(--stb-corner)
+      )
+      left top / var(--stb-corner) var(--stb-corner) no-repeat,
+    radial-gradient(
+        circle at 0 100%,
+        transparent calc(var(--stb-corner) - 0.5px),
+        var(--stb-bg, var(--color-bg)) var(--stb-corner)
+      )
+      right top / var(--stb-corner) var(--stb-corner) no-repeat;
   opacity: 0;
   pointer-events: none;
   transition: opacity var(--motion-fast) var(--ease-standard);

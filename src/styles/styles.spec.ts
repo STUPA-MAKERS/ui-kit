@@ -352,4 +352,39 @@ describe('WideListHead', () => {
   it('matches the yellow of the search bar in the very high contrast', () => {
     expect(scss).toContain('--btn-grp-h: calc(var(--ph-pane-h) - 4px);');
   });
+
+  it('sticks the buttons level with the first control of the stuck filter bar', () => {
+    expect(scss).toMatch(/position: sticky;[^}]*top: calc\([^;]*\+\s*var\(--space-2\)\s*\);/);
+  });
+});
+
+/** The rows below a stuck sticky bar cut at its edge with round corners, never fade (app 000193). */
+describe('StickyBarCut', () => {
+  const scss = read('../lib/sticky-bar/sticky-bar.component.scss');
+
+  it('draws round inner corners below the bar, not a fade', () => {
+    expect(scss).not.toMatch(/linear-gradient\(to bottom, var\(--stb-bg/);
+    expect(scss).toMatch(/:host::after \{[^}]*radial-gradient\(\s*circle at 100% 100%/);
+    expect(scss).toMatch(/:host::after \{[^}]*radial-gradient\(\s*circle at 0 100%/);
+  });
+});
+
+/**
+ * A wide list column keeps its solid head in every state (app 001931). `lg__head--under`
+ * follows the scroll late, so the state "a group head is under the head" must not make the
+ * head of the column clear: rows would show between and behind the search and the filters.
+ */
+describe('SolidWideHead', () => {
+  const scss = read('list-detail.scss');
+
+  it('keeps the colour of the head while a group head is under it', () => {
+    const empty = scss.indexOf('.ld-pane--glass:has(.lg__head--under)::before {\n    background: none;');
+    const solid = scss.search(
+      /\.ld-pane--glass:has\(\.lg__head--under\)::before \{\s*background: var\(--stb-bg, var\(--color-bg\)\);\s*\}/,
+    );
+    expect(empty).toBeGreaterThan(-1);
+    expect(solid).toBeGreaterThan(empty);
+    const wide = scss.lastIndexOf('@include bp.not-phone {', solid);
+    expect(wide).toBeGreaterThan(empty);
+  });
 });
