@@ -21,3 +21,21 @@ jobs:
       - run: npm run lint:functional
       - run: npm run build
       - run: npm test -- --ci
+
+  specs:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      # The kit and STUPA-Workflow share one spec number space (002211).
+      - uses: actions/checkout@v4
+        with:
+          repository: STUPA-MAKERS/STUPA-Workflow
+          ref: development
+          path: partner
+          sparse-checkout: specs
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+      - run: python3 scripts/check_specs.py
+        env:
+          PARTNER_SPECS: partner/specs
