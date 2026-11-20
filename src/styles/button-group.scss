@@ -189,14 +189,17 @@ $-host: ':is(app-button, a.btn-link, app-row-menu, .btn-grp__seg)';
 }
 
 // Selected: an open menu, an open sheet or a pressed toggle. The accent fill, and the button
-// rounds all four corners.
-.btn-grp.btn-grp :is(.btn[aria-pressed='true'], .btn[aria-expanded='true'], .rm__trigger--on) {
+// rounds all four corners. The group class stands three times, because the pressed icon
+// button of `button.component.scss` (accent text, scoped by Angular) weighs as much as two
+// classes and an attribute, and its accent icon on the accent fill is almost invisible.
+.btn-grp.btn-grp.btn-grp
+  :is(.btn[aria-pressed='true'], .btn[aria-expanded='true'], .rm__trigger--on) {
   border-radius: var(--btn-grp-out);
   background-color: var(--color-accent);
   color: var(--color-on-accent);
 }
 @media (hover: hover) {
-  .btn-grp.btn-grp
+  .btn-grp.btn-grp.btn-grp
     :is(.btn[aria-pressed='true'], .btn[aria-expanded='true'], .rm__trigger--on):hover:not(
       :disabled
     ) {
