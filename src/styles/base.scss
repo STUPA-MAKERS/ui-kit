@@ -479,31 +479,24 @@ input[type='radio'] {
 }
 
 // A phone list: a group head that is stuck right under the sticky search bar continues
-// the glass of the bar, so the head carries the shadow at the end of the glass and the
-// bar has none (`StickyBarComponent`, `ListGroupComponent`). While the head sits right
-// under the bar (`lg__head--under`), the glass of the head reaches up behind the bar and
-// carries the glass of both: one tint layer, saturated once. The glass of the bar lies on
-// top of it and keeps only a light blur: a full blur blurs the glass of the head a second
-// time and shows a line where the bar ends. The light blur stays because the classes
-// follow the scroll late, and no row may show sharp through the bar for that frame. The
-// rule reads the class of one component and styles the other, so it lives here and not in
-// either component.
+// the bar in the same bar colour, so in very high contrast only the head carries the white
+// edge at the foot (`bar`), not the bar above it as well (`StickyBarComponent`,
+// `ListGroupComponent`). The rule reads the class of one component and styles the other, so
+// it lives here and not in either component.
 @include bp.phone {
   body:has(.lg__head--stuck) app-sticky-bar.stb--stuck {
     box-shadow: none;
   }
-  @supports (backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px)) {
-    body:has(.lg__head--under) app-sticky-bar.stb--stuck::before {
-      background: none;
-      -webkit-backdrop-filter: blur(2px);
-      backdrop-filter: blur(2px);
-    }
-  }
+}
+// The same for a tab line stuck right under the bar of a detail (`TabPagerComponent`,
+// `ListDetailBarComponent`): only the tab line carries the edge.
+body:has(.tp__bar--stuck) app-list-detail-bar.ld__bar--under.ld__bar--under {
+  box-shadow: none;
 }
 
 // The file viewer covers the screen with dark glass (app spec 001084). A phone browser
-// leaves fixed and sticky bars with a glass of their own (the page head, the bottom bar)
-// out of the backdrop blur of the viewer, so their text stays sharp under it. While the
+// can leave fixed and sticky bars (the page head, the bottom bar) out of the backdrop
+// blur of the viewer, so their text stays sharp under it. While the
 // viewer is open the page itself is blurred as well. The viewer lies in the top layer, so
 // the filter of its ancestors does not reach it. The rule reads the viewer and styles the
 // page, so it lives here.

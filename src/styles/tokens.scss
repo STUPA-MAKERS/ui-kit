@@ -192,6 +192,9 @@
   --color-surface-2: var(--c-light-c2);
   --color-surface-3: var(--c-light-c3);
   --color-surface-4: var(--c-light-c4);
+  /* The bottom bar and a scrolled head (`bar`, `_frosted.scss`). No resting surface in the
+     body has this colour, so the edge of a bar shows (app spec 002011). */
+  --color-bar: var(--c-light-c3);
   // The surface of a box that floats over the page (menu, popover, tooltip). A glass
   // surface (`glass-content`) turns the surface tokens into overlays and never this one,
   // so a menu that opens from a dialog or a sheet stays as solid as one on the page.
@@ -280,6 +283,7 @@
   --color-surface-2: var(--c-dark-c2);
   --color-surface-3: var(--c-dark-c3);
   --color-surface-4: var(--c-dark-c4);
+  --color-bar: var(--c-dark-c3);
   --color-pop: var(--c-dark-c3);
   --color-glass-1: var(--c-dark-c1);
   --color-glass-2: var(--c-dark-c2);

@@ -332,27 +332,22 @@ describe('veryHighContrast (§000605)', () => {
     expect(rules).not.toMatch(/\.rowgroup::after/);
   });
 
-  it('keeps the head of a list column a solid black layer over its rows, with a white line while rows are under it', () => {
-    const head = rules.match(/\n {2}\.ld-pane--glass::before \{([^}]*)\}/)?.[1] ?? '';
-    expect(head).toMatch(/height: var\(--ld-pane-top\) !important;/);
-    expect(head).toMatch(/background: var\(--vh-bg\) !important;/);
-    expect(head).toMatch(/backdrop-filter: none !important;/);
-    expect(head).toMatch(/mask-image: none !important;/);
-    expect(head).not.toMatch(/display: none/);
-    expect(rules).toMatch(/\.ld-pane--glass\.ld-pane--scrolled::before \{[^}]*border-bottom: var\(--vh-edge\);/);
+  it('ends a scrolled bar in the white edge, with every surface black (002010)', () => {
+    expect(block).toMatch(/--color-bar: var\(--vh-bg\);/);
+    expect(block).toMatch(/--bar-edge: inset 0 -2px 0 var\(--vh-fg\);/);
   });
 
   /** On a wide screen the rows lie in a frame with the white edge below the head (app 000527). */
   it('frames the rows of a list column on a wide screen', () => {
     expect(rules).toMatch(
-      /\.ld-pane--glass > \.ld-pane__rows\.ld-pane__rows\.ld-pane__rows\.ld-pane__rows \{[^}]*border: var\(--vh-edge\) !important;\s*border-radius: var\(--radius-xl\);/,
+      /\.ld-pane--head > \.ld-pane__rows\.ld-pane__rows\.ld-pane__rows\.ld-pane__rows \{[^}]*border: var\(--vh-edge\) !important;\s*border-radius: var\(--radius-xl\);/,
     );
   });
 
   /** The column drops to the screen edge; the frame ends the gutter above it, round. */
   it('ends the frame of the rows above the bottom edge of the screen', () => {
     expect(rules).toMatch(
-      /\.ld-pane--glass > \.ld-pane__rows\.ld-pane__rows\.ld-pane__rows\.ld-pane__rows \{[^}]*margin-bottom: var\(--ld-pane-drop, 0px\) !important;/,
+      /\.ld-pane--head > \.ld-pane__rows\.ld-pane__rows\.ld-pane__rows\.ld-pane__rows \{[^}]*margin-bottom: var\(--ld-pane-drop, 0px\) !important;/,
     );
   });
 

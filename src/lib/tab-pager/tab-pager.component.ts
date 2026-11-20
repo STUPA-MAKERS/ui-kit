@@ -83,10 +83,8 @@ export class TabPagerComponent {
   private stuck = false;
 
   /**
-   * While the tab line sticks under the head bar (a phone), the two are one pane of glass:
-   * the head bar stretches its glass over the tab line (`--ld-bar-extend` on the root) and
-   * the tab line drops its own glass and sits above it. Two glass layers side by side blur
-   * different parts of the page, so they would meet in a visible edge.
+   * While the tab line sticks under the head bar, both take the bar colour
+   * (`tp__bar--stuck`), so they read as one head (app spec 002010).
    */
   private watchStuck(): void {
     if (typeof window === 'undefined') return;
@@ -99,8 +97,6 @@ export class TabPagerComponent {
       if (stuck === this.stuck) return;
       this.stuck = stuck;
       el.classList.toggle('tp__bar--stuck', stuck);
-      if (stuck) document.documentElement.style.setProperty('--ld-bar-extend', `${el.offsetHeight}px`);
-      else document.documentElement.style.removeProperty('--ld-bar-extend');
     };
     this.zone.runOutsideAngular(() => {
       window.addEventListener('scroll', check, { passive: true });
@@ -113,7 +109,7 @@ export class TabPagerComponent {
   }
 
   private unstick(): void {
-    if (this.stuck && typeof document !== 'undefined') document.documentElement.style.removeProperty('--ld-bar-extend');
+    this.bar()?.nativeElement.classList.remove('tp__bar--stuck');
     this.stuck = false;
   }
 

@@ -10,11 +10,11 @@
    The arrow and the actions keep their 40px boxes, 4px inside the page gutter (12px from
    a 16px gutter), so they do not touch the screen edges; the big title below stays on
    the gutter. The small title fades in once the big title has scrolled under the bar.
-   The bar has no rule: it is frosted glass (`frosted`), a see-through tint of the page
-   colour over a blur, so the content that scrolls under it shows through blurred. A light shadow lifts it
-   off the content once it is condensed and the page has scrolled, because only then does content
-   run under it. A bar with a fixed title (`title`) is condensed from the start, so the shadow
-   waits for the scroll too. */
+   The bar is solid (`bar`, app spec 002010): at rest it has the page colour, and once it
+   is condensed and the page has scrolled, content runs under it and it takes the bar
+   colour. The step in colour marks the edge, so it has no rule and no shadow. A bar with
+   a fixed title (`title`) is condensed from the start, so the colour waits for the scroll
+   too. A tab line that sticks under the bar takes the same colour (`TabPagerComponent`). */
 :host {
   --ld-bar-gutter: var(--layout-gutter);
   position: sticky;
@@ -27,25 +27,10 @@
   min-height: calc(var(--ld-bar-height, 60px) + env(safe-area-inset-top, 0px));
   margin: calc(-1 * var(--main-pad-top, 0px)) calc(-1 * var(--ld-bar-gutter)) 0;
   padding: env(safe-area-inset-top, 0px) calc(var(--ld-bar-gutter) - var(--space-1)) 0;
-  @include frosted(var(--color-bg), bottom);
-  transition: box-shadow var(--motion-fast, 120ms) var(--ease-standard, ease);
-}
-/* A tab line that sticks under the bar sets `--ld-bar-extend` to its height: the glass
-   reaches over it, so the bar and the tab line are one pane (`TabPagerComponent`). */
-:host::before {
-  mask-image: linear-gradient(
-    to bottom,
-    #000 calc(100% - 64px + var(--ld-bar-extend, 0px)),
-    transparent calc(100% - 64px + var(--ld-bar-extend, 0px))
-  );
+  @include bar(var(--color-bg));
 }
 :host(.ld__bar--condensed.ld__bar--under) {
-  box-shadow: var(--shadow-md);
-}
-/* Glass only while the page has scrolled, because only then does content run under the
-   bar; at rest it is the solid page colour (`frosted-rest`). */
-:host(:not(.ld__bar--under)) {
-  @include frosted-rest(var(--color-bg));
+  @include bar(var(--color-bg), $scrolled: true);
 }
 @include bp.phone {
   :host {
@@ -53,6 +38,9 @@
   }
 }
 
+/* The back button is a round tonal button, the same circle as every back button of a head
+   (app spec 002012) and the same surface as the buttons of the head (`btn-grp`).
+   `background-color`, not `background`: the ripple of the press is a background image. */
 .ld__back {
   @include press.chrome-text;
   display: grid;
@@ -63,14 +51,14 @@
   padding: 0;
   border: 0;
   border-radius: 50%;
-  background: transparent;
-  color: var(--color-text);
+  background-color: var(--color-accent-container);
+  color: var(--color-on-accent-container);
   cursor: pointer;
   @include press.press;
 }
 @media (hover: hover) {
   .ld__back:hover {
-    background: var(--color-selected);
+    background-color: color-mix(in srgb, var(--color-on-accent-container) 8%, var(--color-accent-container));
   }
 }
 .ld__back:focus-visible {

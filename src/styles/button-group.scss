@@ -276,3 +276,13 @@ $-host: ':is(app-button, a.btn-link, app-row-menu, .btn-grp__seg)';
     box-shadow: none !important;
   }
 }
+
+// The back button of a head (`<app-button class="btn-back">`): a circle as high as the group,
+// not the wider pill of an icon button, so every back button has the same circle as the back
+// button of a phone detail bar (`.ld__back`, app spec 002012). Four classes win over the
+// pill of the icon button above.
+.btn-grp.btn-grp.btn-grp .btn-back .btn {
+  width: var(--btn-grp-h);
+  min-width: 0;
+  border-radius: 50%;
+}
