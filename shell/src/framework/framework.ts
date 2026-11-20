@@ -19,6 +19,7 @@ import {
   type RouteLink,
   type UiKitIntl,
   type UiKitTextKey,
+  type UiLang,
 } from '@stupa-makers/ui-kit';
 
 import type { ShellLanguage, ShellNavItem } from '../shell.types';
@@ -63,11 +64,15 @@ export interface FrameworkConfig {
     readonly favicon?: string;
   };
   readonly nav: Signal<readonly ShellNavItem[]>;
+  /** The keys of the entries of the phone bar, in bar order. */
+  readonly bar: Signal<readonly string[]>;
   readonly account?: { readonly items: Signal<readonly Action[]> };
   readonly help?: { readonly items: Signal<readonly Action[]>; readonly wikiUrl?: string };
   readonly footer?: { readonly links: readonly { readonly label: string; readonly link: RouteLink }[] };
   readonly a11yStatement: RouteLink;
   readonly languages: readonly ShellLanguage[];
+  /** The UI language: the kit texts and the language control follow it. */
+  readonly language: { readonly current: Signal<string>; set(value: string): void };
   /** Overrides of the kit texts, by `kit.<key>` (002223). */
   readonly texts?: Signal<Record<string, string>>;
   readonly theme: {
@@ -109,6 +114,11 @@ export function withTextOverrides(
   };
 }
 
+/** The kit has DE and EN texts; any other language takes EN, and German stays German. */
+export function kitLang(value: string): UiLang {
+  return value.slice(0, 2).toLowerCase() === 'de' ? 'de' : 'en';
+}
+
 /**
  * Register the app config, the kit texts and the theme settings. It replaces `provideUiKit()`.
  * §S/framework/shell/002260
@@ -118,7 +128,11 @@ export function provideFramework(config: FrameworkConfig): EnvironmentProviders 
     { provide: FRAMEWORK, useValue: config },
     {
       provide: UI_KIT_INTL,
-      useFactory: (): UiKitIntl => withTextOverrides(new DefaultUiKitIntl(), config.texts),
+      useFactory: (): UiKitIntl =>
+        withTextOverrides(
+          new DefaultUiKitIntl({ lang: computed(() => kitLang(config.language.current())) }),
+          config.texts,
+        ),
     },
     {
       provide: UI_KIT_THEME,

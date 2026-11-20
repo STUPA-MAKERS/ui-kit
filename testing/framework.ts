@@ -28,8 +28,10 @@ export function minimalConfig(): FrameworkConfig {
   return {
     brand: { name: 'Demo', home: '/', mark: '/assets/mark.svg' },
     nav: signal(NAV),
+    bar: signal(['start', 'applications']),
     a11yStatement: { commands: ['/accessibility'] },
     languages: [{ value: 'de', label: 'Deutsch' }],
+    language: { current: signal('de'), set: () => undefined },
     theme: { storageKey: 'demo.theme' },
     ports: {
       session: { frame: signal('public'), person: signal(null), logout: () => undefined },

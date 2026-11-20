@@ -3,7 +3,13 @@ import { TestBed } from '@angular/core/testing';
 import { UI_KIT_INTL, UI_KIT_THEME } from '@stupa-makers/ui-kit';
 
 import { fakePorts, fullConfig, minimalConfig } from '../../../testing/framework';
-import { FRAMEWORK, frameworkParts, provideFramework, withTextOverrides } from './framework';
+import {
+  FRAMEWORK,
+  frameworkParts,
+  kitLang,
+  provideFramework,
+  withTextOverrides,
+} from './framework';
 
 function setUp(config = minimalConfig()): void {
   TestBed.configureTestingModule({ providers: [provideFramework(config)] });
@@ -27,6 +33,20 @@ describe('provideFramework', () => {
     setUp(fullConfig({ 'kit.dialog.close': 'Zu' }));
     expect(TestBed.inject(UI_KIT_THEME).manifest).toEqual({ light: 'm.json', dark: 'm.json?dark' });
     expect(TestBed.inject(UI_KIT_INTL).translate('dialog.close')).toBe('Zu');
+  });
+
+  it('follows the language of the config', () => {
+    const current = signal('de');
+    setUp({ ...minimalConfig(), language: { current, set: () => undefined } });
+    const intl = TestBed.inject(UI_KIT_INTL);
+    expect(intl.lang()).toBe('de');
+    current.set('en');
+    expect(intl.lang()).toBe('en');
+  });
+
+  it('maps a language without kit texts to English', () => {
+    expect(kitLang('fr')).toBe('en');
+    expect(kitLang('de-AT')).toBe('de');
   });
 });
 
