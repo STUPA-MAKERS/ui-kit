@@ -3,12 +3,13 @@ module.exports = {
   preset: 'jest-preset-angular',
   setupFilesAfterEnv: ['<rootDir>/setup-jest.ts'],
   testEnvironment: 'jsdom',
-  roots: ['<rootDir>/src', '<rootDir>/markdown-editor', '<rootDir>/markdown-view', '<rootDir>/pwa', '<rootDir>/shell'],
+  roots: ['<rootDir>/src', '<rootDir>/markdown-editor', '<rootDir>/markdown-view', '<rootDir>/pwa', '<rootDir>/shell', '<rootDir>/screens', '<rootDir>/views'],
   testMatch: ['**/*.spec.ts'],
   moduleNameMapper: {
     '\\.(css|scss)$': '<rootDir>/testing/style-mock.js',
     // The secondary entries (markdown editor, pwa, shell) import the primary entry by its name.
     '^@stupa-makers/ui-kit$': '<rootDir>/src/public-api.ts',
+    '^@stupa-makers/ui-kit/screens$': '<rootDir>/screens/src/public-api.ts',
   },
   transform: {
     '^.+\\.(ts|mjs|js|html)$': [
@@ -26,6 +27,8 @@ module.exports = {
     'markdown-view/src/**/*.ts',
     'pwa/src/**/*.ts',
     'shell/src/**/*.ts',
+    'screens/src/**/*.ts',
+    'views/*/src/**/*.ts',
     '!**/*.spec.ts',
     '!**/index.ts',
   ],

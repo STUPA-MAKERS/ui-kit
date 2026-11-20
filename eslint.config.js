@@ -42,6 +42,8 @@ module.exports = tseslint.config(
       'markdown-editor/**/*.ts',
       'markdown-view/**/*.ts',
       'pwa/**/*.ts',
+      'screens/**/*.ts',
+      'views/**/*.ts',
     ],
     ignores: ['**/*.spec.ts', 'testing/**'],
     plugins: { functional },
@@ -68,7 +70,7 @@ module.exports = tseslint.config(
     rules: {
       '@angular-eslint/template/eqeqeq': 'error',
       '@angular-eslint/template/banana-in-box': 'error',
-      // § NF/accessibility/conformance/000492: every accessibility rule as an error.
+      // §STUPA-Workflow:NF/accessibility/conformance/000492: every accessibility rule as an error.
       // angular-eslint 22 no longer ships the config inside the plugin, so the rules of its
       // accessibility config are listed here.
       '@angular-eslint/template/alt-text': 'error',
@@ -84,4 +86,30 @@ module.exports = tseslint.config(
       '@angular-eslint/template/valid-aria': 'error',
     },
   },
+  // §S/framework/packages/002215: an entry point imports only the layers below it.
+  ...[
+    { files: ['src/**/*.ts'], banned: ['@stupa-makers/ui-kit/*'] },
+    {
+      files: ['markdown-view/**/*.ts', 'markdown-editor/**/*.ts', 'pwa/**/*.ts'],
+      banned: ['@stupa-makers/ui-kit/shell', '@stupa-makers/ui-kit/screens', '@stupa-makers/ui-kit/views/*'],
+    },
+    { files: ['shell/**/*.ts'], banned: ['@stupa-makers/ui-kit/screens', '@stupa-makers/ui-kit/views/*'] },
+    { files: ['screens/**/*.ts'], banned: ['@stupa-makers/ui-kit/shell', '@stupa-makers/ui-kit/views/*'] },
+    { files: ['views/**/*.ts'], banned: ['@stupa-makers/ui-kit/shell', '@stupa-makers/ui-kit/views/*'] },
+  ].map(({ files, banned }) => ({
+    files,
+    ignores: ['**/*.spec.ts'],
+    rules: {
+      'no-restricted-imports': [
+        'error',
+        {
+          patterns: [
+            { group: banned, message: 'An entry point imports only the layers below it (002215).' },
+            { group: ['**/testing/**', '**/testing'], message: 'Only a test imports /testing (002215).' },
+            { group: ['../../*/src/*', '../../../*/src/*'], message: 'Import another entry point by its package name (002215).' },
+          ],
+        },
+      ],
+    },
+  })),
 );
