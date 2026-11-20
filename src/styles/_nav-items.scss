@@ -101,11 +101,13 @@
   .#{$b}__item[data-press-out]:not(:active) .#{$b}__ind::after {
     @include press.fade;
   }
+  // The focus is one ring on the pill, also in the contrast modes; their global ring of the
+  // focused element skips the item (`display-settings.scss`), so no square frame (000508).
   .#{$b}__item:focus-visible {
     outline: none;
   }
   .#{$b}__item:focus-visible .#{$b}__ind {
-    outline: 2px solid var(--color-focus-ring);
+    outline: var(--focus-width, 2px) solid var(--color-focus-ring);
     outline-offset: 2px;
   }
   // Up to about 1080px high: 56px steps.
@@ -208,11 +210,13 @@
   .#{$b}__item[data-press-out]:not(:active) .#{$b}__ind::after {
     @include press.fade;
   }
+  // The focus is one ring on the pill, also in the contrast modes; their global ring of the
+  // focused element skips the item (`display-settings.scss`), so no square frame (000508).
   .#{$b}__item:focus-visible {
     outline: none;
   }
   .#{$b}__item:focus-visible .#{$b}__ind {
-    outline: 2px solid var(--color-focus-ring);
+    outline: var(--focus-width, 2px) solid var(--color-focus-ring);
     outline-offset: 2px;
   }
 }

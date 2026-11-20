@@ -8,14 +8,54 @@ import type {
 import { of } from "rxjs";
 
 /** The rows of the demo list, also the hits of the demo search. */
-export const DEMO_ROWS: readonly {
+export interface DemoRow {
   readonly id: string;
   readonly title: string;
   readonly sub: string;
-}[] = [
-  { id: "1", title: "Zuschuss Sommerfest", sub: "Fachschaft Informatik" },
-  { id: "2", title: "Beamer für den Hörsaal", sub: "AStA" },
-  { id: "3", title: "Exkursion Stuttgart", sub: "Fachschaft Technik" },
+  readonly status: string;
+  readonly kind: "accent" | "warn" | "neutral";
+  readonly amount: string;
+  readonly date: string;
+}
+
+/** The rows of the demo list, also the hits of the demo search. */
+export const DEMO_ROWS: readonly DemoRow[] = [
+  {
+    id: "1",
+    title: "Zuschuss Sommerfest",
+    sub: "Fachschaft Informatik",
+    status: "In Prüfung",
+    kind: "accent",
+    amount: "1.200,00 €",
+    date: "12.11.2026",
+  },
+  {
+    id: "2",
+    title: "Beamer für den Hörsaal",
+    sub: "AStA",
+    status: "Rückfrage",
+    kind: "warn",
+    amount: "890,00 €",
+    date: "15.11.2026",
+  },
+  {
+    id: "3",
+    title: "Exkursion Stuttgart",
+    sub: "Fachschaft Technik",
+    status: "Bewilligt",
+    kind: "neutral",
+    amount: "450,00 €",
+    date: "18.11.2026",
+  },
+  {
+    id: "4",
+    title: "Druck der Erstsemesterhefte",
+    sub: "Fachschaft Wirtschaft",
+    status: "In Prüfung",
+    kind: "accent",
+    amount: "640,00 €",
+    date: "19.11.2026",
+  },
 ];
 
 const MARK =
