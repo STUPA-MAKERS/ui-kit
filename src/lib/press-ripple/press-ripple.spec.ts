@@ -150,6 +150,24 @@ describe('press ripple', () => {
     pointer('pointerup', button);
   });
 
+  it('drops every layer when the pointer drags past the slop or anything scrolls', () => {
+    document.body.innerHTML = '<div id="list"><button id="b"></button></div>';
+    const button = host(document.getElementById('b')!);
+    box(button, 0, 0, 80, 44);
+    pointer('pointerdown', button, 10, 10);
+    pointer('pointermove', button, 14, 14);
+    expect(document.querySelector('.press-layer')).not.toBeNull();
+    pointer('pointermove', button, 10, 30);
+    expect(document.querySelector('.press-layer')).toBeNull();
+    pointer('pointerup', button);
+    pointer('pointerdown', button, 10, 10);
+    pointer('pointerup', button);
+    expect(document.querySelector('.press-layer')).not.toBeNull();
+    document.getElementById('list')!.dispatchEvent(new Event('scroll'));
+    expect(document.querySelector('.press-layer')).toBeNull();
+    expect(button.hasAttribute('data-press-layer')).toBe(false);
+  });
+
   it('drops the layer in the frame in which its host leaves the page', () => {
     document.body.innerHTML = '<main><button id="b"></button></main>';
     const button = host(document.getElementById('b')!);

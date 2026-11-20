@@ -9,6 +9,14 @@ export const PRESS_FADE_MS = 240;
  */
 export const PRESS_HOLD_MS = 225;
 
+/**
+ * How far a pointer may move before the press counts as a drag (a scroll, a pull to refresh,
+ * a swipe), in CSS pixels. The ripple then goes, because its layer stays where the press was
+ * while the content moves (app spec 002164). A page that handles the drag itself (a pull to
+ * refresh) gets no `pointercancel` from the browser.
+ */
+export const PRESS_SLOP_PX = 8;
+
 /** The keys that press a focused control. */
 const PRESS_KEYS = new Set(['Enter', ' ']);
 
@@ -165,6 +173,8 @@ interface Fade {
 class PressRipple {
   private fades: readonly Fade[] = [];
   private pointerHost: HTMLElement | null = null;
+  /** The point of the pointer press, for {@link PRESS_SLOP_PX}. */
+  private pointerStart: PressPoint | null = null;
   private keyHost: HTMLElement | null = null;
   /** The layer of the press that lasts (pointer or key), see {@link showLayer}. */
   private layer: Layer | null = null;
@@ -181,6 +191,7 @@ class PressRipple {
     this.layer = showLayer(host, { x: event.clientX, y: event.clientY });
     if (this.layer) this.watch(host.ownerDocument);
     this.pointerHost = host;
+    this.pointerStart = { x: event.clientX, y: event.clientY };
   };
 
   readonly onPointerUp = (): void => {
@@ -189,6 +200,25 @@ class PressRipple {
   };
 
   /** A touch that turns into a scroll: the ripple goes without the hold. */
+  /** A pointer that moves past {@link PRESS_SLOP_PX} drags: the ripple goes at once. */
+  readonly onPointerMove = (event: PointerEvent): void => {
+    const start = this.pointerStart;
+    if (!this.pointerHost || !start) return;
+    if (Math.hypot(event.clientX - start.x, event.clientY - start.y) <= PRESS_SLOP_PX) return;
+    this.dropAll();
+    this.pointerHost = null;
+  };
+
+  /**
+   * Anything scrolls (the list, the page, a pane): every layer goes at once, because a layer
+   * stays fixed where the press was and would lie over other rows.
+   */
+  readonly onScroll = (): void => {
+    if (!this.layer && !this.fades.some((fade) => fade.layer)) return;
+    this.dropAll();
+    this.pointerHost = null;
+  };
+
   readonly onPointerCancel = (): void => {
     if (this.pointerHost) this.fadeOut(this.pointerHost, false);
     this.pointerHost = null;
@@ -269,6 +299,18 @@ class PressRipple {
     view.requestAnimationFrame(check);
   }
 
+  /** Every layer goes at once, without a fade. */
+  private dropAll(): void {
+    this.fades
+      .filter((fade) => fade.layer)
+      .forEach((fade) => {
+        clearTimeout(fade.timer);
+        if (fade.layer) dropLayer(fade.layer);
+      });
+    this.fades = this.fades.filter((fade) => !fade.layer);
+    this.endLayer();
+  }
+
   /** A layer that no release ended (a second press came first) goes at once. */
   private endLayer(): void {
     if (this.layer) dropLayer(this.layer);
@@ -299,6 +341,8 @@ export function installPressRipple(doc: Document): () => void {
     ['pointerdown', ripple.onPointerDown],
     ['pointerup', ripple.onPointerUp],
     ['pointercancel', ripple.onPointerCancel],
+    ['pointermove', ripple.onPointerMove],
+    ['scroll', ripple.onScroll],
     ['keydown', ripple.onKeyDown],
     ['keyup', ripple.onKeyUp],
     ['focusout', ripple.onKeyUp],
