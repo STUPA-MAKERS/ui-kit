@@ -14,7 +14,7 @@
   padding: 0 6px 0 0;
   border-radius: var(--radius-pill);
   /* A neutral overlay, not a solid surface: the text colour at a low share lightens the
-     bar colour of a stuck bar in the dark theme and darkens it in the light theme, like the
+     colour of a stuck bar in the dark theme and darkens it in the light theme, like the
      controls on a dialog or a sheet (`glass-content`). On the solid page it gives the step
      of `surface-2`. A parent sets `--sp-bg` to a different surface where the field needs
      more contrast. */

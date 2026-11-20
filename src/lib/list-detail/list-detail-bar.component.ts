@@ -69,8 +69,8 @@ export class ListDetailBarComponent {
 
   /**
    * The page or a panel around the bar has scrolled, so content runs under the bar: only
-   * then does the bar take the bar colour (`ld__bar--under`). At rest it keeps the page
-   * colour.
+   * then does the bar end in a hairline at its foot (`ld__bar--under`).
+   * It keeps the page colour in every state.
    */
   protected readonly under = signal(false);
 

@@ -30,9 +30,9 @@
 // (`app-sticky-bar` sets `--stb-bottom`) it sticks right under the bar while its rows
 // scroll, from screen edge to screen edge, so the month of the rows stays in view; the next
 // head pushes it away. Without the bar `top` is unset and it scrolls. Stuck over its rows
-// (`lg__head--stuck`) it is solid in the bar colour, the same as the stuck bar above it, so
+// (`lg__head--stuck`) it is solid in the colour of the page, the same as the stuck bar above it, so
 // bar and head read as one head without a line between them (`bar`, app spec 002010). At
-// rest it has the colour of the page.
+// rest it has the same colour.
 @include bp.phone {
   .lg__head {
     position: sticky;
