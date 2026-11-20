@@ -12,7 +12,16 @@ import {
   signal,
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { NavigationEnd, Router, RouterLink, RouterLinkActive } from '@angular/router';
+import {
+  NavigationCancel,
+  NavigationEnd,
+  NavigationError,
+  NavigationSkipped,
+  NavigationStart,
+  Router,
+  RouterLink,
+  RouterLinkActive,
+} from '@angular/router';
 import { IconComponent, SideSheetComponent, UiKitTranslatePipe } from '@stupa-makers/ui-kit';
 import { filter } from 'rxjs';
 import type { NavMarkContext } from '../nav-mark.directive';
@@ -72,6 +81,16 @@ export class BottomBarComponent {
 
   private readonly url = signal(this.router.url);
 
+  /**
+   * The entry that a finger presses, from the press until the navigation ends: its pill
+   * shows at once, and the pill of the active entry goes (app spec 002163). Reason: the
+   * active mark of the router comes only after the new page has rendered; the pill then
+   * started late, and in the frames of the render it moved in jerks or not at all.
+   */
+  protected readonly going = signal<string | null>(null);
+  /** A navigation started since the press. */
+  private started = false;
+
   /** The bar entries, in bar order. */
   readonly barItems = computed<ShellNavItem[]>(() => {
     const visible = this.items().filter((i) => !i.group);
@@ -116,6 +135,17 @@ export class BottomBarComponent {
   });
 
   constructor() {
+    this.router.events.pipe(takeUntilDestroyed()).subscribe((e) => {
+      if (e instanceof NavigationStart) this.started = true;
+      if (
+        e instanceof NavigationEnd ||
+        e instanceof NavigationCancel ||
+        e instanceof NavigationError ||
+        e instanceof NavigationSkipped
+      ) {
+        this.going.set(null);
+      }
+    });
     this.router.events
       .pipe(
         filter((e): e is NavigationEnd => e instanceof NavigationEnd),
@@ -144,6 +174,24 @@ export class BottomBarComponent {
     if (hit && currentTarget.contains(hit) && !hit.matches(':disabled') && !hit.closest(keeps)) {
       this.moreOpen.set(false);
     }
+  }
+
+  /** A press on an entry of the bar: its pill shows at once. */
+  protected press(key: string, event: PointerEvent): void {
+    if (event.button !== 0) return;
+    this.started = false;
+    this.going.set(key);
+  }
+
+  /**
+   * The press ended: a tap navigates in the click right after it. When no navigation
+   * started (the finger left the entry, the entry is the page already), the pill goes back.
+   */
+  protected release(): void {
+    if (this.going() === null) return;
+    setTimeout(() => {
+      if (!this.started) this.going.set(null);
+    });
   }
 
   openMore(): void {

@@ -163,9 +163,10 @@ export class PageHeaderComponent {
       const write = (): void => {
         column.style.setProperty('--ph-pane-actions', `${actions.offsetWidth}px`);
       };
+      // The observer reports the first width after the layout; a read here, in the
+      // middle of the render, laid the page out once more (app spec 002161).
       const observer = new ResizeObserver(write);
       observer.observe(actions);
-      write();
       destroyRef.onDestroy(() => {
         observer.disconnect();
         column.style.removeProperty('--ph-pane-actions');

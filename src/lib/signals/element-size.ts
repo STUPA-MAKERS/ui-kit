@@ -1,4 +1,4 @@
-import { NgZone, type Signal, effect, inject, signal, untracked } from '@angular/core';
+import { Injector, NgZone, type Signal, afterNextRender, effect, inject, signal } from '@angular/core';
 
 /** The size of an element, in CSS pixels. */
 export interface ElementSize {
@@ -25,10 +25,14 @@ function measure(el: Element, box: ElementSizeBox): ElementSize {
  * `write`. Call it in an injection context.
  *
  * `target` is read in an effect, so a `viewChild` that appears later works. The first
- * size is written at once, then on every change, inside the Angular zone: an observer
+ * size is written in the read phase after the render, then on every change, inside the Angular zone: an observer
  * fires outside it, and a page that binds the size in a style would keep the old value
  * until the next event. The observer stops when the target changes and with the
  * caller. Without `ResizeObserver` (an old browser, a test) nothing is written.
+ *
+ * The first size waits for the read phase, because the effect runs in the middle of the
+ * render: a read there made the browser lay out the page between two writes of the render
+ * (app spec 002161).
  */
 export function observeElementSize(
   target: () => Element | null | undefined,
@@ -36,10 +40,11 @@ export function observeElementSize(
   box: ElementSizeBox = 'content',
 ): void {
   const zone = inject(NgZone);
+  const injector = inject(Injector);
   effect((onCleanup) => {
     const el = target();
     if (!el || typeof ResizeObserver === 'undefined') return;
-    untracked(() => write(measure(el, box)));
+    const first = afterNextRender({ read: () => write(measure(el, box)) }, { injector });
     const observer = new ResizeObserver((entries) => {
       const entry = entries.at(-1);
       const size =
@@ -49,7 +54,10 @@ export function observeElementSize(
       zone.run(() => write(size));
     });
     observer.observe(el);
-    onCleanup(() => observer.disconnect());
+    onCleanup(() => {
+      first.destroy();
+      observer.disconnect();
+    });
   });
 }
 

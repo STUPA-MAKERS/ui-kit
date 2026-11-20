@@ -21,7 +21,7 @@ import { IconComponent, type IconName } from '@stupa-makers/ui-kit';
     [class.is-active]="active()"
     [attr.aria-pressed]="pressed()"
   >
-    <span class="rail__ind"><app-icon [name]="icon()" [size]="22" /></span>
+    <span class="rail__ind" data-press-surface><app-icon [name]="icon()" [size]="22" /></span>
     <span class="rail__label">{{ label() }}</span>
   </button>`,
   styleUrl: './rail-button.scss',
@@ -52,7 +52,7 @@ export class RailButtonComponent {
     [class.is-active]="active()"
     [attr.aria-pressed]="pressed()"
   >
-    <span class="bb__ind"><app-icon [name]="icon()" [size]="22" /></span>
+    <span class="bb__ind" data-press-surface><app-icon [name]="icon()" [size]="22" /></span>
     <span class="bb__label">{{ label() }}</span>
   </button>`,
   styleUrl: './bar-button.scss',

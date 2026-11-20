@@ -41,9 +41,10 @@ describe('routePath', () => {
 });
 
 describe('routeMotion', () => {
-  it('fades through between sections', () => {
-    expect(routeMotion(['applications'], ['meetings'], false)).toBe('section');
-    expect(routeMotion([], ['applications'], true)).toBe('section');
+  it('switches sections at once, without a transition (002162)', () => {
+    expect(routeMotion(['applications'], ['meetings'], false)).toBe('none');
+    expect(routeMotion([], ['applications'], true)).toBe('none');
+    expect(routeMotion(['applications', '42'], ['meetings'], true)).toBe('none');
   });
 
   it('does nothing inside a section on a wide screen', () => {
@@ -60,7 +61,7 @@ describe('routeMotion', () => {
   it('neither pushes nor pops when the navigation replaces the history entry', () => {
     expect(routeMotion(['todos'], ['todos', 'b1'], true, true)).toBe('none');
     expect(routeMotion(['tasks', '1'], ['tasks'], true, true)).toBe('none');
-    expect(routeMotion(['dashboard'], ['todos'], true, true)).toBe('section');
+    expect(routeMotion(['dashboard'], ['todos'], true, true)).toBe('none');
   });
 });
 
@@ -99,10 +100,10 @@ describe('onRouteViewTransition', () => {
   afterEach(() => delete document.documentElement.dataset['motion']);
 
   it('names the kind on <html> until the transition ends', async () => {
-    media({});
-    const i = info(['applications'], ['meetings']);
+    media({ [PHONE]: true });
+    const i = info(['applications'], ['applications', '1']);
     run(i);
-    expect(document.documentElement.dataset['motion']).toBe('section');
+    expect(document.documentElement.dataset['motion']).toBe('push');
     finish();
     await Promise.resolve();
     await Promise.resolve();
@@ -132,8 +133,11 @@ describe('onRouteViewTransition', () => {
     const same = info(['applications'], ['applications', '1']);
     run(same);
     expect(same.transition.skipTransition).toHaveBeenCalled();
-    media({ [REDUCED]: true });
-    const reduced = info(['applications'], ['meetings']);
+    const section = info(['applications'], ['meetings']);
+    run(section);
+    expect(section.transition.skipTransition).toHaveBeenCalled();
+    media({ [PHONE]: true, [REDUCED]: true });
+    const reduced = info(['applications'], ['applications', '1']);
     run(reduced);
     expect(reduced.transition.skipTransition).toHaveBeenCalled();
     expect(document.documentElement.dataset['motion']).toBeUndefined();

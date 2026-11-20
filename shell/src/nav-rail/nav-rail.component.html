@@ -19,7 +19,7 @@
       [attr.aria-keyshortcuts]="searchKeys"
       (click)="search.emit()"
     >
-      <span class="rail__ind"><app-icon name="search" [size]="22" /></span>
+      <span class="rail__ind" data-press-surface><app-icon name="search" [size]="22" /></span>
       <span class="rail__label">{{ 'shell.search' | uiKitT }}</span>
     </button>
   }
@@ -35,7 +35,7 @@
         [routerLinkActiveOptions]="{ exact: item.exact ?? false }"
         (isActiveChange)="$event && reveal(entry)"
       >
-        <span class="rail__ind">
+        <span class="rail__ind" data-press-surface>
           <app-icon [name]="item.icon" [size]="22" />
           @if (mark(); as m) {
             <ng-container *ngTemplateOutlet="m; context: { $implicit: item.key, part: 'visual' }" />
@@ -56,7 +56,7 @@
         [attr.aria-controls]="'rail-group-' + group.key"
         (click)="toggle(group.key, sub)"
       >
-        <span class="rail__ind"><app-icon [name]="group.icon" [size]="22" /></span>
+        <span class="rail__ind" data-press-surface><app-icon [name]="group.icon" [size]="22" /></span>
         <span class="rail__label">{{ group.label }}</span>
         <app-icon class="rail__chev" name="down" [size]="14" />
       </button>
@@ -78,7 +78,7 @@
             [routerLinkActiveOptions]="{ exact: item.exact ?? false }"
             (isActiveChange)="$event && activeInGroup(group.key, entry)"
           >
-            <span class="rail__ind"><app-icon [name]="item.icon" [size]="22" /></span>
+            <span class="rail__ind" data-press-surface><app-icon [name]="item.icon" [size]="22" /></span>
             <span class="rail__label">{{ item.label }}</span>
           </a>
         }
@@ -98,7 +98,7 @@
       ariaCurrentWhenActive="page"
       [routerLinkActiveOptions]="{ exact: item.exact ?? false }"
     >
-      <span class="rail__ind"><app-icon [name]="item.icon" [size]="22" /></span>
+      <span class="rail__ind" data-press-surface><app-icon [name]="item.icon" [size]="22" /></span>
       <span class="rail__label">{{ item.label }}</span>
     </a>
   }

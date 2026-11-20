@@ -72,9 +72,16 @@
       opacity var(--motion-base) var(--ease-standard),
       scale var(--motion-base) var(--ease-standard);
   }
-  .#{$b}__item.is-active .#{$b}__ind::before {
+  // Only `opacity` and `scale` move, so the pill runs on the compositor and keeps moving
+  // while the new page renders.
+  .#{$b}__item.is-active .#{$b}__ind::before,
+  .#{$b}__item.is-going .#{$b}__ind::before {
     opacity: 1;
     scale: 1;
+  }
+  .#{$b}--going .#{$b}__item.is-active:not(.is-going) .#{$b}__ind::before {
+    opacity: 0;
+    scale: 0.5 1;
   }
   .#{$b}__ind > app-icon {
     position: relative;
@@ -160,14 +167,25 @@
     height: 32px;
     border-radius: 16px;
   }
-  .#{$b}__item.is-active {
+  // From the press until the navigation ends, the pressed entry (`is-going`) shows as the
+  // active one, and the entry that was active shows as any other (app spec 002163).
+  .#{$b}__item.is-active,
+  .#{$b}__item.is-going {
     color: var(--color-text);
     font-weight: var(--fw-semibold);
   }
+  .#{$b}--going .#{$b}__item.is-active:not(.is-going) {
+    color: var(--color-text-muted);
+    font-weight: var(--fw-medium);
+  }
   // The selected token is too close to surface 3 in both themes, so the pill mixes the
   // accent into the bar surface.
-  .#{$b}__item.is-active .#{$b}__ind {
+  .#{$b}__item.is-active .#{$b}__ind,
+  .#{$b}__item.is-going .#{$b}__ind {
     color: var(--color-accent-text);
+  }
+  .#{$b}--going .#{$b}__item.is-active:not(.is-going) .#{$b}__ind {
+    color: inherit;
   }
   .#{$b}__ind::before {
     content: '';
@@ -181,9 +199,16 @@
       opacity var(--motion-base) var(--ease-standard),
       scale var(--motion-base) var(--ease-standard);
   }
-  .#{$b}__item.is-active .#{$b}__ind::before {
+  // Only `opacity` and `scale` move, so the pill runs on the compositor and keeps moving
+  // while the new page renders.
+  .#{$b}__item.is-active .#{$b}__ind::before,
+  .#{$b}__item.is-going .#{$b}__ind::before {
     opacity: 1;
     scale: 1;
+  }
+  .#{$b}--going .#{$b}__item.is-active:not(.is-going) .#{$b}__ind::before {
+    opacity: 0;
+    scale: 0.5 1;
   }
   .#{$b}__ind > app-icon {
     position: relative;

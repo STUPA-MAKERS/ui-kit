@@ -12,7 +12,7 @@
   </div>
   <!-- One page per tab side by side; a swipe snaps to the next page (CSS scroll snap), and
        the ink under the tabs moves with the scroll. -->
-  <div #pager class="tp__pager" (scroll)="onScroll()" (scrollend)="onRest()" (pointerdown)="onTouch()">
+  <div #pager class="tp__pager" (scrollend)="onRest()" (pointerdown)="onTouch()">
     @for (tab of tabs(); track tab.id) {
       <div
         class="tp__page"

@@ -11,6 +11,7 @@ import {
   signal,
   viewChild,
 } from '@angular/core';
+import { frameReader } from '../util/frame-read';
 import { NgTemplateOutlet } from '@angular/common';
 import { IconComponent } from '../icon/icon.component';
 import { UiKitTranslatePipe } from '../intl/translate.pipe';
@@ -76,20 +77,18 @@ export class ListDetailBarComponent {
 
   constructor() {
     this.nav.barBottom = () => this.host.getBoundingClientRect().bottom;
-    let frame = 0;
-    const check = () => {
-      frame = 0;
-      this.under.set(scrolledAround(this.host));
-    };
-    const onScroll = () => {
-      if (!frame) frame = requestAnimationFrame(check);
-    };
+    // With the other reads of the frame, before their writes (app spec 002161).
+    const check = frameReader(
+      () => scrolledAround(this.host),
+      (under) => this.under.set(under),
+    );
+    const onScroll = (): void => check.schedule();
     window.addEventListener('scroll', onScroll, { capture: true, passive: true });
-    frame = requestAnimationFrame(check);
+    check.schedule();
     inject(DestroyRef).onDestroy(() => {
       this.nav.barBottom = () => 0;
       window.removeEventListener('scroll', onScroll, { capture: true });
-      if (frame) cancelAnimationFrame(frame);
+      check.cancel();
     });
   }
 

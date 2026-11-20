@@ -101,6 +101,9 @@ export class SideSheetComponent {
   private drag: { pointerId: number; startY: number; startTime: number; past: boolean } | null =
     null;
   private bodyObserver: ResizeObserver | null = null;
+  /** The body that has the scroll listener (a DOM listener, so a scroll runs no change detection). */
+  private scrollBody: HTMLElement | null = null;
+  private readonly onBodyScroll = (): void => this.measure();
 
   private returnFocus: HTMLElement | null = null;
   /** The pane of the current opening, to see after a closing whether it is still there. */
@@ -232,6 +235,8 @@ export class SideSheetComponent {
   private watchBody(): void {
     const el = this.body()?.nativeElement;
     if (!el) return;
+    el.addEventListener('scroll', this.onBodyScroll, { passive: true });
+    this.scrollBody = el;
     this.bodyObserver = new ResizeObserver(() => this.measure());
     this.bodyObserver.observe(el);
     for (const child of Array.from(el.children)) this.bodyObserver.observe(child);
@@ -251,6 +256,8 @@ export class SideSheetComponent {
     }
     this.bodyObserver?.disconnect();
     this.bodyObserver = null;
+    this.scrollBody?.removeEventListener('scroll', this.onBodyScroll);
+    this.scrollBody = null;
     this.drag = null;
     this.dragging.set(false);
     this.dragY.set(0);

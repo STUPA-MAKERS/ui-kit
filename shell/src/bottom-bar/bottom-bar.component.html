@@ -1,13 +1,17 @@
-<nav class="bb" [attr.aria-label]="'shell.mainNav' | uiKitT">
+<nav class="bb" [class.bb--going]="going() !== null" [attr.aria-label]="'shell.mainNav' | uiKitT">
   @for (item of barItems(); track item.key) {
     <a
       class="bb__item"
+      [class.is-going]="going() === item.key"
+      (pointerdown)="press(item.key, $event)"
+      (pointerup)="release()"
+      (pointercancel)="release()"
       [routerLink]="item.path"
       routerLinkActive="is-active"
       ariaCurrentWhenActive="page"
       [routerLinkActiveOptions]="{ exact: item.exact ?? false }"
     >
-      <span class="bb__ind">
+      <span class="bb__ind" data-press-surface>
         <app-icon [name]="item.icon" [size]="22" />
         @if (mark(); as m) {
           <ng-container *ngTemplateOutlet="m; context: { $implicit: item.key, part: 'visual' }" />
@@ -29,7 +33,7 @@
       [attr.aria-expanded]="moreOpen()"
       (click)="openMore()"
     >
-      <span class="bb__ind"><app-icon name="menu" [size]="22" /></span>
+      <span class="bb__ind" data-press-surface><app-icon name="menu" [size]="22" /></span>
       <span class="bb__label">{{ 'shell.more' | uiKitT }}</span>
     </button>
   }

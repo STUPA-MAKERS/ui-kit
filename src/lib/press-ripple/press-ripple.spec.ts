@@ -76,17 +76,69 @@ describe('press ripple', () => {
     );
   });
 
-  it('fades the tint out after a pointer release', () => {
+  it('fades the tint out after a pointer release where no layer can show', () => {
+    // A host without a box (jsdom, a hidden element) keeps the CSS ripple.
     document.body.innerHTML = '<button id="b"><span id="s">x</span></button>';
     const button = host(document.getElementById('b')!);
-    box(button, 0, 0, 40, 40);
     pointer('pointerdown', document.getElementById('s')!, 5, 5);
-    expect(button.style.getPropertyValue('--ripple-x')).toBe('5px');
+    expect(document.querySelector('.press-layer')).toBeNull();
     expect(button.hasAttribute('data-press-out')).toBe(false);
     pointer('pointerup', document.getElementById('s')!);
     expect(button.hasAttribute('data-press-out')).toBe(true);
     jest.advanceTimersByTime(PRESS_FADE_MS);
     expect(button.hasAttribute('data-press-out')).toBe(false);
+  });
+
+  it('draws the ripple on a layer of its own over the host, and fades it out (002164)', () => {
+    document.body.innerHTML = '<button id="b" style="border-radius: 8px; color: red"><span id="s">x</span></button>';
+    const button = host(document.getElementById('b')!);
+    button.style.setProperty('--press-tint', 'blue');
+    box(button, 10, 20, 40, 30);
+    pointer('pointerdown', document.getElementById('s')!, 15, 25);
+    const layer = document.querySelector<HTMLElement>('.press-layer')!;
+    expect(layer.parentElement).toBe(document.body);
+    expect(layer.style.left).toBe('10px');
+    expect(layer.style.top).toBe('20px');
+    expect(layer.style.width).toBe('40px');
+    expect(layer.style.borderRadius).toBe('8px');
+    expect(layer.style.getPropertyValue('--press-tint')).toBe('blue');
+    // The circle is centred on the point and reaches the farthest corner (35, 25 away).
+    const wave = layer.querySelector<HTMLElement>('.press-layer__wave')!;
+    const r = Math.ceil(Math.hypot(35, 25));
+    expect(wave.style.left).toBe(`${5 - r}px`);
+    expect(wave.style.width).toBe(`${2 * r}px`);
+    expect(button.hasAttribute('data-press-layer')).toBe(true);
+    pointer('pointerup', document.getElementById('s')!);
+    expect(layer.classList.contains('press-layer--out')).toBe(true);
+    expect(button.hasAttribute('data-press-out')).toBe(false);
+    jest.advanceTimersByTime(PRESS_FADE_MS);
+    expect(layer.isConnected).toBe(false);
+    expect(button.hasAttribute('data-press-layer')).toBe(false);
+  });
+
+  it('shows the layer on the marked part from its centre, drops a layer at a new press, and none in a popover', () => {
+    document.body.innerHTML =
+      '<a id="a" href="#"><span id="p" data-press-surface>i</span></a><div popover><button id="q">q</button></div>';
+    const link = host(document.getElementById('a')!);
+    box(link, 0, 0, 80, 60);
+    box(document.getElementById('p')!, 10, 10, 40, 20);
+    pointer('pointerdown', link, 1, 1);
+    const first = document.querySelector<HTMLElement>('.press-layer')!;
+    expect(first.style.left).toBe('10px');
+    const wave = first.querySelector<HTMLElement>('.press-layer__wave')!;
+    expect(wave.style.left).toBe(`${20 - Math.ceil(Math.hypot(20, 10))}px`);
+    pointer('pointerdown', link, 1, 1);
+    expect(first.isConnected).toBe(false);
+    expect(document.querySelectorAll('.press-layer')).toHaveLength(1);
+    pointer('pointerup', link);
+    const q = host(document.getElementById('q')!);
+    box(q, 0, 0, 20, 20);
+    pointer('pointerdown', q, 1, 1);
+    expect(q.hasAttribute('data-press-layer')).toBe(false);
+    pointer('pointerup', q);
+    uninstall();
+    expect(document.querySelectorAll('.press-layer')).toHaveLength(0);
+    uninstall = installPressRipple(document);
   });
 
   it('presses with Enter or Space from the centre until the key goes up, but not in a field', () => {
@@ -99,9 +151,10 @@ describe('press ripple', () => {
     expect(button.style.getPropertyValue('--ripple-x')).toBe('20px');
     button.dispatchEvent(new KeyboardEvent('keyup', { key: 'a', bubbles: true }));
     expect(button.hasAttribute('data-press-key')).toBe(true);
+    expect(document.querySelector('.press-layer')).not.toBeNull();
     button.dispatchEvent(new KeyboardEvent('keyup', { key: ' ', bubbles: true }));
     expect(button.hasAttribute('data-press-key')).toBe(false);
-    expect(button.hasAttribute('data-press-out')).toBe(true);
+    expect(document.querySelector('.press-layer--out')).not.toBeNull();
 
     const input = document.getElementById('i')!;
     input.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter', bubbles: true }));

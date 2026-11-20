@@ -272,9 +272,11 @@ describe('motion and list pane partials', () => {
     for (const name of ['pop-in', 'pop-out', 'rise-in', 'fade-in', 'fade-out', 'expand-in', 'expand-out']) {
       expect(motion).toContain(`.motion-${name} {`);
     }
-    for (const kind of ['section', 'push', 'pop']) {
+    for (const kind of ['push', 'pop']) {
       expect(motion).toContain(`:root[data-motion='${kind}']::view-transition-new(root)`);
     }
+    // A switch of section has no transition (app spec 002162).
+    expect(motion).not.toContain("data-motion='section'");
     expect(motion).toContain(':root[data-motion] .frame__rail {');
     expect(motion).toContain(':root[data-motion] .bb {');
   });
