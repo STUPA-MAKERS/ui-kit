@@ -386,9 +386,9 @@ describe('SolidBars', () => {
     }
   });
 
-  it('keeps the colour of a scrolled bar and gives it the edge of very high contrast', () => {
+  it('keeps the colour of a scrolled bar and ends it in a hairline, white in very high contrast', () => {
     const mixin = block(read('_frosted.scss'), '@mixin bar($color, $scrolled: false) {');
-    expect(mixin).toMatch(/background: var\(--bar-scrolled, #\{\$color\}\);\s*box-shadow: var\(--bar-edge, none\);/);
+    expect(mixin).toMatch(/background: var\(--bar-scrolled, #\{\$color\}\);\s*box-shadow: var\(--bar-edge, inset 0 calc\(-1 \* var\(--border-width\)\) 0 var\(--color-border\)\);/);
     expect(mixin).not.toMatch(/--color-bar/);
     for (const path of BARS.slice(1)) expect(read(path)).toMatch(/\$scrolled: true/);
   });

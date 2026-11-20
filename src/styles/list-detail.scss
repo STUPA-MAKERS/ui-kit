@@ -218,8 +218,7 @@
 // The head of the column: one solid layer from the top edge of the screen to the lower edge
 // of the head, behind the header, the search bar and the filters (`bar`, app spec 002010).
 // It has the page colour in every state, also while rows are under it
-// (`.ld-pane--scrolled`): the rows are surfaces, so their edge marks the foot of the head,
-// and it has no shadow.
+// (`.ld-pane--scrolled`); then it ends in a hairline and has no shadow.
 .ld-pane--head::before {
   content: '';
   position: absolute;

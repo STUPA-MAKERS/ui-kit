@@ -49,8 +49,7 @@
    its edges. At rest the bar has no colour of its own: its top padding reaches over the
    lower edge of the page header, so a solid bar cuts the outline of a round button in
    that header. Only on a phone is the stuck bar solid, in the colour of the page (`bar`, app
-   spec 002010): the rows under it are surfaces, so their edge marks its foot, and it has no
-   shadow. */
+   spec 002010): it ends in a hairline, and it has no shadow. */
 @include bp.phone {
   :host {
     margin-inline: calc(-1 * var(--stb-bleed, var(--space-4)));

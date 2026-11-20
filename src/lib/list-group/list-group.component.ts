@@ -56,7 +56,7 @@ export class ListGroupComponent {
   /**
    * The head sticks over its rows (on a phone below a sticky search bar): it has moved
    * down from the top of its group. Only then is it solid in the colour
-   * of the page (`lg__head--stuck`), and in very high contrast it has the edge at its foot.
+   * of the page (`lg__head--stuck`), and it ends in a hairline at its foot.
    */
   protected readonly stuck = signal(false);
   /**
