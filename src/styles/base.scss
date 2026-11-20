@@ -350,14 +350,19 @@ input[type='radio'] {
   white-space: nowrap;
 }
 
-/* Caption: table headers, group labels above a list. */
+/* Caption: a column head or a label above a group, in sentence case (app spec 001964: no
+   uppercase text). A heading with the class (h2-h4, legend) takes the look of the title of
+   `app-section`, so a caption heading and a section heading are one style. */
 .cap {
-  font-size: var(--fs-cap);
-  line-height: var(--lh-cap);
+  font-size: var(--fs-small);
+  line-height: var(--lh-small);
   font-weight: var(--fw-semibold);
-  letter-spacing: var(--tracking-cap);
-  text-transform: uppercase;
   color: var(--color-text-subtle);
+}
+:is(h2, h3, h4, legend).cap {
+  color: var(--color-accent-text);
+  font-size: 0.84375rem;
+  line-height: 1.25rem;
 }
 
 /* A code tag: a token, a scope, an event name or a group in the mono face (`<code

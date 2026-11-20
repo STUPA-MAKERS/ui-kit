@@ -171,10 +171,8 @@
 .sel__groupHead {
   padding: 6px calc(var(--space-4) - 6px) 4px;
   color: var(--color-text-muted);
-  font-size: var(--fs-cap);
+  font-size: var(--fs-small);
   font-weight: var(--fw-semibold);
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
 }
 .sel__layer .sel__group + .sel__group,
 .sel__layer .sel__rows + .sel__group,

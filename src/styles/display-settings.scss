@@ -390,6 +390,7 @@
 
   // A heading is white; yellow marks only what a person can use.
   .section__title,
+  :is(h2, h3, h4, legend).cap,
   .lg__head {
     color: var(--vh-fg) !important;
   }
