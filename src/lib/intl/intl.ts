@@ -91,6 +91,8 @@ export type UiKitTextKey =
   | 'shell.more'
   | 'shell.search'
   | 'shell.brand'
+  | 'shell.markNew'
+  | 'shell.markWarn'
   | 'account.signedInAs'
   | 'account.language'
   | 'account.darkMode'
@@ -182,6 +184,8 @@ export const UI_KIT_DEFAULT_MESSAGES: Record<UiLang, UiKitMessages> = {
     'shell.more': 'Mehr',
     'shell.search': 'Suche',
     'shell.brand': '{name}, Start',
+    'shell.markNew': 'neu',
+    'shell.markWarn': 'Achtung',
     'account.signedInAs': 'Angemeldet als',
     'account.language': 'Sprache',
     'account.darkMode': 'Dunkles Design',
@@ -269,6 +273,8 @@ export const UI_KIT_DEFAULT_MESSAGES: Record<UiLang, UiKitMessages> = {
     'shell.more': 'More',
     'shell.search': 'Search',
     'shell.brand': '{name}, home',
+    'shell.markNew': 'new',
+    'shell.markWarn': 'attention',
     'account.signedInAs': 'Signed in as',
     'account.language': 'Language',
     'account.darkMode': 'Dark theme',

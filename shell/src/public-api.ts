@@ -19,3 +19,4 @@ export * from './list-detail-page';
 export * from './fab-link.directive';
 export * from './route-motion';
 export * from './framework/framework';
+export * from './framework/framework-shell.component';
