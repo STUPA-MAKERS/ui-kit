@@ -42,4 +42,14 @@ describe('ButtonGroupComponent', () => {
       /\.btn-grp--main\.btn-grp--main \.btn--fill:not\(:disabled\) \{\s*background-color: var\(--color-accent\);/,
     );
   });
+
+  it('gives every button of a confirm row the control height, whatever its size (001960)', () => {
+    // A small group shrinks only outside a confirm row.
+    expect(STYLE).toContain('.btn-grp:not(.btn-grp--main):has(.btn--sm) {');
+    expect(STYLE).not.toMatch(/^\.btn-grp:has\(\.btn--sm\)/m);
+    expect(STYLE).toMatch(/\.btn-grp--main\.btn-grp--main \{\s*--btn-grp-h: var\(--control-height\);\s*\}/);
+    expect(STYLE).toMatch(
+      /\.btn-grp--main\.btn-grp--main :is\(\.btn, \.rm__trigger\) \{\s*--btn-h: var\(--control-height\);\s*height: var\(--control-height\);/,
+    );
+  });
 });

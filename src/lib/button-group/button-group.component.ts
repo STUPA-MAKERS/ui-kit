@@ -48,7 +48,9 @@ export class ButtonGroupComponent {
 
   /**
    * A confirm row (Abbrechen and the main action): the main button (`variant="fill"`)
-   * keeps the accent fill (001353). The footer of `app-dialog` is such a group.
+   * keeps the accent fill (001353). The footer of `app-dialog` is such a group. Every button
+   * of a confirm row is as high as a control (40px), whatever its `size` (001960), so the
+   * actions at the end of every dialog, sheet, popover and inline form have one size.
    */
   readonly main = input(false);
 }
