@@ -124,6 +124,7 @@
 /* An empty slot takes no gap. */
 .li__lead:empty,
 .li__trail:empty,
+.li__menu:empty,
 .li__sub:empty {
   display: none;
 }
@@ -159,6 +160,60 @@
     [tabindex]:not([tabindex='-1'])
   ) {
   pointer-events: auto;
+}
+
+/* The row menu (`[menu]` slot): the ⋮ at the end of the row, after the trail. It stays
+   above the stretched title like a trail control. On a device with hover it shows only while
+   the pointer is on the row, while a control of the row has the keyboard focus, or while its
+   menu is open. At rest it takes no width and no gap, so the text and the trail use the full
+   row. A touch screen has no hover, so there the ⋮ always shows. The keyboard focus counts
+   only as `:focus-visible`, so a row that a click opened does not keep its ⋮ after the
+   pointer leaves. The button reaches into the end padding of the row, so the ⋮ glyph lines
+   up with the text of the trail in a row without a menu, and it sits close to the trail,
+   because the button has its own padding around the glyph. */
+.li__menu {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  flex: none;
+  grid-template-columns: 1fr;
+  align-items: center;
+  margin-inline: calc(var(--space-1) - var(--li-gap, var(--space-4))) calc(-1 * var(--space-2));
+}
+.li__menu > ::ng-deep * {
+  min-width: 0;
+}
+@media (hover: hover) {
+  .li__menu {
+    grid-template-columns: 0fr;
+    margin-inline: calc(-1 * var(--li-gap, var(--space-4))) 0;
+    opacity: 0;
+    transition:
+      grid-template-columns var(--motion-fast) var(--ease-standard),
+      margin var(--motion-fast) var(--ease-standard),
+      opacity var(--motion-fast) var(--ease-standard);
+  }
+  /* Collapsed, the menu clips its content, so the hidden ⋮ takes no width. */
+  .li__menu > ::ng-deep * {
+    overflow: hidden;
+  }
+  .li:hover .li__menu,
+  .li:has(:focus-visible) .li__menu,
+  .li__menu:has([aria-expanded='true']) {
+    grid-template-columns: 1fr;
+    margin-inline: calc(var(--space-1) - var(--li-gap, var(--space-4))) calc(-1 * var(--space-2));
+    opacity: 1;
+  }
+  .li:hover .li__menu > ::ng-deep *,
+  .li:has(:focus-visible) .li__menu > ::ng-deep *,
+  .li__menu:has([aria-expanded='true']) > ::ng-deep * {
+    overflow: visible;
+  }
+}
+@include d.host-on(motion) {
+  .li__menu {
+    transition: none;
+  }
 }
 
 .li__body {
