@@ -240,6 +240,11 @@ export class DataTableComponent
    * for showing the tongue that scrolls that way.
    */
   protected readonly hiddenStart = signal(false);
+  /**
+   * The table is wider than its box. The scroller then takes the focus, so a keyboard
+   * can scroll a table without a focusable cell (axe `scrollable-region-focusable`).
+   */
+  protected readonly overflows = signal(false);
   protected readonly hiddenEnd = signal(false);
   /**
    * True while a tongue is hovered or focused, which lights the cut it moves towards.
@@ -545,6 +550,7 @@ export class DataTableComponent
     const edges = this.occluded(scroll, scroll.getBoundingClientRect().right - cueRight);
     this.hiddenStart.set(edges.start);
     this.hiddenEnd.set(edges.end);
+    this.overflows.set(scroll.scrollWidth > scroll.clientWidth);
 
     box.style.setProperty('--cue-right', `${cueRight}px`);
     box.style.setProperty('--cue-left', `${this.stickyStartWidth(scroll)}px`);

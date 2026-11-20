@@ -12,7 +12,7 @@
   [class.dt--cut-hot]="cutHot()"
   [class.dt--cut-hot-start]="cutHotStart()"
 >
-  <div #scroller class="dt__scroll" (scroll)="onScroll()">
+  <div #scroller class="dt__scroll" [attr.tabindex]="overflows() ? 0 : null" (scroll)="onScroll()">
     @if (loading || rows.length > 0) {
       <table class="dt__table">
         <thead>
