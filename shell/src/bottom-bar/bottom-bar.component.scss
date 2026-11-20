@@ -34,6 +34,22 @@
   );
 }
 
+// During a route transition the bar is painted alone into its view transition snapshot, so
+// its glass has no backdrop there: the blur sees nothing and the moving page shows through
+// the tint. Some GPUs also drop a backdrop filter on the snapshot group. The glass is
+// therefore opaque while `<html data-motion>` is set: the same gradient as the glass, mixed
+// into the page colour instead of into transparency, so over the page colour the bar does not
+// change, and the moving page never shows through it.
+:host-context([data-motion]) .bb::before {
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
+  background: linear-gradient(
+    to bottom,
+    color-mix(in srgb, var(--color-surface-3) var(--glass-tint, 60%), var(--color-bg)) 64px,
+    var(--color-surface-3) calc(100% - env(safe-area-inset-bottom) - 4px)
+  );
+}
+
 @include nav-items.bar-item;
 
 // The slot for an item of the app takes no box of its own.

@@ -51,6 +51,17 @@ describe('SegmentedComponent', () => {
     expect(radios[2]).toHaveClass('seg__opt--on');
   });
 
+  it('takes the height of a large search pill with size="lg"', async () => {
+    const { container } = await render(
+      `<app-segmented ariaLabel="Ansicht" size="lg" width="fill" [options]="opts" value="a" />`,
+      { imports: [SegmentedComponent], componentProperties: { opts: KINDS } },
+    );
+    const host = container.querySelector('app-segmented');
+    expect(host).toHaveClass('seg-host--lg');
+    expect(host).toHaveClass('seg-host--fill');
+    expect(host).not.toHaveClass('seg-host--control');
+  });
+
   it('takes the button height with size="control"', async () => {
     const { container } = await render(
       `<app-segmented ariaLabel="Ansicht" size="control" [options]="opts" value="a" />`,

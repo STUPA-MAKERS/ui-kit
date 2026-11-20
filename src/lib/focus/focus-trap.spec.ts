@@ -72,4 +72,26 @@ describe('lockBodyScroll', () => {
     expect(document.documentElement.style.overflow).toBe('scroll');
     document.documentElement.style.overflow = '';
   });
+
+  it('gives the root back only when the last lock is released, in any order', () => {
+    const root = document.documentElement;
+    root.style.overflow = '';
+    const sheet = lockBodyScroll();
+    const dialog = lockBodyScroll();
+    expect(root.style.overflow).toBe('hidden');
+    // The sheet closes first, while the dialog it opened is still open.
+    sheet();
+    expect(root.style.overflow).toBe('hidden');
+    sheet();
+    expect(root.style.overflow).toBe('hidden');
+    dialog();
+    expect(root.style.overflow).toBe('');
+    // A new lock after all are released starts over from the current value.
+    root.style.overflow = 'auto';
+    const again = lockBodyScroll();
+    expect(root.style.overflow).toBe('hidden');
+    again();
+    expect(root.style.overflow).toBe('auto');
+    root.style.overflow = '';
+  });
 });

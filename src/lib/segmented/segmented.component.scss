@@ -109,6 +109,14 @@
   min-height: 0;
   height: var(--control-height);
 }
+/* `size="lg"`: as high as a large search pill (`app-search-pill size="lg"`), for a switch
+   that stands above one and leads a list column. */
+:host(.seg-host--lg) .seg {
+  min-height: var(--control-height-lg);
+}
+:host(.seg-host--lg) .seg__opt {
+  font-size: var(--fs-md);
+}
 
 /* More contrast (app spec 000595): the track gets an edge and the chosen pill a strong one,
    so the choice does not rest on a faint fill. */
