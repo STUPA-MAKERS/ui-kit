@@ -2,7 +2,7 @@
 id: "002222"
 title: A form is built from a definition
 kind: style
-status: draft
+status: approved
 owner: frederikbeimgraben
 updated: 2026-11-20
 implementation: null
@@ -12,7 +12,7 @@ scope:
 
 # A form is built from a definition
 
-A form must be built by `app-form` from a `FormDef`: sections, and fields with key, kind, label,
+A form must be built by `app-form` of the kit, on Angular signal forms and without ngx-formly, from a `FormDef`: sections, and fields with key, kind, label,
 required, options, limits, `visible` and `disabled`. The field kinds must be text, textarea,
 number, money, date, date range, time, select, multi-select, checkbox, switch, tree select, file,
 Markdown, repeat group and display. The app must compute `visible` and `disabled` and give them

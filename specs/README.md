@@ -33,7 +33,7 @@ number space (`S/specs/sharing/002211`).
 | [S/framework/actions/002219](style/framework/actions/002219_action-model.md) | An action is data, and the screen places it | approved |
 | [S/framework/state/002220](style/framework/state/002220_load-state.md) | A load state is one type for every view | approved |
 | [S/framework/state/002221](style/framework/state/002221_ui-state-in-kit.md) | A kit component holds its UI state and the app holds the data | approved |
-| [S/framework/forms/002222](style/framework/forms/002222_form-definition.md) | A form is built from a definition | draft |
+| [S/framework/forms/002222](style/framework/forms/002222_form-definition.md) | A form is built from a definition | approved |
 | [S/framework/texts/002223](style/framework/texts/002223_kit-catalogue.md) | The texts of the kit have keys that an admin can override | approved |
 | [S/framework/config/002224](style/framework/config/002224_routes-from-helpers.md) | An app builds the routes of a screen with a kit helper | approved |
 | [S/framework/config/002225](style/framework/config/002225_ports.md) | App data reaches the shell only through ports | approved |
