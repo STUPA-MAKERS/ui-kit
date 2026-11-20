@@ -49,22 +49,13 @@ const FACE_DOTS: readonly {
  * the look (001360) and stays so that callers keep compiling.
  */
 export type EmptyStateShape =
-  | 'row'
-  | 'choice'
-  | 'person'
-  | 'date'
-  | 'agenda'
-  | 'file'
-  | 'table'
-  | 'card'
-  | 'chat'
-  | 'text';
+  'row' | 'choice' | 'person' | 'date' | 'agenda' | 'file' | 'table' | 'card' | 'chat' | 'text';
 
 /**
  * One shape for "there is nothing here", in two looks.
  *
  * The face (001360): a flat face in a ring of faint dots, and below it a small muted hint
- * (a crossed-out lens and the heading) and, if the caller projects one, one way to create
+ * (the `icon` and the heading) and, if the caller projects one, one way to create
  * something. Never a reset (001363). The face blinks and glances aside, the dots wobble
  * and flicker, without end; with less motion it is a still picture (001361), and in very
  * high contrast it is white (001362). It serves every empty list, search without a hit,
@@ -103,7 +94,11 @@ export class EmptyStateComponent {
   readonly code = input<string | null>(null);
   /** No face, a glyph instead: the look for everything that is not an empty list. */
   readonly plain = input(false, { transform: booleanAttribute });
-  /** Muted glyph above the message of a `plain` state. A `code` takes its place. */
+  /**
+   * The icon of the state: before the hint below the face, or the glyph above the message of
+   * a `plain` state. It names what is missing (001364): `searchOff` only for a search or a
+   * filter without a hit, else the icon of the section or of the missing thing.
+   */
   readonly icon = input<IconName>('file');
   /** No longer changes the look (001360); kept so that callers keep compiling. */
   readonly shape = input<EmptyStateShape>('row');

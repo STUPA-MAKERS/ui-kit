@@ -34,7 +34,7 @@
     } @else if (plain()) {
       <app-icon class="es__icon" [name]="icon()" [size]="32" />
     } @else if (face()) {
-      <app-icon class="es__hintIcon" name="searchOff" [size]="18" />
+      <app-icon class="es__hintIcon" [name]="icon()" [size]="18" />
     }
     @switch (headingLevel()) {
       @case (1) {

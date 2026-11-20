@@ -40,6 +40,25 @@ describe('EmptyStateComponent', () => {
   });
 
   /** § NF/usability/controls/001361: the dots never move in step. */
+  /** § NF/usability/controls/001364: the caller names the icon before the hint. */
+  it('shows the icon of the caller before the hint', async () => {
+    const { container, rerender } = await render(EmptyStateComponent, {
+      inputs: { heading: 'Keine Einträge an diesem Tag.', icon: 'cal' },
+    });
+    expect(container.querySelector('.es__hintIcon [data-icon]')).toHaveAttribute(
+      'data-icon',
+      'cal',
+    );
+    await rerender({
+      inputs: { heading: 'Keine Treffer', icon: 'searchOff' },
+      partialUpdate: true,
+    });
+    expect(container.querySelector('.es__hintIcon [data-icon]')).toHaveAttribute(
+      'data-icon',
+      'searchOff',
+    );
+  });
+
   it('draws 13 dots, each with its own wobble and flicker period', async () => {
     const { container } = await render(EmptyStateComponent, {
       inputs: { heading: 'Leer' },
