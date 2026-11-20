@@ -120,6 +120,19 @@ describe('FabComponent icon only and FabGroupComponent', () => {
     expect(button).not.toHaveAttribute('title');
   });
 
+  it('puts a contained group at the end of its pane', async () => {
+    await render(
+      `<app-fab-group [contained]="true">
+        <app-fab label="Antrag stellen" tone="neutral" />
+        <app-fab label="Antrag erfassen" />
+      </app-fab-group>`,
+      { imports: [FabComponent, FabGroupComponent] },
+    );
+    const group = screen.getByRole('group');
+    expect(group).toHaveClass('fab-group--contained');
+    expect(group.querySelectorAll('.fab--contained')).toHaveLength(0);
+  });
+
   it('puts several fabs side by side in a group, which takes the position', async () => {
     const reset = jest.fn();
     const save = jest.fn();
