@@ -17,4 +17,4 @@ text of 18.66 px, must have at least 3:1. This applies in both themes and on eve
 
 Reason: WCAG 1.4.3.
 
-Test: `frontend/src/app/shared/ui/surface-contrast.spec.ts` and the axe check of STUPA-Workflow:000491.
+Test: `frontend/src/app/shared/ui/surface-contrast.spec.ts` and the axe check of 000491.

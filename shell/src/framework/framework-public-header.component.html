@@ -25,7 +25,13 @@
   }
 
   <app-button-group class="pub__actions">
-    <app-shell-menu variant="header" menu="a11y" [statementLink]="config.a11yStatement" />
+    <app-shell-menu
+      variant="header"
+      menu="a11y"
+      [statementLink]="config.a11yStatement"
+      [reportBarrier]="!!config.reportBarrier"
+      (action)="action.emit($event)"
+    />
     @if (helpItems().length > 0) {
       <app-shell-menu variant="header" [items]="helpItems()" (action)="action.emit($event)" />
     }

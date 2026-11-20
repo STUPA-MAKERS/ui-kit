@@ -73,6 +73,8 @@ export interface FrameworkConfig {
   readonly help?: { readonly items: Signal<readonly Action[]>; readonly wikiUrl?: string };
   readonly footer?: { readonly links: readonly { readonly label: string; readonly link: RouteLink }[] };
   readonly a11yStatement: RouteLink;
+  /** Show "Barriere melden" in the accessibility menu; it emits the action `reportBarrier`. §S/framework/shell/002292 */
+  readonly reportBarrier?: boolean;
   readonly languages: readonly ShellLanguage[];
   /** The UI language: the kit texts and the language control follow it. */
   readonly language: { readonly current: Signal<string>; set(value: string): void };

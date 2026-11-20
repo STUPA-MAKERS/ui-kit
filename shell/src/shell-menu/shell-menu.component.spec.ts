@@ -6,10 +6,10 @@ import { DisplaySettingsService, type Action } from '@stupa-makers/ui-kit';
 
 import { ShellMenuComponent, type ShellMenuKind } from './shell-menu.component';
 
-async function setUp(menu: ShellMenuKind, items: readonly Action[] = []) {
+async function setUp(menu: ShellMenuKind, items: readonly Action[] = [], reportBarrier = false) {
   const action = jest.fn();
   const view = await render(ShellMenuComponent, {
-    inputs: { variant: 'sheet', menu, items, statementLink: { commands: ['/a11y'] } },
+    inputs: { variant: 'sheet', menu, items, statementLink: { commands: ['/a11y'] }, reportBarrier },
     on: { action },
     providers: [provideRouter([{ path: '**', children: [] }])],
   });
@@ -49,5 +49,17 @@ describe('ShellMenuComponent', () => {
     expect(screen.getByText('wiki.example.org/x')).toBeInTheDocument();
     await userEvent.click(screen.getByRole('button', { name: 'Problem melden' }));
     expect(action).toHaveBeenCalledWith('report');
+  });
+
+  // §S/framework/shell/002292
+  it('shows "Barriere melden" only when asked, and emits reportBarrier', async () => {
+    const { action } = await setUp('a11y', [], true);
+    await userEvent.click(screen.getByRole('button', { name: 'Barriere melden' }));
+    expect(action).toHaveBeenCalledWith('reportBarrier');
+  });
+
+  it('hides "Barriere melden" by default', async () => {
+    await setUp('a11y');
+    expect(screen.queryByRole('button', { name: 'Barriere melden' })).toBeNull();
   });
 });

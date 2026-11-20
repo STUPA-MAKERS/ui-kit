@@ -113,6 +113,8 @@ export class ShellMenuComponent {
   readonly items = input<readonly Action[]>([]);
   /** The route of the accessibility statement. */
   readonly statementLink = input<RouteLink>({ commands: ['/accessibility'] });
+  /** Show "Barriere melden" after the statement link. §S/framework/shell/002292 */
+  readonly reportBarrier = input(false);
 
   /** An entry of "Hilfe" without a route or a link was chosen: its key. */
   readonly action = output<string>();

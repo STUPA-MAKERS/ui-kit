@@ -103,6 +103,7 @@ export type UiKitTextKey =
   | 'menu.display.contrast'
   | 'menu.display.veryHigh'
   | 'menu.statement'
+  | 'menu.reportBarrier'
   | 'account.signedInAs'
   | 'account.language'
   | 'account.darkMode'
@@ -207,6 +208,7 @@ export const UI_KIT_DEFAULT_MESSAGES: Record<UiLang, UiKitMessages> = {
     'menu.display.contrast': 'Mehr Kontrast',
     'menu.display.veryHigh': 'Hoher Kontrast',
     'menu.statement': 'Erklärung zur Barrierefreiheit',
+    'menu.reportBarrier': 'Barriere melden',
     'account.signedInAs': 'Angemeldet als',
     'account.language': 'Sprache',
     'account.darkMode': 'Dunkles Design',
@@ -307,6 +309,7 @@ export const UI_KIT_DEFAULT_MESSAGES: Record<UiLang, UiKitMessages> = {
     'menu.display.contrast': 'More contrast',
     'menu.display.veryHigh': 'High contrast',
     'menu.statement': 'Accessibility statement',
+    'menu.reportBarrier': 'Report a barrier',
     'account.signedInAs': 'Signed in as',
     'account.language': 'Language',
     'account.darkMode': 'Dark theme',

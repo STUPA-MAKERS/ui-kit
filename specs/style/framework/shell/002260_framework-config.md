@@ -27,6 +27,7 @@ interface FrameworkConfig {
   readonly publicHead?: { readonly actions: Signal<readonly Action[]> };   // "Anmelden" of the public header
   readonly footer?: { readonly links: readonly { label: string; link: RouteLink }[] };
   readonly a11yStatement: RouteLink;                       // STUPA-Workflow:000496
+  readonly reportBarrier?: boolean;                        // "Barriere melden" (002292)
   readonly languages: readonly ShellLanguage[];
   readonly language: { readonly current: Signal<string>; set(value: string): void };
   readonly texts?: Signal<Record<string, string>>;         // overrides of kit.* (002223)

@@ -24,3 +24,4 @@ export * from './framework/routes';
 export * from './shell-menu/shell-menu.component';
 export * from './framework/framework-search.component';
 export * from './framework/framework-public-header.component';
+export * from './framework/a11y-routes';

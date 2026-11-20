@@ -79,6 +79,8 @@ import { FOCUS_H1 } from './routes';
           variant="rail"
           menu="a11y"
           [statementLink]="config.a11yStatement"
+          [reportBarrier]="!!config.reportBarrier"
+          (action)="action.emit($event)"
         />
       }
       @if (shell.current() === 'rail' && parts().help) {
@@ -95,6 +97,8 @@ import { FOCUS_H1 } from './routes';
           variant="sheet"
           menu="a11y"
           [statementLink]="config.a11yStatement"
+          [reportBarrier]="!!config.reportBarrier"
+          (action)="action.emit($event)"
         />
       }
       @if (shell.current() === 'rail' && parts().help) {

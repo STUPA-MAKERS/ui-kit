@@ -41,6 +41,12 @@
       <app-icon name="file" [size]="19" />
       <span class="hm__text">{{ 'menu.statement' | uiKitT }}</span>
     </a>
+    @if (reportBarrier()) {
+      <button type="button" class="hm__item" (click)="pick('reportBarrier')">
+        <app-icon name="alert" [size]="19" />
+        <span class="hm__text">{{ 'menu.reportBarrier' | uiKitT }}</span>
+      </button>
+    }
   } @else {
     @for (item of items(); track item.key) {
       @if (item.route; as route) {
