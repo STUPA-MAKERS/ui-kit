@@ -374,21 +374,6 @@
     box-shadow: inset -2px 0 0 var(--vh-fg) !important;
   }
 
-  // The open tab: a yellow plate that stands clear of the line of the tab bar, so the line
-  // runs through unbroken and the plate does not merge into it.
-  // Every tab takes the same room, so the texts of all tabs stay on one line.
-  [role='tablist'] [role='tab'] {
-    margin-block: 4px 6px;
-    padding-inline: var(--space-3);
-    border-radius: var(--radius-md);
-  }
-  [role='tablist'] [role='tab'][aria-selected='true'] {
-    box-shadow: none;
-  }
-  .tp__ink {
-    display: none;
-  }
-
   // The open item of the rail and of the bottom bar: black on a yellow pill.
   .rail__item.is-active .rail__ind,
   .bb__item.is-active .bb__ind {
@@ -537,7 +522,6 @@
     outline-offset: -2px;
   }
   .seg__opt,
-  [role='tablist'] [role='tab'],
   .chip,
   .rm__trigger,
   .btn[aria-pressed='false'],
@@ -547,7 +531,6 @@
     @include vh.edge;
   }
   .seg__opt--on,
-  [role='tablist'] [role='tab'][aria-selected='true'],
   .chip.on,
   .rm__trigger--on,
   .btn[aria-pressed='true'],
@@ -555,6 +538,46 @@
   :is(button, a)[aria-label][aria-pressed='true']:has(> app-icon:only-child, > svg:only-child),
   :is(button, a)[aria-label][aria-expanded='true']:has(> app-icon:only-child, > svg:only-child) {
     @include vh.fill;
+  }
+
+  // A tab bar (001980): one group as in the normal look. Each tab has yellow text and no
+  // edge, the white line runs under all tabs, and the open tab has bold text and a yellow bar
+  // of 4 px over the line.
+  // Each tab has 8 px more room at each side and the gap is 16 px less, so the distance
+  // between the texts stays as in the normal look and the focus ring stands clear of the text.
+  .tabs {
+    gap: var(--space-2);
+  }
+  .tabs__tab {
+    @include vh.text;
+    position: relative;
+    padding-inline: var(--space-3);
+  }
+  // The focus: a yellow ring of 3 px that ends 4 px above the bar of the open tab, so the
+  // ring and the bar both show.
+  .tabs .tabs__tab:focus-visible {
+    outline: none !important;
+    box-shadow: none !important;
+  }
+  .tabs .tabs__tab:focus-visible::before {
+    content: '';
+    position: absolute;
+    inset: 4px 2px 8px;
+    border-radius: var(--radius-sm);
+    box-shadow: inset 0 0 0 3px var(--vh-hi);
+    pointer-events: none;
+  }
+  .tabs__tab.tabs__tab--on {
+    background: linear-gradient(var(--vh-hi), var(--vh-hi)) bottom / 100% 4px no-repeat !important;
+    font-weight: var(--fw-bold);
+  }
+  // A paged tab bar draws the bar as the ink of the pager, so it moves with the swipe.
+  .tp__bar .tabs__tab.tabs__tab--on {
+    background: transparent !important;
+  }
+  .tp__ink {
+    height: 4px;
+    background: var(--vh-hi);
   }
 
   // The navigation (000616): yellow text and icons, no edge. The open entry keeps its pill.
