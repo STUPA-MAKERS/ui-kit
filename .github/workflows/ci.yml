@@ -20,6 +20,7 @@ jobs:
       # The functional-style warnings must not grow: lower the cap when the count drops.
       - run: npm run lint:functional
       - run: npm run build
+      - run: npm run build:showcase
       - run: npm test -- --ci
 
   specs:

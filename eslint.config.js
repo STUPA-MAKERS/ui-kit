@@ -17,7 +17,7 @@ module.exports = tseslint.config(
     extends: [eslint.configs.recommended, ...tseslint.configs.recommended],
     plugins: { '@angular-eslint': angular },
     languageOptions: {
-      parserOptions: { project: ['tsconfig.lib.json', 'tsconfig.spec.json'] },
+      parserOptions: { project: ['tsconfig.lib.json', 'tsconfig.spec.json', 'showcase/tsconfig.app.json'] },
     },
     rules: {
       '@angular-eslint/directive-selector': [
@@ -112,4 +112,14 @@ module.exports = tseslint.config(
       ],
     },
   })),
+  // The showcase app is not part of the package, so its selectors carry its own prefix (002209).
+  {
+    files: ['showcase/**/*.ts'],
+    rules: {
+      '@angular-eslint/component-selector': [
+        'error',
+        { type: 'element', prefix: 'sc', style: 'kebab-case' },
+      ],
+    },
+  },
 );

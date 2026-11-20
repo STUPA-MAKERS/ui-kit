@@ -27,6 +27,52 @@
           "defaultConfiguration": "production"
         }
       }
+    },
+    "showcase": {
+      "projectType": "application",
+      "root": "showcase",
+      "sourceRoot": "showcase/src",
+      "prefix": "sc",
+      "architect": {
+        "build": {
+          "builder": "@angular/build:application",
+          "options": {
+            "browser": "showcase/src/main.ts",
+            "index": "showcase/src/index.html",
+            "tsConfig": "showcase/tsconfig.app.json",
+            "outputPath": "dist/showcase",
+            "styles": [
+              "showcase/src/styles.scss"
+            ],
+            "assets": [
+              {
+                "glob": "**/*",
+                "input": "src/assets",
+                "output": "assets"
+              }
+            ]
+          },
+          "configurations": {
+            "production": {
+              "outputHashing": "all"
+            },
+            "development": {
+              "optimization": false,
+              "sourceMap": true
+            }
+          },
+          "defaultConfiguration": "production"
+        },
+        "serve": {
+          "builder": "@angular/build:dev-server",
+          "configurations": {
+            "development": {
+              "buildTarget": "showcase:build:development"
+            }
+          },
+          "defaultConfiguration": "development"
+        }
+      }
     }
   }
 }
