@@ -2,7 +2,7 @@
 id: "002231"
 title: The Action type has a fixed set of fields
 kind: style
-status: draft
+status: approved
 owner: frederikbeimgraben
 updated: 2026-11-20
 implementation: null
@@ -35,7 +35,7 @@ The kit must place actions so:
 
 | Priority | Wide (≥ 1200 px) | Narrow | Phone (< 768 px) |
 | --- | --- | --- | --- |
-| `head` | icon button in the head button group | icon button in the head button group | first two in the head, the rest in ⋮ |
+| `head` | icon button in the head button group | icon button in the head button group | the first one in the head (000197), the rest in ⋮ |
 | `menu` | ⋮ menu | ⋮ menu | ⋮ menu |
 | `fab` | FAB, more than one as a FAB group (001982) | FAB | FAB that folds on scroll (000567) |
 
