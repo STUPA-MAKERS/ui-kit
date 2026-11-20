@@ -21,6 +21,7 @@ export interface IconShape {
 /** Every icon name of the kit. */
 export type IconName =
   | 'alert'
+  | 'alignLeft'
   | 'archive'
   | 'arrow'
   | 'back'
@@ -159,6 +160,7 @@ export type IconName =
 /** Shapes per drawing. */
 const SHAPES: Record<string, readonly IconShape[]> = {
   alert: [{ t: 'path', d: 'M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z' }, { t: 'path', d: 'M12 9v4M12 17h.01' }],
+  alignLeft: [{ t: 'path', d: 'M4 6h16M4 10h10M4 14h16M4 18h10' }],
   archive: [{ t: 'rect', x: '3', y: '4', width: '18', height: '5', rx: '1' }, { t: 'path', d: 'M5 9v10a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V9' }, { t: 'path', d: 'M10 13h4' }],
   arrow: [{ t: 'path', d: 'M5 12h14M13 6l6 6-6 6' }],
   back: [{ t: 'path', d: 'M19 12H5M11 18l-6-6 6-6' }],
@@ -311,6 +313,7 @@ export function iconShapes(name: string): readonly IconShape[] | null {
 /** All icon names, for a gallery or a test. */
 export const ICON_NAMES: readonly IconName[] = [
   'alert',
+  'alignLeft',
   'archive',
   'arrow',
   'back',
