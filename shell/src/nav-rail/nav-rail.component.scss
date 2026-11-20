@@ -19,7 +19,8 @@
 
 .rail__main {
   display: flex;
-  flex: 0 1 auto;
+  // The surface fills the rail down to the tools, whatever the number of items (001441).
+  flex: 1 1 0;
   flex-direction: column;
   align-items: center;
   // The scroll part lies on a surface of its own, and the items cut hard at its rounded
@@ -99,7 +100,8 @@
 }
 
 .rail__spacer {
-  flex: 1 0 var(--space-4);
+  flex: none;
+  height: var(--space-4);
 }
 
 // The slots of the foot: a tool (a help menu), an item of the app and the account. An empty
