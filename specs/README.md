@@ -30,7 +30,7 @@ number space (`S/specs/sharing/002211`).
 | [S/framework/screens/002216](style/framework/screens/002216_screen-anatomy.md) | A screen has a head, a body and fixed places for the rest | approved |
 | [S/framework/screens/002217](style/framework/screens/002217_screen-inputs.md) | A screen takes its frame as data and its content as slots | approved |
 | [S/framework/screens/002218](style/framework/screens/002218_list-detail-contract.md) | The list/detail screen owns the list, the panes and the URL state | approved |
-| [S/framework/actions/002219](style/framework/actions/002219_action-model.md) | An action is data, and the screen places it | draft |
+| [S/framework/actions/002219](style/framework/actions/002219_action-model.md) | An action is data, and the screen places it | approved |
 | [S/framework/state/002220](style/framework/state/002220_load-state.md) | A load state is one type for every view | approved |
 | [S/framework/state/002221](style/framework/state/002221_ui-state-in-kit.md) | A kit component holds its UI state and the app holds the data | approved |
 | [S/framework/forms/002222](style/framework/forms/002222_form-definition.md) | A form is built from a definition | draft |

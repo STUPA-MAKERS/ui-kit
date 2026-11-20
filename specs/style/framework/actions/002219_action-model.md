@@ -2,7 +2,7 @@
 id: "002219"
 title: An action is data, and the screen places it
 kind: style
-status: draft
+status: approved
 owner: frederikbeimgraben
 updated: 2026-11-20
 implementation: null
