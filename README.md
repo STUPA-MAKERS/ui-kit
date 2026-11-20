@@ -59,7 +59,8 @@ Use the breakpoints in a stylesheet with `@use 'breakpoints' as bp;` and
 `mediaQuery(MEDIA.phone)` (a signal) or `matchesMedia(MEDIA.coarse)` (one read).
 
 The styles entry also holds the global loading placeholders (`.skel`, `.skel-text`,
-`.skel-box`, `.skel-progress`), the layout box `.page-shell`, the row groups and click rows
+`.skel-box`, `.skel-progress`, and for a head `.skel-grp` with `.skel-btn` and `.skel-chips`
+with `.skel-chip`), the layout box `.page-shell`, the row groups and click rows
 (`rowgroup.scss`: `.rowgroup`, `.rowgroup--bg1`, `.rowgroup--bg3`, `.rowgroup--settings`,
 `.rowgroup--records` and `.rowgroup__record` with `.rowgroup__title`, `.hitrow`) and the
 list/detail geometry (`list-detail.scss`: `--ld-list-width`, `--ld-gap`, `.ld-pane`). An app
