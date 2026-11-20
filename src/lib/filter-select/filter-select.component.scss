@@ -16,7 +16,8 @@
   min-width: 0;
   max-width: 100%;
 }
-/* The pill beside a search pill of size `md` (the meetings list). */
+/* A select in a field row, as high as a field. A filter chip is never `md`: it keeps the
+   look of the global `.chip`. */
 .fs__chip--md {
   height: 2.75rem;
   padding: 0 14px;
