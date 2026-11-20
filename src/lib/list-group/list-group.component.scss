@@ -49,9 +49,9 @@
 
 // Side by side, in a list column whose head lies over its rows (`.ld-pane--head`,
 // `styles/list-detail.scss`), the head of a group sticks right under the head of the
-// column (`--ld-pane-top`), the same as on a phone. Stuck, it takes the bar colour and the
-// rows run into it with round inner corners (`bar-corners`), as they do into the head of
-// the column. While it sits right under the head of the column (`lg__head--under`) the
+// column (`--ld-pane-top`), the same as on a phone. It keeps the page colour, as the head of
+// the column does on a wide screen (000527), and while stuck the rows run into it with round
+// inner corners (`bar-corners`), as they do into the head of the column. While it sits right under the head of the column (`lg__head--under`) the
 // column hides its own corners, so only the lowest head has them.
 :host-context(.ld-pane--head) .lg__head {
   position: sticky;
@@ -61,11 +61,13 @@
   z-index: 2;
   @include bar(var(--stb-bg, var(--color-bg)));
 }
-:host-context(.ld-pane--head) .lg__head--stuck {
-  @include bar(var(--stb-bg, var(--color-bg)), $scrolled: true);
+@include bp.phone {
+  :host-context(.ld-pane--head) .lg__head--stuck {
+    @include bar(var(--stb-bg, var(--color-bg)), $scrolled: true);
+  }
 }
 @include bp.not-phone {
   :host-context(.ld-pane--head) .lg__head--stuck::before {
-    @include bar-corners(var(--radius-xl));
+    @include bar-corners(var(--radius-xl), var(--stb-bg, var(--color-bg)));
   }
 }

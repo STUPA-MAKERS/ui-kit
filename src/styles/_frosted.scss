@@ -24,11 +24,11 @@
   }
 }
 
-/* Round inner corners below a scrolled head on a wide screen: a strip of `$radius` below
-   the box with a concave quarter circle of the bar colour at each side, so the rows run
-   into the head as into the edge of a surface. Put it on a pseudo-element of a host with
-   `position`. */
-@mixin bar-corners($radius) {
+/* Round inner corners below a head on a wide screen while rows are under it: a strip of
+   `$radius` below the box with a concave quarter circle of `$color` (the colour of the head)
+   at each side, so the rows run into the head as into the edge of a surface. Put it on a
+   pseudo-element of a host with `position`. */
+@mixin bar-corners($radius, $color) {
   content: '';
   position: absolute;
   inset-inline: 0;
@@ -38,10 +38,10 @@
     radial-gradient(
         circle at 100% 100%,
         transparent calc(#{$radius} - 0.5px),
-        var(--color-bar) #{$radius}
+        #{$color} #{$radius}
       )
       left top / #{$radius} #{$radius} no-repeat,
-    radial-gradient(circle at 0 100%, transparent calc(#{$radius} - 0.5px), var(--color-bar) #{$radius})
+    radial-gradient(circle at 0 100%, transparent calc(#{$radius} - 0.5px), #{$color} #{$radius})
       right top / #{$radius} #{$radius} no-repeat;
   pointer-events: none;
 }

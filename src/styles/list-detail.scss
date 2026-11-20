@@ -217,8 +217,9 @@
 }
 // The head of the column: one solid layer from the top edge of the screen to the lower edge
 // of the head, behind the header, the search bar and the filters (`bar`, app spec 002010).
-// At rest it has the page colour. While rows are under it (`.ld-pane--scrolled`) it takes the
-// bar colour, the step in colour marks the edge, and it has no shadow.
+// It has the page colour. On a phone, while rows are under it (`.ld-pane--scrolled`), it
+// takes the bar colour, the step in colour marks the edge, and it has no shadow. On a wide
+// screen it keeps the page colour in every state (000527).
 .ld-pane--head::before {
   content: '';
   position: absolute;
@@ -229,22 +230,22 @@
   pointer-events: none;
   @include bar(var(--stb-bg, var(--color-bg)));
 }
-.ld-pane--head.ld-pane--scrolled::before {
-  @include bar(var(--stb-bg, var(--color-bg)), $scrolled: true);
-}
 // On a phone the head runs from screen edge to screen edge over the gutter of the page
 // (`--stb-bleed`), as the phone list bar does, and ends in a straight edge.
 @include bp.phone {
   .ld-pane--head::before {
     inset-inline: calc(-1 * var(--stb-bleed, var(--space-4)));
   }
+  .ld-pane--head.ld-pane--scrolled::before {
+    @include bar(var(--stb-bg, var(--color-bg)), $scrolled: true);
+  }
 }
-// On a wide screen the rows run into the scrolled head with round inner corners at both
-// sides of the column (`bar-corners`). A group head right under the head of the column
+// On a wide screen the rows run into the head with round inner corners at both sides of the
+// column while rows are under it (`bar-corners`, 000193). A group head right under the head of the column
 // carries the corners itself (`ListGroupComponent`).
 @include bp.not-phone {
   .ld-pane--head.ld-pane--scrolled::after {
-    @include bar-corners(var(--radius-xl));
+    @include bar-corners(var(--radius-xl), var(--stb-bg, var(--color-bg)));
     top: var(--ld-pane-top);
     z-index: 1;
   }

@@ -355,7 +355,7 @@ describe('StickyBarCut', () => {
   it('draws round inner corners below the bar, not a fade', () => {
     expect(scss).not.toMatch(/linear-gradient\(to bottom, var\(--stb-bg/);
     expect(scss).toMatch(/:host::after \{[^}]*@include bar-corners\(/);
-    const corners = block(read('_frosted.scss'), '@mixin bar-corners($radius) {');
+    const corners = block(read('_frosted.scss'), '@mixin bar-corners($radius, $color) {');
     expect(corners).toMatch(/radial-gradient\(\s*circle at 100% 100%/);
     expect(corners).toMatch(/radial-gradient\(circle at 0 100%/);
   });

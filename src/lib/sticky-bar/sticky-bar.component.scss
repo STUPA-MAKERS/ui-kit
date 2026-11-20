@@ -28,18 +28,13 @@
   z-index: var(--z-dialog);
 }
 
-/* While rows scroll under the bar (`stb--stuck`) it takes the bar colour (`bar`, app spec
-   002010): the step from the page colour marks the edge, so it has no shadow. */
-:host(.stb--stuck) {
-  @include bar(var(--stb-bg, var(--color-bg)), $scrolled: true);
-}
-
-/* The cut below the bar on a wide screen: the rows cut hard at the lower edge of the bar,
-   with round inner corners at both sides, so they run into the bar as into the edge of a
-   surface and do not fade (app spec 000193). Only while rows scroll under it. */
+/* The cut below the bar on a wide screen: the bar keeps the page colour, and the rows cut
+   hard at its lower edge with round inner corners at both sides, so they run into the bar
+   as into the edge of a surface and do not fade (app spec 000193). Only while rows scroll
+   under it. */
 :host::after {
   --stb-corner: var(--radius-xl);
-  @include bar-corners(var(--stb-corner));
+  @include bar-corners(var(--stb-corner), var(--stb-bg, var(--color-bg)));
   opacity: 0;
   transition: opacity var(--motion-fast) var(--ease-standard);
 }
@@ -53,13 +48,17 @@
    gutter at the sides, so the stuck field sits as far from the top of the screen as from
    its edges. At rest the bar has no colour of its own: its top padding reaches over the
    lower edge of the page header, so a solid bar cuts the outline of a round button in
-   that header. */
+   that header. Only on a phone does the stuck bar take the bar colour (`bar`, app spec
+   002010): the step from the page colour marks the edge, so it has no shadow. */
 @include bp.phone {
   :host {
     margin-inline: calc(-1 * var(--stb-bleed, var(--space-4)));
     margin-top: calc(-1 * var(--stb-bleed, var(--space-4)));
     padding-inline: var(--stb-bleed, var(--space-4));
     padding-top: var(--stb-bleed, var(--space-4));
+  }
+  :host(.stb--stuck) {
+    @include bar(var(--stb-bg, var(--color-bg)), $scrolled: true);
   }
   :host(:not(.stb--stuck)) {
     background: transparent;
