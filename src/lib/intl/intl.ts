@@ -93,6 +93,16 @@ export type UiKitTextKey =
   | 'shell.brand'
   | 'shell.markNew'
   | 'shell.markWarn'
+  | 'menu.help'
+  | 'menu.a11y'
+  | 'menu.display'
+  | 'menu.display.reset'
+  | 'menu.display.dark'
+  | 'menu.display.motion'
+  | 'menu.display.transparency'
+  | 'menu.display.contrast'
+  | 'menu.display.veryHigh'
+  | 'menu.statement'
   | 'account.signedInAs'
   | 'account.language'
   | 'account.darkMode'
@@ -186,6 +196,16 @@ export const UI_KIT_DEFAULT_MESSAGES: Record<UiLang, UiKitMessages> = {
     'shell.brand': '{name}, Start',
     'shell.markNew': 'neu',
     'shell.markWarn': 'Achtung',
+    'menu.help': 'Hilfe',
+    'menu.a11y': 'Barrierefreiheit',
+    'menu.display': 'Darstellung',
+    'menu.display.reset': 'Systemeinstellungen verwenden',
+    'menu.display.dark': 'Dunkles Design',
+    'menu.display.motion': 'Weniger Bewegung',
+    'menu.display.transparency': 'Weniger Transparenz',
+    'menu.display.contrast': 'Mehr Kontrast',
+    'menu.display.veryHigh': 'Hoher Kontrast',
+    'menu.statement': 'Erklärung zur Barrierefreiheit',
     'account.signedInAs': 'Angemeldet als',
     'account.language': 'Sprache',
     'account.darkMode': 'Dunkles Design',
@@ -275,6 +295,16 @@ export const UI_KIT_DEFAULT_MESSAGES: Record<UiLang, UiKitMessages> = {
     'shell.brand': '{name}, home',
     'shell.markNew': 'new',
     'shell.markWarn': 'attention',
+    'menu.help': 'Help',
+    'menu.a11y': 'Accessibility',
+    'menu.display': 'Display',
+    'menu.display.reset': 'Use system settings',
+    'menu.display.dark': 'Dark theme',
+    'menu.display.motion': 'Less motion',
+    'menu.display.transparency': 'Less transparency',
+    'menu.display.contrast': 'More contrast',
+    'menu.display.veryHigh': 'High contrast',
+    'menu.statement': 'Accessibility statement',
     'account.signedInAs': 'Signed in as',
     'account.language': 'Language',
     'account.darkMode': 'Dark theme',

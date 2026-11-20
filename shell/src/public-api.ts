@@ -21,3 +21,4 @@ export * from './route-motion';
 export * from './framework/framework';
 export * from './framework/framework-shell.component';
 export * from './framework/routes';
+export * from './shell-menu/shell-menu.component';

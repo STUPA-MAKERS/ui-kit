@@ -16,6 +16,7 @@ import { IconComponent, ThemeService, UiKitTranslatePipe, type Action } from '@s
 import { AccountMenuComponent } from '../account-menu/account-menu.component';
 import { NavMarkDirective } from '../nav-mark.directive';
 import { ShellComponent } from '../shell/shell.component';
+import { ShellMenuComponent } from '../shell-menu/shell-menu.component';
 import type { ShellBrand } from '../shell.types';
 import { FRAMEWORK, frameworkParts } from './framework';
 import { FOCUS_H1 } from './routes';
@@ -40,6 +41,7 @@ import { FOCUS_H1 } from './routes';
     ShellComponent,
     NavMarkDirective,
     AccountMenuComponent,
+    ShellMenuComponent,
     RouterLink,
     IconComponent,
     UiKitTranslatePipe,
@@ -65,6 +67,39 @@ import { FOCUS_H1 } from './routes';
           }
         }
       </ng-template>
+
+      @if (shell.current() === 'rail') {
+        <app-shell-menu
+          shellRailTools
+          variant="rail"
+          menu="a11y"
+          [statementLink]="config.a11yStatement"
+        />
+      }
+      @if (shell.current() === 'rail' && parts().help) {
+        <app-shell-menu
+          shellRailTools
+          variant="rail"
+          [items]="helpItems()"
+          (action)="action.emit($event)"
+        />
+      }
+      @if (shell.current() === 'rail') {
+        <app-shell-menu
+          shellMore
+          variant="sheet"
+          menu="a11y"
+          [statementLink]="config.a11yStatement"
+        />
+      }
+      @if (shell.current() === 'rail' && parts().help) {
+        <app-shell-menu
+          shellMore
+          variant="sheet"
+          [items]="helpItems()"
+          (action)="action.emit($event)"
+        />
+      }
 
       @if (shell.current() === 'rail' && person(); as who) {
         <app-account-menu
@@ -210,6 +245,7 @@ export class FrameworkShellComponent {
   protected readonly accountItems = computed<readonly Action[]>(
     () => this.config.account?.items() ?? [],
   );
+  protected readonly helpItems = computed<readonly Action[]>(() => this.config.help?.items() ?? []);
   protected readonly footerShown = computed(() => this.parts().footer);
 }
 
