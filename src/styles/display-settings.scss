@@ -542,10 +542,30 @@
 
   // A tab bar (001980): one group as in the normal look. Each tab has yellow text and no
   // edge, the white line runs under all tabs, and the open tab has bold text and a yellow bar
-  // of 4 px over the line. The bar is a background, so the focus ring (a box-shadow) does not
-  // hide it.
+  // of 4 px over the line.
+  // Each tab has 8 px more room at each side and the gap is 16 px less, so the distance
+  // between the texts stays as in the normal look and the focus ring stands clear of the text.
+  .tabs {
+    gap: var(--space-2);
+  }
   .tabs__tab {
     @include vh.text;
+    position: relative;
+    padding-inline: var(--space-3);
+  }
+  // The focus: a yellow ring of 3 px that ends 4 px above the bar of the open tab, so the
+  // ring and the bar both show.
+  .tabs .tabs__tab:focus-visible {
+    outline: none !important;
+    box-shadow: none !important;
+  }
+  .tabs .tabs__tab:focus-visible::before {
+    content: '';
+    position: absolute;
+    inset: 4px 2px 8px;
+    border-radius: var(--radius-sm);
+    box-shadow: inset 0 0 0 3px var(--vh-hi);
+    pointer-events: none;
   }
   .tabs__tab.tabs__tab--on {
     background: linear-gradient(var(--vh-hi), var(--vh-hi)) bottom / 100% 4px no-repeat !important;

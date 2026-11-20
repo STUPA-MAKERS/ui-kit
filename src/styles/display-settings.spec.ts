@@ -485,6 +485,13 @@ describe('veryHighTabBar (§001980)', () => {
     expect(open).not.toMatch(/box-shadow|outline/);
   });
 
+  it('draws the focus ring above the bar, so the ring and the bar both show', () => {
+    expect(controlRule('.tabs .tabs__tab:focus-visible')).toMatch(/box-shadow: none !important;/);
+    const ring = controlRule('.tabs .tabs__tab:focus-visible::before');
+    expect(ring).toMatch(/inset: 4px 2px 8px;/);
+    expect(ring).toMatch(/box-shadow: inset 0 0 0 3px var\(--vh-hi\);/);
+  });
+
   it('lets the ink of a paged tab bar draw the bar, so it moves with the swipe', () => {
     expect(controlRule('.tp__bar .tabs__tab.tabs__tab--on')).toMatch(/background: transparent !important;/);
     const ink = controlRule('.tp__ink');
