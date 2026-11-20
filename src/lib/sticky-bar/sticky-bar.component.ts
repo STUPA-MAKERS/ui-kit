@@ -17,7 +17,7 @@ import { ancestors, nextSiblings } from '../util/dom-walk';
  * The bar is `position: sticky` at the top of the viewport, below the shell header and
  * the safe area (`--layout-header-height`, `env(safe-area-inset-top)`). It is solid, so the
  * rows that scroll under it do not show through. While rows are under it (the bar is
- * "stuck") it takes the bar colour (`--color-bar`, app spec 002010), and on a wide screen
+ * "stuck") it is solid in the colour of the page (app spec 002010), and on a wide screen
  * the rows cut at its lower edge with round inner corners. On a phone the bar runs from
  * edge to edge, with a straight lower edge.
  *

@@ -363,7 +363,7 @@ describe('StickyBarCut', () => {
 
 /**
  * Bars and heads that content scrolls under are solid (app 002010): no blur, no tint, no
- * shadow. At rest they have the colour they sit on, scrolled the bar colour. Only a floating
+ * shadow. They keep the colour they sit on, also scrolled. Only a floating
  * box (`frosted-pop`) keeps the glass.
  */
 describe('SolidBars', () => {
@@ -386,9 +386,10 @@ describe('SolidBars', () => {
     }
   });
 
-  it('gives a scrolled bar the bar colour and the edge of very high contrast', () => {
+  it('keeps the colour of a scrolled bar and gives it the edge of very high contrast', () => {
     const mixin = block(read('_frosted.scss'), '@mixin bar($color, $scrolled: false) {');
-    expect(mixin).toMatch(/background: var\(--color-bar\);\s*box-shadow: var\(--bar-edge, none\);/);
+    expect(mixin).toMatch(/background: var\(--bar-scrolled, #\{\$color\}\);\s*box-shadow: var\(--bar-edge, none\);/);
+    expect(mixin).not.toMatch(/--color-bar/);
     for (const path of BARS.slice(1)) expect(read(path)).toMatch(/\$scrolled: true/);
   });
 

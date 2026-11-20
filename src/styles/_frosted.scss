@@ -9,14 +9,17 @@
 
 /* A bar or a head that content scrolls under: the bottom bar, the bar of a detail, the
    search bar of a list, the head of a list column, a pinned group head, a tab line. It is
-   solid. At rest it has the colour of what it sits on (`$color`). While content runs under
-   it (`$scrolled: true`, the stuck or scrolled state) it takes the bar colour
-   (`--color-bar`, surface 3), the colour of the bottom bar: the step in colour marks the
-   edge, so it has no shadow. In very high contrast every surface is black, so the scrolled
-   bar has the white edge of a surface at its foot instead (`--bar-edge`). */
+   solid and keeps the colour of what it sits on (`$color`), also while content runs under
+   it (`$scrolled: true`, the stuck or scrolled state). The rows that run under it are
+   surfaces of another colour, so their edge marks the foot of the bar, and the colour of
+   the head stays the colour of the system bar above it (app spec 002010). A switch of the
+   colour on scroll lagged behind the scroll on a phone, left an edge under the system bar
+   and lowered the contrast of the text in the head, so there is none. In very high
+   contrast every surface is black, so the scrolled bar has the white edge of a surface at
+   its foot (`--bar-edge`). `--bar-scrolled` can give a scrolled bar another colour. */
 @mixin bar($color, $scrolled: false) {
   @if $scrolled {
-    background: var(--color-bar);
+    background: var(--bar-scrolled, #{$color});
     box-shadow: var(--bar-edge, none);
   } @else {
     background: $color;

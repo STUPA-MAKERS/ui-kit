@@ -37,8 +37,7 @@
 /* On a phone, and below the bar of a one-view detail (`.ld-under-bar`, also on a wide
    screen), the tab line sticks under the top bar of the page (`--ld-sticky-top`), so the
    tabs stay in reach while the page scrolls. It is solid (`bar`, app spec 002010): at rest
-   in the colour of the page, stuck under the bar in the bar colour, the same as the bar
-   above it, so the two read as one head. The tab line is the edge. */
+   and stuck in the colour of the page, the same as the bar above it, so the two read as one head. The tab line is the edge. */
 @mixin sticky-tabs($bar: '.tp__bar') {
   #{$bar} {
     position: sticky;
