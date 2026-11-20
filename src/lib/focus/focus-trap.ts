@@ -57,8 +57,8 @@ export function trapTab(event: KeyboardEvent, root: HTMLElement, options: TrapTa
   }
 }
 
-/** The open locks of a document and the overflow of its root before the first of them. */
-const locks = new WeakMap<Document, { count: number; before: string }>();
+/** The open locks of a document (one token each) and the overflow of its root before the first. */
+const locks = new WeakMap<Document, { readonly tokens: ReadonlySet<object>; readonly before: string }>();
 
 /**
  * Stop the page behind an overlay from scrolling: `overflow: hidden` on the root element. The
@@ -78,17 +78,19 @@ const locks = new WeakMap<Document, { count: number; before: string }>();
  */
 export function lockBodyScroll(doc: Document = document): () => void {
   const root = doc.documentElement;
-  const held = locks.get(doc) ?? { count: 0, before: root.style.overflow };
-  held.count += 1;
-  locks.set(doc, held);
+  const token = Object.freeze({});
+  const held = locks.get(doc);
+  locks.set(doc, { tokens: new Set([...(held?.tokens ?? []), token]), before: held?.before ?? root.style.overflow });
   root.style.overflow = 'hidden';
-  let locked = true;
   return () => {
-    if (!locked) return;
-    locked = false;
-    held.count -= 1;
-    if (held.count > 0) return;
+    const current = locks.get(doc);
+    if (!current?.tokens.has(token)) return;
+    const rest = new Set([...current.tokens].filter((t) => t !== token));
+    if (rest.size > 0) {
+      locks.set(doc, { tokens: rest, before: current.before });
+      return;
+    }
     locks.delete(doc);
-    root.style.overflow = held.before;
+    root.style.overflow = current.before;
   };
 }
