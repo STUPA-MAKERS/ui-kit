@@ -52,47 +52,24 @@
   }
 }
 
-// The ripple on its own layer (`press-ripple.ts`, `showLayer`, app spec 002164): a box over
-// the pressed element with a circle that grows by `transform` and a fade by `opacity`, so
-// the compositor runs it while the page renders. The host turns its own ripple off.
-[data-press-layer] {
-  --press-tint: transparent;
-}
-.press-layer {
-  position: fixed;
-  z-index: 2147483647;
+// The ripple of Angular Material (`press-ripple.ts`, app spec 002164): a box inside the
+// pressed surface that holds the circles of `RippleRenderer`. It fills the surface, takes its
+// corners and clips, so the ripple moves, scrolls and goes with the surface. The host turns
+// its CSS ripple off (`--press-paint` inline, `_press.scss`).
+.press-ink {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
   overflow: hidden;
+  border-radius: inherit;
   pointer-events: none;
   contain: strict;
 }
-.press-layer__wave {
-  position: absolute;
-  border-radius: 50%;
-  background: var(--press-tint);
-  transform: scale(0);
-  animation: press-wave var(--motion-slow) var(--ease-standard) forwards;
-}
-.press-layer--out {
-  animation: press-layer-out var(--motion-base) var(--ease-standard) var(--press-hold, 0ms) forwards;
-}
-// A view transition starts: the ripple stops at its full circle and full tint, because the
-// still picture of the page would hold it in the middle of its growth (`settlePressLayers`).
-.press-layer--settled,
-.press-layer--settled .press-layer__wave {
-  animation: none;
-}
-.press-layer--settled .press-layer__wave {
-  transform: scale(1);
-}
-@keyframes press-wave {
-  to {
-    transform: scale(1);
-  }
-}
-@keyframes press-layer-out {
-  to {
-    opacity: 0;
-  }
+// A view transition starts: the circle shows its end, because the still picture of the page
+// would hold it in the middle of its growth.
+html[data-motion] .press-ink .mat-ripple-element {
+  transition: none !important;
+  transform: scale3d(1, 1, 1) !important;
 }
 
 // A touch screen: a press and hold on the interface (a heading, a label, a row title, a

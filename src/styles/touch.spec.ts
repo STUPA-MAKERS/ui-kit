@@ -85,7 +85,7 @@ describe('touch rules in the stylesheets', () => {
     expect(tokens).not.toContain('--press-scale');
     const press = read('_press.scss');
     expect(press).toMatch(
-      /radial-gradient\(\s*circle at var\(--ripple-x, 50%\) var\(--ripple-y, 50%\),\s*var\(--press-tint\) var\(--press-ripple\),\s*transparent var\(--press-ripple\)\s*\)/,
+      /radial-gradient\(\s*circle at var\(--ripple-x, 50%\) var\(--ripple-y, 50%\),\s*var\(--press-paint, var\(--press-tint\)\) var\(--press-ripple\),\s*transparent var\(--press-ripple\)\s*\)/,
     );
     expect(press).toMatch(/animation: press-ripple var\(--motion-slow\) var\(--ease-standard\) forwards;/);
     expect(press).toMatch(/animation: press-fade var\(--motion-base\) var\(--ease-standard\) forwards;/);
@@ -96,6 +96,10 @@ describe('touch rules in the stylesheets', () => {
     for (const prop of ['--press-ripple', '--press-fade', '--press-host']) {
       expect(base).toMatch(new RegExp(`@property ${prop} \\{[^}]*inherits: false;`));
     }
+    // The box of the ripple of Angular Material clips to the surface; a view transition shows its end (002164).
+    expect(base).toMatch(/\.press-ink \{[^}]*position: absolute;[^}]*inset: 0;[^}]*overflow: hidden;[^}]*border-radius: inherit;/);
+    expect(base).toMatch(/html\[data-motion\] \.press-ink \.mat-ripple-element \{[^}]*transition: none !important;/);
+    expect(press).toMatch(/@mixin host \{\s*--press-host: 1;\s*--press-paint: initial;/);
     expect(base).toMatch(/@keyframes press-ripple \{[\s\S]*?--press-ripple: var\(--ripple-r, 150vmax\);/);
     // With less motion every animation runs to its end at once, so the tint shows at once.
     expect(base).toMatch(/animation-duration: 0\.01ms !important;/);

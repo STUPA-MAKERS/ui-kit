@@ -1,27 +1,38 @@
-import { DOCUMENT, EnvironmentProviders, inject, provideAppInitializer } from '@angular/core';
+import {
+  DOCUMENT,
+  EnvironmentProviders,
+  Injector,
+  NgZone,
+  inject,
+  provideAppInitializer,
+} from '@angular/core';
+import { Platform } from '@angular/cdk/platform';
+import { RippleRenderer, RippleState, type RippleConfig, type RippleRef, type RippleTarget } from '@angular/material/core';
 
 /** How long the tint fades out after a release (`--motion-base`), with a margin. */
 export const PRESS_FADE_MS = 240;
 
 /**
- * How long the ripple of a layer shows at least before it fades (app spec 002164). A tap
- * on a phone lasts 50 to 100 ms; without the hold the circle faded before it had grown.
- */
-export const PRESS_HOLD_MS = 225;
-
-/**
  * How far a pointer may move before the press counts as a drag (a scroll, a pull to refresh,
- * a swipe), in CSS pixels. The ripple then goes, because its layer stays where the press was
- * while the content moves (app spec 002164). A page that handles the drag itself (a pull to
- * refresh) gets no `pointercancel` from the browser.
+ * a swipe), in CSS pixels. The ripple then fades, as on a native list (app spec 002164). A
+ * page that handles the drag itself (a pull to refresh) gets no `pointercancel`.
  */
 export const PRESS_SLOP_PX = 8;
+
+/** The enter and exit time of the ripple, in ms (Material's own values). */
+const ANIMATION = { enterDuration: 225, exitDuration: 150 } as const;
 
 /** The keys that press a focused control. */
 const PRESS_KEYS = new Set(['Enter', ' ']);
 
 /** A field takes Enter and Space as text, so a key there presses nothing. */
 const TEXT_FIELD = 'input, textarea, select, [contenteditable]:not([contenteditable="false"])';
+
+/** The marked part of a host that shows its ripple, for example the pill of a bar entry. */
+const SURFACE = '[data-press-surface]';
+
+/** The attribute on a host whose ripple MatRipple draws; `--press-paint` turns its CSS ripple off. */
+export const PRESS_INK_ATTR = 'data-press-ink';
 
 /**
  * The element that paints the ripple for a press on `start`: the nearest element, from
@@ -48,9 +59,9 @@ export interface PressPoint {
 }
 
 /**
- * Write the point of the press and the radius of the ripple to the painters of `host`. The
- * radius is the distance from the point to the farthest corner of the host, so the circle
- * covers the host when it ends. A point of null is the centre (a press with a key).
+ * Write the point of the press and the radius of the ripple to the painters of `host`, for
+ * the CSS ripple of a table row (`_press.scss`). The radius is the distance from the point
+ * to the farthest corner of the host. A point of null is the centre (a press with a key).
  */
 export function placeRipple(host: HTMLElement, point: PressPoint | null): void {
   const box = host.getBoundingClientRect();
@@ -65,209 +76,190 @@ export function placeRipple(host: HTMLElement, point: PressPoint | null): void {
   });
 }
 
-/** The attribute on a host while its ripple is a layer (`showLayer`). */
-export const PRESS_LAYER_ATTR = 'data-press-layer';
+/**
+ * End a ripple at a release. A ripple that still grows fades when it has grown, so a short
+ * tap shows the whole circle; Material does that for a ripple that is not persistent. Every
+ * ripple starts persistent, because the renderer does not see the pointer here and would end
+ * a held press after its growth.
+ */
+function release(ref: RippleRef): void {
+  if (ref.state === RippleState.FADING_IN) ref.config = { ...ref.config, persistent: false };
+  else ref.fadeOut();
+}
 
-/** The marked part of a host that shows its ripple, for example the pill of a bar entry. */
-const SURFACE = '[data-press-surface]';
+/** What a {@link RippleRenderer} needs from Angular. */
+export interface PressRippleDeps {
+  readonly zone: NgZone;
+  readonly platform: Platform;
+  readonly injector: Injector;
+}
 
-/** A ripple on its own layer, with the host that it paints for. */
-interface Layer {
-  readonly host: HTMLElement;
-  readonly el: HTMLElement;
-  /** The time of the press (`performance.now()`), for {@link PRESS_HOLD_MS}. */
-  readonly at: number;
+/** The ripple of one host: the renderer of Angular Material and the box it draws in. */
+interface Ink {
+  readonly renderer: RippleRenderer;
+  readonly target: RippleTarget;
 }
 
 /**
- * Show the ripple of a press on `host` as a layer of its own above the page: a box with
- * the place, the corners and the tint of the host (or of its `[data-press-surface]`
- * part), with a circle in it that grows by `transform` from the point of the press (app
- * spec 002164). Only `transform` and `opacity` move, so the browser runs the ripple on the
- * compositor, and it keeps moving while a tap renders a new page. The host gets
- * `data-press-layer`, which turns its CSS ripple off (`base.scss`).
- *
- * The layer is not a child of the host, so no selector of the host (`:only-child`,
- * `:has(…)`) sees it. Null in the top layer (an open popover or dialog), where a layer of
- * the page would lie under it: there the CSS ripple of the host shows.
+ * The target of a renderer: its config is read at each press, so a change of the theme or
+ * of the disabled state counts.
  */
-export function showLayer(host: HTMLElement, point: PressPoint | null): Layer | null {
+class InkTarget implements RippleTarget {
+  rippleConfig: RippleConfig = {};
+  constructor(private readonly host: HTMLElement) {}
+  get rippleDisabled(): boolean {
+    const host = this.host;
+    return (host as HTMLButtonElement).disabled === true || host.getAttribute('aria-disabled') === 'true';
+  }
+}
+
+/**
+ * The box that the ripple of `host` draws in, inside its surface (the `[data-press-surface]`
+ * part, or the host): an absolute child that fills the surface, with its corners
+ * (`--press-radius` when the host sets one, for example the pill of a tab) and clipped, so
+ * the ripple moves, scrolls and goes with the surface (app spec 002164).
+ */
+function inkBox(host: HTMLElement): HTMLElement {
+  const surface = host.querySelector<HTMLElement>(SURFACE) ?? host;
   const doc = host.ownerDocument;
   const view = doc.defaultView;
-  // A host in a popover shows only while the popover is open, so a popover counts as open.
-  if (!view || host.closest('[popover], dialog[open]')) return null;
-  const surface = host.querySelector<HTMLElement>(SURFACE) ?? host;
-  const box = surface.getBoundingClientRect();
-  if (!box.width || !box.height) return null;
-  const style = view.getComputedStyle(surface);
-  // A host can ask for another shape of its ripple (`--press-radius`), for example a tab
-  // whose box is square because of the line under it: its ripple is a pill.
-  const radius = style.getPropertyValue('--press-radius').trim() || style.borderRadius;
-  // A marked part ripples from its centre, as the CSS ripple of the bar entries did.
-  const from = surface === host ? point : null;
-  const x = (from ? from.x : box.left + box.width / 2) - box.left;
-  const y = (from ? from.y : box.top + box.height / 2) - box.top;
-  const r = Math.ceil(Math.hypot(Math.max(x, box.width - x), Math.max(y, box.height - y)));
-  const el = doc.createElement('div');
-  el.className = 'press-layer';
-  el.setAttribute('aria-hidden', 'true');
-  el.setAttribute(
-    'style',
-    `left:${box.left}px;top:${box.top}px;width:${box.width}px;height:${box.height}px;` +
-      `border-radius:${radius};color:${style.color}`,
-  );
-  const tint = view.getComputedStyle(host).getPropertyValue('--press-tint').trim();
-  if (tint) el.style.setProperty('--press-tint', tint);
-  const wave = doc.createElement('div');
-  wave.className = 'press-layer__wave';
-  wave.setAttribute('style', `left:${x - r}px;top:${y - r}px;width:${2 * r}px;height:${2 * r}px`);
-  el.appendChild(wave);
-  doc.body.appendChild(el);
-  host.setAttribute(PRESS_LAYER_ATTR, '');
-  return { host, el, at: view.performance.now() };
-}
-
-/** The class that stops a layer at its full circle (see {@link settlePressLayers}). */
-const SETTLED = 'press-layer--settled';
-
-/**
- * Stop every ripple layer of `doc` at its full circle and full tint. Call it when a view
- * transition starts: the browser shows a still picture of the page until the new page has
- * rendered, so a ripple in the middle of its growth would stand still there (app spec
- * 002164). A full tint reads as the pressed row that the new page replaces. The layer
- * goes when its host leaves the page.
- */
-export function settlePressLayers(doc: Document): void {
-  doc.querySelectorAll('.press-layer').forEach((el) => el.classList.add(SETTLED));
+  const position = view?.getComputedStyle(surface).position;
+  if (!position || position === 'static') surface.style.setProperty('position', 'relative');
+  const box = doc.createElement('span');
+  box.classList.add('press-ink');
+  box.setAttribute('aria-hidden', 'true');
+  const radius = view?.getComputedStyle(host).getPropertyValue('--press-radius').trim();
+  if (radius) box.style.setProperty('border-radius', radius);
+  surface.appendChild(box);
+  return box;
 }
 
 /**
- * Fade a layer out (`press-layer--out`) and remove it after the fade. A release keeps the
- * ripple until {@link PRESS_HOLD_MS} after the press (the fade waits by
- * `--press-hold`); a cancel (the touch became a scroll) fades at once.
- */
-function hideLayer(layer: Layer, hold: boolean): ReturnType<typeof setTimeout> {
-  const now = layer.el.ownerDocument.defaultView?.performance.now() ?? layer.at;
-  const wait = hold ? Math.max(0, Math.round(PRESS_HOLD_MS - (now - layer.at))) : 0;
-  layer.el.style.setProperty('--press-hold', `${wait}ms`);
-  layer.el.classList.add('press-layer--out');
-  return setTimeout(() => dropLayer(layer), wait + PRESS_FADE_MS);
-}
-
-function dropLayer(layer: Layer): void {
-  layer.el.remove();
-  layer.host.removeAttribute(PRESS_LAYER_ATTR);
-}
-
-/** A host whose tint fades out, and the timer that ends the fade. */
-interface Fade {
-  readonly host: HTMLElement;
-  readonly timer: ReturnType<typeof setTimeout>;
-  readonly layer?: Layer;
-}
-
-/**
- * The listeners of `installPressRipple`: the point of a pointer press, the press with Enter
- * or Space, and the fade after the release.
+ * The listeners of `installPressRipple`: on a pointer press, the ripple of Angular Material
+ * (`RippleRenderer`) in a box inside the pressed surface; the press with Enter or Space from
+ * the centre; a drag past {@link PRESS_SLOP_PX} that ends the ripple. A table row keeps the
+ * CSS ripple of `_press.scss`, because a row cannot hold a box.
  */
 class PressRipple {
-  private fades: readonly Fade[] = [];
-  private pointerHost: HTMLElement | null = null;
-  /** The point of the pointer press, for {@link PRESS_SLOP_PX}. */
-  private pointerStart: PressPoint | null = null;
-  private keyHost: HTMLElement | null = null;
-  /** The layer of the press that lasts (pointer or key), see {@link showLayer}. */
-  private layer: Layer | null = null;
-  /** A frame check of the layers runs (see {@link watch}). */
-  private watching = false;
+  private readonly inks = new WeakMap<HTMLElement, Ink>();
+  private fades: readonly { readonly host: HTMLElement; readonly timer: ReturnType<typeof setTimeout> }[] = [];
+  private pointer: { readonly host: HTMLElement; readonly ref: RippleRef | null; readonly at: PressPoint } | null =
+    null;
+  private key: { readonly host: HTMLElement; readonly ref: RippleRef | null } | null = null;
+
+  constructor(private readonly deps: PressRippleDeps | null) {}
 
   readonly onPointerDown = (event: PointerEvent): void => {
     if (event.button !== 0) return;
     const host = pressHost(event.target as Element | null);
     if (!host) return;
+    this.endPointer();
     this.stopFade(host);
-    this.endLayer();
-    placeRipple(host, { x: event.clientX, y: event.clientY });
-    this.layer = showLayer(host, { x: event.clientX, y: event.clientY });
-    if (this.layer) this.watch(host.ownerDocument);
-    this.pointerHost = host;
-    this.pointerStart = { x: event.clientX, y: event.clientY };
+    const at = { x: event.clientX, y: event.clientY };
+    const ref = this.launch(host, at);
+    if (!ref) placeRipple(host, at);
+    this.pointer = { host, ref, at };
   };
 
-  readonly onPointerUp = (): void => {
-    if (this.pointerHost) this.fadeOut(this.pointerHost, true);
-    this.pointerHost = null;
-  };
+  readonly onPointerUp = (): void => this.endPress(false);
 
-  /** A touch that turns into a scroll: the ripple goes without the hold. */
-  /** A pointer that moves past {@link PRESS_SLOP_PX} drags: the ripple goes at once. */
+  /** The browser takes the touch for a scroll: the ripple fades at once. */
+  readonly onPointerCancel = (): void => this.endPress(true);
+
+  /** A pointer that moves past {@link PRESS_SLOP_PX} drags: the ripple ends. */
   readonly onPointerMove = (event: PointerEvent): void => {
-    const start = this.pointerStart;
-    if (!this.pointerHost || !start) return;
-    if (Math.hypot(event.clientX - start.x, event.clientY - start.y) <= PRESS_SLOP_PX) return;
-    this.dropAll();
-    this.pointerHost = null;
-  };
-
-  /**
-   * Anything scrolls (the list, the page, a pane): every layer goes at once, because a layer
-   * stays fixed where the press was and would lie over other rows.
-   */
-  readonly onScroll = (): void => {
-    if (!this.layer && !this.fades.some((fade) => fade.layer)) return;
-    this.dropAll();
-    this.pointerHost = null;
-  };
-
-  readonly onPointerCancel = (): void => {
-    if (this.pointerHost) this.fadeOut(this.pointerHost, false);
-    this.pointerHost = null;
+    const press = this.pointer;
+    if (!press) return;
+    if (Math.hypot(event.clientX - press.at.x, event.clientY - press.at.y) <= PRESS_SLOP_PX) return;
+    this.endPress(true);
   };
 
   readonly onKeyDown = (event: KeyboardEvent): void => {
-    if (event.repeat || !PRESS_KEYS.has(event.key) || this.keyHost) return;
+    if (event.repeat || !PRESS_KEYS.has(event.key) || this.key) return;
     const target = event.target as Element | null;
     if (!target || target.closest(TEXT_FIELD)) return;
     const host = pressHost(target);
     if (!host) return;
     this.stopFade(host);
-    this.endLayer();
-    placeRipple(host, null);
-    this.layer = showLayer(host, null);
-    host.setAttribute('data-press-key', '');
-    this.keyHost = host;
+    const ref = this.launch(host, null);
+    if (!ref) {
+      placeRipple(host, null);
+      host.setAttribute('data-press-key', '');
+    }
+    this.key = { host, ref };
   };
 
   /** A key that goes up, or a focus that leaves while the key is down, ends the press. */
   readonly onKeyUp = (event: Event): void => {
-    const host = this.keyHost;
-    if (!host || (event instanceof KeyboardEvent && !PRESS_KEYS.has(event.key))) return;
-    this.keyHost = null;
-    host.removeAttribute('data-press-key');
-    this.fadeOut(host, true);
-  };
-
-  /** Stop every pending fade. */
-  dispose(): void {
-    this.fades.forEach((fade) => {
-      clearTimeout(fade.timer);
-      if (fade.layer) dropLayer(fade.layer);
-    });
-    this.fades = [];
-    if (this.layer) dropLayer(this.layer);
-    this.layer = null;
-  }
-
-  private fadeOut(host: HTMLElement, hold: boolean): void {
-    this.stopFade(host);
-    const layer = this.layer?.host === host ? this.layer : null;
-    this.layer = null;
-    if (layer) {
-      // The layer fades by itself; the host needs no attribute, and no read of its layout.
-      this.fades = [...this.fades, { host, timer: hideLayer(layer, hold), layer }];
-      this.watch(host.ownerDocument);
+    const press = this.key;
+    if (!press || (event instanceof KeyboardEvent && !PRESS_KEYS.has(event.key))) return;
+    this.key = null;
+    if (press.ref) {
+      release(press.ref);
       return;
     }
+    press.host.removeAttribute('data-press-key');
+    this.fadeOut(press.host);
+  };
+
+  /** Stop every pending fade and every ripple. */
+  dispose(): void {
+    this.fades.forEach((fade) => clearTimeout(fade.timer));
+    this.fades = [];
+    this.endPointer();
+  }
+
+  /**
+   * Start the ripple of Angular Material on `host`, from `point` or from the centre. Null
+   * where it cannot draw: without Angular (a test), or on a table row.
+   */
+  private launch(host: HTMLElement, point: PressPoint | null): RippleRef | null {
+    const ink = this.ink(host);
+    if (!ink || ink.target.rippleDisabled) return null;
+    const view = host.ownerDocument.defaultView;
+    const color = view?.getComputedStyle(host).getPropertyValue('--press-tint').trim();
+    ink.target.rippleConfig = { color: color || undefined, animation: ANIMATION };
+    const box = host.getBoundingClientRect();
+    const x = point ? point.x : box.left + box.width / 2;
+    const y = point ? point.y : box.top + box.height / 2;
+    return ink.renderer.fadeInRipple(x, y, {
+      ...ink.target.rippleConfig,
+      centered: !point || !!host.querySelector(SURFACE),
+      persistent: true,
+    });
+  }
+
+  private ink(host: HTMLElement): Ink | null {
+    const known = this.inks.get(host);
+    if (known) return known;
+    const deps = this.deps;
+    if (!deps || host instanceof HTMLTableRowElement) return null;
+    const target = new InkTarget(host);
+    const renderer = new RippleRenderer(target, deps.zone, inkBox(host), deps.platform, deps.injector);
+    host.setAttribute(PRESS_INK_ATTR, '');
+    host.style.setProperty('--press-paint', 'transparent');
+    const ink = { renderer, target };
+    this.inks.set(host, ink);
+    return ink;
+  }
+
+  private endPress(drag: boolean): void {
+    const press = this.pointer;
+    this.pointer = null;
+    if (!press) return;
+    if (!press.ref) this.fadeOut(press.host);
+    else if (drag) press.ref.fadeOut();
+    else release(press.ref);
+  }
+
+  private endPointer(): void {
+    this.pointer?.ref?.fadeOut();
+    this.pointer = null;
+  }
+
+  /** The CSS ripple of a table row fades out (`data-press-out`). */
+  private fadeOut(host: HTMLElement): void {
+    this.stopFade(host);
     // A new attribute starts the fade again, also when the last fade still runs.
     void host.offsetWidth;
     host.setAttribute('data-press-out', '');
@@ -275,74 +267,27 @@ class PressRipple {
     this.fades = [...this.fades, { host, timer }];
   }
 
-  /**
-   * While a layer shows, drop it in the frame in which its host leaves the page (a tap
-   * that opened another page), so the layer does not stay over the new page. The check
-   * reads no layout. It runs only while a layer exists.
-   */
-  private watch(doc: Document): void {
-    const view = doc.defaultView;
-    if (!view || this.watching) return;
-    this.watching = true;
-    const check = (): void => {
-      const gone = this.fades.filter((fade) => fade.layer && !fade.host.isConnected);
-      gone.forEach((fade) => {
-        clearTimeout(fade.timer);
-        if (fade.layer) dropLayer(fade.layer);
-      });
-      this.fades = this.fades.filter((fade) => !gone.includes(fade));
-      if (this.layer && !this.layer.host.isConnected) this.endLayer();
-      const alive = !!this.layer || this.fades.some((fade) => fade.layer);
-      if (alive) view.requestAnimationFrame(check);
-      else this.watching = false;
-    };
-    view.requestAnimationFrame(check);
-  }
-
-  /** Every layer goes at once, without a fade. */
-  private dropAll(): void {
-    this.fades
-      .filter((fade) => fade.layer)
-      .forEach((fade) => {
-        clearTimeout(fade.timer);
-        if (fade.layer) dropLayer(fade.layer);
-      });
-    this.fades = this.fades.filter((fade) => !fade.layer);
-    this.endLayer();
-  }
-
-  /** A layer that no release ended (a second press came first) goes at once. */
-  private endLayer(): void {
-    if (this.layer) dropLayer(this.layer);
-    this.layer = null;
-  }
-
   private stopFade(host: HTMLElement): void {
-    this.fades
-      .filter((fade) => fade.host === host)
-      .forEach((fade) => {
-        clearTimeout(fade.timer);
-        if (fade.layer) dropLayer(fade.layer);
-      });
+    this.fades.filter((fade) => fade.host === host).forEach((fade) => clearTimeout(fade.timer));
     this.fades = this.fades.filter((fade) => fade.host !== host);
     host.removeAttribute('data-press-out');
   }
 }
 
 /**
- * The parts of the ripple of a press that CSS cannot do (app spec 001314, `_press.scss`):
- * the point of a pointer press, the press with Enter or Space, and the fade after the
- * release. Returns the function that removes the listeners.
+ * The ripple of a press for the whole app (app specs 001314, 002164): the ripple of Angular
+ * Material in the pressed surface, started by one listener on the document, so no element
+ * needs a directive. Returns the function that removes the listeners. Without `deps` (a
+ * test without Angular) every host gets the CSS ripple of `_press.scss`.
  */
-export function installPressRipple(doc: Document): () => void {
-  const ripple = new PressRipple();
+export function installPressRipple(doc: Document, deps: PressRippleDeps | null = null): () => void {
+  const ripple = new PressRipple(deps);
   const options = { capture: true, passive: true } as const;
   const listeners = [
     ['pointerdown', ripple.onPointerDown],
     ['pointerup', ripple.onPointerUp],
     ['pointercancel', ripple.onPointerCancel],
     ['pointermove', ripple.onPointerMove],
-    ['scroll', ripple.onScroll],
     ['keydown', ripple.onKeyDown],
     ['keyup', ripple.onKeyUp],
     ['focusout', ripple.onKeyUp],
@@ -356,11 +301,12 @@ export function installPressRipple(doc: Document): () => void {
 
 /**
  * Start the ripple of a press for the whole app. Add it once to the providers of the app;
- * without it a press still ripples, from the centre, and ends without the fade.
+ * without it a press still ripples by CSS, from the centre.
  */
 export function providePressRipple(): EnvironmentProviders {
   return provideAppInitializer(() => {
     const doc = inject(DOCUMENT);
-    if (doc.defaultView) installPressRipple(doc);
+    if (!doc.defaultView) return;
+    installPressRipple(doc, { zone: inject(NgZone), platform: inject(Platform), injector: inject(Injector) });
   });
 }
