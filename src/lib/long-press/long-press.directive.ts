@@ -9,13 +9,13 @@ export const LONG_PRESS_SLOP = 8;
 const CLICK_AFTER_MS = 600;
 
 /**
- * The host whose long press is held now. A press often changes the layout under the finger
+ * The host element whose long press is held now. A press often changes the layout under the finger
  * (a selection bar and check boxes show, the title link of a row becomes a button). The
  * pressed element can then leave the DOM, so the release and its click land on another
  * host. While a press is held, the `contextmenu` of the browser on another host does
  * nothing, and the click of the release does not reach any element of the page.
  */
-let holding: LongPressDirective | null = null;
+let holding: HTMLElement | null = null;
 
 function endHold(event: Event): void {
   holding = null;
@@ -90,7 +90,7 @@ export class LongPressDirective {
     this.el.addEventListener('click', onClick, true);
     inject(DestroyRef).onDestroy(() => {
       this.el.removeEventListener('click', onClick, true);
-      if (holding === this) endHold(new Event('pointercancel'));
+      if (holding === this.el) endHold(new Event('pointercancel'));
       this.cancel();
     });
   }
@@ -127,7 +127,7 @@ export class LongPressDirective {
     if (this.off()) return;
     event.preventDefault();
     if (this.fired) return;
-    if (holding && holding !== this) return;
+    if (holding && holding !== this.el) return;
     if (this.timer) {
       // The browser of a touch device can open its menu before the timer: the press wins.
       this.fire();
@@ -151,7 +151,7 @@ export class LongPressDirective {
       document.addEventListener('pointerup', endHold, true);
       document.addEventListener('pointercancel', endHold, true);
     }
-    holding = this;
+    holding = this.el;
     haptic('tick');
     this.pressed.emit();
   }
