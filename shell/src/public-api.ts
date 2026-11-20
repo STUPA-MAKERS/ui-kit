@@ -18,3 +18,4 @@ export * from './list-none/list-none.component';
 export * from './list-detail-page';
 export * from './fab-link.directive';
 export * from './route-motion';
+export * from './framework/framework';
