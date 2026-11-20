@@ -73,7 +73,7 @@
   animation: press-wave var(--motion-slow) var(--ease-standard) forwards;
 }
 .press-layer--out {
-  animation: press-layer-out var(--motion-base) var(--ease-standard) forwards;
+  animation: press-layer-out var(--motion-base) var(--ease-standard) var(--press-hold, 0ms) forwards;
 }
 @keyframes press-wave {
   to {

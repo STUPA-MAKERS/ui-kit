@@ -1,4 +1,4 @@
-import { installPressRipple, placeRipple, pressHost, PRESS_FADE_MS } from './press-ripple';
+import { installPressRipple, placeRipple, pressHost, PRESS_FADE_MS, PRESS_HOLD_MS } from './press-ripple';
 
 /** jsdom applies no stylesheet, so a spec marks a host with the inline property. */
 function host(el: HTMLElement): HTMLElement {
@@ -108,12 +108,54 @@ describe('press ripple', () => {
     expect(wave.style.left).toBe(`${5 - r}px`);
     expect(wave.style.width).toBe(`${2 * r}px`);
     expect(button.hasAttribute('data-press-layer')).toBe(true);
+    jest.advanceTimersByTime(60);
     pointer('pointerup', document.getElementById('s')!);
     expect(layer.classList.contains('press-layer--out')).toBe(true);
+    // A short tap keeps the ripple until the hold has passed, then fades.
+    expect(layer.style.getPropertyValue('--press-hold')).toBe(`${PRESS_HOLD_MS - 60}ms`);
     expect(button.hasAttribute('data-press-out')).toBe(false);
-    jest.advanceTimersByTime(PRESS_FADE_MS);
+    jest.advanceTimersByTime(PRESS_HOLD_MS - 60 + PRESS_FADE_MS - 1);
+    expect(layer.isConnected).toBe(true);
+    jest.advanceTimersByTime(1);
     expect(layer.isConnected).toBe(false);
     expect(button.hasAttribute('data-press-layer')).toBe(false);
+  });
+
+  it('fades without the hold when the touch becomes a scroll, and after a long press', () => {
+    document.body.innerHTML = '<button id="b"></button>';
+    const button = host(document.getElementById('b')!);
+    box(button, 0, 0, 40, 30);
+    pointer('pointerdown', button, 5, 5);
+    pointer('pointercancel', button);
+    const first = document.querySelector<HTMLElement>('.press-layer')!;
+    expect(first.style.getPropertyValue('--press-hold')).toBe('0ms');
+    jest.advanceTimersByTime(PRESS_FADE_MS);
+    expect(first.isConnected).toBe(false);
+    pointer('pointerdown', button, 5, 5);
+    jest.advanceTimersByTime(PRESS_HOLD_MS + 100);
+    pointer('pointerup', button);
+    expect(document.querySelector<HTMLElement>('.press-layer')!.style.getPropertyValue('--press-hold')).toBe('0ms');
+  });
+
+  it('drops the layer in the frame in which its host leaves the page', () => {
+    document.body.innerHTML = '<main><button id="b"></button></main>';
+    const button = host(document.getElementById('b')!);
+    box(button, 0, 0, 40, 30);
+    pointer('pointerdown', button, 5, 5);
+    pointer('pointerup', button);
+    const layer = document.querySelector<HTMLElement>('.press-layer')!;
+    document.querySelector('main')!.innerHTML = '<p>next page</p>';
+    jest.advanceTimersByTime(20);
+    expect(layer.isConnected).toBe(false);
+    // A held press too.
+    document.body.insertAdjacentHTML('beforeend', '<button id="c"></button>');
+    const next = host(document.getElementById('c')!);
+    box(next, 0, 0, 40, 30);
+    pointer('pointerdown', next, 5, 5);
+    const held = document.querySelector<HTMLElement>('.press-layer')!;
+    next.remove();
+    jest.advanceTimersByTime(20);
+    expect(held.isConnected).toBe(false);
   });
 
   it('shows the layer on the marked part from its centre, drops a layer at a new press, and none in a popover', () => {

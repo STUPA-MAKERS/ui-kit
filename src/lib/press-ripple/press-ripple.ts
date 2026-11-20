@@ -3,6 +3,12 @@ import { DOCUMENT, EnvironmentProviders, inject, provideAppInitializer } from '@
 /** How long the tint fades out after a release (`--motion-base`), with a margin. */
 export const PRESS_FADE_MS = 240;
 
+/**
+ * How long the ripple of a layer shows at least before it fades (app spec 002164). A tap
+ * on a phone lasts 50 to 100 ms; without the hold the circle faded before it had grown.
+ */
+export const PRESS_HOLD_MS = 225;
+
 /** The keys that press a focused control. */
 const PRESS_KEYS = new Set(['Enter', ' ']);
 
@@ -61,6 +67,8 @@ const SURFACE = '[data-press-surface]';
 interface Layer {
   readonly host: HTMLElement;
   readonly el: HTMLElement;
+  /** The time of the press (`performance.now()`), for {@link PRESS_HOLD_MS}. */
+  readonly at: number;
 }
 
 /**
@@ -105,13 +113,20 @@ export function showLayer(host: HTMLElement, point: PressPoint | null): Layer | 
   el.appendChild(wave);
   doc.body.appendChild(el);
   host.setAttribute(PRESS_LAYER_ATTR, '');
-  return { host, el };
+  return { host, el, at: view.performance.now() };
 }
 
-/** Fade a layer out (`press-layer--out`) and remove it after {@link PRESS_FADE_MS}. */
-function hideLayer(layer: Layer): ReturnType<typeof setTimeout> {
+/**
+ * Fade a layer out (`press-layer--out`) and remove it after the fade. A release keeps the
+ * ripple until {@link PRESS_HOLD_MS} after the press (the fade waits by
+ * `--press-hold`); a cancel (the touch became a scroll) fades at once.
+ */
+function hideLayer(layer: Layer, hold: boolean): ReturnType<typeof setTimeout> {
+  const now = layer.el.ownerDocument.defaultView?.performance.now() ?? layer.at;
+  const wait = hold ? Math.max(0, Math.round(PRESS_HOLD_MS - (now - layer.at))) : 0;
+  layer.el.style.setProperty('--press-hold', `${wait}ms`);
   layer.el.classList.add('press-layer--out');
-  return setTimeout(() => dropLayer(layer), PRESS_FADE_MS);
+  return setTimeout(() => dropLayer(layer), wait + PRESS_FADE_MS);
 }
 
 function dropLayer(layer: Layer): void {
@@ -136,6 +151,8 @@ class PressRipple {
   private keyHost: HTMLElement | null = null;
   /** The layer of the press that lasts (pointer or key), see {@link showLayer}. */
   private layer: Layer | null = null;
+  /** A frame check of the layers runs (see {@link watch}). */
+  private watching = false;
 
   readonly onPointerDown = (event: PointerEvent): void => {
     if (event.button !== 0) return;
@@ -145,11 +162,18 @@ class PressRipple {
     this.endLayer();
     placeRipple(host, { x: event.clientX, y: event.clientY });
     this.layer = showLayer(host, { x: event.clientX, y: event.clientY });
+    if (this.layer) this.watch(host.ownerDocument);
     this.pointerHost = host;
   };
 
   readonly onPointerUp = (): void => {
-    if (this.pointerHost) this.fadeOut(this.pointerHost);
+    if (this.pointerHost) this.fadeOut(this.pointerHost, true);
+    this.pointerHost = null;
+  };
+
+  /** A touch that turns into a scroll: the ripple goes without the hold. */
+  readonly onPointerCancel = (): void => {
+    if (this.pointerHost) this.fadeOut(this.pointerHost, false);
     this.pointerHost = null;
   };
 
@@ -173,7 +197,7 @@ class PressRipple {
     if (!host || (event instanceof KeyboardEvent && !PRESS_KEYS.has(event.key))) return;
     this.keyHost = null;
     host.removeAttribute('data-press-key');
-    this.fadeOut(host);
+    this.fadeOut(host, true);
   };
 
   /** Stop every pending fade. */
@@ -187,13 +211,14 @@ class PressRipple {
     this.layer = null;
   }
 
-  private fadeOut(host: HTMLElement): void {
+  private fadeOut(host: HTMLElement, hold: boolean): void {
     this.stopFade(host);
     const layer = this.layer?.host === host ? this.layer : null;
     this.layer = null;
     if (layer) {
       // The layer fades by itself; the host needs no attribute, and no read of its layout.
-      this.fades = [...this.fades, { host, timer: hideLayer(layer), layer }];
+      this.fades = [...this.fades, { host, timer: hideLayer(layer, hold), layer }];
+      this.watch(host.ownerDocument);
       return;
     }
     // A new attribute starts the fade again, also when the last fade still runs.
@@ -201,6 +226,30 @@ class PressRipple {
     host.setAttribute('data-press-out', '');
     const timer = setTimeout(() => this.stopFade(host), PRESS_FADE_MS);
     this.fades = [...this.fades, { host, timer }];
+  }
+
+  /**
+   * While a layer shows, drop it in the frame in which its host leaves the page (a tap
+   * that opened another page), so the layer does not stay over the new page. The check
+   * reads no layout. It runs only while a layer exists.
+   */
+  private watch(doc: Document): void {
+    const view = doc.defaultView;
+    if (!view || this.watching) return;
+    this.watching = true;
+    const check = (): void => {
+      const gone = this.fades.filter((fade) => fade.layer && !fade.host.isConnected);
+      gone.forEach((fade) => {
+        clearTimeout(fade.timer);
+        if (fade.layer) dropLayer(fade.layer);
+      });
+      this.fades = this.fades.filter((fade) => !gone.includes(fade));
+      if (this.layer && !this.layer.host.isConnected) this.endLayer();
+      const alive = !!this.layer || this.fades.some((fade) => fade.layer);
+      if (alive) view.requestAnimationFrame(check);
+      else this.watching = false;
+    };
+    view.requestAnimationFrame(check);
   }
 
   /** A layer that no release ended (a second press came first) goes at once. */
@@ -232,7 +281,7 @@ export function installPressRipple(doc: Document): () => void {
   const listeners = [
     ['pointerdown', ripple.onPointerDown],
     ['pointerup', ripple.onPointerUp],
-    ['pointercancel', ripple.onPointerUp],
+    ['pointercancel', ripple.onPointerCancel],
     ['keydown', ripple.onKeyDown],
     ['keyup', ripple.onKeyUp],
     ['focusout', ripple.onKeyUp],
