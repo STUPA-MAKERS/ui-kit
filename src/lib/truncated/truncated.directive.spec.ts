@@ -1,8 +1,9 @@
-import { Component, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, signal } from '@angular/core';
 import { render } from '@testing-library/angular';
 import { TruncatedDirective } from './truncated.directive';
 
 @Component({
+  changeDetection: ChangeDetectionStrategy.Eager,
   standalone: true,
   imports: [TruncatedDirective],
   template: `<span class="ell" [appTruncated]="text()" #t="appTruncated">{{ text() }}</span

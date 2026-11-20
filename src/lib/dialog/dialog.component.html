@@ -1,6 +1,9 @@
 @if (open) {
   <div
+    #backdrop
     class="dialog__backdrop"
+    role="presentation"
+    popover="manual"
     animate.enter="dialog--entering"
     animate.leave="dialog--leaving"
     (click)="onBackdrop($event)"
@@ -15,7 +18,6 @@
       tabindex="-1"
       [attr.aria-labelledby]="titleId"
       [attr.aria-describedby]="subtitle ? subtitleId : null"
-      (click)="$event.stopPropagation()"
     >
       <!-- Mobile-Sheet: Greifleiste + Header sind die Drag-Zone zum
            Herunterwischen (Flick schließt). Auf Desktop ausgeblendet (#14). -->
@@ -45,7 +47,7 @@
         </header>
       </div>
       <div class="dialog__body"><ng-content /></div>
-      <footer class="dialog__footer"><ng-content select="[dialog-footer]" /></footer>
+      <footer class="dialog__footer btn-grp btn-grp--main"><ng-content select="[dialog-footer]" /></footer>
     </div>
   </div>
 }

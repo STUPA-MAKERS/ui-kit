@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { ChangeDetectionStrategy, Component } from '@angular/core';
 import { FormControl, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { render, screen } from '@testing-library/angular';
 import userEvent from '@testing-library/user-event';
@@ -18,6 +18,7 @@ describe('DateRangeComponent', () => {
 
   it('writes a model range into both controls (localized display)', async () => {
     @Component({
+      changeDetection: ChangeDetectionStrategy.Eager,
       standalone: true,
       imports: [DateRangeComponent, FormsModule],
       template: `<app-date-range startLabel="Von" endLabel="Bis" [(ngModel)]="range" />`,
@@ -36,6 +37,7 @@ describe('DateRangeComponent', () => {
 
   it('emits the ISO start when a localized date is typed', async () => {
     @Component({
+      changeDetection: ChangeDetectionStrategy.Eager,
       standalone: true,
       imports: [DateRangeComponent, FormsModule],
       template: `<app-date-range startLabel="Von" endLabel="Bis" [(ngModel)]="range" />`,
@@ -51,6 +53,7 @@ describe('DateRangeComponent', () => {
 
   it('emits the ISO end when the end date is typed', async () => {
     @Component({
+      changeDetection: ChangeDetectionStrategy.Eager,
       standalone: true,
       imports: [DateRangeComponent, FormsModule],
       template: `<app-date-range startLabel="Von" endLabel="Bis" [(ngModel)]="range" />`,
@@ -82,6 +85,7 @@ describe('DateRangeComponent', () => {
 
   it('records the disabled state via setDisabledState (CVA)', async () => {
     @Component({
+      changeDetection: ChangeDetectionStrategy.Eager,
       standalone: true,
       imports: [DateRangeComponent, ReactiveFormsModule],
       template: `<app-date-range startLabel="Von" endLabel="Bis" [formControl]="ctrl" />`,
@@ -102,6 +106,7 @@ describe('DateRangeComponent', () => {
 
   it('handles a null model (writeValue(null)) as empty start/end', async () => {
     @Component({
+      changeDetection: ChangeDetectionStrategy.Eager,
       standalone: true,
       imports: [DateRangeComponent, ReactiveFormsModule],
       template: `<app-date-range startLabel="Von" endLabel="Bis" [formControl]="ctrl" />`,

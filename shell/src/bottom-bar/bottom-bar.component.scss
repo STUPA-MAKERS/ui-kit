@@ -1,8 +1,12 @@
 @use '../../../src/styles/press';
 @use '../../../src/styles/nav-items';
+@use '../../../src/styles/frosted' as *;
 
 // The safe-area padding keeps the entries above the gesture bar of an installed app
-// (viewport-fit=cover).
+// (viewport-fit=cover). A light shadow upwards sets the bar off the page instead of a rule;
+// `--bb-shadow` lets a page turn it off. The page scrolls under the bar, so the bar is frosted
+// glass that turns into the solid bar colour at its foot, so the bottom edge and the safe area
+// have exactly the colour of the system bar (`theme_color`) below it.
 :host {
   display: block;
 }
@@ -18,10 +22,32 @@
   height: calc(var(--bottom-bar-height, 64px) + env(safe-area-inset-bottom));
   padding: 0 max(4px, var(--app-right-safe-area, 0px)) env(safe-area-inset-bottom)
     max(4px, var(--app-left-safe-area, 0px));
-  border-top: var(--border-width) solid var(--color-border);
-  background: var(--color-surface-3);
+  box-shadow: var(--bb-shadow, var(--shadow-md-up));
   --nav-mark-ring: var(--color-surface-3);
   @include press.chrome-text;
+  @include frosted(
+    var(--color-surface-3),
+    top,
+    $fade-to: var(--color-surface-3),
+    $fade-stop: calc(100% - env(safe-area-inset-bottom) - 4px),
+    $tint: 60%
+  );
+}
+
+// During a route transition the bar is painted alone into its view transition snapshot, so
+// its glass has no backdrop there: the blur sees nothing and the moving page shows through
+// the tint. Some GPUs also drop a backdrop filter on the snapshot group. The glass is
+// therefore opaque while `<html data-motion>` is set: the same gradient as the glass, mixed
+// into the page colour instead of into transparency, so over the page colour the bar does not
+// change, and the moving page never shows through it.
+:host-context([data-motion]) .bb::before {
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
+  background: linear-gradient(
+    to bottom,
+    color-mix(in srgb, var(--color-surface-3) var(--glass-tint, 60%), var(--color-bg)) 64px,
+    var(--color-surface-3) calc(100% - env(safe-area-inset-bottom) - 4px)
+  );
 }
 
 @include nav-items.bar-item;
@@ -61,8 +87,7 @@
   text-align: start;
   text-decoration: none;
   cursor: pointer;
-  transition: scale var(--motion-xs) var(--ease-standard);
-  @include press.press($scale: row);
+  @include press.press;
 }
 .more__item > app-icon {
   flex: none;
@@ -86,4 +111,23 @@
 .more__item:focus-visible {
   outline: 2px solid var(--color-focus-ring);
   outline-offset: -2px;
+}
+
+// A group: the row that opens it, with a chevron that turns while it is open, and its
+// entries indented below it.
+.more__chev {
+  flex: none;
+  color: var(--color-text-muted);
+  transition: rotate var(--motion-fast) var(--ease-standard);
+}
+.more__chev.is-open {
+  rotate: 180deg;
+}
+.more__sub {
+  display: flex;
+  flex-direction: column;
+  padding-inline-start: var(--space-6);
+}
+.more__sub[hidden] {
+  display: none;
 }

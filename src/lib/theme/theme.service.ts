@@ -1,4 +1,5 @@
-import { Injectable, computed, inject, signal } from '@angular/core';
+import { Injectable, Injector, computed, effect, inject, signal, untracked } from '@angular/core';
+import { DisplaySettingsService } from '../display/display-settings.service';
 import { withViewTransition } from '../motion/motion';
 import { UI_KIT_THEME, type ResolvedTheme, type ThemePreference } from './theme.config';
 
@@ -10,12 +11,17 @@ import { UI_KIT_THEME, type ResolvedTheme, type ThemePreference } from './theme.
  *   the kit read, writes its page background to every `<meta name="theme-color">`, and
  *   links the manifest of that theme.
  * - In `system` mode a matchMedia listener picks up an OS change live.
+ * - While very high contrast is on (app spec 000606), the dark theme is in effect, whatever
+ *   the preference is. The preference stays stored and applies again when it goes off.
+ *   The bars and the manifest take the black of that mode (app spec 000411).
  *
- * Configure it with `provideUiKit({ theme: { storageKey, manifest, background } })`.
+ * Configure it with `provideUiKit({ theme: { storageKey, manifest, background, veryHigh } })`.
  */
 @Injectable({ providedIn: 'root' })
 export class ThemeService {
   private readonly config = inject(UI_KIT_THEME);
+  private readonly display = inject(DisplaySettingsService);
+  private readonly injector = inject(Injector);
   private readonly media = window.matchMedia('(prefers-color-scheme: dark)');
   private readonly _preference = signal<ThemePreference>(this.readStored());
   private readonly _systemDark = signal<boolean>(this.media.matches);
@@ -26,15 +32,29 @@ export class ThemeService {
 
   /** The theme that is in effect (`light` or `dark`). */
   readonly resolved = computed<ResolvedTheme>(() => {
+    if (this.display.veryHigh()) return 'dark';
     const pref = this._preference();
     if (pref === 'system') return this._pageDefault() ?? (this._systemDark() ? 'dark' : 'light');
     return pref;
   });
 
-  /** Call this once at app start. It adds the OS listener and applies the theme. */
+  /** The person cannot choose the theme while very high contrast is on. */
+  readonly locked = computed(() => this.display.veryHigh());
+
+  /**
+   * Call this once at app start. It adds the OS listener and applies the theme. It also
+   * applies the theme again when very high contrast goes on or off.
+   */
   init(): void {
     this.media.addEventListener('change', this.onSystemChange);
     this.apply();
+    effect(
+      () => {
+        this.display.veryHigh();
+        untracked(() => this.apply());
+      },
+      { injector: this.injector },
+    );
   }
 
   /** The whole page cross-fades once instead of each surface changing on its own. */
@@ -67,12 +87,15 @@ export class ThemeService {
 
   /**
    * `index.html` carries one theme-color tag per OS scheme. An explicit choice in the app
-   * overrides the OS, so both tags take the colour of the theme in effect.
+   * overrides the OS, so both tags take the colour of the theme in effect. Very high
+   * contrast has a black page in every theme, so its bars take the colours of
+   * `config.veryHigh`, not those of the dark theme.
    */
   private apply(): void {
     const theme = this.resolved();
+    const veryHigh = this.display.veryHigh() ? this.config.veryHigh : null;
     document.documentElement.setAttribute('data-theme', theme);
-    const background = this.config.background[theme];
+    const background = veryHigh?.background ?? this.config.background[theme];
     document
       .querySelectorAll<HTMLMetaElement>('meta[name="theme-color"]')
       .forEach((meta) => meta.setAttribute('content', background));
@@ -80,7 +103,7 @@ export class ThemeService {
     if (manifest) {
       document
         .querySelector<HTMLLinkElement>('link[rel="manifest"]')
-        ?.setAttribute('href', manifest[theme]);
+        ?.setAttribute('href', veryHigh?.manifest ?? manifest[theme]);
     }
   }
 

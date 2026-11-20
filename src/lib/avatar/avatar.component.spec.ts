@@ -73,6 +73,13 @@ describe('AvatarComponent', () => {
     expect(host).toHaveClass('av--xs');
     expect(host).not.toHaveClass('av--sm');
   });
+
+  it('carries the large class', async () => {
+    const view = await render(AvatarComponent, { inputs: { name: 'Mara Keller', size: 'lg' } });
+    const host = view.fixture.nativeElement as HTMLElement;
+    expect(host).toHaveClass('av--lg');
+    expect(host).not.toHaveClass('av--sm');
+  });
 });
 
 describe('AvatarComponent with an image', () => {
@@ -85,6 +92,11 @@ describe('AvatarComponent with an image', () => {
     const img = () => host.querySelector('img');
     return { view, host, img };
   }
+
+  it('asks for the image at the size of an large avatar', async () => {
+    const { img } = await renderWithImage({ principalId: 'p-1', size: 'lg' });
+    expect(img()).toHaveAttribute('src', '/api/principals/p-1/avatar?s=128');
+  });
 
   it('loads the proxy image over the initials, hidden until it has loaded', async () => {
     const { view, host, img } = await renderWithImage({ principalId: 'p-1', size: 'sm' });

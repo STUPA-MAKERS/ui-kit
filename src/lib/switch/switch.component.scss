@@ -1,3 +1,5 @@
+@use '../../styles/display' as d;
+
 :host {
   display: flex;
   flex-direction: column;
@@ -36,7 +38,8 @@
   padding: 0;
   border: 0;
   border-radius: 13px;
-  background: var(--color-surface-4);
+  background: var(--check-bg, var(--color-surface-4));
+  box-shadow: var(--check-checked-edge, none);
   cursor: pointer;
   transition: background-color var(--motion-fast) var(--ease-standard);
 }
@@ -52,20 +55,45 @@
   border-radius: 10px;
   /* The off thumb carries the muted text colour. The outline colour was so close to the
      track that a switch that was off looked disabled. */
-  background: var(--color-text-muted);
+  background: var(--check-mark, var(--color-text-muted));
   transition:
     transform var(--motion-fast) var(--ease-standard),
     background-color var(--motion-fast) var(--ease-standard);
 }
 .sw__track--on {
-  background: var(--color-accent);
+  background: var(--check-on, var(--color-accent));
 }
 .sw__track--on .sw__thumb {
   transform: translateX(18px);
-  background: var(--color-on-accent);
+  background: var(--check-mark, var(--color-on-accent));
 }
 .sw__hint {
   font-size: var(--fs-small);
   line-height: var(--lh-small);
   color: var(--color-text-muted);
+}
+
+/* Very high contrast (app spec 000605): a disabled switch is not faded. Its label is white,
+   its track has a dashed white edge and no fill, and its thumb is white. */
+@include d.host-on(veryHigh) {
+  // Off: black with the yellow edge and a yellow thumb. On: yellow with a black thumb (app
+  // spec 000620).
+  .sw__thumb {
+    background: #ffff00;
+  }
+  .sw__track--on .sw__thumb {
+    background: #000000;
+  }
+  .sw--disabled {
+    opacity: 1;
+  }
+  .sw--disabled .sw__track {
+    background: #000000;
+    box-shadow: none;
+    outline: 2px dashed #ffffff;
+    outline-offset: -2px;
+  }
+  .sw--disabled .sw__thumb {
+    background: #ffffff;
+  }
 }

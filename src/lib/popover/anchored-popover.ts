@@ -3,18 +3,18 @@ import { DestroyRef, inject } from '@angular/core';
 /** What {@link watchAnchoredPopover} needs to know about one popover. */
 export interface AnchoredPopoverWatch {
   /** The popover is open (on a wide screen: the phone sheet has its own scrim). */
-  isOpen: () => boolean;
+  readonly isOpen: () => boolean;
   /**
    * The elements where a press does not close the popover: the host that holds anchor
    * and popover, or the popover and its anchor.
    */
-  inside: () => readonly (Element | null | undefined)[];
+  readonly inside: () => readonly (Element | null | undefined)[];
   /** The scroll box of the popover itself: a scroll in it does not move the anchor. */
-  ownScroll?: () => Element | null | undefined;
+  readonly ownScroll?: () => Element | null | undefined;
   /** A press outside. */
-  close: () => void;
+  readonly close: () => void;
   /** The page scrolled or resized: place the popover at its anchor again. */
-  follow: () => void;
+  readonly follow: () => void;
 }
 
 function contains(root: Element | null | undefined, target: EventTarget | null): boolean {
@@ -70,17 +70,17 @@ export function anchorOutOfView(anchor: DOMRect): boolean {
 
 /** The place of a fixed popover, in viewport pixels. */
 export interface PopoverPlace {
-  top: number;
-  left: number;
+  readonly top: number;
+  readonly left: number;
 }
 
 export interface PlaceBelowOptions {
   /** Space between the anchor and the popover. */
-  gap: number;
+  readonly gap: number;
   /** Least space between the popover and the viewport edge. Default 8. */
-  edge?: number;
+  readonly edge?: number;
   /** Align the popover with the start (default) or the end edge of the anchor. */
-  align?: 'start' | 'end';
+  readonly align?: 'start' | 'end';
 }
 
 /**
@@ -90,38 +90,38 @@ export interface PlaceBelowOptions {
  */
 export function placeBelow(
   anchor: DOMRect,
-  box: { width: number; height: number },
+  box: { readonly width: number; readonly height: number },
   options: PlaceBelowOptions,
 ): PopoverPlace {
   const { gap } = options;
   const edge = options.edge ?? 8;
   const start = options.align === 'end' ? anchor.right - box.width : anchor.left;
   const left = Math.min(Math.max(edge, start), Math.max(edge, window.innerWidth - edge - box.width));
-  let top = anchor.bottom + gap;
+  const below = anchor.bottom + gap;
   const above = anchor.top - gap - box.height;
-  if (top + box.height > window.innerHeight - edge && above >= edge) top = above;
-  return { top, left };
+  const flip = below + box.height > window.innerHeight - edge && above >= edge;
+  return { top: flip ? above : below, left };
 }
 
 /** The place and the size of a list under a field. */
 export interface FieldListPlace {
-  top: number;
-  left: number;
-  width: number;
-  maxHeight: number;
+  readonly top: number;
+  readonly left: number;
+  readonly width: number;
+  readonly maxHeight: number;
 }
 
 export interface PlaceAtFieldOptions {
   /** Space between the field and the list. */
-  gap: number;
+  readonly gap: number;
   /** Least space between the list and the viewport edge. Default 8. */
-  edge?: number;
+  readonly edge?: number;
   /** The tallest the list gets. */
-  maxHeight: number;
+  readonly maxHeight: number;
   /** The least width of the list; the field is wider when it is wider. Default 0. */
-  minWidth?: number;
+  readonly minWidth?: number;
   /** The rendered width of the list, when its content makes it wider than `width`. */
-  ownWidth?: number;
+  readonly ownWidth?: number;
 }
 
 /**

@@ -3,7 +3,9 @@
 // stylesheet includes this mixin on its native `input[type='checkbox']`.
 //
 // Look: an 18px box with a 2px edge; checked, an accent square with a dark tick. The
-// tick colour is the on-accent colour, which is the same in both themes. Indeterminate
+// tick colour is the on-accent colour, which is the same in both themes. Highlighted
+// fields (app spec 000598) set the `--check-*` tokens: a yellow box with a black edge,
+// also when checked, and the dark tick on the yellow. Indeterminate
 // (a select-all box over a partial selection), the same accent square with a dash.
 @mixin box {
   flex: none;
@@ -16,25 +18,25 @@
   margin: 0;
   border: 0;
   border-radius: 5px;
-  background: transparent;
-  box-shadow: inset 0 0 0 2px var(--color-border-strong);
+  background: var(--check-bg, transparent);
+  box-shadow: inset 0 0 0 2px var(--check-edge, var(--color-border-strong));
   cursor: inherit;
   transition:
     background-color var(--motion-fast) var(--ease-standard),
     box-shadow var(--motion-fast) var(--ease-standard);
 
   &:checked {
-    background: var(--color-accent)
+    background: var(--check-on, var(--color-accent))
       url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="%230b1d12" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>')
       center / 13px 13px no-repeat;
-    box-shadow: none;
+    box-shadow: var(--check-checked-edge, none);
   }
   // After `:checked`: a mixed box shows the dash, whatever its checked value.
   &:indeterminate {
-    background: var(--color-accent)
+    background: var(--check-on, var(--color-accent))
       url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="%230b1d12" stroke-width="3" stroke-linecap="round"><path d="M6 12h12"/></svg>')
       center / 13px 13px no-repeat;
-    box-shadow: none;
+    box-shadow: var(--check-checked-edge, none);
   }
   &:focus-visible {
     outline: 2px solid var(--color-focus-ring);

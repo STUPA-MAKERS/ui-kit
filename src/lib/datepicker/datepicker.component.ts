@@ -12,6 +12,7 @@ import {
 import { NG_VALUE_ACCESSOR, type ControlValueAccessor } from '@angular/forms';
 import { UI_KIT_INTL } from '../intl/intl';
 import { UiKitTranslatePipe } from '../intl/translate.pipe';
+import { resolveRelativeDate } from './relative-date';
 
 let nextId = 0;
 
@@ -22,7 +23,8 @@ let nextId = 0;
  *
  * Bedienung: tippen im Textfeld (locale-Reihenfolge) **oder** den nativen Kalender
  * über den Kalender-Button öffnen (`showPicker()`; das native Feld bleibt unsichtbar,
- * nur sein Kalender-Popup erscheint). `ControlValueAccessor` → Reactive Forms/`ngModel`.
+ * nur sein Kalender-Popup erscheint). Shortcuts relative to today (`+1w`, `-1d`, `+1m-2d`,
+ * specs 000700-000702) resolve on blur and on Enter; the value is always the ISO date. `ControlValueAccessor` → Reactive Forms/`ngModel`.
  */
 @Component({
   selector: 'app-datepicker',
@@ -39,6 +41,11 @@ export class DatepickerComponent implements ControlValueAccessor {
   @Input() label = '';
   @Input() ariaLabel = '';
   @Input() hint = '';
+  /**
+   * The language of the label and the hint when it is not the language of the page, for
+   * example a form text in a fallback language (WCAG 3.1.2). `null` keeps the page language.
+   */
+  @Input() textLang: string | null = null;
   @Input() error = '';
   @Input() required = false;
   @Input() min = '';
@@ -83,7 +90,16 @@ export class DatepickerComponent implements ControlValueAccessor {
 
   onBlur(): void {
     this.onTouched();
-    const iso = this.parse(this.display());
+    this.resolve();
+  }
+
+  /** Enter resolves too, because a form sent with Enter does not blur the field first (000701). */
+  onEnter(): void {
+    this.resolve();
+  }
+
+  private resolve(): void {
+    const iso = this.parse(this.display()) || resolveRelativeDate(this.display());
     if (iso) {
       this.commit(iso);
     } else if (!this.display().trim()) {
@@ -135,11 +151,11 @@ export class DatepickerComponent implements ControlValueAccessor {
     const parts = text.trim().split(/[./\-\s]+/).filter(Boolean);
     if (parts.length !== 3) return '';
     const [day, month, y] = parts;
-    let yyyy = Number(y);
+    const year = Number(y);
     const dd = Number(day);
     const mm = Number(month);
-    if (!dd || !mm || !yyyy) return '';
-    if (yyyy < 100) yyyy += 2000;
+    if (!dd || !mm || !year) return '';
+    const yyyy = year < 100 ? year + 2000 : year;
     if (mm < 1 || mm > 12 || dd < 1 || dd > 31) return '';
     const iso = `${String(yyyy).padStart(4, '0')}-${String(mm).padStart(2, '0')}-${String(dd).padStart(2, '0')}`;
     const dt = new Date(iso + 'T00:00:00');

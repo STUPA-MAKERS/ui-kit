@@ -1,12 +1,20 @@
-import { Component, type ElementRef, type TemplateRef, signal, viewChild } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  type ElementRef,
+  type TemplateRef,
+  signal,
+  viewChild,
+} from '@angular/core';
 import { render, screen } from '@testing-library/angular';
 import userEvent from '@testing-library/user-event';
 import { SheetBarComponent, SheetBarTitleDirective } from '../sheet-bar/sheet-bar.component';
 import { ListDetailBarComponent, ListDetailNavDirective } from './list-detail-bar.component';
-import { dockInListDetailBar } from './list-detail-nav';
+import { ListDetailNav, dockInListDetailBar } from './list-detail-nav';
 
 /** A page header that hands its meta text to the bar as the second line. */
 @Component({
+  changeDetection: ChangeDetectionStrategy.Eager,
   selector: 'app-test-header',
   standalone: true,
   template: `
@@ -34,6 +42,7 @@ class SubtitleHeader {
 
 /** A panel outside `app-list-detail` (the card drawer of a board) with the bar of the layout. */
 @Component({
+  changeDetection: ChangeDetectionStrategy.Eager,
   standalone: true,
   imports: [ListDetailBarComponent, ListDetailNavDirective, SheetBarComponent, SheetBarTitleDirective],
   template: `
@@ -97,5 +106,24 @@ describe('ListDetailBarComponent with appListDetailNav', () => {
     view.fixture.detectChanges();
     expect(sub.querySelector('.meta')).toBeNull();
     expect(sub.textContent?.trim()).toBe('');
+  });
+
+  it('shows an X and the name of a task in place of the way back and the actions', async () => {
+    const view = await render(DrawerHost);
+    const nav = view.debugElement.children[0].injector.get(ListDetailNav);
+    let cancels = 0;
+    nav.task.set({ title: 'Antrag bearbeiten', cancelLabel: 'Abbrechen', cancel: () => cancels++ });
+    view.fixture.detectChanges();
+    const bar = view.container.querySelector('app-list-detail-bar') as HTMLElement;
+    expect(bar).toHaveClass('ld__bar--condensed');
+    expect(bar.querySelector('.ld__barTitle')?.textContent).toBe('Antrag bearbeiten');
+    expect(bar.querySelector('.ld__barActions')).toBeNull();
+    expect(screen.queryByRole('button', { name: 'Zum Board' })).toBeNull();
+    await userEvent.click(screen.getByRole('button', { name: 'Abbrechen' }));
+    expect(cancels).toBe(1);
+    expect(view.fixture.componentInstance.backs).toBe(0);
+    nav.task.set(null);
+    view.fixture.detectChanges();
+    expect(screen.getByRole('button', { name: 'Zum Board' })).toBeTruthy();
   });
 });

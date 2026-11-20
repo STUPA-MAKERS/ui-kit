@@ -1,4 +1,4 @@
-import { Component, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, signal } from '@angular/core';
 import { render, screen } from '@testing-library/angular';
 import userEvent from '@testing-library/user-event';
 import { AutocompleteComponent } from './autocomplete.component';
@@ -9,6 +9,7 @@ interface Hit {
 }
 
 @Component({
+  changeDetection: ChangeDetectionStrategy.Eager,
   selector: 'app-ac-host',
   standalone: true,
   imports: [AutocompleteComponent],

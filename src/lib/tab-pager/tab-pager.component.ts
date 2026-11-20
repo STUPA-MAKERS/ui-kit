@@ -79,6 +79,44 @@ export class TabPagerComponent {
   private readonly pager = viewChild<ElementRef<HTMLElement>>('pager');
   private readonly tabBar = viewChild(TabsComponent);
 
+  /** The bar sticks under the head bar of the page now (`tp__bar--stuck`). */
+  private stuck = false;
+
+  /**
+   * While the tab line sticks under the head bar (a phone), the two are one pane of glass:
+   * the head bar stretches its glass over the tab line (`--ld-bar-extend` on the root) and
+   * the tab line drops its own glass and sits above it. Two glass layers side by side blur
+   * different parts of the page, so they would meet in a visible edge.
+   */
+  private watchStuck(): void {
+    if (typeof window === 'undefined') return;
+    const check = (): void => {
+      const el = this.bar()?.nativeElement;
+      if (!el) return;
+      const style = getComputedStyle(el);
+      const top = parseFloat(style.top);
+      const stuck = style.position === 'sticky' && !Number.isNaN(top) && top > 0 && el.getBoundingClientRect().top <= top + 0.5 && window.scrollY > 0;
+      if (stuck === this.stuck) return;
+      this.stuck = stuck;
+      el.classList.toggle('tp__bar--stuck', stuck);
+      if (stuck) document.documentElement.style.setProperty('--ld-bar-extend', `${el.offsetHeight}px`);
+      else document.documentElement.style.removeProperty('--ld-bar-extend');
+    };
+    this.zone.runOutsideAngular(() => {
+      window.addEventListener('scroll', check, { passive: true });
+      window.addEventListener('resize', check, { passive: true });
+    });
+    inject(DestroyRef).onDestroy(() => {
+      window.removeEventListener('scroll', check);
+      window.removeEventListener('resize', check);
+    });
+  }
+
+  private unstick(): void {
+    if (this.stuck && typeof document !== 'undefined') document.documentElement.style.removeProperty('--ld-bar-extend');
+    this.stuck = false;
+  }
+
   /** The active tab; with no valid `active` the first enabled tab. */
   readonly current = computed(() => {
     const tabs = this.tabs();
@@ -105,7 +143,9 @@ export class TabPagerComponent {
     inject(DestroyRef).onDestroy(() => {
       cancelAnimationFrame(this.frame);
       this.resize?.disconnect();
+      this.unstick();
     });
+    this.watchStuck();
     // A web font that loads after the first frame changes the width of the tabs.
     void (typeof document !== 'undefined' ? document.fonts?.ready : undefined)?.then(() => this.placeInk());
 

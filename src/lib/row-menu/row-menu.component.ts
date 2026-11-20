@@ -19,24 +19,24 @@ import { SkeletonComponent } from '../skeleton/skeleton.component';
 /** One action of a row menu. */
 export interface RowMenuItem {
   /** Stable key of the action, for the caller to tell the items apart. */
-  id: string;
-  label: string;
-  icon?: IconName;
+  readonly id: string;
+  readonly label: string;
+  readonly icon?: IconName;
   /** A destructive action: red text and icon. */
-  danger?: boolean;
+  readonly danger?: boolean;
   /**
    * Set it to disable the item. The text says why the action is not possible now; it
    * shows as a tooltip and a screen reader reads it as the description of the item.
    */
-  disabledReason?: string | null;
+  readonly disabledReason?: string | null;
   /** Makes the item a checkbox item (for example "Nicht öffentlich") in this state. */
-  checked?: boolean;
+  readonly checked?: boolean;
 }
 
 /** A group of items, with an optional caption. A line separates two sections. */
 export interface RowMenuSection {
-  label?: string | null;
-  items: readonly RowMenuItem[];
+  readonly label?: string | null;
+  readonly items: readonly RowMenuItem[];
 }
 
 let nextId = 0;

@@ -1,12 +1,25 @@
-/* Each avatar overlaps the one before it, with a ring in the colour of the surface
-   below (`--stack-ring`). An extra small stack only touches, so no initials hide. */
+/* Each avatar overlaps the one before it and covers it. An extra small stack only touches,
+   so no initials hide. */
 :host {
   display: inline-flex;
   flex: none;
   align-items: center;
 }
 .stack__av {
-  box-shadow: 0 0 0 2px var(--stack-ring, var(--color-surface-2));
+  --av-r: 1.25rem;
+}
+.stack__av.av--sm {
+  --av-r: 1rem;
+}
+/* The next avatar covers this one: a mask cuts its circle (plus a 2px gap) out of this one.
+   A ring or an opaque fill cannot do it, because on glass the avatar and the row are
+   see-through, so two avatars would mix where they overlap. */
+.stack__av:not(.av--xs):has(+ .stack__av) {
+  mask: radial-gradient(
+    circle at calc(3 * var(--av-r) - 8px) 50%,
+    transparent calc(var(--av-r) + 2px),
+    #000 calc(var(--av-r) + 2.5px)
+  );
 }
 .stack__av + .stack__av {
   margin-left: -8px;

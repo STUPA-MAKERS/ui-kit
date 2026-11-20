@@ -143,15 +143,10 @@
   --main-pad-bottom: 0px;
 }
 
-// The toast host is in the frame, so the toasts read `--app-bottom-inset`. It has no box, so it is
-// no grid item of the rail frame. On a phone the toasts sit above the bottom bar; when an app
-// hides the bar for the keyboard and sets the inset to 0, they move down with it. On a wide
-// screen they keep the bottom end of the kit toast.
+// The toast host has no box, so it is no grid item of the rail frame. On a phone the kit toast
+// sits at the top (spec 000562), so the bottom bar does not move it.
 app-toast {
   display: contents;
-}
-.frame--phone app-toast ::ng-deep .toasts {
-  inset-block-end: calc(var(--app-bottom-inset) + var(--space-3));
 }
 
 // The installed app shows no footer in the rail frame. The public frame keeps its footer, so a

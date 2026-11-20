@@ -1,16 +1,17 @@
-import { Component, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, signal } from '@angular/core';
 import { render, screen } from '@testing-library/angular';
 import userEvent from '@testing-library/user-event';
 import { TabsComponent, type TabItem } from './tabs.component';
 
 const TABS: TabItem[] = [
   { id: 'app', label: 'Antrag' },
-  { id: 'history', label: 'Verlauf', count: 4 },
-  { id: 'comments', label: 'Kommentare', count: 0 },
-  { id: 'files', label: 'Anhänge', count: null, disabled: true },
+  { id: 'history', label: 'Verlauf' },
+  { id: 'comments', label: 'Kommentare' },
+  { id: 'files', label: 'Anhänge', disabled: true },
 ];
 
 @Component({
+  changeDetection: ChangeDetectionStrategy.Eager,
   standalone: true,
   imports: [TabsComponent],
   template: `
@@ -33,19 +34,14 @@ describe('TabsComponent', () => {
     expect(tabs[1]).toHaveAttribute('aria-selected', 'false');
   });
 
-  it('shows the count after the label, also a zero, and none without a count', async () => {
+  /** App spec 000560: a tab shows its label and no count. WCAG 2.5.3: the name is the visible text. */
+  it('names a tab only by its label, with no count and no aria-label', async () => {
     await render(Host);
-    expect(screen.getByRole('tab', { name: 'Verlauf 4' })).toBeInTheDocument();
-    expect(screen.getByRole('tab', { name: 'Kommentare 0' })).toBeInTheDocument();
-    expect(screen.getByRole('tab', { name: 'Anhänge' })).toBeInTheDocument();
-    expect(screen.getByRole('tab', { name: 'Antrag' }).querySelector('.tabs__count')).toBeNull();
-  });
-
-  it('names a tab with a count with a space before the count', async () => {
-    await render(Host);
-    expect(screen.getByRole('tab', { name: 'Verlauf 4' })).toHaveAttribute('aria-label', 'Verlauf 4');
-    expect(screen.getByRole('tab', { name: 'Kommentare 0' })).toHaveAttribute('aria-label', 'Kommentare 0');
-    expect(screen.getByRole('tab', { name: 'Antrag' })).not.toHaveAttribute('aria-label');
+    for (const name of ['Antrag', 'Verlauf', 'Kommentare', 'Anhänge']) {
+      const tab = screen.getByRole('tab', { name });
+      expect(tab).not.toHaveAttribute('aria-label');
+      expect(tab.textContent?.trim()).toBe(name);
+    }
   });
 
   it('links the tabs and the panel', async () => {
@@ -58,9 +54,9 @@ describe('TabsComponent', () => {
 
   it('selects a tab on click', async () => {
     const { fixture } = await render(Host);
-    await userEvent.click(screen.getByRole('tab', { name: 'Verlauf 4' }));
+    await userEvent.click(screen.getByRole('tab', { name: 'Verlauf' }));
     expect(fixture.componentInstance.tab()).toBe('history');
-    expect(screen.getByRole('tab', { name: 'Verlauf 4' })).toHaveAttribute('tabindex', '0');
+    expect(screen.getByRole('tab', { name: 'Verlauf' })).toHaveAttribute('tabindex', '0');
     expect(screen.getByRole('tab', { name: 'Antrag' })).toHaveAttribute('tabindex', '-1');
   });
 

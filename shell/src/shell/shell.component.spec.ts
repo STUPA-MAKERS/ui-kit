@@ -1,4 +1,4 @@
-import { Component, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { RouterTestingHarness } from '@angular/router/testing';
 import { Router, provideRouter, type Routes } from '@angular/router';
@@ -12,7 +12,10 @@ import { BarButtonComponent, RailButtonComponent } from '../nav-item/nav-item-bu
 import type { ShellFrame } from '../shell.types';
 import { ShellComponent } from './shell.component';
 
-@Component({ standalone: true, template: '<h1>Seite</h1>' })
+@Component({
+  changeDetection: ChangeDetectionStrategy.Eager,
+  standalone: true, template: '<h1>Seite</h1>'
+})
 class StubPage {}
 
 const ROUTES: Routes = [
@@ -33,7 +36,7 @@ const ROUTES: Routes = [
 function phoneViewport(): () => void {
   const original = window.matchMedia;
   window.matchMedia = ((query: string) => ({
-    matches: query === '(max-width: 768px)',
+    matches: query === '(max-width: 767.98px)',
     media: query,
     addEventListener: () => undefined,
     removeEventListener: () => undefined,
@@ -224,6 +227,35 @@ describe('ShellComponent', () => {
       );
     });
 
+    it('makes the skip link the first focusable element, and it focuses main without a navigation', async () => {
+      const { router } = await setup();
+      const navigate = jest.spyOn(router, 'navigateByUrl');
+      await userEvent.tab();
+      const skip = screen.getByRole('link', { name: 'Zum Inhalt springen' });
+      expect(skip).toHaveFocus();
+      await userEvent.keyboard('{Enter}');
+      expect(screen.getByRole('main')).toHaveFocus();
+      expect(router.url).toBe('/dashboard');
+      expect(navigate).not.toHaveBeenCalled();
+    });
+
+    it('gives the rail the banner landmark around the navigation', async () => {
+      await setup();
+      const banner = screen.getByRole('banner');
+      expect(banner.tagName).toBe('APP-NAV-RAIL');
+      expect(within(banner).getByRole('navigation')).toBeInTheDocument();
+    });
+
+    it('gives the phone bar the banner landmark', async () => {
+      const restore = phoneViewport();
+      try {
+        await setup();
+        expect(screen.getByRole('banner').tagName).toBe('APP-BOTTOM-BAR');
+      } finally {
+        restore();
+      }
+    });
+
     it('emits search from the rail', async () => {
       const { search } = await setup();
       await userEvent.click(
@@ -388,6 +420,7 @@ describe('ShellComponent', () => {
 
 /** The shell inside the component of a layout route, as an app with a layout route has it. */
 @Component({
+  changeDetection: ChangeDetectionStrategy.Eager,
   standalone: true,
   imports: [ShellComponent],
   template: `<app-shell frame="rail" [nav]="nav" [barKeys]="barKeys" [brand]="brand" />`,

@@ -10,16 +10,15 @@ import {
 
 let nextId = 0;
 
-/** One tab. `count` shows a number after the label, for example "Verlauf 4". */
+/** One tab. A tab shows only its label, never a count (app spec 000560). */
 export interface TabItem {
-  id: string;
-  label: string;
-  count?: number | null;
-  disabled?: boolean;
+  readonly id: string;
+  readonly label: string;
+  readonly disabled?: boolean;
 }
 
 /**
- * Tab bar of a page or a detail pane (Antrag | Verlauf 4 | Kommentare 2). It follows the
+ * Tab bar of a page or a detail pane (Antrag | Verlauf | Kommentare). It follows the
  * WAI-ARIA tabs pattern with automatic activation: one tab stop, the arrow keys move to
  * the next tab and select it, Home and End jump to the ends.
  *
@@ -60,15 +59,6 @@ export class TabsComponent {
     return `${this.idPrefix()}-panel-${id ?? ''}`;
   }
 
-  /**
-   * The accessible name of a tab with a count, for example "Verlauf 4". The label and the
-   * count are two spans with only a CSS gap between them, so the name from the content
-   * would be "Verlauf4". A tab without a count takes its name from the content.
-   */
-  accessibleName(tab: TabItem): string | null {
-    return tab.count === null || tab.count === undefined ? null : `${tab.label} ${tab.count}`;
-  }
-
   select(tab: TabItem): void {
     if (tab.disabled || tab.id === this.active()) return;
     this.active.set(tab.id);
@@ -76,23 +66,8 @@ export class TabsComponent {
 
   onKeydown(event: KeyboardEvent, index: number): void {
     const tabs = this.tabs();
-    let next = -1;
-    switch (event.key) {
-      case 'ArrowRight':
-        next = this.step(index, 1);
-        break;
-      case 'ArrowLeft':
-        next = this.step(index, -1);
-        break;
-      case 'Home':
-        next = this.step(-1, 1);
-        break;
-      case 'End':
-        next = this.step(tabs.length, -1);
-        break;
-      default:
-        return;
-    }
+    const next = this.keyTarget(event.key, index);
+    if (next === null) return;
     event.preventDefault();
     if (next < 0) return;
     this.select(tabs[next]);
@@ -103,10 +78,23 @@ export class TabsComponent {
   private step(from: number, dir: 1 | -1): number {
     const tabs = this.tabs();
     const n = tabs.length;
-    for (let i = 1; i <= n; i++) {
-      const idx = (((from + dir * i) % n) + n) % n;
-      if (!tabs[idx].disabled) return idx;
+    const ring = Array.from({ length: n }, (_, i) => (((from + dir * (i + 1)) % n) + n) % n);
+    return ring.find((idx) => !tabs[idx].disabled) ?? -1;
+  }
+
+  /** The index a key moves to (-1 when no tab is enabled), or null for another key. */
+  private keyTarget(key: string, index: number): number | null {
+    switch (key) {
+      case 'ArrowRight':
+        return this.step(index, 1);
+      case 'ArrowLeft':
+        return this.step(index, -1);
+      case 'Home':
+        return this.step(-1, 1);
+      case 'End':
+        return this.step(this.tabs().length, -1);
+      default:
+        return null;
     }
-    return -1;
   }
 }

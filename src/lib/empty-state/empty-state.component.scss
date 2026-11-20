@@ -1,3 +1,5 @@
+@use '../../styles/display' as d;
+
 :host {
   display: block;
   width: 100%;
@@ -5,25 +7,23 @@
 }
 
 /* `fill`: the whole page or pane is empty. The host takes the free height of its
-   flex-column parent. The ghost rows stay at the top, where the rows of the list would
-   start. A `plain` state is no list, so it centres in the free height. */
+   flex-column parent and centres in it. */
 :host(.es-host--fill) {
   display: flex;
   flex: 1 0 auto;
   flex-direction: column;
-  justify-content: flex-start;
-}
-:host(.es-host--fill.es-host--plain) {
   justify-content: center;
 }
 
-/* Ghost rows in the geometry of the list rows, faint and hidden from the screen reader,
-   and over them the message on a radial scrim. The rows mix the text colour into
-   transparent and the scrim is a mask on the rows, so the state reads the same on every
-   surface and in both themes. The block takes the full width of the list it replaces. Rows and message share one
-   grid cell, so a long message grows the block instead of being cut. Nothing moves. */
+/* Small, in its own height, in a section, a tile or a dialog. In the list column of a
+   list-detail page, `list-detail.scss` makes it large and centres it in the free height. */
+:host(.es-host--face) {
+  --es-face: 88px;
+}
+
+/* The block takes the full width of the list it replaces. */
 .es {
-  display: grid;
+  display: block;
   width: 100%;
   min-width: 0;
   margin-inline: auto;
@@ -32,182 +32,7 @@
   color: var(--color-text);
 }
 
-.es__ghosts {
-  grid-area: 1 / 1;
-  align-self: start;
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-  mask-image: radial-gradient(closest-side, rgb(0 0 0 / 2%), rgb(0 0 0 / 12%) 55%, rgb(0 0 0 / 50%));
-}
-
-.es__ghost {
-  display: flex;
-  flex: none;
-  align-items: center;
-  gap: 14px;
-  min-height: 4rem;
-  padding: 10px var(--space-4);
-  border-radius: 4px;
-  background: color-mix(in srgb, var(--color-text) 6%, transparent);
-}
-
-/* The geometry of `.rowgroup` and `app-list-item`: rows 2px apart, 4rem high, only the
-   outer corners round. */
-.es__ghost:first-child {
-  border-top-left-radius: var(--radius-lg);
-  border-top-right-radius: var(--radius-lg);
-}
-.es__ghost:last-child {
-  border-bottom-left-radius: var(--radius-lg);
-  border-bottom-right-radius: var(--radius-lg);
-}
-
-/* A pick list of a dialog: the 52px rows with the radio ring of the "TOP hinzufügen" list,
-   each one round. */
-.es__ghosts--choice .es__ghost--choice {
-  min-height: 52px;
-  padding: 6px 14px;
-  border-radius: var(--radius-lg);
-}
-
-.es__ghostLead {
-  flex: none;
-  box-sizing: border-box;
-  background: color-mix(in srgb, var(--color-text) 12%, transparent);
-}
-.es__ghostLead--ring {
-  width: 20px;
-  height: 20px;
-  border: 1.5px solid color-mix(in srgb, var(--color-text) 32%, transparent);
-  border-radius: var(--radius-pill);
-  background: none;
-}
-.es__ghostLead--avatar {
-  width: 32px;
-  height: 32px;
-  border-radius: var(--radius-pill);
-}
-/* The size of `app-date-block`. */
-.es__ghostLead--date {
-  width: 3rem;
-  height: 3.25rem;
-  border-radius: var(--radius-field);
-}
-.es__ghostLead--number {
-  width: 24px;
-  height: 24px;
-  border-radius: var(--radius-sm);
-}
-.es__ghostLead--file {
-  width: 32px;
-  height: 36px;
-  border-radius: var(--radius-sm);
-}
-
-/* The tag at the end of a plain row (a state, a count). */
-.es__ghostChip {
-  flex: none;
-  width: 56px;
-  height: 18px;
-  border-radius: var(--radius-pill);
-  background: color-mix(in srgb, var(--color-text) 10%, transparent);
-}
-.es__ghostChip--short {
-  width: 36px;
-}
-.es__ghostDot {
-  flex: none;
-  width: 22px;
-  height: 22px;
-  margin-left: auto;
-  border-radius: var(--radius-pill);
-  background: color-mix(in srgb, var(--color-text) 12%, transparent);
-}
-
-/* A data table: cells in columns, the last one at the end. */
-.es__ghost--table {
-  display: grid;
-  grid-template-columns: 2fr 1.2fr 1fr 0.8fr;
-  align-items: center;
-  gap: var(--space-4);
-  min-height: 48px;
-}
-.es__ghost--table .es__ghostBar--end {
-  justify-self: end;
-}
-
-/* A to-do card: title, sub line, a foot of chips and an avatar. */
-.es__ghost--card {
-  flex-direction: column;
-  align-items: stretch;
-  gap: 8px;
-  min-height: 0;
-  padding: 12px 14px;
-  border-radius: var(--radius-lg);
-}
-.es__ghost--card + .es__ghost--card {
-  margin-top: 6px;
-}
-.es__ghostFoot {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  margin-top: 4px;
-}
-
-/* A conversation: bubbles on the left, own ones on the right. */
-.es__ghosts--chat {
-  gap: 10px;
-}
-.es__ghosts--chat .es__ghost--chat {
-  flex-direction: column;
-  align-items: stretch;
-  gap: 6px;
-  max-width: 80%;
-  min-height: 0;
-  padding: 10px 14px;
-  border-radius: 16px;
-}
-.es__ghost--mine {
-  align-self: flex-end;
-}
-
-/* Running text: lines, no row boxes. */
-.es__ghosts--text {
-  gap: 10px;
-}
-.es__ghost--text {
-  flex-direction: column;
-  align-items: stretch;
-  gap: 8px;
-  min-height: 0;
-  padding: 0;
-  background: none;
-}
-
-.es__ghostText {
-  display: flex;
-  flex: 1 1 auto;
-  flex-direction: column;
-  gap: 6px;
-  min-width: 0;
-}
-
-.es__ghostBar {
-  display: block;
-  height: 10px;
-  border-radius: 6px;
-  background: color-mix(in srgb, var(--color-text) 18%, transparent);
-}
-
-.es__ghostBar--sub {
-  height: 8px;
-  background: color-mix(in srgb, var(--color-text) 12%, transparent);
-}
-
 .es__msg {
-  grid-area: 1 / 1;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -251,7 +76,7 @@
   margin-top: 10px;
 }
 
-/* `plain`: no ghost rows, for a detail pane with nothing open, a missing record or a page
+/* `plain`: no face, for a detail pane with nothing open, a missing record or a page
    without access. A muted glyph, the message and the way on, centred in the space. */
 .es--plain {
   display: block;
@@ -283,4 +108,167 @@
 
 .es--plain .es__action:not(:empty) {
   margin-top: var(--space-5);
+}
+
+/* An empty list: a flat face in a ring of faint dots above the message (app spec 001330).
+   The face blinks every 3.2 s and glances aside; each dot wobbles and flickers on its own
+   period, so the ring never moves in step. Everything mixes the text colour into
+   transparent, so it reads on every surface and in both themes. It runs without end, and
+   the switch "Weniger Bewegung" stops it (000219), which is the pause that WCAG 2.2.2 asks
+   for. */
+/* The face has 3rem of room above and below, so in a tall tile or a sheet it does not stick
+   to the head (app spec 001803). */
+.es--face {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding-block: var(--space-8);
+}
+.es--face .es__msg {
+  padding: var(--space-2) var(--space-4) 0;
+}
+/* Below the face, one small muted hint with a crossed-out lens. No body. */
+.es--face .es__msg {
+  flex-direction: row;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: var(--space-2);
+  color: var(--color-text-muted);
+}
+.es--face .es__heading {
+  font-size: var(--fs-sm, 0.875rem);
+  line-height: 1.25rem;
+  font-weight: var(--fw-medium);
+}
+.es--face .es__body {
+  display: none;
+}
+/* A way on that creates something (Info bearbeiten, Als freier TOP) stays, small, below the
+   hint. A reset of the filters is not projected: it is in the filter row of the list. */
+.es--face .es__action:not(:empty) {
+  flex-basis: 100%;
+  margin-top: var(--space-2);
+}
+.es__hintIcon {
+  flex: none;
+}
+.es__face {
+  width: var(--es-face);
+  height: calc(var(--es-face) * 106 / 132);
+  overflow: visible;
+}
+.es__face * {
+  transform-box: fill-box;
+  transform-origin: center;
+}
+.es__eye {
+  fill: color-mix(in srgb, var(--color-text) 14%, transparent);
+}
+.es__pupil {
+  fill: color-mix(in srgb, var(--color-text) 62%, transparent);
+}
+.es__mouth {
+  fill: none;
+  stroke: color-mix(in srgb, var(--color-text) 62%, transparent);
+  stroke-width: 3;
+  stroke-linecap: round;
+}
+.es__dot {
+  fill: color-mix(in srgb, var(--color-text) 45%, transparent);
+  animation: es-flicker 6s ease-in-out infinite;
+}
+.es__dotWobble {
+  animation: es-wobble 5s ease-in-out infinite alternate;
+}
+.es__eyes {
+  animation: es-blink 3.2s linear infinite;
+}
+.es__pupils {
+  animation: es-look 9.6s var(--ease-standard) infinite;
+}
+@keyframes es-blink {
+  0%,
+  86% {
+    scale: 1 1;
+  }
+  90% {
+    scale: 1 0.1;
+  }
+  94%,
+  100% {
+    scale: 1 1;
+  }
+}
+@keyframes es-look {
+  0%,
+  30% {
+    translate: 0 0;
+  }
+  36%,
+  52% {
+    translate: -3px 0;
+  }
+  58%,
+  74% {
+    translate: 3px 0;
+  }
+  80%,
+  100% {
+    translate: 0 0;
+  }
+}
+@keyframes es-wobble {
+  0% {
+    translate: 0 0;
+  }
+  33% {
+    translate: 0.6px -0.5px;
+  }
+  66% {
+    translate: -0.5px 0.6px;
+  }
+  100% {
+    translate: 0.4px 0.3px;
+  }
+}
+@keyframes es-flicker {
+  0%,
+  100% {
+    opacity: 0.55;
+  }
+  30% {
+    opacity: 0.35;
+  }
+  45% {
+    opacity: 0.5;
+  }
+  70% {
+    opacity: 0.3;
+  }
+}
+
+/* Less motion: the still picture. */
+@include d.host-on(motion) {
+  .es__face * {
+    animation: none;
+  }
+}
+
+/* Very high contrast: white on black, never yellow, because yellow means "press" (000614).
+   The dots stand still at full strength, a flicker of white on black is too harsh. */
+@include d.host-on(veryHigh) {
+  .es__eye {
+    fill: var(--color-text);
+  }
+  .es__pupil {
+    fill: var(--vh-bg, #000);
+  }
+  .es__mouth {
+    stroke: var(--color-text);
+  }
+  .es__dot {
+    fill: var(--color-text);
+    opacity: 1;
+    animation: none;
+  }
 }

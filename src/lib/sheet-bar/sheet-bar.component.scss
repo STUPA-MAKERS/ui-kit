@@ -8,7 +8,10 @@
   min-width: 0;
   min-height: 60px;
 }
-:host(.sheet-bar--bleed) {
+/* The buttons of the bar are a button group with a surface (001350), so the end of the
+   last surface is the end of the content: the bar reaches into the padding only while it
+   holds no button. */
+:host(.sheet-bar--bleed:not(:has(.btn-grp :is(.btn, .rm__trigger)))) {
   margin-inline-end: calc(-1 * var(--space-3));
 }
 
@@ -42,12 +45,17 @@
 /* A projected title (`appSheetBarTitle`) opens the sheet on the line of the actions. The
    actions keep the top 60px line; the title pads its first line onto the same centre
    axis (`1lh` is the line height of the title itself) and wraps below it when long. The
-   top padding keeps the title clear of the top edge of the sheet. The title only wraps and
-   never runs under the actions, also for a single long word. */
+   title only wraps and never runs under the actions, also for a single long word.
+   The top of the capital letters of the title is as far from the top edge of the sheet as
+   the title is from its side edge (`--sheet-bar-inset`, the side padding of the sheet).
+   `--sheet-bar-cap` is the distance from the top of the 60px line to the top of the
+   capital letters: 20px for a 28px/36px title in IBM Plex Sans ((60px − 36px) / 2 above
+   the line box, 8px of the line box above the capitals). A sheet with another side
+   padding or another title size sets the two properties. */
 :host(.sheet-bar--title) {
   align-items: flex-start;
   gap: var(--space-3);
-  padding-top: var(--space-4);
+  padding-top: max(0px, calc(var(--sheet-bar-inset, var(--space-6)) - var(--sheet-bar-cap, 20px)));
 }
 :host(.sheet-bar--title) .sheet-bar__actions {
   display: flex;

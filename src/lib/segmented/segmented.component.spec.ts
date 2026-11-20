@@ -1,4 +1,4 @@
-import { Component, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, signal } from '@angular/core';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
 import { render, screen } from '@testing-library/angular';
 import userEvent from '@testing-library/user-event';
@@ -16,6 +16,7 @@ const RULES: SegmentedOption[] = [
 ];
 
 @Component({
+  changeDetection: ChangeDetectionStrategy.Eager,
   standalone: true,
   imports: [SegmentedComponent],
   template: `<app-segmented ariaLabel="Art" [options]="options" [(value)]="value" />`,
@@ -50,6 +51,17 @@ describe('SegmentedComponent', () => {
     expect(radios[2]).toHaveClass('seg__opt--on');
   });
 
+  it('takes the height of a large search pill with size="lg"', async () => {
+    const { container } = await render(
+      `<app-segmented ariaLabel="Ansicht" size="lg" width="fill" [options]="opts" value="a" />`,
+      { imports: [SegmentedComponent], componentProperties: { opts: KINDS } },
+    );
+    const host = container.querySelector('app-segmented');
+    expect(host).toHaveClass('seg-host--lg');
+    expect(host).toHaveClass('seg-host--fill');
+    expect(host).not.toHaveClass('seg-host--control');
+  });
+
   it('takes the button height with size="control"', async () => {
     const { container } = await render(
       `<app-segmented ariaLabel="Ansicht" size="control" [options]="opts" value="a" />`,
@@ -58,25 +70,17 @@ describe('SegmentedComponent', () => {
     expect(container.querySelector('app-segmented')).toHaveClass('seg-host--control');
   });
 
-  it('keeps one width with size="control": the host marks the check, each label carries its bold copy', async () => {
+  it('keeps one width: each label carries its bold copy, and no segment has a check mark', async () => {
     const { container } = await render(
       `<app-segmented ariaLabel="Ansicht" size="control" [options]="opts" value="expense" />`,
       { imports: [SegmentedComponent], componentProperties: { opts: KINDS } },
     );
-    expect(container.querySelector('app-segmented')).toHaveClass('seg-host--check');
     const labels = [...container.querySelectorAll('.seg__label')].map((l) =>
       l.getAttribute('data-label'),
     );
     expect(labels).toEqual(['Ausgabe', 'Einnahme']);
+    expect(container.querySelector('svg')).toBeNull();
     expect(screen.getByRole('radio', { name: 'Einnahme' })).toBeInTheDocument();
-  });
-
-  it('does not mark the check when check is false', async () => {
-    const { container } = await render(
-      `<app-segmented ariaLabel="Ansicht" size="control" [check]="false" [options]="opts" value="expense" />`,
-      { imports: [SegmentedComponent], componentProperties: { opts: KINDS } },
-    );
-    expect(container.querySelector('app-segmented')).not.toHaveClass('seg-host--check');
   });
 
   it('has one tab stop: the checked option', async () => {
@@ -153,6 +157,7 @@ describe('SegmentedComponent', () => {
 
   it('works as a form control and follows its disabled state', async () => {
     @Component({
+      changeDetection: ChangeDetectionStrategy.Eager,
       standalone: true,
       imports: [SegmentedComponent, ReactiveFormsModule],
       template: `<app-segmented ariaLabel="Anwesenheit" [options]="opts" [formControl]="ctrl" />`,
@@ -184,39 +189,12 @@ describe('SegmentedComponent', () => {
     ).toBe(true);
   });
 
-  it('shows a count after the label and reads it as part of the name', async () => {
-    const counted: SegmentedOption[] = [
-      { value: 'all', label: 'Alle', count: 49 },
-      { value: 'paid', label: 'Bezahlt', count: 0 },
-      { value: 'none', label: 'Ohne', count: null },
-    ];
-    await render(Host, { componentProperties: { options: counted } });
-    expect(screen.getByRole('radio', { name: 'Alle 49' })).toBeInTheDocument();
-    // 0 is a count; null shows none.
-    expect(screen.getByRole('radio', { name: 'Bezahlt 0' })).toBeInTheDocument();
-    expect(screen.getByRole('radio', { name: 'Ohne' }).querySelector('.seg__count')).toBeNull();
-  });
-
-  it('leaves out the check mark of the chosen segment when asked to', async () => {
-    @Component({
-      standalone: true,
-      imports: [SegmentedComponent],
-      template: `<app-segmented
-        ariaLabel="Art"
-        [options]="opts"
-        value="expense"
-        [check]="check"
-      />`,
-    })
-    class CheckHost {
-      opts = KINDS;
-      check = false;
+  /** App spec 000560: a segment shows its label and never a count. */
+  it('names each segment by its label alone', async () => {
+    await render(Host, { componentProperties: { options: KINDS } });
+    for (const r of screen.getAllByRole('radio')) {
+      expect(r.textContent?.trim()).toBe(r.querySelector('.seg__label')?.getAttribute('data-label'));
     }
-    const { container, fixture } = await render(CheckHost);
-    expect(container.querySelector('.seg__check')).toBeNull();
-    fixture.componentInstance.check = true;
-    fixture.detectChanges();
-    expect(container.querySelector('.seg__check')).not.toBeNull();
   });
 
   it.each([
@@ -225,6 +203,7 @@ describe('SegmentedComponent', () => {
     ['fill', ['seg-host--fill']],
   ] as const)('sets the width class of %s', async (width, classes) => {
     @Component({
+      changeDetection: ChangeDetectionStrategy.Eager,
       standalone: true,
       imports: [SegmentedComponent],
       template: `<app-segmented ariaLabel="Art" [options]="opts" [width]="width" />`,

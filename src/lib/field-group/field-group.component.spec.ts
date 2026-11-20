@@ -23,6 +23,16 @@ describe('FieldGroupComponent and FieldRowComponent', () => {
     expect(await runAxe(container)).toHaveNoViolations();
   });
 
+  it('marks a label in another language with its lang', async () => {
+    const { container } = await render(
+      `<app-field-row label="Betrag" labelLang="de" value="12" /><app-field-row label="Amount" value="3" />`,
+      { imports },
+    );
+    const labels = container.querySelectorAll('.fld__label');
+    expect(labels[0]).toHaveAttribute('lang', 'de');
+    expect(labels[1]).not.toHaveAttribute('lang');
+  });
+
   it('shows a zero, which is a value and not a missing one', async () => {
     const { container } = await render(`<app-field-row label="Anhänge" [value]="0" />`, {
       imports,

@@ -2,8 +2,10 @@ import { NgTemplateOutlet } from '@angular/common';
 import {
   ChangeDetectionStrategy,
   Component,
+  DestroyRef,
   ElementRef,
   TemplateRef,
+  afterNextRender,
   computed,
   effect,
   inject,
@@ -58,7 +60,8 @@ export class PageHeaderComponent {
   readonly subtitle = input<string | null>(null);
 
   /**
-   * A short fact about the page, such as a count ("8 open").
+   * A short fact about the page, such as a version ("Version 3"). It is never a count:
+   * a heading shows no counter (app spec 000560).
    *
    * The header shows it as muted text on the baseline of the title. Do not put such a
    * text into the `actions` slot: on a phone the slot moves next to or under the title
@@ -98,6 +101,11 @@ export class PageHeaderComponent {
    * has no crumb trail and no bottom margin (the column spaces its children). Every list
    * column uses it, so the columns share one title geometry; a page never styles its
    * list header itself. `--ph-inset` sets the start inset of the title.
+   *
+   * On a wide screen the title of a pane header shows only to a screen reader, and its
+   * actions stand at the end of the line of the search bar of the column (app spec 001500,
+   * `list-detail.scss`). The header writes the width of its actions to its parent as
+   * `--ph-pane-actions`, so the search bar ends before them.
    */
   readonly pane = input(false);
 
@@ -144,6 +152,24 @@ export class PageHeaderComponent {
     effect(() => {
       const title = this.title();
       if (this.docked()) this.nav?.title.set(title);
+    });
+    const destroyRef = inject(DestroyRef);
+    afterNextRender(() => {
+      if (!this.pane() || typeof ResizeObserver === 'undefined') return;
+      const host = this.host.nativeElement;
+      const column = host.parentElement;
+      const actions = host.querySelector<HTMLElement>('.ph__actions');
+      if (!column || !actions) return;
+      const write = (): void => {
+        column.style.setProperty('--ph-pane-actions', `${actions.offsetWidth}px`);
+      };
+      const observer = new ResizeObserver(write);
+      observer.observe(actions);
+      write();
+      destroyRef.onDestroy(() => {
+        observer.disconnect();
+        column.style.removeProperty('--ph-pane-actions');
+      });
     });
   }
 }

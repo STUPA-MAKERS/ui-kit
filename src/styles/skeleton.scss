@@ -1,3 +1,5 @@
+@use 'display' as d;
+
 // Global loading placeholders. Consume from the global stylesheet of an app:
 //   @use 'skeleton';
 @use 'skeleton-bar' as bar;
@@ -49,7 +51,7 @@ td:first-child > .skel--bar {
   border: var(--border-width) solid var(--color-border);
   background: var(--color-surface);
 }
-@media (prefers-reduced-motion: reduce) {
+@include d.on(motion) {
   .skel {
     animation: none;
   }
@@ -156,7 +158,7 @@ td:first-child > .skel--bar {
   top: auto;
   bottom: 0;
 }
-@media (prefers-reduced-motion: reduce) {
+@include d.on(motion) {
   .skel-text,
   .skel-box,
   .skel-progress::after {
@@ -167,4 +169,68 @@ td:first-child > .skel--bar {
     width: 100%;
     opacity: 0.5;
   }
+}
+
+/* ---------------------------------------------------------------------------
+   The controls of a head while it loads (app spec 000893): a connected button group and
+   the meta chips. A head shows its actions as one group (`app-button-group`, app spec
+   001350) and its meta line as chips (001306), so the placeholder has the same height,
+   gap and corners; with bars of another shape the head jumps when the data arrives.
+
+   - `.skel-grp`: the group. Its children are `.skel-box.skel-btn`: 48px wide (a button
+     with an icon only), or `--label` with `--skel-w` (a button with a label). The gap is
+     2px, the corners 8px, the outer ends half the height. `.skel-grp--sm` for small buttons.
+   - `.skel-grp--block`: the buttons share the full width (a phone head, a ballot).
+   - `.skel-chips`: the meta line. Its children are `.skel-box.skel-chip` with `--skel-w`.
+   --------------------------------------------------------------------------- */
+.skel-grp {
+  --skel-grp-h: var(--control-height);
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  gap: 2px;
+}
+.skel-grp--sm {
+  --skel-grp-h: var(--control-height-sm);
+}
+.skel-grp > .skel-btn {
+  width: 48px;
+  height: var(--skel-grp-h);
+  border-radius: 8px;
+}
+.skel-grp--sm > .skel-btn {
+  width: 40px;
+}
+.skel-grp > .skel-btn--label {
+  width: var(--skel-w, 7rem);
+}
+.skel-grp > .skel-btn:first-child {
+  border-start-start-radius: calc(var(--skel-grp-h) / 2);
+  border-end-start-radius: calc(var(--skel-grp-h) / 2);
+}
+.skel-grp > .skel-btn:last-child {
+  border-start-end-radius: calc(var(--skel-grp-h) / 2);
+  border-end-end-radius: calc(var(--skel-grp-h) / 2);
+}
+.skel-chips {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2);
+  min-width: 0;
+}
+.skel-chips > .skel-chip {
+  width: var(--skel-w, 5rem);
+  height: 28px;
+  border-radius: var(--radius-pill);
+}
+/* A group whose buttons share the full width (a phone head, the ballot of a vote). */
+.skel-grp--block {
+  display: flex;
+  width: 100%;
+}
+.skel-grp--block > .skel-btn,
+.skel-grp--block > .skel-btn--label {
+  flex: 1 1 0;
+  width: auto;
 }

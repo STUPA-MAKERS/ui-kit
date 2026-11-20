@@ -21,6 +21,7 @@ import { anchorOutOfView, placeBelow, showInTopLayer, watchAnchoredPopover } fro
 import { ButtonComponent } from '../button/button.component';
 import { CurrencyInputComponent } from '../currency-input/currency-input.component';
 import { DatepickerComponent } from '../datepicker/datepicker.component';
+import { FocusDialogDirective } from '../focus/focus-dialog.directive';
 import { IconComponent } from '../icon/icon.component';
 import { MEDIA } from '../breakpoints/breakpoints';
 import { mediaQuery } from '../signals/media-query';
@@ -37,8 +38,8 @@ const GAP = 4;
 
 /** The two bounds of a range. An empty string is an open bound. */
 export interface RangeValue {
-  from: string;
-  to: string;
+  readonly from: string;
+  readonly to: string;
 }
 
 /**
@@ -59,6 +60,7 @@ export interface RangeValue {
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
+    FocusDialogDirective,
     TruncatedDirective,
     ButtonComponent,
     CurrencyInputComponent,
@@ -87,7 +89,8 @@ export class RangeChipComponent {
   /** "Anwenden" or "Zurücksetzen" set a new range. */
   readonly applied = output<RangeValue>();
 
-  private readonly phone = mediaQuery(MEDIA.phone);
+  /** A phone shows the sheet, whose buttons have the full size; the popover keeps small ones. */
+  protected readonly phone = mediaQuery(MEDIA.phone);
 
   protected readonly open = signal(false);
   protected readonly popoverOpen = computed(() => this.open() && !this.phone());
@@ -130,10 +133,12 @@ export class RangeChipComponent {
     const from = this.from().trim();
     const to = this.to().trim();
     if (!from && !to) return this.label();
-    let range: string;
-    if (from && to) range = `${this.format(from)} – ${this.format(to)}`;
-    else if (from) range = this.i18n.translate('range.fromOnly', { value: this.format(from) });
-    else range = this.i18n.translate('range.toOnly', { value: this.format(to) });
+    const range =
+      from && to
+        ? `${this.format(from)} – ${this.format(to)}`
+        : from
+          ? this.i18n.translate('range.fromOnly', { value: this.format(from) })
+          : this.i18n.translate('range.toOnly', { value: this.format(to) });
     return `${this.label()}: ${range}`;
   });
 

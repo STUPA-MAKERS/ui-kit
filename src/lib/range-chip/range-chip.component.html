@@ -57,9 +57,9 @@
     @if (!draftValid()) {
       <p class="rc__error" role="alert">{{ 'range.invalid' | uiKitT }}</p>
     }
-    <div class="rc__actions">
-      <app-button variant="text" size="sm" (click)="reset()">{{ 'range.reset' | uiKitT }}</app-button>
-      <app-button variant="fill" size="sm" [disabled]="!draftValid()" (click)="apply()">{{
+    <div class="rc__actions btn-grp btn-grp--main">
+      <app-button variant="text" [size]="phone() ? 'md' : 'sm'" (click)="reset()">{{ 'range.reset' | uiKitT }}</app-button>
+      <app-button variant="fill" [size]="phone() ? 'md' : 'sm'" [disabled]="!draftValid()" (click)="apply()">{{
         'range.apply' | uiKitT
       }}</app-button>
     </div>
@@ -75,6 +75,8 @@
     popover="manual"
     role="dialog"
     tabindex="-1"
+    appFocusDialog
+    appFocusDialogStart="none"
     [attr.aria-label]="label()"
     [style.top.px]="position().top"
     [style.left.px]="position().left"

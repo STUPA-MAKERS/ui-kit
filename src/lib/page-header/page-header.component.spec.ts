@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { render, screen } from '@testing-library/angular';
 import { runAxe } from '../../../testing/a11y';
 import { ListDetailBarComponent } from '../list-detail/list-detail-bar.component';
@@ -7,6 +7,7 @@ import { PageHeaderComponent } from './page-header.component';
 
 /** A page of a one-view layout on a phone: the frame shows the bar, the page has its header. */
 @Component({
+  changeDetection: ChangeDetectionStrategy.Eager,
   standalone: true,
   imports: [ListDetailBarComponent, PageHeaderComponent],
   providers: [ListDetailNav],
@@ -78,9 +79,9 @@ describe('PageHeaderComponent', () => {
   });
 
   it('shows the meta text in the title block, not in the actions slot', async () => {
-    const host = await setup({ meta: '8 open' });
+    const host = await setup({ meta: 'Version 3' });
     const meta = host.querySelector('.ph__heading .ph__meta');
-    expect(meta?.textContent).toBe('8 open');
+    expect(meta?.textContent).toBe('Version 3');
     expect(host.querySelector('.ph__actions .ph__meta')).toBeNull();
   });
 

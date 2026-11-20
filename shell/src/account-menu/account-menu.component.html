@@ -10,10 +10,12 @@
     >
   </div>
   <div class="am__sep" role="separator"></div>
-  <div class="am__items" (click)="onItemsClick($event)">
+  <div class="am__items" role="presentation" (click)="onItemsClick($event)">
     <ng-content select="[accountItems]" />
   </div>
-  <div class="am__sep" role="separator"></div>
+  @if (languages().length > 1 || look() === 'popover') {
+    <div class="am__sep" role="separator"></div>
+  }
   @if (languages().length > 1) {
     <div class="am__item am__item--field">
       <app-icon name="globe" [size]="19" />
@@ -30,12 +32,16 @@
       </span>
     </div>
   }
-  <div class="am__item am__item--field">
-    <app-icon name="moon" [size]="19" />
-    <app-switch class="am__grow" [checked]="dark()" (checkedChange)="darkChange.emit($event)">{{
-      'account.darkMode' | uiKitT
-    }}</app-switch>
-  </div>
+  <!-- The sheet has no switch of its own: the "More" sheet that holds it shows the dark
+       design in its display settings, and one setting has one switch on a screen. -->
+  @if (look() === 'popover') {
+    <div class="am__item am__item--field">
+      <app-icon name="moon" [size]="19" />
+      <app-switch class="am__grow" [checked]="dark()" (checkedChange)="darkChange.emit($event)">{{
+        'account.darkMode' | uiKitT
+      }}</app-switch>
+    </div>
+  }
   <div class="am__sep" role="separator"></div>
   <button type="button" class="am__item" (click)="signOut()">
     <app-icon name="logout" [size]="19" />{{ 'account.logout' | uiKitT }}
@@ -50,10 +56,12 @@
     [class.am__trigger--on]="open()"
     [attr.aria-expanded]="open()"
     [attr.aria-controls]="open() ? panelId : null"
-    [attr.aria-label]="'account.open' | uiKitT: { name: name() }"
     [title]="'account.open' | uiKitT: { name: name() }"
     (click)="toggle()"
   >
+    <!-- The name is text, not aria-label: the initials of the avatar are visible text,
+         and an aria-label without them breaks WCAG 2.5.3 (label in name). -->
+    <span class="sr-only">{{ 'account.open' | uiKitT: { name: name() } }}</span>
     <app-avatar [name]="name()" [principalId]="avatarId()" [decorative]="true" />
   </button>
   @if (open()) {

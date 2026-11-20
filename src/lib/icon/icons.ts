@@ -4,18 +4,18 @@
 
 /** One element of an icon: a path, circle, rect or ellipse with its attributes. */
 export interface IconShape {
-  t: 'path' | 'circle' | 'rect' | 'ellipse';
-  d?: string;
-  cx?: string;
-  cy?: string;
-  r?: string;
-  x?: string;
-  y?: string;
-  width?: string;
-  height?: string;
-  rx?: string;
-  ry?: string;
-  fill?: string;
+  readonly t: 'path' | 'circle' | 'rect' | 'ellipse';
+  readonly d?: string;
+  readonly cx?: string;
+  readonly cy?: string;
+  readonly r?: string;
+  readonly x?: string;
+  readonly y?: string;
+  readonly width?: string;
+  readonly height?: string;
+  readonly rx?: string;
+  readonly ry?: string;
+  readonly fill?: string;
 }
 
 /** Every icon name of the kit. */
@@ -42,6 +42,7 @@ export type IconName =
   | 'clipcheck'
   | 'clipslash'
   | 'clock'
+  | 'code'
   | 'cloud-off'
   | 'copy'
   | 'db'
@@ -75,6 +76,7 @@ export type IconName =
   | 'key'
   | 'landmark'
   | 'left'
+  | 'letters'
   | 'link'
   | 'linkslash'
   | 'list'
@@ -97,6 +99,7 @@ export type IconName =
   | 'power'
   | 'printer'
   | 'qr'
+  | 'quote'
   | 'receipt'
   | 'redo'
   | 'reload'
@@ -105,6 +108,7 @@ export type IconName =
   | 'right'
   | 'scan'
   | 'search'
+  | 'searchOff'
   | 'send'
   | 'shapes'
   | 'shield'
@@ -176,6 +180,7 @@ const SHAPES: Record<string, readonly IconShape[]> = {
   clipcheck: [{ t: 'rect', x: '8', y: '2', width: '8', height: '4', rx: '1' }, { t: 'path', d: 'M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2' }, { t: 'path', d: 'm9 14 2 2 4-4' }],
   clipslash: [{ t: 'path', d: 'm21.4 11.1-9.2 9.2a6 6 0 0 1-8.5-8.5l9.2-9.2a4 4 0 0 1 5.7 5.7l-9.2 9.2a2 2 0 0 1-2.8-2.8l8.5-8.5' }, { t: 'path', d: 'M3 3l18 18' }],
   clock: [{ t: 'circle', cx: '12', cy: '12', r: '9' }, { t: 'path', d: 'M12 7v5l3 2' }],
+  code: [{ t: 'path', d: 'M8 7l-5 5 5 5M16 7l5 5-5 5M14 4l-4 16' }],
   'cloud-off': [{ t: 'path', d: 'm2 2 20 20' }, { t: 'path', d: 'M5.782 5.782A7 7 0 0 0 9 19h8.5a4.5 4.5 0 0 0 1.307-.193' }, { t: 'path', d: 'M21.532 16.5A4.5 4.5 0 0 0 17.5 10h-1.79A7.008 7.008 0 0 0 10 5.07' }],
   copy: [{ t: 'rect', x: '8', y: '8', width: '13', height: '13', rx: '2' }, { t: 'path', d: 'M4 16V5a1 1 0 0 1 1-1h11' }],
   db: [{ t: 'ellipse', cx: '12', cy: '5', rx: '8', ry: '3' }, { t: 'path', d: 'M4 5v14c0 1.7 3.6 3 8 3s8-1.3 8-3V5' }, { t: 'path', d: 'M4 12c0 1.7 3.6 3 8 3s8-1.3 8-3' }],
@@ -209,6 +214,7 @@ const SHAPES: Record<string, readonly IconShape[]> = {
   key: [{ t: 'circle', cx: '7.5', cy: '15.5', r: '4.5' }, { t: 'path', d: 'm10.7 12.3 9.3-9.3M17 6l3 3M14 9l2 2' }],
   landmark: [{ t: 'path', d: 'M3 22h18M6 18v-7M10 18v-7M14 18v-7M18 18v-7' }, { t: 'path', d: 'M12 2 20 7H4z' }],
   left: [{ t: 'path', d: 'm15 6-6 6 6 6' }],
+  letters: [{ t: 'path', d: 'M3 19 8.5 5 14 19M5.2 14h6.6M15 19l3-7.5 3 7.5M16 16.5h4' }],
   link: [{ t: 'path', d: 'M10 13a5 5 0 0 0 7.5.5l3-3a5 5 0 0 0-7-7l-1.7 1.7' }, { t: 'path', d: 'M14 11a5 5 0 0 0-7.5-.5l-3 3a5 5 0 0 0 7 7l1.7-1.7' }],
   linkslash: [{ t: 'path', d: 'M10 13a5 5 0 0 0 7.5.5l3-3a5 5 0 0 0-7-7l-1.7 1.7' }, { t: 'path', d: 'M14 11a5 5 0 0 0-7.5-.5l-3 3a5 5 0 0 0 7 7l1.7-1.7' }, { t: 'path', d: 'M3 3l18 18' }],
   list: [{ t: 'path', d: 'M9 6h11M9 12h11M9 18h11M4 6h.01M4 12h.01M4 18h.01' }],
@@ -232,6 +238,7 @@ const SHAPES: Record<string, readonly IconShape[]> = {
   power: [{ t: 'path', d: 'M12 2v10' }, { t: 'path', d: 'M18.4 6.6a9 9 0 1 1-12.77.04' }],
   printer: [{ t: 'path', d: 'M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2' }, { t: 'path', d: 'M6 9V3a1 1 0 0 1 1-1h10a1 1 0 0 1 1 1v6' }, { t: 'rect', x: '6', y: '14', width: '12', height: '8', rx: '1' }],
   qr: [{ t: 'rect', x: '3', y: '3', width: '5', height: '5', rx: '1' }, { t: 'rect', x: '16', y: '3', width: '5', height: '5', rx: '1' }, { t: 'rect', x: '3', y: '16', width: '5', height: '5', rx: '1' }, { t: 'path', d: 'M21 16h-3a2 2 0 0 0-2 2v3' }, { t: 'path', d: 'M21 21v.01' }, { t: 'path', d: 'M12 7v3a2 2 0 0 1-2 2H7' }, { t: 'path', d: 'M3 12h.01' }, { t: 'path', d: 'M12 3h.01' }, { t: 'path', d: 'M12 16v.01' }, { t: 'path', d: 'M16 12h1' }, { t: 'path', d: 'M21 12v.01' }, { t: 'path', d: 'M12 21v-1' }],
+  quote: [{ t: 'path', d: 'M17 6H3M21 12H8M21 18H8M3 12v6' }],
   receipt: [{ t: 'path', d: 'M5 3v18l2.5-1.5L10 21l2-1.5 2 1.5 2.5-1.5L19 21V3l-2.5 1.5L14 3l-2 1.5L10 3 7.5 4.5z' }, { t: 'path', d: 'M9 9h6M9 13h6' }],
   redo: [{ t: 'path', d: 'm15 14 5-5-5-5' }, { t: 'path', d: 'M20 9H9a5 5 0 0 0 0 10h3' }],
   reload: [{ t: 'path', d: 'M21 12a9 9 0 1 1-9-9c2.52 0 4.93 1 6.74 2.74L21 8' }, { t: 'path', d: 'M21 3v5h-5' }],
@@ -240,6 +247,7 @@ const SHAPES: Record<string, readonly IconShape[]> = {
   right: [{ t: 'path', d: 'm9 6 6 6-6 6' }],
   scan: [{ t: 'path', d: 'M3 7V5a2 2 0 0 1 2-2h2' }, { t: 'path', d: 'M17 3h2a2 2 0 0 1 2 2v2' }, { t: 'path', d: 'M21 17v2a2 2 0 0 1-2 2h-2' }, { t: 'path', d: 'M7 21H5a2 2 0 0 1-2-2v-2' }, { t: 'path', d: 'M7 12h10' }],
   search: [{ t: 'circle', cx: '11', cy: '11', r: '7' }, { t: 'path', d: 'm20 20-3.5-3.5' }],
+  searchOff: [{ t: 'circle', cx: '11', cy: '11', r: '7' }, { t: 'path', d: 'm20 20-3.5-3.5' }, { t: 'path', d: 'm8.6 8.6 4.8 4.8m0-4.8-4.8 4.8' }],
   // The plane is drawn 0.9 times its full size and moved down and left, so its area
   // centroid sits on the middle of the box. At full size the centroid was 1.8 units right
   // of and above the middle, and the plane looked raised next to a label.
@@ -324,6 +332,7 @@ export const ICON_NAMES: readonly IconName[] = [
   'clipcheck',
   'clipslash',
   'clock',
+  'code',
   'copy',
   'db',
   'down',
@@ -356,6 +365,7 @@ export const ICON_NAMES: readonly IconName[] = [
   'key',
   'landmark',
   'left',
+  'letters',
   'link',
   'linkslash',
   'list',
@@ -378,6 +388,7 @@ export const ICON_NAMES: readonly IconName[] = [
   'power',
   'printer',
   'qr',
+  'quote',
   'receipt',
   'redo',
   'repeat',
@@ -385,6 +396,7 @@ export const ICON_NAMES: readonly IconName[] = [
   'right',
   'scan',
   'search',
+  'searchOff',
   'send',
   'shapes',
   'shield',

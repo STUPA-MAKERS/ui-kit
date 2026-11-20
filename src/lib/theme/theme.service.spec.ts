@@ -2,6 +2,7 @@ import { TestBed } from '@angular/core/testing';
 import { provideUiKit } from '../intl/intl';
 import { UI_KIT_THEME_DEFAULTS } from './theme.config';
 import { ThemeService } from './theme.service';
+import { DisplaySettingsService } from '../display/display-settings.service';
 
 const KEY = UI_KIT_THEME_DEFAULTS.storageKey;
 const THEME_COLOR = UI_KIT_THEME_DEFAULTS.background;
@@ -37,6 +38,22 @@ describe('ThemeService', () => {
     svc.init();
     expect(svc.preference()).toBe('system');
     expect(svc.resolved()).toBe('light');
+    expect(document.documentElement.getAttribute('data-theme')).toBe('light');
+  });
+
+  it('shows the dark theme while very high contrast is on and keeps the preference (§000606)', () => {
+    localStorage.setItem(KEY, 'light');
+    const svc = service();
+    svc.init();
+    const display = TestBed.inject(DisplaySettingsService);
+    display.set('veryHigh', true);
+    TestBed.tick();
+    expect(svc.resolved()).toBe('dark');
+    expect(svc.locked()).toBe(true);
+    expect(document.documentElement.getAttribute('data-theme')).toBe('dark');
+    expect(svc.preference()).toBe('light');
+    display.set('veryHigh', false);
+    TestBed.tick();
     expect(document.documentElement.getAttribute('data-theme')).toBe('light');
   });
 
@@ -162,6 +179,19 @@ describe('ThemeService', () => {
       expect(metas.map((m) => m.getAttribute('content'))).toEqual([THEME_COLOR.dark, THEME_COLOR.dark]);
     });
 
+    it('colours the bars black while very high contrast is on, in every theme (§000411)', () => {
+      const svc = service();
+      svc.init();
+      svc.setPreference('light');
+      const display = TestBed.inject(DisplaySettingsService);
+      display.set('veryHigh', true);
+      TestBed.tick();
+      expect(metas.map((m) => m.getAttribute('content'))).toEqual(['#000000', '#000000']);
+      display.set('veryHigh', false);
+      TestBed.tick();
+      expect(metas.map((m) => m.getAttribute('content'))).toEqual([THEME_COLOR.light, THEME_COLOR.light]);
+    });
+
     it('uses the background tokens of the design system by default', () => {
       expect(THEME_COLOR).toEqual({ light: '#f6f7f5', dark: '#101211' });
     });
@@ -195,6 +225,18 @@ describe('ThemeService', () => {
       svc.setPreference('dark');
       expect(link.getAttribute('href')).toBe('manifest.webmanifest?scheme=dark');
       svc.setPreference('light');
+      expect(link.getAttribute('href')).toBe('manifest.webmanifest');
+    });
+
+    it('links the black manifest while very high contrast is on (§000411)', () => {
+      const svc = service();
+      svc.init();
+      const display = TestBed.inject(DisplaySettingsService);
+      display.set('veryHigh', true);
+      TestBed.tick();
+      expect(link.getAttribute('href')).toBe('manifest.webmanifest?scheme=contrast');
+      display.set('veryHigh', false);
+      TestBed.tick();
       expect(link.getAttribute('href')).toBe('manifest.webmanifest');
     });
 

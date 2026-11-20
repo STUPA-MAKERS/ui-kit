@@ -20,6 +20,11 @@ export class InputComponent implements ControlValueAccessor {
   @Input() type = 'text';
   @Input() placeholder = '';
   @Input() hint = '';
+  /**
+   * The language of the label and the hint when it is not the language of the page, for
+   * example a form text in a fallback language (WCAG 3.1.2). `null` keeps the page language.
+   */
+  @Input() textLang: string | null = null;
   @Input() error = '';
   @Input() required = false;
   /** Accessible name when the field has no visible label (for example a search field). */
@@ -38,10 +43,8 @@ export class InputComponent implements ControlValueAccessor {
   onTouched: () => void = () => {};
 
   get describedBy(): string | null {
-    const ids: string[] = [];
-    if (this.suffix) ids.push(`${this.id}-suffix`);
-    if (this.error) ids.push(`${this.id}-error`);
-    else if (this.hint) ids.push(`${this.id}-hint`);
+    const message = this.error ? [`${this.id}-error`] : this.hint ? [`${this.id}-hint`] : [];
+    const ids = [...(this.suffix ? [`${this.id}-suffix`] : []), ...message];
     return ids.length ? ids.join(' ') : null;
   }
 

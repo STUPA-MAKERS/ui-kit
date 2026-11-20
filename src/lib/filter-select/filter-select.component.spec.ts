@@ -1,8 +1,8 @@
-import { Component, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, signal } from '@angular/core';
 import { fireEvent, render, screen, waitFor, within } from '@testing-library/angular';
 import userEvent from '@testing-library/user-event';
 import { runAxe } from '../../../testing/a11y';
-import { FilterSelectComponent, type FilterSelectOption, type FilterSelectPerson } from './filter-select.component';
+import { filterChipText, FilterSelectComponent, type FilterSelectOption, type FilterSelectPerson } from './filter-select.component';
 
 const OPTIONS: FilterSelectOption[] = [
   { value: '', label: 'Alle Typen' },
@@ -13,6 +13,7 @@ const OPTIONS: FilterSelectOption[] = [
 ];
 
 @Component({
+  changeDetection: ChangeDetectionStrategy.Eager,
   standalone: true,
   imports: [FilterSelectComponent],
   template: `
@@ -376,11 +377,13 @@ describe('FilterSelectComponent', () => {
                           filled unsetValue="false" />`,
       { imports: [FilterSelectComponent], componentProperties: props({}) },
     );
-    const chip = screen.getByRole('button', { name: 'Archiv: Ohne Archiv' });
+    const chip = screen.getByRole('button', { name: 'Archiv' });
+    expect(chip).toHaveTextContent(/^Archiv$/);
     expect(chip).not.toHaveClass('on');
     expect(chip.querySelector('.fs__chev')).not.toBeNull();
     expect(chip.querySelectorAll('app-icon')).toHaveLength(1);
     await rerender({ componentProperties: props({ value: 'true' }) });
+    expect(chip).toHaveTextContent('Archiv: Nur Archiv');
     expect(chip).toHaveClass('on');
     expect(chip.querySelector('.fs__chev')).toBeNull();
     expect(chip.querySelectorAll('app-icon')).toHaveLength(1);
@@ -388,6 +391,13 @@ describe('FilterSelectComponent', () => {
     expect(chip).not.toHaveClass('on');
     await rerender({ componentProperties: props({ multiple: true, values: ['true'] }) });
     expect(container.querySelector('.fs__chip')).toHaveClass('on');
+  });
+
+  it('builds the chip text of one pattern: the name, then name and value (000663)', () => {
+    expect(filterChipText('Status')).toBe('Status');
+    expect(filterChipText('Status', null)).toBe('Status');
+    expect(filterChipText('Status', '')).toBe('Status');
+    expect(filterChipText('Status', 'Offen')).toBe('Status: Offen');
   });
 
   it('says when there is no choice', async () => {

@@ -1,4 +1,4 @@
-<a class="skip-link" href="#main">{{ 'shell.skip' | uiKitT }}</a>
+<a class="skip-link" href="#main" (click)="skipToMain($event)">{{ 'shell.skip' | uiKitT }}</a>
 
 <ng-template #accountTpl><ng-content select="[shellAccount]" /></ng-template>
 
@@ -18,6 +18,7 @@
   }
   @if (current() === 'rail' && !phone()) {
     <app-nav-rail
+      role="banner"
       class="frame__rail"
       [items]="nav()"
       [brand]="brand()"
@@ -41,6 +42,7 @@
     }
 
     <main
+      #main
       id="main"
       class="main"
       [class.page-shell]="current() !== 'bare'"
@@ -61,6 +63,7 @@
 
   @if (current() === 'rail' && phone()) {
     <app-bottom-bar
+      role="banner"
       [items]="nav()"
       [barKeys]="barKeys()"
       [searchable]="searchable()"

@@ -161,14 +161,10 @@
   --motion-shift-sm: 8px;
   --motion-shift-md: 24px;
   --motion-scale-in: 0.96;
-  // Press: the tint of a pressed control is its own text colour at 10 %, so it darkens a
-  // light surface and lightens a dark one in both themes. A pressed element also shrinks
-  // (`_press.scss`): a row, a card or a wide bar to press-scale, a button, a chip or an
-  // icon to press-scale-control, because 0.98 of a 40 px pill moves its edge by less than
-  // one pixel.
-  --press-tint: color-mix(in srgb, currentColor 10%, transparent);
-  --press-scale: 0.98;
-  --press-scale-control: 0.94;
+  // Press: the tint of a pressed control is its own text colour at 16 %, so it darkens a
+  // light surface and lightens a dark one in both themes. It paints the ripple of a press
+  // (`_press.scss`).
+  --press-tint: color-mix(in srgb, currentColor 16%, transparent);
   // A skeleton shows only after this delay, so a fast load shows no flash.
   --skeleton-delay: 300ms;
 
@@ -196,6 +192,15 @@
   --color-surface-2: var(--c-light-c2);
   --color-surface-3: var(--c-light-c3);
   --color-surface-4: var(--c-light-c4);
+  // The surface of a box that floats over the page (menu, popover, tooltip). A glass
+  // surface (`glass-content`) turns the surface tokens into overlays and never this one,
+  // so a menu that opens from a dialog or a sheet stays as solid as one on the page.
+  --color-pop: var(--c-light-c3);
+  // The glass of a dialog (1) and of a side or bottom sheet (2). `glass-content` never
+  // turns these into overlays either, so a sheet that opens from a dialog or another sheet
+  // has the same tint as one that opens from the page.
+  --color-glass-1: var(--c-light-c1);
+  --color-glass-2: var(--c-light-c2);
   // Dividers and decorative edges.
   --color-border: var(--c-light-olv);
   // Control edges (outlined button, segmented control, checkbox). At least 3:1 against
@@ -223,6 +228,8 @@
   --color-primary-active: var(--c-light-pt-active);
   --color-primary-subtle: var(--c-light-sel);
   --color-on-primary: var(--c-light-c1);
+  // The ring is the accent as text: the app moves that step to 4.5:1 on every surface of
+  // the theme, so the ring keeps 3:1 for any accent an admin picks (spec 000508).
   --color-focus-ring: var(--c-light-pt);
 
   --color-selected: var(--c-light-sel);
@@ -243,6 +250,8 @@
 
   --shadow-sm: 0 1px 2px rgba(20, 40, 28, 0.06), 0 1px 3px rgba(20, 40, 28, 0.08);
   --shadow-md: 0 2px 6px rgba(20, 40, 28, 0.08), 0 6px 16px rgba(20, 40, 28, 0.08);
+  /* `--shadow-md` cast upwards, for a bar fixed to the foot of the window. */
+  --shadow-md-up: 0 -2px 6px rgba(20, 40, 28, 0.08), 0 -6px 16px rgba(20, 40, 28, 0.08);
   --shadow-lg: 0 10px 30px rgba(20, 40, 28, 0.14), 0 2px 6px rgba(20, 40, 28, 0.08);
   // Menus, popovers, the floating selection bar.
   --shadow-elevated: 0 10px 30px rgba(20, 40, 28, 0.14), 0 2px 6px rgba(20, 40, 28, 0.08);
@@ -271,6 +280,9 @@
   --color-surface-2: var(--c-dark-c2);
   --color-surface-3: var(--c-dark-c3);
   --color-surface-4: var(--c-dark-c4);
+  --color-pop: var(--c-dark-c3);
+  --color-glass-1: var(--c-dark-c1);
+  --color-glass-2: var(--c-dark-c2);
   --color-border: var(--c-dark-olv);
   --color-border-strong: var(--c-dark-ol);
 
@@ -290,7 +302,9 @@
   --color-primary-active: var(--c-dark-pt-active);
   --color-primary-subtle: var(--c-dark-sel);
   --color-on-primary: var(--c-on-accent);
-  --color-focus-ring: var(--c-accent);
+  // The ring is the accent as text: the app moves that step to 4.5:1 on every surface of
+  // the theme, so the ring keeps 3:1 for any accent an admin picks (spec 000508).
+  --color-focus-ring: var(--c-dark-pt);
 
   --color-selected: var(--c-dark-sel);
   --color-on-selected: var(--c-dark-onsel);
@@ -309,6 +323,7 @@
 
   --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.4);
   --shadow-md: 0 2px 8px rgba(0, 0, 0, 0.5);
+  --shadow-md-up: 0 -2px 8px rgba(0, 0, 0, 0.5);
   --shadow-lg: 0 10px 30px rgba(0, 0, 0, 0.5), 0 2px 6px rgba(0, 0, 0, 0.35);
   --shadow-elevated: 0 10px 30px rgba(0, 0, 0, 0.5), 0 2px 6px rgba(0, 0, 0, 0.35);
   --shadow-cut: -6px 0 9px -5px rgba(0, 0, 0, 0.65);

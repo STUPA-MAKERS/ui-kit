@@ -1,13 +1,16 @@
-import { NgTemplateOutlet } from '@angular/common';
+import { DOCUMENT, NgTemplateOutlet } from '@angular/common';
 import {
   ChangeDetectionStrategy,
   Component,
+  DestroyRef,
+  ElementRef,
   computed,
   contentChild,
   inject,
   input,
   output,
   signal,
+  viewChild,
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { type ActivatedRouteSnapshot, NavigationEnd, Router, RouterOutlet } from '@angular/router';
@@ -15,11 +18,13 @@ import {
   LoadBarComponent,
   MEDIA,
   PageFrame,
+  RouteFocus,
   ToastBarComponent,
   ToastComponent,
   ToastService,
   UiKitTranslatePipe,
   mediaQuery,
+  watchFocusReveal,
 } from '@stupa-makers/ui-kit';
 import { filter } from 'rxjs';
 import { BottomBarComponent } from '../bottom-bar/bottom-bar.component';
@@ -30,6 +35,13 @@ import type { ShellBrand, ShellFrame, ShellNavItem } from '../shell.types';
 /**
  * The frame of the app around ONE router outlet: the skip link, the navigation rail (the
  * bottom bar on a phone), the load bar and the toasts.
+ *
+ * Landmarks: the rail (the bottom bar on a phone) is the `banner` and holds the `nav`, the
+ * page is the `main`. The skip link is the first focusable element and moves the focus to
+ * `main` without a navigation, because `href="#main"` resolves against `<base href>` and
+ * would load the root page. After a navigation the focus goes to the heading of the new
+ * page ({@link RouteFocus}), and a sticky or fixed bar never covers the keyboard focus
+ * ({@link watchFocusReveal}).
  *
  * There is one router outlet for every frame. The frame only adds or removes the chrome
  * around it, so a change of frame (a sign-in, a projector view) never destroys and
@@ -118,10 +130,12 @@ export class ShellComponent {
   /** The search entry of the rail or of "More" was pressed. */
   readonly search = output<void>();
 
+  private readonly main = viewChild<ElementRef<HTMLElement>>('main');
+
   protected readonly markDir = contentChild(NavMarkDirective);
   protected readonly mark = computed(() => this.markDir()?.template ?? null);
 
-  /** The viewport is a phone (<= 768px): bottom bar instead of the rail. */
+  /** The viewport is a phone (< 768px): bottom bar instead of the rail. */
   readonly phone = mediaQuery(MEDIA.phone);
 
   private readonly toasts = inject(ToastService);
@@ -163,6 +177,16 @@ export class ShellComponent {
       )
       .subscribe(() => this.readRoute());
     this.readRoute();
+    inject(RouteFocus).start(() => this.main()?.nativeElement);
+    inject(DestroyRef).onDestroy(watchFocusReveal(inject(DOCUMENT)));
+  }
+
+  /** The skip link: the focus goes to `main`, and the URL stays. */
+  protected skipToMain(event: Event): void {
+    event.preventDefault();
+    const main = this.main()?.nativeElement;
+    main?.focus();
+    main?.scrollIntoView?.({ block: 'start' });
   }
 
   /**
@@ -170,25 +194,17 @@ export class ShellComponent {
    * the root and inside a route component, where its own route has no active child yet.
    */
   private readRoute(): void {
-    let r: ActivatedRouteSnapshot | null = this.router.routerState.snapshot.root;
-    let wide = false;
-    let fab = false;
-    let footer = false;
-    let fill = false;
-    let chrome = true;
-    while (r) {
-      const data = r.data;
-      wide = data['wide'] === true || wide;
-      fab = data['fab'] === true || fab;
-      footer = data['footer'] === true || footer;
-      fill = data['fill'] === true || fill;
-      if (data['chrome'] === false) chrome = false;
-      r = r.firstChild;
-    }
-    this.wide.set(wide);
-    this.fab.set(fab);
-    this.footerRoute.set(footer);
-    this.fillRoute.set(fill);
-    this.chrome.set(chrome);
+    const chain = routeChain(this.router.routerState.snapshot.root);
+    const flag = (key: string, value: boolean): boolean => chain.some((r) => r.data[key] === value);
+    this.wide.set(flag('wide', true));
+    this.fab.set(flag('fab', true));
+    this.footerRoute.set(flag('footer', true));
+    this.fillRoute.set(flag('fill', true));
+    this.chrome.set(!flag('chrome', false));
   }
+}
+
+/** The route snapshots from `route` down to the leaf, along the first child. */
+function routeChain(route: ActivatedRouteSnapshot | null): readonly ActivatedRouteSnapshot[] {
+  return route ? [route, ...routeChain(route.firstChild)] : [];
 }

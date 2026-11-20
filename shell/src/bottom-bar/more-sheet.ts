@@ -8,16 +8,18 @@ import { Injectable } from '@angular/core';
  */
 @Injectable({ providedIn: 'root' })
 export class ShellMoreSheet {
-  private readonly closers = new Set<() => void>();
+  private closers: ReadonlySet<() => void> = new Set();
 
   /** Closes the "More" sheet of every bottom bar. */
   close(): void {
-    for (const close of this.closers) close();
+    this.closers.forEach((close) => close());
   }
 
   /** Called by the bottom bar. Returns the function that removes the closer. */
   register(close: () => void): () => void {
-    this.closers.add(close);
-    return () => this.closers.delete(close);
+    this.closers = new Set([...this.closers, close]);
+    return () => {
+      this.closers = new Set([...this.closers].filter((c) => c !== close));
+    };
   }
 }

@@ -1,4 +1,4 @@
-import { Component, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { Router, RouterOutlet, provideRouter } from '@angular/router';
 import { RouterTestingHarness } from '@angular/router/testing';
@@ -10,10 +10,11 @@ const layout = signal({ collapsed } as unknown as ListDetailLayoutComponent);
 let pageState: ListDetailPage;
 let tokenState: ListDetailPage;
 
-@Component({ standalone: true, template: '' })
+@Component({ changeDetection: ChangeDetectionStrategy.Eager, standalone: true, template: '' })
 class Child {}
 
 @Component({
+  changeDetection: ChangeDetectionStrategy.Eager,
   standalone: true,
   imports: [RouterOutlet],
   template: '<router-outlet />',
@@ -24,14 +25,14 @@ class ListPage {
   }
 }
 
-@Component({ standalone: true, template: '' })
+@Component({ changeDetection: ChangeDetectionStrategy.Eager, standalone: true, template: '' })
 class TokenPage {
   constructor() {
     tokenState = injectListDetailPage(layout, { param: 'token' });
   }
 }
 
-@Component({ standalone: true, template: '' })
+@Component({ changeDetection: ChangeDetectionStrategy.Eager, standalone: true, template: '' })
 class Other {}
 
 describe('injectListDetailPage', () => {

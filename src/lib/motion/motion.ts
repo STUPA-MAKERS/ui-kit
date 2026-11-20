@@ -1,12 +1,27 @@
 import { MEDIA } from '../breakpoints/breakpoints';
 import { matchesMedia } from '../signals/media-query';
 
-/** True when the person asks the system for reduced motion. */
+/**
+ * True when the person asks for reduced motion. The `DisplaySettingsService` writes the
+ * setting in effect (the system setting or the choice of the person) to
+ * `data-display-motion` on `<html>`. Without that attribute the system setting applies.
+ * `data-motion` is not this setting: it names a running route transition (`motion.scss`).
+ */
 export function reducedMotion(): boolean {
+  const motion = document.documentElement.getAttribute('data-display-motion');
+  if (motion !== null) return motion === 'reduce';
   return matchesMedia(MEDIA.reducedMotion);
 }
 
-type TransitionDocument = Document & { startViewTransition?: (update: () => void) => unknown };
+/**
+ * The behaviour of a scroll that a script starts: instant while the person asks for
+ * reduced motion, smooth otherwise (app spec 000623).
+ */
+export function scrollBehavior(): ScrollBehavior {
+  return reducedMotion() ? 'auto' : 'smooth';
+}
+
+type TransitionDocument = Document & { readonly startViewTransition?: (update: () => void) => unknown };
 
 /**
  * Run a change of the whole page (for example the theme) as one cross-fade, so the

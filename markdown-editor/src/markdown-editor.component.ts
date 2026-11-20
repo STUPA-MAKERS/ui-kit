@@ -26,6 +26,16 @@ import type { EditorView } from '@tiptap/pm/view';
 import { Focus, Placeholder } from '@tiptap/extensions';
 import StarterKit from '@tiptap/starter-kit';
 import { Markdown } from 'tiptap-markdown';
+import { AutoBlackout } from './auto-blackout.extension';
+import { Blackout, BlackoutBlock, inBlackoutBlock } from './blackout.extension';
+import type { KnownName } from './known-names';
+import { TimeNote } from './time-note.extension';
+import {
+  DOCUMENT_UPLOAD_TYPES,
+  DocumentRef,
+  type MarkdownDocumentRef,
+  isMediaDocumentSrc,
+} from './document.extension';
 import { BlockMathMarkdown, InlineMathMarkdown } from './math.extension';
 import {
   IMAGE_UPLOAD_TYPES,
@@ -51,14 +61,14 @@ const KATEX_OPTIONS = { throwOnError: false };
  * A format that a toolbar of the consumer can switch: a heading (level 2, because level 1
  * is the heading of the document), bold, italic and a bullet list.
  */
-export type MarkdownFormat = 'heading' | 'bold' | 'italic' | 'bulletList';
+export type MarkdownFormat = 'heading' | 'bold' | 'italic' | 'bulletList' | 'blockquote' | 'blackout';
 
-const FORMATS: readonly MarkdownFormat[] = ['heading', 'bold', 'italic', 'bulletList'];
+const FORMATS: readonly MarkdownFormat[] = ['heading', 'bold', 'italic', 'bulletList', 'blockquote', 'blackout'];
 
 /** An image that an upload stored: its canonical path and its alt text. */
 export interface MarkdownImageRef {
-  src: string;
-  alt: string;
+  readonly src: string;
+  readonly alt: string;
 }
 
 /**
@@ -66,6 +76,15 @@ export interface MarkdownImageRef {
  * errors to the user; a rejected promise inserts nothing.
  */
 export type MarkdownImageUploader = (file: File) => Promise<MarkdownImageRef>;
+
+/**
+ * Upload one PDF file and resolve to its reference. The uploader reports its own
+ * errors to the user; a rejected promise inserts nothing.
+ */
+export type MarkdownDocumentUploader = (file: File) => Promise<MarkdownDocumentRef>;
+
+/** Resolve the page count of an embedded PDF, or null when unknown. */
+export type MarkdownDocumentInfo = (src: string) => Promise<number | null>;
 
 /** An edit of the table at the cursor, for a toolbar of the consumer. */
 export type MarkdownTableCommand =
@@ -79,10 +98,10 @@ export type MarkdownTableCommand =
 
 /** One item of a table menu: its command, its text and its icon. */
 interface TableMenuItem {
-  id: MarkdownTableCommand;
-  label: UiKitTextKey;
-  icon: RowMenuItem['icon'];
-  danger?: boolean;
+  readonly id: MarkdownTableCommand;
+  readonly label: UiKitTextKey;
+  readonly icon: RowMenuItem['icon'];
+  readonly danger?: boolean;
 }
 
 const COLUMN_ITEMS: readonly TableMenuItem[] = [
@@ -109,17 +128,39 @@ function isSafeHref(href: string): boolean {
 }
 
 /** The image files of a paste or a drop. Other files are ignored. */
-function imageFiles(list: FileList | null | undefined): File[] {
+function imageFiles(list: FileList | null | undefined): readonly File[] {
   return Array.from(list ?? []).filter((f) => IMAGE_UPLOAD_TYPES.includes(f.type));
 }
 
+/** A file input of the browser that takes several files of the given types. */
+function filePicker(types: readonly string[]): HTMLInputElement {
+  const picker = document.createElement('input');
+  picker.setAttribute('type', 'file');
+  picker.setAttribute('accept', types.join(','));
+  picker.toggleAttribute('multiple', true);
+  return picker;
+}
+
+/** The PDF files of a paste or a drop. Other files are ignored. */
+function documentFiles(list: FileList | null | undefined): readonly File[] {
+  return Array.from(list ?? []).filter((f) => DOCUMENT_UPLOAD_TYPES.includes(f.type));
+}
+
 /** The node or mark name and the attributes that `isActive` checks for a format. */
-const ACTIVE_CHECK: Record<MarkdownFormat, { name: string; attrs?: Record<string, unknown> }> = {
+const ACTIVE_CHECK: Record<MarkdownFormat, { readonly name: string; readonly attrs?: Record<string, unknown> }> = {
   heading: { name: 'heading', attrs: { level: 2 } },
   bold: { name: 'bold' },
   italic: { name: 'italic' },
   bulletList: { name: 'bulletList' },
+  blockquote: { name: 'blockquote' },
+  blackout: { name: 'blackout' },
 };
+
+/** Set an attribute, or remove it for `null`. */
+function setAttr(el: HTMLElement, name: string, value: string | null): void {
+  if (value === null) el.removeAttribute(name);
+  else el.setAttribute(name, value);
+}
 
 /**
  * WYSIWYG-Markdown-Editor (Tiptap) im Stil von Nextcloud Collectives: man tippt
@@ -136,8 +177,12 @@ const ACTIVE_CHECK: Record<MarkdownFormat, { name: string; attrs?: Record<string
  * unchanged in the Markdown and shows its alt text. Links `[label](target)` keep their
  * target (web, `mailto:`, a path of the platform); markdown-it keeps a `javascript:` or
  * `data:` target as plain text. With `imageUpload`, a paste or a drop of image files
- * uploads them; `insertImage`, `insertTable`, `tableCommand`, `pickImage`, `setLink` and
- * `unsetLink` serve a toolbar of the consumer.
+ * uploads them; `insertImage`, `insertTable`, `insertTimeNote`, `tableCommand`, `pickImage`,
+ * `setLink` and `unsetLink` serve a toolbar of the consumer. With `documentUpload`, a
+ * paste or a drop of PDF files uploads them, and `pickDocument` and `insertDocument`
+ * insert a PDF; the PDF shows as a file badge (`document.extension.ts`) that emits
+ * `documentOpen` on a click. A time note
+ * (`time-note.extension.ts`) is one grey, centered line with an editable time.
  *
  * While an editable editor has the focus and the cursor is in a table, the table shows
  * its own controls: a grip on the top edge of the cursor's column and one on the start
@@ -170,6 +215,17 @@ export class MarkdownEditorComponent implements OnDestroy {
   readonly disabled = input<boolean>(false);
   /** Text of the empty document. */
   readonly placeholder = input<string>('');
+  /** The tooltip of a segment that the public protocol blacks out. */
+  readonly blackoutTitle = input<string>('');
+  /** The text after the time of a time note, for example "Uhr". */
+  readonly timeNoteSuffix = input<string>('Uhr');
+  /** The accessible name of the time field of a time note. */
+  readonly timeNoteLabel = input<string>('');
+  /**
+   * The accessible name of the editable area. The area is a `role="textbox"`, so a
+   * screen reader needs a name for it (WCAG 4.1.2).
+   */
+  readonly ariaLabel = input<string>('');
   /**
    * Text of the empty last line of a document that has content. It shows where the
    * writing continues, the way Nextcloud Collectives does it. Empty means no hint.
@@ -186,6 +242,21 @@ export class MarkdownEditorComponent implements OnDestroy {
    * uploads each file and inserts the image. `null` ignores image files.
    */
   readonly imageUpload = input<MarkdownImageUploader | null>(null);
+  /**
+   * Upload a PDF file. When set, a paste or a drop of PDF files uploads each file and
+   * inserts its badge. `null` ignores PDF files.
+   */
+  readonly documentUpload = input<MarkdownDocumentUploader | null>(null);
+  /** The page count of an embedded PDF for its badge; `null` shows no count. */
+  readonly documentInfo = input<MarkdownDocumentInfo | null>(null);
+  /**
+   * The known names for the automatic blackout (000969): the editor puts the blackout
+   * mark around a known name right after it is typed. The editor reads the function at
+   * each typed character, so a list that loads later takes effect. `null` turns it off.
+   */
+  readonly knownNames = input<(() => readonly KnownName[]) | null>(null);
+  /** A click, Enter or Space on the badge of an embedded PDF. */
+  readonly documentOpen = output<MarkdownDocumentRef>();
 
   /** Emittiert das serialisierte Markdown bei jeder Änderung. */
   readonly valueChange = output<string>();
@@ -267,6 +338,22 @@ export class MarkdownEditorComponent implements OnDestroy {
             MarkdownTableHeader,
             MarkdownTableCell,
             MarkdownImage,
+            Blackout.configure({ title: () => this.blackoutTitle() }),
+            BlackoutBlock.configure({ title: () => this.blackoutTitle() }),
+            AutoBlackout.configure({ names: () => this.knownNames()?.() ?? null }),
+            TimeNote.configure({
+              suffix: () => this.timeNoteSuffix(),
+              timeLabel: () => this.timeNoteLabel(),
+            }),
+            DocumentRef.configure({
+              info: () => this.documentInfo(),
+              open: (ref) => this.documentOpen.emit(ref),
+              pagesText: (n) =>
+                n === 1
+                  ? this.intl.translate('editorDocument.page')
+                  : this.intl.translate('editorDocument.pages', { n }),
+              openLabel: (name) => this.intl.translate('editorDocument.open', { name }),
+            }),
           ],
           editorProps: {
             transformPastedHTML: (html) => stripForeignImages(html),
@@ -304,6 +391,20 @@ export class MarkdownEditorComponent implements OnDestroy {
         this.ensureTrailingLine();
       }
     });
+    // An editable editor is a multi-line `role="textbox"` with the accessible name. A
+    // read-only editor is plain content, as the Markdown view is, because a name or a
+    // textbox role on content that nobody can edit only confuses a screen reader.
+    // ProseMirror resets only the attributes it set itself, and this effect comes after
+    // the one that creates the editor and sets `editable`, so it has the last word.
+    effect(() => {
+      const label = this.ariaLabel();
+      const editable = !this.disabled();
+      const dom = this.editor?.view.dom;
+      if (!dom) return;
+      setAttr(dom, 'role', editable ? 'textbox' : null);
+      setAttr(dom, 'aria-multiline', editable ? 'true' : null);
+      setAttr(dom, 'aria-label', editable && label ? label : null);
+    });
   }
 
   /**
@@ -336,6 +437,12 @@ export class MarkdownEditorComponent implements OnDestroy {
         break;
       case 'bulletList':
         chain.toggleBulletList().run();
+        break;
+      case 'blockquote':
+        chain.toggleBlockquote().run();
+        break;
+      case 'blackout':
+        chain.toggleBlackout().run();
         break;
     }
   }
@@ -379,6 +486,16 @@ export class MarkdownEditorComponent implements OnDestroy {
     const editor = this.editor;
     if (!editor || !editor.isEditable) return false;
     return editor.chain().focus().extendMarkRange('link').unsetLink().run();
+  }
+
+  /**
+   * Insert a time note (`> [!anmerkung HH:MM]`) after the block of the cursor and put the
+   * cursor in its text. A time that is no `HH:MM` inserts nothing and returns false.
+   */
+  insertTimeNote(time: string): boolean {
+    const editor = this.editor;
+    if (!editor || !editor.isEditable) return false;
+    return editor.chain().focus().insertTimeNote(time).run();
   }
 
   /** Insert a table with a header row at the cursor. */
@@ -459,10 +576,7 @@ export class MarkdownEditorComponent implements OnDestroy {
   /** Open the file dialog of the browser and upload the chosen images (`imageUpload`). */
   pickImage(): void {
     if (!this.imageUpload() || !this.editor?.isEditable) return;
-    const picker = document.createElement('input');
-    picker.type = 'file';
-    picker.accept = IMAGE_UPLOAD_TYPES.join(',');
-    picker.multiple = true;
+    const picker = filePicker(IMAGE_UPLOAD_TYPES);
     picker.addEventListener('change', () => void this.uploadImages(imageFiles(picker.files)));
     picker.click();
   }
@@ -504,25 +618,88 @@ export class MarkdownEditorComponent implements OnDestroy {
     return inserted;
   }
 
-  /** A paste with image files uploads them instead of the pasted content. */
+  /** The files of a paste or a drop that an uploader of the consumer takes. */
+  private uploadable(list: FileList | null | undefined): {
+    readonly images: readonly File[];
+    readonly documents: readonly File[];
+  } {
+    return {
+      images: this.imageUpload() ? imageFiles(list) : [],
+      documents: this.documentUpload() ? documentFiles(list) : [],
+    };
+  }
+
+  /** A paste with image or PDF files uploads them instead of the pasted content. */
   private onPasteFiles(event: ClipboardEvent): boolean {
-    if (!this.imageUpload()) return false;
-    const files = imageFiles(event.clipboardData?.files);
-    if (!files.length) return false;
+    const { images, documents } = this.uploadable(event.clipboardData?.files);
+    if (!images.length && !documents.length) return false;
     event.preventDefault();
-    void this.uploadImages(files);
+    void this.uploadImages(images).then(() => this.uploadDocuments(documents));
     return true;
   }
 
-  /** A drop of image files from outside uploads them at the drop position. */
+  /** A drop of image or PDF files from outside uploads them at the drop position. */
   private onDropFiles(view: EditorView, event: DragEvent, moved: boolean): boolean {
-    if (moved || !this.imageUpload()) return false;
-    const files = imageFiles(event.dataTransfer?.files);
-    if (!files.length) return false;
+    if (moved) return false;
+    const { images, documents } = this.uploadable(event.dataTransfer?.files);
+    if (!images.length && !documents.length) return false;
     event.preventDefault();
     const pos = view.posAtCoords({ left: event.clientX, top: event.clientY })?.pos;
-    void this.uploadImages(files, pos);
+    void this.uploadImages(images, pos).then(() => this.uploadDocuments(documents, pos));
     return true;
+  }
+
+  /** Open the file dialog of the browser and upload the chosen PDFs (`documentUpload`). */
+  pickDocument(): void {
+    if (!this.documentUpload() || !this.editor?.isEditable) return;
+    const picker = filePicker(DOCUMENT_UPLOAD_TYPES);
+    picker.addEventListener('change', () => void this.uploadDocuments(documentFiles(picker.files)));
+    picker.click();
+  }
+
+  /**
+   * Upload PDF files one after the other and insert the badge of each when its upload
+   * ends: at `pos`, or at the cursor. Files of another type are ignored. Resolves to the
+   * number of inserted badges.
+   */
+  async uploadDocuments(files: readonly File[], pos?: number): Promise<number> {
+    const upload = this.documentUpload();
+    const pdfs = files.filter((f) => DOCUMENT_UPLOAD_TYPES.includes(f.type));
+    if (!upload || !pdfs.length) return 0;
+    this.uploading.update((n) => n + pdfs.length);
+    const results = await pdfs.reduce<Promise<readonly (MarkdownDocumentRef | null)[]>>(
+      async (done, file) => {
+        const list = await done;
+        const ref = await upload(file).catch(() => null);
+        this.uploading.update((n) => n - 1);
+        if (ref && this.insertDocumentAt(ref, pos)) return [...list, ref];
+        return list;
+      },
+      Promise.resolve([]),
+    );
+    return results.length;
+  }
+
+  /**
+   * Insert the badge of an embedded PDF at the cursor, or at `pos`. Only the canonical
+   * path `/api/media/documents/<uuid>` is accepted; any other source inserts nothing.
+   */
+  insertDocument(src: string, name: string): boolean {
+    return this.insertDocumentAt({ src, name });
+  }
+
+  private insertDocumentAt(ref: MarkdownDocumentRef, pos?: number): boolean {
+    const editor = this.editor;
+    if (!editor || !editor.isEditable || !isMediaDocumentSrc(ref.src)) return false;
+    const content = [
+      { type: 'documentRef', attrs: { src: ref.src, name: ref.name } },
+      { type: 'text', text: ' ' },
+    ];
+    if (pos === undefined) return editor.chain().focus().insertContent(content).run();
+    return editor
+      .chain()
+      .insertContentAt(Math.min(pos, editor.state.doc.content.size), content)
+      .run();
   }
 
   /** Read the formats at the cursor into `activeFormats`. */
@@ -531,7 +708,11 @@ export class MarkdownEditorComponent implements OnDestroy {
     const inTable = editor.isActive('table');
     if (inTable !== this.inTable()) this.inTable.set(inTable);
     const next = new Set(
-      FORMATS.filter((f) => editor.isActive(ACTIVE_CHECK[f].name, ACTIVE_CHECK[f].attrs ?? {})),
+      FORMATS.filter(
+        (f) =>
+          editor.isActive(ACTIVE_CHECK[f].name, ACTIVE_CHECK[f].attrs ?? {}) ||
+          (f === 'blackout' && inBlackoutBlock(editor.state)),
+      ),
     );
     const prev = this.activeFormats();
     if (FORMATS.every((f) => next.has(f) === prev.has(f))) return;

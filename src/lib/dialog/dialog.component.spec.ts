@@ -1,3 +1,5 @@
+import { readFileSync } from 'node:fs';
+import { join } from 'node:path';
 import { fireEvent, render, screen } from '@testing-library/angular';
 import userEvent from '@testing-library/user-event';
 import { ButtonComponent } from '../button/button.component';
@@ -13,6 +15,23 @@ function backdrop(): HTMLElement {
 
 
 describe('DialogComponent', () => {
+  it('opens the backdrop in the top layer, so a sheet around it cannot cut it off', async () => {
+    const show = jest.fn();
+    const proto = HTMLElement.prototype as HTMLElement & { showPopover?: () => void };
+    const had = proto.showPopover;
+    proto.showPopover = show;
+    try {
+      await render(`<app-dialog title="Namen ändern" [open]="true">B</app-dialog>`, {
+        imports: [DialogComponent],
+      });
+      expect(backdrop()).toHaveAttribute('popover', 'manual');
+      expect(show).toHaveBeenCalledTimes(1);
+      expect(show.mock.contexts[0]).toBe(backdrop());
+    } finally {
+      proto.showPopover = had;
+    }
+  });
+
   it('is not rendered while closed', async () => {
     await render(`<app-dialog title="Hinweis" [open]="false">Body</app-dialog>`, {
       imports: [DialogComponent],
@@ -238,34 +257,34 @@ describe('DialogComponent', () => {
   });
 
   it('locks body scroll while open and restores it on close', async () => {
-    document.body.style.overflow = 'scroll';
+    document.documentElement.style.overflow = 'scroll';
     const view = await render(`<app-dialog title="X" [open]="open">B</app-dialog>`, {
       imports: [DialogComponent],
       componentProperties: { open: false },
     });
-    expect(document.body.style.overflow).toBe('scroll');
+    expect(document.documentElement.style.overflow).toBe('scroll');
     view.rerender({ componentProperties: { open: true } });
-    expect(document.body.style.overflow).toBe('hidden');
+    expect(document.documentElement.style.overflow).toBe('hidden');
     view.rerender({ componentProperties: { open: false } });
-    expect(document.body.style.overflow).toBe('scroll');
-    document.body.style.overflow = '';
+    expect(document.documentElement.style.overflow).toBe('scroll');
+    document.documentElement.style.overflow = '';
   });
 
   it('locks scroll when initially opened (firstChange path)', async () => {
     await render(`<app-dialog title="X" [open]="true">B</app-dialog>`, {
       imports: [DialogComponent],
     });
-    expect(document.body.style.overflow).toBe('hidden');
-    document.body.style.overflow = '';
+    expect(document.documentElement.style.overflow).toBe('hidden');
+    document.documentElement.style.overflow = '';
   });
 
   it('unlocks body scroll when destroyed while open', async () => {
     const view = await render(`<app-dialog title="X" [open]="true">B</app-dialog>`, {
       imports: [DialogComponent],
     });
-    expect(document.body.style.overflow).toBe('hidden');
+    expect(document.documentElement.style.overflow).toBe('hidden');
     view.fixture.destroy();
-    expect(document.body.style.overflow).not.toBe('hidden');
+    expect(document.documentElement.style.overflow).not.toBe('hidden');
   });
 
   // jsdom assigns its own event.timeStamp, so velocity in onDragEnd cannot be
@@ -362,5 +381,16 @@ describe('DialogComponent', () => {
     expect(paneEl.style.transform).toBe('');
     // touchend without an active drag → no-op (no throw, no close).
     expect(() => cmp.onDragEnd(makeTouch(200, 50))).not.toThrow();
+  });
+});
+
+describe('DialogComponent head', () => {
+  /** § NF/usability/layout/001341: the capitals of the title sit as far from the top as from the side. */
+  it('sets the top padding of the head from the side distance less the 12px above the capitals', () => {
+    // jsdom applies no component styles, so this reads the SCSS.
+    const scss = readFileSync(join(__dirname, 'dialog.component.scss'), 'utf8');
+    const start = scss.indexOf('.dialog__header {');
+    const rule = scss.slice(start, scss.indexOf('}', start));
+    expect(rule).toMatch(/padding: calc\(var\(--space-[45]\) - 12px\)/);
   });
 });

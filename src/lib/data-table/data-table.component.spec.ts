@@ -1,4 +1,4 @@
-import { Component, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, signal } from '@angular/core';
 import { render, screen } from '@testing-library/angular';
 import userEvent from '@testing-library/user-event';
 import { UI_KIT_INTL, uiKitIntlFromLang } from '../intl/intl';
@@ -6,6 +6,7 @@ import { CellDirective } from './cell.directive';
 import { type ColumnDef, DataTableComponent } from './data-table.component';
 import { FootCellDirective } from './foot-cell.directive';
 import { RowDetailDirective } from './row-detail.directive';
+import { runAxe } from '../../../testing/a11y';
 
 interface Row {
   id: number;
@@ -107,6 +108,7 @@ describe('DataTableComponent', () => {
 
   it('renders a custom cell template via appCell with the row context', async () => {
     @Component({
+      changeDetection: ChangeDetectionStrategy.Eager,
       standalone: true,
       imports: [DataTableComponent, CellDirective],
       template: `<app-data-table [columns]="cols" [rows]="rows">
@@ -171,6 +173,7 @@ describe('DataTableComponent', () => {
 
   it('renders an expandable detail row only for expanded rows', async () => {
     @Component({
+      changeDetection: ChangeDetectionStrategy.Eager,
       standalone: true,
       imports: [DataTableComponent, RowDetailDirective],
       template: `<app-data-table [columns]="cols" [rows]="rows" [isExpanded]="isExpanded">
@@ -193,6 +196,7 @@ describe('DataTableComponent', () => {
 
   it('does not render detail rows when no isExpanded predicate is provided', async () => {
     @Component({
+      changeDetection: ChangeDetectionStrategy.Eager,
       standalone: true,
       imports: [DataTableComponent, RowDetailDirective],
       template: `<app-data-table [columns]="cols" [rows]="rows">
@@ -211,6 +215,7 @@ describe('DataTableComponent', () => {
 
   it('rebuilds the cell map when projected cell templates change', async () => {
     @Component({
+      changeDetection: ChangeDetectionStrategy.Eager,
       standalone: true,
       imports: [DataTableComponent, CellDirective],
       template: `<app-data-table [columns]="cols" [rows]="rows">
@@ -420,6 +425,21 @@ describe('DataTableComponent', () => {
       expect(sorted.getAttribute('aria-sort')).toBe('descending');
       // A non-sortable column carries no aria-sort at all.
       expect(plain.getAttribute('aria-sort')).toBeNull();
+    });
+  });
+
+  describe('stickyHead', () => {
+    it('marks the box only when the caller asks for a sticky head', async () => {
+      const { container, rerender } = await render(
+        `<app-data-table [columns]="cols" [rows]="rows" [stickyHead]="sticky" />`,
+        {
+          imports: [DataTableComponent],
+          componentProperties: { cols: COLS, rows: ROWS, sticky: true },
+        },
+      );
+      expect(container.querySelector('.dt')).toHaveClass('dt--sticky-head');
+      await rerender({ componentProperties: { cols: COLS, rows: ROWS, sticky: false } });
+      expect(container.querySelector('.dt')).not.toHaveClass('dt--sticky-head');
     });
   });
 
@@ -1198,6 +1218,19 @@ describe('DataTableComponent', () => {
       expect(h.scroll.scrollLeft).toBe(300);
     });
 
+    it('lets the keyboard focus the scroller only while the table is wider than its box', async () => {
+      const h = await harness();
+      h.wide();
+      h.scroll.dispatchEvent(new Event('scroll'));
+      await h.setRows(ROWS);
+      expect(h.scroll).toHaveAttribute('tabindex', '0');
+
+      h.collapsed();
+      h.scroll.dispatchEvent(new Event('scroll'));
+      await h.setRows(ROWS);
+      expect(h.scroll).not.toHaveAttribute('tabindex');
+    });
+
     it('does not overwrite the kept position with the clamp that empties the box', async () => {
       const h = await harness();
       h.wide();
@@ -1659,5 +1692,19 @@ describe('DataTableComponent', () => {
       t.click();
       expect(t.opened).toEqual([ROWS[0]]);
     });
+  });
+
+  /** § NF/accessibility/conformance/000493: rows, empty, loading and selectable. */
+  it.each([
+    { rows: ROWS, loading: false, selectable: false },
+    { rows: [], loading: false, selectable: false },
+    { rows: [], loading: true, selectable: false },
+    { rows: ROWS, loading: false, selectable: true },
+  ])('has no axe violations (%o)', async (props) => {
+    const { container } = await render(
+      `<app-data-table [columns]="cols" [rows]="rows" [loading]="loading" [selectable]="selectable" emptyText="Keine Einträge" />`,
+      { imports: [DataTableComponent], componentProperties: { cols: COLS, ...props } },
+    );
+    expect(await runAxe(container)).toHaveNoViolations();
   });
 });

@@ -1,8 +1,9 @@
-import { Component } from '@angular/core';
+import { ChangeDetectionStrategy, Component } from '@angular/core';
 import { render, screen } from '@testing-library/angular';
 import { PressSelectDirective } from './press-select.directive';
 
 @Component({
+  changeDetection: ChangeDetectionStrategy.Eager,
   standalone: true,
   imports: [PressSelectDirective],
   template: `

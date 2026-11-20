@@ -6,7 +6,7 @@
  * schlägt also überall durch. Jede Komponente wird mit repräsentativen Inputs
  * (inkl. Fehlerzustand) gerendert und mit axe gescannt.
  */
-import { Component } from '@angular/core';
+import { ChangeDetectionStrategy, Component } from '@angular/core';
 import { render } from '@testing-library/angular';
 import { runAxe } from '../../testing/a11y';
 import {
@@ -76,6 +76,7 @@ interface Row {
 }
 
 @Component({
+  changeDetection: ChangeDetectionStrategy.Eager,
   standalone: true,
   imports: [
     ButtonComponent,
@@ -158,6 +159,7 @@ class PrimitivesHost {
 }
 
 @Component({
+  changeDetection: ChangeDetectionStrategy.Eager,
   standalone: true,
   imports: [
     AutocompleteComponent,
@@ -208,6 +210,7 @@ class BuildingBlocksHost {
 }
 
 @Component({
+  changeDetection: ChangeDetectionStrategy.Eager,
   standalone: true,
   imports: [
     AvatarComponent,
@@ -285,6 +288,7 @@ class PatternsHost {
 }
 
 @Component({
+  changeDetection: ChangeDetectionStrategy.Eager,
   standalone: true,
   imports: [SideSheetComponent],
   template: `
@@ -297,6 +301,7 @@ class PatternsHost {
 class SheetHost {}
 
 @Component({
+  changeDetection: ChangeDetectionStrategy.Eager,
   standalone: true,
   imports: [FileViewerComponent],
   template: `
@@ -319,6 +324,7 @@ class FileViewerHost {
 }
 
 @Component({
+  changeDetection: ChangeDetectionStrategy.Eager,
   standalone: true,
   imports: [ButtonComponent, DetailNoneComponent, FabComponent, LoadBarComponent, PageHeaderComponent],
   template: `
@@ -369,7 +375,7 @@ describe('UI-Primitive a11y (axe)', () => {
     fixture.componentInstance.index = index;
     fixture.detectChanges();
     expect(await runAxe(container)).toHaveNoViolations();
-    document.body.style.overflow = '';
+    document.documentElement.style.overflow = '';
   });
 
   it('toast live-region has no axe violations', async () => {

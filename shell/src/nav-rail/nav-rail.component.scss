@@ -1,5 +1,4 @@
 @use '../../../src/styles/press';
-@use '../../../src/styles/scroll-fade' as fade;
 @use '../../../src/styles/nav-items';
 
 :host {
@@ -23,12 +22,18 @@
   flex: 0 1 auto;
   flex-direction: column;
   align-items: center;
-  width: 100%;
+  // The scroll part lies on a surface of its own, and the items cut hard at its rounded
+  // edge (app specs 000193, 001441). It is 8px narrower than the rail, so the edge keeps
+  // clear of the line between the rail and the page, and the longest label ("Abstimmungen")
+  // fits on one line, in bold and inside the edge of very high contrast too.
+  width: calc(100% - 8px);
   min-height: 0;
+  padding-block: 6px;
   overflow-y: auto;
   overscroll-behavior: contain;
   scrollbar-width: thin;
-  @include fade.fade-y(var(--space-5));
+  border-radius: var(--radius-xl);
+  background: var(--color-surface-1);
 }
 
 .rail__brand {
@@ -48,6 +53,41 @@
 }
 
 @include nav-items.rail-item;
+
+// A group: the entry that opens it carries a chevron under its label, which turns while the
+// group is open. The entries of the open group follow below it on the same surface: a second
+// surface inside the scroll surface would clash with its edge. A short line above and below
+// marks where the group starts and ends.
+.rail__group {
+  gap: 2px;
+}
+.rail__chev {
+  color: var(--color-text-muted);
+  transition: rotate var(--motion-fast) var(--ease-standard);
+}
+.rail__group.is-open .rail__chev {
+  rotate: 180deg;
+}
+.rail__sub {
+  display: flex;
+  flex: none;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+  padding: 0;
+}
+.rail__sub::before,
+.rail__sub::after {
+  content: '';
+  flex: none;
+  width: 40px;
+  height: 1px;
+  margin-block: 4px;
+  background: var(--color-border);
+}
+.rail__sub[hidden] {
+  display: none;
+}
 
 .rail__search {
   margin: 0 0 8px;

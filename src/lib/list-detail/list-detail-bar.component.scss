@@ -1,5 +1,7 @@
 @use '../../styles/breakpoints' as bp;
 @use '../../styles/press';
+@use '../../styles/frosted' as *;
+@use '../../styles/display' as d;
 
 /* One view at a time: the bar at the top of the detail. It stays at the top of the
    window while the page scrolls under it, so the way back and the actions are always in
@@ -7,8 +9,12 @@
    reaches over the page gutter to the window edges, so nothing shows above or beside it.
    The arrow and the actions keep their 40px boxes, 4px inside the page gutter (12px from
    a 16px gutter), so they do not touch the screen edges; the big title below stays on
-   the gutter. The small title fades in once the big title has scrolled under the bar, and a
-   rule then closes the bar. */
+   the gutter. The small title fades in once the big title has scrolled under the bar.
+   The bar has no rule: it is frosted glass (`frosted`), a see-through tint of the page
+   colour over a blur, so the content that scrolls under it shows through blurred. A light shadow lifts it
+   off the content once it is condensed and the page has scrolled, because only then does content
+   run under it. A bar with a fixed title (`title`) is condensed from the start, so the shadow
+   waits for the scroll too. */
 :host {
   --ld-bar-gutter: var(--layout-gutter);
   position: sticky;
@@ -21,17 +27,30 @@
   min-height: calc(var(--ld-bar-height, 60px) + env(safe-area-inset-top, 0px));
   margin: calc(-1 * var(--main-pad-top, 0px)) calc(-1 * var(--ld-bar-gutter)) 0;
   padding: env(safe-area-inset-top, 0px) calc(var(--ld-bar-gutter) - var(--space-1)) 0;
-  border-bottom: var(--border-width) solid transparent;
-  background: var(--color-bg);
-  transition: border-color var(--motion-fast, 120ms) var(--ease-standard, ease);
+  @include frosted(var(--color-bg), bottom);
+  transition: box-shadow var(--motion-fast, 120ms) var(--ease-standard, ease);
+}
+/* A tab line that sticks under the bar sets `--ld-bar-extend` to its height: the glass
+   reaches over it, so the bar and the tab line are one pane (`TabPagerComponent`). */
+:host::before {
+  mask-image: linear-gradient(
+    to bottom,
+    #000 calc(100% - 64px + var(--ld-bar-extend, 0px)),
+    transparent calc(100% - 64px + var(--ld-bar-extend, 0px))
+  );
+}
+:host(.ld__bar--condensed.ld__bar--under) {
+  box-shadow: var(--shadow-md);
+}
+/* Glass only while the page has scrolled, because only then does content run under the
+   bar; at rest it is the solid page colour (`frosted-rest`). */
+:host(:not(.ld__bar--under)) {
+  @include frosted-rest(var(--color-bg));
 }
 @include bp.phone {
   :host {
     --ld-bar-gutter: var(--space-4);
   }
-}
-:host(.ld__bar--condensed) {
-  border-bottom-color: var(--color-border);
 }
 
 .ld__back {
@@ -47,7 +66,6 @@
   background: transparent;
   color: var(--color-text);
   cursor: pointer;
-  transition: scale var(--motion-xs) var(--ease-standard);
   @include press.press;
 }
 @media (hover: hover) {
@@ -107,8 +125,8 @@
   opacity: 1;
   transform: none;
 }
-@media (prefers-reduced-motion: reduce) {
-  :host,
+@include d.host-on(motion) {
+  &,
   .ld__barTitle,
   .ld__barSub {
     transition: none;

@@ -30,10 +30,19 @@ export type FilterSelectPerson = AvatarPerson;
 
 /** One choice of a filter chip. */
 export interface FilterSelectOption {
-  value: string;
-  label: string;
+  readonly value: string;
+  readonly label: string;
   /** The avatar in front of the label, in a list of persons (an assignee select). */
-  person?: FilterSelectPerson | null;
+  readonly person?: FilterSelectPerson | null;
+}
+
+/**
+ * The text of a filter chip: the name of the filter alone while no value is chosen, else
+ * the name, a colon and the value ("Status", "Status: Offen"). A page that builds the text
+ * of its chip itself uses this function, so that every chip follows one pattern.
+ */
+export function filterChipText(name: string, value?: string | null): string {
+  return value ? `${name}: ${value}` : name;
 }
 
 let nextId = 0;
@@ -55,7 +64,8 @@ const TYPEAHEAD_RESET = 600;
  *   stays open. `resetLabel` adds a button that clears all values.
  * - Desktop: a list under the chip (popover). Phone (< 768 px): the shared bottom sheet.
  * - The whole chip is the button. The chip shows `text`, else the label of the current
- *   value, else `label`.
+ *   value, else `label`. With `filled` and without `text` it shows `label` while no value is
+ *   chosen and "label: value" while one is (`filterChipText`).
  * - Keyboard (WAI-ARIA listbox): Enter, Space or Arrow Down open the list on the current
  *   value, Arrow Up on the last choice. In the list the arrows move, Home and End jump,
  *   a typed letter jumps to the next choice that starts with it, Enter and Space choose,
@@ -100,7 +110,10 @@ export class FilterSelectComponent {
   readonly chevron = input(true);
   /** Only the icon shows, in a square chip; `label` names the button. */
   readonly iconOnly = input(false);
-  /** `sm`: the filter chip (32px). `md`: a pill as high as the search pill `md` (44px). */
+  /**
+   * `sm`: the filter chip (32px), the only size of a filter, also beside a search pill `md`.
+   * `md`: a select as high as a field (44px), for a value in a field row, never a filter.
+   */
   readonly size = input<'sm' | 'md'>('sm');
   /** Several choices: the text of the button that clears all values. No text, no button. */
   readonly resetLabel = input<string | null>(null);
@@ -139,7 +152,8 @@ export class FilterSelectComponent {
     if (own) return own;
     if (!this.multiple()) {
       const hit = this.options().find((o) => o.value === this.value());
-      if (hit) return hit.label;
+      if (hit && !this.filled()) return hit.label;
+      if (hit && this.isSet()) return filterChipText(this.label(), hit.label);
     }
     return this.label();
   });
@@ -247,9 +261,9 @@ export class FilterSelectComponent {
 
   protected choose(option: FilterSelectOption): void {
     if (this.multiple()) {
-      const next = this.values().filter((v) => v !== option.value);
-      if (!this.values().includes(option.value)) next.push(option.value);
-      this.values.set(next);
+      const values = this.values();
+      const rest = values.filter((v) => v !== option.value);
+      this.values.set(values.includes(option.value) ? rest : [...rest, option.value]);
       return;
     }
     this.value.set(option.value);
@@ -311,13 +325,10 @@ export class FilterSelectComponent {
     const cycle = needle.length > 1 && [...needle].every((c) => c === needle[0]);
     const search = cycle ? needle[0] : needle;
     const start = cycle || needle.length === 1 ? index + 1 : Math.max(index, 0);
-    for (let i = 0; i < items.length; i++) {
-      const el = items[(start + i) % items.length];
-      if ((el.textContent ?? '').trim().toLocaleLowerCase().startsWith(search)) {
-        el.focus();
-        return;
-      }
-    }
+    items
+      .map((_item, i) => items[(start + i) % items.length])
+      .find((el) => (el.textContent ?? '').trim().toLocaleLowerCase().startsWith(search))
+      ?.focus();
   }
 
   /** Under the chip, aligned to its start, inside the viewport. */

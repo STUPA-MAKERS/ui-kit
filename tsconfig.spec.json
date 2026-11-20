@@ -2,8 +2,6 @@
   "extends": "./tsconfig.json",
   "compilerOptions": {
     "outDir": "./out-tsc/spec",
-    "module": "CommonJS",
-    "moduleResolution": "node",
     "esModuleInterop": true,
     "types": ["jest", "node"],
     "paths": {
@@ -13,6 +11,7 @@
   "include": [
     "src/**/*.spec.ts",
     "markdown-editor/**/*.spec.ts",
+    "markdown-view/**/*.spec.ts",
     "pwa/**/*.spec.ts",
     "shell/**/*.spec.ts",
     "testing/**/*.ts",

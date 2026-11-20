@@ -26,6 +26,34 @@ export interface ShellNavItem {
   readonly place: 'main' | 'end';
   /** Match the active route exactly. */
   readonly exact?: boolean;
+  /**
+   * The collapsible group of the entry. Entries with the same group key form one group,
+   * which shows as one entry that opens and closes, after the other `main` entries of the
+   * rail and of "More". A grouped entry never goes into the phone bar itself.
+   */
+  readonly group?: ShellNavGroupRef;
+}
+
+/** The collapsible group of navigation entries (see `ShellNavItem.group`). */
+export interface ShellNavGroupRef {
+  readonly key: string;
+  /** The visible label, already translated. */
+  readonly label: string;
+  readonly icon: IconName;
+}
+
+/** One group with its entries, in the order of the entries. */
+export interface ShellNavGroup extends ShellNavGroupRef {
+  readonly items: readonly ShellNavItem[];
+}
+
+/** The groups of `items`, in the order of their first entry. */
+export function navGroups(items: readonly ShellNavItem[]): readonly ShellNavGroup[] {
+  const keys = [...new Set(items.flatMap((i) => (i.group ? [i.group.key] : [])))];
+  return keys.map((key) => {
+    const members = items.filter((i) => i.group?.key === key);
+    return { ...(members[0].group as ShellNavGroupRef), items: members };
+  });
 }
 
 /** The mark of the app at the top of the rail. */

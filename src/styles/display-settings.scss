@@ -1,0 +1,684 @@
+// The global rules of the display settings (app specs 000594-000598). Consume it from the
+// global stylesheet of an app after `tokens` and `base`:
+//   @use 'display-settings';
+// The `DisplaySettingsService` writes the attributes on `<html>`; `_display.scss` has
+// the mixins for a component stylesheet.
+@use 'breakpoints' as bp;
+@use 'display' as d;
+@use 'very-high' as vh;
+
+// --- More contrast (000595) --------------------------------------------------
+// Text at least 7:1 to every surface of its theme, edges and control borders at least
+// 4.5:1, a focus ring of 3 px. `contrast.spec.ts` checks the pairs. The light rule
+// excludes the dark theme, because both rules have the same specificity.
+:root:not([data-theme='dark'])[data-contrast='more'] {
+  --color-text-muted: #2b302d;
+  --color-text-subtle: #353a37;
+  --color-border: #545a56;
+  --color-border-strong: #3a3f3c;
+  --color-accent-text: #1f4029;
+  --color-primary: #1f4029;
+  --color-focus-ring: #1f4029;
+  --color-danger: #7a1912;
+  --color-warning: #5c3c00;
+}
+:root[data-theme='dark'][data-contrast='more'] {
+  --color-text-muted: #d6dad7;
+  --color-text-subtle: #c4c9c5;
+  --color-border: #a0a6a2;
+  --color-border-strong: #b9beba;
+  --color-accent-text: #b5dcc1;
+  --color-primary: #b5dcc1;
+  --color-focus-ring: #b5dcc1;
+  --color-danger: #f6bdb5;
+  --color-warning: #ecc98d;
+}
+@include d.on(contrast) {
+  --focus-width: 3px;
+
+  :focus-visible {
+    outline-width: 3px !important;
+  }
+
+  // An active filter chip keeps a strong edge: the selection fill alone is too faint.
+  .chip.on {
+    border-color: var(--color-border-strong);
+  }
+}
+
+// --- Less motion (000219) ----------------------------------------------------
+// `base.scss` cuts every animation and transition, so a press shows its tint at once.
+
+// --- Less transparency (000596) ----------------------------------------------
+// The glass mixins of `_frosted.scss` read the tint and the blur from these tokens, so a
+// glass surface turns into its solid colour.
+@include d.on(transparency) {
+  --glass-tint: 100%;
+  --glass-blur: none;
+
+  *,
+  *::before,
+  *::after {
+    -webkit-backdrop-filter: none !important;
+    backdrop-filter: none !important;
+  }
+}
+
+// --- Highlighted fields (000598) ---------------------------------------------
+// Black on yellow in both themes. `_field.scss`, `_check.scss` and the switch read the
+// tokens. Black on the yellow has a contrast of 16.6:1; the black edge separates the
+// field from a light surface, the yellow from a dark one.
+@include d.on(fields) {
+  --field-bg: #ffe600;
+  --field-bg-hover: #ffd900;
+  --field-text: #000000;
+  --field-label: #000000;
+  --field-edge: inset 0 0 0 2px #000000;
+  --field-danger: #8a0017;
+  --check-bg: #ffe600;
+  --check-edge: #000000;
+  --check-on: #ffe600;
+  --check-mark: #000000;
+  --check-checked-edge: inset 0 0 0 2px #000000;
+  // The focus: a black ring on the inside of the edge and a yellow ring outside it, so it
+  // shows on a light and on a dark surface. A field draws it as a shadow; its own outline is
+  // then off. The field rows have gaps, so no neighbour covers the outer ring.
+  --field-focus: inset 0 0 0 3px #000000, 0 0 0 3px #ffe600;
+  --field-focus-outline: none;
+
+  // A rich text area (`contenteditable`) is a field like a textarea: the surface around it
+  // shows the focus, so it takes no ring of its own.
+  // Every other focused element (a button, a link, a checkbox): the same double ring. The
+  // yellow ring is the outline, which paints above a neighbour that touches the element, and
+  // the black ring is an inner shadow, which no neighbour can cover.
+  :focus-visible:not(
+      textarea,
+      select,
+      input:not([type='checkbox'], [type='radio'], [type='range'], [type='button'], [type='submit']),
+      [contenteditable='true'],
+      [tabindex='-1']
+    ) {
+    outline: 3px solid #ffe600 !important;
+    outline-offset: 0 !important;
+    box-shadow: inset 0 0 0 3px #000000 !important;
+  }
+
+  // The black ring over the outer edge (`_field.scss` `ring`): the yellow background reaches
+  // the outer edge, so its anti-aliased rim shows outside the black inset edge at a rounded
+  // corner. A 2px outline on the inner side of the edge covers that rim; it stays inside the
+  // box, because a scroll container cuts what is outside. The rule is global, because
+  // it beats the component rules of every listed control.
+  .chip,
+  .sp,
+  .cbx__input,
+  .sw__track,
+  .fs__box,
+  .dt__check,
+  .seg__opt--on,
+  .btn--fill,
+  .btn--tonal,
+  .btn--outlined,
+  .btn--text,
+  .btn--fab,
+  input[type='radio'] {
+    outline: 2px solid var(--field-text);
+    outline-offset: -2px;
+  }
+  .btn--danger {
+    outline: 2px solid var(--field-danger);
+    outline-offset: -2px;
+  }
+
+  // An icon button that a page draws itself (a button or a link with an accessible name and
+  // only a symbol in it, no text): black on yellow with the black edge, like the icon
+  // buttons of the kit. The rule is global and its selector beats the component rules, also
+  // their hover, because each page names its icon buttons differently. A button inside the
+  // kit's own controls is excluded by its class.
+  :is(button, a)[aria-label]:has(> app-icon:only-child, > svg:only-child):not(.btn, .chip) {
+    --color-text: var(--field-text);
+    --color-text-muted: var(--field-text);
+    --color-accent-text: var(--field-text);
+    background: var(--field-bg);
+    color: var(--field-text);
+    box-shadow: inset 0 0 0 2px var(--field-text);
+    outline: 2px solid var(--field-text);
+    outline-offset: -2px;
+  }
+
+  // A native radio button: the box of a check box as a circle, with a dot when checked.
+  input[type='radio'] {
+    appearance: none;
+    -webkit-appearance: none;
+    display: inline-grid;
+    place-content: center;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background: var(--check-bg);
+    box-shadow: inset 0 0 0 2px var(--check-edge);
+  }
+  input[type='radio']:checked {
+    background: radial-gradient(circle, var(--check-mark) 0 5px, var(--check-bg) 5.5px);
+  }
+}
+@media (hover: hover) {
+  @include d.on(fields) {
+    :is(button, a)[aria-label]:not([aria-pressed='true'], [aria-expanded='true']):has(
+        > app-icon:only-child,
+        > svg:only-child
+      ):not(.btn, .chip):hover {
+      background: var(--field-bg-hover);
+      color: var(--field-text);
+    }
+  }
+}
+
+// --- Very high contrast (000605) ---------------------------------------------
+// Four colours: black backgrounds, white text, icons and edges, yellow controls (the
+// highlighted fields above, which are on too) and light red errors. The service turns the
+// other settings and the dark theme on, so their rules apply as well; this block comes
+// last and its selector has the weight of the contrast rules, so its tokens win. The
+// tokens are literal values, because the accent of the branding writes the `--c-*`
+// palette on `<html>`.
+:root[data-theme][data-very-high-contrast='on'] {
+  color-scheme: dark;
+
+  --vh-bg: #000000;
+  --vh-fg: #ffffff;
+  --vh-hi: #ffff00;
+  --vh-err: #ff8a8a;
+  --vh-edge: 2px solid var(--vh-fg);
+
+  --color-bg: var(--vh-bg);
+  --color-bg-elevated: var(--vh-bg);
+  --color-surface: var(--vh-bg);
+  --color-surface-sunken: var(--vh-bg);
+  --color-surface-raised: var(--vh-bg);
+  --color-surface-1: var(--vh-bg);
+  --color-surface-2: var(--vh-bg);
+  --color-surface-3: var(--vh-bg);
+  --color-surface-4: var(--vh-bg);
+  --color-pop: var(--vh-bg);
+  --color-glass-1: var(--vh-bg);
+  --color-glass-2: var(--vh-bg);
+  // The surfaces on a glass box are the page colour too, and every floating box
+  // (`frosted-pop`) has the white edge of a surface (000605).
+  --glass-flat: var(--vh-bg);
+  --pop-edge: var(--vh-edge);
+  --pop-edge-offset: -2px;
+  --color-border: var(--vh-fg);
+  --color-border-strong: var(--vh-fg);
+
+  --color-text: var(--vh-fg);
+  --color-text-muted: var(--vh-fg);
+  --color-text-subtle: var(--vh-fg);
+  --color-text-inverse: var(--vh-bg);
+
+  --color-accent: var(--vh-hi);
+  --color-on-accent: var(--vh-bg);
+  // White: an accent text is no control. A control gets its yellow from the rules below
+  // (000614), so a text that a person cannot press is never yellow.
+  --color-accent-text: var(--vh-fg);
+  --color-accent-container: var(--vh-bg);
+  --color-on-accent-container: var(--vh-fg);
+
+  --color-primary: var(--vh-hi);
+  --color-primary-hover: var(--vh-hi);
+  --color-primary-active: var(--vh-hi);
+  --color-primary-subtle: var(--vh-bg);
+  --color-on-primary: var(--vh-bg);
+  --color-focus-ring: var(--vh-hi);
+
+  --color-selected: var(--vh-hi);
+  --color-on-selected: var(--vh-bg);
+
+  --color-success: var(--vh-fg);
+  --color-success-subtle: var(--vh-bg);
+  --color-warning: var(--vh-fg);
+  --color-warning-subtle: var(--vh-bg);
+  --color-danger: var(--vh-err);
+  --color-danger-subtle: var(--vh-bg);
+  --color-on-danger: var(--vh-bg);
+  --color-info: var(--vh-fg);
+  --color-info-subtle: var(--vh-bg);
+
+  --color-scrim: rgba(0, 0, 0, 0.85);
+
+  --shadow-sm: none;
+  --shadow-md: none;
+  --shadow-md-up: none;
+  --shadow-lg: none;
+  --shadow-elevated: none;
+  --shadow-cut: none;
+  --shadow-cut-start: none;
+  --shadow-cut-strong: none;
+  --shadow-cut-start-strong: none;
+
+  --border-width: 2px;
+
+  // The yellow of 000598 turns into the pure yellow of the four colours.
+  --field-bg: var(--vh-hi);
+  --field-bg-hover: var(--vh-hi);
+  // A check box and a switch are filled only when on (000620).
+  --check-bg: var(--vh-bg);
+  --check-edge: var(--vh-hi);
+  --check-on: var(--vh-hi);
+  --check-checked-edge: none;
+  // The neutral colour of a text, an icon and an edge on the fill around it: white on the
+  // black page, black inside a yellow fill (000621).
+  --vh-ink: var(--vh-fg);
+  --field-focus: inset 0 0 0 3px #000000, 0 0 0 3px var(--vh-hi);
+}
+@include d.on(veryHigh) {
+  // Every surface has a white edge, because no shade sets it apart from the black page. The
+  // edge is a border: a box cuts its content at the inner side of its border, so no child,
+  // no scroll area inside it and no head that sticks paints over the edge. An outline does
+  // not hold: a scroll area inside the box scrolls on a layer of its own above it.
+  .card,
+  .empty-state,
+  .dialog,
+  .ss,
+  .rm__menu,
+  .fs__menu,
+  .sel__menu,
+  .rc__pop,
+  .ac__list,
+  .dt--boxed,
+  .skel--panel,
+  .db,
+  .selbar {
+    border: var(--vh-edge) !important;
+    outline: none !important;
+  }
+
+  // The one ghost row of an empty state (000597) is a surface: black with the white edge,
+  // because its grey tint is no colour of the mode.
+  .es--one .es__ghost {
+    background: var(--vh-bg) !important;
+    border: var(--vh-edge);
+  }
+
+  // A sheet from the side stands 8px clear of the window on every side, as on the phone,
+  // so its edge runs round all four sides and no side of it lies on the edge of the window.
+  .ss--end,
+  .ss--start {
+    top: calc(8px + env(safe-area-inset-top, 0px));
+    bottom: calc(8px + env(safe-area-inset-bottom, 0px));
+    border-radius: var(--radius-xl);
+  }
+  .ss--end {
+    right: calc(8px + env(safe-area-inset-right, 0px));
+  }
+  .ss--start {
+    left: calc(8px + env(safe-area-inset-left, 0px));
+  }
+
+  // A grouped list: each row is a surface of its own, so each row has the edge and all
+  // four round corners, and the rows sit further apart. The group has no edge, because an
+  // edge around the group does not show where one row ends.
+  .rowgroup {
+    gap: var(--space-2);
+  }
+  // The content of a row paints over an outline of the row, so the edge is a layer on top.
+  .rowgroup > * {
+    position: relative;
+    border-radius: var(--radius-lg);
+  }
+  .rowgroup > *::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: 2;
+    border: var(--vh-edge);
+    border-radius: inherit;
+    pointer-events: none;
+  }
+
+  // A person's avatar: a white ring, because its plate is black like the page.
+  // Its letters are white also inside a yellow fill, and yellow inside a control (000614).
+  app-avatar {
+    color: var(--vh-fg) !important;
+    box-shadow: inset 0 0 0 2px var(--vh-fg);
+  }
+  :is(button, a[href]) app-avatar {
+    color: var(--vh-hi) !important;
+    box-shadow: inset 0 0 0 2px var(--vh-hi);
+  }
+
+  // A scroll area draws no line at its ends: its content cuts at the edge of a surface,
+  // and that edge is drawn (app spec 000193). The scroll part of the rail is such a surface
+  // (app spec 001441).
+  .rail__main {
+    border: var(--vh-edge) !important;
+  }
+
+  // A yellow date block (a live meeting) needs no white edge: the yellow sets it apart.
+  app-date-block.db--live .db {
+    outline: none;
+  }
+
+  // The detail pane of a split page is a box that cuts its content at the bottom: it has
+  // the white edge of a surface.
+  // A border, not an outline: the content scrolls over an outline of a scroll container.
+  .ld--split .ld__detail {
+    box-sizing: border-box;
+    border: var(--vh-edge);
+  }
+
+  // The rail and the bottom bar: a white line toward the page.
+  // A border, because the glass layer of the bar paints over an inset shadow.
+  nav.bb {
+    border-top: var(--vh-edge) !important;
+  }
+  nav.rail {
+    box-shadow: inset -2px 0 0 var(--vh-fg) !important;
+  }
+
+  // The open tab: a yellow plate that stands clear of the line of the tab bar, so the line
+  // runs through unbroken and the plate does not merge into it.
+  // Every tab takes the same room, so the texts of all tabs stay on one line.
+  [role='tablist'] [role='tab'] {
+    margin-block: 4px 6px;
+    padding-inline: var(--space-3);
+    border-radius: var(--radius-md);
+  }
+  [role='tablist'] [role='tab'][aria-selected='true'] {
+    box-shadow: none;
+  }
+  .tp__ink {
+    display: none;
+  }
+
+  // The open item of the rail and of the bottom bar: black on a yellow pill.
+  .rail__item.is-active .rail__ind,
+  .bb__item.is-active .bb__ind {
+    color: var(--vh-bg) !important;
+  }
+  .rail__item.is-active,
+  .bb__item.is-active {
+    color: var(--vh-hi) !important;
+  }
+  .rail__ind::before,
+  .bb__ind::before {
+    background: var(--vh-hi);
+  }
+
+  // A heading is white; yellow marks only what a person can use.
+  .section__title,
+  .lg__head {
+    color: var(--vh-fg) !important;
+  }
+
+  // A state shows by its text, not by its colour: white text with a white edge.
+  .badge--status,
+  app-status-text {
+    display: inline-flex;
+    align-items: center;
+    padding: 2px var(--space-2);
+    border-radius: var(--radius-sm);
+    color: var(--vh-ink) !important;
+    box-shadow: inset 0 0 0 2px var(--vh-ink);
+  }
+  // A status chip (app spec 001305) keeps its pill, on the black page.
+  app-status-text.st--chip {
+    padding: 0 var(--space-3);
+    border-radius: var(--radius-pill);
+    background: none;
+  }
+
+  // A link is yellow and underlined.
+  a[href]:not([class]),
+  :is(p, dd, td, .md, .link-row) a[href]:not(.btn, [role]),
+  .link {
+    color: var(--vh-hi) !important;
+    text-decoration: underline;
+  }
+
+  // A disabled control: white text and a dashed white edge, no fill.
+  .btn:disabled,
+  [aria-disabled='true'].btn {
+    background: var(--vh-bg) !important;
+    color: var(--vh-fg) !important;
+    opacity: 1 !important;
+    outline: 2px dashed var(--vh-fg) !important;
+    outline-offset: -2px !important;
+    box-shadow: none !important;
+  }
+
+  // No glass, no gradient and no tint. The head of a list column stays a layer over its
+  // rows, because the rows scroll under it: the layer is solid black and as high as the
+  // head, so no row shows through the title and the filters. Its shadow goes.
+  .ld-pane--glass::before {
+    height: var(--ld-pane-top) !important;
+    background: var(--vh-bg) !important;
+    -webkit-backdrop-filter: none !important;
+    backdrop-filter: none !important;
+    -webkit-mask-image: none !important;
+    mask-image: none !important;
+  }
+  // On a wide screen the rows of the column lie in a frame with a white edge that starts
+  // below the head (app spec 000527): they do not reach up under the head, and they cut at
+  // the frame.
+  @include bp.not-phone {
+    .ld-pane--glass > .ld-pane__rows.ld-pane__rows.ld-pane__rows.ld-pane__rows {
+      margin-top: 0 !important;
+      padding-top: 0 !important;
+      scroll-padding-top: 0 !important;
+      border: var(--vh-edge) !important;
+      border-radius: var(--radius-xl);
+      // The column runs down to the bottom edge of the screen (`--ld-pane-drop`). The frame
+      // ends the gutter above it, so its round corners show and its sides do not run into
+      // the edge of the screen.
+      margin-bottom: var(--ld-pane-drop, 0px) !important;
+    }
+    .ld-pane--glass > .ld-pane__rows::-webkit-scrollbar-track {
+      margin-top: 0 !important;
+    }
+    .ld-pane--glass::before {
+      display: none;
+    }
+  }
+  // On a phone a white line ends the head while rows are under it, as the edge of a
+  // surface does.
+  @include bp.phone {
+    .ld-pane--glass.ld-pane--scrolled::before {
+      box-sizing: border-box;
+      border-bottom: var(--vh-edge);
+    }
+  }
+  .ld-pane--glass::after {
+    display: none;
+  }
+
+  // The yellow of the focus ring of 000598, in the pure yellow.
+  :focus-visible:not(
+      textarea,
+      select,
+      input:not([type='checkbox'], [type='radio'], [type='range'], [type='button'], [type='submit']),
+      [contenteditable='true'],
+      [tabindex='-1']
+    ) {
+    outline-color: var(--vh-hi) !important;
+    // A control with the yellow edge keeps a yellow ring inside the black one, so its
+    // focus differs from its edge.
+    box-shadow:
+      inset 0 0 0 3px var(--vh-bg),
+      inset 0 0 0 6px var(--vh-hi) !important;
+  }
+}
+
+// --- The controls in very high contrast (000614 to 000621) -------------------
+// Everything that a person can press shows yellow: as a fill, as an edge or as its text.
+// `_very-high.scss` has the three forms. The rules are
+// global and `!important`, because they replace the look that each component draws for
+// the highlighted fields. Their selectors stay below the weight of the focus rule above,
+// so the focus ring wins.
+@include d.on(veryHigh) {
+  // The base rule (000614): a link and a button without a look of its own have yellow
+  // text. The selector has no `!important`, so a filled control keeps its black text.
+  :is(a[href], button, summary, [role='button'], [role='link']) {
+    color: var(--vh-press, var(--vh-hi));
+  }
+  // A field that is a button (a select, the search field of the start page) is a yellow
+  // fill, so its text is black.
+  button:is(.field__control, .sel__control, .sp__field) {
+    color: var(--vh-bg);
+  }
+
+  // A choice (000615): a segmented control, a tab bar, a chip, a toggle button and the
+  // button of a menu.
+  // The track of a segmented control is a group, so it has the white edge of a surface. It
+  // has 2px more room at each side, so the white edge stands clear of the yellow segments.
+  .seg {
+    padding: 6px;
+    background: var(--vh-bg) !important;
+    box-shadow: none !important;
+    outline: var(--vh-edge);
+    outline-offset: -2px;
+  }
+  .seg__opt,
+  [role='tablist'] [role='tab'],
+  .chip,
+  .rm__trigger,
+  .btn[aria-pressed='false'],
+  .btn[aria-expanded='false'],
+  :is(button, a)[aria-label][aria-pressed='false']:has(> app-icon:only-child, > svg:only-child),
+  :is(button, a)[aria-label][aria-expanded='false']:has(> app-icon:only-child, > svg:only-child) {
+    @include vh.edge;
+  }
+  .seg__opt--on,
+  [role='tablist'] [role='tab'][aria-selected='true'],
+  .chip.on,
+  .rm__trigger--on,
+  .btn[aria-pressed='true'],
+  .btn[aria-expanded='true'],
+  :is(button, a)[aria-label][aria-pressed='true']:has(> app-icon:only-child, > svg:only-child),
+  :is(button, a)[aria-label][aria-expanded='true']:has(> app-icon:only-child, > svg:only-child) {
+    @include vh.fill;
+  }
+
+  // The navigation (000616): yellow text and icons, no edge. The open entry keeps its pill.
+  .rail__item,
+  .bb__item,
+  .more__item,
+  .am__trigger,
+  .am__item:not(.am__item--field) {
+    @include vh.ink(var(--vh-hi));
+    color: var(--vh-hi) !important;
+  }
+  // The open entry of the "Mehr" sheet is a row, so it is filled as the chosen row of a
+  // menu is: black text and a black icon on yellow.
+  .more__item.is-active {
+    @include vh.fill;
+  }
+  .rail__item.is-active .rail__ind,
+  .bb__item.is-active .bb__ind {
+    --vh-ink: var(--vh-bg);
+  }
+
+  // A menu (000617): black with the white edge of a surface, yellow rows, white headings.
+  .am--popover {
+    border: var(--vh-edge) !important;
+    outline: none !important;
+  }
+  .rm__menu,
+  .fs__menu,
+  .sel__menu,
+  .ac__list,
+  .rc__pop {
+    @include vh.ink(var(--vh-hi));
+    --color-danger: var(--vh-err);
+    background: var(--vh-bg) !important;
+    color: var(--vh-fg) !important;
+    box-shadow: none !important;
+    border: var(--vh-edge) !important;
+    outline: none !important;
+  }
+  .rm__item,
+  .fs__option,
+  .sel__option,
+  .ac__option,
+  .fs__reset {
+    @include vh.text;
+  }
+  .rm__item--danger {
+    color: var(--vh-err) !important;
+  }
+  .rm__cap,
+  .fs__cap,
+  .sel__cap {
+    color: var(--vh-fg) !important;
+  }
+  .rm__sep,
+  .fs__sep {
+    background: var(--vh-fg) !important;
+  }
+  .rm__item:is([aria-checked='true'], [aria-current='true']),
+  .fs__option[aria-selected='true'],
+  .sel__option[aria-selected='true'],
+  .ac__option[aria-selected='true'] {
+    @include vh.fill;
+  }
+  // The row under the pointer or with the focus: a yellow edge.
+  .rm__item:focus-visible,
+  .fs__option:focus-visible,
+  .sel__option:focus-visible,
+  .sel__option--active,
+  .ac__option--active {
+    outline: 2px solid var(--vh-hi) !important;
+    outline-offset: -2px !important;
+  }
+
+  // A row that opens something (000619): a yellow title, the rest stays white.
+  .li__title,
+  tr.dt__row--clickable > td:first-child,
+  tr.dt__row--clickable > td.dt__cell--check + td {
+    color: var(--vh-hi) !important;
+  }
+  .li--on,
+  .dt__table tbody tr.dt__row--selected > td {
+    @include vh.ink(var(--vh-bg));
+    --color-danger: var(--field-danger);
+  }
+  .li--on .li__title,
+  .dt__table tbody tr.dt__row--selected > td {
+    color: var(--vh-bg) !important;
+  }
+
+  // A step of a stepper that a person can go back to: a yellow label.
+  .stepper__body--button .stepper__label {
+    color: var(--vh-hi) !important;
+  }
+  .is-active > .stepper__body--button .stepper__label,
+  .skip-link {
+    color: var(--vh-bg) !important;
+  }
+
+  // A check box, a radio button and a switch (000620): a yellow edge when off, a yellow
+  // fill when on. The tokens `--check-*` give the fills.
+  .cbx__input,
+  .fs__box,
+  .dt__check,
+  .sw__track:not(:disabled),
+  input:is([type='checkbox'], [type='radio']) {
+    outline: 2px solid var(--vh-hi) !important;
+    outline-offset: -2px !important;
+  }
+  input[type='radio'] {
+    box-shadow: none;
+  }
+  input[type='radio']:checked {
+    background: radial-gradient(circle, var(--vh-bg) 0 5px, var(--vh-hi) 5.5px);
+  }
+
+  // Everything on a yellow fill is black (000621): a field, a button, a toast.
+  .field,
+  .sp,
+  .btn:not(:disabled, [aria-disabled='true'], [aria-pressed='false'], [aria-expanded='false']),
+  .toast {
+    --vh-ink: var(--vh-bg);
+    --vh-press: var(--vh-bg);
+    --color-border: var(--vh-bg);
+    --color-border-strong: var(--vh-bg);
+  }
+}

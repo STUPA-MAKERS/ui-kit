@@ -25,7 +25,7 @@
   (appSwipeBackEnd)="onSwipeEnd()"
 >
   @if (nav.active()) {
-    <app-list-detail-bar (back)="back.emit()" />
+    <app-list-detail-bar [title]="barTitle() ? nav.title() : null" (back)="back.emit()" />
   }
   <ng-content select="[detail]" />
 </div>

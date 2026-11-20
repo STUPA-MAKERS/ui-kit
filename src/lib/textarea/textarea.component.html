@@ -1,3 +1,5 @@
+<!-- The textarea is projected, so the lint cannot see that the label holds it. -->
+<!-- eslint-disable-next-line @angular-eslint/template/label-has-associated-control -->
 <label class="ta" [class.ta--invalid]="invalid()" [class.ta--grow]="grow()">
   <span class="ta__label">{{ label() }}</span>
   <ng-content />

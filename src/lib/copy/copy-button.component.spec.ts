@@ -1,4 +1,4 @@
-import { Component, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, signal } from '@angular/core';
 import { fireEvent, render, screen } from '@testing-library/angular';
 import { CopyButtonComponent } from './copy-button.component';
 import { copyText } from './copy-text';
@@ -16,6 +16,7 @@ async function settle(): Promise<void> {
 }
 
 @Component({
+  changeDetection: ChangeDetectionStrategy.Eager,
   standalone: true,
   imports: [CopyButtonComponent],
   template: `<app-copy-button [text]="text()" [resetMs]="resetMs()" (copiedChange)="result = $event" />`,

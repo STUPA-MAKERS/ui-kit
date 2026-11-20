@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { ChangeDetectionStrategy, Component } from '@angular/core';
 import { FormControl, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { fireEvent, render, screen } from '@testing-library/angular';
 import userEvent from '@testing-library/user-event';
@@ -19,6 +19,7 @@ describe('DatepickerComponent', () => {
 
   it('renders a localized text input (not a native date input)', async () => {
     @Component({
+      changeDetection: ChangeDetectionStrategy.Eager,
       standalone: true,
       imports: [DatepickerComponent, FormsModule],
       template: `<app-datepicker label="Stichtag" [(ngModel)]="v" />`,
@@ -34,6 +35,7 @@ describe('DatepickerComponent', () => {
 
   it('writes the model value as a localized display string', async () => {
     @Component({
+      changeDetection: ChangeDetectionStrategy.Eager,
       standalone: true,
       imports: [DatepickerComponent, FormsModule],
       template: `<app-datepicker label="Stichtag" [(ngModel)]="v" />`,
@@ -49,6 +51,7 @@ describe('DatepickerComponent', () => {
 
   it('parses typed input into an ISO model value on blur', async () => {
     @Component({
+      changeDetection: ChangeDetectionStrategy.Eager,
       standalone: true,
       imports: [DatepickerComponent, FormsModule],
       template: `<app-datepicker label="Stichtag" [(ngModel)]="v" />`,
@@ -64,6 +67,7 @@ describe('DatepickerComponent', () => {
 
   it('disables the control via the CVA', async () => {
     @Component({
+      changeDetection: ChangeDetectionStrategy.Eager,
       standalone: true,
       imports: [DatepickerComponent, ReactiveFormsModule],
       template: `<app-datepicker label="Stichtag" [formControl]="ctrl" />`,
@@ -85,6 +89,7 @@ describe('DatepickerComponent', () => {
 
   it('clears the model when the field is blanked on blur', async () => {
     @Component({
+      changeDetection: ChangeDetectionStrategy.Eager,
       standalone: true,
       imports: [DatepickerComponent, FormsModule],
       template: `<app-datepicker label="Stichtag" [(ngModel)]="v" />`,
@@ -104,6 +109,7 @@ describe('DatepickerComponent', () => {
 
   it('restores the last valid value when an unparseable date is entered', async () => {
     @Component({
+      changeDetection: ChangeDetectionStrategy.Eager,
       standalone: true,
       imports: [DatepickerComponent, FormsModule],
       template: `<app-datepicker label="Stichtag" [(ngModel)]="v" />`,
@@ -124,6 +130,7 @@ describe('DatepickerComponent', () => {
 
   it('rejects out-of-range months/days and reverts to the last valid value', async () => {
     @Component({
+      changeDetection: ChangeDetectionStrategy.Eager,
       standalone: true,
       imports: [DatepickerComponent, FormsModule],
       template: `<app-datepicker label="Stichtag" [(ngModel)]="v" />`,
@@ -141,6 +148,7 @@ describe('DatepickerComponent', () => {
 
   it('rejects three non-numeric parts (NaN components) and reverts', async () => {
     @Component({
+      changeDetection: ChangeDetectionStrategy.Eager,
       standalone: true,
       imports: [DatepickerComponent, FormsModule],
       template: `<app-datepicker label="Stichtag" [(ngModel)]="v" />`,
@@ -158,6 +166,7 @@ describe('DatepickerComponent', () => {
 
   it('parses 2-digit years as 20xx and accepts / and - separators', async () => {
     @Component({
+      changeDetection: ChangeDetectionStrategy.Eager,
       standalone: true,
       imports: [DatepickerComponent, FormsModule],
       template: `<app-datepicker label="Stichtag" [(ngModel)]="v" />`,
@@ -174,6 +183,7 @@ describe('DatepickerComponent', () => {
 
   it('commits a date chosen via the native (calendar) control', async () => {
     @Component({
+      changeDetection: ChangeDetectionStrategy.Eager,
       standalone: true,
       imports: [DatepickerComponent, FormsModule],
       template: `<app-datepicker label="Stichtag" [(ngModel)]="v" />`,
@@ -222,6 +232,7 @@ describe('DatepickerComponent', () => {
 
   it('reformats the display when the app locale changes (de → en)', async () => {
     @Component({
+      changeDetection: ChangeDetectionStrategy.Eager,
       standalone: true,
       imports: [DatepickerComponent, FormsModule],
       template: `<app-datepicker label="Stichtag" [(ngModel)]="v" />`,
@@ -266,6 +277,7 @@ describe('DatepickerComponent', () => {
 
   it('shows an empty display when written a null value (writeValue(null))', async () => {
     @Component({
+      changeDetection: ChangeDetectionStrategy.Eager,
       standalone: true,
       imports: [DatepickerComponent, ReactiveFormsModule],
       template: `<app-datepicker label="Stichtag" [formControl]="ctrl" />`,
@@ -284,6 +296,7 @@ describe('DatepickerComponent', () => {
 
   it('parses and formats day first in EN too (DD/MM/YYYY)', async () => {
     @Component({
+      changeDetection: ChangeDetectionStrategy.Eager,
       standalone: true,
       imports: [DatepickerComponent, FormsModule],
       template: `<app-datepicker label="Stichtag" [(ngModel)]="v" />`,
@@ -328,5 +341,54 @@ describe('DatepickerComponent', () => {
     const input = screen.getByLabelText('Frist') as HTMLInputElement;
     expect(input).toBeInTheDocument();
     expect(input).toHaveAttribute('required');
+  });
+
+  describe('relative shortcuts (§000700, §000701)', () => {
+    beforeEach(() => {
+      jest.useFakeTimers({ doNotFake: ['nextTick', 'setImmediate', 'queueMicrotask'] });
+      jest.setSystemTime(new Date(2026, 10, 11, 9, 0));
+    });
+    afterEach(() => jest.useRealTimers());
+
+    @Component({
+      changeDetection: ChangeDetectionStrategy.Eager,
+      standalone: true,
+      imports: [DatepickerComponent, FormsModule],
+      template: `<app-datepicker label="Stichtag" [(ngModel)]="v" />`,
+    })
+    class Host {
+      v = '2026-06-07';
+    }
+
+    async function setup(): Promise<{ input: HTMLInputElement; host: () => Host }> {
+      const { fixture } = await render(Host);
+      await fixture.whenStable();
+      fixture.detectChanges();
+      return { input: textInput(), host: () => fixture.componentInstance };
+    }
+
+    it('resolves a shortcut on blur and shows the date', async () => {
+      const { input, host } = await setup();
+      fireEvent.input(input, { target: { value: '+1w' } });
+      fireEvent.blur(input);
+      expect(host().v).toBe('2026-11-18');
+      expect(input.value).toBe('18.11.2026');
+    });
+
+    it('resolves a shortcut on Enter without a blur', async () => {
+      const { input, host } = await setup();
+      fireEvent.input(input, { target: { value: '-1d' } });
+      fireEvent.keyDown(input, { key: 'Enter' });
+      expect(host().v).toBe('2026-11-10');
+      expect(input.value).toBe('10.11.2026');
+    });
+
+    it('restores the last value for an unknown shortcut', async () => {
+      const { input, host } = await setup();
+      fireEvent.input(input, { target: { value: '+1x' } });
+      fireEvent.blur(input);
+      expect(host().v).toBe('2026-06-07');
+      expect(input.value).toBe('07.06.2026');
+    });
   });
 });

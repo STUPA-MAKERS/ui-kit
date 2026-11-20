@@ -108,9 +108,8 @@ export class FileDropZoneComponent {
     this.depth = 0;
     this.over.set(false);
     if (this.disabled()) return;
-    let dropped = Array.from(event.dataTransfer?.files ?? []);
-    if (!this.multiple()) dropped = dropped.slice(0, 1);
-    this.emit(dropped);
+    const dropped = Array.from(event.dataTransfer?.files ?? []);
+    this.emit(this.multiple() ? dropped : dropped.slice(0, 1));
   }
 
   protected onPick(): void {

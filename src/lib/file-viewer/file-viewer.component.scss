@@ -1,25 +1,45 @@
 @use '../../styles/press';
+@use '../../styles/display' as d;
 /* The viewer is dark in both themes, like the Nextcloud viewer: the file is the only
    bright surface. The colours are local, so they do not follow the light theme. */
 .fv {
   --fv-backdrop: rgba(8, 10, 9, 0.94);
-  --fv-bar: rgba(0, 0, 0, 0.72);
+  --fv-glass: #080a09;
+  --fv-bar-shade: rgba(0, 0, 0, 0.35);
   --fv-text: #ffffff;
   --fv-text-muted: var(--c-dark-onv, #b3b8b4);
   --fv-hover: rgba(255, 255, 255, 0.12);
-  --fv-press: rgba(255, 255, 255, 0.2);
   --fv-image-surface: var(--c-dark-c3, #262a27);
-  --fv-focus: var(--c-accent, #72a384);
+  --fv-focus: var(--c-dark-pt, #8dbb9d);
   --fv-bar-height: 3rem; /* 48px */
   --fv-nav-size: 3rem;
 
+  /* The viewer opens in the top layer (popover), so no sheet, card or dialog that holds it
+     clips it. The UA styles of a popover would shrink and centre it, so they are reset. The
+     z-index holds where the browser has no popover API. Toasts stay on top. */
   position: fixed;
   inset: 0;
-  /* Above dialogs: the viewer can open from inside one. Toasts stay on top. */
   z-index: calc(var(--z-dialog, 1300) + 50);
+  width: auto;
+  height: auto;
+  max-width: none;
+  max-height: none;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  overflow: hidden;
   display: flex;
   flex-direction: column;
+  /* One dark frosted glass over the whole page behind the viewer (spec 001084): the
+     page shows only as a dark blur. The page under it is blurred as well (base.scss). With less transparency (000596) `--glass-tint` is
+     100 %, so the viewer is the solid tint. Without backdrop-filter it keeps the
+     near-solid backdrop. */
   background: var(--fv-backdrop);
+  @supports (backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px)) {
+    background: color-mix(in srgb, var(--fv-glass) var(--glass-tint, 84%), transparent);
+    -webkit-backdrop-filter: blur(40px) saturate(1.4);
+    backdrop-filter: blur(40px) saturate(1.4);
+  }
   color: var(--fv-text);
   color-scheme: dark;
   outline: none;
@@ -61,7 +81,11 @@
   gap: var(--space-2, 0.5rem);
   height: var(--fv-bar-height);
   padding: 0 var(--space-2, 0.5rem) 0 var(--space-4, 1rem);
-  background: var(--fv-bar);
+  /* The bar lies on the glass of the viewer and darkens it a step more, so it is at
+     least as dark as the rest of the viewer (spec 001084). */
+  position: relative;
+  z-index: 1;
+  background: var(--fv-bar-shade);
   padding-top: env(safe-area-inset-top, 0px);
   box-sizing: content-box;
 }
@@ -109,8 +133,7 @@
   color: var(--fv-text);
   cursor: pointer;
   transition: background-color var(--motion-fast, 120ms) var(--ease-standard, ease),
-    opacity var(--motion-fast, 120ms) var(--ease-standard, ease),
-    scale var(--motion-xs) var(--ease-standard);
+    opacity var(--motion-fast, 120ms) var(--ease-standard, ease);
 }
 @media (hover: hover) {
   .fv__btn:hover:not(:disabled),
@@ -118,10 +141,9 @@
     background: var(--fv-hover);
   }
 }
-.fv__btn:active:not(:disabled),
-.fv__actions ::ng-deep .fv__btn:active:not(:disabled) {
-  background: var(--fv-press);
-  @include press.press-scale;
+.fv__btn,
+.fv__actions ::ng-deep .fv__btn {
+  @include press.press;
 }
 .fv__btn:disabled,
 .fv__actions ::ng-deep .fv__btn:disabled {
@@ -252,7 +274,7 @@
 }
 
 /* Phone: the bar stays, the arrows are smaller and the image gets more room. */
-@media (max-width: 768px) {
+@media (max-width: 767.98px) {
   .fv {
     --fv-nav-size: 2.25rem;
   }
@@ -291,7 +313,7 @@
   animation: fv-fade-out var(--motion-base, 200ms) var(--ease-exit, ease-in) forwards;
 }
 
-@media (prefers-reduced-motion: reduce) {
+@include d.host-on(motion) {
   .fv--entering,
   .fv--leaving,
   .fv--entering .fv__stage > .fv__image,

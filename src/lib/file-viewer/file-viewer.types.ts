@@ -13,10 +13,10 @@ export type FileViewerKind = 'image' | 'pdf' | 'other';
  * then from the extension of the path of `url`.
  */
 export interface FileViewerItem {
-  name: string;
-  url: string;
-  kind?: FileViewerKind;
-  mime?: string;
+  readonly name: string;
+  readonly url: string;
+  readonly kind?: FileViewerKind;
+  readonly mime?: string;
 }
 
 const IMAGE_EXT = new Set([

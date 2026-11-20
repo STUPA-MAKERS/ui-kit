@@ -12,20 +12,15 @@ import { NG_VALUE_ACCESSOR, type ControlValueAccessor } from '@angular/forms';
 
 /** One option of a segmented control. */
 export interface SegmentedOption {
-  value: string;
-  label: string;
+  readonly value: string;
+  readonly label: string;
   /** A disabled option cannot be chosen: a click and the arrow keys skip it. */
-  disabled?: boolean;
+  readonly disabled?: boolean;
   /**
    * A tooltip (the native `title`), for example the reason why the option is disabled.
    * It does not change the accessible name, which stays the label.
    */
-  title?: string;
-  /**
-   * A count after the label, in a lighter weight (for example the number of invoices in
-   * a segment of a list). The screen reader reads it as part of the name.
-   */
-  count?: number | string | null;
+  readonly title?: string;
 }
 
 /**
@@ -40,15 +35,15 @@ export type SegmentedWidth = 'auto' | 'equal' | 'fill';
 
 /**
  * Segmented control: a small set of exclusive options in one row (Ausgabe/Einnahme,
- * Anwesend/Abwesend, a majority rule). It follows the WAI-ARIA radio group pattern:
+ * Anwesend/Abwesend, a majority rule). It is a pill track, and the chosen option is a
+ * filled pill in it (app spec 000561). A segment shows its label and never a count (app
+ * spec 000560). It follows the WAI-ARIA radio group pattern:
  * one tab stop, the arrow keys move the selection, Home and End jump to the ends.
  *
  * `<app-segmented ariaLabel="Art" [options]="kinds" [(value)]="kind" />`
  * Works with `ngModel` and reactive forms.
  *
- * `width` sets the width of the segments (see `SegmentedWidth`). An option can carry a
- * `count`, which shows after its label. `check` false leaves out the check mark of the
- * chosen segment.
+ * `width` sets the width of the segments (see `SegmentedWidth`).
  */
 @Component({
   selector: 'app-segmented',
@@ -58,7 +53,7 @@ export type SegmentedWidth = 'auto' | 'equal' | 'fill';
     '[class.seg-host--equal]': "width() === 'equal'",
     '[class.seg-host--fill]': "width() === 'fill'",
     '[class.seg-host--control]': "size() === 'control'",
-    '[class.seg-host--check]': 'check()',
+    '[class.seg-host--lg]': "size() === 'lg'",
   },
   providers: [{ provide: NG_VALUE_ACCESSOR, useExisting: SegmentedComponent, multi: true }],
   templateUrl: './segmented.component.html',
@@ -74,20 +69,12 @@ export class SegmentedComponent implements ControlValueAccessor {
   /** The width of the segments: `auto`, `equal` or `fill`. */
   readonly width = input<SegmentedWidth>('auto');
   /**
-   * The check mark before the label of the chosen segment. False leaves it out, for
-   * segments with a count that must fit a narrow column.
+   * The height. `compact` (a 44px track around a 36px pill) fits a form or a toolbar.
+   * `control` takes the height of a medium button, for a switch that stands beside buttons,
+   * as in a page header. `lg` takes the height of a large search pill, for a switch that
+   * leads a list column above its search field.
    */
-  readonly check = input(true);
-  /**
-   * The height. `compact` (36px) fits a form or a toolbar. `control` takes the height of
-   * a medium button, for a switch that stands beside buttons, as in a page header.
-   *
-   * A `control` switch with the check mark keeps one width when the selection changes:
-   * a segment without the mark pads itself by the room of the mark, so the buttons beside it
-   * do not move. The label moves to make room for the mark.
-   * A `compact` switch does not reserve it, because a phone dialog has no width to spare.
-   */
-  readonly size = input<'compact' | 'control'>('compact');
+  readonly size = input<'compact' | 'control' | 'lg'>('compact');
 
   private readonly formDisabled = signal(false);
   protected readonly isDisabled = computed(() => this.disabled() || this.formDisabled());
@@ -111,25 +98,8 @@ export class SegmentedComponent implements ControlValueAccessor {
 
   onKeydown(event: KeyboardEvent, index: number): void {
     const opts = this.options();
-    let next = -1;
-    switch (event.key) {
-      case 'ArrowRight':
-      case 'ArrowDown':
-        next = this.step(index, 1);
-        break;
-      case 'ArrowLeft':
-      case 'ArrowUp':
-        next = this.step(index, -1);
-        break;
-      case 'Home':
-        next = this.step(-1, 1);
-        break;
-      case 'End':
-        next = this.step(opts.length, -1);
-        break;
-      default:
-        return;
-    }
+    const next = this.keyTarget(event.key, index);
+    if (next === null) return;
     event.preventDefault();
     if (next < 0) return;
     this.select(opts[next]);
@@ -140,11 +110,26 @@ export class SegmentedComponent implements ControlValueAccessor {
   private step(from: number, dir: 1 | -1): number {
     const opts = this.options();
     const n = opts.length;
-    for (let i = 1; i <= n; i++) {
-      const idx = (((from + dir * i) % n) + n) % n;
-      if (!opts[idx].disabled) return idx;
+    const ring = Array.from({ length: n }, (_, i) => (((from + dir * (i + 1)) % n) + n) % n);
+    return ring.find((idx) => !opts[idx].disabled) ?? -1;
+  }
+
+  /** The index a key moves to (-1 when no option is enabled), or null for another key. */
+  private keyTarget(key: string, index: number): number | null {
+    switch (key) {
+      case 'ArrowRight':
+      case 'ArrowDown':
+        return this.step(index, 1);
+      case 'ArrowLeft':
+      case 'ArrowUp':
+        return this.step(index, -1);
+      case 'Home':
+        return this.step(-1, 1);
+      case 'End':
+        return this.step(this.options().length, -1);
+      default:
+        return null;
     }
-    return -1;
   }
 
   writeValue(value: string | null): void {

@@ -1,5 +1,5 @@
 <div class="fld__text">
-  <span class="fld__label">{{ label() }}</span>
+  <span class="fld__label" [attr.lang]="labelLang()">{{ label() }}</span>
   <span class="fld__value" [class.mono]="mono()">
     @if (value() !== null) {
       {{ value() }}

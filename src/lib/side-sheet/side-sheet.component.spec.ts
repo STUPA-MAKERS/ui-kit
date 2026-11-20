@@ -1,4 +1,6 @@
-import { Component, signal } from '@angular/core';
+import { readFileSync } from 'node:fs';
+import { join } from 'node:path';
+import { ChangeDetectionStrategy, Component, signal } from '@angular/core';
 import { DialogComponent } from '../dialog/dialog.component';
 import { fireEvent, render, screen, waitFor } from '@testing-library/angular';
 import userEvent from '@testing-library/user-event';
@@ -6,6 +8,7 @@ import { runAxe } from '../../../testing/a11y';
 import { SideSheetComponent, type SheetSide } from './side-sheet.component';
 
 @Component({
+  changeDetection: ChangeDetectionStrategy.Eager,
   standalone: true,
   imports: [SideSheetComponent],
   template: `
@@ -37,6 +40,7 @@ class HostComponent {
 }
 
 @Component({
+  changeDetection: ChangeDetectionStrategy.Eager,
   standalone: true,
   imports: [SideSheetComponent, DialogComponent],
   template: `
@@ -71,7 +75,7 @@ async function setup(configure?: (h: HostComponent) => void) {
 
 describe('SideSheetComponent', () => {
   afterEach(() => {
-    document.body.style.overflow = '';
+    document.documentElement.style.overflow = '';
   });
 
   it('renders nothing while closed', async () => {
@@ -85,7 +89,7 @@ describe('SideSheetComponent', () => {
     const dialog = screen.getByRole('dialog', { name: 'Anwesenheit' });
     expect(dialog).toHaveAttribute('aria-modal', 'true');
     expect(dialog).toHaveClass('ss', 'ss--end');
-    expect(document.body.style.overflow).toBe('hidden');
+    expect(document.documentElement.style.overflow).toBe('hidden');
     await waitFor(() =>
       expect(screen.getByRole('button', { name: 'Zurücksetzen' })).toHaveFocus(),
     );
@@ -94,7 +98,7 @@ describe('SideSheetComponent', () => {
 
   it('closes on Escape, gives the focus back and frees the page', async () => {
     const { user, opener, host } = await setup();
-    document.body.style.overflow = 'auto';
+    document.documentElement.style.overflow = 'auto';
     await user.click(opener);
     await waitFor(() => expect(screen.getByRole('dialog')).toContainElement(document.activeElement as HTMLElement));
     await user.keyboard('{Escape}');
@@ -102,7 +106,7 @@ describe('SideSheetComponent', () => {
     expect(host.open()).toBe(false);
     expect(host.closes).toBe(1);
     expect(opener).toHaveFocus();
-    expect(document.body.style.overflow).toBe('auto');
+    expect(document.documentElement.style.overflow).toBe('auto');
   });
 
   it('leaves Escape and Tab to a dialog inside the sheet, and to a field that took the Escape', async () => {
@@ -400,9 +404,9 @@ describe('SideSheetComponent', () => {
   it('frees the page when it is destroyed while open', async () => {
     const { user, opener, view } = await setup();
     await user.click(opener);
-    expect(document.body.style.overflow).toBe('hidden');
+    expect(document.documentElement.style.overflow).toBe('hidden');
     view.fixture.destroy();
-    expect(document.body.style.overflow).toBe('');
+    expect(document.documentElement.style.overflow).toBe('');
   });
 
   it('leaves the focus alone when the opener is gone', async () => {
@@ -466,5 +470,16 @@ describe('SideSheetComponent', () => {
       expect(animationComplete).toHaveBeenCalled();
       expect(sheet.shown()).toBe(true);
     });
+  });
+});
+
+describe('SideSheetComponent head', () => {
+  /** § NF/usability/layout/001341: the capitals of the title sit as far from the top as from the side. */
+  it('sets the top padding of the head from the side distance less the 12px above the capitals', () => {
+    // jsdom applies no component styles, so this reads the SCSS.
+    const scss = readFileSync(join(__dirname, 'side-sheet.component.scss'), 'utf8');
+    const start = scss.indexOf('.ss__head {');
+    const rule = scss.slice(start, scss.indexOf('}', start));
+    expect(rule).toMatch(/padding: calc\(var\(--space-[45]\) - 12px\)/);
   });
 });

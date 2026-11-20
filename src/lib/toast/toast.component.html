@@ -1,12 +1,17 @@
-<div class="toasts" aria-live="polite" aria-atomic="false">
+<div #stack class="toasts" popover="manual" aria-live="off">
   @for (toast of toastService.stackToasts(); track toast.id) {
     <div
       class="toast"
       [class]="'toast--' + toast.variant"
       role="status"
+      aria-live="off"
       animate.enter="toast--entering"
-      animate.leave="toast--leaving"
+      (animate.leave)="leave($event)"
+      (pointerdown)="swipeStart($event, toast.id)"
     >
+      <span class="toast__tile" aria-hidden="true">
+        <app-icon [name]="tileIcon(toast)" [size]="18" />
+      </span>
       @if (toast.icon && toast.iconPosition !== 'end') {
         <app-icon class="toast__icon" [name]="toast.icon" [size]="18" />
       }

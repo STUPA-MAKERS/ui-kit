@@ -16,4 +16,7 @@
     <span class="btn__spinner" aria-hidden="true"></span>
   }
   <span class="btn__label" [class.btn__label--loading]="loading"><ng-content /></span>
+  @if (count !== null) {
+    <span class="btn__count num" aria-hidden="true"><span class="btn__countN">{{ count }}</span></span>
+  }
 </button>

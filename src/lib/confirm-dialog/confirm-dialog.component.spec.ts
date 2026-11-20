@@ -1,10 +1,11 @@
-import { Component, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, signal } from '@angular/core';
 import { render, screen } from '@testing-library/angular';
 import userEvent from '@testing-library/user-event';
 import { runAxe } from '../../../testing/a11y';
 import { ConfirmDialogComponent } from './confirm-dialog.component';
 
 @Component({
+  changeDetection: ChangeDetectionStrategy.Eager,
   standalone: true,
   imports: [ConfirmDialogComponent],
   template: `
@@ -51,7 +52,7 @@ const confirmButton = () => screen.getByRole('button', { name: 'Löschen' });
 
 describe('ConfirmDialogComponent', () => {
   afterEach(() => {
-    document.body.style.overflow = '';
+    document.documentElement.style.overflow = '';
   });
 
   it('shows the title, the text, "Abbrechen" and "Löschen" in the danger look', async () => {

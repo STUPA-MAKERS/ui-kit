@@ -8,11 +8,13 @@ import {
   inject,
   input,
   output,
+  signal,
   viewChild,
 } from '@angular/core';
 import { NgTemplateOutlet } from '@angular/common';
 import { IconComponent } from '../icon/icon.component';
 import { UiKitTranslatePipe } from '../intl/translate.pipe';
+import { ancestors } from '../util/dom-walk';
 import { ListDetailNav } from './list-detail-nav';
 
 /**
@@ -20,6 +22,10 @@ import { ListDetailNav } from './list-detail-nav';
  * arrow (emits `back`), the title in small type once the big title of the sheet has
  * scrolled under the bar, and the actions of the sheet bar of the detail. It stays at the
  * top while the page (or the scrolling panel around it) scrolls.
+ *
+ * While a task takes over the detail (`ListDetailNav.task`, such as an edit form), the
+ * bar shows an X that cancels the task and the name of the task as a fixed title, and no
+ * actions.
  *
  * `app-list-detail` shows it above its detail. A detail outside that layout (the card
  * drawer of a to-do board on a phone) gets the same bar with `appListDetailNav` on its
@@ -37,7 +43,8 @@ import { ListDetailNav } from './list-detail-nav';
   imports: [IconComponent, NgTemplateOutlet, UiKitTranslatePipe],
   host: {
     class: 'ld__bar',
-    '[class.ld__bar--condensed]': 'nav.condensed() || title() !== null',
+    '[class.ld__bar--condensed]': 'nav.condensed() || title() !== null || nav.task() !== null',
+    '[class.ld__bar--under]': 'under()',
   },
   templateUrl: './list-detail-bar.component.html',
   styleUrl: './list-detail-bar.component.scss',
@@ -45,7 +52,7 @@ import { ListDetailNav } from './list-detail-nav';
 export class ListDetailBarComponent {
   protected readonly nav = inject(ListDetailNav);
   private readonly host = inject<ElementRef<HTMLElement>>(ElementRef).nativeElement;
-  private readonly backButton = viewChild.required<ElementRef<HTMLButtonElement>>('backButton');
+  private readonly backButton = viewChild<ElementRef<HTMLButtonElement>>('backButton');
 
   /** The name of the back arrow; "Zur Liste" by default. */
   readonly label = input<string | null>(null);
@@ -60,15 +67,42 @@ export class ListDetailBarComponent {
   /** The back arrow was pressed. */
   readonly back = output<void>();
 
+  /**
+   * The page or a panel around the bar has scrolled, so content runs under the bar: only
+   * then is the bar glass (`ld__bar--under`). At rest the glass would blur the content
+   * below the bar into it.
+   */
+  protected readonly under = signal(false);
+
   constructor() {
     this.nav.barBottom = () => this.host.getBoundingClientRect().bottom;
-    inject(DestroyRef).onDestroy(() => (this.nav.barBottom = () => 0));
+    let frame = 0;
+    const check = () => {
+      frame = 0;
+      this.under.set(scrolledAround(this.host));
+    };
+    const onScroll = () => {
+      if (!frame) frame = requestAnimationFrame(check);
+    };
+    window.addEventListener('scroll', onScroll, { capture: true, passive: true });
+    frame = requestAnimationFrame(check);
+    inject(DestroyRef).onDestroy(() => {
+      this.nav.barBottom = () => 0;
+      window.removeEventListener('scroll', onScroll, { capture: true });
+      if (frame) cancelAnimationFrame(frame);
+    });
   }
 
   /** Put the focus on the back arrow. */
   focus(): void {
-    this.backButton().nativeElement.focus();
+    this.backButton()?.nativeElement.focus();
   }
+}
+
+/** The document or an element around `el` has scrolled away from its top. */
+function scrolledAround(el: HTMLElement): boolean {
+  const page = document.scrollingElement?.scrollTop ?? window.scrollY;
+  return page > 0 || ancestors(el).some((p) => p.scrollTop > 0);
 }
 
 /**

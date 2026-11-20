@@ -1,5 +1,6 @@
 @use '../../styles/field' as f;
 @use '../../styles/press';
+@use '../../styles/frosted' as *;
 
 :host {
   display: block;
@@ -45,8 +46,10 @@
   gap: var(--space-2);
   width: 100%;
   min-width: 0;
-  padding: 26px var(--space-2) 8px var(--space-4);
-  color: var(--color-text);
+  padding: 2px var(--space-2) 8px var(--space-4);
+  /* Black in a highlighted field (000598): the box changes only the muted colours, because
+     the hits below it are in the box and keep the colours of the page. */
+  color: var(--field-text, var(--color-text));
 }
 .ac__picked ::ng-deep [acPickedIcon] {
   flex: none;
@@ -76,7 +79,6 @@
   background: transparent;
   color: var(--color-text-muted);
   cursor: pointer;
-  transition: scale var(--motion-xs) var(--ease-standard);
   @include press.press;
 }
 @media (hover: hover) {
@@ -101,8 +103,8 @@
   overflow-y: auto;
   list-style: none;
   border-radius: var(--radius-md);
-  background: var(--color-surface-3);
   box-shadow: var(--shadow-elevated);
+  @include frosted-pop(var(--color-pop));
 }
 .ac__option {
   @include press.chrome-text;
@@ -116,8 +118,7 @@
   font: inherit;
   text-align: start;
   cursor: pointer;
-  transition: scale var(--motion-xs) var(--ease-standard);
-  @include press.press($scale: row);
+  @include press.press;
 }
 .ac__optionText {
   display: block;

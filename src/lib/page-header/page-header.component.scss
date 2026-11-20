@@ -96,11 +96,21 @@
 .ph__actions {
   display: flex;
   align-items: center;
-  gap: var(--space-2);
+  gap: 2px;
   flex-wrap: wrap;
   min-height: var(--control-height);
   margin-top: calc((var(--ph-title-lh) - var(--control-height)) / 2);
   @include press.chrome-text;
+}
+
+// On a phone the sticky bar below the header reaches up over the bottom of the header
+// (`app-sticky-bar`, the gutter above the stuck field), and its background is opaque. A control
+// whose popup is open has a filled background, so the bar cut off its bottom edge. The control
+// with the open popup goes above the bar; the header itself stays below it, so a header that
+// scrolls under the stuck bar stays hidden.
+:host ::ng-deep .ph__actions [aria-expanded='true'] {
+  position: relative;
+  z-index: var(--z-sticky);
 }
 
 // The only place that sets the geometry of a list column header. A page never styles it
@@ -133,7 +143,6 @@
   margin-top: 0;
   flex: none;
   flex-wrap: nowrap;
-  gap: var(--space-1);
 }
 @include bp.phone {
   :host(.ph--pane) .ph__bar {

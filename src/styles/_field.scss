@@ -6,8 +6,16 @@
 // box at the top (12px). Focus draws a 2px accent line on the inside of the box; an error
 // draws it in the error colour. Without a label the box is as high as a button (40px),
 // with a label it is 56px.
+//
+// Highlighted fields (app spec 000598, `display-settings.scss`): the `--field-*` tokens
+// make the box yellow with a black edge, and the label, the value and the placeholder
+// black. Without the setting the tokens are not set, and the fallbacks give the look above.
+
+@use 'display' as d;
 
 // The box around the control. Put `position: relative` content (label, icons) in it.
+// A highlighted field turns the muted and subtle text inside it (a placeholder, a
+// chevron, a suffix, an icon) black as well. The mixin is for a component stylesheet.
 @mixin box {
   position: relative;
   display: flex;
@@ -15,25 +23,47 @@
   min-width: 0;
   width: 100%;
   min-height: var(--control-height);
-  background: var(--color-surface-sunken);
+  background: var(--field-bg, var(--color-surface-sunken));
+  color: var(--field-text, inherit);
+  box-shadow: var(--field-edge, none);
   border-radius: var(--radius-field);
+  @include ring;
   transition:
     box-shadow var(--motion-fast) var(--ease-standard),
     background-color var(--motion-fast) var(--ease-standard);
 
   @media (hover: hover) {
     &:hover {
-      background: color-mix(in srgb, var(--color-surface-sunken) 60%, var(--color-surface-3));
+      background: var(
+        --field-bg-hover,
+        color-mix(in srgb, var(--color-surface-sunken) 60%, var(--color-surface-3))
+      );
     }
   }
   &:focus-within {
-    box-shadow: inset 0 0 0 2px var(--color-focus-ring);
+    box-shadow: var(--field-focus, inset 0 0 0 var(--focus-width, 2px) var(--color-focus-ring));
+  }
+  @include d.host-on(fields) {
+    --color-text-muted: var(--field-text);
+    --color-text-subtle: var(--field-text);
+    --color-accent-text: var(--field-text);
+    --color-border: var(--field-text);
+    --color-border-strong: var(--field-text);
+    --vh-ink: var(--field-text);
+    --vh-press: var(--field-text);
+    // A dark red with 7:1 on the yellow, for the asterisk of a required field and the error
+    // edge: the red of the dark theme is too light on the yellow.
+    --color-danger: var(--field-danger);
   }
 }
 
 // The box with a label inside: taller, the label above the value.
+// The label takes a line of its own above the control (see `label`). A long label wraps
+// onto more lines and the box grows, so no text is cut (WCAG 1.4.12, app spec 000504).
 @mixin box-labelled {
   min-height: var(--field-height);
+  flex-wrap: wrap;
+  align-content: space-between;
 }
 
 // The box in an error state.
@@ -41,7 +71,7 @@
   box-shadow: inset 0 0 0 2px var(--color-danger);
 
   &:focus-within {
-    box-shadow: inset 0 0 0 2px var(--color-danger);
+    box-shadow: var(--field-focus, inset 0 0 0 2px var(--color-danger));
   }
 }
 
@@ -52,36 +82,120 @@
 
   @media (hover: hover) {
     &:hover {
-      background: var(--color-surface-sunken);
+      background: var(--field-bg, var(--color-surface-sunken));
     }
   }
 }
 
-// The label inside the box. Clicks pass through it to the control below.
+// The label inside the box: a line of its own above the control, 24px high for one line
+// of text. A long label wraps instead of being cut, and the box grows with it. A click on
+// it reaches the control through its `for`.
 @mixin label {
-  position: absolute;
-  top: 8px;
-  left: var(--space-4);
-  right: var(--space-4);
-  overflow: hidden;
+  position: relative;
+  flex: none;
+  box-sizing: border-box;
+  width: 100%;
+  min-width: 0;
+  padding: 8px var(--space-4) 0;
   font-size: 0.75rem;
   line-height: 1rem;
   font-weight: var(--fw-medium);
-  color: var(--color-text-subtle);
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  pointer-events: none;
+  color: var(--field-label, var(--color-text-subtle));
+  overflow-wrap: anywhere;
+  hyphens: auto;
+}
+
+// A field that draws its own surface (a wrapper around a bare control, or the control
+// itself) instead of `box`: with highlighted fields (app spec 000598) it is black on yellow
+// with the black edge and the double focus ring, and the symbols and the placeholder in it
+// are black. `$global: true` is for a stylesheet without encapsulation.
+@mixin highlight-surface($global: false) {
+  @if $global {
+    @include d.on(fields) {
+      @include -highlight-surface;
+    }
+  } @else {
+    @include d.host-on(fields) {
+      @include -highlight-surface;
+    }
+  }
+}
+/* The black ring over the outer edge of a yellow surface (000598). The yellow background
+   reaches the outer edge, so its anti-aliased rim shows outside the black inset edge at a
+   rounded corner. A 2px outline on the inner side of the edge covers that rim with black.
+   It stays inside the box, because a scroll container cuts what is outside. */
+@mixin ring($global: false) {
+  @if $global {
+    @include d.on(fields) {
+      @include -ring;
+    }
+  } @else {
+    @include d.host-on(fields) {
+      @include -ring;
+    }
+  }
+}
+@mixin -ring {
+  outline: 2px solid var(--field-text);
+  outline-offset: -2px;
+}
+
+/* The chosen row of a menu, a list or a table (000598): black on yellow with the black edge.
+   A table cell takes no edge, because each cell would draw its own. */
+@mixin highlight-chosen($edge: true) {
+  @include d.host-on(fields) {
+    --color-text: var(--field-text);
+    --color-text-muted: var(--field-text);
+    --color-text-subtle: var(--field-text);
+    --color-accent-text: var(--field-text);
+    --color-warning: var(--field-text);
+    --color-danger: var(--field-danger);
+    --color-on-selected: var(--field-text);
+    --color-border: var(--field-text);
+    --color-border-strong: var(--field-text);
+    --vh-ink: var(--field-text);
+    --vh-press: var(--field-text);
+    background: var(--field-bg);
+    color: var(--field-text);
+    @if $edge {
+      box-shadow: var(--field-edge);
+      @include -ring;
+    }
+  }
+}
+
+@mixin -highlight-surface {
+  --color-text: var(--field-text);
+  --color-text-muted: var(--field-text);
+  --color-text-subtle: var(--field-text);
+  --color-accent-text: var(--field-text);
+  --color-border: var(--field-text);
+  --color-border-strong: var(--field-text);
+  // Very high contrast: the neutral colour and the colour of a plain button on the fill.
+  --vh-ink: var(--field-text);
+  --vh-press: var(--field-text);
+  border-color: var(--field-text);
+  background: var(--field-bg);
+  color: var(--field-text);
+  box-shadow: var(--field-edge);
+  @include -ring;
+
+  &:focus-within {
+    box-shadow: var(--field-focus);
+  }
 }
 
 // The label while the control has focus.
 @mixin label-focus {
-  color: var(--color-accent-text);
+  color: var(--field-label, var(--color-accent-text));
 }
 
 // The native control inside the box: no surface, no edge, no own focus ring (the box
 // draws it).
 @mixin control {
-  flex: 1 1 auto;
+  // A zero basis keeps a symbol or a button on the line of the control in a labelled box,
+  // which wraps (see `box-labelled`).
+  flex: 1 1 0%;
   min-width: 0;
   width: 100%;
   height: var(--control-height);
@@ -91,7 +205,7 @@
   font: inherit;
   font-size: var(--fs-md);
   line-height: 1.375rem;
-  color: var(--color-text);
+  color: var(--field-text, var(--color-text));
   background: transparent;
   border: 0;
   border-radius: var(--radius-field);
@@ -101,7 +215,7 @@
     outline: none;
   }
   &::placeholder {
-    color: var(--color-text-subtle);
+    color: var(--field-label, var(--color-text-subtle));
     opacity: 1;
   }
   &:disabled {
@@ -122,15 +236,16 @@
 
   // iOS zooms into a focused field with text under 16px. The viewport forbids zoom, but
   // older iOS versions still zoom on focus.
-  @media (max-width: 768px) {
+  @media (max-width: 767.98px) {
     font-size: 1rem;
   }
 }
 
 // The control of a labelled box: the value sits below the label.
+// The label line above it is 24px high, so the value sits where it always did.
 @mixin control-labelled {
-  height: var(--field-height);
-  padding-top: 24px;
+  height: calc(var(--field-height) - 24px);
+  padding-top: 0;
   padding-bottom: 8px;
 }
 

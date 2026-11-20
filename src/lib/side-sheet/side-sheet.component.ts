@@ -175,7 +175,7 @@ export class SideSheetComponent {
     // where a release closes. A drag back above it and down again ticks again.
     const past = distance > SWIPE_CLOSE_PX;
     if (past && !this.drag.past) haptic('tick');
-    this.drag.past = past;
+    this.drag = { ...this.drag, past };
   }
 
   /** End a swipe: a long or quick way down closes the sheet, else it snaps back. */
@@ -211,6 +211,8 @@ export class SideSheetComponent {
   private activate(): void {
     this.shown.set(true);
     this.returnFocus = document.activeElement as HTMLElement | null;
+    // One lock per opening: a lock that is still held is released first, never dropped.
+    this.releaseScroll?.();
     this.releaseScroll = lockBodyScroll();
     // The pane renders in this change detection; focus it right after. Closing clears
     // the timer, so the pane is there when it runs.

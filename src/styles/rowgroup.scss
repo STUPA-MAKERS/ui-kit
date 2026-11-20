@@ -9,7 +9,6 @@
 // menu) sit above the stretched area and keep their own click.
 .hitrow {
   position: relative;
-  transition: scale var(--motion-xs) var(--ease-standard);
   @include press.press-on('.hitrow__open');
 }
 @media (hover: hover) {
@@ -72,6 +71,32 @@
   border-bottom-left-radius: var(--radius-lg);
   border-bottom-right-radius: var(--radius-lg);
 }
+// A group of settings rows: each row holds one setting (a label and a switch, or a label, a
+// choice and a switch). A row is at least 56px high and keeps 16px to the left and to the
+// right edge. The page sets only the layout in the row.
+.rowgroup.rowgroup--settings > * {
+  box-sizing: border-box;
+  min-height: 56px;
+  padding: var(--space-3) var(--space-4);
+}
+// A group of record rows that a page builds by itself (a person with a date and a menu):
+// the anatomy of `app-list-item`. A row is at least 64px high and its content starts 24px
+// from the left edge. `.rowgroup__title` is the title of the row, in the size, the weight
+// and the colour of the title of `app-list-item`.
+// `.rowgroup__record` gives the same anatomy to a row that is not a child of the group, for
+// example the head of a row that opens.
+.rowgroup.rowgroup--records > *,
+.rowgroup__record {
+  box-sizing: border-box;
+  min-height: 4rem;
+  padding: 10px var(--space-4) 10px var(--space-5);
+}
+.rowgroup__title {
+  color: var(--color-text);
+  font-size: var(--fs-md);
+  font-weight: var(--fw-medium);
+  line-height: 1.375rem;
+}
 .rowgroup.rowgroup--bg1 > * {
   background: var(--color-surface-1);
 }
@@ -79,7 +104,7 @@
   background: var(--color-surface-3);
 }
 // A list item paints the row surface on its own row (`.li`), not on the host, and takes
-// the corners of the host. The press shrinks that row and the selection colours it, so a
+// the corners of the host. The press ripples that row and the selection colours it, so a
 // surface or a corner on the host stood around it as a second, inner frame. `--li-bg` is
 // a variable, so a page that colours a row (a checked row) still wins with one class.
 .rowgroup > app-list-item,
@@ -98,6 +123,34 @@
 }
 .rowgroup > app-list-item .li {
   border-radius: inherit;
+}
+// An item whose head is a list item (an expand row: the head and the content below it, in one
+// `<li>`) presses as one item. The item (its surface and its corners) ripples while the title
+// of the head is pressed. The list item would ripple only its own row inside that surface,
+// which stood as a second, inner frame, so its own press and its hover surface are off: it is
+// no press host. The doubled class beats the press rule of the list item, which loads later.
+// The head carries `.rowgroup__head`, one or two levels below the item, so a head in the
+// content of an open item does not press the outer item. A press on a control in the trail
+// (⋮, a chevron button) is no press of the item.
+.rowgroup > :has(> .rowgroup__head, > * > .rowgroup__head) {
+  @include press.host;
+}
+.rowgroup > :has(> .rowgroup__head .li__title:active, > * > .rowgroup__head .li__title:active),
+.rowgroup > [data-press-key]:has(> .rowgroup__head, > * > .rowgroup__head) {
+  @include press.paint;
+}
+.rowgroup > [data-press-out]:has(> .rowgroup__head, > * > .rowgroup__head):not(:has(.li__title:active)) {
+  @include press.fade;
+}
+.rowgroup > * > .rowgroup__head .li.li,
+.rowgroup > * > * > .rowgroup__head .li.li {
+  --press-host: 0;
+}
+.rowgroup > * > .rowgroup__head .li.li:has(.li__title:active),
+.rowgroup > * > * > .rowgroup__head .li.li:has(.li__title:active) {
+  background-color: transparent;
+  background-image: none;
+  animation: none;
 }
 // On surface 3 the subtle text of a muted status is below 4.5:1 (WCAG 1.4.3). The muted
 // text passes. This rule is more specific than the `:host(.st--muted)` rule of

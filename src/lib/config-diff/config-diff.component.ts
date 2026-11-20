@@ -5,11 +5,11 @@ import type { ConfigDiffData } from './config-diff.types';
 
 /** One change of the compact view: the key, then the old and the new value as code. */
 interface CompactLine {
-  key: string;
+  readonly key: string;
   /** The old value, `null` for an added key. */
-  before: string | null;
+  readonly before: string | null;
   /** The new value, `null` for a removed key. */
-  after: string | null;
+  readonly after: string | null;
 }
 
 /**

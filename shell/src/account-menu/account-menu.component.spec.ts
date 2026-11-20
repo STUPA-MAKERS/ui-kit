@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { ChangeDetectionStrategy, Component } from '@angular/core';
 import { provideRouter, RouterLink } from '@angular/router';
 import { render, screen } from '@testing-library/angular';
 import userEvent from '@testing-library/user-event';
@@ -6,7 +6,7 @@ import { IconComponent } from '@stupa-makers/ui-kit';
 import { runAxe } from '../../../testing/a11y';
 import { AccountMenuComponent, type AccountMenuVariant } from './account-menu.component';
 
-@Component({ standalone: true, template: '' })
+@Component({ changeDetection: ChangeDetectionStrategy.Eager, standalone: true, template: '' })
 class StubPage {}
 
 const LANGUAGES = [
@@ -164,7 +164,8 @@ describe('AccountMenuComponent', () => {
 
   describe('settings', () => {
     it('reports the dark design switch', async () => {
-      const { events } = await setup({ variant: 'sheet' });
+      const { events } = await setup();
+      await userEvent.click(trigger());
       const sw = screen.getByRole('switch', { name: 'Dunkles Design' });
       expect(sw).toHaveAttribute('aria-checked', 'false');
       await userEvent.click(sw);
@@ -200,6 +201,12 @@ describe('AccountMenuComponent', () => {
       expect(screen.getByText('Mia Member')).toBeInTheDocument();
     });
 
+    it('shows no dark design switch: the sheet that holds it has the display settings', async () => {
+      await setup({ variant: 'sheet' });
+      expect(screen.queryByRole('switch', { name: 'Dunkles Design' })).not.toBeInTheDocument();
+      expect(screen.getByRole('button', { name: 'Sprache: Deutsch' })).toBeInTheDocument();
+    });
+
     it('takes the popover with `auto` above the phone width', async () => {
       await setup({ variant: 'auto' });
       expect(trigger()).toBeInTheDocument();
@@ -208,7 +215,7 @@ describe('AccountMenuComponent', () => {
     it('takes the sheet look with `auto` on a phone', async () => {
       const original = window.matchMedia;
       window.matchMedia = ((query: string) => ({
-        matches: query === '(max-width: 768px)',
+        matches: query === '(max-width: 767.98px)',
         media: query,
         addEventListener: () => undefined,
         removeEventListener: () => undefined,

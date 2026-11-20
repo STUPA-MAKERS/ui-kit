@@ -16,7 +16,9 @@ import {
   viewChild,
 } from '@angular/core';
 import { DomSanitizer, type SafeResourceUrl } from '@angular/platform-browser';
+import { lockBodyScroll } from '../focus/focus-trap';
 import { IconComponent } from '../icon/icon.component';
+import { showInTopLayer } from '../popover/anchored-popover';
 import { UI_KIT_INTL } from '../intl/intl';
 import { UiKitTranslatePipe } from '../intl/translate.pipe';
 import { type FileViewerItem, type FileViewerKind, fileViewerKind } from './file-viewer.types';
@@ -65,6 +67,11 @@ const FOCUSABLE = [
  * marks it as a trusted resource URL for the `<iframe>` (`bypassSecurityTrustResourceUrl`).
  * Callers pass only same-origin API URLs that the backend serves, never a URL from user
  * input or file content.
+ *
+ * **Top layer.** The viewer opens in the top layer of the browser (`popover="manual"`), so it
+ * covers the whole viewport also when it opens from a side sheet, a card or a dialog. The
+ * glass (`backdrop-filter`) and the fade (`mask-image`) of a sheet would otherwise make the
+ * sheet the box of the fixed viewer and cut it to the sheet (spec 001079).
  *
  * a11y: `role="dialog"`, `aria-modal`, named by the file name. Focus moves to the close
  * button on open, Tab stays in the viewer (also around a PDF iframe), and focus returns to
@@ -146,12 +153,14 @@ export class FileViewerComponent implements OnDestroy {
   protected titleTooltip: string | null = null;
 
   private previouslyFocused: HTMLElement | null = null;
-  private prevBodyOverflow: string | null = null;
+  /** Gives the page its scroll back; null while the viewer does not hold the lock. */
+  private releaseScroll: (() => void) | null = null;
   private touchX = 0;
   private touchY = 0;
   private touching = false;
 
   constructor() {
+    effect(() => showInTopLayer(this.pane()?.nativeElement));
     effect(() => {
       const isOpen = this.open();
       untracked(() => (isOpen ? this.onOpened() : this.onClosed()));
@@ -295,14 +304,12 @@ export class FileViewerComponent implements OnDestroy {
   }
 
   private lockScroll(): void {
-    if (this.prevBodyOverflow !== null || typeof document === 'undefined') return;
-    this.prevBodyOverflow = document.body.style.overflow;
-    document.body.style.overflow = 'hidden';
+    if (this.releaseScroll !== null || typeof document === 'undefined') return;
+    this.releaseScroll = lockBodyScroll();
   }
 
   private unlockScroll(): void {
-    if (this.prevBodyOverflow === null) return;
-    document.body.style.overflow = this.prevBodyOverflow;
-    this.prevBodyOverflow = null;
+    this.releaseScroll?.();
+    this.releaseScroll = null;
   }
 }

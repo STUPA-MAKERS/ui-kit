@@ -1,58 +1,91 @@
-// The press state of a control on a touch screen, and the chrome text that a long press
-// must not select. One partial, so every tappable element of the kit reacts the same way.
-// Emits no CSS.
+// The press state of a control: the ripple of a press (app spec 001314), and the chrome
+// text that a long press must not select. One partial, so every tappable element of the kit
+// reacts the same way. Emits no CSS.
 //   @use 'press';
 //
 // A tap gives no hover on a touch screen (every `:hover` rule of the kit sits behind
 // `@media (hover: hover)`, so it does not stick after the tap), and the browser tap flash
 // is off (`base.scss`). The press is the only feedback of a tap, so it must show at once.
-
-// The press tint: a layer of the text colour over the surface of the control. It is a
-// background image, so it lies on top of any background colour (accent, selected, surface
-// 2 to 4) and needs no step per variant. The token is `--press-tint` (`tokens.scss`).
 //
-// Every press also shrinks the element while the finger is down, never with reduced
-// motion. `$scale` picks the amount by the size of the element:
-//   control (default)  a button, a chip, a tab, an icon: `--press-scale-control` (0.94),
-//                      because 0.98 of a 40 px pill is less than one pixel and nobody sees it;
-//   row                a list row, a menu row, a card, a tile or a full-width bar:
-//                      `--press-scale` (0.98), because 0.94 moves the far edges of a wide
-//                      element by several pixels and the layout seems to jump;
-//   none               no scale, for a text field only.
-// Add `scale var(--motion-xs) var(--ease-standard)` to the `transition` of the element, so
-// the release eases back. `touch.spec.ts` checks both rules for every use.
-@function amount-of($scale) {
-  @if $scale == control {
-    @return var(--press-scale-control);
-  } @else if $scale == row {
-    @return var(--press-scale);
-  }
-  @error "press: $scale is control, row or none, not #{$scale}";
+// The ripple is a circle in the press tint (`--press-tint`, `tokens.scss`) that starts at
+// the point of the press and grows until it covers the element. It is a background image, so
+// it lies on top of any background colour (accent, selected, surface 2 to 4), and the corners
+// of the element clip it. Nothing shrinks, so the edges of a pressed element do not move.
+// `press-ripple.ts` (`providePressRipple`) does the parts that CSS cannot:
+//   - On a pointer press it finds the element that paints the ripple (the nearest ancestor
+//     with `--press-host: 1`, which `host` sets), and writes the point of the press to
+//     `--ripple-x` and `--ripple-y` and the distance to its farthest corner to `--ripple-r`.
+//     Without these the ripple starts in the centre and grows past the element.
+//   - Enter and Space on a focused element set `data-press-key` on that element until the
+//     key goes up. The ripple then starts in the centre.
+//   - After the release it sets `data-press-out` for a moment: the tint fades out.
+// The keyframes and the registered properties are in `base.scss`. With less motion
+// (000219), `base.scss` cuts every animation to its end, so the tint shows at once.
+
+// The element that paints the ripple. `press`, `press-on` and `press-part` set it.
+@mixin host {
+  --press-host: 1;
 }
 
-// The scale alone, for a press state that paints its own tint (a table row, a pill of
-// the navigation). Use it inside the `:active` rule.
-@mixin press-scale($scale: control) {
-  @if $scale != none {
-    @media (prefers-reduced-motion: no-preference) {
-      scale: amount-of($scale);
-    }
-  }
+// The ripple while the press lasts. Use it inside the pressed state of a `host`.
+@mixin paint {
+  background-image: radial-gradient(
+    circle at var(--ripple-x, 50%) var(--ripple-y, 50%),
+    var(--press-tint) var(--press-ripple),
+    transparent var(--press-ripple)
+  );
+  animation: press-ripple var(--motion-slow) var(--ease-standard) forwards;
 }
 
-@mixin press($scale: control) {
-  &:active:not(:disabled):not([aria-disabled='true']) {
-    background-image: linear-gradient(var(--press-tint), var(--press-tint));
-    @include press-scale($scale);
+// The tint that fades out after the release. Use it inside `[data-press-out]`.
+@mixin fade {
+  background-image: linear-gradient(
+    color-mix(in srgb, var(--press-tint) var(--press-fade), transparent),
+    color-mix(in srgb, var(--press-tint) var(--press-fade), transparent)
+  );
+  animation: press-fade var(--motion-base) var(--ease-standard) forwards;
+}
+
+// The press of a control, a row, a card or a bar.
+@mixin press {
+  @include host;
+  &:active:not(:disabled):not([aria-disabled='true']),
+  &[data-press-key] {
+    @include paint;
+  }
+  &[data-press-out]:not(:active) {
+    @include fade;
   }
 }
 
 // The same press for a row whose control is a child (a title with a stretched `::after`):
-// the row tints while that child is pressed, but not while a button in its trail is.
-@mixin press-on($child, $scale: row) {
-  &:has(#{$child}:active) {
-    background-image: linear-gradient(var(--press-tint), var(--press-tint));
-    @include press-scale($scale);
+// the row ripples while that child is pressed, but not while a button in its trail is,
+// because that button is a host of its own.
+@mixin press-on($child) {
+  @include host;
+  &:has(#{$child}:active),
+  &[data-press-key] {
+    @include paint;
+  }
+  &[data-press-out]:not(:has(#{$child}:active)) {
+    @include fade;
+  }
+}
+
+// The press of a part of a group that clips its parts to one rounded edge (a segment of a
+// segmented control): the pressed part ripples, and the ripple stays inside that part and
+// inside the edge of the group (001315). Use it on the group; `$part` is the selector of a
+// part.
+@mixin press-part($part) {
+  #{$part} {
+    @include host;
+  }
+  #{$part}:active:not(:disabled):not([aria-disabled='true']),
+  #{$part}[data-press-key] {
+    @include paint;
+  }
+  #{$part}[data-press-out]:not(:active) {
+    @include fade;
   }
 }
 

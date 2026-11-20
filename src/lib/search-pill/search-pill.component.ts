@@ -2,15 +2,26 @@ import {
   ChangeDetectionStrategy,
   Component,
   computed,
+  effect,
   inject,
   input,
   model,
   output,
 } from '@angular/core';
+import { Announcer } from '../announce/announcer';
 import { IconComponent } from '../icon/icon.component';
-import { UI_KIT_INTL } from '../intl/intl';
+import { UI_KIT_INTL, type UiKitIntl } from '../intl/intl';
 import { UiKitTranslatePipe } from '../intl/translate.pipe';
 import { searchShortcutKeys, searchShortcutLabel } from './shortcut';
+
+/** The count is read this long after the last change, so typing does not read each step. */
+export const SEARCH_RESULTS_SETTLE_MS = 600;
+
+/** "Keine Treffer", "1 Treffer" or "n Treffer". */
+function resultText(i18n: UiKitIntl, count: number): string {
+  if (count === 0) return i18n.translate('search.none');
+  return count === 1 ? i18n.translate('search.resultsOne') : i18n.translate('search.results', { n: count });
+}
 
 /** `button` opens something (the command palette); `input` filters in place. */
 export type SearchPillMode = 'button' | 'input';
@@ -58,6 +69,12 @@ export class SearchPillComponent {
   readonly clearable = input(false);
   /** A search runs (input mode): the magnifier becomes a spinner. */
   readonly busy = input(false);
+  /**
+   * The number of hits for the text in the field (input mode). While the field has a text
+   * and no search runs, the pill reads the count out ("3 Treffer", "Keine Treffer") once
+   * the typing has settled (spec 000517). `null`: no count, nothing is read.
+   */
+  readonly results = input<number | null>(null);
 
   /** The search text (input mode). */
   readonly value = model('');
@@ -69,6 +86,25 @@ export class SearchPillComponent {
   protected readonly name = computed(() => this.label() ?? this.placeholder());
   protected readonly keyLabel = computed(() => searchShortcutLabel(this.i18n.lang()));
   protected readonly keys = computed(() => (this.shortcut() ? searchShortcutKeys() : null));
+
+  private readonly announcer = inject(Announcer);
+  /** The text and count that were read last, so a re-render does not read them again. */
+  private spoken = '';
+
+  constructor() {
+    effect((onCleanup) => {
+      const text = this.value().trim();
+      const count = this.results();
+      if (this.mode() !== 'input' || this.busy() || !text || count === null) return;
+      const key = `${text}\u0000${count}`;
+      if (key === this.spoken) return;
+      const timer = setTimeout(() => {
+        this.spoken = key;
+        this.announcer.announce(resultText(this.i18n, count));
+      }, SEARCH_RESULTS_SETTLE_MS);
+      onCleanup(() => clearTimeout(timer));
+    });
+  }
 
   protected onInput(event: Event): void {
     this.value.set((event.target as HTMLInputElement).value);

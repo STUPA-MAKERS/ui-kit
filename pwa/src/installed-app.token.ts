@@ -2,8 +2,8 @@ import { InjectionToken } from '@angular/core';
 
 /** The parts of `window` that tell an installed app from a browser tab. */
 export interface DisplayModeHost {
-  matchMedia?: (query: string) => { matches: boolean };
-  navigator: { standalone?: boolean };
+  readonly matchMedia?: (query: string) => { readonly matches: boolean };
+  readonly navigator: { readonly standalone?: boolean };
 }
 
 /**

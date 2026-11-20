@@ -1,10 +1,12 @@
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
-import { Component, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { SheetBarComponent, SheetBarKickerDirective, SheetBarTitleDirective } from './sheet-bar.component';
+import { runAxe } from '../../../testing/a11y';
 
 @Component({
+  changeDetection: ChangeDetectionStrategy.Eager,
   standalone: true,
   imports: [SheetBarComponent],
   template: `
@@ -20,6 +22,7 @@ class HostComponent {
 }
 
 @Component({
+  changeDetection: ChangeDetectionStrategy.Eager,
   standalone: true,
   imports: [SheetBarComponent, SheetBarKickerDirective],
   template: `
@@ -32,6 +35,7 @@ class HostComponent {
 class SlotHostComponent {}
 
 @Component({
+  changeDetection: ChangeDetectionStrategy.Eager,
   standalone: true,
   imports: [SheetBarComponent, SheetBarTitleDirective],
   template: `
@@ -135,5 +139,22 @@ describe('SheetBarComponent styles', () => {
     expect(docked).toContain('min-height: 0;');
     expect(docked).toContain('padding-top: 0;');
     expect(rule(':host(.sheet-bar--docked) .sheet-bar__title')).toContain('min-height: 0;');
+  });
+
+  /** § NF/usability/layout/001340: the capitals of the title sit as far from the top as the title from the side. */
+  it('derives the top padding of a title bar from the side padding of the sheet', () => {
+    expect(rule(':host(.sheet-bar--title)')).toContain(
+      'padding-top: max(0px, calc(var(--sheet-bar-inset, var(--space-6)) - var(--sheet-bar-cap, 20px)));',
+    );
+  });
+
+  /** § NF/accessibility/conformance/000493: kicker text, kicker slot and title slot. */
+  it('has no axe violations in each variant', async () => {
+    for (const host of [HostComponent, SlotHostComponent, TitleHostComponent]) {
+      const fixture = TestBed.createComponent(host);
+      fixture.detectChanges();
+      expect(await runAxe(fixture.nativeElement as HTMLElement)).toHaveNoViolations();
+      fixture.destroy();
+    }
   });
 });

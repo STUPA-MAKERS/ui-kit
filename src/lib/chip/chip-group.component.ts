@@ -11,8 +11,8 @@ import { IconComponent } from '../icon/icon.component';
 
 /** One choice of a chip group. */
 export interface ChipOption {
-  value: string;
-  label: string;
+  readonly value: string;
+  readonly label: string;
 }
 
 /**
@@ -55,28 +55,28 @@ export class ChipGroupComponent {
   }
 
   protected onKeydown(event: KeyboardEvent, index: number): void {
-    const n = this.options().length;
-    let next: number;
-    switch (event.key) {
-      case 'ArrowRight':
-      case 'ArrowDown':
-        next = (index + 1) % n;
-        break;
-      case 'ArrowLeft':
-      case 'ArrowUp':
-        next = (index - 1 + n) % n;
-        break;
-      case 'Home':
-        next = 0;
-        break;
-      case 'End':
-        next = n - 1;
-        break;
-      default:
-        return;
-    }
+    const next = radioKeyTarget(event.key, index, this.options().length);
+    if (next === null) return;
     event.preventDefault();
     this.select(this.options()[next]);
     this.host.nativeElement.querySelectorAll<HTMLButtonElement>('[role="radio"]')[next]?.focus();
+  }
+}
+
+/** The index that a key moves to in a radio group of `n` options, or null for another key. */
+function radioKeyTarget(key: string, index: number, n: number): number | null {
+  switch (key) {
+    case 'ArrowRight':
+    case 'ArrowDown':
+      return (index + 1) % n;
+    case 'ArrowLeft':
+    case 'ArrowUp':
+      return (index - 1 + n) % n;
+    case 'Home':
+      return 0;
+    case 'End':
+      return n - 1;
+    default:
+      return null;
   }
 }

@@ -1,9 +1,11 @@
-import { Component, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, signal } from '@angular/core';
 import { render } from '@testing-library/angular';
 import { MarkdownEditorComponent } from './markdown-editor.component';
 import { parseElection, parsePoll, type VoteCalloutResolver } from './vote-callout.extension';
+import { runAxe } from '../../testing/a11y';
 
 @Component({
+  changeDetection: ChangeDetectionStrategy.Eager,
   standalone: true,
   imports: [MarkdownEditorComponent],
   template: `<app-markdown-editor
@@ -11,6 +13,7 @@ import { parseElection, parsePoll, type VoteCalloutResolver } from './vote-callo
     [docKey]="docKey()"
     [disabled]="disabled()"
     [placeholder]="placeholder()"
+    ariaLabel="Protokoll"
     (valueChange)="onChange($event)"
   />`,
 })
@@ -25,7 +28,7 @@ class Host {
   }
 }
 
-function editorEl(container: HTMLElement): HTMLElement {
+function editorEl(container: Element): HTMLElement {
   // Tiptap mounts a contenteditable ProseMirror node inside the host div.
   return container.querySelector('.ProseMirror') as HTMLElement;
 }
@@ -196,7 +199,7 @@ describe('MarkdownEditorComponent', () => {
       return view.fixture.debugElement.children[0].componentInstance as MarkdownEditorComponent;
     }
 
-    it('switches bold, italic, a heading and a bullet list and reports them as active', async () => {
+    it('switches bold, italic, a heading, a bullet list and a quote and reports them as active', async () => {
       const view = await render(Host);
       const host = view.fixture.componentInstance;
       const cmp = editorOf(view);
@@ -236,6 +239,13 @@ describe('MarkdownEditorComponent', () => {
       cmp.toggleFormat('bulletList');
       expect(cmp.activeFormats().has('bulletList')).toBe(true);
       expect(host.changes.at(-1)).toContain('- Rückfragen');
+      cmp.toggleFormat('bulletList');
+
+      cmp.toggleFormat('blockquote');
+      expect(cmp.activeFormats().has('blockquote')).toBe(true);
+      expect(host.changes.at(-1)).toContain('> Rückfragen');
+      cmp.toggleFormat('blockquote');
+      expect(cmp.activeFormats().has('blockquote')).toBe(false);
     });
 
     it('does nothing while the editor is read-only', async () => {
@@ -650,5 +660,243 @@ describe('MarkdownEditorComponent', () => {
       cmp as unknown as { toMarkdown: (e: unknown) => string }
     ).toMarkdown(fakeEditor);
     expect(md).toBe('**bold**');
+  });
+
+  /** § NF/accessibility/conformance/000493: empty, with content and disabled. */
+  it('has no axe violations in each state', async () => {
+    const view = await render(Host);
+    expect(await runAxe(view.container)).toHaveNoViolations();
+    expect(editorEl(view.container)).toHaveAttribute('role', 'textbox');
+    expect(editorEl(view.container)).toHaveAttribute('aria-label', 'Protokoll');
+    expect(editorEl(view.container)).toHaveAttribute('aria-multiline', 'true');
+    view.fixture.componentInstance.value.set('# Titel\n\n- a\n- b\n\n**fett**');
+    view.fixture.componentInstance.disabled.set(true);
+    view.fixture.detectChanges();
+    await view.fixture.whenStable();
+    expect(await runAxe(view.container)).toHaveNoViolations();
+    expect(editorEl(view.container)).not.toHaveAttribute('role');
+    expect(editorEl(view.container)).not.toHaveAttribute('aria-label');
+  });
+
+  it('has no aria-label without an ariaLabel', async () => {
+    const view = await render(`<app-markdown-editor value="x" />`, { imports: [MarkdownEditorComponent] });
+    expect(editorEl(view.container)).not.toHaveAttribute('aria-label');
+  });
+  describe('blackout mark', () => {
+    function editorOf(view: { fixture: { debugElement: { children: { componentInstance: unknown }[] } } }) {
+      return view.fixture.debugElement.children[0].componentInstance as MarkdownEditorComponent;
+    }
+    function markdownOf(cmp: MarkdownEditorComponent): string {
+      return (cmp as unknown as { editor: { storage: { markdown: { getMarkdown: () => string } } } }).editor.storage
+        .markdown.getMarkdown();
+    }
+
+    it('reads %%Name%% as a marked segment with the tooltip and writes it back', async () => {
+      const md = 'Die Antragstellerin %%Lena Hoffmann%% stellt vor.';
+      const view = await render(`<app-markdown-editor [value]="md" blackoutTitle="Wird öffentlich geschwärzt" />`, {
+        imports: [MarkdownEditorComponent],
+        componentProperties: { md },
+      });
+      const mark = editorEl(view.container).querySelector('span.mde-blackout') as HTMLElement;
+      expect(mark.textContent).toBe('Lena Hoffmann');
+      expect(mark.getAttribute('title')).toBe('Wird öffentlich geschwärzt');
+      expect(markdownOf(editorOf(view))).toBe(md);
+    });
+
+    it('keeps an escaped, an empty and an open marker as text', async () => {
+      const md = 'Rabatt 50 \\%%, leer %%%% und offen %%Anna';
+      const view = await render(`<app-markdown-editor [value]="md" />`, {
+        imports: [MarkdownEditorComponent],
+        componentProperties: { md },
+      });
+      expect(editorEl(view.container).querySelectorAll('span.mde-blackout')).toHaveLength(0);
+    });
+
+    it('switches the mark on a selection and reports it as active', async () => {
+      const view = await render(Host);
+      const host = view.fixture.componentInstance;
+      const cmp = editorOf(view);
+      const editor = (
+        cmp as unknown as { editor: { commands: { insertContent: (c: string) => void; selectAll: () => void } } }
+      ).editor;
+      editor.commands.insertContent('Lena');
+      editor.commands.selectAll();
+      cmp.toggleFormat('blackout');
+      expect(cmp.activeFormats().has('blackout')).toBe(true);
+      expect(host.changes.at(-1)).toContain('%%Lena%%');
+      cmp.toggleFormat('blackout');
+      expect(cmp.activeFormats().has('blackout')).toBe(false);
+      expect(host.changes.at(-1)).not.toContain('%%');
+    });
+  });
+
+  describe('blackout block', () => {
+    function editorOf(view: { fixture: { debugElement: { children: { componentInstance: unknown }[] } } }) {
+      return view.fixture.debugElement.children[0].componentInstance as MarkdownEditorComponent;
+    }
+    function markdownOf(cmp: MarkdownEditorComponent): string {
+      return (cmp as unknown as { editor: { storage: { markdown: { getMarkdown: () => string } } } }).editor.storage
+        .markdown.getMarkdown();
+    }
+
+    it('reads a block between two %% lines with its paragraphs and writes it back', async () => {
+      const md = 'Vorher.\n\n%%\nErster Absatz\n\n- Punkt\n%%\n\nDanach.';
+      const view = await render(`<app-markdown-editor [value]="md" blackoutTitle="Wird öffentlich geschwärzt" />`, {
+        imports: [MarkdownEditorComponent],
+        componentProperties: { md },
+      });
+      const block = editorEl(view.container).querySelector('div.mde-blackout-block') as HTMLElement;
+      expect(block.getAttribute('title')).toBe('Wird öffentlich geschwärzt');
+      expect(block.querySelector('p')?.textContent).toBe('Erster Absatz');
+      expect(block.querySelector('li')?.textContent).toBe('Punkt');
+      const out = markdownOf(editorOf(view));
+      expect(out).toMatch(/^Vorher\.\n\n%%\nErster Absatz\n\n- Punkt\n+%%\n\nDanach\.$/);
+    });
+
+    it('keeps a %% line without its closing line as text', async () => {
+      const md = 'Vorher.\n%%\nOffen';
+      const view = await render(`<app-markdown-editor [value]="md" />`, {
+        imports: [MarkdownEditorComponent],
+        componentProperties: { md },
+      });
+      expect(editorEl(view.container).querySelectorAll('div.mde-blackout-block')).toHaveLength(0);
+    });
+
+    it('wraps a selection over two paragraphs in a block and lifts it again', async () => {
+      const view = await render(Host);
+      const host = view.fixture.componentInstance;
+      const cmp = editorOf(view);
+      const editor = (
+        cmp as unknown as { editor: { commands: { setContent: (c: string) => void; selectAll: () => void } } }
+      ).editor;
+      editor.commands.setContent('Erster\n\nZweiter');
+      editor.commands.selectAll();
+      cmp.toggleFormat('blackout');
+      expect(host.changes.at(-1)).toMatch(/^%%\nErster\n\nZweiter\n+%%$/);
+      expect(cmp.activeFormats().has('blackout')).toBe(true);
+      cmp.toggleFormat('blackout');
+      expect(host.changes.at(-1)).toBe('Erster\n\nZweiter');
+    });
+  });
+
+  describe('automatic blackout of known names (000969)', () => {
+    type Pm = {
+      state: { selection: { from: number; to: number }; tr: { insertText: (t: string, f: number, to: number) => unknown } };
+      someProp: (name: string, f: (fn: (...a: unknown[]) => boolean) => boolean) => boolean | undefined;
+      dispatch: (tr: unknown) => void;
+    };
+    type Ed = {
+      view: Pm;
+      commands: { insertContent: (c: string) => void; undo: () => void; setContent: (c: string) => void };
+      storage: { markdown: { getMarkdown: () => string } };
+    };
+    function editorOf(view: { fixture: { debugElement: { children: { componentInstance: unknown }[] } } }): Ed {
+      const cmp = view.fixture.debugElement.children[0].componentInstance as MarkdownEditorComponent;
+      return (cmp as unknown as { editor: Ed }).editor;
+    }
+    /** Type the text character by character, as the keyboard does. */
+    async function type(ed: Ed, text: string): Promise<void> {
+      for (const ch of text) {
+        const pm = ed.view;
+        const { from, to } = pm.state.selection;
+        if (!pm.someProp('handleTextInput', (f) => f(pm, from, to, ch))) {
+          pm.dispatch(pm.state.tr.insertText(ch, from, to));
+        }
+        await Promise.resolve();
+      }
+    }
+    const names = (): readonly { first: string; last: string }[] => [{ first: 'Lena', last: 'Hoffmann' }];
+    async function setup(md = ''): Promise<Ed> {
+      const view = await render(`<app-markdown-editor [value]="md" [knownNames]="names" />`, {
+        imports: [MarkdownEditorComponent],
+        componentProperties: { md, names },
+      });
+      return editorOf(view);
+    }
+
+    it('marks a known full name after the space and one undo keeps the name', async () => {
+      const ed = await setup();
+      await type(ed, 'Es spricht lena hoffmann.');
+      expect(ed.storage.markdown.getMarkdown()).toBe('Es spricht %%lena hoffmann%%.');
+      ed.commands.undo();
+      expect(ed.storage.markdown.getMarkdown()).toBe('Es spricht lena hoffmann.');
+    });
+
+    it('marks the first name when the second word deviates', async () => {
+      const ed = await setup();
+      await type(ed, 'Lena sagt');
+      expect(ed.storage.markdown.getMarkdown()).toBe('%%Lena%% sagt');
+    });
+
+    it('marks nothing in a block, in a marked name or on a paste', async () => {
+      const ed = await setup('%%\nIntern\n%%');
+      await type(ed, 'Lena Hoffmann, ');
+      const md = ed.storage.markdown.getMarkdown();
+      expect(md).toContain('Lena Hoffmann, ');
+      expect(md).not.toContain('%%Lena');
+      ed.commands.setContent('');
+      ed.commands.insertContent('Lena Hoffmann ');
+      expect(ed.storage.markdown.getMarkdown()).not.toContain('%%');
+    });
+  });
+
+  describe('time note', () => {
+    function editorOf(view: { fixture: { debugElement: { children: { componentInstance: unknown }[] } } }) {
+      return view.fixture.debugElement.children[0].componentInstance as MarkdownEditorComponent;
+    }
+    function markdownOf(cmp: MarkdownEditorComponent): string {
+      return (cmp as unknown as { editor: { storage: { markdown: { getMarkdown: () => string } } } }).editor.storage
+        .markdown.getMarkdown();
+    }
+
+    it('reads a time note with a blackout mark and writes it back', async () => {
+      const md = 'Vorher.\n\n> [!anmerkung 18:42] %%Max Muster%% verlässt **die** Sitzung';
+      const view = await render(
+        `<app-markdown-editor [value]="md" timeNoteSuffix="Uhr" timeNoteLabel="Uhrzeit der Anmerkung" />`,
+        { imports: [MarkdownEditorComponent], componentProperties: { md } },
+      );
+      const note = editorEl(view.container).querySelector('.mde-time-note') as HTMLElement;
+      const field = note.querySelector('input.mde-time-note__time') as HTMLInputElement;
+      expect(field.value).toBe('18:42');
+      expect(field.getAttribute('aria-label')).toBe('Uhrzeit der Anmerkung');
+      expect(note.querySelector('.mde-blackout')?.textContent).toBe('Max Muster');
+      expect(note.textContent).toContain('Uhr');
+      expect(markdownOf(editorOf(view))).toBe(md);
+    });
+
+    it('inserts a note with the time and puts the cursor in its text', async () => {
+      const view = await render(Host);
+      const host = view.fixture.componentInstance;
+      const cmp = editorOf(view);
+      const editor = (cmp as unknown as { editor: { commands: { insertContent: (c: string) => void } } }).editor;
+      editor.commands.insertContent('Text');
+      expect(cmp.insertTimeNote('9:05')).toBe(true);
+      editor.commands.insertContent('Anna geht');
+      expect(host.changes.at(-1)).toBe('Text\n\n> [!anmerkung 09:05] Anna geht');
+      expect(cmp.insertTimeNote('25:00')).toBe(false);
+    });
+
+    it('changes the time through the time field', async () => {
+      const md = '> [!anmerkung 18:42] Pause';
+      const view = await render(Host, { componentProperties: { value: signal(md) } as Partial<Host> });
+      const host = view.fixture.componentInstance;
+      const field = editorEl(view.container).querySelector('input.mde-time-note__time') as HTMLInputElement;
+      field.value = '19:10';
+      field.dispatchEvent(new Event('change'));
+      expect(host.changes.at(-1)).toBe('> [!anmerkung 19:10] Pause');
+      field.value = '7 Uhr';
+      field.dispatchEvent(new Event('change'));
+      expect(field.value).toBe('19:10');
+    });
+
+    it('keeps a time that is no time of the day as a quote', async () => {
+      const md = '> [!anmerkung 25:00] x';
+      const view = await render(`<app-markdown-editor [value]="md" />`, {
+        imports: [MarkdownEditorComponent],
+        componentProperties: { md },
+      });
+      expect(editorEl(view.container).querySelector('.mde-time-note')).toBeNull();
+      expect(editorEl(view.container).querySelector('blockquote')).not.toBeNull();
+    });
   });
 });

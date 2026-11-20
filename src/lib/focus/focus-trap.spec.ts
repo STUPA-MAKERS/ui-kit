@@ -22,6 +22,14 @@ describe('trapTab', () => {
     expect(document.activeElement?.id).toBe('b');
   });
 
+  it('leaves a control with tabindex -1 out of the cycle', () => {
+    const root = setup('<button id="a">A</button><button id="b">B</button><button id="c" tabindex="-1">C</button>');
+    expect(focusableIn(root).map((el) => el.id)).toEqual(['a', 'b']);
+    document.getElementById('b')!.focus();
+    expect(tab(root).defaultPrevented).toBe(true);
+    expect(document.activeElement?.id).toBe('a');
+  });
+
   it('lets a Tab inside the cycle pass, and ignores other keys', () => {
     const root = setup('<button id="a">A</button><button id="b">B</button>');
     document.getElementById('a')!.focus();
@@ -52,15 +60,38 @@ describe('trapTab', () => {
 });
 
 describe('lockBodyScroll', () => {
-  it('hides the body overflow and gives the old value back once', () => {
-    document.body.style.overflow = 'auto';
+  it('hides the root overflow, not the body, and gives the old value back once', () => {
+    document.documentElement.style.overflow = 'auto';
     const release = lockBodyScroll();
-    expect(document.body.style.overflow).toBe('hidden');
+    expect(document.documentElement.style.overflow).toBe('hidden');
+    expect(document.body.style.overflow).toBe('');
     release();
-    expect(document.body.style.overflow).toBe('auto');
-    document.body.style.overflow = 'scroll';
+    expect(document.documentElement.style.overflow).toBe('auto');
+    document.documentElement.style.overflow = 'scroll';
     release();
-    expect(document.body.style.overflow).toBe('scroll');
-    document.body.style.overflow = '';
+    expect(document.documentElement.style.overflow).toBe('scroll');
+    document.documentElement.style.overflow = '';
+  });
+
+  it('gives the root back only when the last lock is released, in any order', () => {
+    const root = document.documentElement;
+    root.style.overflow = '';
+    const sheet = lockBodyScroll();
+    const dialog = lockBodyScroll();
+    expect(root.style.overflow).toBe('hidden');
+    // The sheet closes first, while the dialog it opened is still open.
+    sheet();
+    expect(root.style.overflow).toBe('hidden');
+    sheet();
+    expect(root.style.overflow).toBe('hidden');
+    dialog();
+    expect(root.style.overflow).toBe('');
+    // A new lock after all are released starts over from the current value.
+    root.style.overflow = 'auto';
+    const again = lockBodyScroll();
+    expect(root.style.overflow).toBe('hidden');
+    again();
+    expect(root.style.overflow).toBe('auto');
+    root.style.overflow = '';
   });
 });

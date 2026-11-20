@@ -20,6 +20,7 @@
 .cur--labelled {
   @include f.box-labelled;
   align-items: flex-end;
+  row-gap: 0;
   padding-bottom: 8px;
 }
 .cur--invalid {
@@ -30,6 +31,7 @@
 }
 .cur__label {
   @include f.label;
+  padding-inline: 0;
 }
 .cur:focus-within .cur__label {
   @include f.label-focus;

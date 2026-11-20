@@ -58,6 +58,9 @@ export type UiKitTextKey =
   | 'selection.count'
   | 'listDetail.back'
   | 'search.clear'
+  | 'search.results'
+  | 'search.resultsOne'
+  | 'search.none'
   | 'avatar.more'
   | 'viewer.close'
   | 'viewer.previous'
@@ -77,6 +80,9 @@ export type UiKitTextKey =
   | 'editorTable.addRow'
   | 'editorTable.addColumn'
   | 'editorTable.delete'
+  | 'editorDocument.open'
+  | 'editorDocument.pages'
+  | 'editorDocument.page'
   | 'pwa.updateReady'
   | 'pwa.reload'
   | 'pwa.offline'
@@ -143,6 +149,9 @@ export const UI_KIT_DEFAULT_MESSAGES: Record<UiLang, UiKitMessages> = {
     'selection.count': '{count} ausgewählt',
     'listDetail.back': 'Zur Liste',
     'search.clear': 'Suche leeren',
+    'search.results': '{n} Treffer',
+    'search.resultsOne': '1 Treffer',
+    'search.none': 'Keine Treffer',
     'avatar.more': '{count} weitere',
     'viewer.close': 'Vorschau schließen',
     'viewer.previous': 'Vorherige Datei',
@@ -162,6 +171,9 @@ export const UI_KIT_DEFAULT_MESSAGES: Record<UiLang, UiKitMessages> = {
     'editorTable.addRow': 'Zeile hinzufügen',
     'editorTable.addColumn': 'Spalte hinzufügen',
     'editorTable.delete': 'Tabelle löschen',
+    'editorDocument.open': 'PDF öffnen: {name}',
+    'editorDocument.pages': '{n} Seiten',
+    'editorDocument.page': '1 Seite',
     'pwa.updateReady': 'Eine neue Version der App ist bereit.',
     'pwa.reload': 'Neu laden',
     'pwa.offline': 'Keine Verbindung',
@@ -224,6 +236,9 @@ export const UI_KIT_DEFAULT_MESSAGES: Record<UiLang, UiKitMessages> = {
     'selection.count': '{count} selected',
     'listDetail.back': 'Back to list',
     'search.clear': 'Clear search',
+    'search.results': '{n} results',
+    'search.resultsOne': '1 result',
+    'search.none': 'No results',
     'avatar.more': '{count} more',
     'viewer.close': 'Close preview',
     'viewer.previous': 'Previous file',
@@ -243,6 +258,9 @@ export const UI_KIT_DEFAULT_MESSAGES: Record<UiLang, UiKitMessages> = {
     'editorTable.addRow': 'Add row',
     'editorTable.addColumn': 'Add column',
     'editorTable.delete': 'Delete table',
+    'editorDocument.open': 'Open PDF: {name}',
+    'editorDocument.pages': '{n} pages',
+    'editorDocument.page': '1 page',
     'pwa.updateReady': 'A new version of the app is ready.',
     'pwa.reload': 'Reload',
     'pwa.offline': 'You are offline',
@@ -300,14 +318,14 @@ function interpolate(text: string, params?: Record<string, string | number>): st
 
 export interface UiKitIntlOptions {
   /** External language signal (e.g. the host app's locale). Omit for an internal, settable one. */
-  lang?: Signal<UiLang>;
+  readonly lang?: Signal<UiLang>;
   /**
    * External format-locale signal (e.g. the host app's `Intl` tag). Omit to map the
    * language through {@link UI_KIT_FORMAT_LOCALES}.
    */
-  formatLocale?: Signal<string>;
+  readonly formatLocale?: Signal<string>;
   /** Partial message overrides merged over the built-in DE/EN catalogue. */
-  messages?: Partial<Record<UiLang, Partial<UiKitMessages>>>;
+  readonly messages?: Partial<Record<UiLang, Partial<UiKitMessages>>>;
 }
 
 /**
@@ -370,12 +388,12 @@ export interface UiKitOptions extends UiKitIntlOptions {
    * texts, so it can `inject()` the i18n service of the app, and the order of the providers
    * does not matter.
    */
-  intl?: UiKitIntl | (() => UiKitIntl);
+  readonly intl?: UiKitIntl | (() => UiKitIntl);
   /**
    * The settings of the `ThemeService`: the storage key of the preference, the manifest
    * URL per theme and the page background per theme. Omit a field to keep its default.
    */
-  theme?: UiKitThemeOptions;
+  readonly theme?: UiKitThemeOptions;
 }
 
 /**

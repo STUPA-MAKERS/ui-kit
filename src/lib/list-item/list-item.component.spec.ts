@@ -1,18 +1,21 @@
-import { Component, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { Router, provideRouter } from '@angular/router';
+import { readFileSync } from 'node:fs';
+import { join } from 'node:path';
 import { fireEvent, render, screen } from '@testing-library/angular';
 import userEvent from '@testing-library/user-event';
 import { runAxe } from '../../../testing/a11y';
 import { StatusTextComponent } from '../status-text/status-text.component';
 import { ListItemComponent } from './list-item.component';
 
-@Component({ standalone: true, template: '' })
+@Component({ changeDetection: ChangeDetectionStrategy.Eager, standalone: true, template: '' })
 class BlankComponent {}
 
 const LONG = 'Sondersitzung des AStA-Vorstands zur Haushaltsplanung 2027 mit Referatsleitungen';
 
 @Component({
+  changeDetection: ChangeDetectionStrategy.Eager,
   standalone: true,
   imports: [ListItemComponent],
   template: `
@@ -31,6 +34,7 @@ class HostComponent {
 }
 
 @Component({
+  changeDetection: ChangeDetectionStrategy.Eager,
   standalone: true,
   imports: [ListItemComponent, StatusTextComponent],
   template: `
@@ -44,6 +48,7 @@ class HostComponent {
 class StatusSubHostComponent {}
 
 @Component({
+  changeDetection: ChangeDetectionStrategy.Eager,
   standalone: true,
   imports: [ListItemComponent, StatusTextComponent],
   template: `
@@ -54,6 +59,19 @@ class StatusSubHostComponent {}
   `,
 })
 class StatusTitleHostComponent {}
+
+@Component({
+  changeDetection: ChangeDetectionStrategy.Eager,
+  standalone: true,
+  imports: [ListItemComponent],
+  template: `
+    <app-list-item title="Druckkosten">
+      <span trail data-testid="amount">12,00 €</span>
+      <button menu type="button">Aktionen</button>
+    </app-list-item>
+  `,
+})
+class MenuHostComponent {}
 
 /** jsdom has no layout: give the sub line a width and a content width. */
 function setWidths(el: Element, scroll: number, client: number): void {
@@ -124,8 +142,16 @@ describe('ListItemComponent', () => {
     expect(view.container.querySelector('.li')).toHaveClass('li--on');
   });
 
+  it('shows a checked row like the selected one, but not as current', async () => {
+    const view = await render(ListItemComponent, { inputs: { title: 'Trikots', checked: true } });
+    const title = screen.getByRole('button', { name: 'Trikots' });
+    expect(title).not.toHaveAttribute('aria-current');
+    expect(view.container.querySelector('.li')).toHaveClass('li--on');
+  });
+
   it('says whether an expand row is open, and only for an expand row', async () => {
     @Component({
+      changeDetection: ChangeDetectionStrategy.Eager,
       standalone: true,
       imports: [ListItemComponent],
       template: `
@@ -253,6 +279,28 @@ describe('ListItemComponent', () => {
     fireEvent.pointerEnter(view.container.querySelector('.li') as HTMLElement);
     view.fixture.detectChanges();
     expect(screen.getByRole('button', { name: 'Lastenrad' })).not.toHaveAttribute('title');
+  });
+
+  it('puts the [menu] slot last, after the trail and outside the title', async () => {
+    const { container } = await render(MenuHostComponent);
+    const menu = screen.getByRole('button', { name: 'Aktionen' });
+    const slot = container.querySelector('.li__menu');
+    expect(slot).toContainElement(menu);
+    expect(container.querySelector('.li__trail')).not.toContainElement(menu);
+    const amount = screen.getByTestId('amount');
+    expect(amount.compareDocumentPosition(menu) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+  });
+
+  /** jsdom applies no component styles, so this reads the source (spec 001920). */
+  it('hides the [menu] slot at rest only on a device with hover, without its width', () => {
+    const scss = readFileSync(join(__dirname, 'list-item.component.scss'), 'utf8');
+    const hover = scss.slice(scss.indexOf('@media (hover: hover) {\n  .li__menu {'));
+    expect(hover).toContain('grid-template-columns: 0fr;');
+    expect(hover).toContain('opacity: 0;');
+    expect(hover).toContain('.li:hover .li__menu,');
+    expect(hover).toContain('.li:has(:focus-visible) .li__menu,');
+    expect(hover).toContain(".li__menu:has([aria-expanded='true']) {");
+    expect(scss).toContain('.li__menu:empty,');
   });
 
   it('has no a11y violations', async () => {

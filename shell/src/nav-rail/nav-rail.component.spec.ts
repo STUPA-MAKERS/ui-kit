@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { ChangeDetectionStrategy, Component } from '@angular/core';
 import { Router, provideRouter } from '@angular/router';
 import { render, screen, within } from '@testing-library/angular';
 import { runAxe } from '../../../testing/a11y';
@@ -8,7 +8,7 @@ import type { ShellBrand } from '../shell.types';
 import { BRAND, NAV, TestMarkComponent } from '../../../testing/shell';
 import { NavRailComponent } from './nav-rail.component';
 
-@Component({ standalone: true, template: 'page' })
+@Component({ changeDetection: ChangeDetectionStrategy.Eager, standalone: true, template: 'page' })
 class StubPage {}
 
 async function renderRail(inputs: { searchable?: boolean; brand?: ShellBrand } = {}) {
@@ -117,6 +117,46 @@ describe('NavRailComponent', () => {
       'page',
     );
     expect(within(rail()).getByRole('link', { name: 'Start' })).not.toHaveAttribute('aria-current');
+  });
+
+  it('scrolls the active entry into view when the rail is too low (000660)', async () => {
+    const { router, fixture, container } = await renderRail();
+    const main = container.querySelector<HTMLElement>('.rail__main')!;
+    const entry = within(rail()).getByRole('link', { name: /^Aufgaben/ });
+    const rect = (top: number, bottom: number) => ({ top, bottom }) as DOMRect;
+    jest.spyOn(main, 'getBoundingClientRect').mockReturnValue(rect(100, 300));
+    // jsdom has no layout and no `scrollBy`: the stand-in moves `scrollTop` as a browser does.
+    main.scrollBy = ((o: ScrollToOptions) => {
+      main.scrollTop += o.top ?? 0;
+    }) as typeof main.scrollBy;
+    jest.spyOn(entry, 'getBoundingClientRect').mockReturnValue(rect(360, 424));
+
+    await router.navigateByUrl('/tasks');
+    fixture.detectChanges();
+    await fixture.whenStable();
+    expect(main.scrollTop).toBe(124);
+
+    jest.spyOn(entry, 'getBoundingClientRect').mockReturnValue(rect(40, 104));
+    await router.navigateByUrl('/dashboard');
+    fixture.detectChanges();
+    await fixture.whenStable();
+    main.scrollTop = 124;
+    await router.navigateByUrl('/tasks');
+    fixture.detectChanges();
+    await fixture.whenStable();
+    expect(main.scrollTop).toBe(64);
+  });
+
+  it('leaves the scroll position when the active entry is in view', async () => {
+    const { router, fixture, container } = await renderRail();
+    const main = container.querySelector<HTMLElement>('.rail__main')!;
+    const entry = within(rail()).getByRole('link', { name: /^Aufgaben/ });
+    jest.spyOn(main, 'getBoundingClientRect').mockReturnValue({ top: 100, bottom: 300 } as DOMRect);
+    jest.spyOn(entry, 'getBoundingClientRect').mockReturnValue({ top: 120, bottom: 184 } as DOMRect);
+    await router.navigateByUrl('/tasks');
+    fixture.detectChanges();
+    await fixture.whenStable();
+    expect(main.scrollTop).toBe(0);
   });
 
   it('has no axe violations', async () => {

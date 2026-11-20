@@ -1,5 +1,8 @@
+@use 'display' as d;
+
 // Reset + Basis-Element-Styles. Nutzt ausschließlich Semantic-Tokens.
 @use 'press';
+@use 'breakpoints' as bp;
 
 *,
 *::before,
@@ -9,10 +12,44 @@
 
 * {
   margin: 0;
-  // Browser-Default beim Antippen ist ein rechteckiger Highlight-Kasten, der die
-  // Rundung der Kachel ignoriert ("innerer Kasten"). App-weit entfernen — das
-  // Tap-Feedback liefert stattdessen die :active-Tönung der ganzen Kachel.
+  // The tap highlight of the browser is a square box that ignores the corners of the tile.
+  // It is off everywhere, because the ripple of the press (`_press.scss`) is the feedback.
   -webkit-tap-highlight-color: transparent;
+}
+
+// The ripple of a press (`_press.scss`). The properties are registered so that the keyframes
+// can animate them, and they do not inherit, so a ripple in a row does not start again in
+// each child. `--press-host` marks the element that paints the ripple for `press-ripple.ts`.
+@property --press-ripple {
+  syntax: '<length>';
+  inherits: false;
+  initial-value: 0px;
+}
+@property --press-fade {
+  syntax: '<percentage>';
+  inherits: false;
+  initial-value: 100%;
+}
+@property --press-host {
+  syntax: '<integer>';
+  inherits: false;
+  initial-value: 0;
+}
+@keyframes press-ripple {
+  from {
+    --press-ripple: 0px;
+  }
+  to {
+    --press-ripple: var(--ripple-r, 150vmax);
+  }
+}
+@keyframes press-fade {
+  from {
+    --press-fade: 100%;
+  }
+  to {
+    --press-fade: 0%;
+  }
 }
 
 // A touch screen: a press and hold on the interface (a heading, a label, a row title, a
@@ -150,7 +187,15 @@ textarea {
   outline: none;
 }
 
-@media (prefers-reduced-motion: reduce) {
+// A heading or a title takes the focus from a script (after a navigation, `RouteFocus`, or
+// when a detail opens) so that a screen reader announces it. It is no control, so it shows no
+// ring (app spec 000622).
+:is(h1, h2, h3, h4, h5, h6, p, section, main)[tabindex='-1']:focus {
+  outline: none;
+}
+
+@include d.on(motion) {
+  &,
   *,
   *::before,
   *::after {
@@ -182,9 +227,9 @@ textarea {
   padding-inline: var(--layout-gutter);
 }
 
-// Mobile-Baseline (≤768px): engerer Seitenrand, kompaktere Headings.
+// Mobile-Baseline (<768px): engerer Seitenrand, kompaktere Headings.
 // Desktop bleibt unverändert — alle Mobile-Regeln sind additiv per max-width.
-@media (max-width: 768px) {
+@media (max-width: 767.98px) {
   .page-shell {
     padding-inline: var(--space-4);
   }
@@ -272,7 +317,7 @@ input[type='radio'] {
   text-overflow: ellipsis;
   white-space: nowrap;
 }
-@media (max-width: 768px) {
+@media (max-width: 767.98px) {
   .dt__truncate {
     overflow: visible;
     overflow-wrap: anywhere;
@@ -368,7 +413,8 @@ input[type='radio'] {
   display: inline-block;
   padding: 5px 7px;
   font: var(--fw-medium) 11px/1 var(--font-mono);
-  color: var(--color-text-subtle);
+  /* Muted, not subtle: the key text needs 4.5:1 on the surfaces of the search field. */
+  color: var(--color-text-muted);
   border: var(--border-width) solid var(--color-border);
   border-radius: var(--radius-sm);
   white-space: nowrap;
@@ -393,8 +439,20 @@ input[type='radio'] {
   font-weight: var(--fw-medium);
   white-space: nowrap;
   cursor: pointer;
-  transition: scale var(--motion-xs) var(--ease-standard);
   @include press.press;
+}
+/* The centre of the capitals of a chip text is on the centre line of the chip, the same line
+   as the centre of its icons (app spec 000603). The text box is trimmed to the capitals, and
+   the flex centre of the chip is their centre. The padding keeps the descenders inside the
+   clip box of the ellipsis, and the negative margin of the same size keeps the trimmed
+   height for the layout. A text node cannot be trimmed, so a chip puts its text in a span
+   (`.ell` or `.chip__text`). */
+@supports (text-box: trim-both cap alphabetic) {
+  .chip > :is(.ell, .chip__text) {
+    text-box: trim-both cap alphabetic;
+    padding-block: 0.5em;
+    margin-block: -0.5em;
+  }
 }
 @media (hover: hover) {
   .chip:hover {
@@ -413,4 +471,37 @@ input[type='radio'] {
     border-color: transparent;
     color: var(--color-on-selected);
   }
+}
+
+// A phone list: a group head that is stuck right under the sticky search bar continues
+// the glass of the bar, so the head carries the shadow at the end of the glass and the
+// bar has none (`StickyBarComponent`, `ListGroupComponent`). While the head sits right
+// under the bar (`lg__head--under`), the glass of the head reaches up behind the bar and
+// carries the glass of both: one tint layer, saturated once. The glass of the bar lies on
+// top of it and keeps only a light blur: a full blur blurs the glass of the head a second
+// time and shows a line where the bar ends. The light blur stays because the classes
+// follow the scroll late, and no row may show sharp through the bar for that frame. The
+// rule reads the class of one component and styles the other, so it lives here and not in
+// either component.
+@include bp.phone {
+  body:has(.lg__head--stuck) app-sticky-bar.stb--stuck {
+    box-shadow: none;
+  }
+  @supports (backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px)) {
+    body:has(.lg__head--under) app-sticky-bar.stb--stuck::before {
+      background: none;
+      -webkit-backdrop-filter: blur(2px);
+      backdrop-filter: blur(2px);
+    }
+  }
+}
+
+// The file viewer covers the screen with dark glass (app spec 001084). A phone browser
+// leaves fixed and sticky bars with a glass of their own (the page head, the bottom bar)
+// out of the backdrop blur of the viewer, so their text stays sharp under it. While the
+// viewer is open the page itself is blurred as well. The viewer lies in the top layer, so
+// the filter of its ancestors does not reach it. The rule reads the viewer and styles the
+// page, so it lives here.
+body:has(.fv:popover-open) > * {
+  filter: blur(16px);
 }

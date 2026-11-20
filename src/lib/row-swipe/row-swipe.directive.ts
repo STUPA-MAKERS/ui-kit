@@ -28,15 +28,15 @@ const RESTORE_MS = 1200;
 /** The action of one swipe direction of a row: an item of the row menu. */
 export interface RowSwipeAction {
   /** The id of the row menu item, so the page carries it out as from the menu. */
-  id: string;
+  readonly id: string;
   /** The label of the menu item; it shows on the plate. */
-  label: string;
-  icon: IconName;
+  readonly label: string;
+  readonly icon: IconName;
   /**
    * The row leaves the list (archive, delete, mark as paid): it slides out and the list
    * closes the gap. Without it the row springs back (share, edit open a dialog).
    */
-  leaves?: boolean;
+  readonly leaves?: boolean;
 }
 
 /** The direction of a swipe: the finger moves to the right or to the left. */
@@ -272,6 +272,6 @@ export class RowSwipeDirective {
       this.timers = this.timers.filter((t) => t !== id);
       run();
     }, ms);
-    this.timers.push(id);
+    this.timers = [...this.timers, id];
   }
 }

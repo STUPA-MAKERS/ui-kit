@@ -1,6 +1,7 @@
 @if (open()) {
   <div
     class="pal__scrim"
+    aria-hidden="true"
     animate.enter="pal--fade-in"
     animate.leave="pal--fade-out"
     (click)="close()"
@@ -65,8 +66,11 @@
               [id]="optionId(row)"
               [class.pal__row--active]="on"
               [attr.aria-selected]="on"
+              tabindex="-1"
+              (mousedown)="$event.preventDefault()"
               (mouseenter)="active.set(indexOf(row))"
               (click)="go(row)"
+              (keydown.enter)="go(row)"
             >
               <app-icon class="pal__rowIcon" [name]="row.icon" [size]="19" />
               <span class="pal__rowText">

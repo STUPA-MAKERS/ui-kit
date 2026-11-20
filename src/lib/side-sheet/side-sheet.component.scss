@@ -1,5 +1,7 @@
 @use '../../styles/breakpoints' as bp;
 @use '../../styles/surface';
+@use '../../styles/frosted' as *;
+@use '../../styles/display' as d;
 
 .ss__scrim {
   position: fixed;
@@ -16,7 +18,7 @@
   display: flex;
   flex-direction: column;
   overflow: hidden;
-  background: var(--color-surface-2);
+  background: var(--color-glass-2);
   color: var(--color-text);
   box-shadow: var(--shadow-elevated);
 }
@@ -24,23 +26,34 @@
   outline: none;
 }
 
-/* From the end: the attendance sheet, 640px, 12px off the edges. The safe-area insets
-   keep it clear of the status bar of an installed app (the page reaches under it), of the
-   home bar and, in landscape, of the notch. In a browser tab they are 0. */
+/* From the end: the attendance sheet, 640px, attached to the edge of the window from the
+   top to the bottom, like the card of a to-do board; only the free corners are round. The
+   safe-area insets keep its content clear of the status bar of an installed app (the page
+   reaches under it), of the home bar and, in landscape, of the notch. In a browser tab they
+   are 0. */
 .ss--end {
-  top: calc(12px + env(safe-area-inset-top, 0px));
-  right: calc(12px + env(safe-area-inset-right, 0px));
-  bottom: calc(12px + env(safe-area-inset-bottom, 0px));
-  width: min(40rem, calc(100vw - 24px));
-  border-radius: var(--radius-2xl);
+  top: 0;
+  right: 0;
+  bottom: 0;
+  width: min(40rem, calc(100vw - var(--space-8)));
+  padding: env(safe-area-inset-top, 0px) env(safe-area-inset-right, 0px)
+    env(safe-area-inset-bottom, 0px) 0;
+  border-radius: var(--radius-xl) 0 0 var(--radius-xl);
 }
-/* From the start: the agenda drawer. */
+/* A sheet from the side is frosted glass like the bottom sheet (`.ss--bottom`). */
+.ss--end,
 .ss--start {
-  top: calc(12px + env(safe-area-inset-top, 0px));
-  bottom: calc(12px + env(safe-area-inset-bottom, 0px));
-  left: calc(12px + env(safe-area-inset-left, 0px));
-  width: min(22.5rem, calc(100vw - 24px));
-  border-radius: var(--radius-2xl);
+  @include frosted-pop(var(--color-glass-2), 85%, 20px, 1.3);
+}
+/* From the start: the agenda drawer, attached to the start edge in the same way. */
+.ss--start {
+  top: 0;
+  bottom: 0;
+  left: 0;
+  width: min(22.5rem, calc(100vw - var(--space-8)));
+  padding: env(safe-area-inset-top, 0px) 0 env(safe-area-inset-bottom, 0px)
+    env(safe-area-inset-left, 0px);
+  border-radius: 0 var(--radius-xl) var(--radius-xl) 0;
 }
 /* From the bottom: the phone sheet, above the gesture bar. A swipe moves it with
    `transform`; after the swipe it snaps back with a short transition. */
@@ -54,11 +67,23 @@
     env(safe-area-inset-left, 0px);
   border-radius: var(--radius-2xl) var(--radius-2xl) 0 0;
   transition: transform var(--motion-fast) var(--ease-standard);
+  // Frosted glass at a high tint and a strong blur: at a lower tint the labels of the
+  // bottom bar read through the rows of the sheet. The lift undoes the scrim behind it.
+  @include frosted-pop(var(--color-glass-2), 85%, 20px, 1.3);
+}
+// The fields, rows and buttons on the glass are neutral overlays (`glass-content`).
+.ss__top,
+.ss__body {
+  @include glass-content;
+}
+// The page shows through the glass, so the scrim under a sheet is lighter.
+.ss__scrim:has(+ .ss) {
+  background: color-mix(in srgb, var(--color-scrim) 60%, transparent);
 }
 .ss--dragging {
   transition: none;
 }
-@media (prefers-reduced-motion: reduce) {
+@include d.host-on(motion) {
   .ss--bottom {
     transition: none;
   }
@@ -98,16 +123,15 @@
   border-radius: var(--radius-pill);
   background: var(--color-border-strong);
 }
-.ss--bottom .ss__head {
-  padding-top: var(--space-2);
-}
-
+/* The capitals of the title sit as far below the top edge, or below the handle of a bottom
+   sheet, as the title sits from the side (24px): 12px of the header are above them (the
+   28px title is centred on the 40px close button, 6px, and 6px of its line). */
 .ss__head {
   display: flex;
   flex: none;
   align-items: center;
   gap: var(--space-3);
-  padding: 20px var(--space-4) var(--space-1) var(--space-5);
+  padding: calc(var(--space-5) - 12px) var(--space-4) var(--space-1) var(--space-5);
 }
 .ss__title {
   flex: 1 1 0;
@@ -133,31 +157,6 @@
   display: flex;
   flex-direction: column;
   overflow: hidden;
-}
-
-/* Fade an end of the body only where more content is hidden in that direction. */
-.ss__body--fadeTop {
-  mask-image: linear-gradient(to bottom, transparent, #000 var(--space-5));
-}
-.ss__body--fadeBottom {
-  mask-image: linear-gradient(to top, transparent, #000 var(--space-5));
-}
-.ss__body--fadeTop.ss__body--fadeBottom {
-  mask-image: linear-gradient(
-    to bottom,
-    transparent,
-    #000 var(--space-5),
-    #000 calc(100% - var(--space-5)),
-    transparent
-  );
-}
-/* A bottom sheet ends at the screen edge, so its body is cut there and does not fade at
-   the bottom. The top still fades under the head, which has no line. */
-.ss--bottom .ss__body--fadeBottom {
-  mask-image: none;
-}
-.ss--bottom .ss__body--fadeTop {
-  mask-image: linear-gradient(to bottom, transparent, #000 var(--space-5));
 }
 
 /* Motion. A sheet comes in from the edge it lives at and goes back there, faster on the

@@ -1,4 +1,5 @@
 @use '../../styles/press';
+@use '../../styles/display' as d;
 
 :host {
   display: inline-flex;
@@ -36,10 +37,9 @@
     background-color var(--motion-fast) var(--ease-standard),
     color var(--motion-fast) var(--ease-standard),
     border-color var(--motion-fast) var(--ease-standard),
-    filter var(--motion-fast) var(--ease-standard),
-    scale var(--motion-xs) var(--ease-standard);
-  /* The press of every look and size is a tint of the text colour over the fill and a
-     shrink to --press-scale-control (`_press.scss`). It is the only feedback of a tap,
+    filter var(--motion-fast) var(--ease-standard);
+  /* The press of every look and size is a ripple in the tint of the text colour over
+     the fill (`_press.scss`). It is the only feedback of a tap,
      because a touch screen shows no hover. */
   @include press.press;
   @include press.chrome-text;
@@ -203,6 +203,65 @@
 .btn--fab.btn--icon {
   --icon-size: 20px;
 }
+/* Highlighted fields (app spec 000598): every button (filled, tonal, outlined, text, FAB,
+   with a label or as an icon button) is black on yellow with a black edge, as a field. A
+   destructive button is dark red on yellow. */
+@include d.host-on(fields) {
+  .btn--fill,
+  .btn--tonal,
+  .btn--outlined,
+  .btn--text {
+    /* The 1px border and a 1px inset make the 2px edge; the ring of display-settings.scss
+       covers the outer rim. */
+    background: var(--field-bg);
+    color: var(--field-text);
+    border-color: var(--field-text);
+    box-shadow: inset 0 0 0 1px var(--field-text);
+    filter: none;
+  }
+  .btn--danger {
+    background: var(--field-bg);
+    color: var(--field-danger);
+    border-color: var(--field-danger);
+    box-shadow: inset 0 0 0 1px var(--field-danger);
+  }
+  .btn--fab {
+    background: var(--field-bg);
+    color: var(--field-text);
+    border-color: var(--field-text);
+    box-shadow: inset 0 0 0 1px var(--field-text), var(--shadow-elevated);
+  }
+  /* A toggle that is on turns round: yellow on black. */
+  .btn--tonal[aria-pressed='true'],
+  .btn--outlined[aria-pressed='true'],
+  .btn--text[aria-pressed='true'] {
+    background: var(--field-text);
+    color: var(--field-bg);
+  }
+  /* The count plate is black with a yellow number, so it stands out on the yellow button;
+     on a pressed (black) button it turns round. */
+  .btn > .btn__count.num {
+    background: var(--field-text);
+    color: var(--field-bg);
+  }
+  [aria-pressed='true'] > .btn__count.num {
+    background: var(--field-bg);
+    color: var(--field-text);
+  }
+}
+@media (hover: hover) {
+  @include d.host-on(fields) {
+    .btn--fill:hover:not(:disabled),
+    .btn--tonal:hover:not(:disabled):not([aria-pressed='true']),
+    .btn--outlined:hover:not(:disabled):not([aria-pressed='true']),
+    .btn--text:hover:not(:disabled):not([aria-pressed='true']),
+    .btn--danger:hover:not(:disabled),
+    .btn--fab:hover:not(:disabled) {
+      background: var(--field-bg-hover);
+      filter: none;
+    }
+  }
+}
 @media (hover: hover) {
   .btn--fab:hover:not(:disabled) {
     filter: brightness(1.08);
@@ -311,6 +370,31 @@
 .btn--icon .btn__label ::ng-deep > app-icon {
   height: auto;
 }
+/* The count plate at the end of a labelled button (`count`, app spec 000604). It is a
+   flex item of the button, so its centre is on the centre line of the button (app spec
+   000603). Inside the label, the 20px plate made the line box higher than the 18px text
+   line, so the text and the icon moved about 1px up and the plate sat 1px below them.
+   The space after the text is 4px, as a word space. */
+.btn__count {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  min-width: 20px;
+  height: 20px;
+  margin-inline-start: calc(4px - var(--space-2));
+  padding: 0 6px;
+  border-radius: var(--radius-pill);
+  background: var(--color-surface-3);
+  color: var(--color-text-muted);
+  /* 11.5px: the browser draws text on a whole-pixel baseline. At 11.5px that baseline puts
+     the digits in the centre of the 20px plate; at 12.5px they sat 0.5px low. */
+  font-size: var(--fs-cap);
+  font-weight: var(--fw-medium);
+}
+.btn__countN {
+  line-height: 1;
+}
 /* Spinner liegt ÜBER dem (unsichtbaren) Inhalt statt daneben: der Button
    behält beim Laden exakt seine Größe (kein Breiten-Sprung, #send-glitch). */
 .btn__spinner {
@@ -352,13 +436,27 @@
 
 /* The fab holds its icon and its text in one row, 12px apart (the gap of `.btn--fab`).
    The label is that row: the gap of the button reaches only the label itself. The icon
-   is larger than the text line, so the label does not clip it. */
+   is larger than the text line, so the label does not clip it. A folded fab sets
+   `--fab-label-gap` to 0 (`fab.component.scss`): a custom property inherits, so the fold
+   does not depend on which component stylesheet the page added last. */
 .btn--fab .btn__label {
   display: inline-flex;
   align-items: center;
-  gap: var(--space-3);
+  gap: var(--fab-label-gap, var(--space-3));
   overflow: visible;
 }
 .btn--fab .btn__label ::ng-deep > app-icon {
   height: auto;
+}
+/* The text sits 0.5px higher than the centre of its line box, so the capitals are centred on
+   the button. IBM Plex Sans has more room above the capitals (ascent 1.025em) than below the
+   baseline (descent 0.275em), so the centred line box put the capitals about 0.5px low; a
+   browser that does not snap the baseline to a whole pixel (Firefox) showed that offset. The
+   1px below the label raises the centre of the text by 0.5px, and the 1px above the icon
+   keeps the icon where it was. */
+.btn--fab .btn__label {
+  padding-block-end: 1px;
+}
+.btn--fab .btn__label ::ng-deep > app-icon {
+  margin-block-start: 1px;
 }

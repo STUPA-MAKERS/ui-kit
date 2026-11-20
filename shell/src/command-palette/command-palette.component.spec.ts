@@ -1,4 +1,4 @@
-import { Component, computed, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, signal } from '@angular/core';
 import { Router, provideRouter } from '@angular/router';
 import { fireEvent, render, screen, within } from '@testing-library/angular';
 import userEvent from '@testing-library/user-event';
@@ -48,6 +48,7 @@ const RECORDS: PaletteRow[] = [
 
 /** The app side: it runs its own search on the query and hands the groups back. */
 @Component({
+  changeDetection: ChangeDetectionStrategy.Eager,
   standalone: true,
   imports: [CommandPaletteComponent],
   template: `

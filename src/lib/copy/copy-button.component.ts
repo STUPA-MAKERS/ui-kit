@@ -86,15 +86,12 @@ export class CopyButtonComponent {
   protected async copy(): Promise<void> {
     const text = this.text();
     if (!text) return;
-    let ok: boolean;
-    if (this.share()) {
-      const outcome = await shareOrCopy({ url: text, title: this.shareTitle() || undefined });
-      // The share sheet was the feedback; a cancel is no failure. Neither is a copy.
-      if (outcome === 'shared' || outcome === 'cancelled') return;
-      ok = outcome === 'copied';
-    } else {
-      ok = await copyText(text);
-    }
+    const outcome = this.share()
+      ? await shareOrCopy({ url: text, title: this.shareTitle() || undefined })
+      : await copyText(text);
+    // The share sheet was the feedback; a cancel is no failure. Neither is a copy.
+    if (outcome === 'shared' || outcome === 'cancelled') return;
+    const ok = outcome === true || outcome === 'copied';
     this.clearTimer();
     this.copied.set(ok);
     this.copiedChange.emit(ok);

@@ -224,10 +224,9 @@ export class CommandPaletteComponent {
     const last = this.closeButton()?.nativeElement;
     if (!first || !last) return;
     const current = document.activeElement;
-    let next: HTMLElement | null = null;
-    if (current !== first && current !== last) next = first;
-    else if (event.shiftKey && current === first) next = last;
-    else if (!event.shiftKey && current === last) next = first;
+    const outside = current !== first && current !== last;
+    const wraps = event.shiftKey ? current === first : current === last;
+    const next = outside ? first : wraps ? (event.shiftKey ? last : first) : null;
     if (next) {
       event.preventDefault();
       next.focus();

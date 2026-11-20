@@ -25,23 +25,58 @@ describe('EmptyStateComponent', () => {
     expect(screen.getByText('404')).toBeInTheDocument();
   });
 
-  it('draws five ghost rows hidden from the screen reader', async () => {
+  /** § NF/usability/controls/001360: a face, hidden from the screen reader, above a hint. */
+  it('draws the face above the hint, hidden from the screen reader', async () => {
+    const { container, fixture } = await render(EmptyStateComponent, {
+      inputs: { heading: 'Keine Rechnungen gefunden.' },
+    });
+    const face = container.querySelector('svg.es__face');
+    expect(face).toHaveAttribute('aria-hidden', 'true');
+    expect(face?.querySelectorAll('.es__eye')).toHaveLength(2);
+    expect(face?.querySelector('.es__mouth')).toBeTruthy();
+    expect(fixture.nativeElement).toHaveClass('es-host--face');
+    expect(container.querySelector('.es__hintIcon')).toBeTruthy();
+    expect(screen.getByText('Keine Rechnungen gefunden.')).toBeInTheDocument();
+  });
+
+  /** § NF/usability/controls/001361: the dots never move in step. */
+  /** § NF/usability/controls/001364: the caller names the icon before the hint. */
+  it('shows the icon of the caller before the hint', async () => {
+    const { container, rerender } = await render(EmptyStateComponent, {
+      inputs: { heading: 'Keine Einträge an diesem Tag.', icon: 'cal' },
+    });
+    expect(container.querySelector('.es__hintIcon [data-icon]')).toHaveAttribute(
+      'data-icon',
+      'cal',
+    );
+    await rerender({
+      inputs: { heading: 'Keine Treffer', icon: 'searchOff' },
+      partialUpdate: true,
+    });
+    expect(container.querySelector('.es__hintIcon [data-icon]')).toHaveAttribute(
+      'data-icon',
+      'searchOff',
+    );
+  });
+
+  it('draws 13 dots, each with its own wobble and flicker period', async () => {
     const { container } = await render(EmptyStateComponent, {
       inputs: { heading: 'Leer' },
     });
-    expect(container.querySelector('.es__ghosts')).toHaveAttribute('aria-hidden', 'true');
-    expect(container.querySelectorAll('.es__ghost')).toHaveLength(5);
+    const wobbles = [...container.querySelectorAll<SVGGElement>('.es__dotWobble')];
+    const dots = [...container.querySelectorAll<SVGCircleElement>('.es__dot')];
+    expect(dots).toHaveLength(13);
+    expect(new Set(wobbles.map((w) => w.style.animationDuration)).size).toBeGreaterThan(10);
+    expect(new Set(dots.map((d) => d.style.animationDuration)).size).toBeGreaterThan(10);
   });
 
-  it('draws fewer ghost rows when asked, at least one and at most five', async () => {
-    const { container, rerender } = await render(EmptyStateComponent, {
-      inputs: { heading: 'Leer', rows: 3 },
+  /** § NF/usability/controls/001360: `shape` and `rows` no longer change the look. */
+  it('draws the same face whatever shape and rows say', async () => {
+    const { container } = await render(EmptyStateComponent, {
+      inputs: { heading: 'Leer', shape: 'table', rows: 1 },
     });
-    expect(container.querySelectorAll('.es__ghost')).toHaveLength(3);
-    await rerender({ inputs: { heading: 'Leer', rows: 0 }, partialUpdate: true });
-    expect(container.querySelectorAll('.es__ghost')).toHaveLength(1);
-    await rerender({ inputs: { heading: 'Leer', rows: 9 }, partialUpdate: true });
-    expect(container.querySelectorAll('.es__ghost')).toHaveLength(5);
+    expect(container.querySelector('.es__face')).toBeTruthy();
+    expect(container.querySelectorAll('.es__dot')).toHaveLength(13);
   });
 
   it('is a plain line, not a heading, inside a card or a dialog', async () => {
@@ -51,20 +86,25 @@ describe('EmptyStateComponent', () => {
   });
 
   it('takes an explicit heading level', async () => {
-    await render(EmptyStateComponent, { inputs: { heading: 'Leer', level: 3 } });
+    await render(EmptyStateComponent, {
+      inputs: { heading: 'Leer', level: 3 },
+    });
     expect(screen.getByRole('heading', { level: 3, name: 'Leer' })).toBeInTheDocument();
   });
 
   it('accepts the level as a bare attribute', async () => {
-    await render(`<app-empty-state heading="Leer" level="1" />`, { imports: [EmptyStateComponent] });
+    await render(`<app-empty-state heading="Leer" level="1" />`, {
+      imports: [EmptyStateComponent],
+    });
     expect(screen.getByRole('heading', { level: 1, name: 'Leer' })).toBeInTheDocument();
   });
 
-  it('draws no ghost rows but a glyph when plain, for a pane with nothing open', async () => {
+  it('draws no face but a glyph when plain, for a pane with nothing open', async () => {
     const { container, fixture } = await render(EmptyStateComponent, {
       inputs: { heading: 'Keine Aufgabe geöffnet', plain: true, icon: 'tasks' },
     });
-    expect(container.querySelector('.es__ghosts')).toBeNull();
+    expect(container.querySelector('.es__face')).toBeNull();
+    expect(container.querySelector('.es__hintIcon')).toBeNull();
     expect(container.querySelector('.es__icon')).toBeTruthy();
     expect(fixture.nativeElement).toHaveClass('es-host--plain');
   });
@@ -77,35 +117,14 @@ describe('EmptyStateComponent', () => {
     expect(container.querySelector('.es__icon')).toBeNull();
   });
 
-  it('draws plain rows with a tag by default, no radio ring', async () => {
-    const { container } = await render(EmptyStateComponent, { inputs: { heading: 'Leer' } });
-    expect(container.querySelector('.es__ghostLead--ring')).toBeNull();
-    expect(container.querySelectorAll('.es__ghostChip')).toHaveLength(5);
-  });
-
-  it('shapes the ghost rows after the real rows of the list', async () => {
-    const { container, rerender } = await render(EmptyStateComponent, {
-      inputs: { heading: 'Leer', shape: 'person', rows: 2 },
-    });
-    expect(container.querySelectorAll('.es__ghostLead--avatar')).toHaveLength(2);
-    await rerender({ inputs: { heading: 'Leer', shape: 'choice', rows: 2 }, partialUpdate: true });
-    expect(container.querySelectorAll('.es__ghostLead--ring')).toHaveLength(2);
-    await rerender({ inputs: { heading: 'Leer', shape: 'date', rows: 2 }, partialUpdate: true });
-    expect(container.querySelectorAll('.es__ghostLead--date')).toHaveLength(2);
-    await rerender({ inputs: { heading: 'Leer', shape: 'card', rows: 2 }, partialUpdate: true });
-    expect(container.querySelectorAll('.es__ghost--card .es__ghostFoot')).toHaveLength(2);
-    await rerender({ inputs: { heading: 'Leer', shape: 'chat', rows: 2 }, partialUpdate: true });
-    expect(container.querySelectorAll('.es__ghost--mine')).toHaveLength(1);
-    await rerender({ inputs: { heading: 'Leer', shape: 'table', rows: 2 }, partialUpdate: true });
-    expect(container.querySelectorAll('.es__ghost--table')).toHaveLength(2);
-  });
-
-  it('projects the way on below the message', async () => {
+  it('projects a way to create something below the hint', async () => {
     await render(
-      `<app-empty-state heading="Leer"><button type="button">Zurücksetzen</button></app-empty-state>`,
+      `<app-empty-state heading="Leer"><button type="button">Als Freitext anlegen</button></app-empty-state>`,
       { imports: [EmptyStateComponent] },
     );
-    expect(screen.getByRole('button', { name: 'Zurücksetzen' }).closest('.es__action')).toBeTruthy();
+    expect(
+      screen.getByRole('button', { name: 'Als Freitext anlegen' }).closest('.es__action'),
+    ).toBeTruthy();
   });
 
   it('stays at its own height by default, for cards and list rows', async () => {
@@ -123,10 +142,9 @@ describe('EmptyStateComponent', () => {
   });
 
   it('accepts fill as a bare attribute', async () => {
-    const { container } = await render(
-      `<app-empty-state heading="Leer" fill />`,
-      { imports: [EmptyStateComponent] },
-    );
+    const { container } = await render(`<app-empty-state heading="Leer" fill />`, {
+      imports: [EmptyStateComponent],
+    });
     expect(container.querySelector('app-empty-state')).toHaveClass('es-host--fill');
   });
 });

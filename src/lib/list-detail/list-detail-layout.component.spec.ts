@@ -1,13 +1,15 @@
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
-import { Component, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, signal } from '@angular/core';
 import { render, screen } from '@testing-library/angular';
 import userEvent from '@testing-library/user-event';
 import { BREAKPOINTS } from '../breakpoints/breakpoints';
 import { runAxe } from '../../../testing/a11y';
 import { drag, mediaMatching } from '../../../testing/touch';
 import { MEDIA } from '../breakpoints/breakpoints';
+import { RouteFocus } from '../focus/route-focus';
 import { SheetBarComponent, SheetBarTitleDirective } from '../sheet-bar/sheet-bar.component';
+import { PageHeaderComponent } from '../page-header/page-header.component';
 import {
   LAYOUT_GUTTER,
   LIST_DETAIL_SPLIT_MIN,
@@ -16,6 +18,7 @@ import {
 } from './list-detail-layout.component';
 
 @Component({
+  changeDetection: ChangeDetectionStrategy.Eager,
   standalone: true,
   imports: [ListDetailLayoutComponent],
   template: `
@@ -30,6 +33,7 @@ class HostComponent {
 }
 
 @Component({
+  changeDetection: ChangeDetectionStrategy.Eager,
   standalone: true,
   imports: [ListDetailLayoutComponent],
   template: `
@@ -50,6 +54,7 @@ class FocusHostComponent {
 
 /** A detail with its own way back: the layout shows no "Zur Liste". */
 @Component({
+  changeDetection: ChangeDetectionStrategy.Eager,
   standalone: true,
   imports: [ListDetailLayoutComponent],
   template: `
@@ -67,6 +72,7 @@ class OwnBackHostComponent {
 
 /** A detail whose sheet bar has a title and an action, as every detail sheet of the app. */
 @Component({
+  changeDetection: ChangeDetectionStrategy.Eager,
   standalone: true,
   imports: [ListDetailLayoutComponent, SheetBarComponent, SheetBarTitleDirective],
   template: `
@@ -87,6 +93,19 @@ class SheetHostComponent {
   readonly open = signal(true);
   readonly titled = signal(true);
 }
+
+@Component({
+  changeDetection: ChangeDetectionStrategy.Eager,
+  standalone: true,
+  imports: [ListDetailLayoutComponent, PageHeaderComponent],
+  template: `
+    <app-list-detail [detailOpen]="true" [barTitle]="true">
+      <ul list aria-label="Bereiche"><li>Benutzer</li></ul>
+      <section detail aria-label="Detail"><app-page-header title="Benutzer" /></section>
+    </app-list-detail>
+  `,
+})
+class PageHostComponent {}
 
 /** Drives the ResizeObserver of the layout: the last observer created gets the width. */
 let resize: ((width: number) => void) | null = null;
@@ -256,6 +275,15 @@ describe('ListDetailLayoutComponent', () => {
       expect(sheetBar.contains(menu())).toBe(true);
     });
 
+    it('with barTitle names the page in the bar from the start', async () => {
+      viewport(390, 358);
+      const view = await render(PageHostComponent);
+      view.fixture.detectChanges();
+      const b = bar(view.container);
+      expect(b).toHaveClass('ld__bar--condensed');
+      expect(b?.querySelector('.ld__barTitle')?.textContent?.trim()).toBe('Benutzer');
+    });
+
     it('keeps the way back when the sheet bar goes away', async () => {
       viewport(390, 358);
       const view = await render(SheetHostComponent);
@@ -267,15 +295,15 @@ describe('ListDetailLayoutComponent', () => {
   });
 
   describe('focus in the one-view layout', () => {
-    it('moves the focus to "Zur Liste" when a row opens, and back to the row', async () => {
+    it('moves the focus to the detail pane when a row opens, and back to the row', async () => {
       viewport(390);
       const view = await render(FocusHostComponent);
       const user = userEvent.setup();
       const row = screen.getByRole('button', { name: 'Lastenrad' });
       await user.click(row);
       await view.fixture.whenStable();
+      expect(view.container.querySelector('.ld__detail')).toHaveFocus();
       const back = screen.getByRole('button', { name: 'Zur Liste' });
-      expect(back).toHaveFocus();
 
       await user.click(back);
       await view.fixture.whenStable();
@@ -300,6 +328,8 @@ describe('ListDetailLayoutComponent', () => {
       row.focus();
       await user.keyboard('{Enter}');
       await view.fixture.whenStable();
+      expect(view.container.querySelector('.ld__detail')).toHaveFocus();
+      await user.tab();
       expect(screen.getByRole('button', { name: 'Zur Liste' })).toHaveFocus();
       await user.keyboard('{Enter}');
       await view.fixture.whenStable();
@@ -345,6 +375,26 @@ describe('ListDetailLayoutComponent', () => {
       view.fixture.detectChanges();
       await view.fixture.whenStable();
       expect(screen.getByRole('button', { name: 'Zur Liste' })).not.toHaveFocus();
+    });
+
+    it('makes the open detail the scope of RouteFocus and holds its focus on the way back', async () => {
+      viewport(390);
+      const view = await render(FocusHostComponent);
+      const focus = view.fixture.debugElement.injector.get(RouteFocus);
+      const scope = (): HTMLElement | null =>
+        (focus as unknown as { scopeFn: () => HTMLElement | null }).scopeFn();
+      const hold = jest.spyOn(focus, 'hold');
+      expect(scope()).toBeNull();
+      const user = userEvent.setup();
+      await user.click(screen.getByRole('button', { name: 'Lastenrad' }));
+      await view.fixture.whenStable();
+      expect(scope()).toBe(view.container.querySelector('.ld__detail'));
+      expect(hold).not.toHaveBeenCalled();
+      await user.click(screen.getByRole('button', { name: 'Zur Liste' }));
+      await view.fixture.whenStable();
+      expect(hold).toHaveBeenCalledTimes(1);
+      view.fixture.destroy();
+      expect((focus as unknown as { scopeFn: unknown }).scopeFn).toBeNull();
     });
 
     it('does not move the focus in the split layout', async () => {

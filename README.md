@@ -13,7 +13,7 @@ STUPA-Workflow platform so the same look & feel can be reused across projects.
   are wired through injection tokens, with built-in DE/EN defaults so the kit works out of
   the box.
 
-> Angular **20+**. Components use the `app-` selector prefix.
+> Angular **22+**. Components use the `app-` selector prefix.
 
 ## Install
 
@@ -59,8 +59,10 @@ Use the breakpoints in a stylesheet with `@use 'breakpoints' as bp;` and
 `mediaQuery(MEDIA.phone)` (a signal) or `matchesMedia(MEDIA.coarse)` (one read).
 
 The styles entry also holds the global loading placeholders (`.skel`, `.skel-text`,
-`.skel-box`, `.skel-progress`), the layout box `.page-shell`, the row groups and click rows
-(`rowgroup.scss`: `.rowgroup`, `.rowgroup--bg1`, `.rowgroup--bg3`, `.hitrow`) and the
+`.skel-box`, `.skel-progress`, and for a head `.skel-grp` with `.skel-btn` and `.skel-chips`
+with `.skel-chip`), the layout box `.page-shell`, the row groups and click rows
+(`rowgroup.scss`: `.rowgroup`, `.rowgroup--bg1`, `.rowgroup--bg3`, `.rowgroup--settings`,
+`.rowgroup--records` and `.rowgroup__record` with `.rowgroup__title`, `.hitrow`) and the
 list/detail geometry (`list-detail.scss`: `--ld-list-width`, `--ld-gap`, `.ld-pane`). An app
 that loads the partials one by one adds `@include meta.load-css('rowgroup')` and
 `@include meta.load-css('list-detail')` and `@include meta.load-css('motion')` at the place in its cascade where they belong. These partials emit no CSS
@@ -199,8 +201,8 @@ providers: [
 
 Buttons (fill / tonal / outlined / text / danger / fab, round icon buttons; the older names
 primary / secondary / ghost / danger-outline / success stay as aliases), inputs (text /
-select / checkbox / currency / time), switch, segmented control (auto, equal or filling
-segments, an optional count per segment), tabs, date picker & range,
+select / checkbox / currency / time), switch, segmented control (a pill track; auto, equal or
+filling segments), tabs, date picker & range,
 line icons (inline SVG), card, badge (tag or status text), stepper (horizontal, or vertical
 with a hint per step and done steps as buttons), dialog (title and an
 optional subtitle that names the object), table & sortable
@@ -260,6 +262,18 @@ and `showInTopLayer` for a popover at an anchor; the signals `nowSignal`, `eleme
 ```ts
 import { ButtonComponent, DataTableComponent, ToastService } from '@stupa-makers/ui-kit';
 ```
+
+The Markdown view lives in the secondary entry point `markdown-view`:
+
+```ts
+import { MarkdownViewComponent, markdownToSafeHtml } from '@stupa-makers/ui-kit/markdown-view';
+```
+
+`<app-markdown-view [src]="text" />` shows rendered Markdown. The renderer escapes the whole
+input before it writes any tag, so no raw HTML of the source reaches the page. A link target
+must be http, https, mailto or an app path (`/…`, `#…`). `[mailto]="false"` renders a mailto
+link as text. An image shows only with the canonical path `/api/media/images/<uuid>`;
+`[imageSrc]="null"` shows its alt text instead. A click on an app path goes through the router.
 
 The Markdown (Tiptap) editor lives in a **secondary entry point** so Tiptap stays out of the
 main bundle:
@@ -426,7 +440,15 @@ npm ci
 npm run build   # ng-packagr → dist/ (Angular Package Format, incl. the markdown-editor and pwa secondary entries)
 npm test        # jest + @testing-library/angular + axe
 npm run lint
+npm run lint:functional   # the functional-style warnings, capped at their current count
 ```
+
+ESLint warns on mutation, `let` and loops in the library code (`eslint-plugin-functional`,
+`prefer-const`, `no-param-reassign`, `switch-exhaustiveness-check`; tests excepted). The
+warnings are not errors, but `lint:functional` fails when their number grows above the cap
+in `package.json`. When a change lowers the number, lower the cap in the same change.
+`assertNever`, `toggled` and `withEntry` (`src/lib/util/immutable.ts`) close an exhaustive
+`switch` and build a new set or map instead of changing one in place.
 
 ## License
 

@@ -13,11 +13,16 @@
   padding-top: 26px;
   cursor: text;
 }
+/* The label line gives the room above the text: 8px, a 16px line and 2px. */
+.ta:has(> .ta__label) {
+  padding-top: 0;
+}
 .ta--invalid {
   @include f.box-invalid;
 }
 .ta__label {
   @include f.label;
+  padding-bottom: 2px;
 }
 .ta:focus-within .ta__label {
   @include f.label-focus;
@@ -34,7 +39,7 @@
   border: 0;
   outline: 0;
   background: transparent;
-  color: var(--color-text);
+  color: var(--field-text, var(--color-text));
   font: inherit;
   font-size: var(--textarea-font-size, var(--fs-md));
   line-height: 1.375rem;

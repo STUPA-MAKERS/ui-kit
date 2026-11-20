@@ -36,13 +36,13 @@ export function formatBytes(
     if (kb < 1024) return `${Math.round(kb)} KB`;
     return `${number(kb / 1024, locale, 0, 1)} MB`;
   }
-  let value = bytes;
-  let unit = 0;
-  while (value >= 1024 && unit < UNITS.length - 1) {
-    value /= 1024;
-    unit += 1;
-  }
+  const { value, unit } = scaled(bytes, 0);
   if (unit === 0) return `${number(value, locale, 0, 0)} B`;
   const digits = style === 'fixed' || value < 10 ? 1 : 0;
   return `${number(value, locale, digits, digits)} ${UNITS[unit]}`;
+}
+
+/** The value divided by 1024 per unit step, up to the largest unit that keeps it at least 1. */
+function scaled(value: number, unit: number): { readonly value: number; readonly unit: number } {
+  return value >= 1024 && unit < UNITS.length - 1 ? scaled(value / 1024, unit + 1) : { value, unit };
 }

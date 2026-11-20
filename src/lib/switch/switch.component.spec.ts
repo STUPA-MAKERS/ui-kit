@@ -1,4 +1,4 @@
-import { Component, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, signal } from '@angular/core';
 import { FormControl, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { render, screen } from '@testing-library/angular';
 import userEvent from '@testing-library/user-event';
@@ -17,6 +17,7 @@ describe('SwitchComponent', () => {
 
   it('toggles on click and through the two-way binding', async () => {
     @Component({
+      changeDetection: ChangeDetectionStrategy.Eager,
       standalone: true,
       imports: [SwitchComponent],
       template: `<app-switch [(checked)]="on">Dunkles Design</app-switch>`,
@@ -83,6 +84,7 @@ describe('SwitchComponent', () => {
 
   it('works as a form control (reactive forms)', async () => {
     @Component({
+      changeDetection: ChangeDetectionStrategy.Eager,
       standalone: true,
       imports: [SwitchComponent, ReactiveFormsModule],
       template: `<app-switch [formControl]="ctrl">Mail</app-switch>`,
@@ -108,6 +110,7 @@ describe('SwitchComponent', () => {
 
   it('works with ngModel', async () => {
     @Component({
+      changeDetection: ChangeDetectionStrategy.Eager,
       standalone: true,
       imports: [SwitchComponent, FormsModule],
       template: `<app-switch [(ngModel)]="value">Mail</app-switch>`,

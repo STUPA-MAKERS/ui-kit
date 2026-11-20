@@ -1,0 +1,50 @@
+// The three forms of a control in very high contrast (app specs 000614 to 000621), as
+// mixins for a global stylesheet. Emits no CSS. Everything that a person can press shows
+// yellow: `fill` is the chosen state and a plain button, `edge` is the other state of a
+// choice, `text` is a row, a link and an entry of a menu or of the navigation.
+//   @use 'very-high' as vh;
+// The declarations are `!important`, because they replace the look that a component draws.
+// Keep a selector that includes one below the weight of the focus rule of
+// `display-settings.scss`, so the focus ring wins.
+
+// The colour of the texts, icons and edges inside a surface. `--vh-ink` is the neutral
+// colour on the fill: a status box and an avatar ring read it (000621).
+// `--vh-press` is the colour of a plain link or button inside the surface: yellow on black,
+// black inside a yellow fill.
+@mixin ink($ink, $press: var(--vh-hi)) {
+  --vh-ink: #{$ink};
+  --vh-press: #{$press};
+  --color-text: #{$ink};
+  --color-text-muted: #{$ink};
+  --color-text-subtle: #{$ink};
+  --color-accent-text: #{$ink};
+  --color-warning: #{$ink};
+  --color-border: #{$ink};
+  --color-border-strong: #{$ink};
+  --color-on-selected: #{$ink};
+}
+@mixin fill {
+  @include ink(var(--vh-bg), var(--vh-bg));
+  --color-danger: var(--field-danger);
+  background: var(--vh-hi) !important;
+  color: var(--vh-bg) !important;
+  box-shadow: none !important;
+  outline: 2px solid var(--vh-hi) !important;
+  outline-offset: -2px !important;
+}
+@mixin edge {
+  @include ink(var(--vh-hi));
+  --color-danger: var(--vh-err);
+  background: var(--vh-bg) !important;
+  color: var(--vh-hi) !important;
+  box-shadow: none !important;
+  outline: 2px solid var(--vh-hi) !important;
+  outline-offset: -2px !important;
+}
+@mixin text {
+  @include ink(var(--vh-hi));
+  --color-danger: var(--vh-err);
+  background: transparent !important;
+  color: var(--vh-hi) !important;
+  box-shadow: none !important;
+}

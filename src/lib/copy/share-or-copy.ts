@@ -4,8 +4,8 @@ import { copyText } from './copy-text';
 
 /** A link to hand on: the URL and, for the share sheet, a title. */
 export interface ShareLink {
-  url: string;
-  title?: string;
+  readonly url: string;
+  readonly title?: string;
 }
 
 /**

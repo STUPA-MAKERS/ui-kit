@@ -26,7 +26,7 @@ function media(matches: Record<string, boolean>): void {
   }));
 }
 
-const PHONE = '(max-width: 768px)';
+const PHONE = '(max-width: 767.98px)';
 const original = window.matchMedia;
 afterAll(() => {
   window.matchMedia = original;

@@ -1,4 +1,4 @@
-import { Component, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, signal } from '@angular/core';
 import { fireEvent, render, screen } from '@testing-library/angular';
 import userEvent from '@testing-library/user-event';
 import { runAxe } from '../../../testing/a11y';
@@ -13,6 +13,7 @@ const FILES: FileViewerItem[] = [
 ];
 
 @Component({
+  changeDetection: ChangeDetectionStrategy.Eager,
   standalone: true,
   imports: [FileViewerComponent],
   template: `
@@ -73,8 +74,23 @@ describe('fileViewerKind', () => {
 });
 
 describe('FileViewerComponent', () => {
+  it('opens in the top layer, so a sheet or card around it cannot cut it off (001079)', async () => {
+    const show = jest.fn();
+    const proto = HTMLElement.prototype as HTMLElement & { showPopover?: () => void };
+    const had = proto.showPopover;
+    proto.showPopover = show;
+    try {
+      await setup();
+      expect(dialog()).toHaveAttribute('popover', 'manual');
+      expect(show).toHaveBeenCalledTimes(1);
+      expect(show.mock.contexts[0]).toBe(dialog());
+    } finally {
+      proto.showPopover = had;
+    }
+  });
+
   afterEach(() => {
-    document.body.style.overflow = '';
+    document.documentElement.style.overflow = '';
   });
 
   it('renders nothing while closed', async () => {
@@ -87,7 +103,7 @@ describe('FileViewerComponent', () => {
     expect(dialog()).toHaveAttribute('aria-modal', 'true');
     expect(dialog()).toHaveAccessibleName('logo.png');
     expect(screen.getByRole('heading', { level: 2, name: 'logo.png' })).toBeInTheDocument();
-    expect(document.body.style.overflow).toBe('hidden');
+    expect(document.documentElement.style.overflow).toBe('hidden');
     expect(screen.getByRole('button', { name: 'Vorschau schließen' })).toHaveFocus();
   });
 
@@ -104,7 +120,7 @@ describe('FileViewerComponent', () => {
     await fixture.whenStable();
     expect(host.open()).toBe(false);
     expect(host.closedCount).toBe(1);
-    expect(document.body.style.overflow).toBe('');
+    expect(document.documentElement.style.overflow).toBe('');
     expect(document.getElementById('trigger')).toHaveFocus();
   });
 

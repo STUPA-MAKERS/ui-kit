@@ -4,18 +4,18 @@
  * typing), so callers can pass their own diff models without adapting.
  */
 export interface ConfigDiffEntry {
-  key: string;
-  value: unknown;
+  readonly key: string;
+  readonly value: unknown;
 }
 
 export interface ConfigFieldChange {
-  key: string;
-  old: unknown;
-  new: unknown;
+  readonly key: string;
+  readonly old: unknown;
+  readonly new: unknown;
 }
 
 export interface ConfigDiffData {
-  added: ConfigDiffEntry[];
-  removed: ConfigDiffEntry[];
-  changed: ConfigFieldChange[];
+  readonly added: readonly ConfigDiffEntry[];
+  readonly removed: readonly ConfigDiffEntry[];
+  readonly changed: readonly ConfigFieldChange[];
 }

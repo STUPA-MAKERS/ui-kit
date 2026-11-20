@@ -27,7 +27,7 @@
 }
 .fld__label {
   @include f.label;
-  right: 2.75rem;
+  padding-right: 2.75rem;
 }
 .fld__box:focus-within .fld__label,
 .fld__box--open .fld__label {
@@ -169,7 +169,7 @@
   margin-top: 6px;
 }
 .sel__groupHead {
-  padding: 6px var(--space-4) 4px;
+  padding: 6px calc(var(--space-4) - 6px) 4px;
   color: var(--color-text-muted);
   font-size: var(--fs-cap);
   font-weight: var(--fw-semibold);
@@ -187,4 +187,8 @@
 
 .sel__empty {
   @include om.empty;
+}
+
+.sel__option[aria-selected='true'] {
+  @include f.highlight-chosen;
 }

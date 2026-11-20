@@ -1,10 +1,15 @@
 @use '../../../src/styles/breakpoints' as bp;
+@use '../../../src/styles/frosted' as *;
+@use '../../../src/styles/press';
+@use '../../../src/styles/display' as d;
 
 .pal__scrim {
   position: fixed;
   inset: 0;
   z-index: calc(var(--z-dialog) + 1);
-  background: var(--color-scrim);
+  /* The page shows through the glass of the palette, so the scrim is light, as under a
+     dialog. */
+  background: color-mix(in srgb, var(--color-scrim) 60%, transparent);
 }
 
 .pal {
@@ -18,10 +23,19 @@
   width: min(680px, calc(100vw - 2 * var(--space-4)));
   max-height: calc(100dvh - 96px - var(--space-6));
   overflow: hidden;
-  border-radius: var(--radius-2xl);
-  background: var(--color-surface-2);
+  /* Concentric with the search pill inset in it: the radius of the pill (half its height)
+     plus its inset (`--space-3`), so the corner and the pill keep one even gap. */
+  border-radius: calc(var(--control-height-lg) / 2 + var(--space-3));
   color: var(--color-text);
   box-shadow: var(--shadow-elevated);
+  /* Frosted glass like a dialog (`frosted-pop` with the same tint, blur and lift), and the
+     field and rows on it are neutral overlays of the glass (`glass-content`). */
+  @include frosted-pop(var(--color-glass-1), 85%, 20px, 1.3);
+}
+.pal__field,
+.pal__results,
+.pal__keys {
+  @include glass-content;
 }
 
 .pal__field {
@@ -29,26 +43,45 @@
   flex: none;
   align-items: center;
   gap: 14px;
-  height: 68px;
-  padding: 0 var(--space-4) 0 22px;
-  border-bottom: var(--border-width) solid var(--color-border);
+  /* The field is the search pill of the lists: a pill in an overlay of the glass, inset in
+     the panel, with the accent ring while it has the focus. */
+  height: var(--control-height-lg);
+  margin: var(--space-3) var(--space-3) var(--space-1);
+  padding: 0 6px 0 18px;
+  border-radius: var(--radius-pill);
+  background: var(--field-bg, var(--color-surface-2));
+  box-shadow: var(--field-edge, none);
+}
+// Highlighted fields (app spec 000598): every symbol in the field is black on the yellow.
+@include d.host-on(fields) {
+  .pal__field {
+    --color-text: var(--field-text);
+    --color-text-muted: var(--field-text);
+    --color-text-subtle: var(--field-text);
+    // Very high contrast: the close button in the field is black too (app spec 000621).
+    --vh-ink: var(--field-text);
+    --vh-press: var(--field-text);
+  }
+}
+.pal__field:focus-within {
+  box-shadow: var(--field-focus, inset 0 0 0 2px var(--color-accent));
 }
 .pal__glass {
   flex: none;
-  color: var(--color-text-muted);
+  color: var(--field-text, var(--color-text-muted));
 }
 .pal__input {
   flex: 1;
   min-width: 0;
   border: 0;
   background: transparent;
-  color: var(--color-text);
+  color: var(--field-text, var(--color-text));
   font: inherit;
-  font-size: 19px;
+  font-size: var(--fs-md);
   line-height: 1.4;
 }
 .pal__input::placeholder {
-  color: var(--color-text-subtle);
+  color: var(--field-label, var(--color-text-subtle));
 }
 .pal__input:focus {
   outline: none;
@@ -62,14 +95,26 @@
   height: 40px;
   padding: 0;
   border: 0;
-  border-radius: var(--radius-md);
+  border-radius: var(--radius-pill);
   background: transparent;
   color: var(--color-text-muted);
   cursor: pointer;
+  @include press.press;
 }
 .pal__close:focus-visible {
   outline: 2px solid var(--color-focus-ring);
   outline-offset: -2px;
+}
+/* The Esc key is a pill of 32px, inset 10px from the end, top and bottom of the 52px field,
+   so its end is concentric with the field (radius 26 - 10 = 16). */
+.pal__esc {
+  display: grid;
+  place-items: center;
+  height: 32px;
+  min-width: 32px;
+  margin-inline-end: 4px;
+  padding: 0 10px;
+  border-radius: var(--radius-pill);
 }
 .pal__x {
   display: none;
@@ -97,7 +142,7 @@
     transform: rotate(360deg);
   }
 }
-@media (prefers-reduced-motion: reduce) {
+@include d.host-on(motion) {
   .pal__spinner {
     animation-duration: 2s;
   }
@@ -126,9 +171,13 @@
   padding: var(--space-2) 14px;
   border-radius: var(--radius-field);
   cursor: pointer;
+  @include press.press;
 }
 .pal__row--active {
-  background: var(--color-selected);
+  background: var(--color-surface-3);
+}
+.pal__row--active .pal__rowIcon {
+  color: var(--color-accent-text);
 }
 .pal__rowIcon {
   flex: none;
@@ -191,9 +240,9 @@ app-status-text.pal__rowSub {
   display: flex;
   flex: none;
   align-items: center;
+  justify-content: center;
   gap: 18px;
-  padding: 12px 22px;
-  border-top: var(--border-width) solid var(--color-border);
+  padding: 10px 22px 14px;
   font-size: var(--fs-small);
   color: var(--color-text-muted);
 }
@@ -207,7 +256,6 @@ app-status-text.pal__rowSub {
   .pal {
     top: calc(var(--space-4) + var(--app-top-safe-area, 0px));
     max-height: calc(100dvh - 2 * var(--space-4) - var(--app-top-safe-area, 0px));
-    border-radius: var(--radius-xl);
   }
   .pal__keys,
   .pal__enter {
