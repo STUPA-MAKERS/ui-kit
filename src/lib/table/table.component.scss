@@ -22,12 +22,10 @@ tbody tr:last-child td {
 }
 th {
   padding-block: 10px;
-  font-size: var(--fs-cap);
+  font-size: var(--fs-small);
   line-height: var(--lh-cap);
   font-weight: var(--fw-semibold);
   color: var(--table-head-fg, var(--color-text-subtle));
-  text-transform: uppercase;
-  letter-spacing: var(--tracking-cap);
 }
 @media (hover: hover) {
   tbody tr:hover {

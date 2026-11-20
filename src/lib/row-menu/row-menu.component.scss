@@ -134,11 +134,9 @@
 
 .rm__cap {
   padding: 8px calc(var(--space-4) - 6px) 6px;
-  font-size: var(--fs-cap);
+  font-size: var(--fs-small);
   line-height: var(--lh-cap);
   font-weight: var(--fw-semibold);
-  letter-spacing: var(--tracking-cap);
-  text-transform: uppercase;
   /* The menu is on surface 3, where the subtle text is below 4.5:1 (WCAG 1.4.3). */
   color: var(--color-text-muted);
 }

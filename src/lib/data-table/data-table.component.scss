@@ -297,15 +297,13 @@
   border-collapse: collapse;
   font-size: var(--fs-sm);
 }
-/* Header: caption type (11.5px, uppercase), on the surface of the table. */
+/* Header: small semibold type in sentence case (001964), on the surface of the table. */
 .dt__table th {
   text-align: start;
   padding: 10px var(--space-4);
-  font-size: var(--fs-cap);
+  font-size: var(--fs-small);
   line-height: var(--lh-cap);
   font-weight: var(--fw-semibold);
-  text-transform: uppercase;
-  letter-spacing: var(--tracking-cap);
   color: var(--dt-head-fg);
   background: var(--dt-bg);
   border-bottom: var(--border-width) solid var(--color-border);
