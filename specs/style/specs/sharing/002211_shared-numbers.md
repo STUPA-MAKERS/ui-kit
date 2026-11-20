@@ -2,7 +2,7 @@
 id: "002211"
 title: The kit and its apps share one number space
 kind: style
-status: draft
+status: approved
 owner: frederikbeimgraben
 updated: 2026-11-20
 implementation: null
