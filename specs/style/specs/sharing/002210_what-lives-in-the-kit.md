@@ -2,7 +2,7 @@
 id: "002210"
 title: A spec about the look and the behaviour of the UI lives in the kit
 kind: style
-status: draft
+status: approved
 owner: frederikbeimgraben
 updated: 2026-11-20
 implementation: null

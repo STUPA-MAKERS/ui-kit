@@ -21,6 +21,6 @@ number space (`S/specs/sharing/002211`).
 | [S/framework/architecture/002207](style/framework/architecture/002207_one-app-config.md) | An app configures the kit in one provider | approved |
 | [S/framework/architecture/002208](style/framework/architecture/002208_texts-through-inputs.md) | Content texts come from the app, control texts from the kit | approved |
 | [S/framework/architecture/002209](style/framework/architecture/002209_showcase.md) | Every screen and domain view has a page in the kit showcase | approved |
-| [S/specs/sharing/002210](style/specs/sharing/002210_what-lives-in-the-kit.md) | A spec about the look and the behaviour of the UI lives in the kit | draft |
+| [S/specs/sharing/002210](style/specs/sharing/002210_what-lives-in-the-kit.md) | A spec about the look and the behaviour of the UI lives in the kit | approved |
 | [S/specs/sharing/002211](style/specs/sharing/002211_shared-numbers.md) | The kit and its apps share one number space | approved |
-| [S/specs/sharing/002212](style/specs/sharing/002212_cross-repo-reference.md) | A reference to a spec of another repository names the repository | draft |
+| [S/specs/sharing/002212](style/specs/sharing/002212_cross-repo-reference.md) | A reference to a spec of another repository names the repository | approved |

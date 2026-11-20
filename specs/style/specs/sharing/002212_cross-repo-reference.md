@@ -2,7 +2,7 @@
 id: "002212"
 title: A reference to a spec of another repository names the repository
 kind: style
-status: draft
+status: approved
 owner: frederikbeimgraben
 updated: 2026-11-20
 implementation: null
