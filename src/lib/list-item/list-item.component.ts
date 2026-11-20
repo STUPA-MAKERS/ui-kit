@@ -32,12 +32,15 @@ import { type RowSwipeAction, RowSwipeDirective } from '../row-swipe/row-swipe.d
  * <app-list-item [title]="a.title" [selected]="a.id === selectedId()" (activate)="open(a)">
  *   <span sub><app-status-text kind="warn">In Prüfung</app-status-text> · Förderantrag</span>
  *   <span trail class="mono">1.250,00 €</span>
+ *   <app-button-group menu><app-row-menu [sections]="menu" [label]="label" /></app-button-group>
  * </app-list-item>
  * ```
  *
  * Slots: `[lead]` (an avatar for a person, an icon or a date block; never initials for a
  * thing), `[status]` (a status right after the title, on the title line; the title gets
- * the ellipsis first), `[sub]` and `[trail]`. Set `--li-hover` on the host to change the
+ * the ellipsis first), `[sub]`, `[trail]` and `[menu]` (the ⋮ row menu, the last thing of
+ * the row; on a device with hover it shows only for the row in use, and at rest it takes no
+ * width). Set `--li-hover` on the host to change the
  * hover surface (for example in a row group on surface 2), `--li-min-height` and
  * `--li-pad-y` for a dense list, `--li-color` to change the
  * text colour (for example a muted row of the past), `--li-sub-color` to change the colour

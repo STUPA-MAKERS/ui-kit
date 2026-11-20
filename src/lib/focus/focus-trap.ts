@@ -57,9 +57,18 @@ export function trapTab(event: KeyboardEvent, root: HTMLElement, options: TrapTa
   }
 }
 
+/** The open locks of a document (one token each) and the overflow of its root before the first. */
+const locks = new WeakMap<Document, { readonly tokens: ReadonlySet<object>; readonly before: string }>();
+
 /**
  * Stop the page behind an overlay from scrolling: `overflow: hidden` on the root element. The
- * returned function gives the root its old value back; a second call does nothing.
+ * returned function releases this lock; a second call does nothing.
+ *
+ * The locks of a document are counted. The first lock keeps the old value of the root, and
+ * only the release of the last lock gives it back, in whatever order the overlays close. A
+ * lock that restored its own old value broke the scroll of the whole page: a sheet that
+ * closed after the dialog it opened gave the root back the `hidden` of the dialog, and
+ * nothing released it again until a reload.
  *
  * The lock sits on the root and not on the body, because the root always passes its overflow
  * to the viewport. The phone sets `overflow-x: clip` on the root, and then the root no longer
@@ -69,12 +78,19 @@ export function trapTab(event: KeyboardEvent, root: HTMLElement, options: TrapTa
  */
 export function lockBodyScroll(doc: Document = document): () => void {
   const root = doc.documentElement;
-  const before = root.style.overflow;
+  const token = Object.freeze({});
+  const held = locks.get(doc);
+  locks.set(doc, { tokens: new Set([...(held?.tokens ?? []), token]), before: held?.before ?? root.style.overflow });
   root.style.overflow = 'hidden';
-  let locked = true;
   return () => {
-    if (!locked) return;
-    locked = false;
-    root.style.overflow = before;
+    const current = locks.get(doc);
+    if (!current?.tokens.has(token)) return;
+    const rest = new Set([...current.tokens].filter((t) => t !== token));
+    if (rest.size > 0) {
+      locks.set(doc, { tokens: rest, before: current.before });
+      return;
+    }
+    locks.delete(doc);
+    root.style.overflow = current.before;
   };
 }
