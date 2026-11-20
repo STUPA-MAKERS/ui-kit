@@ -142,6 +142,13 @@ describe('ListItemComponent', () => {
     expect(view.container.querySelector('.li')).toHaveClass('li--on');
   });
 
+  it('shows a checked row like the selected one, but not as current', async () => {
+    const view = await render(ListItemComponent, { inputs: { title: 'Trikots', checked: true } });
+    const title = screen.getByRole('button', { name: 'Trikots' });
+    expect(title).not.toHaveAttribute('aria-current');
+    expect(view.container.querySelector('.li')).toHaveClass('li--on');
+  });
+
   it('says whether an expand row is open, and only for an expand row', async () => {
     @Component({
       changeDetection: ChangeDetectionStrategy.Eager,

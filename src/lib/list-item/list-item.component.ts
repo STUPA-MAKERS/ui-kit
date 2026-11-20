@@ -84,6 +84,11 @@ export class ListItemComponent {
   /** The row is the one open in the detail pane. */
   readonly selected = input(false);
   /**
+   * The row is in the multiple selection: it takes the look of `selected`, but no
+   * `aria-current`, because the check box of the row carries the state for a screen reader.
+   */
+  readonly checked = input(false);
+  /**
    * The row opens and closes a body under it (an expand row). `true` or `false` sets
    * `aria-expanded` on the title button; `null` (the default) leaves it out, because a
    * row that opens nothing must not say that it is closed. Not used with `link`.
