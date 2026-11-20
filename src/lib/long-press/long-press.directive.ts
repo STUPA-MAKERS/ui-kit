@@ -130,9 +130,9 @@ export class LongPressDirective {
   protected onContextMenu(event: Event): void {
     if (this.off()) return;
     event.preventDefault();
-    if (this.fired) return;
-    const held = holding();
-    if (held && held !== this.el) return;
+    // A held press (of this host or of another one) gets no second menu. A stale `fired` of a
+    // press whose release landed elsewhere does not block the context menu key.
+    if (holding()) return;
     if (this.timer) {
       // The browser of a touch device can open its menu before the timer: the press wins.
       this.fire();
