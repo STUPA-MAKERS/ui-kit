@@ -53,6 +53,7 @@ export type SegmentedWidth = 'auto' | 'equal' | 'fill';
     '[class.seg-host--equal]': "width() === 'equal'",
     '[class.seg-host--fill]': "width() === 'fill'",
     '[class.seg-host--control]': "size() === 'control'",
+    '[class.seg-host--lg]': "size() === 'lg'",
   },
   providers: [{ provide: NG_VALUE_ACCESSOR, useExisting: SegmentedComponent, multi: true }],
   templateUrl: './segmented.component.html',
@@ -70,9 +71,10 @@ export class SegmentedComponent implements ControlValueAccessor {
   /**
    * The height. `compact` (a 44px track around a 36px pill) fits a form or a toolbar.
    * `control` takes the height of a medium button, for a switch that stands beside buttons,
-   * as in a page header.
+   * as in a page header. `lg` takes the height of a large search pill, for a switch that
+   * leads a list column above its search field.
    */
-  readonly size = input<'compact' | 'control'>('compact');
+  readonly size = input<'compact' | 'control' | 'lg'>('compact');
 
   private readonly formDisabled = signal(false);
   protected readonly isDisabled = computed(() => this.disabled() || this.formDisabled());
