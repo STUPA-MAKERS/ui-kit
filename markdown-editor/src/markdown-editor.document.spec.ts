@@ -40,6 +40,15 @@ function clipboard(files: File[]): ClipboardEvent {
 const tick = (): Promise<void> => new Promise((r) => setTimeout(r, 0));
 
 describe('MarkdownEditorComponent embedded PDF', () => {
+  // jsdom has no layout and no Range.getClientRects. The focus of tiptap scrolls the selection
+  // into view in a timer, which then reads the rects of a range; without them the timer throws
+  // into whichever test runs at that moment.
+  beforeAll(() => {
+    const range = Range.prototype as unknown as Record<string, unknown>;
+    range['getClientRects'] ??= () => ({ length: 0, item: () => null, [Symbol.iterator]: [][Symbol.iterator] });
+    range['getBoundingClientRect'] ??= () => ({ x: 0, y: 0, top: 0, left: 0, right: 0, bottom: 0, width: 0, height: 0 });
+  });
+
   it('shows the reference as a badge with the page count and writes it back', async () => {
     const info: MarkdownDocumentInfo = async (src) => (src === SRC ? 4 : null);
     const src = `Siehe [Haushaltsplan.pdf](${SRC}) hier.`;
