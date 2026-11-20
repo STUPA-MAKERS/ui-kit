@@ -83,8 +83,8 @@ export class TabPagerComponent {
   private stuck = false;
 
   /**
-   * While the tab line sticks under the head bar, both take the bar colour
-   * (`tp__bar--stuck`), so they read as one head (app spec 002010).
+   * While the tab line sticks under the head bar, both are solid in the colour
+   * of the page (`tp__bar--stuck`), so they read as one head (app spec 002010).
    */
   private watchStuck(): void {
     if (typeof window === 'undefined') return;
