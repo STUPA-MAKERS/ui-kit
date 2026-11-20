@@ -188,6 +188,15 @@ $-host: ':is(app-button, a.btn-link, app-row-menu, .btn-grp__seg)';
   color: color-mix(in srgb, var(--color-text) 38%, transparent);
 }
 
+// A footer group keeps its main button the strongest one while it waits for input: the
+// disabled main button keeps its accent fill, slightly faded. Without it the grey disabled
+// main button looks weaker than the tonal cancel, and the cancel reads as the main action.
+.btn-grp--main.btn-grp--main .btn--fill:disabled {
+  background-color: var(--color-accent);
+  color: var(--color-on-accent);
+  opacity: 0.7;
+}
+
 // Very high contrast (000605): every button is yellow with black text, so the 2px gaps show
 // black between them. A selected button is black with a yellow edge, a disabled one black
 // with a dashed yellow edge. The declarations are `!important`, because the global rules
