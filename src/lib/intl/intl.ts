@@ -91,6 +91,19 @@ export type UiKitTextKey =
   | 'shell.more'
   | 'shell.search'
   | 'shell.brand'
+  | 'shell.markNew'
+  | 'shell.markWarn'
+  | 'menu.help'
+  | 'menu.a11y'
+  | 'menu.display'
+  | 'menu.display.reset'
+  | 'menu.display.dark'
+  | 'menu.display.motion'
+  | 'menu.display.transparency'
+  | 'menu.display.contrast'
+  | 'menu.display.veryHigh'
+  | 'menu.statement'
+  | 'menu.reportBarrier'
   | 'account.signedInAs'
   | 'account.language'
   | 'account.darkMode'
@@ -101,6 +114,7 @@ export type UiKitTextKey =
   | 'palette.placeholder'
   | 'palette.close'
   | 'palette.empty'
+  | 'palette.pages'
   | 'palette.truncated'
   | 'palette.keysSelect'
   | 'palette.keysOpen'
@@ -182,6 +196,19 @@ export const UI_KIT_DEFAULT_MESSAGES: Record<UiLang, UiKitMessages> = {
     'shell.more': 'Mehr',
     'shell.search': 'Suche',
     'shell.brand': '{name}, Start',
+    'shell.markNew': 'neu',
+    'shell.markWarn': 'Achtung',
+    'menu.help': 'Hilfe',
+    'menu.a11y': 'Barrierefreiheit',
+    'menu.display': 'Darstellung',
+    'menu.display.reset': 'Systemeinstellungen verwenden',
+    'menu.display.dark': 'Dunkles Design',
+    'menu.display.motion': 'Weniger Bewegung',
+    'menu.display.transparency': 'Weniger Transparenz',
+    'menu.display.contrast': 'Mehr Kontrast',
+    'menu.display.veryHigh': 'Hoher Kontrast',
+    'menu.statement': 'Erklärung zur Barrierefreiheit',
+    'menu.reportBarrier': 'Barriere melden',
     'account.signedInAs': 'Angemeldet als',
     'account.language': 'Sprache',
     'account.darkMode': 'Dunkles Design',
@@ -192,6 +219,7 @@ export const UI_KIT_DEFAULT_MESSAGES: Record<UiLang, UiKitMessages> = {
     'palette.placeholder': 'Suchen …',
     'palette.close': 'Suche schließen',
     'palette.empty': 'Nichts gefunden.',
+    'palette.pages': 'Seiten',
     'palette.truncated': 'Es gibt weitere Treffer. Suchbegriff eingrenzen.',
     'palette.keysSelect': 'Auswählen',
     'palette.keysOpen': 'Öffnen',
@@ -269,6 +297,19 @@ export const UI_KIT_DEFAULT_MESSAGES: Record<UiLang, UiKitMessages> = {
     'shell.more': 'More',
     'shell.search': 'Search',
     'shell.brand': '{name}, home',
+    'shell.markNew': 'new',
+    'shell.markWarn': 'attention',
+    'menu.help': 'Help',
+    'menu.a11y': 'Accessibility',
+    'menu.display': 'Display',
+    'menu.display.reset': 'Use system settings',
+    'menu.display.dark': 'Dark theme',
+    'menu.display.motion': 'Less motion',
+    'menu.display.transparency': 'Less transparency',
+    'menu.display.contrast': 'More contrast',
+    'menu.display.veryHigh': 'High contrast',
+    'menu.statement': 'Accessibility statement',
+    'menu.reportBarrier': 'Report a barrier',
     'account.signedInAs': 'Signed in as',
     'account.language': 'Language',
     'account.darkMode': 'Dark theme',
@@ -279,6 +320,7 @@ export const UI_KIT_DEFAULT_MESSAGES: Record<UiLang, UiKitMessages> = {
     'palette.placeholder': 'Search …',
     'palette.close': 'Close search',
     'palette.empty': 'Nothing found.',
+    'palette.pages': 'Pages',
     'palette.truncated': 'There are more results. Narrow the query.',
     'palette.keysSelect': 'Select',
     'palette.keysOpen': 'Open',

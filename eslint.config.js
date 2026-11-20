@@ -5,6 +5,7 @@ const angular = require('@angular-eslint/eslint-plugin');
 const angularTemplate = require('@angular-eslint/eslint-plugin-template');
 const templateParser = require('@angular-eslint/template-parser');
 const functionalPlugin = require('eslint-plugin-functional');
+const { a11yTemplateRules } = require('./eslint-a11y.cjs');
 
 const functional = functionalPlugin.default ?? functionalPlugin;
 
@@ -70,20 +71,8 @@ module.exports = tseslint.config(
     rules: {
       '@angular-eslint/template/eqeqeq': 'error',
       '@angular-eslint/template/banana-in-box': 'error',
-      // §STUPA-Workflow:NF/accessibility/conformance/000492: every accessibility rule as an error.
-      // angular-eslint 22 no longer ships the config inside the plugin, so the rules of its
-      // accessibility config are listed here.
-      '@angular-eslint/template/alt-text': 'error',
-      '@angular-eslint/template/click-events-have-key-events': 'error',
-      '@angular-eslint/template/elements-content': 'error',
-      '@angular-eslint/template/interactive-supports-focus': 'error',
-      '@angular-eslint/template/label-has-associated-control': 'error',
-      '@angular-eslint/template/mouse-events-have-key-events': 'error',
-      '@angular-eslint/template/no-autofocus': 'error',
-      '@angular-eslint/template/no-distracting-elements': 'error',
-      '@angular-eslint/template/role-has-required-aria': 'error',
-      '@angular-eslint/template/table-scope': 'error',
-      '@angular-eslint/template/valid-aria': 'error',
+      // §NF/accessibility/conformance/000492: the accessibility preset of the kit.
+      ...a11yTemplateRules,
     },
   },
   // §S/framework/packages/002215: an entry point imports only the layers below it.

@@ -1,0 +1,38 @@
+<div class="dl" [class.dl--split]="split()">
+  <app-list-detail [detailOpen]="selectedId() !== null" (back)="back()">
+    <section list class="ld-pane dl__pane" aria-labelledby="dl-title">
+      <app-page-header [pane]="true" titleId="dl-title" title="Anträge" />
+      <app-sticky-bar class="ld-pane__filters">
+        <app-search-pill
+          [size]="phone() ? 'md' : 'lg'"
+          placeholder="Anträge durchsuchen"
+          label="Anträge durchsuchen"
+          [clearable]="true"
+          [results]="rows().length"
+          [value]="query()"
+          (valueChange)="query.set($event)"
+        />
+      </app-sticky-bar>
+      <div class="dl__scroll">
+        <app-list-group label="Offen">
+          <div class="dl__rows" [class.rowgroup]="!split()" role="list">
+            @for (row of rows(); track row.id) {
+            <app-list-item
+              role="listitem"
+              [title]="row.title"
+              [sub]="row.sub"
+              [link]="['/demo/applications', row.id]"
+              [selected]="row.id === selectedId()"
+            >
+              <app-status-text trail [kind]="row.kind"
+                >{{ row.status }}</app-status-text
+              >
+            </app-list-item>
+            }
+          </div>
+        </app-list-group>
+      </div>
+    </section>
+    <div detail class="dl__detail"><router-outlet /></div>
+  </app-list-detail>
+</div>

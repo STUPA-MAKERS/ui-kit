@@ -1,0 +1,76 @@
+@use '../../../src/styles/breakpoints' as bp;
+@use '../../../src/styles/frosted' as *;
+
+// The bar sticks to the top of the window. It is solid (`bar`, spec 002010): the page colour
+// at rest and while content runs under it, as the bar of a detail.
+:host {
+  position: sticky;
+  top: 0;
+  z-index: var(--z-sticky);
+  display: block;
+}
+
+// Reaches under the status bar of an installed iOS app; every inset is 0 in a browser tab.
+.pub {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  height: calc(72px + var(--app-top-safe-area, 0px));
+  padding: var(--app-top-safe-area, 0px) max(28px, var(--app-right-safe-area, 0px)) 0
+    max(28px, var(--app-left-safe-area, 0px));
+  position: relative;
+  isolation: isolate;
+  @include bar(var(--color-bg));
+}
+.pub--under {
+  @include bar(var(--color-bg), $scrolled: true);
+}
+@include bp.phone {
+  .pub {
+    height: calc(64px + var(--app-top-safe-area, 0px));
+    padding: var(--app-top-safe-area, 0px) max(var(--space-4), var(--app-right-safe-area, 0px))
+      0 max(var(--space-4), var(--app-left-safe-area, 0px));
+    gap: var(--space-2);
+  }
+}
+
+.pub__nav {
+  display: flex;
+  flex: none;
+}
+.pub__brand {
+  display: inline-flex;
+  flex: none;
+  border-radius: var(--radius-md);
+}
+.pub__brand:focus-visible {
+  outline: 2px solid var(--color-focus-ring);
+  outline-offset: 4px;
+}
+.pub__logo {
+  display: block;
+  height: 36px;
+  width: auto;
+}
+.pub__mark {
+  display: none;
+  height: 32px;
+  width: auto;
+}
+@include bp.phone {
+  .pub__logo {
+    display: none;
+  }
+  .pub__mark {
+    display: block;
+  }
+}
+
+.pub__spacer {
+  flex: 1 1 auto;
+}
+
+// "Barrierefreiheit", "Hilfe" and "Anmelden" are one button group (001356).
+.pub__actions {
+  flex: none;
+}

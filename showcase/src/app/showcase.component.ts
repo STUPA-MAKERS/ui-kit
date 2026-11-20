@@ -1,40 +1,60 @@
-import { DOCUMENT } from '@angular/common';
-import { ChangeDetectionStrategy, Component, effect, inject, signal } from '@angular/core';
-import { RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
+import { DOCUMENT } from "@angular/common";
+import {
+  ChangeDetectionStrategy,
+  Component,
+  effect,
+  inject,
+  signal,
+} from "@angular/core";
+import {
+  NavigationEnd,
+  Router,
+  RouterLink,
+  RouterLinkActive,
+  RouterOutlet,
+} from "@angular/router";
+import { toSignal } from "@angular/core/rxjs-interop";
+import { filter, map } from "rxjs";
 
-import { SHOWCASE_PAGES } from './pages';
+import { SHOWCASE_PAGES } from "./pages";
 
-type Theme = 'light' | 'dark';
-type Contrast = 'normal' | 'more' | 'very-high';
+type Theme = "light" | "dark";
+type Contrast = "normal" | "more" | "very-high";
 
 /** The frame of the showcase: the page list and the switches for theme and contrast. */
 @Component({
-  selector: 'sc-root',
+  selector: "sc-root",
   imports: [RouterOutlet, RouterLink, RouterLinkActive],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
-    <nav class="sc-nav" aria-label="Seiten">
-      @for (page of pages; track page.path) {
-        <a [routerLink]="page.path" routerLinkActive="sc-active">{{ page.title }}</a>
-      }
-      <span class="sc-gap"></span>
-      <label>
-        Thema
-        <select [value]="theme()" (change)="theme.set(pick($event))">
-          <option value="light">Hell</option>
-          <option value="dark">Dunkel</option>
-        </select>
-      </label>
-      <label>
-        Kontrast
-        <select [value]="contrast()" (change)="contrast.set(pick($event))">
-          <option value="normal">Normal</option>
-          <option value="more">Hoch</option>
-          <option value="very-high">Sehr hoch</option>
-        </select>
-      </label>
-    </nav>
-    <main><router-outlet /></main>
+    @if (demo()) {
+      <router-outlet />
+    } @else {
+      <nav class="sc-nav" aria-label="Seiten">
+        @for (page of pages; track page.path) {
+          <a [routerLink]="page.path" routerLinkActive="sc-active">{{
+            page.title
+          }}</a>
+        }
+        <span class="sc-gap"></span>
+        <label>
+          Thema
+          <select [value]="theme()" (change)="theme.set(pick($event))">
+            <option value="light">Hell</option>
+            <option value="dark">Dunkel</option>
+          </select>
+        </label>
+        <label>
+          Kontrast
+          <select [value]="contrast()" (change)="contrast.set(pick($event))">
+            <option value="normal">Normal</option>
+            <option value="more">Hoch</option>
+            <option value="very-high">Sehr hoch</option>
+          </select>
+        </label>
+      </nav>
+      <main><router-outlet /></main>
+    }
   `,
   styles: `
     .sc-nav {
@@ -58,16 +78,26 @@ type Contrast = 'normal' | 'more' | 'very-high';
 })
 export class ShowcaseComponent {
   protected readonly pages = SHOWCASE_PAGES;
-  protected readonly theme = signal<Theme>('light');
-  protected readonly contrast = signal<Contrast>('normal');
+  protected readonly theme = signal<Theme>("light");
+  protected readonly contrast = signal<Contrast>("normal");
+  private readonly router = inject(Router);
+  /** The demo app brings its own frame, so the page list hides there. */
+  protected readonly demo = toSignal(
+    this.router.events.pipe(
+      filter((e) => e instanceof NavigationEnd),
+      map((e) => e.urlAfterRedirects.startsWith("/demo")),
+    ),
+    { initialValue: false },
+  );
 
   constructor() {
     const root = inject(DOCUMENT).documentElement;
     effect(() => {
-      root.dataset['theme'] = this.theme();
+      root.dataset["theme"] = this.theme();
       const contrast = this.contrast();
-      root.dataset['contrast'] = contrast === 'normal' ? 'normal' : 'more';
-      root.dataset['veryHighContrast'] = contrast === 'very-high' ? 'on' : 'off';
+      root.dataset["contrast"] = contrast === "normal" ? "normal" : "more";
+      root.dataset["veryHighContrast"] =
+        contrast === "very-high" ? "on" : "off";
     });
   }
 

@@ -95,6 +95,8 @@ specs/
 | [F/public/public-pages/000688](requirements/functional/public/public-pages/000688_blackout-bar-width.md) | A black bar has one fixed width and the text colour | approved |
 | [F/public/public-pages/002285](requirements/functional/public/public-pages/002285_blackout-bar.md) | A blackout block shows as one bar on screen | approved |
 | [NF/accessibility/conformance/000490](requirements/non-functional/accessibility/conformance/000490_wcag-22-aa.md) | Every view meets WCAG 2.2 level AA | approved |
+| [NF/accessibility/conformance/000491](requirements/non-functional/accessibility/conformance/000491_axe-every-route.md) | Every route passes an axe check in both themes | approved |
+| [NF/accessibility/conformance/000492](requirements/non-functional/accessibility/conformance/000492_template-lint.md) | The template lint has the accessibility rules | approved |
 | [NF/accessibility/conformance/000493](requirements/non-functional/accessibility/conformance/000493_axe-unit-per-component.md) | Every shared component has a jest-axe test | approved |
 | [NF/accessibility/interaction/000217](requirements/non-functional/accessibility/interaction/000217_keyboard-and-labels.md) | Controls are reachable by keyboard and named | approved |
 | [NF/accessibility/interaction/000218](requirements/non-functional/accessibility/interaction/000218_themes.md) | Light and dark themes are both supported | approved |
@@ -359,6 +361,7 @@ specs/
 | [S/framework/shell/002262](style/framework/shell/002262_route-helpers.md) | The route helpers have fixed signatures | approved |
 | [S/framework/shell/002263](style/framework/shell/002263_frames.md) | The shell has four frames | approved |
 | [S/framework/shell/002264](style/framework/shell/002264_menus.md) | The help, accessibility and account menus come from the shell | approved |
+| [S/framework/shell/002292](style/framework/shell/002292_barrier-report-entry.md) | The accessibility menu has an entry to report a barrier | approved |
 | [S/framework/state/002220](style/framework/state/002220_load-state.md) | A load state is one type for every view | approved |
 | [S/framework/state/002221](style/framework/state/002221_ui-state-in-kit.md) | A kit component holds its UI state and the app holds the data | approved |
 | [S/framework/testing/002228](style/framework/testing/002228_tests-in-kit.md) | The kit tests a view, the app tests its adapter | approved |

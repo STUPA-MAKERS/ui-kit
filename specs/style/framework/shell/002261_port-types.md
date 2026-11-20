@@ -5,7 +5,9 @@ kind: style
 status: approved
 owner: frederikbeimgraben
 updated: 2026-11-20
-implementation: null
+implementation:
+  - shell/src/framework/framework.ts
+  - shell/src/framework/framework-shell.component.ts
 scope:
   - shell
 ---
@@ -20,7 +22,6 @@ interface FrameworkPorts {
   readonly search?: (q: string) => Observable<readonly SearchHit[]>;    // 2 characters and more (STUPA-Workflow:000329)
   readonly avatar?: (person: PersonRef) => string | null;
   readonly navMarks?: Signal<Record<string, 'new' | 'warn' | null>>;    // never a count
-  readonly report?: (r: { kind: 'barrier' | 'problem'; text: string; page: string }) => Promise<void>;
   readonly upload?: (file: File) => Promise<{ readonly url: string; readonly name: string }>;
   readonly live?: Signal<'online' | 'reconnecting' | 'offline'>;        // 000678
   readonly display?: { load(): Promise<DisplayPrefs | null>; save(p: DisplayPrefs): Promise<void> };
@@ -29,6 +30,10 @@ interface SearchHit { readonly kind: string; readonly title: string; readonly su
 ```
 
 A port that the app leaves out must hide the part that needs it.
+
+A mark of `navMarks` must show as a dot of 8 px on the top right corner of the icon of the
+entry, in the rail and in the phone bar, never between the icon and the label. A screen reader
+reads the mark as text after the label.
 
 Reason: Fixed port types keep the shell free of app code.
 

@@ -5,7 +5,8 @@ kind: style
 status: approved
 owner: frederikbeimgraben
 updated: 2026-11-20
-implementation: null
+implementation:
+  - shell/src/framework/routes.ts
 scope:
   - shell
 ---
@@ -15,9 +16,10 @@ scope:
 The route helpers (002224) must have these signatures:
 
 ```ts
-function listDetailRoutes(o: { path: string; title: string; list: Type<unknown>; detail: Type<unknown>;
-  param?: string; children?: Routes; canMatch?: CanMatchFn[] }): Route;
-function screenRoute(o: { path: string; title: string; component: Type<unknown>; frame?: 'rail' | 'public' | 'bare';
+type ScreenComponent = Type<unknown> | (() => Promise<Type<unknown>>);   // a loader keeps the chunk lazy
+function listDetailRoutes(o: { path: string; title: string; list: ScreenComponent; detail: ScreenComponent;
+  param?: string; children?: Routes; canMatch?: CanMatchFn[]; none?: ListNoneData }): Route;
+function screenRoute(o: { path: string; title: string; component: ScreenComponent; frame?: 'rail' | 'public' | 'bare';
   footer?: boolean; canMatch?: CanMatchFn[] }): Route;
 ```
 

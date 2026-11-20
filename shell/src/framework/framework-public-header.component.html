@@ -1,0 +1,54 @@
+<header class="pub" [class.pub--under]="under()">
+  <nav class="pub__nav" [attr.aria-label]="'shell.mainNav' | uiKitT">
+    <a
+      class="pub__brand"
+      [routerLink]="config.brand.home"
+      [attr.aria-label]="'shell.brand' | uiKitT: { name: config.brand.name }"
+    >
+      <img class="pub__logo" [src]="wordmarkSrc()" alt="" />
+      <img class="pub__mark" [src]="markSrc()" alt="" />
+    </a>
+  </nav>
+  <span class="pub__spacer"></span>
+
+  @if (config.languages.length > 1) {
+    <app-filter-select
+      class="pub__lang"
+      [label]="'account.language' | uiKitT"
+      [options]="languageOptions()"
+      [value]="config.language.current()"
+      [text]="config.language.current().toUpperCase()"
+      icon="globe"
+      size="sm"
+      (valueChange)="config.language.set($event)"
+    />
+  }
+
+  <app-button-group class="pub__actions">
+    <app-shell-menu
+      variant="header"
+      menu="a11y"
+      [statementLink]="config.a11yStatement"
+      [reportBarrier]="!!config.reportBarrier"
+      (action)="action.emit($event)"
+    />
+    @if (helpItems().length > 0) {
+      <app-shell-menu variant="header" [items]="helpItems()" (action)="action.emit($event)" />
+    }
+    @for (item of headActions(); track item.key) {
+      @if (item.route; as route) {
+        <a
+          appButton="outlined"
+          [routerLink]="route.commands"
+          [queryParams]="route.query"
+          [fragment]="route.fragment"
+          >{{ item.label }}</a
+        >
+      } @else {
+        <app-button variant="outlined" [disabled]="item.disabled ?? false" (click)="action.emit(item.key)">{{
+          item.label
+        }}</app-button>
+      }
+    }
+  </app-button-group>
+</header>
