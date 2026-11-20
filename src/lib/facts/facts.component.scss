@@ -1,0 +1,43 @@
+.facts {
+  display: grid;
+  grid-template-columns: var(--facts-cols, repeat(auto-fit, minmax(min(100%, 9.5rem), 1fr)));
+  gap: var(--facts-gap, var(--space-3) var(--space-4));
+  min-width: 0;
+  margin: 0;
+}
+.facts > div {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+.facts dt {
+  color: var(--color-text-muted);
+  font-size: var(--fs-small);
+  line-height: var(--lh-small);
+}
+.facts dd {
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+.facts > .facts__wide {
+  grid-column: 1 / -1;
+}
+
+.facts--card {
+  padding: var(--space-3) var(--space-4);
+  border-radius: var(--radius-lg);
+  background: var(--color-surface-2);
+}
+
+.facts--rows {
+  grid-template-columns: var(--facts-label, minmax(4rem, max-content)) minmax(0, 1fr);
+  gap: var(--facts-gap, var(--space-2) var(--space-4));
+}
+.facts--rows > div {
+  display: contents;
+}
+.facts--rows dt {
+  font-size: inherit;
+  line-height: inherit;
+}
