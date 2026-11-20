@@ -352,4 +352,19 @@ describe('WideListHead', () => {
   it('matches the yellow of the search bar in the very high contrast', () => {
     expect(scss).toContain('--btn-grp-h: calc(var(--ph-pane-h) - 4px);');
   });
+
+  it('sticks the buttons level with the first control of the stuck filter bar', () => {
+    expect(scss).toMatch(/position: sticky;[^}]*top: calc\([^;]*\+\s*var\(--space-2\)\s*\);/);
+  });
+});
+
+/** The rows below a stuck sticky bar cut at its edge with round corners, never fade (app 000193). */
+describe('StickyBarCut', () => {
+  const scss = read('../lib/sticky-bar/sticky-bar.component.scss');
+
+  it('draws round inner corners below the bar, not a fade', () => {
+    expect(scss).not.toMatch(/linear-gradient\(to bottom, var\(--stb-bg/);
+    expect(scss).toMatch(/:host::after \{[^}]*radial-gradient\(\s*circle at 100% 100%/);
+    expect(scss).toMatch(/:host::after \{[^}]*radial-gradient\(\s*circle at 0 100%/);
+  });
 });
