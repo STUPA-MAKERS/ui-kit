@@ -2,7 +2,7 @@
 id: "002209"
 title: Every screen and domain view has a page in the kit showcase
 kind: style
-status: draft
+status: approved
 owner: frederikbeimgraben
 updated: 2026-11-20
 implementation: null

@@ -2,7 +2,7 @@
 id: "002201"
 title: The kit has one screen for each page pattern
 kind: style
-status: draft
+status: approved
 owner: frederikbeimgraben
 updated: 2026-11-20
 implementation: null

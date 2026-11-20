@@ -2,7 +2,7 @@
 id: "002205"
 title: An app has no stylesheet of its own
 kind: style
-status: draft
+status: approved
 owner: frederikbeimgraben
 updated: 2026-11-20
 implementation: null

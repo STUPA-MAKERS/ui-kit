@@ -2,7 +2,7 @@
 id: "002208"
 title: Content texts come from the app, control texts from the kit
 kind: style
-status: draft
+status: approved
 owner: frederikbeimgraben
 updated: 2026-11-20
 implementation: null

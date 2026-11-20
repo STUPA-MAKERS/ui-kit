@@ -2,7 +2,7 @@
 id: "002204"
 title: A kit view model is a typed interface of the kit
 kind: style
-status: draft
+status: approved
 owner: frederikbeimgraben
 updated: 2026-11-20
 implementation: null

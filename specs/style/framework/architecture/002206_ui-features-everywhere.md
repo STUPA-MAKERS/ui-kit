@@ -2,7 +2,7 @@
 id: "002206"
 title: Every UI feature of the kit is on in every app
 kind: style
-status: draft
+status: approved
 owner: frederikbeimgraben
 updated: 2026-11-20
 implementation: null

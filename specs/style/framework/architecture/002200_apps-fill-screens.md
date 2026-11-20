@@ -2,7 +2,7 @@
 id: "002200"
 title: An app only fills the screens of the kit
 kind: style
-status: draft
+status: approved
 owner: frederikbeimgraben
 updated: 2026-11-20
 implementation: null

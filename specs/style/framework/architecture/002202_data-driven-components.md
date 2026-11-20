@@ -2,7 +2,7 @@
 id: "002202"
 title: A kit component is driven by its inputs
 kind: style
-status: draft
+status: approved
 owner: frederikbeimgraben
 updated: 2026-11-20
 implementation: null

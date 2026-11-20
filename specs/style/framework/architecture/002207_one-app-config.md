@@ -2,7 +2,7 @@
 id: "002207"
 title: An app configures the kit in one provider
 kind: style
-status: draft
+status: approved
 owner: frederikbeimgraben
 updated: 2026-11-20
 implementation: null
