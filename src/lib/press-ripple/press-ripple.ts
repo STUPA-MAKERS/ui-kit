@@ -92,6 +92,9 @@ export function showLayer(host: HTMLElement, point: PressPoint | null): Layer | 
   const box = surface.getBoundingClientRect();
   if (!box.width || !box.height) return null;
   const style = view.getComputedStyle(surface);
+  // A host can ask for another shape of its ripple (`--press-radius`), for example a tab
+  // whose box is square because of the line under it: its ripple is a pill.
+  const radius = style.getPropertyValue('--press-radius').trim() || style.borderRadius;
   // A marked part ripples from its centre, as the CSS ripple of the bar entries did.
   const from = surface === host ? point : null;
   const x = (from ? from.x : box.left + box.width / 2) - box.left;
@@ -103,7 +106,7 @@ export function showLayer(host: HTMLElement, point: PressPoint | null): Layer | 
   el.setAttribute(
     'style',
     `left:${box.left}px;top:${box.top}px;width:${box.width}px;height:${box.height}px;` +
-      `border-radius:${style.borderRadius};color:${style.color}`,
+      `border-radius:${radius};color:${style.color}`,
   );
   const tint = view.getComputedStyle(host).getPropertyValue('--press-tint').trim();
   if (tint) el.style.setProperty('--press-tint', tint);
@@ -114,6 +117,20 @@ export function showLayer(host: HTMLElement, point: PressPoint | null): Layer | 
   doc.body.appendChild(el);
   host.setAttribute(PRESS_LAYER_ATTR, '');
   return { host, el, at: view.performance.now() };
+}
+
+/** The class that stops a layer at its full circle (see {@link settlePressLayers}). */
+const SETTLED = 'press-layer--settled';
+
+/**
+ * Stop every ripple layer of `doc` at its full circle and full tint. Call it when a view
+ * transition starts: the browser shows a still picture of the page until the new page has
+ * rendered, so a ripple in the middle of its growth would stand still there (app spec
+ * 002164). A full tint reads as the pressed row that the new page replaces. The layer
+ * goes when its host leaves the page.
+ */
+export function settlePressLayers(doc: Document): void {
+  doc.querySelectorAll('.press-layer').forEach((el) => el.classList.add(SETTLED));
 }
 
 /**

@@ -1,4 +1,4 @@
-import { installPressRipple, placeRipple, pressHost, PRESS_FADE_MS, PRESS_HOLD_MS } from './press-ripple';
+import { installPressRipple, placeRipple, pressHost, PRESS_FADE_MS, PRESS_HOLD_MS, settlePressLayers } from './press-ripple';
 
 /** jsdom applies no stylesheet, so a spec marks a host with the inline property. */
 function host(el: HTMLElement): HTMLElement {
@@ -135,6 +135,19 @@ describe('press ripple', () => {
     jest.advanceTimersByTime(PRESS_HOLD_MS + 100);
     pointer('pointerup', button);
     expect(document.querySelector<HTMLElement>('.press-layer')!.style.getPropertyValue('--press-hold')).toBe('0ms');
+  });
+
+  it('takes the shape of --press-radius over the corners of the host, and settles at its end', () => {
+    document.body.innerHTML = '<button id="b" style="border-radius: 0"></button>';
+    const button = host(document.getElementById('b')!);
+    button.style.setProperty('--press-radius', '999px');
+    box(button, 0, 0, 80, 44);
+    pointer('pointerdown', button, 5, 5);
+    const layer = document.querySelector<HTMLElement>('.press-layer')!;
+    expect(layer.style.borderRadius).toBe('999px');
+    settlePressLayers(document);
+    expect(layer.classList.contains('press-layer--settled')).toBe(true);
+    pointer('pointerup', button);
   });
 
   it('drops the layer in the frame in which its host leaves the page', () => {

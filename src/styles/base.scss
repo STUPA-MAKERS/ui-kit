@@ -75,6 +75,15 @@
 .press-layer--out {
   animation: press-layer-out var(--motion-base) var(--ease-standard) var(--press-hold, 0ms) forwards;
 }
+// A view transition starts: the ripple stops at its full circle and full tint, because the
+// still picture of the page would hold it in the middle of its growth (`settlePressLayers`).
+.press-layer--settled,
+.press-layer--settled .press-layer__wave {
+  animation: none;
+}
+.press-layer--settled .press-layer__wave {
+  transform: scale(1);
+}
 @keyframes press-wave {
   to {
     transform: scale(1);
