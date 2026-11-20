@@ -9,6 +9,7 @@ import {
   input,
   signal,
 } from '@angular/core';
+import { frameReader } from '../util/frame-read';
 import { ancestors, nextSiblings } from '../util/dom-walk';
 
 /**
@@ -82,27 +83,31 @@ export class StickyBarComponent {
   private onRowsScroll: (() => void) | null = null;
 
   constructor() {
-    let frame = 0;
-    const schedule = (): void => {
-      if (frame) return;
-      frame = requestAnimationFrame(() => {
-        frame = 0;
-        this.measure();
-      });
-    };
+    // The measure reads and writes; it runs in the write step of the frame, after the
+    // pure reads of the other parts (app spec 002161).
+    const frame = frameReader(
+      () => undefined,
+      () => this.measure(),
+    );
+    const schedule = (): void => frame.schedule();
     let observer: ResizeObserver | null = null;
     let siblings: MutationObserver | null = null;
 
     this.onRowsScroll = schedule;
-    afterNextRender(() => {
-      this.scroller = scrollParent(this.host.nativeElement);
-      this.scroller?.addEventListener('scroll', schedule, { passive: true });
-      window.addEventListener('scroll', schedule, { passive: true });
-      window.addEventListener('resize', schedule, { passive: true });
-      observer = new ResizeObserver(schedule);
-      observer.observe(this.host.nativeElement);
-      siblings = watchSiblings(this.host.nativeElement, schedule);
-      this.measure();
+    // The scroller is read in the read phase after the render, with the reads of the
+    // other parts, and the first measure (which writes) waits for the frame (app spec
+    // 002161).
+    afterNextRender({
+      read: () => {
+        this.scroller = scrollParent(this.host.nativeElement);
+        this.scroller?.addEventListener('scroll', schedule, { passive: true });
+        window.addEventListener('scroll', schedule, { passive: true });
+        window.addEventListener('resize', schedule, { passive: true });
+        observer = new ResizeObserver(schedule);
+        observer.observe(this.host.nativeElement);
+        siblings = watchSiblings(this.host.nativeElement, schedule);
+        schedule();
+      },
     });
     // A bar that turns on or off changes the room that the focus scroll must keep clear.
     effect(() => {
@@ -111,7 +116,7 @@ export class StickyBarComponent {
     });
 
     inject(DestroyRef).onDestroy(() => {
-      if (frame) cancelAnimationFrame(frame);
+      frame.cancel();
       this.scroller?.removeEventListener('scroll', schedule);
       window.removeEventListener('scroll', schedule);
       window.removeEventListener('resize', schedule);

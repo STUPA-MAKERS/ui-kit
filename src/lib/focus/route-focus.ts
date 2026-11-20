@@ -1,4 +1,11 @@
-import { DestroyRef, Injectable, Injector, afterNextRender, inject } from '@angular/core';
+import {
+  type AfterRenderRef,
+  DestroyRef,
+  Injectable,
+  Injector,
+  afterEveryRender,
+  inject,
+} from '@angular/core';
 import {
   type ActivatedRouteSnapshot,
   NavigationEnd,
@@ -8,6 +15,12 @@ import {
 
 /** How long the focus waits for the heading of a page that loads its data. */
 export const ROUTE_FOCUS_WAIT_MS = 3000;
+
+/**
+ * Between two renders, the focus looks for the heading at most this often, in ms. The
+ * heading comes with a render, so this only ends the wait.
+ */
+export const ROUTE_FOCUS_POLL_MS = 250;
 
 /**
  * Moves the focus to the heading of the new page after a navigation (WCAG 2.4.3), so a
@@ -33,6 +46,11 @@ export const ROUTE_FOCUS_WAIT_MS = 3000;
  *
  * A heading gets `tabindex="-1"` so it can take the focus, and `base.scss` draws no ring
  * on it: it is no control.
+ *
+ * It looks for the heading in the read phase after each render and every
+ * {@link ROUTE_FOCUS_POLL_MS}, not in every frame (app spec 002161). Reason: the look
+ * reads the layout; in every frame of a new page that came in, it made the browser lay out
+ * the page between the writes of the render.
  */
 @Injectable({ providedIn: 'root' })
 export class RouteFocus {
@@ -48,6 +66,8 @@ export class RouteFocus {
   private path: string | null = null;
   /** Counts the navigations, so a slow seek stops when a newer navigation runs. */
   private run = 0;
+  /** Ends the seek of the navigation before. */
+  private stopSeek: (() => void) | null = null;
 
   /**
    * Sets the function that gives the pane whose heading takes the focus. It is read after
@@ -87,24 +107,27 @@ export class RouteFocus {
       const token = ++this.run;
       const before = document.activeElement;
       const deadline = Date.now() + ROUTE_FOCUS_WAIT_MS;
-      const seek = (): void => {
-        if (token !== this.run || this.held || this.moved(before)) return;
-        const target = this.target(main());
-        if (target) {
-          focusQuietly(target);
-          return;
-        }
-        if (Date.now() > deadline) {
+      this.stopSeek?.();
+      const seek = new Seek(
+        () => {
+          if (token !== this.run || this.held || this.moved(before)) return true;
+          const target = this.target(main());
+          if (target) {
+            focusQuietly(target);
+            return true;
+          }
+          if (Date.now() <= deadline) return false;
           const fallback = this.visibleScope() ?? main();
           if (fallback) focusQuietly(fallback);
-          return;
-        }
-        requestAnimationFrame(seek);
-      };
-      afterNextRender(seek, { injector: this.injector });
+          return true;
+        },
+        this.injector,
+      );
+      this.stopSeek = () => seek.stop();
     });
     inject(DestroyRef).onDestroy(() => {
       sub.unsubscribe();
+      this.stopSeek?.();
       this.started = false;
       this.path = null;
     });
@@ -139,6 +162,39 @@ export class RouteFocus {
     const scope = this.visibleScope();
     if (scope) return firstShown(scope, 'h1, h2');
     return main ? firstShown(main, 'h1') : null;
+  }
+}
+
+/**
+ * One look for the heading after each render and every {@link ROUTE_FOCUS_POLL_MS}, until
+ * `look` returns true (done) or {@link stop}.
+ */
+class Seek {
+  private timer: ReturnType<typeof setTimeout> | undefined;
+  private done = false;
+  private readonly ref: AfterRenderRef;
+
+  constructor(
+    private readonly look: () => boolean,
+    injector: Injector,
+  ) {
+    this.ref = afterEveryRender({ read: () => this.once() }, { injector });
+    this.timer = setTimeout(() => this.poll(), ROUTE_FOCUS_POLL_MS);
+  }
+
+  stop(): void {
+    this.done = true;
+    clearTimeout(this.timer);
+    this.ref.destroy();
+  }
+
+  private once(): void {
+    if (!this.done && this.look()) this.stop();
+  }
+
+  private poll(): void {
+    this.once();
+    if (!this.done) this.timer = setTimeout(() => this.poll(), ROUTE_FOCUS_POLL_MS);
   }
 }
 

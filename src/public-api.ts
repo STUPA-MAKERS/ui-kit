@@ -133,6 +133,7 @@ export * from './lib/row-swipe/row-swipe.directive';
 export * from './lib/gesture/gesture';
 export * from './lib/util/download.util';
 export * from './lib/util/format-bytes';
+export * from './lib/util/frame-read';
 export * from './lib/util/haptic';
 export * from './lib/util/immutable';
 export * from './lib/util/key-parts.util';

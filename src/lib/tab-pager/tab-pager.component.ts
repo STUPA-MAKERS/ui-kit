@@ -190,6 +190,17 @@ export class TabPagerComponent {
       onCleanup(() => ref.destroy());
     });
 
+    // The scroll of the pager is a DOM listener: a template listener would run the change
+    // detection of the app on every scroll event of a swipe (app spec 002160). The tab
+    // changes at the half way through a signal, which runs it once.
+    effect((onCleanup) => {
+      const pager = this.pager()?.nativeElement;
+      if (!pager) return;
+      const scrolled = (): void => this.onScroll();
+      pager.addEventListener('scroll', scrolled, { passive: true });
+      onCleanup(() => pager.removeEventListener('scroll', scrolled));
+    });
+
     // The height of the pager follows the active page while its content grows or shrinks.
     effect((onCleanup) => {
       this.tabs();

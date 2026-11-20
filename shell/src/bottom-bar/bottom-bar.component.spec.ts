@@ -59,6 +59,41 @@ describe('BottomBarComponent', () => {
     );
   });
 
+  it('shows the pill of a pressed entry at once and keeps it until the navigation ends (002163)', async () => {
+    const { fixture, router } = await setup();
+    await router.navigateByUrl('/');
+    fixture.detectChanges();
+    const nav = bar();
+    const tasks = within(nav).getByRole('link', { name: 'Aufgaben 8 offen' });
+    tasks.dispatchEvent(new MouseEvent('pointerdown', { bubbles: true, button: 0 }));
+    fixture.detectChanges();
+    expect(nav).toHaveClass('bb--going');
+    expect(tasks).toHaveClass('is-going');
+    // A right button presses nothing.
+    tasks.dispatchEvent(new MouseEvent('pointerdown', { bubbles: true, button: 2 }));
+    tasks.dispatchEvent(new MouseEvent('pointerup', { bubbles: true }));
+    await userEvent.click(tasks);
+    await fixture.whenStable();
+    fixture.detectChanges();
+    expect(tasks).not.toHaveClass('is-going');
+    expect(nav).not.toHaveClass('bb--going');
+    expect(tasks).toHaveClass('is-active');
+  });
+
+  it('takes the pill back when a press leads to no navigation', async () => {
+    const { fixture } = await setup();
+    const nav = bar();
+    const tasks = within(nav).getByRole('link', { name: 'Aufgaben 8 offen' });
+    tasks.dispatchEvent(new MouseEvent('pointerdown', { bubbles: true, button: 0 }));
+    fixture.detectChanges();
+    tasks.dispatchEvent(new MouseEvent('pointercancel', { bubbles: true }));
+    tasks.dispatchEvent(new MouseEvent('pointerup', { bubbles: true }));
+    await new Promise((done) => setTimeout(done));
+    fixture.detectChanges();
+    expect(tasks).not.toHaveClass('is-going');
+    expect(nav).not.toHaveClass('bb--going');
+  });
+
   /** A's order in the sheet: the other entries, the search, the extra groups, the account. */
   it('lists the other entries, the search, the extra groups and the account in the Mehr sheet', async () => {
     const { fixture } = await setup();

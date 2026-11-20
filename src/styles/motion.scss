@@ -85,7 +85,6 @@
 // Route transitions with the View Transitions API. The app names the kind of a navigation
 // on `<html data-motion>` while the transition runs:
 //
-// - `section`: to another top-level section. The old page fades out, the new one rises in.
 // - `push`: one level deeper on a phone. The new page slides in from the end.
 // - `pop`: one level back on a phone. The old page slides out to the end.
 //
@@ -126,12 +125,6 @@
 }
 // A named element is painted alone into its snapshot. The bottom bar is solid
 // (`bottom-bar.component.scss`), so the moving page never shows through it.
-:root[data-motion='section']::view-transition-old(root) {
-  animation: vt-fade-out var(--motion-xs) var(--ease-exit) both;
-}
-:root[data-motion='section']::view-transition-new(root) {
-  animation: vt-rise-in var(--motion-base) var(--ease-enter) var(--motion-xs) both;
-}
 :root[data-motion='push']::view-transition-old(root) {
   animation: vt-recede var(--motion-slow) var(--ease-standard) both;
 }
@@ -144,17 +137,6 @@
 }
 :root[data-motion='pop']::view-transition-new(root) {
   animation: vt-recede var(--motion-base) var(--ease-standard) reverse both;
-}
-@keyframes vt-fade-out {
-  to {
-    opacity: 0;
-  }
-}
-@keyframes vt-rise-in {
-  from {
-    opacity: 0;
-    transform: translateY(var(--motion-shift-sm));
-  }
 }
 @keyframes vt-recede {
   to {

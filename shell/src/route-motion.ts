@@ -38,18 +38,21 @@ function takeUATransition(): boolean {
 
 /**
  * The motion of a navigation.
- * - `section`: to another top-level section. The content fades through, the frame stays.
  * - `push` / `pop`: on a phone, one level deeper or back in the same section. The new
  *   page slides in from the end, or the old one slides out to it.
- * - `none`: everything else (a row on a desktop list, a filter in the query). No
- *   transition, so a list does not blink when a row opens.
+ * - `none`: everything else. No transition, so a list does not blink when a row opens.
+ *
+ * A switch to another top-level section (the bottom bar, the rail) is `none` too: the new
+ * section shows at once, like a tab bar of a native app (app spec 002162). Reason: a view
+ * transition holds the old picture until the new page has rendered, and then starts its
+ * fade while the new page is still busy, so the switch froze and then faded in jerks.
  *
  * A navigation that replaces the history entry (`replaceUrl`) is never a push or a pop:
  * it is no step forward or back, but the page that completes its own address, for
- * example a list that opens its default entry. A slide there would follow the fade of the
- * section entry and move the page a second time.
+ * example a list that opens its default entry. A slide there would move the page a
+ * second time.
  */
-export type RouteMotion = 'section' | 'push' | 'pop' | 'none';
+export type RouteMotion = 'push' | 'pop' | 'none';
 
 /** The path segments of a route tree, from the root to the leaf. */
 export function routePath(snapshot: ActivatedRouteSnapshot | null): readonly string[] {
@@ -67,8 +70,7 @@ export function routeMotion(
   phone: boolean,
   replace = false,
 ): RouteMotion {
-  if ((from[0] ?? '') !== (to[0] ?? '')) return 'section';
-  if (!phone || replace) return 'none';
+  if ((from[0] ?? '') !== (to[0] ?? '') || !phone || replace) return 'none';
   if (startsWith(to, from)) return 'push';
   if (startsWith(from, to)) return 'pop';
   return 'none';

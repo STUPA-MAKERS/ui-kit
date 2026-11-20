@@ -340,6 +340,8 @@ describe('SideSheetComponent', () => {
 
     it('fades an end of the body only where more content is hidden', async () => {
       const { dialog, view } = await openBottom();
+      // The scroll listener comes with the focus, right after the pane renders.
+      await new Promise((done) => setTimeout(done));
       const body = dialog.querySelector('.ss__body') as HTMLElement;
       Object.defineProperty(body, 'scrollHeight', { value: 600 });
       Object.defineProperty(body, 'clientHeight', { value: 300 });

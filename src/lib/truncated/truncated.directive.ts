@@ -35,9 +35,14 @@ export class TruncatedDirective {
   readonly truncated = this.cut.asReadonly();
 
   constructor() {
-    afterRenderEffect(() => {
-      this.text();
-      this.measure();
+    // The read phase, with the reads of the other parts after the writes of the render: a
+    // row of a long list that read in the mixed phase laid the page out once per row (app
+    // spec 002161).
+    afterRenderEffect({
+      read: () => {
+        this.text();
+        this.measure();
+      },
     });
     if (typeof ResizeObserver !== 'undefined') {
       const observer = new ResizeObserver(() => this.measure());

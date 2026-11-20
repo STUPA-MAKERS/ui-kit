@@ -658,11 +658,16 @@ export class DataTableComponent
     // that has to run change detection. The signals it sets schedule their own.
     this.zone.runOutsideAngular(() => {
       const resync = (): void => this.onScroll();
+      // The own scroll too: a template listener would run the change detection on each
+      // scroll event (app spec 002160).
+      const own = this.scroller?.nativeElement;
+      own?.addEventListener('scroll', resync, { passive: true });
       window.addEventListener('scroll', resync, { passive: true });
       window.addEventListener('resize', resync);
       this.teardown = [
         ...this.teardown,
         () => {
+          own?.removeEventListener('scroll', resync);
           window.removeEventListener('scroll', resync);
           window.removeEventListener('resize', resync);
         },

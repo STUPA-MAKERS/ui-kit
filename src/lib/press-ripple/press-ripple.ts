@@ -51,10 +51,79 @@ export function placeRipple(host: HTMLElement, point: PressPoint | null): void {
   });
 }
 
+/** The attribute on a host while its ripple is a layer (`showLayer`). */
+export const PRESS_LAYER_ATTR = 'data-press-layer';
+
+/** The marked part of a host that shows its ripple, for example the pill of a bar entry. */
+const SURFACE = '[data-press-surface]';
+
+/** A ripple on its own layer, with the host that it paints for. */
+interface Layer {
+  readonly host: HTMLElement;
+  readonly el: HTMLElement;
+}
+
+/**
+ * Show the ripple of a press on `host` as a layer of its own above the page: a box with
+ * the place, the corners and the tint of the host (or of its `[data-press-surface]`
+ * part), with a circle in it that grows by `transform` from the point of the press (app
+ * spec 002164). Only `transform` and `opacity` move, so the browser runs the ripple on the
+ * compositor, and it keeps moving while a tap renders a new page. The host gets
+ * `data-press-layer`, which turns its CSS ripple off (`base.scss`).
+ *
+ * The layer is not a child of the host, so no selector of the host (`:only-child`,
+ * `:has(…)`) sees it. Null in the top layer (an open popover or dialog), where a layer of
+ * the page would lie under it: there the CSS ripple of the host shows.
+ */
+export function showLayer(host: HTMLElement, point: PressPoint | null): Layer | null {
+  const doc = host.ownerDocument;
+  const view = doc.defaultView;
+  // A host in a popover shows only while the popover is open, so a popover counts as open.
+  if (!view || host.closest('[popover], dialog[open]')) return null;
+  const surface = host.querySelector<HTMLElement>(SURFACE) ?? host;
+  const box = surface.getBoundingClientRect();
+  if (!box.width || !box.height) return null;
+  const style = view.getComputedStyle(surface);
+  // A marked part ripples from its centre, as the CSS ripple of the bar entries did.
+  const from = surface === host ? point : null;
+  const x = (from ? from.x : box.left + box.width / 2) - box.left;
+  const y = (from ? from.y : box.top + box.height / 2) - box.top;
+  const r = Math.ceil(Math.hypot(Math.max(x, box.width - x), Math.max(y, box.height - y)));
+  const el = doc.createElement('div');
+  el.className = 'press-layer';
+  el.setAttribute('aria-hidden', 'true');
+  el.setAttribute(
+    'style',
+    `left:${box.left}px;top:${box.top}px;width:${box.width}px;height:${box.height}px;` +
+      `border-radius:${style.borderRadius};color:${style.color}`,
+  );
+  const tint = view.getComputedStyle(host).getPropertyValue('--press-tint').trim();
+  if (tint) el.style.setProperty('--press-tint', tint);
+  const wave = doc.createElement('div');
+  wave.className = 'press-layer__wave';
+  wave.setAttribute('style', `left:${x - r}px;top:${y - r}px;width:${2 * r}px;height:${2 * r}px`);
+  el.appendChild(wave);
+  doc.body.appendChild(el);
+  host.setAttribute(PRESS_LAYER_ATTR, '');
+  return { host, el };
+}
+
+/** Fade a layer out (`press-layer--out`) and remove it after {@link PRESS_FADE_MS}. */
+function hideLayer(layer: Layer): ReturnType<typeof setTimeout> {
+  layer.el.classList.add('press-layer--out');
+  return setTimeout(() => dropLayer(layer), PRESS_FADE_MS);
+}
+
+function dropLayer(layer: Layer): void {
+  layer.el.remove();
+  layer.host.removeAttribute(PRESS_LAYER_ATTR);
+}
+
 /** A host whose tint fades out, and the timer that ends the fade. */
 interface Fade {
   readonly host: HTMLElement;
   readonly timer: ReturnType<typeof setTimeout>;
+  readonly layer?: Layer;
 }
 
 /**
@@ -65,13 +134,17 @@ class PressRipple {
   private fades: readonly Fade[] = [];
   private pointerHost: HTMLElement | null = null;
   private keyHost: HTMLElement | null = null;
+  /** The layer of the press that lasts (pointer or key), see {@link showLayer}. */
+  private layer: Layer | null = null;
 
   readonly onPointerDown = (event: PointerEvent): void => {
     if (event.button !== 0) return;
     const host = pressHost(event.target as Element | null);
     if (!host) return;
     this.stopFade(host);
+    this.endLayer();
     placeRipple(host, { x: event.clientX, y: event.clientY });
+    this.layer = showLayer(host, { x: event.clientX, y: event.clientY });
     this.pointerHost = host;
   };
 
@@ -87,7 +160,9 @@ class PressRipple {
     const host = pressHost(target);
     if (!host) return;
     this.stopFade(host);
+    this.endLayer();
     placeRipple(host, null);
+    this.layer = showLayer(host, null);
     host.setAttribute('data-press-key', '');
     this.keyHost = host;
   };
@@ -103,12 +178,24 @@ class PressRipple {
 
   /** Stop every pending fade. */
   dispose(): void {
-    this.fades.forEach((fade) => clearTimeout(fade.timer));
+    this.fades.forEach((fade) => {
+      clearTimeout(fade.timer);
+      if (fade.layer) dropLayer(fade.layer);
+    });
     this.fades = [];
+    if (this.layer) dropLayer(this.layer);
+    this.layer = null;
   }
 
   private fadeOut(host: HTMLElement): void {
     this.stopFade(host);
+    const layer = this.layer?.host === host ? this.layer : null;
+    this.layer = null;
+    if (layer) {
+      // The layer fades by itself; the host needs no attribute, and no read of its layout.
+      this.fades = [...this.fades, { host, timer: hideLayer(layer), layer }];
+      return;
+    }
     // A new attribute starts the fade again, also when the last fade still runs.
     void host.offsetWidth;
     host.setAttribute('data-press-out', '');
@@ -116,8 +203,19 @@ class PressRipple {
     this.fades = [...this.fades, { host, timer }];
   }
 
+  /** A layer that no release ended (a second press came first) goes at once. */
+  private endLayer(): void {
+    if (this.layer) dropLayer(this.layer);
+    this.layer = null;
+  }
+
   private stopFade(host: HTMLElement): void {
-    this.fades.filter((fade) => fade.host === host).forEach((fade) => clearTimeout(fade.timer));
+    this.fades
+      .filter((fade) => fade.host === host)
+      .forEach((fade) => {
+        clearTimeout(fade.timer);
+        if (fade.layer) dropLayer(fade.layer);
+      });
     this.fades = this.fades.filter((fade) => fade.host !== host);
     host.removeAttribute('data-press-out');
   }

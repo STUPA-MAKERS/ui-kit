@@ -163,14 +163,30 @@ describe('ScrollFadeDirective', () => {
       expect(fades(el)).toEqual([true, false]);
     });
 
-    it('re-measures when rows come or go', async () => {
+    it('re-measures once in the next frame when rows come or go, not in the render', async () => {
       const { el } = await setupList(300, 300);
       expect(fades(el)).toEqual([false, false]);
       verticalGeometry(el, 900, 300, 0);
+      const frame = jest.spyOn(window, 'requestAnimationFrame');
       el.appendChild(document.createElement('li'));
-      // A MutationObserver reports in a microtask.
+      el.appendChild(document.createElement('li'));
+      // A MutationObserver reports in a microtask; the measure waits for the frame.
       await Promise.resolve();
+      expect(fades(el)).toEqual([false, false]);
+      expect(frame).toHaveBeenCalledTimes(1);
+      await new Promise((done) => requestAnimationFrame(() => done(null)));
       expect(fades(el)).toEqual([false, true]);
+      frame.mockRestore();
+    });
+
+    it('drops a waiting measure when the host goes away', async () => {
+      const { el, view } = await setupList(300, 300);
+      verticalGeometry(el, 900, 300, 0);
+      el.appendChild(document.createElement('li'));
+      await Promise.resolve();
+      view.fixture.destroy();
+      await new Promise((done) => requestAnimationFrame(() => done(null)));
+      expect(fades(el)).toEqual([false, false]);
     });
   });
 });

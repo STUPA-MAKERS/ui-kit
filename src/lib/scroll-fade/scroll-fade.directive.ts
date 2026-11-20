@@ -6,6 +6,7 @@ import {
   inject,
   input,
 } from '@angular/core';
+import { frameReader } from '../util/frame-read';
 
 /** The scroll direction: `x` for a strip, `y` for a list. */
 export type ScrollFadeAxis = 'x' | 'y';
@@ -30,11 +31,17 @@ export type ScrollFadeAxis = 'x' | 'y';
  *
  * The axis is the value of the attribute: `appScrollFade` or `appScrollFade="x"` for a
  * horizontal strip, `appScrollFade="y"` for a vertical list. The page styles the mask.
+ *
+ * Neither the scroll nor a change of the rows runs the change detection or reads the
+ * layout in the middle of a render (app specs 002160, 002161): the scroll listener is a
+ * plain DOM listener, and a change of the rows measures once in the next animation frame,
+ * after the render wrote the DOM. Reason: a list writes its rows in many small steps, and a
+ * read after each step made the browser lay out the whole page again and again while a
+ * new page came in.
  */
 @Directive({
   selector: '[appScrollFade]',
   standalone: true,
-  host: { '(scroll)': 'measure()' },
 })
 export class ScrollFadeDirective {
   private readonly el = inject<ElementRef<HTMLElement>>(ElementRef);
@@ -52,34 +59,51 @@ export class ScrollFadeDirective {
     const observer = new ResizeObserver(() => this.measure());
     // Rows that appear or go away (a search, an expanded branch) change the scroll height
     // but not the size of the host, so the resize observer does not see them.
-    const mutations = new MutationObserver(() => this.measure());
-    afterNextRender(() => {
-      observer.observe(host);
-      mutations.observe(host, { childList: true, subtree: true });
-      this.measure();
+    const later = frameReader(
+      () => this.read(),
+      (fades) => this.write(fades),
+    );
+    const mutations = new MutationObserver(() => later.schedule());
+    const scrolled = (): void => this.measure();
+    afterNextRender({
+      read: () => {
+        observer.observe(host);
+        mutations.observe(host, { childList: true, subtree: true });
+        host.addEventListener('scroll', scrolled, { passive: true });
+        this.measure();
+      },
     });
     inject(DestroyRef).onDestroy(() => {
+      later.cancel();
       observer.disconnect();
       mutations.disconnect();
+      host.removeEventListener('scroll', scrolled);
     });
   }
 
   /** Read the scroll position and write the two classes. Cheap enough to run on scroll. */
   protected measure(): void {
+    this.write(this.read());
+  }
+
+  /** The ends that hide content, or null where the host does not scroll on its axis. */
+  private read(): { start: boolean; end: boolean } | null {
     const el = this.el.nativeElement;
     // A box that does not scroll on this axis (`overflow: visible`, for example a layout
     // that only scrolls at another width) hides nothing: a mask would only clip it.
     const style = getComputedStyle(el);
-    if ((this.axis() === 'y' ? style.overflowY : style.overflowX) === 'visible') {
-      el.classList.remove('is-fade-start', 'is-fade-end');
-      return;
-    }
+    if ((this.axis() === 'y' ? style.overflowY : style.overflowX) === 'visible') return null;
     // A sub-pixel layout leaves a fraction of a pixel over on a strip that visibly fits.
     const slack = 1;
     const y = this.axis() === 'y';
     const max = y ? el.scrollHeight - el.clientHeight : el.scrollWidth - el.clientWidth;
     const pos = y ? el.scrollTop : el.scrollLeft;
-    el.classList.toggle('is-fade-start', pos > slack);
-    el.classList.toggle('is-fade-end', pos < max - slack);
+    return { start: pos > slack, end: pos < max - slack };
+  }
+
+  private write(fades: { start: boolean; end: boolean } | null): void {
+    const el = this.el.nativeElement;
+    el.classList.toggle('is-fade-start', fades?.start ?? false);
+    el.classList.toggle('is-fade-end', fades?.end ?? false);
   }
 }
