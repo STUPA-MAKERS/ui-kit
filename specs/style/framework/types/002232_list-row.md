@@ -2,7 +2,7 @@
 id: "002232"
 title: A row of a list is a ListRow
 kind: style
-status: draft
+status: approved
 owner: frederikbeimgraben
 updated: 2026-11-20
 implementation: null

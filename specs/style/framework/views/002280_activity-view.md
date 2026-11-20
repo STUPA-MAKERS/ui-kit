@@ -2,7 +2,7 @@
 id: "002280"
 title: The activity view takes entries
 kind: style
-status: draft
+status: approved
 owner: frederikbeimgraben
 updated: 2026-11-20
 implementation: null

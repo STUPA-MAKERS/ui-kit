@@ -2,7 +2,7 @@
 id: "002261"
 title: The ports have fixed types
 kind: style
-status: draft
+status: approved
 owner: frederikbeimgraben
 updated: 2026-11-20
 implementation: null

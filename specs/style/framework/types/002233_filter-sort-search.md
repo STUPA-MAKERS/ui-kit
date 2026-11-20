@@ -2,7 +2,7 @@
 id: "002233"
 title: Filters, sort and search are FilterDef, SortDef and SearchDef
 kind: style
-status: draft
+status: approved
 owner: frederikbeimgraben
 updated: 2026-11-20
 implementation: null

@@ -2,7 +2,7 @@
 id: "002235"
 title: A tab of a screen is a ScreenTab with a slot
 kind: style
-status: draft
+status: approved
 owner: frederikbeimgraben
 updated: 2026-11-20
 implementation: null

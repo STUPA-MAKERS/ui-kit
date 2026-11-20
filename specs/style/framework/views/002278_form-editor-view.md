@@ -2,7 +2,7 @@
 id: "002278"
 title: The form editor edits a FormDef
 kind: style
-status: draft
+status: approved
 owner: frederikbeimgraben
 updated: 2026-11-20
 implementation: null

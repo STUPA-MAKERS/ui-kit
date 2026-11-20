@@ -2,7 +2,7 @@
 id: "002276"
 title: The chat view takes messages and a composer
 kind: style
-status: draft
+status: approved
 owner: frederikbeimgraben
 updated: 2026-11-20
 implementation: null

@@ -2,7 +2,7 @@
 id: "002243"
 title: The wizard screen has a fixed interface
 kind: style
-status: draft
+status: approved
 owner: frederikbeimgraben
 updated: 2026-11-20
 implementation: null

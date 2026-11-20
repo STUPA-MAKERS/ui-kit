@@ -2,7 +2,7 @@
 id: "002274"
 title: The voting view takes a VoteCard and a Ballot
 kind: style
-status: draft
+status: approved
 owner: frederikbeimgraben
 updated: 2026-11-20
 implementation: null

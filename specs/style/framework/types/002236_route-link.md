@@ -2,7 +2,7 @@
 id: "002236"
 title: A link is a RouteLink
 kind: style
-status: draft
+status: approved
 owner: frederikbeimgraben
 updated: 2026-11-20
 implementation: null

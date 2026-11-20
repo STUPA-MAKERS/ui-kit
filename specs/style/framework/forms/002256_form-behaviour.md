@@ -2,7 +2,7 @@
 id: "002256"
 title: A form reports its value, its validity and its dirty state
 kind: style
-status: draft
+status: approved
 owner: frederikbeimgraben
 updated: 2026-11-20
 implementation: null

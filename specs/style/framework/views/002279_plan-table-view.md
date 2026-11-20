@@ -2,7 +2,7 @@
 id: "002279"
 title: The plan table takes rows as a tree
 kind: style
-status: draft
+status: approved
 owner: frederikbeimgraben
 updated: 2026-11-20
 implementation: null

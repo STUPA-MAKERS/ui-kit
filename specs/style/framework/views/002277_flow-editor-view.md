@@ -2,7 +2,7 @@
 id: "002277"
 title: The flow editor takes a FlowGraph
 kind: style
-status: draft
+status: approved
 owner: frederikbeimgraben
 updated: 2026-11-20
 implementation: null

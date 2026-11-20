@@ -2,7 +2,7 @@
 id: "002275"
 title: The meeting view takes the agenda, the attendance and the dock
 kind: style
-status: draft
+status: approved
 owner: frederikbeimgraben
 updated: 2026-11-20
 implementation: null

@@ -2,7 +2,7 @@
 id: "002273"
 title: The protocol view is the Markdown editor with the protocol tools
 kind: style
-status: draft
+status: approved
 owner: frederikbeimgraben
 updated: 2026-11-20
 implementation: null

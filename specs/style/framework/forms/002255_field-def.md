@@ -2,7 +2,7 @@
 id: "002255"
 title: A field of a form is a FieldDef of a fixed kind
 kind: style
-status: draft
+status: approved
 owner: frederikbeimgraben
 updated: 2026-11-20
 implementation: null
