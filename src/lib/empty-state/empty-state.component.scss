@@ -116,11 +116,13 @@
    transparent, so it reads on every surface and in both themes. It runs without end, and
    the switch "Weniger Bewegung" stops it (000219), which is the pause that WCAG 2.2.2 asks
    for. */
+/* The face has 3rem of room above and below, so in a tall tile or a sheet it does not stick
+   to the head (app spec 001803). */
 .es--face {
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding-block: var(--space-4);
+  padding-block: var(--space-8);
 }
 .es--face .es__msg {
   padding: var(--space-2) var(--space-4) 0;
