@@ -450,7 +450,6 @@ describe('everyControlShowsYellow (§000614)', () => {
 describe('chosenIsYellowFill (§000615)', () => {
   const CHOICES: readonly (readonly [string, string])[] = [
     ['.seg__opt', '.seg__opt--on'],
-    ["[role='tablist'] [role='tab']", "[role='tablist'] [role='tab'][aria-selected='true']"],
     ['.chip', '.chip.on'],
     ['.rm__trigger', '.rm__trigger--on'],
     [".btn[aria-pressed='false']", ".btn[aria-pressed='true']"],
@@ -469,6 +468,29 @@ describe('chosenIsYellowFill (§000615)', () => {
     expect(fields).not.toMatch(/\.chip\.on \{/);
     expect(fields).not.toMatch(/\[role='tab'\]/);
     expect(fields).not.toMatch(/\[aria-pressed='true'\]:has/);
+  });
+});
+
+describe('veryHighTabBar (§001980)', () => {
+  it('gives each tab yellow text without an edge or a fill', () => {
+    expect(controlRule('.tabs__tab')).toContain('@include vh.text;');
+    const choice = CONTROLS.slice(CONTROLS.indexOf('  .seg__opt,'), CONTROLS.indexOf('@include vh.fill;'));
+    expect(choice).not.toMatch(/tab/);
+  });
+
+  it('marks the open tab with a 4 px yellow bar and bold text, not with colour only', () => {
+    const open = controlRule('.tabs__tab.tabs__tab--on');
+    expect(open).toMatch(/linear-gradient\(var\(--vh-hi\), var\(--vh-hi\)\) bottom \/ 100% 4px no-repeat !important;/);
+    expect(open).toMatch(/font-weight: var\(--fw-bold\);/);
+    expect(open).not.toMatch(/box-shadow|outline/);
+  });
+
+  it('lets the ink of a paged tab bar draw the bar, so it moves with the swipe', () => {
+    expect(controlRule('.tp__bar .tabs__tab.tabs__tab--on')).toMatch(/background: transparent !important;/);
+    const ink = controlRule('.tp__ink');
+    expect(ink).toMatch(/height: 4px;/);
+    expect(ink).toMatch(/background: var\(--vh-hi\);/);
+    expect(ink).not.toMatch(/display: none/);
   });
 });
 
