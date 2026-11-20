@@ -37,6 +37,8 @@
    does not read as a second selected state next to the line under the tab. */
 .tabs__tab {
   @include press.press;
+  // The box is square because of the line under the open tab; the ripple is a pill (002164).
+  --press-radius: 999px;
 }
 @media (hover: hover) {
   .tabs__tab:hover:not(:disabled) {

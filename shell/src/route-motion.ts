@@ -6,7 +6,7 @@ import {
   type ViewTransitionInfo,
   withViewTransitions,
 } from '@angular/router';
-import { MEDIA, matchesMedia, reducedMotion, takeGestureNavigation } from '@stupa-makers/ui-kit';
+import { MEDIA, matchesMedia, reducedMotion, settlePressLayers, takeGestureNavigation } from '@stupa-makers/ui-kit';
 
 type NavigateEvent = Event & { readonly hasUAVisualTransition?: boolean };
 type NavigationApi = EventTarget;
@@ -97,6 +97,9 @@ export function onRouteViewTransition({ transition, from, to }: ViewTransitionIn
     transition.skipTransition();
     return;
   }
+  // The page stands still until the new page has rendered; a ripple would stand still in
+  // the middle of its growth, so it shows its end (app spec 002164).
+  settlePressLayers(document);
   const root = document.documentElement;
   root.dataset['motion'] = kind;
   void transition.finished.finally(() => {
