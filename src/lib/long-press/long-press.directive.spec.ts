@@ -204,6 +204,9 @@ describe('LongPressDirective', () => {
     b.dispatchEvent(pointer('pointercancel'));
     a.dispatchEvent(pointer('contextmenu'));
     expect(cmp.a).toBe(2);
+    // The next tap on the first host (its press resets the press before) opens.
+    a.dispatchEvent(pointer('pointerdown'));
+    a.dispatchEvent(pointer('pointerup'));
     a.dispatchEvent(pointer('click'));
     expect(cmp.clicks).toBe(2);
   });
