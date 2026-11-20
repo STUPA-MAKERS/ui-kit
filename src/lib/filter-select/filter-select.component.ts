@@ -110,7 +110,10 @@ export class FilterSelectComponent {
   readonly chevron = input(true);
   /** Only the icon shows, in a square chip; `label` names the button. */
   readonly iconOnly = input(false);
-  /** `sm`: the filter chip (32px). `md`: a pill as high as the search pill `md` (44px). */
+  /**
+   * `sm`: the filter chip (32px), the only size of a filter, also beside a search pill `md`.
+   * `md`: a select as high as a field (44px), for a value in a field row, never a filter.
+   */
   readonly size = input<'sm' | 'md'>('sm');
   /** Several choices: the text of the button that clears all values. No text, no button. */
   readonly resetLabel = input<string | null>(null);
