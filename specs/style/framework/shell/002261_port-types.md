@@ -7,6 +7,7 @@ owner: frederikbeimgraben
 updated: 2026-11-20
 implementation:
   - shell/src/framework/framework.ts
+  - shell/src/framework/framework-shell.component.ts
 scope:
   - shell
 ---
@@ -29,6 +30,10 @@ interface SearchHit { readonly kind: string; readonly title: string; readonly su
 ```
 
 A port that the app leaves out must hide the part that needs it.
+
+A mark of `navMarks` must show as a dot of 8 px on the top right corner of the icon of the
+entry, in the rail and in the phone bar, never between the icon and the label. A screen reader
+reads the mark as text after the label.
 
 Reason: Fixed port types keep the shell free of app code.
 

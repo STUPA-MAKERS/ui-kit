@@ -188,8 +188,12 @@ import { FOCUS_H1 } from './routes';
     :host {
       display: contents;
     }
+    /* The dot sits on the top right corner of the 22px icon in the middle of the indicator,
+       out of the flow, so it never stands between the icon and the label (002261). */
     .fw-mark {
-      display: block;
+      position: absolute;
+      top: calc(50% - 13px);
+      left: calc(50% + 6px);
       width: 8px;
       height: 8px;
       border-radius: 50%;
