@@ -1,5 +1,16 @@
-import { ChangeDetectionStrategy, Component, computed, inject, output } from '@angular/core';
-import { RouterLink } from '@angular/router';
+import {
+  afterNextRender,
+  ChangeDetectionStrategy,
+  Component,
+  computed,
+  inject,
+  Injector,
+  output,
+  signal,
+} from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { NavigationEnd, Router, RouterLink, type ActivatedRouteSnapshot } from '@angular/router';
+import { filter } from 'rxjs';
 import { IconComponent, ThemeService, UiKitTranslatePipe, type Action } from '@stupa-makers/ui-kit';
 
 import { AccountMenuComponent } from '../account-menu/account-menu.component';
@@ -7,6 +18,7 @@ import { NavMarkDirective } from '../nav-mark.directive';
 import { ShellComponent } from '../shell/shell.component';
 import type { ShellBrand } from '../shell.types';
 import { FRAMEWORK, frameworkParts } from './framework';
+import { FOCUS_H1 } from './routes';
 
 /**
  * The frame of an app, built from its {@link FrameworkConfig}: the kit shell with the frame of
@@ -15,7 +27,10 @@ import { FRAMEWORK, frameworkParts } from './framework';
  * and sign-out. A part whose field or port is missing does not show.
  * §S/framework/shell/002263 §S/framework/shell/002264
  *
- * An item without a route or a link is emitted as `action` with its key.
+ * An item without a route or a link is emitted as `action` with its key. A route of
+ * `screenRoute` with `frame: 'public'` shows the public frame for everybody. After each
+ * navigation but the first, the focus moves to the `h1` of a route of the route helpers
+ * (000512, 002262).
  */
 @Component({
   selector: 'app-framework-shell',
@@ -32,7 +47,7 @@ import { FRAMEWORK, frameworkParts } from './framework';
   template: `
     <app-shell
       #shell
-      [frame]="config.ports.session.frame()"
+      [frame]="frame()"
       [nav]="config.nav()"
       [barKeys]="config.bar()"
       [brand]="brand()"
@@ -157,9 +172,47 @@ export class FrameworkShellComponent {
   }));
 
   protected readonly person = this.config.ports.session.person;
+
+  private readonly router = inject(Router);
+  private readonly injector = inject(Injector);
+  private readonly leafData = signal<Readonly<Record<string, unknown>>>({});
+
+  protected readonly frame = computed(() => {
+    const session = this.config.ports.session.frame();
+    return session !== 'pending' && this.leafData()['frame'] === 'public' ? 'public' : session;
+  });
+
+  constructor() {
+    this.router.events
+      .pipe(
+        filter((e) => e instanceof NavigationEnd),
+        takeUntilDestroyed(),
+      )
+      .subscribe((e) => {
+        const data = leaf(this.router.routerState.snapshot.root).data;
+        this.leafData.set(data);
+        if (e.id > 1 && data[FOCUS_H1] === true) this.focusHeading();
+      });
+  }
+
+  private focusHeading(): void {
+    afterNextRender(
+      () => {
+        const h1 = document.querySelector<HTMLElement>('main h1');
+        if (!h1) return;
+        if (!h1.hasAttribute('tabindex')) h1.setAttribute('tabindex', '-1');
+        h1.focus({ preventScroll: true });
+      },
+      { injector: this.injector },
+    );
+  }
   protected readonly marks = computed(() => this.config.ports.navMarks?.() ?? {});
   protected readonly accountItems = computed<readonly Action[]>(
     () => this.config.account?.items() ?? [],
   );
   protected readonly footerShown = computed(() => this.parts().footer);
+}
+
+function leaf(snapshot: ActivatedRouteSnapshot): ActivatedRouteSnapshot {
+  return snapshot.firstChild ? leaf(snapshot.firstChild) : snapshot;
 }
