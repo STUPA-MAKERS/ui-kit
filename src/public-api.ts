@@ -114,6 +114,7 @@ export * from './lib/search-pill/shortcut';
 export * from './lib/live-search/live-search';
 export * from './lib/status-text/status-text.component';
 export * from './lib/meta-line/meta-line.component';
+export * from './lib/error-text/error-text.component';
 export * from './lib/seg-bar/seg-bar.component';
 export * from './lib/sticky-bar/sticky-bar.component';
 export * from './lib/file-drop/drop-overlay.component';
