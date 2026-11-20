@@ -89,7 +89,7 @@ export class RangeChipComponent {
   /** "Anwenden" or "Zurücksetzen" set a new range. */
   readonly applied = output<RangeValue>();
 
-  /** A phone shows the sheet, whose buttons have the full size; the popover keeps small ones. */
+  /** A phone shows the sheet, a wide screen the popover. */
   protected readonly phone = mediaQuery(MEDIA.phone);
 
   protected readonly open = signal(false);

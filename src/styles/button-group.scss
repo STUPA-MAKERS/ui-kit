@@ -32,16 +32,41 @@
 }
 
 // A group of small buttons (`size="sm"`, inside a list row or a card) is as high as a small button.
-.btn-grp:has(.btn--sm) {
+// A confirm row (`btn-grp--main`: a dialog footer, the actions at the end of a sheet, a popover
+// or an inline form) is not: see below.
+.btn-grp:not(.btn-grp--main):has(.btn--sm) {
   --btn-grp-h: var(--control-height-sm);
 }
-.btn-grp.btn-grp .btn--sm {
+.btn-grp.btn-grp:not(.btn-grp--main) .btn--sm {
   padding: 0 var(--space-3);
   font-size: 0.8125rem;
 }
-.btn-grp.btn-grp .btn--icon.btn--sm {
+.btn-grp.btn-grp:not(.btn-grp--main) .btn--icon.btn--sm {
   width: 40px;
   padding: 0;
+}
+
+// Every confirm row has buttons of one size, the control height (40px), in every dialog, sheet
+// and popover (app spec 001960). The group sets the height, the padding and the font of its
+// buttons, so a button with `size="sm"` or `size="lg"` in it, a block button and a copy button
+// are exactly as high as the others. The rule weighs more than the size classes of
+// `app-button`, and a page cannot lower it with `--button-height`.
+.btn-grp--main.btn-grp--main {
+  --btn-grp-h: var(--control-height);
+}
+.btn-grp--main.btn-grp--main :is(.btn, .rm__trigger) {
+  --btn-h: var(--control-height);
+  height: var(--control-height);
+  font-size: var(--fs-body);
+}
+.btn-grp--main.btn-grp--main :is(.btn--sm, .btn--lg):not(.btn--icon) {
+  padding: 0 var(--space-4);
+  --icon-size: 16px;
+}
+.btn-grp--main.btn-grp--main :is(.btn--sm, .btn--lg).btn--icon {
+  width: 48px;
+  padding: 0;
+  --icon-size: 20px;
 }
 
 // A group of full-width buttons (`[block]="true"`, the ballot of a vote) fills its row, and
