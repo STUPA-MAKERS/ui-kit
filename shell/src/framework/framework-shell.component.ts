@@ -225,7 +225,13 @@ export class FrameworkShellComponent {
 
   private readonly router = inject(Router);
   private readonly injector = inject(Injector);
-  private readonly leafData = signal<Readonly<Record<string, unknown>>>({});
+  /**
+   * The data of the leaf route. It starts from the current state, because a shell inside a
+   * routed component renders after the first `NavigationEnd`.
+   */
+  private readonly leafData = signal<Readonly<Record<string, unknown>>>(
+    leaf(this.router.routerState.snapshot.root).data,
+  );
 
   protected readonly frame = computed(() => {
     const session = this.config.ports.session.frame();

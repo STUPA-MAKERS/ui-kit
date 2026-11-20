@@ -1,5 +1,6 @@
 import { ChangeDetectionStrategy, Component, signal } from '@angular/core';
-import { provideRouter } from '@angular/router';
+import { TestBed } from '@angular/core/testing';
+import { provideRouter, Router } from '@angular/router';
 import { render, screen } from '@testing-library/angular';
 import userEvent from '@testing-library/user-event';
 
@@ -72,5 +73,19 @@ describe('FrameworkShellComponent', () => {
     if (trigger) await user.click(trigger);
     await user.click(await screen.findByRole('button', { name: 'Daten exportieren' }));
     expect(action).toHaveBeenCalledWith('export');
+  });
+
+  it('shows the public frame of a public route that was open before the shell rendered', async () => {
+    TestBed.configureTestingModule({
+      providers: [
+        provideRouter([{ path: 'about', component: StubPage, data: { frame: 'public' } }]),
+        provideFramework(fullConfig()),
+      ],
+    });
+    await TestBed.inject(Router).navigateByUrl('/about');
+    const fixture = TestBed.createComponent(FrameworkShellComponent);
+    fixture.detectChanges();
+    await fixture.whenStable();
+    expect(fixture.nativeElement.querySelector('app-framework-public-header')).not.toBeNull();
   });
 });
