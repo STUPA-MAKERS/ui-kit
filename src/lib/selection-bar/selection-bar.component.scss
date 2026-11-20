@@ -70,7 +70,8 @@
 }
 
 /* Inline: a row in the flow of the page, in the place of the row it stands for (the
-   tabs above a list, the title row of a phone). The selected surface marks the mode. */
+   tabs above a list, the title row of a phone). A grey surface holds the bar, with the same
+   inset around its actions on every side, so its corners are concentric with theirs. */
 :host(.selbar--inline) {
   position: static;
   display: block;
@@ -82,11 +83,11 @@
   gap: var(--space-2);
   max-width: none;
   height: auto;
-  min-height: var(--control-height);
-  padding: 0 var(--space-2) 0 var(--space-4);
-  border-radius: var(--radius-lg);
-  background: var(--color-selected);
-  color: var(--color-on-selected);
+  min-height: calc(var(--control-height) + 2 * var(--space-2));
+  padding: var(--space-2) var(--space-2) var(--space-2) var(--space-4);
+  border-radius: calc(var(--control-height) / 2 + var(--space-2));
+  background: var(--color-surface-2);
+  color: var(--color-text);
   box-shadow: none;
 }
 :host(.selbar--inline) .selbar__count {
