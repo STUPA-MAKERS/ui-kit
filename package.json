@@ -21,6 +21,7 @@
   "sideEffects": false,
   "scripts": {
     "build": "ng build ui-kit",
+    "build:showcase": "ng build showcase",
     "test": "jest",
     "lint": "eslint .",
     "lint:functional": "eslint . --max-warnings 142",

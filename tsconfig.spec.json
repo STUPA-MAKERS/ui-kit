@@ -5,7 +5,8 @@
     "esModuleInterop": true,
     "types": ["jest", "node"],
     "paths": {
-      "@stupa-makers/ui-kit": ["./src/public-api.ts"]
+      "@stupa-makers/ui-kit": ["./src/public-api.ts"],
+      "@stupa-makers/ui-kit/screens": ["./screens/src/public-api.ts"]
     }
   },
   "include": [
@@ -14,6 +15,8 @@
     "markdown-view/**/*.spec.ts",
     "pwa/**/*.spec.ts",
     "shell/**/*.spec.ts",
+    "screens/**/*.spec.ts",
+    "views/**/*.spec.ts",
     "testing/**/*.ts",
     "setup-jest.ts"
   ]

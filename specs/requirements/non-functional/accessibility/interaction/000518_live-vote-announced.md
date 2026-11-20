@@ -1,0 +1,19 @@
+---
+id: "000518"
+title: The live vote announces its changes
+kind: non-functional
+status: approved
+owner: frederikbeimgraben
+updated: 2026-11-20
+implementation: null
+scope:
+  - src/lib
+---
+
+# The live vote announces its changes
+
+When a vote opens, closes or shows its result, the voting page must announce it in a live
+region. The announcement must name the TOP and the vote.
+
+Reason: The vote comes over the WebSocket without a user action, so a screen reader user does
+not know that the page changed.

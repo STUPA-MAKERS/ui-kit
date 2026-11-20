@@ -6,7 +6,8 @@
     "declarationMap": true,
     "types": [],
     "paths": {
-      "@stupa-makers/ui-kit": ["./src/public-api.ts"]
+      "@stupa-makers/ui-kit": ["./src/public-api.ts"],
+      "@stupa-makers/ui-kit/screens": ["./screens/src/public-api.ts"]
     }
   },
   "exclude": ["**/*.spec.ts", "testing/**", "src/styles/**"],
@@ -15,7 +16,9 @@
     "markdown-editor/**/*.ts",
     "markdown-view/**/*.ts",
     "pwa/**/*.ts",
-    "shell/**/*.ts"
+    "shell/**/*.ts",
+    "screens/**/*.ts",
+    "views/**/*.ts"
   ],
   "angularCompilerOptions": {
     "extendedDiagnostics": {
