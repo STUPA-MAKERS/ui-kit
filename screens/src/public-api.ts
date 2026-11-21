@@ -5,3 +5,4 @@
  * it data and slots only (S/framework/architecture/002200).
  */
 export * from './width';
+export * from './list-detail-screen/list-detail-screen.component';

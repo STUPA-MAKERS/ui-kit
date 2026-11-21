@@ -1,0 +1,19 @@
+@use '../../../src/styles/list-pane' as lp;
+
+// The frame of every list page (000192): the kit mixin, nothing of its own.
+@include lp.frame(lds);
+
+.lds__rows {
+  @include lp.stack;
+}
+.lds--split .lds__rows > app-list-item {
+  border-radius: var(--radius-lg);
+}
+.lds__more {
+  @include lp.more;
+}
+.lds__trail {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}

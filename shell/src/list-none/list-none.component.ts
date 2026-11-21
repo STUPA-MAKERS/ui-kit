@@ -8,19 +8,15 @@ import {
 } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { ActivatedRoute } from '@angular/router';
-import { DetailNoneComponent, type DetailNoneState, type IconName } from '@stupa-makers/ui-kit';
+import {
+  DetailNoneComponent,
+  LIST_PAGE_STATE,
+  type DetailNoneState,
+  type ListNoneData,
+} from '@stupa-makers/ui-kit';
 
-/** What a list page tells the empty detail beside it. */
-export interface ListPageState {
-  readonly loading: Signal<boolean>;
-  readonly error: Signal<boolean>;
-  readonly hasRows: Signal<boolean>;
-  /** The list and the detail sit side by side (the detail is a sheet beside the list). */
-  readonly split: Signal<boolean>;
-}
-
-/** Provided by a list page with a detail outlet (`useExisting` the page). */
-export const LIST_PAGE_STATE = new InjectionToken<ListPageState>('LIST_PAGE_STATE');
+// The state of a list page lives in core, so that a screen can provide it (002215).
+export { LIST_PAGE_STATE, type ListNoneData, type ListPageState } from '@stupa-makers/ui-kit';
 
 /**
  * Turns a text of the route data of `app-list-none` into the text it shows. The default
@@ -34,16 +30,6 @@ export const LIST_NONE_TEXT = new InjectionToken<(text: string) => string>('LIST
   providedIn: 'root',
   factory: () => (text: string) => text,
 });
-
-/** The route data `none` of the empty child route of a list page. */
-export interface ListNoneData {
-  readonly icon: IconName;
-  /** The text while a row can be picked. */
-  readonly heading: string;
-  /** The text of an empty list. */
-  readonly emptyHeading: string;
-  readonly emptyBody?: string;
-}
 
 /**
  * The detail pane of a list page before a row is open: the component of the empty child
@@ -74,9 +60,13 @@ export class ListNoneComponent {
   private readonly route = inject(ActivatedRoute);
   protected readonly text = inject(LIST_NONE_TEXT);
 
-  protected readonly data = toSignal(this.route.data, {
+  private readonly routeData = toSignal(this.route.data, {
     initialValue: this.route.snapshot.data,
   }) as unknown as Signal<{ none?: ListNoneData }>;
+  protected readonly data = computed<{ none?: ListNoneData }>(() => {
+    const own = this.page?.none?.();
+    return own ? { none: own } : this.routeData();
+  });
 
   protected readonly state = computed<DetailNoneState>(() => {
     const page = this.page;

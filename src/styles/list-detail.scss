@@ -278,3 +278,11 @@
 .pane-page > app-side-sheet {
   display: contents;
 }
+// A routed page that wraps a screen (`app-list-detail-screen` in the template of a page
+// component) passes the fill on, so the screen inside gets the free height too.
+.main > :has(> .pane-page) {
+  display: flex;
+  flex: 1 1 0;
+  flex-direction: column;
+  min-height: 0;
+}

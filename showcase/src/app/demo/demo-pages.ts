@@ -1,52 +1,39 @@
-import {
-  ChangeDetectionStrategy,
-  Component,
-  computed,
-  inject,
-  input,
-  signal,
-  viewChild,
-} from "@angular/core";
-import { Router, RouterOutlet } from "@angular/router";
+import { ChangeDetectionStrategy, Component, computed, input, signal } from '@angular/core';
 import {
   FactsComponent,
-  ListDetailLayoutComponent,
-  ListGroupComponent,
-  ListItemComponent,
-  MEDIA,
-  mediaQuery,
   PageHeaderComponent,
-  SearchPillComponent,
   SectionComponent,
   SheetBarComponent,
   SheetBarTitleDirective,
   StatusTextComponent,
-  StickyBarComponent,
-} from "@stupa-makers/ui-kit";
-import {
-  FrameworkShellComponent,
-  injectListDetailPage,
-} from "@stupa-makers/ui-kit/shell";
+  type Action,
+  type FilterDef,
+  type ListGroup,
+  type ListRow,
+  type LoadState,
+} from '@stupa-makers/ui-kit';
+import { ListDetailScreenComponent } from '@stupa-makers/ui-kit/screens';
+import { FrameworkShellComponent } from '@stupa-makers/ui-kit/shell';
 
-import { DEMO_ROWS, demoFrame } from "./demo-config";
+import { DEMO_ROWS, demoFrame } from './demo-config';
 
 /** The demo app: the framework shell with the config of `demoConfig()`. */
 @Component({
-  selector: "sc-demo-frame",
+  selector: 'sc-demo-frame',
   imports: [FrameworkShellComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `<app-framework-shell (action)="onAction($event)" />`,
 })
 export class DemoFrame {
   protected onAction(key: string): void {
-    if (key === "signIn") demoFrame.set("rail");
+    if (key === 'signIn') demoFrame.set('rail');
     else console.info(`[showcase] action ${key}`);
   }
 }
 
 /** A start page from kit parts: the page header and a section with facts. */
 @Component({
-  selector: "sc-demo-start",
+  selector: 'sc-demo-start',
   imports: [PageHeaderComponent, SectionComponent, FactsComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
@@ -76,48 +63,71 @@ export class DemoFrame {
 })
 export class DemoStartPage {}
 
-/**
- * A list page from kit parts: `app-list-detail`, the pane header, the search in the sticky
- * bar and the rows of `app-list-group`. The frame comes from the `frame` mixin of the kit.
- */
+/** The list page: the list/detail screen of the kit with data only, no template or style. */
 @Component({
-  selector: "sc-demo-list",
-  imports: [
-    ListDetailLayoutComponent,
-    PageHeaderComponent,
-    StickyBarComponent,
-    SearchPillComponent,
-    ListGroupComponent,
-    ListItemComponent,
-    StatusTextComponent,
-    RouterOutlet,
-  ],
+  selector: 'sc-demo-list',
+  imports: [ListDetailScreenComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  host: { "[class.pane-page]": "split()" },
-  templateUrl: "./demo-list.page.html",
-  styleUrl: "./demo-list.page.scss",
+  template: `
+    <app-list-detail-screen
+      [head]="{ title: 'Anträge' }"
+      [rows]="rows()"
+      [search]="{ placeholder: 'Anträge durchsuchen' }"
+      [filters]="filters"
+      [actions]="actions"
+      [none]="{ heading: 'Kein Antrag geöffnet', icon: 'file' }"
+      (query)="query.set($event.search)"
+      (action)="onAction($event.key)"
+    />
+  `,
 })
 export class DemoListPage {
-  private readonly router = inject(Router);
-  private readonly layout = viewChild(ListDetailLayoutComponent);
-  private readonly page = injectListDetailPage(this.layout);
-  protected readonly split = this.page.split;
-  protected readonly selectedId = this.page.selectedId;
-  protected readonly phone = mediaQuery(MEDIA.phone);
-  protected readonly query = signal("");
-  protected readonly rows = computed(() => {
+  protected readonly query = signal('');
+  protected readonly filters: readonly FilterDef[] = [
+    {
+      key: 'state',
+      label: 'Status',
+      kind: 'single',
+      value: null,
+      options: [
+        { value: '', label: 'Alle' },
+        { value: 'accent', label: 'In Prüfung' },
+        { value: 'warn', label: 'Rückfrage' },
+      ],
+    },
+  ];
+  protected readonly actions: readonly Action[] = [
+    { key: 'create', label: 'Antrag erfassen', kind: 'main', priority: 'fab' },
+    { key: 'export', label: 'Exportieren', icon: 'download', priority: 'menu' },
+  ];
+  protected readonly rows = computed<LoadState<readonly ListGroup[]>>(() => {
     const q = this.query().trim().toLowerCase();
-    return DEMO_ROWS.filter((r) => !q || r.title.toLowerCase().includes(q));
+    const rows: readonly ListRow[] = DEMO_ROWS.filter(
+      (r) => !q || r.title.toLowerCase().includes(q),
+    ).map((r) => ({
+      id: r.id,
+      title: r.title,
+      meta: [r.sub],
+      status: { label: r.status, kind: r.kind },
+      link: { commands: ['/demo/applications', r.id] },
+    }));
+    return rows.length
+      ? { state: 'ready', data: [{ key: 'open', label: 'Offen', rows }] }
+      : {
+          state: 'empty',
+          heading: 'Keine Anträge gefunden',
+          icon: 'searchOff',
+        };
   });
 
-  protected back(): void {
-    void this.router.navigate(["/demo/applications"]);
+  protected onAction(key: string): void {
+    console.info(`[showcase] action ${key}`);
   }
 }
 
 /** A detail from kit parts: the sheet bar with the title, the status and the facts. */
 @Component({
-  selector: "sc-demo-detail",
+  selector: 'sc-demo-detail',
   imports: [
     SheetBarComponent,
     SheetBarTitleDirective,
@@ -130,12 +140,7 @@ export class DemoListPage {
     @if (row(); as r) {
       <article aria-labelledby="demo-detail-title">
         <app-sheet-bar>
-          <h1
-            appSheetBarTitle
-            id="demo-detail-title"
-            class="demo-title"
-            tabindex="-1"
-          >
+          <h1 appSheetBarTitle id="demo-detail-title" class="demo-title" tabindex="-1">
             {{ r.title }}
           </h1>
         </app-sheet-bar>
@@ -184,15 +189,13 @@ export class DemoListPage {
   `,
 })
 export class DemoDetailPage {
-  readonly id = input("");
-  protected readonly row = computed(() =>
-    DEMO_ROWS.find((r) => r.id === this.id()),
-  );
+  readonly id = input('');
+  protected readonly row = computed(() => DEMO_ROWS.find((r) => r.id === this.id()));
 }
 
 /** A public page: the public frame shows for everybody. */
 @Component({
-  selector: "sc-demo-about",
+  selector: 'sc-demo-about',
   imports: [PageHeaderComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
