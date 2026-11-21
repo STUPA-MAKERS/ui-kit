@@ -2,7 +2,7 @@
 id: "002245"
 title: The public screen has a fixed interface
 kind: style
-status: draft
+status: approved
 owner: frederikbeimgraben
 updated: 2026-11-21
 implementation:
@@ -50,7 +50,7 @@ Behaviour:
 - Loading shows `skeletonRows` skeleton rows. Empty shows the frameless kit empty state (001360), with
   `emptyAction` as its button. A load error is a toast with "Erneut versuchen".
 
-Decisions, each on its own card (pending):
+Decisions, each approved on its own card:
 
 - The shell draws the header and footer, not the screen.
 - Crumbs, lede and pill buttons are inputs.
