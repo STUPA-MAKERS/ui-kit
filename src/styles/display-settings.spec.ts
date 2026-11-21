@@ -554,9 +554,12 @@ describe('switchOffEdgeOnFill (§000620)', () => {
   });
 
   it('gives the switch a yellow thumb when off and a black thumb when on', () => {
+    // The switch is the M3 switch (002293): its off handle takes the edge colour (yellow under
+    // the very high contrast) and its on handle the tick colour (black under the fields).
     const sw = readFileSync(join(STYLES, '../lib/switch/switch.component.scss'), 'utf8');
-    expect(sw).toMatch(/\.sw__thumb \{\s*background: #ffff00;/);
-    expect(sw).toMatch(/\.sw__track--on \.sw__thumb \{\s*background: #000000;/);
+    expect(sw).toMatch(/--mat-slide-toggle-unselected-handle-color: var\(--check-edge,/);
+    expect(sw).toMatch(/--mat-slide-toggle-selected-handle-color: var\(--check-mark,/);
+    expect(DISPLAY).toMatch(/--check-mark: #000000;/);
   });
 });
 

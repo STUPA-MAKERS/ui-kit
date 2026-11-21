@@ -1,8 +1,10 @@
 import { ChangeDetectionStrategy, Component, computed, input, signal } from '@angular/core';
 import {
+  CheckboxComponent,
   FactsComponent,
   PageHeaderComponent,
   SectionComponent,
+  SwitchComponent,
   type Action,
   type FilterDef,
   type ListGroup,
@@ -37,10 +39,16 @@ export class DemoFrame {
   }
 }
 
-/** A start page from kit parts: the page header and a section with facts. */
+/** A start page from kit parts: the page header, a section with facts and one with controls. */
 @Component({
   selector: 'sc-demo-start',
-  imports: [PageHeaderComponent, SectionComponent, FactsComponent],
+  imports: [
+    PageHeaderComponent,
+    SectionComponent,
+    FactsComponent,
+    CheckboxComponent,
+    SwitchComponent,
+  ],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <div class="page-shell">
@@ -63,6 +71,15 @@ export class DemoFrame {
             <dd>2026</dd>
           </div>
         </dl>
+      </app-section>
+      <app-section heading="Benachrichtigungen" [level]="2">
+        <app-switch [checked]="true">E-Mail bei neuen Anträgen</app-switch>
+        <app-switch>E-Mail bei Kommentaren</app-switch>
+        <app-switch [checked]="true" [disabled]="true">Sitzungseinladungen (Pflicht)</app-switch>
+        <app-switch [disabled]="true" hint="Nur für Mitglieder">Abstimmungen</app-switch>
+        <app-checkbox [indeterminate]="true">Alle Gremien</app-checkbox>
+        <app-checkbox>AStA</app-checkbox>
+        <app-checkbox hint="Gilt für alle Fachschaften">Fachschaften</app-checkbox>
       </app-section>
     </div>
   `,

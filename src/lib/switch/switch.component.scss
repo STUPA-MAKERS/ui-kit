@@ -1,10 +1,31 @@
 @use '../../styles/display' as d;
 
+/* The track and the handle come from the M3 switch (002293). Its tokens take the `--check-*`
+   tokens of the kit, so the highlighted fields and the very high contrast (000620) look as
+   they do on a check box (002295). */
 :host {
   display: flex;
   flex-direction: column;
   gap: var(--space-1);
   min-width: 0;
+
+  --mat-slide-toggle-unselected-track-color: var(--check-bg, var(--color-surface-4));
+  --mat-slide-toggle-unselected-hover-track-color: var(--check-bg, var(--color-surface-4));
+  --mat-slide-toggle-unselected-focus-track-color: var(--check-bg, var(--color-surface-4));
+  --mat-slide-toggle-unselected-pressed-track-color: var(--check-bg, var(--color-surface-4));
+  --mat-slide-toggle-track-outline-color: var(--check-edge, var(--color-border-strong));
+  --mat-slide-toggle-unselected-handle-color: var(--check-edge, var(--color-text-muted));
+  --mat-slide-toggle-unselected-hover-handle-color: var(--check-edge, var(--color-text));
+  --mat-slide-toggle-unselected-focus-handle-color: var(--check-edge, var(--color-text));
+  --mat-slide-toggle-unselected-pressed-handle-color: var(--check-edge, var(--color-text));
+  --mat-slide-toggle-selected-track-color: var(--check-on, var(--color-accent));
+  --mat-slide-toggle-selected-hover-track-color: var(--check-on, var(--color-accent));
+  --mat-slide-toggle-selected-focus-track-color: var(--check-on, var(--color-accent));
+  --mat-slide-toggle-selected-pressed-track-color: var(--check-on, var(--color-accent));
+  --mat-slide-toggle-selected-handle-color: var(--check-mark, var(--color-on-accent));
+  --mat-slide-toggle-selected-hover-handle-color: var(--check-mark, var(--color-on-accent));
+  --mat-slide-toggle-selected-focus-handle-color: var(--check-mark, var(--color-on-accent));
+  --mat-slide-toggle-selected-pressed-handle-color: var(--check-mark, var(--color-on-accent));
 }
 .sw {
   display: flex;
@@ -24,76 +45,33 @@
 .sw__label:empty {
   display: none;
 }
-.sw--disabled {
-  opacity: 0.5;
+.sw__toggle {
+  flex: none;
 }
 .sw--disabled .sw__label {
   cursor: not-allowed;
-}
-.sw__track {
-  position: relative;
-  flex: none;
-  width: 44px;
-  height: 26px;
-  padding: 0;
-  border: 0;
-  border-radius: 13px;
-  background: var(--check-bg, var(--color-surface-4));
-  box-shadow: var(--check-checked-edge, none);
-  cursor: pointer;
-  transition: background-color var(--motion-fast) var(--ease-standard);
-}
-.sw__track:disabled {
-  cursor: not-allowed;
-}
-.sw__thumb {
-  position: absolute;
-  top: 3px;
-  left: 3px;
-  width: 20px;
-  height: 20px;
-  border-radius: 10px;
-  /* The off thumb carries the muted text colour. The outline colour was so close to the
-     track that a switch that was off looked disabled. */
-  background: var(--check-mark, var(--color-text-muted));
-  transition:
-    transform var(--motion-fast) var(--ease-standard),
-    background-color var(--motion-fast) var(--ease-standard);
-}
-.sw__track--on {
-  background: var(--check-on, var(--color-accent));
-}
-.sw__track--on .sw__thumb {
-  transform: translateX(18px);
-  background: var(--check-mark, var(--color-on-accent));
+  opacity: 0.5;
 }
 .sw__hint {
+  margin: 0;
   font-size: var(--fs-small);
   line-height: var(--lh-small);
   color: var(--color-text-muted);
 }
 
-/* Very high contrast (app spec 000605): a disabled switch is not faded. Its label is white,
-   its track has a dashed white edge and no fill, and its thumb is white. */
+/* Very high contrast (app spec 000605): a disabled switch is not faded, its label is white. */
 @include d.host-on(veryHigh) {
-  // Off: black with the yellow edge and a yellow thumb. On: yellow with a black thumb (app
-  // spec 000620).
-  .sw__thumb {
-    background: #ffff00;
-  }
-  .sw__track--on .sw__thumb {
-    background: #000000;
-  }
-  .sw--disabled {
+  .sw--disabled .sw__label {
     opacity: 1;
   }
-  .sw--disabled .sw__track {
-    background: #000000;
-    box-shadow: none;
-    outline: 2px dashed #ffffff;
-    outline-offset: -2px;
-  }
-  .sw--disabled .sw__thumb {
-    background: #ffffff;
+  :host {
+    --mat-slide-toggle-disabled-track-opacity: 1;
+    --mat-slide-toggle-disabled-unselected-handle-opacity: 1;
+    --mat-slide-toggle-disabled-selected-handle-opacity: 1;
+    --mat-slide-toggle-disabled-unselected-track-color: #000000;
+    --mat-slide-toggle-disabled-unselected-track-outline-color: #ffffff;
+    --mat-slide-toggle-disabled-unselected-handle-color: #ffffff;
+    --mat-slide-toggle-disabled-selected-track-color: #000000;
+    --mat-slide-toggle-disabled-selected-handle-color: #ffffff;
   }
 }
