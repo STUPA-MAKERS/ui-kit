@@ -2,7 +2,7 @@
 id: "002242"
 title: The form screen has a fixed interface
 kind: style
-status: draft
+status: approved
 owner: frederikbeimgraben
 updated: 2026-11-21
 implementation:

@@ -350,7 +350,7 @@ specs/
 | [S/framework/screens/002218](style/framework/screens/002218_list-detail-contract.md) | The list/detail screen owns the list, the panes and the URL state | approved |
 | [S/framework/screens/002240](style/framework/screens/002240_list-detail-screen.md) | The list/detail screen has a fixed interface | approved |
 | [S/framework/screens/002241](style/framework/screens/002241_detail-screen.md) | The detail screen has a fixed interface | approved |
-| [S/framework/screens/002242](style/framework/screens/002242_form-screen.md) | The form screen has a fixed interface | draft |
+| [S/framework/screens/002242](style/framework/screens/002242_form-screen.md) | The form screen has a fixed interface | approved |
 | [S/framework/screens/002243](style/framework/screens/002243_wizard-screen.md) | The wizard screen has a fixed interface | approved |
 | [S/framework/screens/002244](style/framework/screens/002244_settings-screen.md) | The settings screen has a fixed interface | approved |
 | [S/framework/screens/002245](style/framework/screens/002245_public-screen.md) | The public screen has a fixed interface | approved |
