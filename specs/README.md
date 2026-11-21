@@ -339,7 +339,7 @@ specs/
 | [S/framework/forms/002256](style/framework/forms/002256_form-behaviour.md) | A form reports its value, its validity and its dirty state | approved |
 | [S/framework/material/002293](style/framework/material/002293_material-inside-wrappers.md) | A kit component may use an M3 component of Angular Material inside | approved |
 | [S/framework/material/002294](style/framework/material/002294_material-tokens-from-kit.md) | The M3 system tokens of Material come from the kit tokens | approved |
-| [S/framework/material/002295](style/framework/material/002295_material-display-modes.md) | The display modes reach the Material components | draft |
+| [S/framework/material/002295](style/framework/material/002295_material-display-modes.md) | The display modes reach the Material components | approved |
 | [S/framework/overlays/002251](style/framework/overlays/002251_dialog.md) | A dialog has a head, a body and a footer group | approved |
 | [S/framework/overlays/002252](style/framework/overlays/002252_sheets.md) | Side sheets, bottom sheets and select sheets have one frame | approved |
 | [S/framework/overlays/002253](style/framework/overlays/002253_toasts.md) | A toast is sent through the toast service | approved |

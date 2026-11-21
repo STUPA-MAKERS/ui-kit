@@ -2,7 +2,7 @@
 id: "002295"
 title: The display modes reach the Material components
 kind: style
-status: draft
+status: approved
 owner: frederikbeimgraben
 updated: 2026-11-21
 implementation:
