@@ -23,6 +23,7 @@ group of records. It must have this interface:
 head: ScreenHead
 rows: LoadState<readonly ListRow[]>  // empty and error come with the rows
 actions?: readonly Action[]          // head actions and FAB, placed by priority (002231)
+listLabel?: string | null            // the name of the list for screen readers; default the title
 filtersLabel?: string | null         // the name of the filter row for screen readers
 skeleton?: number                    // grey rows on the first load, default 5
 variant?: 'rows' | 'records'         // records: the denser row group of record tables
@@ -41,7 +42,7 @@ Outputs: `action: { key }`, `more: void`.
 Behaviour:
 
 - The head is the page header of the pane; the filter row sits in a sticky bar under it.
-- The rows are one row group, a list named by the title; a row without the slot is a list item
+- The rows are one row group, a list named by `listLabel`, else by the title; a row without the slot is a list item
   with the title, the meta parts joined by " · " on wrapping lines, and the link of the row.
 - The first load shows `skeleton` grey rows; a reload with a filter keeps the previous rows
   (`loading.previous`). An empty state comes from the rows. A load error is a toast with

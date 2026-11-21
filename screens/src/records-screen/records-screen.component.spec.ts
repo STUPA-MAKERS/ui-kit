@@ -60,6 +60,7 @@ class Host {
       [head]="{ title: 'Agent-Zugänge' }"
       [rows]="rows()"
       variant="records"
+      listLabel="Alle Zugänge"
       [keepOnError]="true"
     >
       <ng-template screenRecord let-row
@@ -153,7 +154,7 @@ describe('RecordsScreenComponent', () => {
   it('draws each record as a list item from the slot, the records group and the foot', async () => {
     await render(RecordHost, { providers: [provideRouter([])] });
     expect(screen.getAllByText('eigene Zeile', { exact: false })).toHaveLength(2);
-    const list = screen.getByRole('list', { name: 'Agent-Zugänge' });
+    const list = screen.getByRole('list', { name: 'Alle Zugänge' });
     expect(list.tagName).toBe('UL');
     expect(list.classList).toContain('rowgroup--records');
     expect(list.querySelectorAll(':scope > li')).toHaveLength(2);

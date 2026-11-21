@@ -96,6 +96,8 @@ export class RecordsScreenComponent {
   readonly head = input.required<ScreenHead>();
   readonly rows = input.required<LoadState<readonly ListRow[]>>();
   readonly actions = input<readonly Action[]>([]);
+  /** The name of the list for screen readers; without it, the title of the head. */
+  readonly listLabel = input<string | null>(null);
   /** The name of the filter row for screen readers. */
   readonly filtersLabel = input<string | null>(null);
   /** `records`: the denser row group of the record tables (`rowgroup--records`). */

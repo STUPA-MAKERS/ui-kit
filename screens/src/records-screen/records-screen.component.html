@@ -36,13 +36,13 @@
     }
     @if (data().length) {
       @if (recordSlot(); as slot) {
-        <ul class="rowgroup rcs__list" [class.rowgroup--records]="variant() === 'records'" [attr.aria-label]="head().title">
+        <ul class="rowgroup rcs__list" [class.rowgroup--records]="variant() === 'records'" [attr.aria-label]="listLabel() ?? head().title">
           @for (row of data(); track row.id) {
             <ng-container [ngTemplateOutlet]="slot.template" [ngTemplateOutletContext]="{ $implicit: row }" />
           }
         </ul>
       } @else {
-        <div class="rowgroup" [class.rowgroup--records]="variant() === 'records'" role="list" [attr.aria-label]="head().title">
+        <div class="rowgroup" [class.rowgroup--records]="variant() === 'records'" role="list" [attr.aria-label]="listLabel() ?? head().title">
           @for (row of data(); track row.id) {
             <app-list-item
               role="listitem"
