@@ -2,7 +2,7 @@
 id: "002230"
 title: The head of a screen is a ScreenHead
 kind: style
-status: draft
+status: approved
 owner: frederikbeimgraben
 updated: 2026-11-21
 implementation:
