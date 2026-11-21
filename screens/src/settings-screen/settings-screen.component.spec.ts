@@ -132,6 +132,16 @@ describe('SettingsScreenComponent', () => {
     expect(host.onDiscard).toHaveBeenCalledTimes(1);
   });
 
+  it('keeps the save FAB locked while the draft has an error', async () => {
+    const { view, host } = await setup();
+    host.save.set({ dirty: true, disabled: true });
+    view.detectChanges();
+    const fab = await screen.findByRole('button', { name: 'Speichern' });
+    expect(fab).toBeDisabled();
+    await userEvent.click(fab);
+    expect(host.onSave).not.toHaveBeenCalled();
+  });
+
   it('shows the labels with a grey switch while it loads', async () => {
     const { view, host } = await setup();
     host.state.set({ state: 'loading' });

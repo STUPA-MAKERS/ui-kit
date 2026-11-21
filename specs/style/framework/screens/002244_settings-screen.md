@@ -20,7 +20,7 @@ Funktionen, Hilfe & Tickets). It must have this interface:
 head: ScreenHead
 groups: readonly SettingsGroup[]
 state?: SettingsState              // default ready
-save?: { readonly dirty: boolean; readonly busy?: boolean } | null
+save?: { readonly dirty: boolean; readonly busy?: boolean; readonly disabled?: boolean } | null
 
 interface SettingsGroup { readonly key: string; readonly label?: string; readonly rows: readonly SettingsRow[] }
 interface SettingsRow {
@@ -47,7 +47,8 @@ Behaviour:
   press of the whole row (000204); `meta` is the hint under the label.
 - Without `save` each change goes out at once (Benachrichtigungen). With `save` the changes are a
   draft: while it has changes, Verwerfen stands in the head and a FAB "Speichern" saves
-  (Funktionen, Hilfe & Tickets).
+  (Funktionen, Hilfe & Tickets). `disabled` keeps the FAB but locks it while a field of the
+  draft has an error (Benachrichtigungen, Hilfe & Tickets).
 - Loading shows the real labels with a grey switch; the missing right shows as a warning note
   with a lock; a load error is a toast with "Erneut versuchen" (`app-load-state` of the app).
 - An action with `confirm` asks first.

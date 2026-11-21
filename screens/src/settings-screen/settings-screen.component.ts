@@ -63,6 +63,8 @@ export type SettingsState =
 export interface SettingsSave {
   readonly dirty: boolean;
   readonly busy?: boolean;
+  /** The draft is not valid: the FAB stays but cannot save (a field shows its error). */
+  readonly disabled?: boolean;
 }
 
 /** A custom body for one group, built with kit components (Wiki-Adresse, gesperrte Absender). */
@@ -157,7 +159,8 @@ export class SettingsScreenComponent {
   }
 
   protected onSave(): void {
-    if (this.save()?.busy) return;
+    const save = this.save();
+    if (save?.busy || save?.disabled) return;
     this.saved.emit();
   }
 
