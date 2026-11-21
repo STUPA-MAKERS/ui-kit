@@ -168,6 +168,11 @@
     border-radius: var(--radius-2xl);
     background: var(--color-surface-1);
   }
+  // A form in place of the detail (`app-form-screen`, "Antrag bearbeiten") brings its own
+  // sheet: its head bar runs from edge to edge of the pane, as in the app.
+  .#{$b}--split .#{$b}__detail:has(> * > app-form-screen) {
+    padding: 0;
+  }
   // The empty detail (`app-detail-none`) brings its own sheet.
   .#{$b}--split .#{$b}__detail:has(app-detail-none) {
     padding: 0;

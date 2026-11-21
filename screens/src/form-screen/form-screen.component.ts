@@ -1,0 +1,220 @@
+import { _IdGenerator } from '@angular/cdk/a11y';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  computed,
+  effect,
+  inject,
+  input,
+  output,
+  signal,
+  untracked,
+  viewChild,
+} from '@angular/core';
+import {
+  ButtonComponent,
+  ConfirmDialogComponent,
+  FabComponent,
+  FabGroupComponent,
+  IconComponent,
+  ListDetailBarComponent,
+  ListDetailNav,
+  ListDetailNavDirective,
+  UI_KIT_INTL,
+  UnsavedChanges,
+  type FormDef,
+  type IconName,
+  type ListDetailTask,
+  type ScreenHead,
+} from '@stupa-makers/ui-kit';
+
+import { FormComponent, type FormValue } from '../form/form.component';
+import { injectWidthClass } from '../width';
+
+/** The submit button of a form screen. §S/framework/screens/002242 */
+export interface FormScreenSubmit {
+  readonly label: string;
+  readonly busy?: boolean;
+}
+
+/** "Verwerfen" in the head while there are changes (000635). */
+export interface FormScreenDiscard {
+  readonly label: string;
+}
+
+/**
+ * The form screen (§S/framework/screens/002242): the head bar of "Antrag bearbeiten" (001890)
+ * with the icon, the title and "Abbrechen", the kit form, and "Speichern" floating at the
+ * bottom while there are changes (000198). A navigation away from changes asks first.
+ *
+ * ```html
+ * <app-form-screen [head]="{ title: 'Buchung anlegen' }" icon="swap" [form]="def"
+ *   [value]="value()" [errors]="errors()" [submit]="{ label: 'Buchung anlegen', busy: saving() }"
+ *   (valueChange)="value.set($event)" (submit)="save($event)" (cancel)="close()" />
+ * ```
+ *
+ * After `submit`, the page saves; when `busy` ends without server errors, the form takes the
+ * value as saved. In the one-view layout the head docks in the bar of the layout as a task.
+ */
+@Component({
+  selector: 'app-form-screen',
+  standalone: true,
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  imports: [
+    ButtonComponent,
+    ConfirmDialogComponent,
+    FabComponent,
+    FabGroupComponent,
+    FormComponent,
+    IconComponent,
+    ListDetailBarComponent,
+    ListDetailNavDirective,
+  ],
+  host: { '[class.fs--framed]': 'framed()', '[class.fs--onSheet]': 'onSheet()' },
+  templateUrl: './form-screen.component.html',
+  styleUrl: './form-screen.component.scss',
+})
+export class FormScreenComponent {
+  readonly head = input.required<ScreenHead>();
+  /** The icon of the thing for a new one, the pen for an edit (001890). */
+  readonly icon = input<IconName>('edit');
+  readonly subtitle = input<string>('');
+  readonly form = input.required<FormDef>();
+  readonly value = input<FormValue>({});
+  readonly errors = input<Readonly<Record<string, string>>>({});
+  readonly submit = input.required<FormScreenSubmit>();
+  readonly discard = input<FormScreenDiscard | null>(null);
+
+  readonly valueChange = output<FormValue>();
+  /** The person pressed the submit button and the form is valid. */
+  readonly submitted = output<FormValue>({ alias: 'submit' });
+  /** "Verwerfen": the page sets the saved value again. */
+  readonly discarded = output<void>({ alias: 'discard' });
+  /** "Abbrechen": the page closes the form; it asks first while there are changes. */
+  readonly cancelled = output<void>({ alias: 'cancel' });
+
+  protected readonly intl = inject(UI_KIT_INTL);
+  private readonly nav = inject(ListDetailNav, { optional: true });
+  /** The own bar of the screen on a phone outside the one-view layout. */
+  private readonly ownNav = viewChild(ListDetailNavDirective, { read: ListDetailNav });
+  private readonly unsaved = inject(UnsavedChanges);
+  protected readonly kitForm = viewChild.required(FormComponent);
+  protected readonly titleId = inject(_IdGenerator).getId('app-form-screen-title-');
+
+  /** The form has changes the page has not saved. */
+  protected readonly dirty = computed(() => this.kitForm().dirty());
+  protected readonly busy = computed(() => !!this.submit().busy);
+  /** On a phone "Verwerfen" floats beside "Speichern", so the head keeps room for the title. */
+  protected readonly phone = computed(() => this.width() === 'phone');
+  private readonly width = injectWidthClass();
+  /** The bar of the one-view layout around the screen is on. */
+  private readonly inLayout = computed(() => !!this.nav?.active());
+  /**
+   * On a phone outside the one-view layout the screen shows the same bar itself: X and the
+   * title at the top of the page (001890). A form without a way out ("Verwerfen") has no X.
+   */
+  protected readonly ownBar = computed(
+    () => !this.inLayout() && this.phone() && this.discard() === null,
+  );
+  /** Wider than a phone, the form lies on a sheet: the detail pane, or its own frame. */
+  protected readonly onSheet = computed(() => !this.inLayout() && !this.phone());
+  /** Outside the list/detail layout the screen is that sheet itself, with round corners. */
+  protected readonly framed = computed(() => !this.nav && !this.phone());
+  /** A bar at the top shows the title and the X, so the head stays for screen readers only. */
+  protected readonly docked = computed(() => this.inLayout() || this.ownBar());
+
+  /** The question before leaving; it resolves with the answer. */
+  protected readonly leaving = signal<((leave: boolean) => void) | null>(null);
+  /** The last submit has not met a change or a server error since. */
+  private readonly sent = signal(false);
+  private latest: FormValue = {};
+
+  constructor() {
+    this.holdWhileDirty();
+    this.takeSavedValue();
+    this.dockInLayoutBar();
+  }
+
+  protected onValue(value: FormValue): void {
+    this.latest = value;
+    this.sent.set(false);
+    this.valueChange.emit(value);
+  }
+
+  protected onSubmit(): void {
+    if (this.busy() || !this.kitForm().showErrors()) return;
+    this.sent.set(true);
+    this.submitted.emit(this.latest);
+  }
+
+  protected onDiscard(): void {
+    this.discarded.emit();
+    queueMicrotask(() => this.kitForm().markPristine());
+  }
+
+  protected async onCancel(): Promise<void> {
+    if (this.dirty() && !(await this.ask())) return;
+    this.release?.();
+    this.release = null;
+    this.cancelled.emit();
+  }
+
+  protected answer(leave: boolean): void {
+    this.leaving()?.(leave);
+    this.leaving.set(null);
+  }
+
+  private ask(): Promise<boolean> {
+    return new Promise((resolve) => this.leaving.set(resolve));
+  }
+
+  private release: (() => void) | null = null;
+
+  /** Hold a place in `UnsavedChanges` while there are changes, so the route guard asks. */
+  private holdWhileDirty(): void {
+    effect((onCleanup) => {
+      const hold = this.dirty() && !this.busy() && !(this.sent() && !this.hasErrors());
+      if (!hold) return;
+      const release = untracked(() => this.unsaved.hold(() => this.ask()));
+      this.release = release;
+      onCleanup(() => {
+        release();
+        if (this.release === release) this.release = null;
+      });
+    });
+  }
+
+  private hasErrors(): boolean {
+    return Object.keys(this.errors()).length > 0;
+  }
+
+  /** When `busy` ends without server errors, the form takes the value as saved. */
+  private takeSavedValue(): void {
+    const wasBusy = signal(false);
+    effect(() => {
+      const busy = this.busy();
+      const errors = this.errors();
+      untracked(() => {
+        if (wasBusy() && !busy && Object.keys(errors).length === 0) this.kitForm().markPristine();
+        wasBusy.set(busy);
+      });
+    });
+  }
+
+  /** The bar at the top (of the layout, or the own one) shows the title and the X. */
+  private dockInLayoutBar(): void {
+    effect((onCleanup) => {
+      const nav = this.inLayout() ? this.nav : this.ownBar() ? this.ownNav() : null;
+      if (!nav) return;
+      const task: ListDetailTask = {
+        title: this.head().title,
+        cancelLabel: this.intl.translate('confirm.cancel'),
+        cancel: () => void this.onCancel(),
+      };
+      untracked(() => nav.task.set(task));
+      onCleanup(() => {
+        if (nav.task() === task) nav.task.set(null);
+      });
+    });
+  }
+}

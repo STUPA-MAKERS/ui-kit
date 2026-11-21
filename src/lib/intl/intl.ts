@@ -84,6 +84,9 @@ export type UiKitTextKey =
   | 'form.drop'
   | 'form.uploading'
   | 'form.wrongType'
+  | 'form.leaveTitle'
+  | 'form.leaveBody'
+  | 'form.leaveConfirm'
   | 'search.clear'
   | 'search.results'
   | 'search.resultsOne'
@@ -216,6 +219,9 @@ export const UI_KIT_DEFAULT_MESSAGES: Record<UiLang, UiKitMessages> = {
     'form.drop': 'Dateien hierher ziehen oder auswählen',
     'form.uploading': 'Wird hochgeladen …',
     'form.wrongType': 'Diese Art von Datei geht hier nicht.',
+    'form.leaveTitle': 'Änderungen verwerfen?',
+    'form.leaveBody': 'Die Änderungen auf dieser Seite sind nicht gespeichert und gehen verloren.',
+    'form.leaveConfirm': 'Verwerfen',
     'search.clear': 'Suche leeren',
     'search.results': '{n} Treffer',
     'search.resultsOne': '1 Treffer',
@@ -344,6 +350,9 @@ export const UI_KIT_DEFAULT_MESSAGES: Record<UiLang, UiKitMessages> = {
     'form.drop': 'Drag files here or choose them',
     'form.uploading': 'Uploading …',
     'form.wrongType': 'This kind of file is not allowed here.',
+    'form.leaveTitle': 'Discard the changes?',
+    'form.leaveBody': 'The changes on this page are not saved and will be lost.',
+    'form.leaveConfirm': 'Discard',
     'search.clear': 'Clear search',
     'search.results': '{n} results',
     'search.resultsOne': '1 result',

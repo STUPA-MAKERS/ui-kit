@@ -1,6 +1,6 @@
-import { ChangeDetectionStrategy, Component, computed, input, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject, input, signal } from '@angular/core';
+import { ActivatedRoute, Router } from '@angular/router';
 import {
-  ButtonComponent,
   CheckboxComponent,
   FactsComponent,
   PageHeaderComponent,
@@ -21,7 +21,7 @@ import {
   ScreenCommentsDirective,
   ScreenSheetDirective,
   ScreenTabDirective,
-  FormComponent,
+  FormScreenComponent,
   type FormValue,
 } from '@stupa-makers/ui-kit/screens';
 import { FrameworkShellComponent } from '@stupa-makers/ui-kit/shell';
@@ -242,8 +242,61 @@ export class DemoDetailPage {
     { key: 'votes', label: 'Abstimmungen', icon: 'vote', mark: 'new' },
   ];
 
+  private readonly router = inject(Router);
+  private readonly route = inject(ActivatedRoute);
+
   protected onAction(key: string): void {
+    if (key === 'edit') {
+      void this.router.navigate(['edit'], { relativeTo: this.route });
+      return;
+    }
     console.info(`[showcase] detail action ${key}`);
+  }
+}
+
+/**
+ * "Antrag bearbeiten" in place of the detail, as in the app: the form screen in the detail
+ * pane, the same title and no subtitle or note.
+ */
+@Component({
+  selector: 'sc-demo-edit',
+  imports: [FormScreenComponent],
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  template: `
+    <app-form-screen
+      [head]="{ title: 'Antrag bearbeiten' }"
+      [form]="form()"
+      [value]="value()"
+      [submit]="{ label: 'Speichern', busy: saving() }"
+      (valueChange)="value.set($event)"
+      (submit)="save($event)"
+      (cancel)="close()"
+    />
+  `,
+})
+export class DemoEditPage {
+  readonly id = input('');
+  private readonly router = inject(Router);
+  private readonly route = inject(ActivatedRoute);
+  private readonly row = computed(() => DEMO_ROWS.find((r) => r.id === this.id()));
+  protected readonly value = signal<FormValue>({});
+  protected readonly saving = signal(false);
+  protected readonly form = computed(() => DEMO_FORM(this.value()['payee'] === 'person'));
+
+  constructor() {
+    queueMicrotask(() => this.value.set({ title: this.row()?.title ?? '', count: 120 }));
+  }
+
+  protected save(_value: FormValue): void {
+    this.saving.set(true);
+    setTimeout(() => {
+      this.saving.set(false);
+      this.close();
+    }, 600);
+  }
+
+  protected close(): void {
+    void this.router.navigate(['..'], { relativeTo: this.route });
   }
 }
 
@@ -263,34 +316,41 @@ export class DemoDetailPage {
 })
 export class DemoAboutPage {}
 
-/** The kit form with every field kind (002255); "Prüfen" shows the errors. */
+/** The form screen (002242) with the kit form of every field kind (002255). */
 @Component({
   selector: 'sc-demo-form',
-  imports: [PageHeaderComponent, FormComponent, ButtonComponent],
+  imports: [FormScreenComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
-    <div class="page-shell">
-      <app-page-header title="Formular" />
-      <app-form
-        #f
-        [form]="form()"
-        [value]="value()"
-        [errors]="errors()"
-        (valueChange)="value.set($event)"
-      />
-      <div>
-        <app-button (click)="check(f.showErrors())">Prüfen</app-button>
-      </div>
-    </div>
+    <app-form-screen
+      [head]="{ title: 'Antrag bearbeiten' }"
+      subtitle="Sommerfest 2026"
+      [form]="form()"
+      [value]="value()"
+      [errors]="errors()"
+      [submit]="{ label: 'Speichern', busy: saving() }"
+      (valueChange)="value.set($event)"
+      (submit)="save($event)"
+      (cancel)="value.set(saved())"
+    />
   `,
 })
 export class DemoFormPage {
-  protected readonly value = signal<FormValue>({ title: 'Sommerfest', count: 120 });
+  protected readonly saved = signal<FormValue>({ title: 'Sommerfest', count: 120 });
+  protected readonly value = signal<FormValue>(this.saved());
   protected readonly errors = signal<Record<string, string>>({});
+  protected readonly saving = signal(false);
   /** The app computes `visible`: the IBAN shows only for a payment to a person. */
   protected readonly form = computed(() => DEMO_FORM(this.value()['payee'] === 'person'));
 
-  protected check(valid: boolean): void {
-    this.errors.set(valid ? {} : { title: 'Ein Antrag mit diesem Titel ist schon offen.' });
+  /** The demo refuses a title that starts with "Test", like a server would. */
+  protected save(value: FormValue): void {
+    this.saving.set(true);
+    setTimeout(() => {
+      const taken = String(value['title'] ?? '').startsWith('Test');
+      this.errors.set(taken ? { title: 'Ein Antrag mit diesem Titel ist schon offen.' } : {});
+      if (!taken) this.saved.set(value);
+      this.saving.set(false);
+    }, 600);
   }
 }
