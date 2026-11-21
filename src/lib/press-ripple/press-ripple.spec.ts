@@ -1,4 +1,7 @@
-import { installPressRipple, placeRipple, pressHost, PRESS_FADE_MS, PRESS_HOLD_MS, settlePressLayers } from './press-ripple';
+import { Injector, NgZone } from '@angular/core';
+import { TestBed } from '@angular/core/testing';
+import { Platform } from '@angular/cdk/platform';
+import { installPressRipple, placeRipple, pressHost, PRESS_FADE_MS, PRESS_INK_ATTR } from './press-ripple';
 
 /** jsdom applies no stylesheet, so a spec marks a host with the inline property. */
 function host(el: HTMLElement): HTMLElement {
@@ -76,12 +79,11 @@ describe('press ripple', () => {
     );
   });
 
-  it('fades the tint out after a pointer release where no layer can show', () => {
-    // A host without a box (jsdom, a hidden element) keeps the CSS ripple.
+  it('fades the CSS tint out after a pointer release without Angular', () => {
     document.body.innerHTML = '<button id="b"><span id="s">x</span></button>';
     const button = host(document.getElementById('b')!);
     pointer('pointerdown', document.getElementById('s')!, 5, 5);
-    expect(document.querySelector('.press-layer')).toBeNull();
+    expect(document.querySelector('.press-ink')).toBeNull();
     expect(button.hasAttribute('data-press-out')).toBe(false);
     pointer('pointerup', document.getElementById('s')!);
     expect(button.hasAttribute('data-press-out')).toBe(true);
@@ -89,111 +91,14 @@ describe('press ripple', () => {
     expect(button.hasAttribute('data-press-out')).toBe(false);
   });
 
-  it('draws the ripple on a layer of its own over the host, and fades it out (002164)', () => {
-    document.body.innerHTML = '<button id="b" style="border-radius: 8px; color: red"><span id="s">x</span></button>';
-    const button = host(document.getElementById('b')!);
-    button.style.setProperty('--press-tint', 'blue');
-    box(button, 10, 20, 40, 30);
-    pointer('pointerdown', document.getElementById('s')!, 15, 25);
-    const layer = document.querySelector<HTMLElement>('.press-layer')!;
-    expect(layer.parentElement).toBe(document.body);
-    expect(layer.style.left).toBe('10px');
-    expect(layer.style.top).toBe('20px');
-    expect(layer.style.width).toBe('40px');
-    expect(layer.style.borderRadius).toBe('8px');
-    expect(layer.style.getPropertyValue('--press-tint')).toBe('blue');
-    // The circle is centred on the point and reaches the farthest corner (35, 25 away).
-    const wave = layer.querySelector<HTMLElement>('.press-layer__wave')!;
-    const r = Math.ceil(Math.hypot(35, 25));
-    expect(wave.style.left).toBe(`${5 - r}px`);
-    expect(wave.style.width).toBe(`${2 * r}px`);
-    expect(button.hasAttribute('data-press-layer')).toBe(true);
-    jest.advanceTimersByTime(60);
-    pointer('pointerup', document.getElementById('s')!);
-    expect(layer.classList.contains('press-layer--out')).toBe(true);
-    // A short tap keeps the ripple until the hold has passed, then fades.
-    expect(layer.style.getPropertyValue('--press-hold')).toBe(`${PRESS_HOLD_MS - 60}ms`);
-    expect(button.hasAttribute('data-press-out')).toBe(false);
-    jest.advanceTimersByTime(PRESS_HOLD_MS - 60 + PRESS_FADE_MS - 1);
-    expect(layer.isConnected).toBe(true);
-    jest.advanceTimersByTime(1);
-    expect(layer.isConnected).toBe(false);
-    expect(button.hasAttribute('data-press-layer')).toBe(false);
-  });
-
-  it('fades without the hold when the touch becomes a scroll, and after a long press', () => {
+  it('ends the CSS ripple when the pointer drags past the slop', () => {
     document.body.innerHTML = '<button id="b"></button>';
     const button = host(document.getElementById('b')!);
-    box(button, 0, 0, 40, 30);
-    pointer('pointerdown', button, 5, 5);
-    pointer('pointercancel', button);
-    const first = document.querySelector<HTMLElement>('.press-layer')!;
-    expect(first.style.getPropertyValue('--press-hold')).toBe('0ms');
-    jest.advanceTimersByTime(PRESS_FADE_MS);
-    expect(first.isConnected).toBe(false);
-    pointer('pointerdown', button, 5, 5);
-    jest.advanceTimersByTime(PRESS_HOLD_MS + 100);
-    pointer('pointerup', button);
-    expect(document.querySelector<HTMLElement>('.press-layer')!.style.getPropertyValue('--press-hold')).toBe('0ms');
-  });
-
-  it('takes the shape of --press-radius over the corners of the host, and settles at its end', () => {
-    document.body.innerHTML = '<button id="b" style="border-radius: 0"></button>';
-    const button = host(document.getElementById('b')!);
-    button.style.setProperty('--press-radius', '999px');
-    box(button, 0, 0, 80, 44);
-    pointer('pointerdown', button, 5, 5);
-    const layer = document.querySelector<HTMLElement>('.press-layer')!;
-    expect(layer.style.borderRadius).toBe('999px');
-    settlePressLayers(document);
-    expect(layer.classList.contains('press-layer--settled')).toBe(true);
-    pointer('pointerup', button);
-  });
-
-  it('drops the layer in the frame in which its host leaves the page', () => {
-    document.body.innerHTML = '<main><button id="b"></button></main>';
-    const button = host(document.getElementById('b')!);
-    box(button, 0, 0, 40, 30);
-    pointer('pointerdown', button, 5, 5);
-    pointer('pointerup', button);
-    const layer = document.querySelector<HTMLElement>('.press-layer')!;
-    document.querySelector('main')!.innerHTML = '<p>next page</p>';
-    jest.advanceTimersByTime(20);
-    expect(layer.isConnected).toBe(false);
-    // A held press too.
-    document.body.insertAdjacentHTML('beforeend', '<button id="c"></button>');
-    const next = host(document.getElementById('c')!);
-    box(next, 0, 0, 40, 30);
-    pointer('pointerdown', next, 5, 5);
-    const held = document.querySelector<HTMLElement>('.press-layer')!;
-    next.remove();
-    jest.advanceTimersByTime(20);
-    expect(held.isConnected).toBe(false);
-  });
-
-  it('shows the layer on the marked part from its centre, drops a layer at a new press, and none in a popover', () => {
-    document.body.innerHTML =
-      '<a id="a" href="#"><span id="p" data-press-surface>i</span></a><div popover><button id="q">q</button></div>';
-    const link = host(document.getElementById('a')!);
-    box(link, 0, 0, 80, 60);
-    box(document.getElementById('p')!, 10, 10, 40, 20);
-    pointer('pointerdown', link, 1, 1);
-    const first = document.querySelector<HTMLElement>('.press-layer')!;
-    expect(first.style.left).toBe('10px');
-    const wave = first.querySelector<HTMLElement>('.press-layer__wave')!;
-    expect(wave.style.left).toBe(`${20 - Math.ceil(Math.hypot(20, 10))}px`);
-    pointer('pointerdown', link, 1, 1);
-    expect(first.isConnected).toBe(false);
-    expect(document.querySelectorAll('.press-layer')).toHaveLength(1);
-    pointer('pointerup', link);
-    const q = host(document.getElementById('q')!);
-    box(q, 0, 0, 20, 20);
-    pointer('pointerdown', q, 1, 1);
-    expect(q.hasAttribute('data-press-layer')).toBe(false);
-    pointer('pointerup', q);
-    uninstall();
-    expect(document.querySelectorAll('.press-layer')).toHaveLength(0);
-    uninstall = installPressRipple(document);
+    pointer('pointerdown', button, 10, 10);
+    pointer('pointermove', button, 14, 14);
+    expect(button.hasAttribute('data-press-out')).toBe(false);
+    pointer('pointermove', button, 10, 30);
+    expect(button.hasAttribute('data-press-out')).toBe(true);
   });
 
   it('presses with Enter or Space from the centre until the key goes up, but not in a field', () => {
@@ -206,10 +111,9 @@ describe('press ripple', () => {
     expect(button.style.getPropertyValue('--ripple-x')).toBe('20px');
     button.dispatchEvent(new KeyboardEvent('keyup', { key: 'a', bubbles: true }));
     expect(button.hasAttribute('data-press-key')).toBe(true);
-    expect(document.querySelector('.press-layer')).not.toBeNull();
     button.dispatchEvent(new KeyboardEvent('keyup', { key: ' ', bubbles: true }));
     expect(button.hasAttribute('data-press-key')).toBe(false);
-    expect(document.querySelector('.press-layer--out')).not.toBeNull();
+    expect(button.hasAttribute('data-press-out')).toBe(true);
 
     const input = document.getElementById('i')!;
     input.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter', bubbles: true }));
@@ -235,5 +139,118 @@ describe('press ripple', () => {
     button.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter', bubbles: true }));
     expect(button.hasAttribute('data-press-key')).toBe(false);
     uninstall = () => undefined;
+  });
+});
+
+describe('press ripple with Angular Material (002164)', () => {
+  let uninstall: () => void;
+
+  beforeEach(() => {
+    jest.useFakeTimers();
+    // jsdom lays nothing out; a box of zero size turns the animation of Material off.
+    jest.spyOn(HTMLElement.prototype, 'getBoundingClientRect').mockReturnValue(new DOMRect(0, 0, 100, 50));
+    uninstall = installPressRipple(document, {
+      zone: TestBed.inject(NgZone),
+      platform: TestBed.inject(Platform),
+      injector: TestBed.inject(Injector),
+    });
+  });
+  afterEach(() => {
+    uninstall();
+    jest.restoreAllMocks();
+    jest.useRealTimers();
+    document.body.innerHTML = '';
+  });
+
+  const circles = (el: Element): HTMLElement[] => Array.from(el.querySelectorAll<HTMLElement>('.mat-ripple-element'));
+  const ended = (circle: HTMLElement): void => {
+    circle.dispatchEvent(new Event('transitionend'));
+  };
+
+  it('draws the ripple in a box inside the host, grows it to the end of a short tap, then fades', () => {
+    document.body.innerHTML = '<button id="b"><span id="s">x</span></button>';
+    const button = host(document.getElementById('b')!);
+    button.style.setProperty('--press-tint', 'rgb(0, 0, 255)');
+    pointer('pointerdown', document.getElementById('s')!, 15, 25);
+    const ink = button.querySelector<HTMLElement>(':scope > .press-ink')!;
+    expect(ink.getAttribute('aria-hidden')).toBe('true');
+    expect(button.style.position).toBe('relative');
+    expect(button.hasAttribute(PRESS_INK_ATTR)).toBe(true);
+    expect(button.style.getPropertyValue('--press-paint')).toBe('transparent');
+    const [circle] = circles(ink);
+    expect(circle!.style.backgroundColor).toBe('rgb(0, 0, 255)');
+    pointer('pointerup', document.getElementById('s')!);
+    expect(button.hasAttribute('data-press-out')).toBe(false);
+    // The tap was short: the circle grows to its end before it fades.
+    expect(circle!.style.opacity).toBe('');
+    ended(circle!);
+    expect(circle!.style.opacity).toBe('0');
+    ended(circle!);
+    expect(circles(ink)).toHaveLength(0);
+    // A second press reuses the box.
+    pointer('pointerdown', button, 15, 25);
+    expect(button.querySelectorAll('.press-ink')).toHaveLength(1);
+    pointer('pointerup', button);
+  });
+
+  it('keeps a held press until the release', () => {
+    document.body.innerHTML = '<button id="b"></button>';
+    const button = host(document.getElementById('b')!);
+    pointer('pointerdown', button, 10, 10);
+    const [circle] = circles(button);
+    ended(circle!);
+    jest.advanceTimersByTime(2000);
+    expect(circle!.style.opacity).toBe('');
+    pointer('pointerup', button);
+    expect(circle!.style.opacity).toBe('0');
+  });
+
+  it('draws in the marked surface, with the corners of --press-radius', () => {
+    document.body.innerHTML = '<a id="a" href="#"><span id="p" data-press-surface>i</span></a>';
+    const link = host(document.getElementById('a')!);
+    link.style.setProperty('--press-radius', '999px');
+    pointer('pointerdown', link, 1, 1);
+    const ink = document.querySelector<HTMLElement>('#p > .press-ink')!;
+    expect(ink.style.borderRadius).toBe('999px');
+    expect(circles(ink)).toHaveLength(1);
+    pointer('pointerup', link);
+  });
+
+  it('fades at once at a drag past the slop or a cancel, and draws none on a disabled host', () => {
+    document.body.innerHTML = '<button id="b"></button><button id="d" aria-disabled="true"></button>';
+    const button = host(document.getElementById('b')!);
+    pointer('pointerdown', button, 10, 10);
+    pointer('pointermove', button, 12, 12);
+    expect(circles(button)[0]!.style.opacity).toBe('');
+    pointer('pointermove', button, 10, 30);
+    expect(circles(button)[0]!.style.opacity).toBe('0');
+    pointer('pointerdown', button, 10, 10);
+    pointer('pointercancel', button);
+    expect(circles(button).every((c) => c.style.opacity === '0')).toBe(true);
+    const off = host(document.getElementById('d')!);
+    pointer('pointerdown', off, 1, 1);
+    expect(circles(off)).toHaveLength(0);
+    pointer('pointerup', off);
+  });
+
+  it('keeps the CSS ripple on a table row, whose cells cannot hold a box', () => {
+    document.body.innerHTML = '<table><tbody><tr id="r"><td>a</td></tr></tbody></table>';
+    const row = host(document.getElementById('r')!);
+    pointer('pointerdown', row, 50, 20);
+    expect(row.querySelector('.press-ink')).toBeNull();
+    pointer('pointerup', row);
+    expect(row.hasAttribute('data-press-out')).toBe(true);
+  });
+
+  it('holds a key press from the centre until the key goes up', () => {
+    document.body.innerHTML = '<button id="b">x</button>';
+    const button = host(document.getElementById('b')!);
+    button.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter', bubbles: true }));
+    expect(button.hasAttribute('data-press-key')).toBe(false);
+    const [circle] = circles(button);
+    expect(circle!.style.left).toBe(`${50 - Math.hypot(50, 25)}px`);
+    ended(circle!);
+    button.dispatchEvent(new KeyboardEvent('keyup', { key: 'Enter', bubbles: true }));
+    expect(circle!.style.opacity).toBe('0');
   });
 });

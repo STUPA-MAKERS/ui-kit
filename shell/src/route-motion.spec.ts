@@ -110,17 +110,6 @@ describe('onRouteViewTransition', () => {
     expect(document.documentElement.dataset['motion']).toBeUndefined();
   });
 
-  it('stops a ripple layer at its end when a transition starts, and not when it skips (002164)', () => {
-    media({ [PHONE]: true });
-    document.body.insertAdjacentHTML('beforeend', '<div class="press-layer"></div>');
-    const layer = document.querySelector('.press-layer')!;
-    run(info(['applications'], ['meetings']));
-    expect(layer.classList.contains('press-layer--settled')).toBe(false);
-    run(info(['applications'], ['applications', '1']));
-    expect(layer.classList.contains('press-layer--settled')).toBe(true);
-    layer.remove();
-  });
-
   it('keeps a newer kind that a later navigation set', async () => {
     media({ [PHONE]: true });
     run(info(['applications'], ['applications', '1']));

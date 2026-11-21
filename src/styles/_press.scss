@@ -11,7 +11,10 @@
 // the point of the press and grows until it covers the element. It is a background image, so
 // it lies on top of any background colour (accent, selected, surface 2 to 4), and the corners
 // of the element clip it. Nothing shrinks, so the edges of a pressed element do not move.
-// `press-ripple.ts` (`providePressRipple`) does the parts that CSS cannot:
+// With `providePressRipple` the ripple of Angular Material draws instead, in a box inside the
+// surface (`press-ripple.ts`), and this CSS ripple stays for a table row, whose cells cannot
+// hold a box, and for an app or a test without it. `press-ripple.ts` does the parts that CSS
+// cannot:
 //   - On a pointer press it finds the element that paints the ripple (the nearest ancestor
 //     with `--press-host: 1`, which `host` sets), and writes the point of the press to
 //     `--ripple-x` and `--ripple-y` and the distance to its farthest corner to `--ripple-r`.
@@ -23,15 +26,18 @@
 // (000219), `base.scss` cuts every animation to its end, so the tint shows at once.
 
 // The element that paints the ripple. `press`, `press-on` and `press-part` set it.
+// `--press-paint` turns the CSS ripple off where the ripple of Angular Material draws
+// (`press-ripple.ts` sets it inline); a host inside such a host paints again.
 @mixin host {
   --press-host: 1;
+  --press-paint: initial;
 }
 
 // The ripple while the press lasts. Use it inside the pressed state of a `host`.
 @mixin paint {
   background-image: radial-gradient(
     circle at var(--ripple-x, 50%) var(--ripple-y, 50%),
-    var(--press-tint) var(--press-ripple),
+    var(--press-paint, var(--press-tint)) var(--press-ripple),
     transparent var(--press-ripple)
   );
   animation: press-ripple var(--motion-slow) var(--ease-standard) forwards;
@@ -40,8 +46,8 @@
 // The tint that fades out after the release. Use it inside `[data-press-out]`.
 @mixin fade {
   background-image: linear-gradient(
-    color-mix(in srgb, var(--press-tint) var(--press-fade), transparent),
-    color-mix(in srgb, var(--press-tint) var(--press-fade), transparent)
+    color-mix(in srgb, var(--press-paint, var(--press-tint)) var(--press-fade), transparent),
+    color-mix(in srgb, var(--press-paint, var(--press-tint)) var(--press-fade), transparent)
   );
   animation: press-fade var(--motion-base) var(--ease-standard) forwards;
 }
