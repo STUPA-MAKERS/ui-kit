@@ -1,31 +1,39 @@
-@use '../../styles/check' as c;
-
+/* The box and its text come from the M3 checkbox (002293). The display modes set its tokens
+   from the `--check-*` tokens of the kit (002295), so the highlighted fields and the very high
+   contrast look as before. */
 :host {
   display: inline-flex;
   flex-direction: column;
   gap: var(--space-1);
+
+  --mat-checkbox-unselected-icon-color: var(--check-edge, var(--color-border-strong));
+  --mat-checkbox-unselected-hover-icon-color: var(--check-edge, var(--color-text));
+  --mat-checkbox-unselected-focus-icon-color: var(--check-edge, var(--color-text));
+  --mat-checkbox-selected-icon-color: var(--check-on, var(--color-accent));
+  --mat-checkbox-selected-hover-icon-color: var(--check-on, var(--color-accent));
+  --mat-checkbox-selected-focus-icon-color: var(--check-on, var(--color-accent));
+  --mat-checkbox-selected-checkmark-color: var(--check-mark, var(--color-on-accent));
+  --mat-checkbox-label-text-color: var(--color-text);
 }
-/* The box and its text in one row; the kit carries no utility classes (002213). */
 .cbx {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--space-2);
-  color: var(--color-text);
-  cursor: pointer;
-}
-.cbx--disabled {
-  cursor: not-allowed;
-  opacity: 0.6;
-}
-.cbx__input {
-  @include c.box;
+  /* The box sits on the start edge of the row, as before; its state layer reaches past it. */
+  margin-inline-start: -11px;
 }
 .cbx__label {
   font-size: var(--fs-body);
   line-height: var(--lh-body);
 }
 .cbx__hint {
+  margin: 0;
   font-size: var(--fs-small);
   color: var(--color-text-muted);
-  padding-left: calc(18px + var(--space-2));
+  padding-left: calc(40px - 11px);
+}
+/* Material has no token for the fill of an unchecked box, so the highlighted fields (000598)
+   set that one part through its class (002295). */
+.cbx
+  ::ng-deep
+  .mdc-checkbox__native-control:enabled:not(:checked):not(:indeterminate)
+  ~ .mdc-checkbox__background {
+  background-color: var(--check-bg, transparent);
 }

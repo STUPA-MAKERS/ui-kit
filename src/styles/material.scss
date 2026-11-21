@@ -1,0 +1,43 @@
+// The M3 system tokens of Angular Material from the kit tokens (spec 002294). The Material
+// components inside the kit wrappers (002293) read only these `--mat-sys-*` tokens, so the
+// accent colour of the branding, the dark theme and the text size reach them with no own rule.
+// The kit generates no second palette with `mat.theme`. The display modes set the component
+// tokens in each wrapper (002295).
+:root {
+  // Colour roles.
+  --mat-sys-primary: var(--color-accent);
+  --mat-sys-on-primary: var(--color-on-accent);
+  --mat-sys-primary-container: var(--color-accent-container);
+  --mat-sys-on-primary-container: var(--color-on-accent-container);
+  --mat-sys-surface: var(--color-surface);
+  --mat-sys-surface-variant: var(--color-surface-2);
+  --mat-sys-surface-container: var(--color-surface-2);
+  --mat-sys-surface-container-high: var(--color-surface-3);
+  --mat-sys-surface-container-highest: var(--color-surface-4);
+  --mat-sys-on-surface: var(--color-text);
+  --mat-sys-on-surface-variant: var(--color-text-muted);
+  --mat-sys-outline: var(--color-border-strong);
+  --mat-sys-outline-variant: var(--color-border);
+  --mat-sys-error: var(--color-danger);
+  --mat-sys-on-error: var(--color-on-danger);
+
+  // State layers: the tint of the kit press (001314) for a press, M3 values for hover and focus.
+  --mat-sys-hover-state-layer-opacity: 0.08;
+  --mat-sys-focus-state-layer-opacity: 0.1;
+  --mat-sys-pressed-state-layer-opacity: 0.16;
+
+  // Shape.
+  --mat-sys-corner-full: var(--radius-pill);
+
+  // Type scale: body text and the small title (tabs).
+  --mat-sys-body-medium-font: var(--font-sans);
+  --mat-sys-body-medium-size: var(--fs-body);
+  --mat-sys-body-medium-line-height: var(--lh-body);
+  --mat-sys-body-medium-weight: var(--fw-regular);
+  --mat-sys-body-medium-tracking: 0;
+  --mat-sys-title-small-font: var(--font-sans);
+  --mat-sys-title-small-size: var(--fs-body);
+  --mat-sys-title-small-line-height: var(--lh-body);
+  --mat-sys-title-small-weight: var(--fw-semibold);
+  --mat-sys-title-small-tracking: 0;
+}

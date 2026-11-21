@@ -1,21 +1,17 @@
 <span class="sw" [class.sw--disabled]="isDisabled()">
-  <label class="sw__label" [for]="id()" [id]="id() + '-label'"><ng-content /></label>
-  <button
-    type="button"
-    role="switch"
-    class="sw__track"
-    [class.sw__track--on]="checked()"
+  <label class="sw__label" [for]="id() + '-button'" [id]="id() + '-label'"><ng-content /></label>
+  <mat-slide-toggle
+    class="sw__toggle"
     [id]="id()"
+    [checked]="checked()"
     [disabled]="isDisabled()"
-    [attr.aria-checked]="checked()"
-    [attr.aria-label]="ariaLabel() || null"
-    [attr.aria-labelledby]="ariaLabel() ? null : id() + '-label'"
-    [attr.aria-describedby]="hint() ? id() + '-hint' : null"
-    (click)="toggle()"
-    (blur)="onTouched()"
-  >
-    <span class="sw__thumb" aria-hidden="true"></span>
-  </button>
+    [hideIcon]="true"
+    [aria-label]="ariaLabel() || null"
+    [aria-labelledby]="ariaLabel() ? null : id() + '-label'"
+    [aria-describedby]="hint() ? id() + '-hint' : ''"
+    (change)="set($event.checked)"
+    (focusout)="onTouched()"
+  />
 </span>
 @if (hint()) {
   <p class="sw__hint" [id]="id() + '-hint'">{{ hint() }}</p>

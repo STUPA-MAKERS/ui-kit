@@ -1,17 +1,15 @@
-<label class="cbx" [class.cbx--disabled]="disabled()" [for]="id">
-  <input
-    class="cbx__input"
-    type="checkbox"
-    [id]="id"
-    [checked]="checked()"
-    [indeterminate]="indeterminate()"
-    [disabled]="disabled()"
-    [attr.aria-describedby]="hint ? id + '-hint' : null"
-    (change)="onToggle($event)"
-    (blur)="onTouched()"
-  />
-  <span class="cbx__label"><ng-content /></span>
-</label>
+<mat-checkbox
+  class="cbx"
+  [id]="id"
+  [checked]="checked()"
+  [indeterminate]="indeterminate()"
+  [disabled]="disabled()"
+  [aria-describedby]="hint ? id + '-hint' : ''"
+  (change)="onToggle($event.checked)"
+  (indeterminateChange)="keepMixed()"
+  (focusout)="onTouched()"
+  ><span class="cbx__label"><ng-content /></span
+></mat-checkbox>
 @if (hint) {
   <p class="cbx__hint" [id]="id + '-hint'">{{ hint }}</p>
 }

@@ -59,7 +59,8 @@ describe('SwitchComponent', () => {
     await render(`<app-switch [disabled]="true">Aus</app-switch>`, { imports: [SwitchComponent] });
     const sw = screen.getByRole('switch');
     expect(sw).toBeDisabled();
-    await userEvent.click(sw);
+    // Material turns off the pointer events of a disabled switch; the click still must not toggle.
+    await userEvent.setup({ pointerEventsCheck: 0 }).click(sw);
     expect(sw).toHaveAttribute('aria-checked', 'false');
   });
 
