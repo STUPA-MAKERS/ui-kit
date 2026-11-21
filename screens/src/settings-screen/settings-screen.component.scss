@@ -2,8 +2,8 @@
 // gaps), `.ht__form` (24px between the groups) and the rows of `.ft__row`/`.ht__row`.
 @use '../../../src/styles/press';
 
-// A failed load without content centres its face in the free height of the page or pane
-// (002405): the screen grows in a flex-column parent (`list-detail.scss` makes the page that
+// The face of an empty list and of a failed load without content centres in the free height of
+// the page or pane (002405): the screen grows in a flex-column parent (`list-detail.scss` makes the page that
 // holds it one), and where the parent is only as high as its content (the phone page), the face
 // is at least most of a screen high.
 :host {

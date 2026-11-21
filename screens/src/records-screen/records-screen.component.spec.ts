@@ -132,6 +132,7 @@ describe('RecordsScreenComponent', () => {
     host.rows.set({ state: 'empty', heading: 'Keine Treffer für diese Filter', icon: 'searchOff' });
     view.detectChanges();
     expect(screen.getByText('Keine Treffer für diese Filter')).toBeTruthy();
+    expect(document.querySelector('app-empty-state')).toHaveClass('es-host--fill');
     expect(screen.queryByRole('list')).toBeNull();
   });
 

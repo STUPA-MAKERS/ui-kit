@@ -49,7 +49,8 @@ Behaviour:
 - The rows are one row group, a list named by `listLabel`, else by the title; a row without the slot is a list item
   with the title, the meta parts joined by " · " on wrapping lines, and the link of the row.
 - The first load shows `skeleton` grey rows; a reload with a filter keeps the previous rows
-  (`loading.previous`). An empty state comes from the rows. A load error is a toast with
+  (`loading.previous`). An empty state comes from the rows; its face centres vertically in the free height of the page
+  or pane, as the face of a load error does (002405). A load error is a toast with
   "Erneut versuchen". `ready.more` adds a "Mehr laden" button at the end.
 - In the pane of a list/detail page the screen starts 32 px below the top of the sheet, as the
   settings screen does (002244).

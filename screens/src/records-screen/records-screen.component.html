@@ -47,7 +47,7 @@
       <app-empty-state icon="alert" fill [heading]="message" />
     } @else if (shown(); as r) {
       @if (r.state === 'empty') {
-        <app-empty-state [icon]="r.icon" [heading]="r.heading" />
+        <app-empty-state [icon]="r.icon" fill [heading]="r.heading" />
       }
     }
     @if (data().length) {

@@ -266,8 +266,8 @@
   min-height: min(60dvh, 32rem);
 }
 
-// The page that holds a records or settings screen grows in the detail pane, so the face of a
-// failed load centres in the free height of the pane (002405).
+// The page that holds a records or settings screen grows in the detail pane, so the face of an
+// empty list or a failed load centres in the free height of the pane (002405).
 .ld__detail :has(> :is(app-records-screen, app-settings-screen)) {
   display: flex;
   flex: 1 0 auto;
