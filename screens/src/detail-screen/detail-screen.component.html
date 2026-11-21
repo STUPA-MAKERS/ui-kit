@@ -103,11 +103,6 @@
         @if (state(); as s) {
           @if (s.state === 'error') {
             <app-empty-state icon="alert" [heading]="s.message" />
-            <div class="ds__retry">
-              <app-button variant="outlined" (click)="s.retry()">{{
-                'note.retry' | uiKitT
-              }}</app-button>
-            </div>
           }
         }
       }

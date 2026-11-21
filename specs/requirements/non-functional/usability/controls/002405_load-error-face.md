@@ -2,7 +2,7 @@
 id: "002405"
 title: A failed load without content shows the empty-state face with the error text
 kind: non-functional
-status: draft
+status: approved
 owner: frederikbeimgraben
 updated: 2026-11-21
 implementation: null
@@ -18,7 +18,8 @@ before, its content area must show the empty-state face (`app-empty-state`, 0013
 under the face must be the text of the error toast, such as "Konnte nicht geladen werden.", with
 the icon `alert`. It must not be the text of an empty list, such as "Keine Einträge".
 
-The error toast with "Erneut versuchen" stays (000576). Content that showed before the error
+The error toast with "Erneut versuchen" stays (000576), and it is the only retry: the face has no
+button, as an empty state has none (001363). Content that showed before the error
 stays, and then no face shows.
 
 This holds for every kit screen (`LoadState` `error`) and for `app-load-state` of the app, with

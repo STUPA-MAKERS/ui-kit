@@ -43,6 +43,7 @@ import {
   type TabItem,
 } from '@stupa-makers/ui-kit';
 
+import { errorToastOn } from '../error-toast';
 import { injectWidthClass } from '../width';
 
 // The slot names are fixed by the screen contract (002217), not by the selector prefix.
@@ -210,6 +211,7 @@ export class DetailScreenComponent {
   protected readonly loadingLabel = computed(() => this.intl.translate('loading'));
 
   constructor() {
+    errorToastOn(() => this.state());
     const host = inject<ElementRef<HTMLElement>>(ElementRef).nativeElement;
     if (typeof ResizeObserver !== 'undefined') {
       const observer = new ResizeObserver(([entry]) =>

@@ -22,7 +22,6 @@ import {
   PageHeaderComponent,
   SkeletonComponent,
   StickyBarComponent,
-  ToastService,
   UI_KIT_INTL,
   loadedData,
   placeActions,
@@ -31,6 +30,7 @@ import {
   type LoadState,
   type ScreenHead,
 } from '@stupa-makers/ui-kit';
+import { errorToastOn } from '../error-toast';
 
 /** The filter chips of the page, built with kit chips; the screen puts them in the sticky bar. */
 // eslint-disable-next-line @angular-eslint/directive-selector -- fixed slot name (002217)
@@ -103,7 +103,6 @@ export class RecordsScreenComponent {
 
   protected readonly intl = inject(UI_KIT_INTL);
   private readonly router = inject(Router);
-  private readonly toasts = inject(ToastService);
   protected readonly filtersSlot = contentChild(ScreenFiltersDirective);
   protected readonly recordSlot = contentChild(ScreenRecordDirective);
   protected readonly footSlot = contentChild(ScreenListFootDirective);
@@ -121,6 +120,11 @@ export class RecordsScreenComponent {
     const r = this.shown();
     return r ? (loadedData(r) ?? []) : [];
   });
+  /** A load error with no rows on screen: the face shows the error text (002405). */
+  protected readonly failed = computed(() => {
+    const r = this.rows();
+    return r.state === 'error' && this.data().length === 0 ? r.message : null;
+  });
   protected readonly firstLoad = computed(
     () => this.rows().state === 'loading' && this.data().length === 0,
   );
@@ -135,21 +139,7 @@ export class RecordsScreenComponent {
       const r = this.rows();
       if (r.state === 'ready' || r.state === 'empty') untracked(() => this.settled.set(r));
     });
-    // A load error is a toast with Erneut versuchen, as `app-load-state` of the app shows it.
-    effect(() => {
-      const r = this.rows();
-      if (r.state !== 'error') return;
-      untracked(() =>
-        this.toasts.show({
-          text: r.message,
-          kind: 'error',
-          action: { key: 'retry', label: this.intl.translate('note.retry'), icon: 'reload' },
-          closed: (how) => {
-            if (how === 'action') r.retry();
-          },
-        }),
-      );
-    });
+    errorToastOn(() => this.rows());
   }
 
   /** An action with a route navigates; every other action is emitted with its key. */

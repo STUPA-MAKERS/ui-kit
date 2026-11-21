@@ -15,7 +15,6 @@ import {
   input,
   output,
   signal,
-  untracked,
   viewChild,
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
@@ -41,7 +40,6 @@ import {
   SkeletonComponent,
   StatusTextComponent,
   StickyBarComponent,
-  ToastService,
   UI_KIT_INTL,
   UiKitTranslatePipe,
   loadedData,
@@ -64,6 +62,7 @@ import {
   type SortDef,
 } from '@stupa-makers/ui-kit';
 
+import { errorToastOn } from '../error-toast';
 import { injectWidthClass } from '../width';
 
 /**
@@ -190,7 +189,6 @@ export class ListDetailScreenComponent implements ListPageState {
   private readonly router = inject(Router);
   private readonly route = inject(ActivatedRoute);
   private readonly frame = inject(PageFrame);
-  private readonly toasts = inject(ToastService);
   private readonly intl = inject(UI_KIT_INTL);
   private readonly layout = viewChild(ListDetailLayoutComponent);
   protected readonly width = injectWidthClass();
@@ -274,11 +272,7 @@ export class ListDetailScreenComponent implements ListPageState {
     afterNextRender(() => this.query.emit(this.currentQuery()));
     effect(() => this.frame.fill.set(this.split()));
     inject(DestroyRef).onDestroy(() => this.frame.fill.set(false));
-    effect(() => {
-      const state = this.rows();
-      if (state.state === 'error')
-        untracked(() => this.toasts.show({ text: state.message, kind: 'error' }));
-    });
+    errorToastOn(() => this.rows());
   }
 
   /** The URL holds the search and the filters, so a reload and a shared link keep them. */

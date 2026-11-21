@@ -98,6 +98,18 @@ describe('RecordsScreenComponent', () => {
     view.detectChanges();
     expect(document.querySelector('app-skeleton')).toBeNull();
     expect(screen.getAllByRole('listitem')).toHaveLength(2);
+    expect(document.querySelector('app-empty-state')).toBeNull();
+  });
+
+  it('shows the face with the error text when a load fails without rows (002405)', async () => {
+    const { view, host } = await setup();
+    host.rows.set({ state: 'empty', heading: 'Keine Einträge', icon: 'key' });
+    view.detectChanges();
+    host.rows.set({ state: 'error', message: 'Konnte nicht geladen werden.', retry: () => undefined });
+    view.detectChanges();
+    expect(document.querySelectorAll('app-empty-state')).toHaveLength(1);
+    expect(screen.getByText('Konnte nicht geladen werden.')).toBeTruthy();
+    expect(screen.queryByText('Keine Einträge')).toBeNull();
   });
 
   it('shows the empty state of the rows', async () => {

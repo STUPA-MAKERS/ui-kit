@@ -129,11 +129,6 @@
             @if (rows(); as r) {
               @if (r.state === 'error') {
                 <app-empty-state icon="alert" [heading]="r.message" />
-                <div class="lds__more">
-                  <app-button variant="outlined" (click)="r.retry()">{{
-                    'note.retry' | uiKitT
-                  }}</app-button>
-                </div>
               }
             }
           }

@@ -214,6 +214,9 @@ describe('SettingsScreenComponent', () => {
     );
     toast.mock.calls[0][0].closed?.('action');
     expect(retry).toHaveBeenCalledTimes(1);
+    expect(document.querySelectorAll('app-empty-state')).toHaveLength(1);
+    expect(screen.getByText('Konnte nicht geladen werden.')).toBeTruthy();
+    expect(screen.queryByRole('button', { name: 'Erneut versuchen' })).toBeNull();
   });
 
   it('shows plain lines while it loads with a skeleton', async () => {

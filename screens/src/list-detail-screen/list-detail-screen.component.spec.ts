@@ -3,7 +3,7 @@ import { TestBed } from '@angular/core/testing';
 import { Router, provideRouter } from '@angular/router';
 import { render, screen } from '@testing-library/angular';
 import userEvent from '@testing-library/user-event';
-import type { Action, ListGroup, ListRow, LoadState } from '@stupa-makers/ui-kit';
+import { ToastService, type Action, type ListGroup, type ListRow, type LoadState } from '@stupa-makers/ui-kit';
 
 import { runAxe } from '../../../testing/a11y';
 import { LIST_FILTERS, LIST_GROUPS, LIST_ROWS } from '../../../testing/screens';
@@ -69,6 +69,20 @@ describe('ListDetailScreenComponent', () => {
     });
     view.fixture.detectChanges();
     expect(screen.getByText('Keine Anträge')).toBeInTheDocument();
+  });
+
+  it('shows the face with the error text and the retry in the toast (002405)', async () => {
+    const { view } = await setUp({ state: 'loading' });
+    const toast = jest.spyOn(TestBed.inject(ToastService), 'show');
+    const retry = jest.fn();
+    view.fixture.componentRef.setInput('rows', { state: 'error', message: 'Konnte nicht geladen werden.', retry });
+    view.fixture.detectChanges();
+    expect(view.container.querySelector('app-empty-state')?.textContent).toContain('Konnte nicht geladen werden.');
+    expect(screen.queryByRole('button', { name: 'Erneut versuchen' })).toBeNull();
+    const opts = toast.mock.calls[0][0] as { action?: { label: string }; closed?: (how: string) => void };
+    expect(opts.action?.label).toBe('Erneut versuchen');
+    opts.closed?.('action');
+    expect(retry).toHaveBeenCalledTimes(1);
   });
 
   it('keeps the search in the URL and emits the query', async () => {

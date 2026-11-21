@@ -26,7 +26,8 @@ type LoadState<T> =
 `loading` without `previous` must show the skeleton in the shape of the page (000893). `loading`
 with `previous` must show the old data and the load bar only after its delay (000189). `empty`
 must show the empty state with the face (001360). `error` must show a toast with the retry action
-(000576) and keep the old data if there is any.
+(000576) and keep the old data if there is any; without old data it shows the face with the
+error text (002405).
 
 Reason: Four fixed cases give every view the same loading, empty and error behaviour.
 
