@@ -75,9 +75,10 @@ export class DemoStartPage {}
       [search]="{ placeholder: 'Anträge durchsuchen' }"
       [filters]="filters"
       [actions]="actions"
+      [selection]="selection"
       [none]="{ heading: 'Kein Antrag geöffnet', icon: 'file' }"
       (query)="query.set($event.search)"
-      (action)="onAction($event.key)"
+      (action)="onAction($event.key, $event.ids)"
     />
   `,
 })
@@ -100,6 +101,12 @@ export class DemoListPage {
     { key: 'create', label: 'Antrag erfassen', kind: 'main', priority: 'fab' },
     { key: 'export', label: 'Exportieren', icon: 'download', priority: 'menu' },
   ];
+  protected readonly selection = {
+    actions: [
+      { key: 'transition', label: 'Status ändern', icon: 'flow' },
+      { key: 'message', label: 'Nachricht senden', icon: 'mail' },
+    ],
+  } as const;
   protected readonly rows = computed<LoadState<readonly ListGroup[]>>(() => {
     const q = this.query().trim().toLowerCase();
     const rows: readonly ListRow[] = DEMO_ROWS.filter(
@@ -120,8 +127,8 @@ export class DemoListPage {
         };
   });
 
-  protected onAction(key: string): void {
-    console.info(`[showcase] action ${key}`);
+  protected onAction(key: string, ids?: readonly string[]): void {
+    console.info(`[showcase] action ${key}`, ids ?? []);
   }
 }
 

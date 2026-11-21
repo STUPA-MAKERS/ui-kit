@@ -1,4 +1,5 @@
 import { NgTemplateOutlet } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 import {
   afterNextRender,
   ChangeDetectionStrategy,
@@ -23,6 +24,7 @@ import { filter } from 'rxjs';
 import {
   AvatarComponent,
   ButtonComponent,
+  CheckboxComponent,
   EmptyStateComponent,
   FabComponent,
   FilterSelectComponent,
@@ -30,14 +32,17 @@ import {
   ListDetailLayoutComponent,
   ListGroupComponent,
   ListItemComponent,
+  LongPressDirective,
   PageFrame,
   PageHeaderComponent,
   RowMenuComponent,
   SearchPillComponent,
+  SelectionBarComponent,
   SkeletonComponent,
   StatusTextComponent,
   StickyBarComponent,
   ToastService,
+  UI_KIT_INTL,
   UiKitTranslatePipe,
   loadedData,
   placeActions,
@@ -58,7 +63,6 @@ import {
   type SearchDef,
   type SortDef,
 } from '@stupa-makers/ui-kit';
-
 
 import { injectWidthClass } from '../width';
 
@@ -92,6 +96,14 @@ export interface ScreenAction {
   readonly ids?: readonly string[];
 }
 
+/** The selection of a list: the actions of the selection bar. */
+export interface ScreenSelection {
+  readonly actions: readonly Action[];
+}
+
+/** The id of the menu item that starts or ends the selection on a phone. */
+const SELECT_ITEM = '__select';
+
 /** The settings of the list/detail screen. */
 export interface ListDetailScreenConfig {
   /** The route parameter of the detail child route. Default `id`. */
@@ -113,9 +125,11 @@ const SKELETON_ROWS = 8;
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     NgTemplateOutlet,
+    FormsModule,
     RouterOutlet,
     AvatarComponent,
     ButtonComponent,
+    CheckboxComponent,
     EmptyStateComponent,
     FabComponent,
     FilterSelectComponent,
@@ -123,9 +137,11 @@ const SKELETON_ROWS = 8;
     ListDetailLayoutComponent,
     ListGroupComponent,
     ListItemComponent,
+    LongPressDirective,
     PageHeaderComponent,
     RowMenuComponent,
     SearchPillComponent,
+    SelectionBarComponent,
     SkeletonComponent,
     StatusTextComponent,
     StickyBarComponent,
@@ -148,6 +164,8 @@ export class ListDetailScreenComponent implements ListPageState {
   readonly filters = input<readonly FilterDef[]>([]);
   readonly sort = input<readonly SortDef[]>([]);
   readonly actions = input<readonly Action[]>([]);
+  /** Turns on the long press, the head toggle and the selection bar (001810, 001811). */
+  readonly selection = input<ScreenSelection | null>(null);
   readonly noneText = input.required<{ readonly heading: string; readonly icon: IconName }>({
     alias: 'none',
   });
@@ -167,6 +185,7 @@ export class ListDetailScreenComponent implements ListPageState {
   private readonly route = inject(ActivatedRoute);
   private readonly frame = inject(PageFrame);
   private readonly toasts = inject(ToastService);
+  private readonly intl = inject(UI_KIT_INTL);
   private readonly layout = viewChild(ListDetailLayoutComponent);
   protected readonly width = injectWidthClass();
 
@@ -202,9 +221,32 @@ export class ListDetailScreenComponent implements ListPageState {
     return isGroups(data) ? data : [{ key: '', label: '', rows: data }];
   });
   protected readonly placed = computed(() => placeActions(this.actions(), this.width()));
-  protected readonly menu = computed<readonly RowMenuSection[]>(() =>
-    this.placed().menu.length ? [{ items: this.placed().menu.map(toMenuItem) }] : [],
+  /** The selection mode is on: rows toggle instead of opening, and the bar shows. */
+  protected readonly selecting = signal(false);
+  protected readonly selectedIds = signal<ReadonlySet<string>>(new Set());
+  /** The rows that can join the selection. */
+  private readonly selectableRows = computed(() =>
+    this.groups().flatMap((g) => g.rows.filter((r) => this.canSelect(r))),
   );
+  protected readonly selectedCount = computed(
+    () => this.selectableRows().filter((r) => this.selectedIds().has(r.id)).length,
+  );
+  protected readonly allSelected = computed(() => {
+    const rows = this.selectableRows();
+    return rows.length > 0 && rows.every((r) => this.selectedIds().has(r.id));
+  });
+  /** On a phone the toggle of the selection is the first item of the ⋮ (002231). */
+  protected readonly selectInMenu = computed(() => !!this.selection() && this.width() === 'phone');
+  protected readonly menu = computed<readonly RowMenuSection[]>(() => {
+    const key = this.selecting() ? 'screen.selectStop' : 'screen.select';
+    const select: readonly RowMenuSection[] = this.selectInMenu()
+      ? [{ items: [{ id: SELECT_ITEM, label: this.intl.translate(key), icon: 'boxok' }] }]
+      : [];
+    const own: readonly RowMenuSection[] = this.placed().menu.length
+      ? [{ items: this.placed().menu.map(toMenuItem) }]
+      : [];
+    return [...select, ...own];
+  });
   protected readonly skeletonRows = SKELETON_ROWS;
   protected readonly titleId = `lds-title-${Math.random().toString(36).slice(2, 10)}`;
 
@@ -255,9 +297,64 @@ export class ListDetailScreenComponent implements ListPageState {
     return Array.isArray(raw) ? (raw as string[]) : [String(raw)];
   }
 
+  /** The head toggle: a second press ends the selection (001811). */
+  protected toggleSelecting(): void {
+    if (this.selecting()) this.stopSelecting();
+    else this.selecting.set(true);
+  }
+
+  protected stopSelecting(): void {
+    this.selecting.set(false);
+    this.selectedIds.set(new Set());
+  }
+
+  protected canSelect(row: ListRow): boolean {
+    return !!this.selection() && row.selectable !== false;
+  }
+
+  protected isSelected(row: ListRow): boolean {
+    return this.selectedIds().has(row.id);
+  }
+
+  protected toggleRow(row: ListRow, on: boolean): void {
+    if (!this.canSelect(row)) return;
+    this.selectedIds.update(
+      (cur) => new Set(on ? [...cur, row.id] : [...cur].filter((id) => id !== row.id)),
+    );
+  }
+
+  protected toggleAll(on: boolean): void {
+    this.selectedIds.set(on ? new Set(this.selectableRows().map((r) => r.id)) : new Set());
+  }
+
+  /** A long press starts the selection with the row, or toggles it in the selection (001810). */
+  protected pressRow(row: ListRow): void {
+    if (!this.canSelect(row)) return;
+    this.selecting.set(true);
+    this.toggleRow(row, !this.isSelected(row));
+  }
+
+  /** In the selection a tap on a row toggles it instead of opening it. */
+  protected activateRow(row: ListRow): void {
+    if (this.selecting()) this.toggleRow(row, !this.isSelected(row));
+  }
+
+  /** An action of the selection bar is emitted with the ids of the selected rows. */
+  protected runSelected(a: Action): void {
+    const ids = this.selectableRows()
+      .filter((r) => this.selectedIds().has(r.id))
+      .map((r) => r.id);
+    if (ids.length === 0) return;
+    this.action.emit({ key: a.key, ids });
+  }
+
   /** An action with a route navigates; every other action is emitted with its key. */
   protected run(item: Action | RowMenuItem): void {
     const key = 'key' in item ? item.key : item.id;
+    if (key === SELECT_ITEM) {
+      this.toggleSelecting();
+      return;
+    }
     const def = this.actions().find((a) => a.key === key);
     if (def?.route) {
       void this.router.navigate([...def.route.commands], {

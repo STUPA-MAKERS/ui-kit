@@ -51,6 +51,9 @@ export type UiKitTextKey =
   | 'rowMenu.loading'
   | 'note.retry'
   | 'screen.more'
+  | 'screen.select'
+  | 'screen.selectRow'
+  | 'screen.selectStop'
   | 'confirm.cancel'
   | 'confirm.delete'
   | 'selection.toolbar'
@@ -157,6 +160,9 @@ export const UI_KIT_DEFAULT_MESSAGES: Record<UiLang, UiKitMessages> = {
     'rowMenu.loading': 'Wird geladen …',
     'note.retry': 'Erneut versuchen',
     'screen.more': 'Mehr laden',
+    'screen.select': 'Mehrere auswählen',
+    'screen.selectRow': '{title} auswählen',
+    'screen.selectStop': 'Auswahl beenden',
     'confirm.cancel': 'Abbrechen',
     'confirm.delete': 'Löschen',
     'selection.toolbar': 'Auswahl',
@@ -259,6 +265,9 @@ export const UI_KIT_DEFAULT_MESSAGES: Record<UiLang, UiKitMessages> = {
     'rowMenu.loading': 'Loading …',
     'note.retry': 'Try again',
     'screen.more': 'Load more',
+    'screen.select': 'Select several',
+    'screen.selectRow': 'Select {title}',
+    'screen.selectStop': 'End selection',
     'confirm.cancel': 'Cancel',
     'confirm.delete': 'Delete',
     'selection.toolbar': 'Selection',
