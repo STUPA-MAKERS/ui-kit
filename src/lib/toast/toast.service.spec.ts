@@ -207,4 +207,14 @@ describe('ToastService.show({ text: options }) (002253)', () => {
     service.act(id);
     expect(closed).toHaveBeenCalledWith('action');
   });
+
+  it('takes the short form show(text, kind) like the options', () => {
+    const svc = TestBed.inject(ToastService);
+    svc.show('Gespeichert', 'success');
+    svc.show('Hinweis');
+    const [a, b] = svc.toasts();
+    expect(a.message).toBe('Gespeichert');
+    expect(a.variant).toBe('success');
+    expect(b.variant).toBe('info');
+  });
 });

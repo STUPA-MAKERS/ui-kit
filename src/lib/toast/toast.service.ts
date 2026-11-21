@@ -124,8 +124,14 @@ export class ToastService {
     return this.phone() ? stack.slice(-1) : stack;
   });
 
-  /** Shows a toast and returns its id for `dismiss(id)` (002253). */
-  show(o: ToastOptions): number {
+  /**
+   * Shows a toast and returns its id for `dismiss(id)` (002253). `show(text, kind?)` is the
+   * short form of `show({ text, kind })`.
+   */
+  show(o: ToastOptions): number;
+  show(text: string, kind?: ToastKind): number;
+  show(arg: ToastOptions | string, kind?: ToastKind): number {
+    const o: ToastOptions = typeof arg === 'string' ? { text: arg, kind } : arg;
     const id = nextId++;
     const variant = VARIANT[o.kind ?? 'info'];
     const action = o.action;
