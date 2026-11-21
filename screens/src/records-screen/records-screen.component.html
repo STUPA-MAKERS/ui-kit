@@ -28,7 +28,7 @@
     <app-skeleton variant="rows" [count]="skeleton()" [label]="intl.translate('loading')" />
   } @else {
     @if (failed(); as message) {
-      <app-empty-state icon="alert" [heading]="message" />
+      <app-empty-state icon="alert" fill [heading]="message" />
     } @else if (shown(); as r) {
       @if (r.state === 'empty') {
         <app-empty-state [icon]="r.icon" [heading]="r.heading" />

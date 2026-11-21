@@ -34,7 +34,7 @@
     @case ('error') {
       @if (state(); as s) {
         @if (s.state === 'error') {
-          <app-empty-state icon="alert" [heading]="s.message" />
+          <app-empty-state icon="alert" fill [heading]="s.message" />
         }
       }
     }

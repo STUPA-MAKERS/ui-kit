@@ -266,6 +266,14 @@
   min-height: min(60dvh, 32rem);
 }
 
+// The page that holds a records or settings screen grows in the detail pane, so the face of a
+// failed load centres in the free height of the pane (002405).
+.ld__detail :has(> :is(app-records-screen, app-settings-screen)) {
+  display: flex;
+  flex: 1 0 auto;
+  flex-direction: column;
+}
+
 // A pane page fills the free height of `.main` and its panes scroll inside themselves. A basis
 // of 0 keeps the rows from pushing it taller than the viewport. It pulls the bottom padding
 // back and keeps only `--pane-foot-gap`. A closed side sheet would still take the gap, so it gets

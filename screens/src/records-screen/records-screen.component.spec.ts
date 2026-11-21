@@ -110,6 +110,7 @@ describe('RecordsScreenComponent', () => {
     host.rows.set({ state: 'error', message: 'Konnte nicht geladen werden.', retry: () => undefined });
     view.detectChanges();
     expect(document.querySelectorAll('app-empty-state')).toHaveLength(1);
+    expect(document.querySelector('app-empty-state')).toHaveClass('es-host--fill');
     expect(screen.getByText('Konnte nicht geladen werden.')).toBeTruthy();
     expect(screen.queryByText('Keine Einträge')).toBeNull();
   });

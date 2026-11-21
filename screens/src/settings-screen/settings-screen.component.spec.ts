@@ -215,6 +215,7 @@ describe('SettingsScreenComponent', () => {
     toast.mock.calls[0][0].closed?.('action');
     expect(retry).toHaveBeenCalledTimes(1);
     expect(document.querySelectorAll('app-empty-state')).toHaveLength(1);
+    expect(document.querySelector('app-empty-state')).toHaveClass('es-host--fill');
     expect(screen.getByText('Konnte nicht geladen werden.')).toBeTruthy();
     expect(screen.queryByRole('button', { name: 'Erneut versuchen' })).toBeNull();
   });

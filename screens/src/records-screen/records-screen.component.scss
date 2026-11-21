@@ -1,11 +1,18 @@
 // A copy of the record pages of STUPA-Workflow: `.admin-page` (the column with 20px gaps) and
 // the filter row of `.fs__filters`.
+// A failed load without content centres its face in the free height of the page or pane
+// (002405): the screen grows in a flex-column parent (`list-detail.scss` makes the page that
+// holds it one), and where the parent is only as high as its content (the phone page), the face
+// is at least most of a screen high.
 :host {
-  display: block;
+  display: flex;
+  flex: 1 0 auto;
+  flex-direction: column;
 }
 
 .rcs {
   display: flex;
+  flex: 1 0 auto;
   flex-direction: column;
   gap: var(--space-5);
 }
@@ -37,4 +44,8 @@
 }
 :host-context(.lds--split) .rcs:has(app-fab) {
   padding-bottom: calc(56px + var(--space-4));
+}
+
+.rcs > app-empty-state.es-host--fill {
+  min-height: min(60dvh, 32rem);
 }
