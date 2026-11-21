@@ -336,7 +336,7 @@ specs/
 | [S/framework/config/002226](style/framework/config/002226_display-settings-in-shell.md) | The display settings and the accessibility menu are part of the shell | approved |
 | [S/framework/forms/002222](style/framework/forms/002222_form-definition.md) | A form is built from a definition | approved |
 | [S/framework/forms/002255](style/framework/forms/002255_field-def.md) | A field of a form is a FieldDef of a fixed kind | approved |
-| [S/framework/forms/002256](style/framework/forms/002256_form-behaviour.md) | A form reports its value, its validity and its dirty state | draft |
+| [S/framework/forms/002256](style/framework/forms/002256_form-behaviour.md) | A form reports its value, its validity and its dirty state | approved |
 | [S/framework/material/002293](style/framework/material/002293_material-inside-wrappers.md) | A kit component may use an M3 component of Angular Material inside | approved |
 | [S/framework/material/002294](style/framework/material/002294_material-tokens-from-kit.md) | The M3 system tokens of Material come from the kit tokens | approved |
 | [S/framework/material/002295](style/framework/material/002295_material-display-modes.md) | The display modes reach the Material components | approved |
@@ -351,7 +351,7 @@ specs/
 | [S/framework/screens/002240](style/framework/screens/002240_list-detail-screen.md) | The list/detail screen has a fixed interface | approved |
 | [S/framework/screens/002241](style/framework/screens/002241_detail-screen.md) | The detail screen has a fixed interface | approved |
 | [S/framework/screens/002242](style/framework/screens/002242_form-screen.md) | The form screen has a fixed interface | approved |
-| [S/framework/screens/002243](style/framework/screens/002243_wizard-screen.md) | The wizard screen has a fixed interface | draft |
+| [S/framework/screens/002243](style/framework/screens/002243_wizard-screen.md) | The wizard screen has a fixed interface | approved |
 | [S/framework/screens/002244](style/framework/screens/002244_settings-screen.md) | The settings screen has a fixed interface | approved |
 | [S/framework/screens/002245](style/framework/screens/002245_public-screen.md) | The public screen has a fixed interface | approved |
 | [S/framework/screens/002246](style/framework/screens/002246_status-screen.md) | The status screen has a fixed interface | approved |
