@@ -25,9 +25,6 @@
   </header>
 
   <div class="fs__body" [attr.aria-labelledby]="titleId" role="region">
-    @if (top(); as t) {
-      <div class="fs__top"><ng-container [ngTemplateOutlet]="t.template" /></div>
-    }
     <app-form
       [form]="form()"
       [value]="value()"

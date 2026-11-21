@@ -8,11 +8,7 @@ import { runAxe } from '../../../testing/a11y';
 import { matchOnly } from '../../../testing/media';
 import { FORM_DEF } from '../../../testing/screens';
 import type { FormValue } from '../form/form.component';
-import {
-  FormScreenComponent,
-  ScreenFormTopDirective,
-  type FormScreenDiscard,
-} from './form-screen.component';
+import { FormScreenComponent, type FormScreenDiscard } from './form-screen.component';
 
 const DEF: FormDef = {
   sections: [
@@ -23,7 +19,7 @@ const DEF: FormDef = {
 @Component({
   changeDetection: ChangeDetectionStrategy.Eager,
   standalone: true,
-  imports: [FormScreenComponent, ScreenFormTopDirective],
+  imports: [FormScreenComponent],
   template: `
     <div [style.width.px]="width()">
       <app-form-screen
@@ -39,9 +35,7 @@ const DEF: FormDef = {
         (submit)="onSubmit($event)"
         (discard)="onDiscard()"
         (cancel)="onCancel()"
-      >
-        <ng-template screenFormTop><p>Ein Hinweis</p></ng-template>
-      </app-form-screen>
+      />
     </div>
   `,
 })
@@ -71,7 +65,6 @@ describe('FormScreenComponent', () => {
     expect(screen.getByText('Kultur')).toBeTruthy();
     expect(document.querySelector('[data-icon="swap"]')).toBeTruthy();
     expect(screen.getByRole('button', { name: 'Abbrechen' })).toBeTruthy();
-    expect(screen.getByText('Ein Hinweis')).toBeTruthy();
   });
 
   it('shows Speichern only while there are changes and submits a valid form', async () => {

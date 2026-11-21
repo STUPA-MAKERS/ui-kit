@@ -2,7 +2,6 @@ import { ChangeDetectionStrategy, Component, computed, inject, input, signal } f
 import { ActivatedRoute, Router } from '@angular/router';
 import {
   CheckboxComponent,
-  NoteComponent,
   FactsComponent,
   PageHeaderComponent,
   SectionComponent,
@@ -23,7 +22,6 @@ import {
   ScreenSheetDirective,
   ScreenTabDirective,
   FormScreenComponent,
-  ScreenFormTopDirective,
   type FormValue,
 } from '@stupa-makers/ui-kit/screens';
 import { FrameworkShellComponent } from '@stupa-makers/ui-kit/shell';
@@ -321,7 +319,7 @@ export class DemoAboutPage {}
 /** The form screen (002242) with the kit form of every field kind (002255). */
 @Component({
   selector: 'sc-demo-form',
-  imports: [FormScreenComponent, ScreenFormTopDirective, NoteComponent],
+  imports: [FormScreenComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <app-form-screen
@@ -334,11 +332,7 @@ export class DemoAboutPage {}
       (valueChange)="value.set($event)"
       (submit)="save($event)"
       (cancel)="value.set(saved())"
-    >
-      <ng-template screenFormTop>
-        <app-note>Rückfrage des Präsidiums: Bitte die Kosten aufschlüsseln.</app-note>
-      </ng-template>
-    </app-form-screen>
+    />
   `,
 })
 export class DemoFormPage {

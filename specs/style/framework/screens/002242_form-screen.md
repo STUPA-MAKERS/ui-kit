@@ -26,7 +26,7 @@ submit: { readonly label: string; readonly busy?: boolean }
 discard?: { readonly label: string } // 000635: a page without a way out; it replaces Abbrechen
 ```
 
-Slots: `screenFormTop` (optional, a note above the form).
+No slots: the screen is the head bar and the form, as "Antrag bearbeiten".
 
 Outputs: `valueChange`, `submit`, `discard`, `cancel`.
 

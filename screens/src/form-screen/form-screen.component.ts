@@ -1,12 +1,8 @@
 import { _IdGenerator } from '@angular/cdk/a11y';
-import { NgTemplateOutlet } from '@angular/common';
 import {
   ChangeDetectionStrategy,
   Component,
-  Directive,
-  TemplateRef,
   computed,
-  contentChild,
   effect,
   inject,
   input,
@@ -46,13 +42,6 @@ export interface FormScreenDiscard {
   readonly label: string;
 }
 
-/** A note above the form. */
-// eslint-disable-next-line @angular-eslint/directive-selector -- fixed slot name (002217)
-@Directive({ selector: 'ng-template[screenFormTop]', standalone: true })
-export class ScreenFormTopDirective {
-  readonly template = inject<TemplateRef<unknown>>(TemplateRef);
-}
-
 /**
  * The form screen (§S/framework/screens/002242): the head bar of "Antrag bearbeiten" (001890)
  * with the icon, the title and "Abbrechen", the kit form, and "Speichern" floating at the
@@ -72,7 +61,6 @@ export class ScreenFormTopDirective {
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
-    NgTemplateOutlet,
     ButtonComponent,
     ConfirmDialogComponent,
     FabComponent,
@@ -110,7 +98,6 @@ export class FormScreenComponent {
   /** The own bar of the screen on a phone outside the one-view layout. */
   private readonly ownNav = viewChild(ListDetailNavDirective, { read: ListDetailNav });
   private readonly unsaved = inject(UnsavedChanges);
-  protected readonly top = contentChild(ScreenFormTopDirective);
   protected readonly kitForm = viewChild.required(FormComponent);
   protected readonly titleId = inject(_IdGenerator).getId('app-form-screen-title-');
 
