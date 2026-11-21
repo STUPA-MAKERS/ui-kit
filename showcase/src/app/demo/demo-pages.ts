@@ -3,16 +3,22 @@ import {
   FactsComponent,
   PageHeaderComponent,
   SectionComponent,
-  SheetBarComponent,
-  SheetBarTitleDirective,
-  StatusTextComponent,
   type Action,
   type FilterDef,
   type ListGroup,
   type ListRow,
   type LoadState,
+  type ScreenHead,
+  type ScreenTab,
+  type SideSheetDef,
 } from '@stupa-makers/ui-kit';
-import { ListDetailScreenComponent } from '@stupa-makers/ui-kit/screens';
+import {
+  DetailScreenComponent,
+  ListDetailScreenComponent,
+  ScreenCommentsDirective,
+  ScreenSheetDirective,
+  ScreenTabDirective,
+} from '@stupa-makers/ui-kit/screens';
 import { FrameworkShellComponent } from '@stupa-makers/ui-kit/shell';
 
 import { DEMO_ROWS, demoFrame } from './demo-config';
@@ -132,72 +138,93 @@ export class DemoListPage {
   }
 }
 
-/** A detail from kit parts: the sheet bar with the title, the status and the facts. */
+/** The detail: the detail screen of the kit with data and slots, no style of its own. */
 @Component({
   selector: 'sc-demo-detail',
   imports: [
-    SheetBarComponent,
-    SheetBarTitleDirective,
-    StatusTextComponent,
+    DetailScreenComponent,
+    ScreenTabDirective,
+    ScreenSheetDirective,
+    ScreenCommentsDirective,
     FactsComponent,
     SectionComponent,
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     @if (row(); as r) {
-      <article aria-labelledby="demo-detail-title">
-        <app-sheet-bar>
-          <h1 appSheetBarTitle id="demo-detail-title" class="demo-title" tabindex="-1">
-            {{ r.title }}
-          </h1>
-        </app-sheet-bar>
-        <app-status-text chip [kind]="r.kind">{{ r.status }}</app-status-text>
-        <app-section heading="Angaben" [level]="2">
-          <dl appFacts>
-            <div>
-              <dt>Antragsteller</dt>
-              <dd>{{ r.sub }}</dd>
-            </div>
-            <div>
-              <dt>Betrag</dt>
-              <dd class="num">{{ r.amount }}</dd>
-            </div>
-            <div>
-              <dt>Eingegangen</dt>
-              <dd>{{ r.date }}</dd>
-            </div>
-          </dl>
-        </app-section>
-      </article>
-    }
-  `,
-  styles: `
-    /* The column and the title type of a sheet; they move into the kit with the detail
-       screen (M5). */
-    article {
-      display: flex;
-      flex-direction: column;
-      align-items: flex-start;
-      gap: var(--space-4);
-    }
-    app-section {
-      align-self: stretch;
-    }
-    article > app-status-text {
-      align-self: flex-start;
-    }
-    .demo-title {
-      margin: 0;
-      font-size: var(--fs-d2);
-      line-height: var(--lh-d2);
-      font-weight: var(--fw-semibold);
-      letter-spacing: var(--tracking-tight);
+      <app-detail-screen
+        [head]="head()"
+        [state]="{ state: 'ready', data: r }"
+        [tabs]="tabs"
+        [actions]="actions"
+        [sheets]="sheets"
+        [comments]="{ open: false, label: 'Kommentare' }"
+        (action)="onAction($event.key)"
+      >
+        <ng-template screenTab="data">
+          <app-section heading="Angaben" [level]="2">
+            <dl appFacts>
+              <div>
+                <dt>Antragsteller</dt>
+                <dd>{{ r.sub }}</dd>
+              </div>
+              <div>
+                <dt>Betrag</dt>
+                <dd class="num">{{ r.amount }}</dd>
+              </div>
+              <div>
+                <dt>Eingegangen</dt>
+                <dd>{{ r.date }}</dd>
+              </div>
+            </dl>
+          </app-section>
+        </ng-template>
+        <ng-template screenTab="history">
+          <app-section heading="Verlauf" [level]="2">
+            <dl appFacts>
+              <div>
+                <dt>{{ r.date }}</dt>
+                <dd>Eingereicht</dd>
+              </div>
+            </dl>
+          </app-section>
+        </ng-template>
+        <ng-template screenSheet="votes"><p>Noch keine Abstimmung.</p></ng-template>
+        <ng-template screenComments><p>Noch keine Kommentare.</p></ng-template>
+      </app-detail-screen>
     }
   `,
 })
 export class DemoDetailPage {
   readonly id = input('');
   protected readonly row = computed(() => DEMO_ROWS.find((r) => r.id === this.id()));
+  protected readonly head = computed<ScreenHead>(() => {
+    const r = this.row();
+    return r
+      ? {
+          title: r.title,
+          kicker: `Antrag A-00${r.id}`,
+          status: { label: r.status, kind: r.kind },
+          meta: [{ label: r.sub, icon: 'users' }, { label: r.date }],
+        }
+      : { title: '' };
+  });
+  protected readonly tabs: readonly ScreenTab[] = [
+    { key: 'data', label: 'Antrag' },
+    { key: 'history', label: 'Verlauf' },
+  ];
+  protected readonly actions: readonly Action[] = [
+    { key: 'edit', label: 'Bearbeiten', icon: 'edit', priority: 'head' },
+    { key: 'pdf', label: 'PDF herunterladen', icon: 'download', priority: 'menu' },
+    { key: 'archive', label: 'Archivieren', icon: 'archive', priority: 'menu' },
+  ];
+  protected readonly sheets: readonly SideSheetDef[] = [
+    { key: 'votes', label: 'Abstimmungen', icon: 'vote', mark: 'new' },
+  ];
+
+  protected onAction(key: string): void {
+    console.info(`[showcase] detail action ${key}`);
+  }
 }
 
 /** A public page: the public frame shows for everybody. */

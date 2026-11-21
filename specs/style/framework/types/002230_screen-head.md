@@ -4,7 +4,7 @@ title: The head of a screen is a ScreenHead
 kind: style
 status: approved
 owner: frederikbeimgraben
-updated: 2026-11-20
+updated: 2026-11-21
 implementation:
   - src/lib/screen/screen.types.ts
 scope:
@@ -18,7 +18,7 @@ The head of every screen must be given as a `ScreenHead`:
 ```ts
 interface ScreenHead {
   readonly title: string;              // the h1 of the page, also the page title
-  readonly kicker?: string;            // a line above the title, for example the number "A-0123"
+  readonly kicker?: string;            // the first meta chip, for example the number "A-0123"; never a line above the title
   readonly status?: StatusChip;        // 001305
   readonly meta?: readonly MetaChip[]; // 001306, in this order
   readonly back?: BackTarget | null;   // null: no back button; absent: the parent route

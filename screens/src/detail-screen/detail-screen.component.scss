@@ -1,0 +1,152 @@
+@use '../../../src/styles/meta-chips' as chips;
+@use '../../../src/styles/display' as d;
+
+:host {
+  display: block;
+}
+
+/* The body and, on a wide screen, the comments beside it (000215). */
+.ds {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--space-6);
+}
+.ds--beside {
+  grid-template-columns: minmax(0, 1fr) minmax(18rem, 22rem);
+}
+
+.ds__main {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  min-width: 0;
+}
+
+.ds__title {
+  margin: 0;
+  font-size: var(--fs-d2);
+  line-height: var(--lh-d2);
+  font-weight: var(--fw-semibold);
+  letter-spacing: var(--tracking-tight);
+}
+
+.ds__back {
+  display: grid;
+  place-items: center;
+  width: var(--control-height);
+  height: var(--control-height);
+  border-radius: 50%;
+  color: inherit;
+}
+
+.ds__chips {
+  @include chips.list;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.ds__chips > li {
+  @include chips.chip;
+}
+.ds__chip {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  max-width: 100%;
+  color: inherit;
+  text-decoration: none;
+}
+.ds__chip--link {
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.ds__body {
+  min-width: 0;
+}
+
+.ds__retry {
+  display: flex;
+  justify-content: center;
+}
+
+.ds__replaceHead {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2);
+}
+.ds__replaceTitle {
+  margin: 0;
+  font-size: var(--fs-lg);
+  font-weight: var(--fw-semibold);
+}
+
+.ds__comments {
+  min-width: 0;
+  padding: var(--space-4);
+  border-radius: var(--radius-xl);
+  background: var(--color-surface-2);
+  align-self: start;
+}
+
+/* Small half pills at the end edge of the window, one above the other (001801). */
+.ds__edgeTabs {
+  position: fixed;
+  top: 50%;
+  inset-inline-end: 0;
+  z-index: var(--z-sticky, 10);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  transform: translateY(-50%);
+}
+.ds__edgeTab {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-1);
+  width: 36px;
+  padding: var(--space-3) 0 var(--space-3) 2px;
+  border: var(--border-width) solid var(--color-border);
+  border-inline-end: 0;
+  border-start-start-radius: var(--radius-xl);
+  border-end-start-radius: var(--radius-xl);
+  background: var(--color-surface-2);
+  color: var(--color-text);
+  box-shadow: var(--shadow-md);
+  cursor: pointer;
+}
+@media (hover: hover) {
+  .ds__edgeTab:hover {
+    background: var(--color-surface-3);
+  }
+}
+.ds__edgeTab:focus-visible {
+  outline: 2px solid var(--color-focus-ring);
+  outline-offset: 2px;
+}
+.ds__mark {
+  position: absolute;
+  top: calc(var(--space-6) + 2px);
+  inset-inline-end: 4px;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--color-accent);
+}
+.ds__mark--warn {
+  background: var(--color-warning);
+}
+
+@include d.host-on(veryHigh) {
+  .ds__edgeTab {
+    border-color: var(--vh-fg);
+    background: var(--vh-bg, #000);
+  }
+  .ds__comments {
+    background: none;
+    box-shadow: inset 0 0 0 1px var(--vh-fg);
+  }
+}
