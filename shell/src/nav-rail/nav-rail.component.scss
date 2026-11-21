@@ -24,10 +24,9 @@
   flex-direction: column;
   align-items: center;
   // The scroll part lies on a surface of its own, and the items cut hard at its rounded
-  // edge (app specs 000193, 001441). It is 8px narrower than the rail, so the edge keeps
-  // clear of the line between the rail and the page, and the longest label ("Abstimmungen")
-  // fits on one line, in bold and inside the edge of very high contrast too.
-  width: calc(100% - 8px);
+  // edge (app specs 000193, 001441). It is 72px wide, 8px on each side of the 56px pill, so
+  // it hugs the items; a long label ("Abstimmungen") breaks into two lines.
+  width: 72px;
   min-height: 0;
   padding-block: 6px;
   overflow-y: auto;

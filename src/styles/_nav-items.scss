@@ -29,7 +29,8 @@
   // A long label breaks into a second line, and the item grows, so a user text spacing
   // (WCAG 1.4.12, app spec 000504) cuts no text.
   .#{$b}__label {
-    max-width: 88px;
+    // The surface of the rail is 72px wide (001441); the label keeps 4px from its edge.
+    max-width: 64px;
     overflow-wrap: anywhere;
     hyphens: auto;
     text-align: center;
