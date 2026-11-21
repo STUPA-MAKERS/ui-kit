@@ -13,6 +13,7 @@ import {
   ScreenIntroDirective,
   ScreenListFootDirective,
   ScreenRecordDirective,
+  ScreenSearchDirective,
 } from './records-screen.component';
 
 const ROWS: readonly ListRow[] = [
@@ -61,6 +62,7 @@ class Host {
     ScreenListFootDirective,
     ScreenIntroDirective,
     ScreenHeadToolsDirective,
+    ScreenSearchDirective,
   ],
   template: `
     <app-records-screen
@@ -75,6 +77,7 @@ class Host {
       >
       <ng-template screenIntro><p role="status">Kette geprüft</p></ng-template>
       <ng-template screenHeadTools><button type="button">DE</button></ng-template>
+      <ng-template screenSearch><div role="search">Suche</div></ng-template>
       <ng-template screenListFoot><nav aria-label="Seiten">1–2 von 2</nav></ng-template>
     </app-records-screen>
   `,
@@ -169,6 +172,7 @@ describe('RecordsScreenComponent', () => {
     expect(screen.getByRole('navigation', { name: 'Seiten' })).toBeTruthy();
     expect(screen.getByRole('status').textContent).toBe('Kette geprüft');
     expect(document.querySelector('.ph__actions .rcs__headTools')?.textContent).toContain('DE');
+    expect(document.querySelector('app-sticky-bar [role=search]')?.textContent).toBe('Suche');
   });
 
   it('keeps the rows of the last load on an error with keepOnError', async () => {

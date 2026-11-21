@@ -49,6 +49,16 @@ export class ScreenHeadToolsDirective {
   readonly template = inject<TemplateRef<unknown>>(TemplateRef);
 }
 
+/**
+ * A search row in the sticky bar above the filter chips, for example the search pill of Benutzer.
+ * The chips then sit 12px below it.
+ */
+// eslint-disable-next-line @angular-eslint/directive-selector -- fixed slot name (002217)
+@Directive({ selector: 'ng-template[screenSearch]', standalone: true })
+export class ScreenSearchDirective {
+  readonly template = inject<TemplateRef<unknown>>(TemplateRef);
+}
+
 /** A block between the head and the filters, for example the chain check of the Audit-Log. */
 // eslint-disable-next-line @angular-eslint/directive-selector -- fixed slot name (002217)
 @Directive({ selector: 'ng-template[screenIntro]', standalone: true })
@@ -124,6 +134,7 @@ export class RecordsScreenComponent {
   private readonly router = inject(Router);
   protected readonly headToolsSlot = contentChild(ScreenHeadToolsDirective);
   protected readonly introSlot = contentChild(ScreenIntroDirective);
+  protected readonly searchSlot = contentChild(ScreenSearchDirective);
   protected readonly filtersSlot = contentChild(ScreenFiltersDirective);
   protected readonly recordSlot = contentChild(ScreenRecordDirective);
   protected readonly footSlot = contentChild(ScreenListFootDirective);

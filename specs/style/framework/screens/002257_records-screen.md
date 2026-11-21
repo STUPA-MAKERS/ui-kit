@@ -36,7 +36,8 @@ with kit components, for example the scopes of an agent grant; context: the row)
 one whole list item (`li`), and the list is then a `ul`. `screenListFoot` (optional) is a block
 under the rows, for example the pager of Agent-Zugänge. `screenIntro` (optional) is a block
 between the head and the filters, for example the chain check of the Audit-Log.
-`screenHeadTools` (optional) holds controls at the end of the head after the head actions, for
+`screenSearch` (optional) is a search row in the sticky bar above the filter chips, for example
+the search pill of Benutzer; the chips then sit 12 px below it. `screenHeadTools` (optional) holds controls at the end of the head after the head actions, for
 example the content language switch of Rollen & Rechte; the actions and the controls then sit in
 one row with 8 px gaps.
 

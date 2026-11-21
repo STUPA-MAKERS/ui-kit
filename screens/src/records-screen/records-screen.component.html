@@ -27,11 +27,16 @@
     <ng-container [ngTemplateOutlet]="i.template" />
   }
 
-  @if (filtersSlot(); as f) {
+  @if (searchSlot() || filtersSlot()) {
     <app-sticky-bar>
-      <div class="rcs__filters" role="group" [attr.aria-label]="filtersLabel()">
-        <ng-container [ngTemplateOutlet]="f.template" />
-      </div>
+      @if (searchSlot(); as q) {
+        <ng-container [ngTemplateOutlet]="q.template" />
+      }
+      @if (filtersSlot(); as f) {
+        <div class="rcs__filters" [class.rcs__filters--below]="!!searchSlot()" role="group" [attr.aria-label]="filtersLabel()">
+          <ng-container [ngTemplateOutlet]="f.template" />
+        </div>
+      }
     </app-sticky-bar>
   }
 
