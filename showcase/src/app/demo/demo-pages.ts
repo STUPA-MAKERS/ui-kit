@@ -26,6 +26,8 @@ import {
   FormScreenComponent,
   WizardScreenComponent,
   SettingsScreenComponent,
+  PublicScreenComponent,
+  ScreenBodyDirective,
   ScreenGroupDirective,
   type SettingsGroup,
   type SettingsState,
@@ -311,21 +313,72 @@ export class DemoEditPage {
   }
 }
 
-/** A public page: the public frame shows for everybody. */
+/**
+ * A public page with the narrow text column, as the Erklärung zur Barrierefreiheit: the public
+ * frame shows for everybody.
+ */
 @Component({
   selector: 'sc-demo-about',
-  imports: [PageHeaderComponent],
+  imports: [PublicScreenComponent, ScreenBodyDirective],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
-    <div class="page-shell">
-      <app-page-header
-        title="Über die Demo"
-        subtitle="Eine öffentliche Seite: sie zeigt den öffentlichen Rahmen für alle"
-      />
-    </div>
+    <app-public-screen [head]="{ title: 'Über die Demo' }" [state]="state()">
+      <ng-template screenBody>
+        <p>
+          Eine öffentliche Seite: sie zeigt den öffentlichen Rahmen für alle, mit dem Kopf, den
+          Knöpfen und dem Fuß der Shell.
+        </p>
+        <p>Die Spalte ist 45rem breit und steht in der Mitte.</p>
+      </ng-template>
+    </app-public-screen>
   `,
 })
-export class DemoAboutPage {}
+export class DemoAboutPage {
+  protected readonly state = signal<LoadState<unknown>>({ state: 'loading' });
+  constructor() {
+    setTimeout(() => this.state.set({ state: 'ready', data: null }), 600);
+  }
+}
+
+/** A public list with the wide column, as Öffentliche Protokolle: crumbs, lede and a pill. */
+@Component({
+  selector: 'sc-demo-public-list',
+  imports: [PublicScreenComponent, ScreenBodyDirective],
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  template: `
+    <app-public-screen
+      width="wide"
+      [head]="{ title: 'Öffentliche Protokolle' }"
+      lede="Finalisierte Protokolle der öffentlichen Gremien als öffentliche Fassung."
+      [crumbs]="[
+        { label: 'Start', link: { commands: ['/demo/start'] } },
+        { label: 'Öffentliche Protokolle' },
+      ]"
+      [actions]="actions"
+      [state]="state"
+      [skeletonRows]="4"
+      [emptyAction]="home"
+    >
+      <ng-template screenBody><p>Liste</p></ng-template>
+    </app-public-screen>
+  `,
+})
+export class DemoPublicListPage {
+  protected readonly actions: readonly Action[] = [
+    { key: 'decisions', label: 'Beschlüsse', icon: 'vote', route: { commands: ['/demo/about'] } },
+  ];
+  protected readonly home: Action = {
+    key: 'home',
+    label: 'Zur Startseite',
+    icon: 'back',
+    route: { commands: ['/demo/start'] },
+  };
+  protected readonly state: LoadState<unknown> = {
+    state: 'empty',
+    heading: 'Noch keine öffentlichen Protokolle',
+    icon: 'file',
+  };
+}
 
 /** The form screen (002242) with the kit form of every field kind (002255). */
 @Component({

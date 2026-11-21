@@ -1,0 +1,133 @@
+// A copy of the public pages of STUPA-Workflow: `.as` (Erklärung zur Barrierefreiheit, the
+// narrow text column) and the `list-page` mixin of the public protocols (the wide column).
+@use '../../../src/styles/field' as f;
+
+:host {
+  display: flex;
+  flex: 1 0 auto;
+  justify-content: center;
+}
+
+.pub {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+  width: min(45rem, 100%);
+  padding-block: var(--space-6);
+}
+:host(.pub--wide) .pub {
+  gap: var(--space-4);
+  width: min(67.5rem, 100%);
+}
+
+.pub__head {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.pub__crumbs {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px;
+  color: var(--color-text-muted);
+  font-size: var(--fs-sm);
+}
+.pub__crumbs a {
+  color: var(--color-text-muted);
+  text-decoration: none;
+}
+@media (hover: hover) {
+  .pub__crumbs a:hover {
+    color: var(--color-text);
+    text-decoration: underline;
+  }
+}
+.pub__crumbs a:focus-visible {
+  outline: 2px solid var(--color-focus-ring);
+  outline-offset: 2px;
+  border-radius: var(--radius-sm);
+}
+
+.pub__title {
+  margin: 0;
+  font-size: var(--fs-d2);
+  line-height: 1.15;
+}
+:host(.pub--wide) .pub__title {
+  line-height: var(--lh-d2);
+  font-weight: var(--fw-semibold);
+}
+
+.pub__lede {
+  max-width: 45rem;
+  margin: 0;
+  color: var(--color-text-muted);
+}
+
+.pub__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  align-self: flex-start;
+}
+
+// The pill button of the public pages.
+.pub__btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 40px;
+  padding: 0 18px;
+  border: 1px solid var(--color-border-strong);
+  border-radius: var(--radius-pill);
+  background: transparent;
+  color: var(--color-accent-text);
+  font: inherit;
+  font-size: var(--fs-sm);
+  font-weight: var(--fw-semibold);
+  text-decoration: none;
+  white-space: nowrap;
+  cursor: pointer;
+  @include f.highlight-surface;
+}
+@media (hover: hover) {
+  .pub__btn:hover {
+    background: var(--color-surface-2);
+  }
+}
+.pub__btn:focus-visible {
+  outline: 2px solid var(--color-focus-ring);
+  outline-offset: 2px;
+}
+.pub__btn--fill {
+  border-color: transparent;
+  background: var(--color-accent);
+  color: var(--color-on-accent);
+}
+@media (hover: hover) {
+  .pub__btn--fill:hover {
+    background: var(--color-accent);
+    filter: brightness(1.08);
+  }
+}
+.pub__btn--tonal {
+  border-color: transparent;
+  background: var(--color-surface-3);
+  color: var(--color-text);
+}
+@media (hover: hover) {
+  .pub__btn--tonal:hover {
+    background: var(--color-surface-4);
+  }
+}
+
+.pub__none {
+  display: flex;
+  flex-direction: column;
+  padding: var(--space-4);
+  border-radius: var(--radius-2xl);
+  background: var(--color-surface-1);
+}

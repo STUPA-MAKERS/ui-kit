@@ -96,6 +96,7 @@ export type UiKitTextKey =
   | 'wizard.invalid'
   | 'settings.save'
   | 'settings.discard'
+  | 'public.crumbs'
   | 'search.clear'
   | 'search.results'
   | 'search.resultsOne'
@@ -240,6 +241,7 @@ export const UI_KIT_DEFAULT_MESSAGES: Record<UiLang, UiKitMessages> = {
     'wizard.invalid': 'Bitte prüfe die markierten Felder.',
     'settings.save': 'Speichern',
     'settings.discard': 'Verwerfen',
+    'public.crumbs': 'Pfad',
     'search.clear': 'Suche leeren',
     'search.results': '{n} Treffer',
     'search.resultsOne': '1 Treffer',
@@ -380,6 +382,7 @@ export const UI_KIT_DEFAULT_MESSAGES: Record<UiLang, UiKitMessages> = {
     'wizard.invalid': 'Please check the marked fields.',
     'settings.save': 'Save',
     'settings.discard': 'Discard',
+    'public.crumbs': 'Path',
     'search.clear': 'Clear search',
     'search.results': '{n} results',
     'search.resultsOne': '1 result',

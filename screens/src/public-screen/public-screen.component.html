@@ -1,0 +1,86 @@
+<article class="pub" [attr.aria-labelledby]="titleId">
+  <header class="pub__head">
+    @if (crumbs().length) {
+      <nav class="pub__crumbs" [attr.aria-label]="intl.translate('public.crumbs')">
+        @for (c of crumbs(); track $index; let last = $last) {
+          @if (c.link && !last) {
+            <a
+              [routerLink]="$any(c.link.commands)"
+              [queryParams]="c.link.query"
+              [fragment]="c.link.fragment"
+              >{{ c.label }}</a
+            >
+            <app-icon name="right" [size]="13" />
+          } @else {
+            <span [attr.aria-current]="last ? 'page' : null">{{ c.label }}</span>
+          }
+        }
+      </nav>
+    }
+    <h1 class="pub__title" [id]="titleId">{{ head().title }}</h1>
+    @if (lede(); as text) {
+      <p class="pub__lede">{{ text }}</p>
+    }
+    @if (actions().length) {
+      <div class="pub__actions">
+        @for (a of actions(); track a.key) {
+          <ng-container *ngTemplateOutlet="pill; context: { $implicit: a }" />
+        }
+      </div>
+    }
+  </header>
+
+  @switch (state().state) {
+    @case ('loading') {
+      <app-skeleton variant="rows" [count]="skeletonRows()" [label]="intl.translate('loading')" />
+    }
+    @case ('empty') {
+      @if (empty(); as e) {
+        <div class="pub__none">
+          <app-empty-state [icon]="e.icon" [heading]="e.heading">
+            @if (emptyAction(); as a) {
+              <ng-container *ngTemplateOutlet="pill; context: { $implicit: a }" />
+            }
+          </app-empty-state>
+        </div>
+      }
+    }
+    @case ('ready') {
+      @if (body(); as b) {
+        <ng-container [ngTemplateOutlet]="b.template" />
+      }
+    }
+  }
+</article>
+
+<!-- One pill button: a route is a link, else it reports its key. -->
+<ng-template #pill let-a>
+  @if ($any(a).route; as r) {
+    <a
+      class="pub__btn"
+      [class.pub__btn--tonal]="$any(a).kind !== 'main'"
+      [class.pub__btn--fill]="$any(a).kind === 'main'"
+      [routerLink]="$any(r).commands"
+      [queryParams]="$any(r).query"
+    >
+      @if ($any(a).icon; as icon) {
+        <app-icon [name]="icon" [size]="16" />
+      }
+      {{ $any(a).label }}
+    </a>
+  } @else {
+    <button
+      type="button"
+      class="pub__btn"
+      [class.pub__btn--tonal]="$any(a).kind !== 'main'"
+      [class.pub__btn--fill]="$any(a).kind === 'main'"
+      [disabled]="!!$any(a).disabled"
+      (click)="acted.emit({ key: $any(a).key })"
+    >
+      @if ($any(a).icon; as icon) {
+        <app-icon [name]="icon" [size]="16" />
+      }
+      {{ $any(a).label }}
+    </button>
+  }
+</ng-template>
