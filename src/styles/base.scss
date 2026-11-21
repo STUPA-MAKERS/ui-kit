@@ -247,6 +247,14 @@ textarea {
   padding-inline: var(--layout-gutter);
 }
 
+// A routed page with a status screen (002246) fills the height of the page, so the block of
+// the status screen stands in the middle of the frame and not at its top.
+.page-shell > :has(> app-status-screen) {
+  display: flex;
+  flex: 1 0 auto;
+  flex-direction: column;
+}
+
 // Mobile-Baseline (<768px): engerer Seitenrand, kompaktere Headings.
 // Desktop bleibt unverändert — alle Mobile-Regeln sind additiv per max-width.
 @media (max-width: 767.98px) {

@@ -1,3 +1,4 @@
+import { toSignal } from '@angular/core/rxjs-interop';
 import { ChangeDetectionStrategy, Component, computed, inject, input, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -36,6 +37,8 @@ import {
   type WizardReview,
   type WizardStep,
   type FormValue,
+  StatusScreenComponent,
+  type StatusKind,
 } from '@stupa-makers/ui-kit/screens';
 import { FrameworkShellComponent } from '@stupa-makers/ui-kit/shell';
 
@@ -698,4 +701,48 @@ export class DemoSettingsPage {
   protected discard(): void {
     this.draft.set(this.saved());
   }
+}
+
+const STATUS_TEXT: Readonly<
+  Record<StatusKind, { readonly heading: string; readonly body: string }>
+> = {
+  'not-found': { heading: 'Seite nicht gefunden', body: 'Die angeforderte Seite existiert nicht.' },
+  forbidden: {
+    heading: 'Kein Zugriff',
+    body: 'Für diesen Bereich fehlt dir die erforderliche Berechtigung.',
+  },
+  error: { heading: 'Etwas ist schiefgelaufen', body: 'Die Seite konnte nicht geladen werden.' },
+  offline: { heading: 'Keine Verbindung', body: 'Der Server ist gerade nicht erreichbar.' },
+};
+
+/** The status screen (002246) of each kind: `/demo/status/not-found` and the others. */
+@Component({
+  selector: 'sc-demo-status',
+  imports: [StatusScreenComponent],
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  template: `
+    <app-status-screen
+      [kind]="kind()"
+      [heading]="text().heading"
+      [body]="text().body"
+      [actions]="actions()"
+    />
+  `,
+})
+export class DemoStatusPage {
+  private readonly route = inject(ActivatedRoute);
+  protected readonly kind = computed<StatusKind>(() => {
+    const k = this.params()?.get('kind');
+    return k === 'forbidden' || k === 'error' || k === 'offline' ? k : 'not-found';
+  });
+  private readonly params = toSignal(this.route.paramMap);
+  protected readonly text = computed(() => STATUS_TEXT[this.kind()]);
+  protected readonly actions = computed<readonly Action[]>(() =>
+    this.kind() === 'error' || this.kind() === 'offline'
+      ? [
+          { key: 'retry', label: 'Erneut versuchen' },
+          { key: 'home', label: 'Zur Startseite', route: { commands: ['/demo/start'] } },
+        ]
+      : [{ key: 'home', label: 'Zur Startseite', route: { commands: ['/demo/start'] } }],
+  );
 }

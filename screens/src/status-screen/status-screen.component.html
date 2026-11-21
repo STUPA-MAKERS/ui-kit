@@ -1,0 +1,34 @@
+<section class="err">
+  @if (look().code; as code) {
+    <p class="err__code mono" aria-hidden="true">{{ code }}</p>
+  }
+  <div class="err__head">
+    <app-icon class="err__icon" [name]="look().icon" [size]="22" />
+    <h1 class="err__heading">{{ heading() }}</h1>
+  </div>
+  @if (body(); as text) {
+    <p class="err__body">{{ text }}</p>
+  }
+  @if (actions().length) {
+    <app-button-group class="err__actions">
+      @for (a of actions(); track a.key; let first = $first) {
+        @if (a.route; as r) {
+          <a
+            [appButton]="first ? 'fill' : 'tonal'"
+            [routerLink]="$any(r.commands)"
+            [queryParams]="r.query"
+            [fragment]="r.fragment"
+            >{{ a.label }}</a
+          >
+        } @else {
+          <app-button
+            [variant]="first ? 'fill' : 'tonal'"
+            [disabled]="!!a.disabled"
+            (click)="acted.emit({ key: a.key })"
+            >{{ a.label }}</app-button
+          >
+        }
+      }
+    </app-button-group>
+  }
+</section>
