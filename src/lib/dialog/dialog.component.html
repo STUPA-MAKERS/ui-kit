@@ -69,6 +69,7 @@
             <app-button
               [variant]="variantOf(a)"
               [disabled]="!!a.disabled"
+              [title]="(a.disabled && a.disabledReason) || ''"
               [loading]="!!a.busy"
               (click)="action.emit({ key: a.key })"
             >

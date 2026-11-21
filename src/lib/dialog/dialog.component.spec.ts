@@ -156,6 +156,25 @@ describe('DialogComponent', () => {
     expect(document.activeElement).toBe(closeBtn);
   });
 
+  it('leaves the focus in a field when the actions change', async () => {
+    const view = await render(
+      `<app-dialog heading="Rolle" [open]="true" [actions]="actions">
+        <ng-template dialogBody><input aria-label="Schlüssel" /></ng-template>
+      </app-dialog>`,
+      {
+        imports: [DialogComponent, DialogBodyDirective],
+        componentProperties: { actions: [{ key: 'save', label: 'Speichern', disabled: true }] },
+      },
+    );
+    await new Promise((r) => setTimeout(r));
+    const field = screen.getByRole('textbox', { name: 'Schlüssel' });
+    field.focus();
+    view.fixture.componentInstance.actions = [{ key: 'save', label: 'Speichern' }];
+    view.detectChanges();
+    await new Promise((r) => setTimeout(r));
+    expect(field).toHaveFocus();
+  });
+
   it('traps Tab within the dialog (focus-trap)', async () => {
     await render(
       `<app-dialog heading="X" [open]="true"><ng-template dialogBody><button>Body-Btn</button></ng-template></app-dialog>`,

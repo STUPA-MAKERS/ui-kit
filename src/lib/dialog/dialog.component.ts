@@ -112,7 +112,10 @@ export class DialogComponent implements OnChanges, OnDestroy {
 
   ngOnChanges(changes: SimpleChanges): void {
     const c = changes['open'];
-    if (!c || c.firstChange) {
+    // Only a change of `open` moves the focus: a change of the actions (a disabled flag
+    // that follows the form) must leave the focus in the field.
+    if (!c) return;
+    if (c.firstChange) {
       if (this.open) {
         this.captureAndFocus();
         this.lockScroll();

@@ -134,7 +134,7 @@ export class SideSheetComponent {
           label: a.label,
           icon: a.icon,
           danger: a.kind === 'danger',
-          disabledReason: a.disabled ? a.label : null,
+          disabledReason: a.disabled ? (a.disabledReason ?? a.label) : null,
         })),
     }));
   });
