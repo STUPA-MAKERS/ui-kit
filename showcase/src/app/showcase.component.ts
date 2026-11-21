@@ -1,29 +1,17 @@
-import { DOCUMENT } from "@angular/common";
-import {
-  ChangeDetectionStrategy,
-  Component,
-  effect,
-  inject,
-  signal,
-} from "@angular/core";
-import {
-  NavigationEnd,
-  Router,
-  RouterLink,
-  RouterLinkActive,
-  RouterOutlet,
-} from "@angular/router";
-import { toSignal } from "@angular/core/rxjs-interop";
-import { filter, map } from "rxjs";
+import { DOCUMENT } from '@angular/common';
+import { ChangeDetectionStrategy, Component, effect, inject, signal } from '@angular/core';
+import { NavigationEnd, Router, RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
+import { toSignal } from '@angular/core/rxjs-interop';
+import { filter, map } from 'rxjs';
 
-import { SHOWCASE_PAGES } from "./pages";
+import { SHOWCASE_PAGES } from './pages';
 
-type Theme = "light" | "dark";
-type Contrast = "normal" | "more" | "very-high";
+type Theme = 'light' | 'dark';
+type Contrast = 'normal' | 'more' | 'very-high';
 
 /** The frame of the showcase: the page list and the switches for theme and contrast. */
 @Component({
-  selector: "sc-root",
+  selector: 'sc-root',
   imports: [RouterOutlet, RouterLink, RouterLinkActive],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
@@ -32,9 +20,7 @@ type Contrast = "normal" | "more" | "very-high";
     } @else {
       <nav class="sc-nav" aria-label="Seiten">
         @for (page of pages; track page.path) {
-          <a [routerLink]="page.path" routerLinkActive="sc-active">{{
-            page.title
-          }}</a>
+          <a [routerLink]="page.path" routerLinkActive="sc-active">{{ page.title }}</a>
         }
         <span class="sc-gap"></span>
         <label>
@@ -78,14 +64,14 @@ type Contrast = "normal" | "more" | "very-high";
 })
 export class ShowcaseComponent {
   protected readonly pages = SHOWCASE_PAGES;
-  protected readonly theme = signal<Theme>("light");
-  protected readonly contrast = signal<Contrast>("normal");
+  protected readonly theme = signal<Theme>('light');
+  protected readonly contrast = signal<Contrast>('normal');
   private readonly router = inject(Router);
   /** The demo app brings its own frame, so the page list hides there. */
   protected readonly demo = toSignal(
     this.router.events.pipe(
       filter((e) => e instanceof NavigationEnd),
-      map((e) => e.urlAfterRedirects.startsWith("/demo")),
+      map((e) => e.urlAfterRedirects.startsWith('/demo')),
     ),
     { initialValue: false },
   );
@@ -93,11 +79,10 @@ export class ShowcaseComponent {
   constructor() {
     const root = inject(DOCUMENT).documentElement;
     effect(() => {
-      root.dataset["theme"] = this.theme();
+      root.dataset['theme'] = this.theme();
       const contrast = this.contrast();
-      root.dataset["contrast"] = contrast === "normal" ? "normal" : "more";
-      root.dataset["veryHighContrast"] =
-        contrast === "very-high" ? "on" : "off";
+      root.dataset['contrast'] = contrast === 'normal' ? 'normal' : 'more';
+      root.dataset['veryHighContrast'] = contrast === 'very-high' ? 'on' : 'off';
     });
   }
 

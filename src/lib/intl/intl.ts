@@ -50,6 +50,7 @@ export type UiKitTextKey =
   | 'rowMenu.empty'
   | 'rowMenu.loading'
   | 'note.retry'
+  | 'screen.more'
   | 'confirm.cancel'
   | 'confirm.delete'
   | 'selection.toolbar'
@@ -155,6 +156,7 @@ export const UI_KIT_DEFAULT_MESSAGES: Record<UiLang, UiKitMessages> = {
     'rowMenu.empty': 'Keine Aktionen möglich',
     'rowMenu.loading': 'Wird geladen …',
     'note.retry': 'Erneut versuchen',
+    'screen.more': 'Mehr laden',
     'confirm.cancel': 'Abbrechen',
     'confirm.delete': 'Löschen',
     'selection.toolbar': 'Auswahl',
@@ -256,6 +258,7 @@ export const UI_KIT_DEFAULT_MESSAGES: Record<UiLang, UiKitMessages> = {
     'rowMenu.empty': 'No actions available',
     'rowMenu.loading': 'Loading …',
     'note.retry': 'Try again',
+    'screen.more': 'Load more',
     'confirm.cancel': 'Cancel',
     'confirm.delete': 'Delete',
     'selection.toolbar': 'Selection',

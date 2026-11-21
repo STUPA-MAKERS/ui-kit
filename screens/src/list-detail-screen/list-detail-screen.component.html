@@ -1,0 +1,172 @@
+<div class="lds" [class.lds--split]="split()" [class.lds--wide]="config().listWidth === 'wide'">
+  <app-list-detail [detailOpen]="selectedId() !== null" (back)="back()">
+    <section list class="ld-pane lds__pane" [attr.aria-labelledby]="titleId">
+      <app-page-header [pane]="true" [titleId]="titleId" [title]="head().title">
+        @if (placed().head.length || menu().length) {
+          <ng-container ngProjectAs="[actions]">
+            @for (a of placed().head; track a.key) {
+              <app-button
+                variant="text"
+                [iconOnly]="true"
+                [ariaLabel]="a.label"
+                [disabled]="!!a.disabled"
+                [loading]="!!a.busy"
+                (click)="run(a)"
+                ><app-icon [name]="a.icon ?? 'plus'"
+              /></app-button>
+            }
+            @if (menu().length) {
+              <app-row-menu
+                [label]="'rowMenu.trigger' | uiKitT"
+                [sections]="menu()"
+                (selected)="run($event)"
+              />
+            }
+          </ng-container>
+        }
+      </app-page-header>
+
+      @if (search() || filters().length) {
+        <app-sticky-bar class="ld-pane__filters">
+          @if (search(); as s) {
+            <app-search-pill
+              [size]="width() === 'phone' ? 'md' : 'lg'"
+              [placeholder]="s.placeholder"
+              [label]="s.placeholder"
+              [clearable]="true"
+              [value]="searchText()"
+              (valueChange)="setSearch($event)"
+            />
+          }
+          @if (filters().length) {
+            <div class="lds__chips">
+              @for (f of filters(); track f.key) {
+                @if (f.kind === 'multi') {
+                  <app-filter-select
+                    [label]="f.label"
+                    [options]="f.options ?? []"
+                    [multiple]="true"
+                    [values]="filterValues(f)"
+                    (valuesChange)="setFilter(f, $event)"
+                    filled
+                  />
+                } @else {
+                  <app-filter-select
+                    [label]="f.label"
+                    [options]="f.options ?? []"
+                    [value]="filterValue(f)"
+                    (valueChange)="setFilter(f, $event)"
+                    filled
+                  />
+                }
+              }
+            </div>
+          }
+        </app-sticky-bar>
+      }
+
+      <div class="lds__scroll">
+        @if (listHeadSlot(); as h) {
+          <ng-container [ngTemplateOutlet]="h.template" />
+        }
+        @switch (rows().state) {
+          @case ('loading') {
+            @if (groups().length) {
+              <ng-container [ngTemplateOutlet]="list" />
+            } @else {
+              <app-skeleton
+                variant="items"
+                [count]="skeletonRows"
+                [grouped]="!split()"
+                [label]="'loading' | uiKitT"
+              />
+            }
+          }
+          @case ('empty') {
+            @if (rows(); as r) {
+              @if (r.state === 'empty') {
+                <app-empty-state [icon]="r.icon" [heading]="r.heading" />
+              }
+            }
+          }
+          @case ('error') {
+            @if (rows(); as r) {
+              @if (r.state === 'error') {
+                <app-empty-state icon="alert" [heading]="r.message" />
+                <div class="lds__more">
+                  <app-button variant="outlined" (click)="r.retry()">{{
+                    'note.retry' | uiKitT
+                  }}</app-button>
+                </div>
+              }
+            }
+          }
+          @default {
+            <ng-container [ngTemplateOutlet]="list" />
+          }
+        }
+      </div>
+
+      @for (a of placed().fab; track a.key) {
+        <app-fab
+          [label]="a.label"
+          [icon]="a.icon ?? 'plus'"
+          [disabled]="!!a.disabled"
+          [loading]="!!a.busy"
+          (activate)="run(a)"
+        />
+      }
+    </section>
+
+    <div detail class="lds__detail"><router-outlet /></div>
+  </app-list-detail>
+</div>
+
+<ng-template #list>
+  @for (group of groups(); track group.key) {
+    <app-list-group [label]="group.label || null">
+      <div class="lds__rows" [class.rowgroup]="!split()" role="list">
+        @for (row of group.rows; track row.id) {
+          <app-list-item
+            role="listitem"
+            [title]="row.title"
+            [sub]="row.meta?.join(' · ') ?? null"
+            [link]="row.link ? $any(row.link.commands) : null"
+            linkQueryParamsHandling="preserve"
+            [selected]="row.id === selectedId()"
+          >
+            <!-- One root per block, so that each part reaches its slot of the row. -->
+            @if (rowSlot(); as slot) {
+              <span sub class="lds__slot"
+                ><ng-container
+                  [ngTemplateOutlet]="slot.template"
+                  [ngTemplateOutletContext]="{ $implicit: row }"
+              /></span>
+            }
+            @if (leadPerson(row); as person) {
+              <app-avatar lead [name]="person.name" size="sm" [decorative]="true" />
+            }
+            @if (!row.avatar && row.icon) {
+              <app-icon lead [name]="row.icon" />
+            }
+            @if (!rowSlot() && (row.status || row.trailing)) {
+              <span trail class="lds__trail">
+                @if (row.trailing) {
+                  <span class="lds__trailing num">{{ row.trailing }}</span>
+                }
+                @if (row.status; as st) {
+                  <app-status-text [kind]="st.kind">{{ st.label }}</app-status-text>
+                }
+              </span>
+            }
+          </app-list-item>
+        }
+      </div>
+    </app-list-group>
+  }
+  @if (rows().state === 'ready' && $any(rows()).more) {
+    <div class="lds__more">
+      <app-button variant="outlined" (click)="more.emit()">{{ 'screen.more' | uiKitT }}</app-button>
+    </div>
+  }
+</ng-template>
