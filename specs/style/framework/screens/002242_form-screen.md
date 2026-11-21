@@ -2,13 +2,12 @@
 id: "002242"
 title: The form screen has a fixed interface
 kind: style
-status: approved
+status: draft
 owner: frederikbeimgraben
-updated: 2026-11-20
+updated: 2026-11-21
 implementation: null
 scope:
-  - shell
-  - src/lib
+  - screens
 ---
 
 # The form screen has a fixed interface
@@ -17,6 +16,8 @@ scope:
 
 ```ts
 head: ScreenHead                  // the title is the name of the submit button (000666)
+icon?: IconName                    // 001890: the icon of the thing for a new one, `edit` (default) for an edit
+subtitle?: string                  // muted after the title, behind a middle dot (001890)
 form: FormDef                      // 002255
 value: Record<string, unknown>
 errors?: Record<string, string>    // by field key, from the server

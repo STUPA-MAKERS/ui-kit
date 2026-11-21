@@ -1,5 +1,6 @@
 import type { Type } from '@angular/core';
 import type { CanMatchFn, Route, Routes } from '@angular/router';
+import { leaveUnsaved } from '@stupa-makers/ui-kit';
 
 import { ListNoneComponent, type ListNoneData } from '../list-none/list-none.component';
 
@@ -59,10 +60,11 @@ export function listDetailRoutes(o: ListDetailRouteOptions): Route {
         component: ListNoneComponent,
         ...(o.none ? { data: { none: o.none } } : {}),
       },
-      ...(o.children ?? []),
+      ...(o.children ?? []).map((r) => withLeaveGuard(r)),
       {
         path: `:${o.param ?? 'id'}`,
         loadComponent: load(o.detail),
+        canDeactivate: [leaveUnsaved],
         data: { [FOCUS_H1]: true },
       },
     ],
@@ -84,6 +86,12 @@ export function screenRoute(o: ScreenRouteOptions): Route {
       ...(o.frame === 'public' ? { frame: 'public' } : {}),
       ...(o.footer ? { footer: true } : {}),
     },
+    canDeactivate: [leaveUnsaved],
     loadComponent: load(o.component),
   };
+}
+
+/** A route of the app that may hold a form screen asks before it leaves unsaved changes. */
+function withLeaveGuard(r: Route): Route {
+  return { ...r, canDeactivate: [...(r.canDeactivate ?? []), leaveUnsaved] };
 }

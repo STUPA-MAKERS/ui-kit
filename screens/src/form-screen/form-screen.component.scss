@@ -1,0 +1,88 @@
+:host {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  min-height: 100%;
+  container: fs / inline-size;
+}
+
+// The head bar of a form in place of a detail (001890): icon and title at the start,
+// "Abbrechen" at the end, one line on the surface one step up. The label of "Abbrechen" ends
+// at the side inset, so its pill (12px around the label) stands 12px closer to the edge (001891).
+.fs__head {
+  --fs-side: var(--space-6);
+  display: flex;
+  flex: none;
+  align-items: center;
+  gap: var(--space-2);
+  min-height: 60px;
+  padding-block: var(--space-2);
+  padding-inline: var(--fs-side) calc(var(--fs-side) - var(--space-3));
+  border-bottom: var(--border-width) solid var(--color-border);
+  border-start-start-radius: inherit;
+  border-start-end-radius: inherit;
+  background: var(--color-surface-2);
+}
+.fs__icon {
+  flex: none;
+  color: var(--color-text-muted);
+}
+.fs__text {
+  flex: 1 1 auto;
+  min-width: 0;
+  margin: 0;
+  overflow: hidden;
+  font-size: var(--fs-md);
+  line-height: var(--lh-body);
+  font-weight: var(--fw-regular);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.fs__title {
+  font-weight: var(--fw-semibold);
+}
+.fs__subtitle {
+  color: var(--color-text-muted);
+}
+.fs__subtitle::before {
+  content: ' · ' / '';
+}
+.fs__head app-button {
+  flex: none;
+}
+
+// Docked in the bar of the one-view layout: the bar shows the title; the head stays for
+// screen readers, so the page keeps its h1.
+.fs__head--docked {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  min-height: 0;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
+}
+
+// The form; its end keeps room for the floating "Speichern" (000408).
+.fs__body {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  padding: var(--space-6);
+  padding-bottom: calc(56px + var(--space-6) * 2 + var(--app-bottom-inset, 0px));
+}
+
+// On a narrow screen the head and the form take the side inset of the page, so the icon,
+// the fields and the label of "Abbrechen" line up with the page edge.
+@container fs (max-width: 33.99rem) {
+  .fs__head {
+    --fs-side: 0px;
+    padding-inline-end: 0;
+  }
+  .fs__body {
+    padding-inline: 0;
+  }
+}

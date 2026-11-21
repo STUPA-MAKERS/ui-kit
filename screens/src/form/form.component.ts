@@ -126,7 +126,8 @@ const INPUT_TYPE: Partial<Record<FieldDef['kind'], string>> = {
   styleUrl: './form.component.scss',
 })
 export class FormComponent {
-  readonly form = input.required<FormDef>();
+  // Not required: a screen reads `dirty` and `valid` before its template binds the inputs.
+  readonly form = input<FormDef>({ sections: [] });
   readonly value = input<FormValue>({});
   /** Errors of the server by field key; each shows until its field changes. */
   readonly errors = input<Readonly<Record<string, string>>>({});
