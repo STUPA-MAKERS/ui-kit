@@ -2,7 +2,7 @@
 id: "002246"
 title: The status screen has a fixed interface
 kind: style
-status: draft
+status: approved
 owner: frederikbeimgraben
 updated: 2026-11-21
 implementation:
@@ -39,7 +39,7 @@ Behaviour:
   frame. The shell draws the frame (rail or public bar).
 - The route sets the page title (`title` of `screenRoute`), as in the app.
 
-Decisions, each on its own card (pending):
+Decisions, each approved on its own card:
 
 - The block of the app (code, icon and heading), not the empty-state face.
 - `error` shows the code 500, `offline` shows no code.
