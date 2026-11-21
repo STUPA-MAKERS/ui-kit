@@ -1,5 +1,5 @@
 import { signal } from '@angular/core';
-import type { Action } from '@stupa-makers/ui-kit';
+import type { Action, FormDef } from '@stupa-makers/ui-kit';
 import type { FrameworkConfig, SearchHit, ShellNavItem } from '@stupa-makers/ui-kit/shell';
 import { of } from 'rxjs';
 
@@ -76,6 +76,13 @@ const NAV: readonly ShellNavItem[] = [
     place: 'main',
   },
   {
+    key: 'form',
+    path: '/demo/form',
+    label: 'Formular',
+    icon: 'form',
+    place: 'main',
+  },
+  {
     key: 'about',
     path: '/demo/about',
     label: 'Über',
@@ -127,6 +134,8 @@ export function demoConfig(): FrameworkConfig {
         person: signal({ name: 'Ada Lovelace' }),
         logout: () => demoFrame.set('public'),
       },
+      // The demo keeps a file in memory; an app sends it to its server.
+      upload: async (file: File) => ({ url: URL.createObjectURL(file), name: file.name }),
       search: (q) =>
         of(
           DEMO_ROWS.filter((r) => r.title.toLowerCase().includes(q.toLowerCase())).map(
@@ -143,3 +152,89 @@ export function demoConfig(): FrameworkConfig {
     },
   };
 }
+
+/** The form of the demo with every field kind; `person` shows the IBAN field. */
+export const DEMO_FORM = (person: boolean): FormDef => ({
+  sections: [
+    {
+      key: 'main',
+      label: 'Antrag',
+      fields: [
+        { key: 'title', kind: 'text', label: 'Titel', required: true, maxLength: 80 },
+        { key: 'text', kind: 'textarea', label: 'Begründung', required: true },
+        { key: 'count', kind: 'number', label: 'Personen', min: 1, width: 'half' },
+        { key: 'amount', kind: 'money', label: 'Betrag', width: 'half' },
+        { key: 'day', kind: 'date', label: 'Tag', width: 'half' },
+        { key: 'time', kind: 'time', label: 'Beginn', width: 'half' },
+        {
+          key: 'gremium',
+          kind: 'select',
+          label: 'Gremium',
+          width: 'half',
+          options: [
+            { value: 'stupa', label: 'Studierendenparlament' },
+            { value: 'asta', label: 'AStA' },
+          ],
+        },
+        {
+          key: 'centre',
+          kind: 'tree-select',
+          label: 'Kostenstelle',
+          width: 'half',
+          leavesOnly: true,
+          tree: [
+            {
+              value: 'kultur',
+              label: 'Kultur',
+              children: [
+                { value: 'feste', label: 'Feste' },
+                { value: 'konzerte', label: 'Konzerte' },
+              ],
+            },
+          ],
+        },
+        {
+          key: 'tags',
+          kind: 'multi-select',
+          label: 'Bereiche',
+          options: [
+            { value: 'kultur', label: 'Kultur' },
+            { value: 'sport', label: 'Sport' },
+            { value: 'soziales', label: 'Soziales' },
+          ],
+        },
+        {
+          key: 'payee',
+          kind: 'select',
+          label: 'Zahlung an',
+          options: [
+            { value: 'org', label: 'Organisation' },
+            { value: 'person', label: 'Person' },
+          ],
+        },
+        { key: 'iban', kind: 'iban', label: 'IBAN', required: true, visible: person },
+        { key: 'mail', kind: 'email', label: 'E-Mail für Rückfragen' },
+        { key: 'public', kind: 'switch', label: 'Im Protokoll öffentlich' },
+        { key: 'files', kind: 'file', label: 'Anlagen', multiple: true },
+        { key: 'agree', kind: 'checkbox', label: 'Die Angaben sind richtig', required: true },
+      ],
+    },
+    {
+      key: 'costs',
+      label: 'Kostenaufstellung',
+      fields: [
+        {
+          key: 'items',
+          kind: 'repeat',
+          label: 'Posten',
+          addLabel: 'Posten hinzufügen',
+          min: 1,
+          fields: [
+            { key: 'what', kind: 'text', label: 'Was', required: true, width: 'half' },
+            { key: 'cost', kind: 'money', label: 'Kosten', width: 'half' },
+          ],
+        },
+      ],
+    },
+  ],
+});

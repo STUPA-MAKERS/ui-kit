@@ -62,6 +62,25 @@ export type UiKitTextKey =
   | 'selection.count'
   | 'listDetail.back'
   | 'screen.back'
+  | 'form.required'
+  | 'form.maxLength'
+  | 'form.pattern'
+  | 'form.email'
+  | 'form.url'
+  | 'form.iban'
+  | 'form.number'
+  | 'form.min'
+  | 'form.max'
+  | 'form.minDate'
+  | 'form.maxDate'
+  | 'form.range'
+  | 'form.repeatMin'
+  | 'form.repeatMax'
+  | 'form.removeRow'
+  | 'form.pickFile'
+  | 'form.removeFile'
+  | 'form.tooLarge'
+  | 'form.uploadFailed'
   | 'search.clear'
   | 'search.results'
   | 'search.resultsOne'
@@ -172,6 +191,25 @@ export const UI_KIT_DEFAULT_MESSAGES: Record<UiLang, UiKitMessages> = {
     'selection.count': '{count} ausgewählt',
     'listDetail.back': 'Zur Liste',
     'screen.back': 'Zurück',
+    'form.required': 'Bitte ausfüllen.',
+    'form.maxLength': 'Höchstens {n} Zeichen.',
+    'form.pattern': 'Das Format stimmt nicht.',
+    'form.email': 'Keine gültige E-Mail-Adresse.',
+    'form.url': 'Keine gültige Adresse. Beispiel: https://example.org',
+    'form.iban': 'Keine gültige IBAN.',
+    'form.number': 'Keine gültige Zahl.',
+    'form.min': 'Mindestens {n}.',
+    'form.max': 'Höchstens {n}.',
+    'form.minDate': 'Frühestens am {d}.',
+    'form.maxDate': 'Spätestens am {d}.',
+    'form.range': 'Der Anfang liegt nach dem Ende.',
+    'form.repeatMin': 'Mindestens {n} Einträge.',
+    'form.repeatMax': 'Höchstens {n} Einträge.',
+    'form.removeRow': 'Eintrag {n} entfernen',
+    'form.pickFile': 'Datei wählen',
+    'form.removeFile': '{name} entfernen',
+    'form.tooLarge': 'Die Datei ist zu groß.',
+    'form.uploadFailed': 'Die Datei konnte nicht hochgeladen werden.',
     'search.clear': 'Suche leeren',
     'search.results': '{n} Treffer',
     'search.resultsOne': '1 Treffer',
@@ -278,6 +316,25 @@ export const UI_KIT_DEFAULT_MESSAGES: Record<UiLang, UiKitMessages> = {
     'selection.count': '{count} selected',
     'listDetail.back': 'Back to list',
     'screen.back': 'Back',
+    'form.required': 'Please fill in.',
+    'form.maxLength': 'At most {n} characters.',
+    'form.pattern': 'The format is not valid.',
+    'form.email': 'Not a valid e-mail address.',
+    'form.url': 'Not a valid address. Example: https://example.org',
+    'form.iban': 'Not a valid IBAN.',
+    'form.number': 'Not a valid number.',
+    'form.min': 'At least {n}.',
+    'form.max': 'At most {n}.',
+    'form.minDate': 'Not before {d}.',
+    'form.maxDate': 'Not after {d}.',
+    'form.range': 'The start is after the end.',
+    'form.repeatMin': 'At least {n} entries.',
+    'form.repeatMax': 'At most {n} entries.',
+    'form.removeRow': 'Remove entry {n}',
+    'form.pickFile': 'Choose file',
+    'form.removeFile': 'Remove {name}',
+    'form.tooLarge': 'The file is too large.',
+    'form.uploadFailed': 'The file could not be uploaded.',
     'search.clear': 'Clear search',
     'search.results': '{n} results',
     'search.resultsOne': '1 result',

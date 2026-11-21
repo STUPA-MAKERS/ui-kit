@@ -1,0 +1,283 @@
+@for (section of form().sections; track section.key) {
+  <section
+    class="frm__section"
+    [attr.data-section]="section.key"
+    [attr.aria-labelledby]="section.label ? uid + '-s-' + section.key : null"
+  >
+    @if (section.label) {
+      <h2 class="frm__title" [id]="uid + '-s-' + section.key">{{ section.label }}</h2>
+    }
+    <div class="frm__fields">
+      @for (field of section.fields; track field.key) {
+        @if (visible(field)) {
+          <div
+            class="frm__field"
+            [class.frm__field--half]="field.width === 'half'"
+            [attr.data-field]="field.key"
+            (focusin)="remember(field.key)"
+            (focusout)="leave($event, field.key)"
+          >
+            <ng-container
+              *ngTemplateOutlet="fieldTpl; context: { $implicit: field, tree: tree(), path: [] }"
+            />
+          </div>
+        }
+      }
+    </div>
+  </section>
+}
+
+<ng-template #fieldTpl let-field let-tree="tree" let-path="path">
+  @let id = fieldId(field.key, path);
+  @let err = errorText(field, tree, path);
+  @switch (field.kind) {
+    @case ('textarea') {
+      <app-textarea [label]="field.label" [required]="!!field.required" [invalid]="!!err">
+        <textarea
+          rows="3"
+          [id]="id"
+          [formField]="tree[field.key]"
+          [attr.lang]="field.lang ?? null"
+          [attr.aria-invalid]="err ? 'true' : null"
+          [attr.aria-describedby]="err ? errorId(field.key, path) : null"
+        ></textarea>
+      </app-textarea>
+      @if (err) {
+        <app-error-text [inset]="true" [id]="errorId(field.key, path)">{{ err }}</app-error-text>
+      }
+    }
+    @case ('money') {
+      <app-currency-input
+        [formField]="tree[field.key]"
+        [label]="field.label"
+        [textLang]="field.lang ?? null"
+        [required]="!!field.required"
+        [error]="err"
+      />
+    }
+    @case ('date') {
+      <app-datepicker
+        [id]="id"
+        [formField]="tree[field.key]"
+        [label]="field.label"
+        [textLang]="field.lang ?? null"
+        [required]="!!field.required"
+        [min]="field.min ?? ''"
+        [max]="field.max ?? ''"
+        [error]="err"
+      />
+    }
+    @case ('date-range') {
+      <app-date-range [id]="id" [formField]="tree[field.key]" [legend]="field.label" />
+      @if (err) {
+        <app-error-text [inset]="true" [id]="errorId(field.key, path)">{{ err }}</app-error-text>
+      }
+    }
+    @case ('time') {
+      <app-time-input
+        [id]="id"
+        [formField]="tree[field.key]"
+        [label]="field.label"
+        [required]="!!field.required"
+      />
+      @if (err) {
+        <app-error-text [inset]="true" [id]="errorId(field.key, path)">{{ err }}</app-error-text>
+      }
+    }
+    @case ('select') {
+      <app-select
+        [id]="id"
+        [formField]="tree[field.key]"
+        [label]="field.label"
+        [textLang]="field.lang ?? null"
+        [options]="field.options"
+        [error]="err"
+      />
+    }
+    @case ('tree-select') {
+      <app-select
+        [id]="id"
+        [formField]="tree[field.key]"
+        [label]="field.label"
+        [textLang]="field.lang ?? null"
+        [options]="treeOptions(field)"
+        [error]="err"
+      />
+    }
+    @case ('multi-select') {
+      <fieldset class="frm__group" [attr.aria-describedby]="err ? errorId(field.key, path) : null">
+        <legend class="frm__label" [attr.lang]="field.lang ?? null">
+          {{ field.label }}
+          @if (field.required) {
+            <span class="frm__req" aria-hidden="true">*</span>
+          }
+        </legend>
+        @for (option of field.options; track option.value) {
+          <app-checkbox
+            [id]="id + '-' + option.value"
+            [ngModel]="has(tree, field.key, option.value)"
+            [disabled]="!!field.disabled || !!option.disabled"
+            (ngModelChange)="toggleOption(tree, field.key, option.value, $event)"
+            >{{ option.label }}</app-checkbox
+          >
+        }
+      </fieldset>
+      @if (err) {
+        <app-error-text [inset]="true" [id]="errorId(field.key, path)">{{ err }}</app-error-text>
+      }
+    }
+    @case ('checkbox') {
+      <app-checkbox [id]="id" [formField]="tree[field.key]"
+        ><span [attr.lang]="field.lang ?? null">{{ field.label }}</span>
+        @if (field.required) {
+          <span class="frm__req" aria-hidden="true">*</span>
+        }
+      </app-checkbox>
+      @if (err) {
+        <app-error-text [inset]="true" [id]="errorId(field.key, path)">{{ err }}</app-error-text>
+      }
+    }
+    @case ('switch') {
+      <app-switch [id]="id" [formField]="tree[field.key]"
+        ><span [attr.lang]="field.lang ?? null">{{ field.label }}</span></app-switch
+      >
+      @if (err) {
+        <app-error-text [inset]="true" [id]="errorId(field.key, path)">{{ err }}</app-error-text>
+      }
+    }
+    @case ('file') {
+      <div class="frm__group" role="group" [attr.aria-labelledby]="id + '-label'">
+        <span class="frm__label" [id]="id + '-label'" [attr.lang]="field.lang ?? null">
+          {{ field.label }}
+          @if (field.required) {
+            <span class="frm__req" aria-hidden="true">*</span>
+          }
+        </span>
+        @if (files(tree, field.key).length) {
+          <ul class="frm__files">
+            @for (file of files(tree, field.key); track file.url; let i = $index) {
+              <li class="frm__file">
+                <app-icon name="file" [size]="18" aria-hidden="true" />
+                <span class="frm__fileName">{{ file.name }}</span>
+                @if (!field.disabled) {
+                  <app-button
+                    variant="ghost"
+                    size="sm"
+                    [iconOnly]="true"
+                    [ariaLabel]="intl.translate('form.removeFile', { name: file.name })"
+                    (click)="removeFile(tree, field.key, i)"
+                    ><app-icon name="x" [size]="18"
+                  /></app-button>
+                }
+              </li>
+            }
+          </ul>
+        }
+        <app-file-picker
+          #picker
+          [accept]="field.accept ?? ''"
+          [multiple]="!!field.multiple"
+          [disabled]="!canUpload(field)"
+          (picked)="pickFiles(tree, field, $event)"
+        />
+        <app-button
+          variant="secondary"
+          [disabled]="!canUpload(field)"
+          [loading]="isUploading(field.key)"
+          [ariaLabel]="field.label + ': ' + intl.translate('form.pickFile')"
+          (click)="picker.open()"
+          >{{ intl.translate('form.pickFile') }}</app-button
+        >
+      </div>
+      @if (err) {
+        <app-error-text [inset]="true" [id]="errorId(field.key, path)">{{ err }}</app-error-text>
+      }
+    }
+    @case ('markdown') {
+      <div class="frm__group">
+        <span class="frm__label" [id]="id + '-label'" [attr.lang]="field.lang ?? null">
+          {{ field.label }}
+          @if (field.required) {
+            <span class="frm__req" aria-hidden="true">*</span>
+          }
+        </span>
+        @defer (on viewport) {
+          <app-markdown-editor
+            class="frm__md"
+            [value]="$any(tree[field.key]().value())"
+            [docKey]="id"
+            [disabled]="!!field.disabled"
+            [ariaLabel]="field.label"
+            (valueChange)="setValue(tree, field.key, $event)"
+          />
+        } @placeholder {
+          <div class="frm__mdWait"></div>
+        }
+      </div>
+      @if (err) {
+        <app-error-text [inset]="true" [id]="errorId(field.key, path)">{{ err }}</app-error-text>
+      }
+    }
+    @case ('repeat') {
+      <fieldset class="frm__group frm__repeat">
+        <legend class="frm__label" [attr.lang]="field.lang ?? null">
+          {{ field.label }}
+          @if (field.required) {
+            <span class="frm__req" aria-hidden="true">*</span>
+          }
+        </legend>
+        @for (row of rows(tree, field.key); track $index; let i = $index) {
+          <div class="frm__row">
+            <div class="frm__rowFields">
+              @for (sub of field.fields; track sub.key) {
+                @if (visible(sub)) {
+                  <div class="frm__field" [class.frm__field--half]="sub.width === 'half'">
+                    <ng-container
+                      *ngTemplateOutlet="
+                        fieldTpl;
+                        context: { $implicit: sub, tree: row, path: [...path, field.key, i] }
+                      "
+                    />
+                  </div>
+                }
+              }
+            </div>
+            @if (canRemove(tree, field)) {
+              <app-button
+                class="frm__rowRemove"
+                variant="ghost"
+                [iconOnly]="true"
+                [ariaLabel]="intl.translate('form.removeRow', { n: i + 1 })"
+                (click)="removeRow(tree, field, i)"
+                ><app-icon name="trash" [size]="18"
+              /></app-button>
+            }
+          </div>
+        }
+        @if (canAdd(tree, field)) {
+          <app-button variant="secondary" (click)="addRow(tree, field)">
+            <app-icon name="plus" [size]="18" aria-hidden="true" />
+            {{ field.addLabel }}
+          </app-button>
+        }
+      </fieldset>
+      @if (err) {
+        <app-error-text [inset]="true" [id]="errorId(field.key, path)">{{ err }}</app-error-text>
+      }
+    }
+    @case ('display') {
+      <p class="frm__display" [attr.lang]="field.lang ?? null">{{ field.text }}</p>
+    }
+    @default {
+      <app-input
+        [id]="id"
+        [formField]="tree[field.key]"
+        [type]="inputType(field)"
+        [label]="field.label"
+        [textLang]="field.lang ?? null"
+        [required]="!!field.required"
+        [error]="err"
+      />
+    }
+  }
+</ng-template>

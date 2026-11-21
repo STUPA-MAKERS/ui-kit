@@ -5,6 +5,7 @@ import { demoConfig } from './demo/demo-config';
 import {
   DemoAboutPage,
   DemoDetailPage,
+  DemoFormPage,
   DemoFrame,
   DemoListPage,
   DemoStartPage,
@@ -45,6 +46,7 @@ export const SHOWCASE_ROUTES: Routes = [
           emptyHeading: 'Keine Anträge',
         },
       }),
+      screenRoute({ path: 'form', title: 'Formular', component: DemoFormPage }),
       screenRoute({
         path: 'about',
         title: 'Über',

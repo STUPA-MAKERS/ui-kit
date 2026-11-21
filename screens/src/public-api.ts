@@ -7,3 +7,5 @@
 export * from './width';
 export * from './list-detail-screen/list-detail-screen.component';
 export * from './detail-screen/detail-screen.component';
+export * from './form/form.component';
+export * from './form/form.rules';

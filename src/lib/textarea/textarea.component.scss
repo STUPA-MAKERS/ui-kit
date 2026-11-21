@@ -52,3 +52,15 @@
   resize: none;
   field-sizing: content;
 }
+
+// The required mark and the message colours (no utility classes in the kit, 002213).
+.kit-req {
+  margin-inline-start: 2px;
+  color: var(--color-danger);
+}
+.kit-msg-error {
+  color: var(--color-danger);
+}
+.kit-msg-hint {
+  color: var(--color-text-muted);
+}

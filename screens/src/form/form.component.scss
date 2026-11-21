@@ -1,0 +1,138 @@
+:host {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-6);
+  min-width: 0;
+  container-type: inline-size;
+}
+
+.frm__section {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  min-width: 0;
+}
+
+// The title of a section: the look of the kit section title (app-section).
+.frm__title {
+  margin: 0;
+  padding: 0 var(--space-1);
+  color: var(--color-accent-text);
+  font-size: 0.84375rem;
+  font-weight: var(--fw-semibold);
+  line-height: 1.25rem;
+}
+
+// One column on a narrow form; two on a wide one, where a half field takes one of them.
+.frm__fields,
+.frm__rowFields {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--space-3);
+}
+@container (min-width: 34rem) {
+  .frm__fields,
+  .frm__rowFields {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .frm__field {
+    grid-column: 1 / -1;
+  }
+  .frm__field--half {
+    grid-column: auto;
+  }
+}
+
+.frm__field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  min-width: 0;
+}
+
+.frm__group {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--space-2);
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+// A group label (check boxes, files, Markdown, repeat rows): the look and inset of a field label.
+.frm__label {
+  padding: 0 var(--space-4);
+  color: var(--color-text-subtle);
+  font-size: 0.75rem;
+  line-height: 1rem;
+  font-weight: var(--fw-medium);
+}
+.frm__req {
+  color: var(--color-danger);
+}
+
+.frm__files {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  width: 100%;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.frm__file {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  min-width: 0;
+  padding-inline-start: var(--space-3);
+  border-radius: var(--radius-field, var(--radius-md));
+  background: var(--color-surface-2);
+}
+.frm__fileName {
+  flex: 1 1 auto;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.frm__md {
+  display: block;
+  width: 100%;
+}
+.frm__mdWait {
+  width: 100%;
+  min-height: 8rem;
+  border-radius: var(--radius-field, var(--radius-md));
+  background: var(--color-surface-2);
+}
+
+.frm__repeat {
+  align-items: stretch;
+  width: 100%;
+}
+.frm__repeat > app-button {
+  align-self: flex-start;
+}
+// A row of a repeat group: its fields, and the remove button as high as a field (001910).
+.frm__row {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-2);
+}
+.frm__rowFields {
+  flex: 1 1 auto;
+}
+.frm__rowRemove {
+  flex: none;
+  --control-height: var(--field-height);
+}
+
+.frm__display {
+  margin: 0;
+  padding: 0 var(--space-1);
+  color: var(--color-text);
+}
