@@ -9,25 +9,35 @@
 
   @switch (state().state) {
     @case ('loading') {
-      <div class="sts__groups" aria-hidden="true">
-        @for (group of groups(); track group.key) {
-          <ng-container
-            *ngTemplateOutlet="block; context: { $implicit: group, body: skeletonRows }"
-          />
-        }
-      </div>
-      <span class="sr-only" role="status">{{ intl.translate('loading') }}</span>
+      @if (lines(); as count) {
+        <app-skeleton variant="lines" [count]="count" [label]="intl.translate('loading')" />
+      } @else {
+        <div class="sts__groups" aria-hidden="true">
+          @for (group of stateGroups(); track group.key) {
+            <ng-container
+              *ngTemplateOutlet="block; context: { $implicit: group, body: skeletonOf(group.key) ?? skeletonRows }"
+            />
+          }
+        </div>
+        <span class="sr-only" role="status">{{ intl.translate('loading') }}</span>
+      }
     }
     @case ('forbidden') {
-      <app-note kind="warn" icon="lock" role="alert">{{ forbidden() }}</app-note>
+      @if (forbidden()) {
+        <app-note kind="warn" icon="lock" role="alert">{{ forbidden() }}</app-note>
+      }
     }
     @case ('ready') {
       <div class="sts__groups">
-        @for (group of groups(); track group.key) {
-          <ng-container *ngTemplateOutlet="block; context: { $implicit: group, body: rows }" />
+        @for (group of stateGroups(); track group.key) {
+          <ng-container *ngTemplateOutlet="block; context: { $implicit: group, body: slotOf(group.key) ?? rows }" />
         }
       </div>
     }
+  }
+
+  @for (group of alwaysGroups(); track group.key) {
+    <ng-container *ngTemplateOutlet="block; context: { $implicit: group, body: slotOf(group.key) ?? rows }" />
   }
 
   @if (dirty()) {
@@ -45,10 +55,10 @@
 <ng-template #block let-group let-body="body">
   @if (group.label) {
     <app-section class="sts__sec" [level]="2" [heading]="group.label">
-      <ng-container *ngTemplateOutlet="slotOf(group.key) ?? body; context: { $implicit: group }" />
+      <ng-container *ngTemplateOutlet="body; context: { $implicit: group }" />
     </app-section>
   } @else {
-    <ng-container *ngTemplateOutlet="slotOf(group.key) ?? body; context: { $implicit: group }" />
+    <ng-container *ngTemplateOutlet="body; context: { $implicit: group }" />
   }
 </ng-template>
 

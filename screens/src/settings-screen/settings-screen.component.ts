@@ -23,6 +23,7 @@ import {
   NoteComponent,
   PageHeaderComponent,
   SectionComponent,
+  SkeletonComponent,
   SwitchComponent,
   ToastService,
   UI_KIT_INTL,
@@ -50,11 +51,14 @@ export interface SettingsGroup {
   readonly key: string;
   readonly label?: string;
   readonly rows: readonly SettingsRow[];
+  /** The group shows in every state of the screen, and its slot carries its own load state
+   * (gesperrte Absender of Hilfe & Tickets). */
+  readonly always?: boolean;
 }
 
 /** What the screen shows: the skeleton, the groups, the missing right, or a load error. */
 export type SettingsState =
-  | { readonly state: 'loading' }
+  | { readonly state: 'loading'; readonly lines?: number }
   | { readonly state: 'ready' }
   | { readonly state: 'forbidden'; readonly message: string }
   | { readonly state: 'error'; readonly message: string; readonly retry: () => void };
@@ -72,6 +76,14 @@ export interface SettingsSave {
 @Directive({ selector: 'ng-template[screenGroup]', standalone: true })
 export class ScreenGroupDirective {
   readonly key = input.required<string>({ alias: 'screenGroup' });
+  readonly template = inject<TemplateRef<unknown>>(TemplateRef);
+}
+
+/** The loading body of one slot group: the slot itself only shows once the data is there. */
+// eslint-disable-next-line @angular-eslint/directive-selector -- fixed slot name (002217)
+@Directive({ selector: 'ng-template[screenSkeleton]', standalone: true })
+export class ScreenSkeletonDirective {
+  readonly key = input.required<string>({ alias: 'screenSkeleton' });
   readonly template = inject<TemplateRef<unknown>>(TemplateRef);
 }
 
@@ -95,6 +107,7 @@ export class ScreenGroupDirective {
     NoteComponent,
     PageHeaderComponent,
     SectionComponent,
+    SkeletonComponent,
     SwitchComponent,
   ],
   templateUrl: './settings-screen.component.html',
@@ -115,9 +128,18 @@ export class SettingsScreenComponent {
   protected readonly intl = inject(UI_KIT_INTL);
   private readonly toasts = inject(ToastService);
   private readonly slots = contentChildren(ScreenGroupDirective);
+  private readonly skeletons = contentChildren(ScreenSkeletonDirective);
 
   protected readonly ready = computed(() => this.state().state === 'ready');
   protected readonly dirty = computed(() => this.ready() && !!this.save()?.dirty);
+  /** The groups that follow the state of the screen, and those that show in every state. */
+  protected readonly stateGroups = computed(() => this.groups().filter((g) => !g.always));
+  protected readonly alwaysGroups = computed(() => this.groups().filter((g) => g.always));
+  /** Loading as plain lines, as `app-load-state` of the app draws it without a template. */
+  protected readonly lines = computed(() => {
+    const s = this.state();
+    return s.state === 'loading' ? (s.lines ?? null) : null;
+  });
   protected readonly forbidden = computed(() => {
     const s = this.state();
     return s.state === 'forbidden' ? s.message : null;
@@ -133,6 +155,10 @@ export class SettingsScreenComponent {
 
   protected slotOf(key: string): TemplateRef<unknown> | null {
     return this.slots().find((s) => s.key() === key)?.template ?? null;
+  }
+
+  protected skeletonOf(key: string): TemplateRef<unknown> | null {
+    return this.skeletons().find((s) => s.key() === key)?.template ?? null;
   }
 
   protected toggle(row: SettingsRow, value: boolean): void {
