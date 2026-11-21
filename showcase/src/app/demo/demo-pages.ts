@@ -1,4 +1,5 @@
-import { ChangeDetectionStrategy, Component, computed, input, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject, input, signal } from '@angular/core';
+import { ActivatedRoute, Router } from '@angular/router';
 import {
   CheckboxComponent,
   NoteComponent,
@@ -243,8 +244,61 @@ export class DemoDetailPage {
     { key: 'votes', label: 'Abstimmungen', icon: 'vote', mark: 'new' },
   ];
 
+  private readonly router = inject(Router);
+  private readonly route = inject(ActivatedRoute);
+
   protected onAction(key: string): void {
+    if (key === 'edit') {
+      void this.router.navigate(['edit'], { relativeTo: this.route });
+      return;
+    }
     console.info(`[showcase] detail action ${key}`);
+  }
+}
+
+/**
+ * "Antrag bearbeiten" in place of the detail, as in the app: the form screen in the detail
+ * pane, the same title and no subtitle or note.
+ */
+@Component({
+  selector: 'sc-demo-edit',
+  imports: [FormScreenComponent],
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  template: `
+    <app-form-screen
+      [head]="{ title: 'Antrag bearbeiten' }"
+      [form]="form()"
+      [value]="value()"
+      [submit]="{ label: 'Speichern', busy: saving() }"
+      (valueChange)="value.set($event)"
+      (submit)="save($event)"
+      (cancel)="close()"
+    />
+  `,
+})
+export class DemoEditPage {
+  readonly id = input('');
+  private readonly router = inject(Router);
+  private readonly route = inject(ActivatedRoute);
+  private readonly row = computed(() => DEMO_ROWS.find((r) => r.id === this.id()));
+  protected readonly value = signal<FormValue>({});
+  protected readonly saving = signal(false);
+  protected readonly form = computed(() => DEMO_FORM(this.value()['payee'] === 'person'));
+
+  constructor() {
+    queueMicrotask(() => this.value.set({ title: this.row()?.title ?? '', count: 120 }));
+  }
+
+  protected save(_value: FormValue): void {
+    this.saving.set(true);
+    setTimeout(() => {
+      this.saving.set(false);
+      this.close();
+    }, 600);
+  }
+
+  protected close(): void {
+    void this.router.navigate(['..'], { relativeTo: this.route });
   }
 }
 

@@ -5,6 +5,7 @@ import { demoConfig } from './demo/demo-config';
 import {
   DemoAboutPage,
   DemoDetailPage,
+  DemoEditPage,
   DemoFormPage,
   DemoFrame,
   DemoListPage,
@@ -40,6 +41,7 @@ export const SHOWCASE_ROUTES: Routes = [
         title: 'Anträge',
         list: DemoListPage,
         detail: DemoDetailPage,
+        children: [{ path: ':id/edit', component: DemoEditPage }],
         none: {
           icon: 'file',
           heading: 'Antrag wählen',
