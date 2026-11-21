@@ -1,45 +1,56 @@
-<header class="fs__head" [class.fs__head--docked]="docked()">
-  <app-icon class="fs__icon" [name]="icon()" [size]="18" aria-hidden="true" />
-  <h1 class="fs__text" [id]="titleId">
-    <span class="fs__title" [attr.lang]="head().lang?.value ?? null">{{ head().title }}</span>
-    @if (subtitle()) {
-      <span class="fs__subtitle">{{ subtitle() }}</span>
-    }
-  </h1>
-  @if (!docked()) {
-    @if (discard(); as d) {
-      @if (dirty() && !phone()) {
-        <app-button variant="text" (click)="onDiscard()">{{ d.label }}</app-button>
+<div class="fs__nav" [appListDetailNav]="ownBar()">
+  @if (ownBar()) {
+    <app-list-detail-bar />
+  }
+  <header class="fs__head" [class.fs__head--docked]="docked()">
+    <app-icon class="fs__icon" [name]="icon()" [size]="18" aria-hidden="true" />
+    <h1 class="fs__text" [id]="titleId">
+      <span class="fs__title" [attr.lang]="head().lang?.value ?? null">{{ head().title }}</span>
+      @if (subtitle()) {
+        <span class="fs__subtitle">{{ subtitle() }}</span>
       }
-    } @else {
-      <app-button variant="text" (click)="onCancel()">{{
-        intl.translate('confirm.cancel')
-      }}</app-button>
+    </h1>
+    @if (!docked()) {
+      @if (discard(); as d) {
+        @if (dirty() && !phone()) {
+          <app-button variant="text" (click)="onDiscard()">{{ d.label }}</app-button>
+        }
+      } @else {
+        <app-button variant="text" (click)="onCancel()">{{
+          intl.translate('confirm.cancel')
+        }}</app-button>
+      }
     }
-  }
-</header>
+    <span class="fs__fade" aria-hidden="true"></span>
+  </header>
 
-<div class="fs__body" [attr.aria-labelledby]="titleId" role="region">
-  @if (top(); as t) {
-    <div class="fs__top"><ng-container [ngTemplateOutlet]="t.template" /></div>
+  <div class="fs__body" [attr.aria-labelledby]="titleId" role="region">
+    @if (top(); as t) {
+      <div class="fs__top"><ng-container [ngTemplateOutlet]="t.template" /></div>
+    }
+    <app-form
+      [form]="form()"
+      [value]="value()"
+      [errors]="errors()"
+      (valueChange)="onValue($event)"
+    />
+  </div>
+
+  @if (dirty() || busy()) {
+    <app-fab-group>
+      @if (phone() && discard(); as d) {
+        <app-fab icon="undo" tone="neutral" [label]="d.label" (activate)="onDiscard()" />
+      }
+      <app-fab icon="check" [label]="submit().label" [loading]="busy()" (activate)="onSubmit()" />
+    </app-fab-group>
   }
-  <app-form [form]="form()" [value]="value()" [errors]="errors()" (valueChange)="onValue($event)" />
+
+  <app-confirm-dialog
+    [open]="!!leaving()"
+    [title]="intl.translate('form.leaveTitle')"
+    [body]="intl.translate('form.leaveBody')"
+    [confirmLabel]="intl.translate('form.leaveConfirm')"
+    (confirm)="answer(true)"
+    (cancel)="answer(false)"
+  />
 </div>
-
-@if (dirty() || busy()) {
-  <app-fab-group>
-    @if (phone() && discard(); as d) {
-      <app-fab icon="undo" tone="neutral" [label]="d.label" (activate)="onDiscard()" />
-    }
-    <app-fab icon="check" [label]="submit().label" [loading]="busy()" (activate)="onSubmit()" />
-  </app-fab-group>
-}
-
-<app-confirm-dialog
-  [open]="!!leaving()"
-  [title]="intl.translate('form.leaveTitle')"
-  [body]="intl.translate('form.leaveBody')"
-  [confirmLabel]="intl.translate('form.leaveConfirm')"
-  (confirm)="answer(true)"
-  (cancel)="answer(false)"
-/>

@@ -21,7 +21,9 @@ import {
   FabComponent,
   FabGroupComponent,
   IconComponent,
+  ListDetailBarComponent,
   ListDetailNav,
+  ListDetailNavDirective,
   UI_KIT_INTL,
   UnsavedChanges,
   type FormDef,
@@ -77,7 +79,10 @@ export class ScreenFormTopDirective {
     FabGroupComponent,
     FormComponent,
     IconComponent,
+    ListDetailBarComponent,
+    ListDetailNavDirective,
   ],
+  host: { '[class.fs--framed]': 'framed()' },
   templateUrl: './form-screen.component.html',
   styleUrl: './form-screen.component.scss',
 })
@@ -102,6 +107,8 @@ export class FormScreenComponent {
 
   protected readonly intl = inject(UI_KIT_INTL);
   private readonly nav = inject(ListDetailNav, { optional: true });
+  /** The own bar of the screen on a phone outside the one-view layout. */
+  private readonly ownNav = viewChild(ListDetailNavDirective, { read: ListDetailNav });
   private readonly unsaved = inject(UnsavedChanges);
   protected readonly top = contentChild(ScreenFormTopDirective);
   protected readonly kitForm = viewChild.required(FormComponent);
@@ -113,8 +120,19 @@ export class FormScreenComponent {
   /** On a phone "Verwerfen" floats beside "Speichern", so the head keeps room for the title. */
   protected readonly phone = computed(() => this.width() === 'phone');
   private readonly width = injectWidthClass();
-  /** The bar of the one-view layout shows the title and "Abbrechen". */
-  protected readonly docked = computed(() => !!this.nav?.active());
+  /** The bar of the one-view layout around the screen is on. */
+  private readonly inLayout = computed(() => !!this.nav?.active());
+  /**
+   * On a phone outside the one-view layout the screen shows the same bar itself: X and the
+   * title at the top of the page (001890). A form without a way out ("Verwerfen") has no X.
+   */
+  protected readonly ownBar = computed(
+    () => !this.inLayout() && this.phone() && this.discard() === null,
+  );
+  /** Wider than a phone and on the page itself, the screen is a sheet with round corners. */
+  protected readonly framed = computed(() => !this.inLayout() && !this.phone());
+  /** A bar at the top shows the title and the X, so the head stays for screen readers only. */
+  protected readonly docked = computed(() => this.inLayout() || this.ownBar());
 
   /** The question before leaving; it resolves with the answer. */
   protected readonly leaving = signal<((leave: boolean) => void) | null>(null);
@@ -194,12 +212,11 @@ export class FormScreenComponent {
     });
   }
 
-  /** In the one-view layout the bar of the layout shows the title and "Abbrechen". */
+  /** The bar at the top (of the layout, or the own one) shows the title and the X. */
   private dockInLayoutBar(): void {
-    const nav = this.nav;
-    if (!nav) return;
     effect((onCleanup) => {
-      if (!this.docked()) return;
+      const nav = this.inLayout() ? this.nav : this.ownBar() ? this.ownNav() : null;
+      if (!nav) return;
       const task: ListDetailTask = {
         title: this.head().title,
         cancelLabel: this.intl.translate('confirm.cancel'),

@@ -367,7 +367,8 @@
   // The detail pane of a split page is a box that cuts its content at the bottom: it has
   // the white edge of a surface.
   // A border, not an outline: the content scrolls over an outline of a scroll container.
-  .ld--split .ld__detail {
+  .ld--split .ld__detail,
+  app-form-screen.fs--framed {
     box-sizing: border-box;
     border: var(--vh-edge);
   }

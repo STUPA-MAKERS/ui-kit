@@ -5,6 +5,19 @@
   min-height: 100%;
   container: fs / inline-size;
 }
+// Only a scope for the own bar of a phone (`appListDetailNav`); it adds no box.
+.fs__nav {
+  display: contents;
+  border-radius: inherit;
+}
+
+// On the page itself, wider than a phone, the screen is a sheet with round corners on
+// surface 1, as the detail pane of the list/detail screen (the frame of "Antrag bearbeiten").
+// The head bar takes the top corners (`inherit`).
+:host(.fs--framed) {
+  border-radius: var(--radius-2xl);
+  background: var(--color-surface-1);
+}
 
 // The head bar of a form in place of a detail (001890): icon and title at the start,
 // "Abbrechen" at the end, one line on the surface one step up. The label of "Abbrechen" ends
@@ -22,6 +35,22 @@
   border-start-start-radius: inherit;
   border-start-end-radius: inherit;
   background: var(--color-surface-2);
+  // It stays at the top while the form scrolls, as the bar of "Antrag bearbeiten";
+  // `--ld-sticky-top` holds it under the bar of the one-view layout.
+  position: sticky;
+  top: var(--ld-sticky-top, 0px);
+  z-index: 3;
+}
+// The form fades out under the bar, as in "Antrag bearbeiten".
+.fs__fade {
+  position: absolute;
+  inset: 100% 0 auto;
+  height: var(--space-5);
+  background: linear-gradient(to bottom, var(--fs-ground, var(--color-bg)), transparent);
+  pointer-events: none;
+}
+:host(.fs--framed) {
+  --fs-ground: var(--color-surface-1);
 }
 .fs__icon {
   flex: none;

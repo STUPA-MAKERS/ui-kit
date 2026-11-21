@@ -2,9 +2,10 @@ import { ChangeDetectionStrategy, Component, input, signal } from '@angular/core
 import { TestBed } from '@angular/core/testing';
 import { render, screen, waitFor } from '@testing-library/angular';
 import userEvent from '@testing-library/user-event';
-import { UnsavedChanges, type FormDef } from '@stupa-makers/ui-kit';
+import { MEDIA, UnsavedChanges, type FormDef } from '@stupa-makers/ui-kit';
 
 import { runAxe } from '../../../testing/a11y';
+import { matchOnly } from '../../../testing/media';
 import { FORM_DEF } from '../../../testing/screens';
 import type { FormValue } from '../form/form.component';
 import {
@@ -137,6 +138,27 @@ describe('FormScreenComponent', () => {
     expect(unsaved.dirty()).toBe(false);
     await userEvent.type(screen.getByLabelText(/Titel/), 'Miete');
     await waitFor(() => expect(unsaved.dirty()).toBe(true));
+  });
+
+  it('shows the X and the title in a bar at the top on a phone, as "Antrag bearbeiten"', async () => {
+    const restore = matchOnly(MEDIA.phone);
+    try {
+      const { host } = await setup();
+      const bar = document.querySelector('app-list-detail-bar');
+      expect(bar?.textContent).toContain('Buchung anlegen');
+      expect(document.querySelector('.fs__head--docked')).toBeTruthy();
+      expect(document.querySelector('app-form-screen.fs--framed')).toBeNull();
+      await userEvent.click(screen.getByRole('button', { name: 'Abbrechen' }));
+      expect(host.onCancel).toHaveBeenCalledTimes(1);
+    } finally {
+      restore();
+    }
+  });
+
+  it('is a sheet with round corners wider than a phone', async () => {
+    await setup();
+    expect(document.querySelector('app-form-screen.fs--framed')).toBeTruthy();
+    expect(document.querySelector('app-list-detail-bar')).toBeNull();
   });
 
   it.each([360, 700, 1200])(
