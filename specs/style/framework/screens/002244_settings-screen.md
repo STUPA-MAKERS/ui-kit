@@ -61,6 +61,7 @@ Decisions, each approved on its own card:
 
 - Both save kinds; the page picks with `save`.
 - The kit shows loading, the missing right and the load error.
+- The labels have the normal weight, as on Funktionen and Hilfe & Tickets.
 
 Reason: Every settings page then has the same row groups.
 
