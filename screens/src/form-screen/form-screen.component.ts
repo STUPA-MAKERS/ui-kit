@@ -94,12 +94,10 @@ export class FormScreenComponent {
 
   readonly valueChange = output<FormValue>();
   /** The person pressed the submit button and the form is valid. */
-  // eslint-disable-next-line @angular-eslint/no-output-native -- the fixed output name of 002242
   readonly submitted = output<FormValue>({ alias: 'submit' });
   /** "Verwerfen": the page sets the saved value again. */
   readonly discarded = output<void>({ alias: 'discard' });
   /** "Abbrechen": the page closes the form; it asks first while there are changes. */
-  // eslint-disable-next-line @angular-eslint/no-output-native -- the fixed output name of 002242
   readonly cancelled = output<void>({ alias: 'cancel' });
 
   protected readonly intl = inject(UI_KIT_INTL);
@@ -185,14 +183,14 @@ export class FormScreenComponent {
 
   /** When `busy` ends without server errors, the form takes the value as saved. */
   private takeSavedValue(): void {
-    const was = { busy: false };
+    const wasBusy = signal(false);
     effect(() => {
       const busy = this.busy();
       const errors = this.errors();
-      if (was.busy && !busy && Object.keys(errors).length === 0) {
-        untracked(() => this.kitForm().markPristine());
-      }
-      Object.assign(was, { busy });
+      untracked(() => {
+        if (wasBusy() && !busy && Object.keys(errors).length === 0) this.kitForm().markPristine();
+        wasBusy.set(busy);
+      });
     });
   }
 
