@@ -147,8 +147,11 @@ function replaceRefs(
   bang: boolean,
   render: (label: string, dest: string) => string | null,
 ): string {
+  // eslint-disable-next-line functional/no-let -- a character scanner, moved verbatim with its tests from the app renderer
   let out = '';
+  // eslint-disable-next-line functional/no-let -- a character scanner, moved verbatim with its tests from the app renderer
   let i = 0;
+  // eslint-disable-next-line functional/no-loop-statements -- a character scanner, moved verbatim with its tests from the app renderer
   while (i < text.length) {
     const open = bang ? text.startsWith('![', i) : text[i] === '[';
     const start = i + (bang ? 2 : 1);
@@ -172,7 +175,9 @@ function destination(
   text: string,
   from: number,
 ): { readonly url: string; readonly end: number } | null {
+  // eslint-disable-next-line functional/no-let -- a character scanner, moved verbatim with its tests from the app renderer
   let depth = 0;
+  // eslint-disable-next-line functional/no-let, functional/no-loop-statements -- a character scanner, moved verbatim with its tests from the app renderer
   for (let j = from; j < text.length; j++) {
     const c = text[j];
     if (/\s/.test(c)) return null;
@@ -224,7 +229,9 @@ function inlineRenderer(
     const fill = (s: string, plain = false): string =>
       s.replace(sentinel, (_m, i: string) => (plain ? texts : parts)[Number(i)] ?? '');
     const stash = (html: string, plain = html): string => {
+      // eslint-disable-next-line functional/immutable-data -- the placeholder stash of one call
       parts.push(fill(html));
+      // eslint-disable-next-line functional/immutable-data -- the placeholder stash of one call
       texts.push(fill(plain, true));
       return `\u0000${parts.length - 1}\u0000`;
     };

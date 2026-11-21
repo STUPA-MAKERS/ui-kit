@@ -197,14 +197,17 @@ export class WizardScreenComponent {
   protected readonly titleId = inject(_IdGenerator).getId('app-wizard-step-');
 
   /** The rendered Markdown text of each group, by key. */
-  protected readonly groupHtml = computed(() => {
-    const html = new Map<string, string>();
-    for (const g of this.intro()?.groups ?? []) {
-      if (g.text?.trim())
-        html.set(g.key, markdownToSafeHtml(g.text, { headingOffset: 0, imageSrc: null }));
-    }
-    return html;
-  });
+  protected readonly groupHtml = computed(
+    () =>
+      new Map(
+        (this.intro()?.groups ?? [])
+          .filter((g) => g.text?.trim())
+          .map((g) => [
+            g.key,
+            markdownToSafeHtml(g.text ?? '', { headingOffset: 0, imageSrc: null }),
+          ]),
+      ),
+  );
 
   private readonly width = injectWidthClass();
   protected readonly phone = computed(() => this.width() === 'phone');
