@@ -9,6 +9,7 @@ module.exports = {
     '\\.(css|scss)$': '<rootDir>/testing/style-mock.js',
     // The secondary entries (markdown editor, pwa, shell) import the primary entry by its name.
     '^@stupa-makers/ui-kit$': '<rootDir>/src/public-api.ts',
+    '^@stupa-makers/ui-kit/markdown-editor$': '<rootDir>/markdown-editor/src/public-api.ts',
     '^@stupa-makers/ui-kit/screens$': '<rootDir>/screens/src/public-api.ts',
     '^@stupa-makers/ui-kit/shell$': '<rootDir>/shell/src/public-api.ts',
   },

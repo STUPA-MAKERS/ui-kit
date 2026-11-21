@@ -1,5 +1,6 @@
 import { ChangeDetectionStrategy, Component, computed, input, signal } from '@angular/core';
 import {
+  ButtonComponent,
   CheckboxComponent,
   FactsComponent,
   PageHeaderComponent,
@@ -20,10 +21,12 @@ import {
   ScreenCommentsDirective,
   ScreenSheetDirective,
   ScreenTabDirective,
+  FormComponent,
+  type FormValue,
 } from '@stupa-makers/ui-kit/screens';
 import { FrameworkShellComponent } from '@stupa-makers/ui-kit/shell';
 
-import { DEMO_ROWS, demoFrame } from './demo-config';
+import { DEMO_FORM, DEMO_ROWS, demoFrame } from './demo-config';
 
 /** The demo app: the framework shell with the config of `demoConfig()`. */
 @Component({
@@ -259,3 +262,35 @@ export class DemoDetailPage {
   `,
 })
 export class DemoAboutPage {}
+
+/** The kit form with every field kind (002255); "Prüfen" shows the errors. */
+@Component({
+  selector: 'sc-demo-form',
+  imports: [PageHeaderComponent, FormComponent, ButtonComponent],
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  template: `
+    <div class="page-shell">
+      <app-page-header title="Formular" />
+      <app-form
+        #f
+        [form]="form()"
+        [value]="value()"
+        [errors]="errors()"
+        (valueChange)="value.set($event)"
+      />
+      <div>
+        <app-button (click)="check(f.showErrors())">Prüfen</app-button>
+      </div>
+    </div>
+  `,
+})
+export class DemoFormPage {
+  protected readonly value = signal<FormValue>({ title: 'Sommerfest', count: 120 });
+  protected readonly errors = signal<Record<string, string>>({});
+  /** The app computes `visible`: the IBAN shows only for a payment to a person. */
+  protected readonly form = computed(() => DEMO_FORM(this.value()['payee'] === 'person'));
+
+  protected check(valid: boolean): void {
+    this.errors.set(valid ? {} : { title: 'Ein Antrag mit diesem Titel ist schon offen.' });
+  }
+}

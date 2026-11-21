@@ -11,6 +11,7 @@ import {
   DefaultUiKitIntl,
   UI_KIT_INTL,
   UI_KIT_THEME,
+  UI_KIT_UPLOAD,
   uiKitThemeConfig,
   type Action,
   type DisplayChoices,
@@ -71,7 +72,9 @@ export interface FrameworkConfig {
   /** The actions of the public header, for example "Anmelden". */
   readonly publicHead?: { readonly actions: Signal<readonly Action[]> };
   readonly help?: { readonly items: Signal<readonly Action[]>; readonly wikiUrl?: string };
-  readonly footer?: { readonly links: readonly { readonly label: string; readonly link: RouteLink }[] };
+  readonly footer?: {
+    readonly links: readonly { readonly label: string; readonly link: RouteLink }[];
+  };
   readonly a11yStatement: RouteLink;
   /** Show "Barriere melden" in the accessibility menu; it emits the action `reportBarrier`. §S/framework/shell/002292 */
   readonly reportBarrier?: boolean;
@@ -139,6 +142,7 @@ export function provideFramework(config: FrameworkConfig): EnvironmentProviders 
           config.texts,
         ),
     },
+    { provide: UI_KIT_UPLOAD, useValue: config.ports.upload ?? null },
     {
       provide: UI_KIT_THEME,
       useValue: uiKitThemeConfig({

@@ -28,6 +28,8 @@ import { ChangeDetectionStrategy, Component, input } from '@angular/core';
 })
 export class TextareaComponent {
   readonly label = input.required<string>();
+  /** Shows the required mark after the label (000519); give the textarea `required` too. */
+  readonly required = input(false);
   readonly invalid = input(false);
   readonly grow = input(false);
 }

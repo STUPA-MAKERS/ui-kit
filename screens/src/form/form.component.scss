@@ -1,0 +1,234 @@
+@use '../../../src/styles/field' as f;
+
+:host {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-6);
+  min-width: 0;
+  container-type: inline-size;
+}
+
+.frm__section {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  min-width: 0;
+}
+
+// The title of a section: the look of the kit section title (app-section).
+.frm__title {
+  margin: 0;
+  padding: 0 var(--space-1);
+  color: var(--color-accent-text);
+  font-size: 0.84375rem;
+  font-weight: var(--fw-semibold);
+  line-height: 1.25rem;
+}
+
+// One column on a narrow form; two on a wide one, where a half field takes one of them.
+.frm__fields,
+.frm__rowFields {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--space-3);
+}
+@container (min-width: 34rem) {
+  .frm__fields,
+  .frm__rowFields {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .frm__field {
+    grid-column: 1 / -1;
+  }
+  .frm__field--half {
+    grid-column: auto;
+  }
+}
+
+.frm__field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  min-width: 0;
+}
+
+.frm__group {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--space-2);
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+// The filled box of the kit fields around the check boxes of a multi-select, a single check
+// box and a switch, so they line up with the other fields and take the highlighted look.
+.frm__box {
+  @include f.box;
+  @include f.box-labelled;
+  box-sizing: border-box;
+  padding-inline: var(--space-4);
+}
+.frm__box--invalid {
+  @include f.box-invalid;
+}
+// A multi-select: the label at the top like a field label, the options below it, each box
+// on the inset of the label (the check box has 11px of touch area before its box).
+.frm__box--list {
+  flex-direction: column;
+  align-items: stretch;
+  padding: 0 var(--space-4) var(--space-1);
+}
+.frm__boxLabel {
+  @include f.label;
+  padding-inline: 0;
+}
+.frm__options {
+  display: flex;
+  flex-direction: column;
+}
+.frm__options app-checkbox,
+.frm__box--toggle app-checkbox {
+  display: flex;
+  min-height: 40px;
+}
+.frm__box--toggle {
+  flex-wrap: nowrap;
+  align-content: center;
+  align-items: center;
+}
+.frm__switch {
+  flex: 1 1 auto;
+}
+
+// A group label (files, Markdown, repeat rows): the look and inset of a field label.
+.frm__label {
+  padding: 0 var(--space-4);
+  color: var(--color-text-subtle);
+  font-size: 0.75rem;
+  line-height: 1rem;
+  font-weight: var(--fw-medium);
+}
+.frm__req {
+  color: var(--color-danger);
+}
+
+// The files of a file field: the rows of the apply wizard, then the drop zone.
+.frm__files {
+  width: 100%;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.frm__file {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  min-height: 3.375rem;
+  padding: 6px var(--space-2) 6px var(--space-4);
+}
+.frm__fileIcon {
+  flex: none;
+  color: var(--color-text-muted);
+}
+.frm__fileText {
+  display: flex;
+  flex: 1 1 auto;
+  flex-direction: column;
+  min-width: 0;
+}
+.frm__fileName {
+  flex: 1 1 auto;
+  min-width: 0;
+  overflow: hidden;
+  font-weight: var(--fw-medium);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.frm__fileSub {
+  color: var(--color-text-muted);
+  font-size: 0.8125rem;
+}
+.frm__fileRemove {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  width: 2.5rem;
+  height: 2.5rem;
+  padding: 0;
+  border: 0;
+  border-radius: var(--radius-pill);
+  background: none;
+  color: var(--color-text-muted);
+  cursor: pointer;
+}
+@media (hover: hover) {
+  .frm__fileRemove:hover {
+    background: var(--color-surface-3);
+    color: var(--color-text);
+  }
+}
+.frm__spinner {
+  flex: none;
+  width: 18px;
+  height: 18px;
+  border: 2px solid var(--color-text-muted);
+  border-right-color: transparent;
+  border-radius: var(--radius-pill);
+  animation: frm-spin 0.7s linear infinite;
+}
+@keyframes frm-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .frm__spinner {
+    animation-duration: 2s;
+  }
+}
+.frm__drop {
+  display: block;
+  width: 100%;
+}
+
+.frm__md {
+  display: block;
+  width: 100%;
+}
+.frm__mdWait {
+  width: 100%;
+  min-height: 8rem;
+  border-radius: var(--radius-field, var(--radius-md));
+  background: var(--color-surface-2);
+}
+
+.frm__repeat {
+  align-items: stretch;
+  width: 100%;
+}
+.frm__repeat > app-button {
+  align-self: flex-start;
+}
+// A row of a repeat group: its fields, and the remove button as high as a field (001910).
+.frm__row {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-2);
+}
+.frm__rowFields {
+  flex: 1 1 auto;
+}
+.frm__rowRemove {
+  flex: none;
+  --control-height: var(--field-height);
+}
+
+.frm__display {
+  margin: 0;
+  padding: 0 var(--space-1);
+  color: var(--color-text);
+}

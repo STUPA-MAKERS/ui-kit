@@ -10,7 +10,7 @@
       <label class="fld__label" [for]="id" [attr.lang]="textLang">
         {{ label }}
         @if (required) {
-          <span class="text-danger" aria-hidden="true">*</span>
+          <span class="kit-req" aria-hidden="true">*</span>
         }
       </label>
     }
@@ -33,9 +33,9 @@
     }
   </div>
   @if (hint && !error) {
-    <p class="fld__msg text-muted" [id]="id + '-hint'" [attr.lang]="textLang">{{ hint }}</p>
+    <p class="fld__msg kit-msg-hint" [id]="id + '-hint'" [attr.lang]="textLang">{{ hint }}</p>
   }
   @if (error) {
-    <p class="fld__msg text-danger" [id]="id + '-error'" role="alert">{{ error }}</p>
+    <p class="fld__msg kit-msg-error" [id]="id + '-error'" role="alert">{{ error }}</p>
   }
 </div>
