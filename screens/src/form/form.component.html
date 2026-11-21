@@ -105,42 +105,54 @@
       />
     }
     @case ('multi-select') {
-      <fieldset class="frm__group" [attr.aria-describedby]="err ? errorId(field.key, path) : null">
-        <legend class="frm__label" [attr.lang]="field.lang ?? null">
+      <div
+        class="frm__box frm__box--list"
+        role="group"
+        [class.frm__box--invalid]="!!err"
+        [attr.aria-labelledby]="id + '-label'"
+        [attr.aria-describedby]="err ? errorId(field.key, path) : null"
+      >
+        <span class="frm__boxLabel" [id]="id + '-label'" [attr.lang]="field.lang ?? null">
           {{ field.label }}
           @if (field.required) {
             <span class="frm__req" aria-hidden="true">*</span>
           }
-        </legend>
-        @for (option of field.options; track option.value) {
-          <app-checkbox
-            [id]="id + '-' + option.value"
-            [ngModel]="has(tree, field.key, option.value)"
-            [disabled]="!!field.disabled || !!option.disabled"
-            (ngModelChange)="toggleOption(tree, field.key, option.value, $event)"
-            >{{ option.label }}</app-checkbox
-          >
-        }
-      </fieldset>
+        </span>
+        <div class="frm__options">
+          @for (option of field.options; track option.value) {
+            <app-checkbox
+              [id]="id + '-' + option.value"
+              [ngModel]="has(tree, field.key, option.value)"
+              [disabled]="!!field.disabled || !!option.disabled"
+              (ngModelChange)="toggleOption(tree, field.key, option.value, $event)"
+              >{{ option.label }}</app-checkbox
+            >
+          }
+        </div>
+      </div>
       @if (err) {
         <app-error-text [inset]="true" [id]="errorId(field.key, path)">{{ err }}</app-error-text>
       }
     }
     @case ('checkbox') {
-      <app-checkbox [id]="id" [formField]="tree[field.key]"
-        ><span [attr.lang]="field.lang ?? null">{{ field.label }}</span>
-        @if (field.required) {
-          <span class="frm__req" aria-hidden="true">*</span>
-        }
-      </app-checkbox>
+      <div class="frm__box frm__box--toggle" [class.frm__box--invalid]="!!err">
+        <app-checkbox [id]="id" [formField]="tree[field.key]"
+          ><span [attr.lang]="field.lang ?? null">{{ field.label }}</span>
+          @if (field.required) {
+            <span class="frm__req" aria-hidden="true">*</span>
+          }
+        </app-checkbox>
+      </div>
       @if (err) {
         <app-error-text [inset]="true" [id]="errorId(field.key, path)">{{ err }}</app-error-text>
       }
     }
     @case ('switch') {
-      <app-switch [id]="id" [formField]="tree[field.key]"
-        ><span [attr.lang]="field.lang ?? null">{{ field.label }}</span></app-switch
-      >
+      <div class="frm__box frm__box--toggle" [class.frm__box--invalid]="!!err">
+        <app-switch class="frm__switch" [id]="id" [formField]="tree[field.key]"
+          ><span [attr.lang]="field.lang ?? null">{{ field.label }}</span></app-switch
+        >
+      </div>
       @if (err) {
         <app-error-text [inset]="true" [id]="errorId(field.key, path)">{{ err }}</app-error-text>
       }

@@ -1,3 +1,5 @@
+@use '../../../src/styles/field' as f;
+
 :host {
   display: flex;
   flex-direction: column;
@@ -61,7 +63,47 @@
   border: 0;
 }
 
-// A group label (check boxes, files, Markdown, repeat rows): the look and inset of a field label.
+// The filled box of the kit fields around the check boxes of a multi-select, a single check
+// box and a switch, so they line up with the other fields and take the highlighted look.
+.frm__box {
+  @include f.box;
+  @include f.box-labelled;
+  box-sizing: border-box;
+  padding-inline: var(--space-4);
+}
+.frm__box--invalid {
+  @include f.box-invalid;
+}
+// A multi-select: the label at the top like a field label, the options below it, each box
+// on the inset of the label (the check box has 11px of touch area before its box).
+.frm__box--list {
+  flex-direction: column;
+  align-items: stretch;
+  padding: 0 var(--space-4) var(--space-1);
+}
+.frm__boxLabel {
+  @include f.label;
+  padding-inline: 0;
+}
+.frm__options {
+  display: flex;
+  flex-direction: column;
+}
+.frm__options app-checkbox,
+.frm__box--toggle app-checkbox {
+  display: flex;
+  min-height: 40px;
+}
+.frm__box--toggle {
+  flex-wrap: nowrap;
+  align-content: center;
+  align-items: center;
+}
+.frm__switch {
+  flex: 1 1 auto;
+}
+
+// A group label (files, Markdown, repeat rows): the look and inset of a field label.
 .frm__label {
   padding: 0 var(--space-4);
   color: var(--color-text-subtle);
