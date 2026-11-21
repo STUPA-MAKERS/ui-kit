@@ -277,10 +277,8 @@ export class DemoAboutPage {}
       [value]="value()"
       [errors]="errors()"
       [submit]="{ label: 'Speichern', busy: saving() }"
-      [discard]="{ label: 'Verwerfen' }"
       (valueChange)="value.set($event)"
       (submit)="save($event)"
-      (discard)="value.set(saved())"
       (cancel)="value.set(saved())"
     >
       <ng-template screenFormTop>

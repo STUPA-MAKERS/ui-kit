@@ -104,9 +104,10 @@ describe('FormScreenComponent', () => {
     );
   });
 
-  it('offers Verwerfen while there are changes', async () => {
+  it('offers Verwerfen instead of Abbrechen on a page without a way out', async () => {
     const { host } = await setup({ discard: { label: 'Verwerfen' } });
     expect(screen.queryByRole('button', { name: 'Verwerfen' })).toBeNull();
+    expect(screen.queryByRole('button', { name: 'Abbrechen' })).toBeNull();
     await userEvent.type(screen.getByLabelText(/Titel/), 'Miete');
     await userEvent.click(await screen.findByRole('button', { name: 'Verwerfen' }));
     expect(host.onDiscard).toHaveBeenCalled();

@@ -11,10 +11,11 @@
       @if (dirty() && !phone()) {
         <app-button variant="text" (click)="onDiscard()">{{ d.label }}</app-button>
       }
+    } @else {
+      <app-button variant="text" (click)="onCancel()">{{
+        intl.translate('confirm.cancel')
+      }}</app-button>
     }
-    <app-button variant="text" (click)="onCancel()">{{
-      intl.translate('confirm.cancel')
-    }}</app-button>
   }
 </header>
 

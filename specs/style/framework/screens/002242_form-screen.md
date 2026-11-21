@@ -22,7 +22,7 @@ form: FormDef                      // 002255
 value: Record<string, unknown>
 errors?: Record<string, string>    // by field key, from the server
 submit: { readonly label: string; readonly busy?: boolean }
-discard?: { readonly label: string } // 000635
+discard?: { readonly label: string } // 000635: a page without a way out; it replaces Abbrechen
 ```
 
 Slots: `screenFormTop` (optional, a note above the form).
@@ -34,6 +34,8 @@ Behaviour:
 - The form stands in place of a detail with the head bar of "Antrag bearbeiten" (001890); the
   label of Abbrechen ends at the side inset (001891).
 - Speichern floats at the bottom on a phone (000198) above the bottom bar (000408).
+- A form that can close shows only "Abbrechen", which asks before it drops changes; a page
+  with `discard` (a settings page) shows only "Verwerfen", while there are changes.
 - Leaving with unsaved changes asks first.
 
 Reason: Every create and edit form then has the same head bar, buttons and leave guard.
