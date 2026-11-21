@@ -22,12 +22,15 @@ import {
   IconComponent,
   NoteComponent,
   PageHeaderComponent,
+  EmptyStateComponent,
   SectionComponent,
   SkeletonComponent,
   SwitchComponent,
   ToastService,
   UI_KIT_INTL,
   type Action,
+  type IconName,
+  type NoteKind,
   type RouteLink,
   type ScreenHead,
 } from '@stupa-makers/ui-kit';
@@ -58,10 +61,28 @@ export interface SettingsGroup {
 
 /** What the screen shows: the skeleton, the groups, the missing right, or a load error. */
 export type SettingsState =
-  | { readonly state: 'loading'; readonly lines?: number }
+  | { readonly state: 'loading'; readonly skeleton?: SettingsSkeleton }
   | { readonly state: 'ready' }
   | { readonly state: 'forbidden'; readonly message: string }
   | { readonly state: 'error'; readonly message: string; readonly retry: () => void };
+
+/** Loading as a plain skeleton instead of the groups: grey lines or grey rows. */
+export interface SettingsSkeleton {
+  readonly variant: 'lines' | 'rows';
+  readonly count: number;
+}
+
+/** A note under the head, for example a failed save of a page that saves at once. */
+export interface SettingsNotice {
+  readonly kind: NoteKind;
+  readonly text: string;
+}
+
+/** What a ready screen without groups shows. */
+export interface SettingsEmpty {
+  readonly icon: IconName;
+  readonly heading: string;
+}
 
 /** A page that saves on Speichern: the changes are a draft until then. */
 export interface SettingsSave {
@@ -102,6 +123,7 @@ export class ScreenSkeletonDirective {
     RouterLink,
     ButtonComponent,
     ConfirmDialogComponent,
+    EmptyStateComponent,
     FabComponent,
     IconComponent,
     NoteComponent,
@@ -119,6 +141,10 @@ export class SettingsScreenComponent {
   readonly state = input<SettingsState>({ state: 'ready' });
   /** `null`: each change goes out at once. */
   readonly save = input<SettingsSave | null>(null);
+  /** A note under the head, in every state. */
+  readonly notice = input<SettingsNotice | null>(null);
+  /** Shown when the screen is ready and has no groups; `null` shows nothing. */
+  readonly empty = input<SettingsEmpty | null>(null);
 
   readonly changed = output<{ readonly key: string; readonly value: boolean }>({ alias: 'change' });
   readonly acted = output<{ readonly key: string }>({ alias: 'action' });
@@ -135,10 +161,10 @@ export class SettingsScreenComponent {
   /** The groups that follow the state of the screen, and those that show in every state. */
   protected readonly stateGroups = computed(() => this.groups().filter((g) => !g.always));
   protected readonly alwaysGroups = computed(() => this.groups().filter((g) => g.always));
-  /** Loading as plain lines, as `app-load-state` of the app draws it without a template. */
-  protected readonly lines = computed(() => {
+  /** Loading as a plain skeleton, as `app-load-state` of the app draws it without a template. */
+  protected readonly skeleton = computed(() => {
     const s = this.state();
-    return s.state === 'loading' ? (s.lines ?? null) : null;
+    return s.state === 'loading' ? (s.skeleton ?? null) : null;
   });
   protected readonly forbidden = computed(() => {
     const s = this.state();

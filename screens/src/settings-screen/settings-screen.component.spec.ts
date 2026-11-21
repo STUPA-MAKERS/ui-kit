@@ -84,6 +84,25 @@ class Host {
   onDiscard = jest.fn();
 }
 
+/** Konto Benachrichtigungen: a note under the head, and an empty state without groups. */
+@Component({
+  changeDetection: ChangeDetectionStrategy.Eager,
+  standalone: true,
+  imports: [SettingsScreenComponent],
+  template: `
+    <app-settings-screen
+      [head]="{ title: 'Benachrichtigungen' }"
+      [groups]="groups()"
+      [notice]="notice()"
+      [empty]="{ icon: 'bell', heading: 'Keine Benachrichtigungen' }"
+    />
+  `,
+})
+class NoticeHost {
+  readonly groups = signal<readonly SettingsGroup[]>([]);
+  readonly notice = signal<{ kind: 'error'; text: string } | null>(null);
+}
+
 /** Hilfe & Tickets: a skeleton for the Wiki slot, and the blocked senders in every state. */
 @Component({
   changeDetection: ChangeDetectionStrategy.Eager,
@@ -197,9 +216,9 @@ describe('SettingsScreenComponent', () => {
     expect(retry).toHaveBeenCalledTimes(1);
   });
 
-  it('shows plain lines while it loads with lines', async () => {
+  it('shows plain lines while it loads with a skeleton', async () => {
     const { view, host } = await setup();
-    host.state.set({ state: 'loading', lines: 4 });
+    host.state.set({ state: 'loading', skeleton: { variant: 'lines', count: 4 } });
     view.detectChanges();
     expect(document.querySelector('app-skeleton')).toBeTruthy();
     expect(document.querySelector('.sts__skelSwitch')).toBeNull();
@@ -226,6 +245,19 @@ describe('SettingsScreenComponent', () => {
     expect(screen.queryByText('Wiki')).toBeNull();
     expect(screen.getByRole('heading', { level: 2, name: 'Gesperrte Absender' })).toBeTruthy();
     expect(screen.getByText('Keine gesperrten Absender')).toBeTruthy();
+  });
+
+  it('shows a notice under the head and the empty state without groups', async () => {
+    const view = await render(NoticeHost, { providers: [provideRouter([])] });
+    const host = view.fixture.componentInstance;
+    expect(screen.getByText('Keine Benachrichtigungen')).toBeTruthy();
+    expect(screen.queryByRole('alert')).toBeNull();
+    host.notice.set({ kind: 'error', text: 'Konnte nicht gespeichert werden.' });
+    host.groups.set([{ key: 'kinds', rows: [{ key: 'a', label: 'Sitzungen', control: 'switch', value: true }] }]);
+    view.detectChanges();
+    expect(screen.getByRole('alert').textContent).toContain('nicht gespeichert');
+    expect(screen.queryByText('Keine Benachrichtigungen')).toBeNull();
+    expect(screen.getByRole('switch', { name: /Sitzungen/ })).toBeTruthy();
   });
 
   it.each([360, 700, 1200])('has no axe violations at %ipx', async (width) => {
