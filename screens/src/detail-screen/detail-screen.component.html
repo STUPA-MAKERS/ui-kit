@@ -5,12 +5,7 @@
 >
   <div class="ds__main">
     <app-sheet-bar>
-      <div appSheetBarTitle class="ds__titleBox">
-        @if (head().kicker; as k) {
-          <p class="ds__kicker ell">{{ k }}</p>
-        }
-        <h1 class="ds__title" [id]="titleId" tabindex="-1">{{ head().title }}</h1>
-      </div>
+      <h1 appSheetBarTitle class="ds__title" [id]="titleId" tabindex="-1">{{ head().title }}</h1>
       @if (backLink(); as commands) {
         <a class="ds__back" [routerLink]="$any(commands)" [attr.aria-label]="'screen.back' | uiKitT"
           ><app-icon name="back"
@@ -55,8 +50,12 @@
       }
     </app-sheet-bar>
 
-    @if (head().status || head().meta?.length) {
+    @if (head().status || head().kicker || head().meta?.length) {
       <ul class="ds__chips" role="list">
+        <!-- The kicker is the first chip, never a grey line above the title (002230). -->
+        @if (head().kicker; as k) {
+          <li><span class="ds__chip"><span class="ell">{{ k }}</span></span></li>
+        }
         @if (head().status; as st) {
           <li><app-status-text chip [kind]="st.kind">{{ st.label }}</app-status-text></li>
         }

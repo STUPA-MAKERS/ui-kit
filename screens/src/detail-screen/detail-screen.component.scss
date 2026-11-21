@@ -22,17 +22,6 @@
   min-width: 0;
 }
 
-.ds__titleBox {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-1);
-  min-width: 0;
-}
-.ds__kicker {
-  margin: 0;
-  color: var(--color-text-muted);
-  font-size: var(--fs-small);
-}
 .ds__title {
   margin: 0;
   font-size: var(--fs-d2);

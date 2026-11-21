@@ -367,7 +367,7 @@ specs/
 | [S/framework/testing/002228](style/framework/testing/002228_tests-in-kit.md) | The kit tests a view, the app tests its adapter | approved |
 | [S/framework/testing/002229](style/framework/testing/002229_api-change.md) | A change of a public kit API comes with the change of every app | approved |
 | [S/framework/texts/002223](style/framework/texts/002223_kit-catalogue.md) | The texts of the kit have keys that an admin can override | approved |
-| [S/framework/types/002230](style/framework/types/002230_screen-head.md) | The head of a screen is a ScreenHead | approved |
+| [S/framework/types/002230](style/framework/types/002230_screen-head.md) | The head of a screen is a ScreenHead | draft |
 | [S/framework/types/002231](style/framework/types/002231_action-type.md) | The Action type has a fixed set of fields | approved |
 | [S/framework/types/002232](style/framework/types/002232_list-row.md) | A row of a list is a ListRow | approved |
 | [S/framework/types/002233](style/framework/types/002233_filter-sort-search.md) | Filters, sort and search are FilterDef, SortDef and SearchDef | approved |
