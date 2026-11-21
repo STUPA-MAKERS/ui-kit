@@ -1,0 +1,45 @@
+// A copy of the public pages of STUPA-Workflow: `.as` (Erklärung zur Barrierefreiheit, the
+// narrow text column) and the `list-page` mixin of the public protocols (the wide column).
+
+:host {
+  display: flex;
+  flex: 1 0 auto;
+  justify-content: center;
+}
+
+.pub {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+  width: min(45rem, 100%);
+  padding-block: var(--space-6);
+}
+:host(.pub--wide) .pub {
+  gap: var(--space-4);
+  width: min(67.5rem, 100%);
+}
+
+.pub__crumbs {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px;
+  margin-bottom: var(--space-2);
+  color: var(--color-text-muted);
+  font-size: var(--fs-sm);
+}
+.pub__crumbs a {
+  color: var(--color-text-muted);
+  text-decoration: none;
+}
+@media (hover: hover) {
+  .pub__crumbs a:hover {
+    color: var(--color-text);
+    text-decoration: underline;
+  }
+}
+.pub__crumbs a:focus-visible {
+  outline: 2px solid var(--color-focus-ring);
+  outline-offset: 2px;
+  border-radius: var(--radius-sm);
+}

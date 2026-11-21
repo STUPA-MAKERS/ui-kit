@@ -7,6 +7,7 @@ import {
   DemoApplyPage,
   DemoSettingsListPage,
   DemoSettingsPage,
+  DemoPublicListPage,
   DemoDetailPage,
   DemoEditPage,
   DemoFormPage,
@@ -59,6 +60,13 @@ export const SHOWCASE_ROUTES: Routes = [
         list: DemoSettingsListPage,
         detail: DemoSettingsPage,
         none: { icon: 'gear', heading: 'Einstellung wählen', emptyHeading: 'Keine Einstellungen' },
+      }),
+      screenRoute({
+        path: 'protocols',
+        title: 'Öffentliche Protokolle',
+        component: DemoPublicListPage,
+        frame: 'public',
+        footer: true,
       }),
       screenRoute({
         path: 'about',

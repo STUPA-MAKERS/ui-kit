@@ -1,0 +1,75 @@
+<article class="pub" [attr.aria-labelledby]="titleId">
+  <app-page-header [flush]="true" [title]="head().title" [subtitle]="lede()" [titleId]="titleId">
+    @if (crumbs().length) {
+      <nav crumbs class="pub__crumbs" [attr.aria-label]="intl.translate('public.crumbs')">
+        @for (c of crumbs(); track $index; let last = $last) {
+          @if (c.link && !last) {
+            <a
+              [routerLink]="$any(c.link.commands)"
+              [queryParams]="c.link.query"
+              [fragment]="c.link.fragment"
+              >{{ c.label }}</a
+            >
+            <app-icon name="right" [size]="13" />
+          } @else {
+            <span [attr.aria-current]="last ? 'page' : null">{{ c.label }}</span>
+          }
+        }
+      </nav>
+    }
+    @if (actions().length) {
+      <app-button-group actions>
+        @for (a of actions(); track a.key) {
+          <ng-container *ngTemplateOutlet="pill; context: { $implicit: a }" />
+        }
+      </app-button-group>
+    }
+  </app-page-header>
+
+  @switch (state().state) {
+    @case ('loading') {
+      <app-skeleton variant="rows" [count]="skeletonRows()" [label]="intl.translate('loading')" />
+    }
+    @case ('empty') {
+      @if (empty(); as e) {
+        <app-empty-state [icon]="e.icon" [heading]="e.heading">
+          @if (emptyAction(); as a) {
+            <ng-container *ngTemplateOutlet="pill; context: { $implicit: a }" />
+          }
+        </app-empty-state>
+      }
+    }
+    @case ('ready') {
+      @if (body(); as b) {
+        <ng-container [ngTemplateOutlet]="b.template" />
+      }
+    }
+  }
+</article>
+
+<!-- One button: a route is a link, else it reports its key. -->
+<ng-template #pill let-a>
+  @if ($any(a).route; as r) {
+    <a
+      [appButton]="$any(a).kind === 'main' ? 'primary' : 'tonal'"
+      [routerLink]="$any(r).commands"
+      [queryParams]="$any(r).query"
+    >
+      @if ($any(a).icon; as icon) {
+        <app-icon [name]="icon" [size]="16" />
+      }
+      {{ $any(a).label }}
+    </a>
+  } @else {
+    <app-button
+      [variant]="$any(a).kind === 'main' ? 'primary' : 'tonal'"
+      [disabled]="!!$any(a).disabled"
+      (click)="acted.emit({ key: $any(a).key })"
+    >
+      @if ($any(a).icon; as icon) {
+        <app-icon [name]="icon" [size]="16" />
+      }
+      {{ $any(a).label }}
+    </app-button>
+  }
+</ng-template>
