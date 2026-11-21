@@ -108,7 +108,7 @@ describe('FormComponent', () => {
     expect(screen.getByRole('checkbox', { name: 'Kultur' })).toBeTruthy();
     expect(screen.getByRole('switch', { name: 'Öffentlich' })).toBeTruthy();
     expect(screen.getByRole('checkbox', { name: /Ich stimme zu/ })).toBeTruthy();
-    expect(screen.getByRole('button', { name: /Anlagen: Datei wählen/ })).toBeTruthy();
+    expect(screen.getByText('Dateien hierher ziehen oder auswählen')).toBeTruthy();
     expect(screen.getByText('Die Angaben gehen an das Präsidium.')).toBeTruthy();
     // The repeat group starts with its minimum of one row.
     expect(screen.getByLabelText(/Was/)).toBeTruthy();

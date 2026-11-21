@@ -73,10 +73,8 @@
   color: var(--color-danger);
 }
 
+// The files of a file field: the rows of the apply wizard, then the drop zone.
 .frm__files {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-1);
   width: 100%;
   margin: 0;
   padding: 0;
@@ -85,18 +83,74 @@
 .frm__file {
   display: flex;
   align-items: center;
-  gap: var(--space-2);
+  gap: var(--space-3);
+  min-height: 3.375rem;
+  padding: 6px var(--space-2) 6px var(--space-4);
+}
+.frm__fileIcon {
+  flex: none;
+  color: var(--color-text-muted);
+}
+.frm__fileText {
+  display: flex;
+  flex: 1 1 auto;
+  flex-direction: column;
   min-width: 0;
-  padding-inline-start: var(--space-3);
-  border-radius: var(--radius-field, var(--radius-md));
-  background: var(--color-surface-2);
 }
 .frm__fileName {
   flex: 1 1 auto;
   min-width: 0;
   overflow: hidden;
+  font-weight: var(--fw-medium);
   text-overflow: ellipsis;
   white-space: nowrap;
+}
+.frm__fileSub {
+  color: var(--color-text-muted);
+  font-size: 0.8125rem;
+}
+.frm__fileRemove {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  width: 2.5rem;
+  height: 2.5rem;
+  padding: 0;
+  border: 0;
+  border-radius: var(--radius-pill);
+  background: none;
+  color: var(--color-text-muted);
+  cursor: pointer;
+}
+@media (hover: hover) {
+  .frm__fileRemove:hover {
+    background: var(--color-surface-3);
+    color: var(--color-text);
+  }
+}
+.frm__spinner {
+  flex: none;
+  width: 18px;
+  height: 18px;
+  border: 2px solid var(--color-text-muted);
+  border-right-color: transparent;
+  border-radius: var(--radius-pill);
+  animation: frm-spin 0.7s linear infinite;
+}
+@keyframes frm-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .frm__spinner {
+    animation-duration: 2s;
+  }
+}
+.frm__drop {
+  display: block;
+  width: 100%;
 }
 
 .frm__md {

@@ -153,41 +153,47 @@
             <span class="frm__req" aria-hidden="true">*</span>
           }
         </span>
-        @if (files(tree, field.key).length) {
-          <ul class="frm__files">
+        @if (files(tree, field.key).length || pendingFiles(field.key).length) {
+          <ul class="rowgroup frm__files">
             @for (file of files(tree, field.key); track file.url; let i = $index) {
               <li class="frm__file">
-                <app-icon name="file" [size]="18" aria-hidden="true" />
-                <span class="frm__fileName">{{ file.name }}</span>
+                <app-icon class="frm__fileIcon" name="clip" [size]="18" aria-hidden="true" />
+                <span class="frm__fileName" [title]="file.name">{{ file.name }}</span>
                 @if (!field.disabled) {
-                  <app-button
-                    variant="ghost"
-                    size="sm"
-                    [iconOnly]="true"
-                    [ariaLabel]="intl.translate('form.removeFile', { name: file.name })"
+                  <button
+                    type="button"
+                    class="frm__fileRemove"
+                    [attr.aria-label]="intl.translate('form.removeFile', { name: file.name })"
                     (click)="removeFile(tree, field.key, i)"
-                    ><app-icon name="x" [size]="18"
-                  /></app-button>
+                  >
+                    <app-icon name="x" [size]="17" />
+                  </button>
                 }
+              </li>
+            }
+            @for (name of pendingFiles(field.key); track $index) {
+              <li class="frm__file frm__file--pending">
+                <span class="frm__spinner" aria-hidden="true"></span>
+                <span class="frm__fileText">
+                  <span class="frm__fileName" [title]="name">{{ name }}</span>
+                  <span class="frm__fileSub" role="status">{{
+                    intl.translate('form.uploading')
+                  }}</span>
+                </span>
               </li>
             }
           </ul>
         }
-        <app-file-picker
-          #picker
+        <app-file-drop-zone
+          class="frm__drop"
+          [label]="intl.translate('form.drop')"
+          [buttonLabel]="intl.translate('form.pickFile')"
           [accept]="field.accept ?? ''"
           [multiple]="!!field.multiple"
           [disabled]="!canUpload(field)"
-          (picked)="pickFiles(tree, field, $event)"
+          (files)="pickFiles(tree, field, $event)"
+          (rejected)="rejectFiles(field.key)"
         />
-        <app-button
-          variant="secondary"
-          [disabled]="!canUpload(field)"
-          [loading]="isUploading(field.key)"
-          [ariaLabel]="field.label + ': ' + intl.translate('form.pickFile')"
-          (click)="picker.open()"
-          >{{ intl.translate('form.pickFile') }}</app-button
-        >
       </div>
       @if (err) {
         <app-error-text [inset]="true" [id]="errorId(field.key, path)">{{ err }}</app-error-text>

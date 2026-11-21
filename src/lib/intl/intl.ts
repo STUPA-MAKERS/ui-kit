@@ -81,6 +81,9 @@ export type UiKitTextKey =
   | 'form.removeFile'
   | 'form.tooLarge'
   | 'form.uploadFailed'
+  | 'form.drop'
+  | 'form.uploading'
+  | 'form.wrongType'
   | 'search.clear'
   | 'search.results'
   | 'search.resultsOne'
@@ -206,10 +209,13 @@ export const UI_KIT_DEFAULT_MESSAGES: Record<UiLang, UiKitMessages> = {
     'form.repeatMin': 'Mindestens {n} Einträge.',
     'form.repeatMax': 'Höchstens {n} Einträge.',
     'form.removeRow': 'Eintrag {n} entfernen',
-    'form.pickFile': 'Datei wählen',
+    'form.pickFile': 'Auswählen',
     'form.removeFile': '{name} entfernen',
     'form.tooLarge': 'Die Datei ist zu groß.',
     'form.uploadFailed': 'Die Datei konnte nicht hochgeladen werden.',
+    'form.drop': 'Dateien hierher ziehen oder auswählen',
+    'form.uploading': 'Wird hochgeladen …',
+    'form.wrongType': 'Diese Art von Datei geht hier nicht.',
     'search.clear': 'Suche leeren',
     'search.results': '{n} Treffer',
     'search.resultsOne': '1 Treffer',
@@ -331,10 +337,13 @@ export const UI_KIT_DEFAULT_MESSAGES: Record<UiLang, UiKitMessages> = {
     'form.repeatMin': 'At least {n} entries.',
     'form.repeatMax': 'At most {n} entries.',
     'form.removeRow': 'Remove entry {n}',
-    'form.pickFile': 'Choose file',
+    'form.pickFile': 'Choose',
     'form.removeFile': 'Remove {name}',
     'form.tooLarge': 'The file is too large.',
     'form.uploadFailed': 'The file could not be uploaded.',
+    'form.drop': 'Drag files here or choose them',
+    'form.uploading': 'Uploading …',
+    'form.wrongType': 'This kind of file is not allowed here.',
     'search.clear': 'Clear search',
     'search.results': '{n} results',
     'search.resultsOne': '1 result',

@@ -35,7 +35,7 @@ import {
   DateRangeComponent,
   DatepickerComponent,
   ErrorTextComponent,
-  FilePickerComponent,
+  FileDropZoneComponent,
   IconComponent,
   InputComponent,
   SelectFieldComponent,
@@ -113,7 +113,7 @@ const INPUT_TYPE: Partial<Record<FieldDef['kind'], string>> = {
     DateRangeComponent,
     DatepickerComponent,
     ErrorTextComponent,
-    FilePickerComponent,
+    FileDropZoneComponent,
     IconComponent,
     InputComponent,
     MarkdownEditorComponent,
@@ -180,7 +180,7 @@ export class FormComponent {
     computation: (errors) => ({ errors, at: untracked(() => this.model()) }),
   });
 
-  private readonly uploading = signal<ReadonlySet<string>>(new Set());
+  private readonly uploading = signal<Readonly<Record<string, readonly string[]>>>({});
   private readonly uploadErrors = signal<Readonly<Record<string, string>>>({});
   private readonly committed = signal<Readonly<Record<string, unknown>>>({});
 
@@ -339,7 +339,17 @@ export class FormComponent {
   }
 
   protected isUploading(key: string): boolean {
-    return this.uploading().has(key);
+    return this.pendingFiles(key).length > 0;
+  }
+
+  /** The names of the files of a field that are on their way up. */
+  protected pendingFiles(key: string): readonly string[] {
+    return this.uploading()[key] ?? [];
+  }
+
+  /** A dropped file that the `accept` list of the field does not take. */
+  protected rejectFiles(key: string): void {
+    this.uploadErrors.update((e) => ({ ...e, [key]: this.intl.translate('form.wrongType') }));
   }
 
   protected canUpload(field: FieldDef): boolean {
@@ -358,7 +368,7 @@ export class FormComponent {
     }
     this.uploadErrors.update(({ [field.key]: _gone, ...rest }) => rest);
     this.remember(field.key);
-    this.uploading.update((s) => new Set([...s, field.key]));
+    this.uploading.update((u) => ({ ...u, [field.key]: picked.map((f) => f.name) }));
     try {
       const done = await Promise.all(picked.map((f) => this.upload!(f)));
       const list = field.multiple ? [...this.files(tree, field.key), ...done] : done.slice(0, 1);
@@ -371,7 +381,7 @@ export class FormComponent {
         [field.key]: this.intl.translate('form.uploadFailed'),
       }));
     } finally {
-      this.uploading.update((s) => new Set([...s].filter((k) => k !== field.key)));
+      this.uploading.update(({ [field.key]: _done, ...rest }) => rest);
     }
   }
 
