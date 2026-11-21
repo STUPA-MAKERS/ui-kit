@@ -20,9 +20,14 @@ Funktionen, Hilfe & Tickets). It must have this interface:
 head: ScreenHead
 groups: readonly SettingsGroup[]
 state?: SettingsState              // default ready
-save?: { readonly dirty: boolean; readonly busy?: boolean } | null
+save?: { readonly dirty: boolean; readonly busy?: boolean; readonly disabled?: boolean } | null
+notice?: { readonly kind: NoteKind; readonly text: string } | null
+empty?: { readonly icon: IconName; readonly heading: string } | null
 
-interface SettingsGroup { readonly key: string; readonly label?: string; readonly rows: readonly SettingsRow[] }
+interface SettingsGroup {
+  readonly key: string; readonly label?: string; readonly rows: readonly SettingsRow[];
+  readonly always?: boolean; readonly foot?: string;
+}
 interface SettingsRow {
   readonly key: string; readonly label: string; readonly meta?: string;
   readonly control: 'switch' | 'link' | 'value' | 'action';
@@ -30,13 +35,15 @@ interface SettingsRow {
   readonly disabled?: boolean;
 }
 type SettingsState =
-  | { state: 'loading' } | { state: 'ready' }
+  | { state: 'loading'; skeleton?: { variant: 'lines' | 'rows'; count: number } }
+  | { state: 'ready' }
   | { state: 'forbidden'; message: string }
   | { state: 'error'; message: string; retry: () => void };
 ```
 
 Slots: `screenGroup="<key>"` (optional, a custom body for one group with kit components, for
-example the Wiki address).
+example the Wiki address) and `screenSkeleton="<key>"` (optional, the body of that group while
+the screen loads; the `screenGroup` slot shows only when the screen is ready).
 
 Outputs: `change: { key, value }`, `action: { key }`, `save`, `discard`.
 
@@ -47,9 +54,19 @@ Behaviour:
   press of the whole row (000204); `meta` is the hint under the label.
 - Without `save` each change goes out at once (Benachrichtigungen). With `save` the changes are a
   draft: while it has changes, Verwerfen stands in the head and a FAB "Speichern" saves
-  (Funktionen, Hilfe & Tickets).
-- Loading shows the real labels with a grey switch; the missing right shows as a warning note
-  with a lock; a load error is a toast with "Erneut versuchen" (`app-load-state` of the app).
+  (Funktionen, Hilfe & Tickets). `disabled` keeps the FAB but locks it while a field of the
+  draft has an error (Benachrichtigungen, Hilfe & Tickets).
+- Loading shows the real labels with a grey switch; with `skeleton` it shows that many plain grey
+  lines or rows instead (Verwaltung and Konto Benachrichtigungen). The missing right shows as a warning note with a
+  lock, and no note when the message is empty; a load error is a toast with "Erneut versuchen"
+  (`app-load-state` of the app).
+- A group with `always` shows in every state, after the other groups, and its slot carries its
+  own load state (gesperrte Absender of Hilfe & Tickets: they show also when the settings
+  themselves are forbidden).
+- `notice` is a note under the head in every state, with role alert (a failed save of Konto
+  Benachrichtigungen, which saves at once). `empty` shows when the screen is ready and has no
+  groups.
+- `foot` is a muted line 20 px under a ready group (the time of the last change, Anmeldung).
 - An action with `confirm` asks first.
 - In the pane of a list/detail page the screen starts 32 px below the top of the sheet, and the
   page ends with room for the FAB. On a phone the bar names the page from the start

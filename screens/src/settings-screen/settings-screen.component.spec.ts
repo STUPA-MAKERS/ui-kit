@@ -8,6 +8,7 @@ import { ToastService } from '@stupa-makers/ui-kit';
 import { runAxe } from '../../../testing/a11y';
 import {
   ScreenGroupDirective,
+  ScreenSkeletonDirective,
   SettingsScreenComponent,
   type SettingsGroup,
   type SettingsSave,
@@ -83,6 +84,46 @@ class Host {
   onDiscard = jest.fn();
 }
 
+/** Konto Benachrichtigungen: a note under the head, and an empty state without groups. */
+@Component({
+  changeDetection: ChangeDetectionStrategy.Eager,
+  standalone: true,
+  imports: [SettingsScreenComponent],
+  template: `
+    <app-settings-screen
+      [head]="{ title: 'Benachrichtigungen' }"
+      [groups]="groups()"
+      [notice]="notice()"
+      [empty]="{ icon: 'bell', heading: 'Keine Benachrichtigungen' }"
+    />
+  `,
+})
+class NoticeHost {
+  readonly groups = signal<readonly SettingsGroup[]>([]);
+  readonly notice = signal<{ kind: 'error'; text: string } | null>(null);
+}
+
+/** Hilfe & Tickets: a skeleton for the Wiki slot, and the blocked senders in every state. */
+@Component({
+  changeDetection: ChangeDetectionStrategy.Eager,
+  standalone: true,
+  imports: [SettingsScreenComponent, ScreenGroupDirective, ScreenSkeletonDirective],
+  template: `
+    <app-settings-screen [head]="{ title: 'Hilfe & Tickets' }" [groups]="groups" [state]="state()">
+      <ng-template screenGroup="wiki"><p>Adresse des Handbuchs</p></ng-template>
+      <ng-template screenSkeleton="wiki"><p>Grauer Platzhalter</p></ng-template>
+      <ng-template screenGroup="blocked"><p>Keine gesperrten Absender</p></ng-template>
+    </app-settings-screen>
+  `,
+})
+class SlotHost {
+  readonly groups: readonly SettingsGroup[] = [
+    { key: 'wiki', label: 'Wiki', rows: [], foot: 'Geändert am 10.11.2026' },
+    { key: 'blocked', label: 'Gesperrte Absender', rows: [], always: true },
+  ];
+  readonly state = signal<SettingsState>({ state: 'loading' });
+}
+
 async function setup(inputs: Partial<{ width: number }> = {}) {
   const view = await render(Host, { inputs, providers: [provideRouter([])] });
   return { view, host: view.fixture.componentInstance };
@@ -132,6 +173,16 @@ describe('SettingsScreenComponent', () => {
     expect(host.onDiscard).toHaveBeenCalledTimes(1);
   });
 
+  it('keeps the save FAB locked while the draft has an error', async () => {
+    const { view, host } = await setup();
+    host.save.set({ dirty: true, disabled: true });
+    view.detectChanges();
+    const fab = await screen.findByRole('button', { name: 'Speichern' });
+    expect(fab).toBeDisabled();
+    await userEvent.click(fab);
+    expect(host.onSave).not.toHaveBeenCalled();
+  });
+
   it('shows the labels with a grey switch while it loads', async () => {
     const { view, host } = await setup();
     host.state.set({ state: 'loading' });
@@ -163,6 +214,52 @@ describe('SettingsScreenComponent', () => {
     );
     toast.mock.calls[0][0].closed?.('action');
     expect(retry).toHaveBeenCalledTimes(1);
+  });
+
+  it('shows plain lines while it loads with a skeleton', async () => {
+    const { view, host } = await setup();
+    host.state.set({ state: 'loading', skeleton: { variant: 'lines', count: 4 } });
+    view.detectChanges();
+    expect(document.querySelector('app-skeleton')).toBeTruthy();
+    expect(document.querySelector('.sts__skelSwitch')).toBeNull();
+    expect(screen.queryByRole('heading', { level: 2 })).toBeNull();
+  });
+
+  it('shows the skeleton of a slot group while it loads, and its slot and foot when ready', async () => {
+    const view = await render(SlotHost, { providers: [provideRouter([])] });
+    expect(screen.getByText('Grauer Platzhalter')).toBeTruthy();
+    expect(screen.queryByText('Adresse des Handbuchs')).toBeNull();
+    expect(screen.queryByText('Geändert am 10.11.2026')).toBeNull();
+    view.fixture.componentInstance.state.set({ state: 'ready' });
+    view.detectChanges();
+    expect(screen.getByText('Adresse des Handbuchs')).toBeTruthy();
+    expect(screen.queryByText('Grauer Platzhalter')).toBeNull();
+    expect(screen.getByText('Geändert am 10.11.2026')).toBeTruthy();
+  });
+
+  it('shows a group with always in every state, without a note for an empty message', async () => {
+    const view = await render(SlotHost, { providers: [provideRouter([])] });
+    const state = view.fixture.componentInstance.state;
+    expect(screen.getByText('Keine gesperrten Absender')).toBeTruthy();
+    state.set({ state: 'forbidden', message: '' });
+    view.detectChanges();
+    expect(screen.queryByRole('alert')).toBeNull();
+    expect(screen.queryByText('Wiki')).toBeNull();
+    expect(screen.getByRole('heading', { level: 2, name: 'Gesperrte Absender' })).toBeTruthy();
+    expect(screen.getByText('Keine gesperrten Absender')).toBeTruthy();
+  });
+
+  it('shows a notice under the head and the empty state without groups', async () => {
+    const view = await render(NoticeHost, { providers: [provideRouter([])] });
+    const host = view.fixture.componentInstance;
+    expect(screen.getByText('Keine Benachrichtigungen')).toBeTruthy();
+    expect(screen.queryByRole('alert')).toBeNull();
+    host.notice.set({ kind: 'error', text: 'Konnte nicht gespeichert werden.' });
+    host.groups.set([{ key: 'kinds', rows: [{ key: 'a', label: 'Sitzungen', control: 'switch', value: true }] }]);
+    view.detectChanges();
+    expect(screen.getByRole('alert').textContent).toContain('nicht gespeichert');
+    expect(screen.queryByText('Keine Benachrichtigungen')).toBeNull();
+    expect(screen.getByRole('switch', { name: /Sitzungen/ })).toBeTruthy();
   });
 
   it.each([360, 700, 1200])('has no axe violations at %ipx', async (width) => {

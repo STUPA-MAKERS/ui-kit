@@ -7,27 +7,46 @@
     }
   </app-page-header>
 
+  @if (notice(); as n) {
+    <app-note [kind]="n.kind" icon="alert" role="alert">{{ n.text }}</app-note>
+  }
+
   @switch (state().state) {
     @case ('loading') {
-      <div class="sts__groups" aria-hidden="true">
-        @for (group of groups(); track group.key) {
-          <ng-container
-            *ngTemplateOutlet="block; context: { $implicit: group, body: skeletonRows }"
-          />
-        }
-      </div>
-      <span class="sr-only" role="status">{{ intl.translate('loading') }}</span>
+      @if (skeleton(); as sk) {
+        <app-skeleton [variant]="sk.variant" [count]="sk.count" [label]="intl.translate('loading')" />
+      } @else {
+        <div class="sts__groups" aria-hidden="true">
+          @for (group of stateGroups(); track group.key) {
+            <ng-container
+              *ngTemplateOutlet="block; context: { $implicit: group, body: skeletonOf(group.key) ?? skeletonRows }"
+            />
+          }
+        </div>
+        <span class="sr-only" role="status">{{ intl.translate('loading') }}</span>
+      }
     }
     @case ('forbidden') {
-      <app-note kind="warn" icon="lock" role="alert">{{ forbidden() }}</app-note>
+      @if (forbidden()) {
+        <app-note kind="warn" icon="lock" role="alert">{{ forbidden() }}</app-note>
+      }
     }
     @case ('ready') {
+      @if (empty(); as e) {
+        @if (!stateGroups().length) {
+          <app-empty-state [icon]="e.icon" [heading]="e.heading" />
+        }
+      }
       <div class="sts__groups">
-        @for (group of groups(); track group.key) {
-          <ng-container *ngTemplateOutlet="block; context: { $implicit: group, body: rows }" />
+        @for (group of stateGroups(); track group.key) {
+          <ng-container *ngTemplateOutlet="block; context: { $implicit: group, body: slotOf(group.key) ?? rows, foot: true }" />
         }
       </div>
     }
+  }
+
+  @for (group of alwaysGroups(); track group.key) {
+    <ng-container *ngTemplateOutlet="block; context: { $implicit: group, body: slotOf(group.key) ?? rows, foot: true }" />
   }
 
   @if (dirty()) {
@@ -35,19 +54,32 @@
       icon="check"
       [label]="intl.translate('settings.save')"
       [loading]="!!save()?.busy"
+      [disabled]="!!save()?.disabled"
       (activate)="onSave()"
     />
   }
 </section>
 
 <!-- One group: with a label a section with its heading, else the rows alone. -->
-<ng-template #block let-group let-body="body">
+<ng-template #block let-group let-body="body" let-foot="foot">
   @if (group.label) {
     <app-section class="sts__sec" [level]="2" [heading]="group.label">
-      <ng-container *ngTemplateOutlet="slotOf(group.key) ?? body; context: { $implicit: group }" />
+      <ng-container *ngTemplateOutlet="footed; context: { $implicit: group, body, foot }" />
     </app-section>
   } @else {
-    <ng-container *ngTemplateOutlet="slotOf(group.key) ?? body; context: { $implicit: group }" />
+    <ng-container *ngTemplateOutlet="footed; context: { $implicit: group, body, foot }" />
+  }
+</ng-template>
+
+<!-- The body, and under it the foot line of a ready group, 20px apart. -->
+<ng-template #footed let-group let-body="body" let-foot="foot">
+  @if (foot && group.foot) {
+    <div class="sts__footed">
+      <ng-container *ngTemplateOutlet="body; context: { $implicit: group }" />
+      <p class="sts__foot">{{ group.foot }}</p>
+    </div>
+  } @else {
+    <ng-container *ngTemplateOutlet="body; context: { $implicit: group }" />
   }
 </ng-template>
 
