@@ -1,0 +1,49 @@
+// A copy of `app-error-page` of STUPA-Workflow: one block in the middle of the page, the code,
+// the heading with its icon, the text and the way back, each centred.
+:host {
+  display: flex;
+  flex: 1 0 auto;
+  align-items: center;
+  justify-content: center;
+}
+
+.err {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+  width: min(560px, 100%);
+  text-align: center;
+}
+
+.err__code {
+  margin: 0;
+  font-size: 64px;
+  line-height: 64px;
+  color: var(--color-text-subtle);
+}
+
+.err__head {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+}
+.err__icon {
+  flex: none;
+  color: var(--color-text-muted);
+}
+.err__heading {
+  margin: 0;
+  font-size: var(--fs-h1);
+  line-height: var(--lh-h1);
+}
+
+.err__body {
+  margin: 0;
+  color: var(--color-text-muted);
+}
+
+.err__actions {
+  margin-top: 6px;
+}

@@ -4,6 +4,7 @@ import { listDetailRoutes, provideFramework, screenRoute } from '@stupa-makers/u
 import { demoConfig } from './demo/demo-config';
 import {
   DemoAboutPage,
+  DemoStatusPage,
   DemoApplyPage,
   DemoSettingsListPage,
   DemoSettingsPage,
@@ -75,6 +76,7 @@ export const SHOWCASE_ROUTES: Routes = [
         frame: 'public',
         footer: true,
       }),
+      screenRoute({ path: 'status/:kind', title: 'Status', component: DemoStatusPage }),
     ],
   },
 ];

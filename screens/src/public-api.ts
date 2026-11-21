@@ -13,3 +13,4 @@ export * from './form-screen/form-screen.component';
 export * from './wizard-screen/wizard-screen.component';
 export * from './settings-screen/settings-screen.component';
 export * from './public-screen/public-screen.component';
+export * from './status-screen/status-screen.component';
