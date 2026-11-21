@@ -33,7 +33,8 @@ Slots: `screenFilters` (optional, the filter chips of the page, built with kit c
 puts them in a sticky bar under the head) and `screenRecord` (optional, the content of a record
 with kit components, for example the scopes of an agent grant; context: the row). The slot draws
 one whole list item (`li`), and the list is then a `ul`. `screenListFoot` (optional) is a block
-under the rows, for example the pager of Agent-Zugänge.
+under the rows, for example the pager of Agent-Zugänge. `screenIntro` (optional) is a block
+between the head and the filters, for example the chain check of the Audit-Log.
 
 Outputs: `action: { key }`, `more: void`.
 

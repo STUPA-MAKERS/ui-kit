@@ -39,6 +39,13 @@ export class ScreenFiltersDirective {
   readonly template = inject<TemplateRef<unknown>>(TemplateRef);
 }
 
+/** A block between the head and the filters, for example the chain check of the Audit-Log. */
+// eslint-disable-next-line @angular-eslint/directive-selector -- fixed slot name (002217)
+@Directive({ selector: 'ng-template[screenIntro]', standalone: true })
+export class ScreenIntroDirective {
+  readonly template = inject<TemplateRef<unknown>>(TemplateRef);
+}
+
 /** A block under the rows, for example a pager. */
 // eslint-disable-next-line @angular-eslint/directive-selector -- fixed slot name (002217)
 @Directive({ selector: 'ng-template[screenListFoot]', standalone: true })
@@ -103,6 +110,7 @@ export class RecordsScreenComponent {
 
   protected readonly intl = inject(UI_KIT_INTL);
   private readonly router = inject(Router);
+  protected readonly introSlot = contentChild(ScreenIntroDirective);
   protected readonly filtersSlot = contentChild(ScreenFiltersDirective);
   protected readonly recordSlot = contentChild(ScreenRecordDirective);
   protected readonly footSlot = contentChild(ScreenListFootDirective);

@@ -12,6 +12,10 @@
     }
   </app-page-header>
 
+  @if (introSlot(); as i) {
+    <ng-container [ngTemplateOutlet]="i.template" />
+  }
+
   @if (filtersSlot(); as f) {
     <app-sticky-bar>
       <div class="rcs__filters" role="group" [attr.aria-label]="filtersLabel()">
