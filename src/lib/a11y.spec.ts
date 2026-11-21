@@ -26,6 +26,7 @@ import {
   CheckboxComponent,
   DatepickerComponent,
   DateRangeComponent,
+  DialogBodyDirective,
   DialogComponent,
   FileViewerComponent,
   IconComponent,
@@ -91,6 +92,7 @@ interface Row {
     IconComponent,
     TableComponent,
     DialogComponent,
+    DialogBodyDirective,
     SwitchComponent,
     SegmentedComponent,
     TabsComponent,
@@ -123,9 +125,13 @@ interface Row {
       <app-switch ariaLabel="Stimmrecht" [checked]="true" />
       <app-segmented ariaLabel="Art" [options]="kinds" value="expense" />
       <app-tabs #t ariaLabel="Antrag" [tabs]="tabs" active="app" />
-      <section role="tabpanel" [id]="t.panelId('app')" [attr.aria-labelledby]="t.tabId('app')">Antrag</section>
+      <section role="tabpanel" [id]="t.panelId('app')" [attr.aria-labelledby]="t.tabId('app')">
+        Antrag
+      </section>
       <app-button variant="danger">Löschen</app-button>
-      <app-button variant="text" [iconOnly]="true" ariaLabel="Bearbeiten"><app-icon name="edit" /></app-button>
+      <app-button variant="text" [iconOnly]="true" ariaLabel="Bearbeiten"
+        ><app-icon name="edit"
+      /></app-button>
 
       <h2>Karten</h2>
       <app-card heading="Karte"><p>Inhalt</p></app-card>
@@ -134,10 +140,12 @@ interface Row {
 
       <app-table [columns]="cols" [rows]="rows" caption="Anträge" />
 
-      <app-dialog [open]="true" title="Bestätigen" closeLabel="Schließen">
-        <p>Wirklich fortfahren?</p>
-        <app-button dialog-footer>OK</app-button>
-      </app-dialog>
+      <app-dialog [open]="true" heading="Bestätigen" closeLabel="Schließen"
+        ><ng-template dialogBody>
+          <p>Wirklich fortfahren?</p>
+          <app-button dialog-footer>OK</app-button>
+        </ng-template></app-dialog
+      >
     </main>
   `,
 })
@@ -197,7 +205,9 @@ class PrimitivesHost {
         [open]="true"
         query="La"
       />
-      <app-textarea label="Notiz" [invalid]="true"><textarea aria-invalid="true"></textarea></app-textarea>
+      <app-textarea label="Notiz" [invalid]="true">
+        <textarea aria-invalid="true"></textarea>
+      </app-textarea>
     </main>
   `,
 })
@@ -274,7 +284,11 @@ class BuildingBlocksHost {
           </div>
         </section>
       </app-list-detail>
-      <app-confirm-dialog [open]="true" title="Antrag löschen?" body="Das lässt sich nicht rückgängig machen." />
+      <app-confirm-dialog
+        [open]="true"
+        title="Antrag löschen?"
+        body="Das lässt sich nicht rückgängig machen."
+      />
     </main>
   `,
 })
@@ -326,7 +340,13 @@ class FileViewerHost {
 @Component({
   changeDetection: ChangeDetectionStrategy.Eager,
   standalone: true,
-  imports: [ButtonComponent, DetailNoneComponent, FabComponent, LoadBarComponent, PageHeaderComponent],
+  imports: [
+    ButtonComponent,
+    DetailNoneComponent,
+    FabComponent,
+    LoadBarComponent,
+    PageHeaderComponent,
+  ],
   template: `
     <app-load-bar />
     <main>
@@ -336,7 +356,11 @@ class FileViewerHost {
         <app-button actions variant="outlined">Exportieren</app-button>
       </app-page-header>
       <section aria-label="Detail">
-        <app-detail-none icon="vote" heading="Wähle eine Abstimmung aus." body="Sie öffnet sich hier." />
+        <app-detail-none
+          icon="vote"
+          heading="Wähle eine Abstimmung aus."
+          body="Sie öffnet sich hier."
+        />
       </section>
       <app-fab label="Antrag anlegen" />
     </main>

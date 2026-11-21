@@ -33,7 +33,29 @@
       <header class="ss__head">
         <h2 class="ss__title" [id]="id">{{ heading() }}</h2>
         <div class="ss__actions btn-grp">
-          <ng-content select="[sheet-actions]" />
+          @for (a of headActions(); track a.key) {
+            @if (a.icon; as icon) {
+              <app-button
+                variant="text"
+                [iconOnly]="true"
+                [ariaLabel]="a.label"
+                [disabled]="!!a.disabled"
+                (click)="action.emit({ key: a.key })"
+              >
+                <app-icon [name]="icon" />
+              </app-button>
+            } @else {
+              <app-button
+                variant="text"
+                [disabled]="!!a.disabled"
+                (click)="action.emit({ key: a.key })"
+                >{{ a.label }}</app-button
+              >
+            }
+          }
+          @if (menu().length) {
+            <app-row-menu [sections]="menu()" (selected)="action.emit({ key: $event.id })" />
+          }
           <app-button
             class="ss__close"
             variant="text"
@@ -53,7 +75,9 @@
       [class.ss__body--fadeTop]="fadeTop()"
       [class.ss__body--fadeBottom]="fadeBottom()"
     >
-      <ng-content />
+      @if (bodySlot(); as slot) {
+        <ng-container [ngTemplateOutlet]="slot.template" />
+      }
     </div>
   </div>
 }

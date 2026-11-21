@@ -91,8 +91,13 @@
      (popover), so a chip row that scrolls or fades (overflow, mask) does not clip it. -->
 @if (sheetOpen()) {
   <div #layer class="rc__layer" popover="manual">
-    <app-side-sheet side="bottom" [heading]="label()" [open]="true" (openChange)="onSheetOpen($event)">
-      <ng-container [ngTemplateOutlet]="rangeForm" />
+    <app-side-sheet
+      side="bottom"
+      [heading]="label()"
+      [open]="true"
+      (openChange)="onSheetOpen($event)"
+    >
+      <ng-template sheetBody><ng-container [ngTemplateOutlet]="rangeForm" /></ng-template>
     </app-side-sheet>
   </div>
 }

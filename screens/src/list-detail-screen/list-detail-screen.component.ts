@@ -276,7 +276,8 @@ export class ListDetailScreenComponent implements ListPageState {
     inject(DestroyRef).onDestroy(() => this.frame.fill.set(false));
     effect(() => {
       const state = this.rows();
-      if (state.state === 'error') untracked(() => this.toasts.show(state.message, 'danger'));
+      if (state.state === 'error')
+        untracked(() => this.toasts.show({ text: state.message, kind: 'error' }));
     });
   }
 

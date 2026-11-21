@@ -151,17 +151,17 @@ describe('SettingsScreenComponent', () => {
 
   it('shows a load error as a toast with Erneut versuchen', async () => {
     const { view, host } = await setup();
-    const toast = jest.spyOn(TestBed.inject(ToastService), 'showAction');
+    const toast = jest.spyOn(TestBed.inject(ToastService), 'show');
     const retry = jest.fn();
     host.state.set({ state: 'error', message: 'Konnte nicht geladen werden.', retry });
     view.detectChanges();
     expect(toast).toHaveBeenCalledWith(
       expect.objectContaining({
-        message: 'Konnte nicht geladen werden.',
-        action: 'Erneut versuchen',
+        text: 'Konnte nicht geladen werden.',
+        action: expect.objectContaining({ label: 'Erneut versuchen' }),
       }),
     );
-    toast.mock.calls[0][0].closed('action');
+    toast.mock.calls[0][0].closed?.('action');
     expect(retry).toHaveBeenCalledTimes(1);
   });
 

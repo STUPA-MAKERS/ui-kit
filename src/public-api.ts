@@ -98,6 +98,7 @@ export * from './lib/copy/share-or-copy';
 export * from './lib/avatar/avatar.component';
 export * from './lib/avatar/avatar-source';
 export * from './lib/side-sheet/side-sheet.component';
+export * from './lib/select-sheet/select-sheet.component';
 export * from './lib/sheet-bar/sheet-bar.component';
 export * from './lib/row-menu/row-menu.component';
 export * from './lib/skeleton/skeleton.component';

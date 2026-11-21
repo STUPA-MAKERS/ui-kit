@@ -1,0 +1,109 @@
+@use '../../styles/breakpoints' as bp;
+@use '../../styles/field' as f;
+@use '../../styles/option-menu' as om;
+
+:host {
+  display: contents;
+}
+
+.sel {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  min-width: 0;
+  margin: 0;
+}
+
+/* One height for every state, so the dialog keeps its height while the search runs. */
+.sel__area {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  min-width: 0;
+  min-height: 0;
+  height: clamp(14rem, calc(78dvh - 21rem), 26rem);
+}
+@include bp.phone {
+  .sel__area {
+    height: auto;
+  }
+  .sel__list {
+    max-height: 22rem;
+  }
+}
+
+.sel__slot {
+  display: flex;
+  flex: 1 1 auto;
+  flex-direction: column;
+  min-width: 0;
+  min-height: 0;
+}
+/* The empty state sits in the middle of the free height of the list area (001791). */
+.sel__slot > app-empty-state {
+  margin-block: auto;
+}
+
+/* The rows of the select sheet (001790): tiles 2px apart, no radio circle, a check. */
+.sel__list {
+  display: flex;
+  flex: 0 1 auto;
+  flex-direction: column;
+  gap: 2px;
+  min-height: 0;
+  overflow-y: auto;
+  border-radius: var(--radius-lg);
+}
+.sel__row {
+  @include om.option;
+  @include om.option-sheet;
+  position: relative;
+  flex: none;
+  min-width: 0;
+  padding-block: 6px;
+}
+@media (hover: hover) {
+  .sel__row:hover {
+    @include om.option-hover;
+  }
+}
+.sel__row--on {
+  @include f.highlight-chosen;
+}
+.sel__row--off {
+  opacity: 0.5;
+}
+.sel__row:has(.sel__input:focus-visible) {
+  @include om.option-focus;
+}
+/* The input stays for the keyboard and the screen reader, but it is invisible. */
+.sel__input {
+  position: absolute;
+  inset-inline-start: var(--space-4);
+  width: 18px;
+  height: 18px;
+  margin: 0;
+  opacity: 0;
+  pointer-events: none;
+}
+.sel__text {
+  display: flex;
+  flex: 1 1 auto;
+  flex-direction: column;
+  min-width: 0;
+}
+.sel__title {
+  min-width: 0;
+  font-weight: var(--fw-medium);
+}
+.sel__row--on .sel__title {
+  font-weight: var(--fw-semibold);
+}
+.sel__sub {
+  font-size: var(--fs-small);
+  font-weight: var(--fw-regular);
+  color: var(--color-text-muted);
+}
+.sel__check {
+  @include om.check;
+}

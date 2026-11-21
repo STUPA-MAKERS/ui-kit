@@ -11,7 +11,7 @@
     <div
       #pane
       class="dialog"
-      [class.dialog--form]="size === 'form'"
+      [class.dialog--md]="size === 'md'"
       [class.dialog--lg]="size === 'lg'"
       role="dialog"
       aria-modal="true"
@@ -30,7 +30,7 @@
         <span class="dialog__grabber" aria-hidden="true"></span>
         <header class="dialog__header">
           <div class="dialog__heading">
-            <h2 class="dialog__title" [id]="titleId">{{ title }}</h2>
+            <h2 class="dialog__title" [id]="titleId">{{ heading }}</h2>
             @if (subtitle) {
               <p class="dialog__subtitle" [id]="subtitleId">{{ subtitle }}</p>
             }
@@ -42,12 +42,44 @@
             [attr.title]="closeLabel"
             (click)="close()"
           >
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 6 6 18M6 6l12 12" /></svg>
+            <svg
+              width="20"
+              height="20"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="1.7"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              aria-hidden="true"
+            >
+              <path d="M18 6 6 18M6 6l12 12" />
+            </svg>
           </button>
         </header>
       </div>
-      <div class="dialog__body"><ng-content /></div>
-      <footer class="dialog__footer btn-grp btn-grp--main"><ng-content select="[dialog-footer]" /></footer>
+      <div class="dialog__body">
+        @if (bodySlot; as slot) {
+          <ng-container [ngTemplateOutlet]="slot.template" />
+        }
+      </div>
+      @if (actions.length) {
+        <footer class="dialog__footer btn-grp btn-grp--main">
+          @for (a of actions; track a.key) {
+            <app-button
+              [variant]="variantOf(a)"
+              [disabled]="!!a.disabled"
+              [loading]="!!a.busy"
+              (click)="action.emit({ key: a.key })"
+            >
+              @if (a.icon; as icon) {
+                <app-icon [name]="icon" />
+              }
+              {{ a.label }}
+            </app-button>
+          }
+        </footer>
+      }
     </div>
   </div>
 }

@@ -29,7 +29,7 @@ import { MEDIA } from '../breakpoints/breakpoints';
 import { mediaQuery } from '../signals/media-query';
 import { UiKitTranslatePipe } from '../intl/translate.pipe';
 import { AvatarComponent, type AvatarPerson } from '../avatar/avatar.component';
-import { SideSheetComponent } from '../side-sheet/side-sheet.component';
+import { SheetBodyDirective, SideSheetComponent } from '../side-sheet/side-sheet.component';
 
 /** A plain choice: a value and its label. Every option list of the kit takes it. */
 export interface SelectOption {
@@ -103,7 +103,14 @@ const PAGE = 10;
   selector: 'app-select',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [AvatarComponent, IconComponent, NgTemplateOutlet, SideSheetComponent, UiKitTranslatePipe],
+  imports: [
+    AvatarComponent,
+    IconComponent,
+    NgTemplateOutlet,
+    SideSheetComponent,
+    SheetBodyDirective,
+    UiKitTranslatePipe,
+  ],
   providers: [{ provide: NG_VALUE_ACCESSOR, useExisting: SelectFieldComponent, multi: true }],
   templateUrl: './select.component.html',
   styleUrl: './select.component.scss',
@@ -156,7 +163,17 @@ export class SelectFieldComponent implements ControlValueAccessor {
     const text = this.placeholder();
     const clear: readonly Row[] =
       text && this.clearable() && !this.required()
-        ? [{ value: '', label: text, disabled: false, placeholder: true, index: 0, person: null, lang: null }]
+        ? [
+            {
+              value: '',
+              label: text,
+              disabled: false,
+              placeholder: true,
+              index: 0,
+              person: null,
+              lang: null,
+            },
+          ]
         : [];
     const options = this.options().map((opt, i) => ({
       value: opt.value,

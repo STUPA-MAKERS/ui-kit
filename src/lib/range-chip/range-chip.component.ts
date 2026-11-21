@@ -17,7 +17,12 @@ import { NgTemplateOutlet } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { UI_KIT_INTL } from '../intl/intl';
 import { UiKitTranslatePipe } from '../intl/translate.pipe';
-import { anchorOutOfView, placeBelow, showInTopLayer, watchAnchoredPopover } from '../popover/anchored-popover';
+import {
+  anchorOutOfView,
+  placeBelow,
+  showInTopLayer,
+  watchAnchoredPopover,
+} from '../popover/anchored-popover';
 import { ButtonComponent } from '../button/button.component';
 import { CurrencyInputComponent } from '../currency-input/currency-input.component';
 import { DatepickerComponent } from '../datepicker/datepicker.component';
@@ -25,7 +30,7 @@ import { FocusDialogDirective } from '../focus/focus-dialog.directive';
 import { IconComponent } from '../icon/icon.component';
 import { MEDIA } from '../breakpoints/breakpoints';
 import { mediaQuery } from '../signals/media-query';
-import { SideSheetComponent } from '../side-sheet/side-sheet.component';
+import { SheetBodyDirective, SideSheetComponent } from '../side-sheet/side-sheet.component';
 import { TruncatedDirective } from '../truncated/truncated.directive';
 
 /** What a range chip filters: an amount in `currency` or a date (ISO `YYYY-MM-DD`). */
@@ -69,6 +74,7 @@ export interface RangeValue {
     IconComponent,
     NgTemplateOutlet,
     SideSheetComponent,
+    SheetBodyDirective,
     UiKitTranslatePipe,
   ],
   templateUrl: './range-chip.component.html',
@@ -262,7 +268,8 @@ export class RangeChipComponent {
   }
 
   private stopTracking(): void {
-    if (this.frame !== null && typeof cancelAnimationFrame === 'function') cancelAnimationFrame(this.frame);
+    if (this.frame !== null && typeof cancelAnimationFrame === 'function')
+      cancelAnimationFrame(this.frame);
     this.frame = null;
   }
 
@@ -297,12 +304,14 @@ export class RangeChipComponent {
     if (top !== pos.top || left !== pos.left) this.position.set({ top, left });
   }
 
-
   private format(value: string): string {
     if (this.kind() === 'amount') {
       const n = Number(value);
       if (!Number.isFinite(n)) return value;
-      return n.toLocaleString(this.i18n.formatLocale(), { style: 'currency', currency: this.currency() });
+      return n.toLocaleString(this.i18n.formatLocale(), {
+        style: 'currency',
+        currency: this.currency(),
+      });
     }
     const [y, m, d] = value.split('-').map(Number);
     if (!y || !m || !d) return value;

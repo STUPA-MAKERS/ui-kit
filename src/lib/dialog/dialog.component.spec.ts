@@ -2,8 +2,7 @@ import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { fireEvent, render, screen } from '@testing-library/angular';
 import userEvent from '@testing-library/user-event';
-import { ButtonComponent } from '../button/button.component';
-import { DialogComponent } from './dialog.component';
+import { DialogBodyDirective, DialogComponent } from './dialog.component';
 
 function pane(): HTMLElement {
   return screen.getByRole('dialog');
@@ -13,7 +12,6 @@ function backdrop(): HTMLElement {
   return document.querySelector('.dialog__backdrop') as HTMLElement;
 }
 
-
 describe('DialogComponent', () => {
   it('opens the backdrop in the top layer, so a sheet around it cannot cut it off', async () => {
     const show = jest.fn();
@@ -21,9 +19,12 @@ describe('DialogComponent', () => {
     const had = proto.showPopover;
     proto.showPopover = show;
     try {
-      await render(`<app-dialog title="Namen ändern" [open]="true">B</app-dialog>`, {
-        imports: [DialogComponent],
-      });
+      await render(
+        `<app-dialog heading="Namen ändern" [open]="true"><ng-template dialogBody>B</ng-template></app-dialog>`,
+        {
+          imports: [DialogComponent, DialogBodyDirective],
+        },
+      );
       expect(backdrop()).toHaveAttribute('popover', 'manual');
       expect(show).toHaveBeenCalledTimes(1);
       expect(show.mock.contexts[0]).toBe(backdrop());
@@ -33,16 +34,22 @@ describe('DialogComponent', () => {
   });
 
   it('is not rendered while closed', async () => {
-    await render(`<app-dialog title="Hinweis" [open]="false">Body</app-dialog>`, {
-      imports: [DialogComponent],
-    });
+    await render(
+      `<app-dialog heading="Hinweis" [open]="false"><ng-template dialogBody>Body</ng-template></app-dialog>`,
+      {
+        imports: [DialogComponent, DialogBodyDirective],
+      },
+    );
     expect(screen.queryByRole('dialog')).toBeNull();
   });
 
   it('renders an accessible modal with a labelled title when open', async () => {
-    await render(`<app-dialog title="Antrag löschen?" [open]="true">Body</app-dialog>`, {
-      imports: [DialogComponent],
-    });
+    await render(
+      `<app-dialog heading="Antrag löschen?" [open]="true"><ng-template dialogBody>Body</ng-template></app-dialog>`,
+      {
+        imports: [DialogComponent, DialogBodyDirective],
+      },
+    );
     const dialog = screen.getByRole('dialog');
     expect(dialog).toHaveAttribute('aria-modal', 'true');
     expect(dialog).toHaveAccessibleName('Antrag löschen?');
@@ -50,8 +57,8 @@ describe('DialogComponent', () => {
 
   it('shows a subtitle below the title and uses it as the description', async () => {
     await render(
-      `<app-dialog title="TOP hinzufügen" subtitle="34. Sitzung des Studierendenparlaments" [open]="true">B</app-dialog>`,
-      { imports: [DialogComponent] },
+      `<app-dialog heading="TOP hinzufügen" subtitle="34. Sitzung des Studierendenparlaments" [open]="true"><ng-template dialogBody>B</ng-template></app-dialog>`,
+      { imports: [DialogComponent, DialogBodyDirective] },
     );
     const sub = screen.getByText('34. Sitzung des Studierendenparlaments');
     expect(sub).toHaveClass('dialog__subtitle');
@@ -60,85 +67,102 @@ describe('DialogComponent', () => {
   });
 
   it('renders no subtitle and no description without a subtitle', async () => {
-    await render(`<app-dialog title="X" [open]="true">B</app-dialog>`, {
-      imports: [DialogComponent],
-    });
+    await render(
+      `<app-dialog heading="X" [open]="true"><ng-template dialogBody>B</ng-template></app-dialog>`,
+      {
+        imports: [DialogComponent, DialogBodyDirective],
+      },
+    );
     expect(document.querySelector('.dialog__subtitle')).toBeNull();
     expect(pane()).not.toHaveAttribute('aria-describedby');
   });
 
   it('shows the title as a heading and a round close button with an icon', async () => {
-    await render(`<app-dialog title="Sitzung schließen?" [open]="true">B</app-dialog>`, {
-      imports: [DialogComponent],
-    });
-    expect(screen.getByRole('heading', { level: 2, name: 'Sitzung schließen?' })).toHaveClass('dialog__title');
+    await render(
+      `<app-dialog heading="Sitzung schließen?" [open]="true"><ng-template dialogBody>B</ng-template></app-dialog>`,
+      {
+        imports: [DialogComponent, DialogBodyDirective],
+      },
+    );
+    expect(screen.getByRole('heading', { level: 2, name: 'Sitzung schließen?' })).toHaveClass(
+      'dialog__title',
+    );
     const close = screen.getByRole('button', { name: 'Schließen' });
     expect(close).toHaveAttribute('title', 'Schließen');
     expect(close.querySelector('svg')).toHaveAttribute('aria-hidden', 'true');
     expect(close.textContent?.trim()).toBe('');
   });
 
-  it('puts the actions in the footer, the destructive one as an outlined danger button', async () => {
+  it('shows the actions as the footer group: main filled, danger red, others text', async () => {
+    const action = jest.fn();
     await render(
-      `<app-dialog title="Antrag löschen?" [open]="true">
-         <p>Der Antrag wird gelöscht.</p>
-         <app-button dialog-footer variant="text">Abbrechen</app-button>
-         <app-button dialog-footer variant="danger">Löschen</app-button>
+      `<app-dialog heading="Antrag löschen?" [open]="true" [actions]="actions" (action)="onAction($event)">
+         <ng-template dialogBody><p>Der Antrag wird gelöscht.</p></ng-template>
        </app-dialog>`,
-      { imports: [DialogComponent, ButtonComponent] },
+      {
+        imports: [DialogComponent, DialogBodyDirective],
+        componentProperties: {
+          actions: [
+            { key: 'cancel', label: 'Abbrechen' },
+            { key: 'save', label: 'Speichern', kind: 'main' },
+            { key: 'delete', label: 'Löschen', kind: 'danger' },
+          ],
+          onAction: action,
+        },
+      },
     );
     const footer = document.querySelector('.dialog__footer') as HTMLElement;
-    const del = screen.getByRole('button', { name: 'Löschen' });
-    expect(footer).toContainElement(del);
-    expect(del).toHaveClass('btn--danger');
-    expect(del).not.toHaveClass('btn--fill');
-    // The destructive action comes last, at the trailing edge.
-    const buttons = Array.from(footer.querySelectorAll('button'));
-    expect(buttons[buttons.length - 1]).toBe(del);
+    expect(footer).toContainElement(screen.getByRole('button', { name: 'Löschen' }));
+    expect(screen.getByRole('button', { name: 'Löschen' })).toHaveClass('btn--danger');
+    expect(screen.getByRole('button', { name: 'Speichern' })).toHaveClass('btn--fill');
+    expect(screen.getByRole('button', { name: 'Abbrechen' })).toHaveClass('btn--text');
+    expect(screen.getByText('Der Antrag wird gelöscht.')).toBeTruthy();
+    await userEvent.click(screen.getByRole('button', { name: 'Speichern' }));
+    expect(action).toHaveBeenCalledWith({ key: 'save' });
   });
 
-  it('projects a wrapper of switching actions into the footer', async () => {
+  it('has no footer without actions', async () => {
     await render(
-      `<app-dialog title="Konto zusammenführen" [open]="true">
-         <p>Schritt 1</p>
-         <div dialog-footer>
-           @if (true) {
-             <app-button variant="text">Abbrechen</app-button>
-             <app-button variant="fill">Weiter</app-button>
-           }
-         </div>
-       </app-dialog>`,
-      { imports: [DialogComponent, ButtonComponent] },
+      `<app-dialog heading="X" [open]="true"><ng-template dialogBody>B</ng-template></app-dialog>`,
+      {
+        imports: [DialogComponent, DialogBodyDirective],
+      },
     );
-    const footer = document.querySelector('.dialog__footer') as HTMLElement;
-    const wrapper = footer.querySelector(':scope > div[dialog-footer]');
-    expect(wrapper).not.toBeNull();
-    expect(wrapper).toContainElement(screen.getByRole('button', { name: 'Weiter' }));
+    expect(document.querySelector('.dialog__footer')).toBeNull();
   });
 
   it('emits closed when the close button is pressed', async () => {
     const closed = jest.fn();
-    await render(`<app-dialog title="X" [open]="true" (closed)="onClosed()">B</app-dialog>`, {
-      imports: [DialogComponent],
-      componentProperties: { onClosed: closed },
-    });
+    await render(
+      `<app-dialog heading="X" [open]="true" (closed)="onClosed()"><ng-template dialogBody>B</ng-template></app-dialog>`,
+      {
+        imports: [DialogComponent, DialogBodyDirective],
+        componentProperties: { onClosed: closed },
+      },
+    );
     await userEvent.click(screen.getByRole('button', { name: 'Schließen' }));
     expect(closed).toHaveBeenCalledTimes(1);
   });
 
   it('moves focus into the dialog on open (a11y focus management)', async () => {
-    await render(`<app-dialog title="X" [open]="true">B</app-dialog>`, {
-      imports: [DialogComponent],
-    });
+    await render(
+      `<app-dialog heading="X" [open]="true"><ng-template dialogBody>B</ng-template></app-dialog>`,
+      {
+        imports: [DialogComponent, DialogBodyDirective],
+      },
+    );
     await new Promise((r) => setTimeout(r, 0)); // queueMicrotask-Fokus abwarten
     const closeBtn = screen.getByRole('button', { name: 'Schließen' });
     expect(document.activeElement).toBe(closeBtn);
   });
 
   it('traps Tab within the dialog (focus-trap)', async () => {
-    await render(`<app-dialog title="X" [open]="true"><button>Body-Btn</button></app-dialog>`, {
-      imports: [DialogComponent],
-    });
+    await render(
+      `<app-dialog heading="X" [open]="true"><ng-template dialogBody><button>Body-Btn</button></ng-template></app-dialog>`,
+      {
+        imports: [DialogComponent, DialogBodyDirective],
+      },
+    );
     await new Promise((r) => setTimeout(r, 0));
     const buttons = screen.getAllByRole('button');
     buttons[buttons.length - 1].focus();
@@ -149,8 +173,8 @@ describe('DialogComponent', () => {
 
   it('restores focus to the opener when closed', async () => {
     const view = await render(
-      `<button id="opener">Open</button><app-dialog title="X" [open]="open">B</app-dialog>`,
-      { imports: [DialogComponent], componentProperties: { open: false } },
+      `<button id="opener">Open</button><app-dialog heading="X" [open]="open"><ng-template dialogBody>B</ng-template></app-dialog>`,
+      { imports: [DialogComponent, DialogBodyDirective], componentProperties: { open: false } },
     );
     const opener = document.getElementById('opener') as HTMLButtonElement;
     opener.focus();
@@ -161,26 +185,35 @@ describe('DialogComponent', () => {
   });
 
   it('applies the large size modifier', async () => {
-    await render(`<app-dialog title="X" [open]="true" size="lg">B</app-dialog>`, {
-      imports: [DialogComponent],
-    });
+    await render(
+      `<app-dialog heading="X" [open]="true" size="lg"><ng-template dialogBody>B</ng-template></app-dialog>`,
+      {
+        imports: [DialogComponent, DialogBodyDirective],
+      },
+    );
     expect(pane()).toHaveClass('dialog--lg');
   });
 
-  it('applies the form size modifier', async () => {
-    await render(`<app-dialog title="X" [open]="true" size="form">B</app-dialog>`, {
-      imports: [DialogComponent],
-    });
-    expect(pane()).toHaveClass('dialog--form');
+  it('applies the md size modifier', async () => {
+    await render(
+      `<app-dialog heading="X" [open]="true" size="md"><ng-template dialogBody>B</ng-template></app-dialog>`,
+      {
+        imports: [DialogComponent, DialogBodyDirective],
+      },
+    );
+    expect(pane()).toHaveClass('dialog--md');
     expect(pane()).not.toHaveClass('dialog--lg');
   });
 
   it('closes on a backdrop click but not on a click inside the pane', async () => {
     const closed = jest.fn();
-    await render(`<app-dialog title="X" [open]="true" (closed)="onClosed()">B</app-dialog>`, {
-      imports: [DialogComponent],
-      componentProperties: { onClosed: closed },
-    });
+    await render(
+      `<app-dialog heading="X" [open]="true" (closed)="onClosed()"><ng-template dialogBody>B</ng-template></app-dialog>`,
+      {
+        imports: [DialogComponent, DialogBodyDirective],
+        componentProperties: { onClosed: closed },
+      },
+    );
     // Click inside the pane → stopPropagation → does NOT close.
     fireEvent.click(pane());
     expect(closed).not.toHaveBeenCalled();
@@ -192,8 +225,11 @@ describe('DialogComponent', () => {
   it('closes on Escape when open and ignores Escape when closed', async () => {
     const closed = jest.fn();
     const view = await render(
-      `<app-dialog title="X" [open]="open" (closed)="onClosed()">B</app-dialog>`,
-      { imports: [DialogComponent], componentProperties: { open: true, onClosed: closed } },
+      `<app-dialog heading="X" [open]="open" (closed)="onClosed()"><ng-template dialogBody>B</ng-template></app-dialog>`,
+      {
+        imports: [DialogComponent, DialogBodyDirective],
+        componentProperties: { open: true, onClosed: closed },
+      },
     );
     fireEvent.keyDown(document, { key: 'Escape' });
     expect(closed).toHaveBeenCalledTimes(1);
@@ -206,8 +242,8 @@ describe('DialogComponent', () => {
 
   it('ignores non-Tab keydowns and Tab when closed (focus-trap guard)', async () => {
     const view = await render(
-      `<app-dialog title="X" [open]="open"><button>Inner</button></app-dialog>`,
-      { imports: [DialogComponent], componentProperties: { open: true } },
+      `<app-dialog heading="X" [open]="open"><ng-template dialogBody><button>Inner</button></ng-template></app-dialog>`,
+      { imports: [DialogComponent, DialogBodyDirective], componentProperties: { open: true } },
     );
     // Non-Tab key → handler returns early (no throw).
     expect(() => fireEvent.keyDown(document, { key: 'a' })).not.toThrow();
@@ -218,8 +254,10 @@ describe('DialogComponent', () => {
 
   it('wraps Shift+Tab from the first focusable back to the last', async () => {
     await render(
-      `<app-dialog title="X" [open]="true"><button>Inner</button></app-dialog>`,
-      { imports: [DialogComponent] },
+      `<app-dialog heading="X" [open]="true"><ng-template dialogBody><button>Inner</button></ng-template></app-dialog>`,
+      {
+        imports: [DialogComponent, DialogBodyDirective],
+      },
     );
     await new Promise((r) => setTimeout(r, 0));
     const buttons = screen.getAllByRole('button');
@@ -230,9 +268,12 @@ describe('DialogComponent', () => {
   });
 
   it('keeps focus inside the dialog when the only focusable is the close button', async () => {
-    await render(`<app-dialog title="X" [open]="true">Body</app-dialog>`, {
-      imports: [DialogComponent],
-    });
+    await render(
+      `<app-dialog heading="X" [open]="true"><ng-template dialogBody>Body</ng-template></app-dialog>`,
+      {
+        imports: [DialogComponent, DialogBodyDirective],
+      },
+    );
     await new Promise((r) => setTimeout(r, 0));
     const close = screen.getByRole('button', { name: 'Schließen' });
     close.focus();
@@ -241,9 +282,12 @@ describe('DialogComponent', () => {
   });
 
   it('focuses the pane itself when it has no focusable children (Tab guard)', async () => {
-    const view = await render(`<app-dialog title="X" [open]="true">Body</app-dialog>`, {
-      imports: [DialogComponent],
-    });
+    const view = await render(
+      `<app-dialog heading="X" [open]="true"><ng-template dialogBody>Body</ng-template></app-dialog>`,
+      {
+        imports: [DialogComponent, DialogBodyDirective],
+      },
+    );
     const paneEl = pane();
     // Strip all focusable descendants so the focus-trap takes the empty-pane path.
     paneEl.querySelectorAll('button').forEach((b) => b.remove());
@@ -258,10 +302,13 @@ describe('DialogComponent', () => {
 
   it('locks body scroll while open and restores it on close', async () => {
     document.documentElement.style.overflow = 'scroll';
-    const view = await render(`<app-dialog title="X" [open]="open">B</app-dialog>`, {
-      imports: [DialogComponent],
-      componentProperties: { open: false },
-    });
+    const view = await render(
+      `<app-dialog heading="X" [open]="open"><ng-template dialogBody>B</ng-template></app-dialog>`,
+      {
+        imports: [DialogComponent, DialogBodyDirective],
+        componentProperties: { open: false },
+      },
+    );
     expect(document.documentElement.style.overflow).toBe('scroll');
     view.rerender({ componentProperties: { open: true } });
     expect(document.documentElement.style.overflow).toBe('hidden');
@@ -271,17 +318,23 @@ describe('DialogComponent', () => {
   });
 
   it('locks scroll when initially opened (firstChange path)', async () => {
-    await render(`<app-dialog title="X" [open]="true">B</app-dialog>`, {
-      imports: [DialogComponent],
-    });
+    await render(
+      `<app-dialog heading="X" [open]="true"><ng-template dialogBody>B</ng-template></app-dialog>`,
+      {
+        imports: [DialogComponent, DialogBodyDirective],
+      },
+    );
     expect(document.documentElement.style.overflow).toBe('hidden');
     document.documentElement.style.overflow = '';
   });
 
   it('unlocks body scroll when destroyed while open', async () => {
-    const view = await render(`<app-dialog title="X" [open]="true">B</app-dialog>`, {
-      imports: [DialogComponent],
-    });
+    const view = await render(
+      `<app-dialog heading="X" [open]="true"><ng-template dialogBody>B</ng-template></app-dialog>`,
+      {
+        imports: [DialogComponent, DialogBodyDirective],
+      },
+    );
     expect(document.documentElement.style.overflow).toBe('hidden');
     view.fixture.destroy();
     expect(document.documentElement.style.overflow).not.toBe('hidden');
@@ -296,10 +349,13 @@ describe('DialogComponent', () => {
 
   it('closes via drag-to-dismiss when dragged far enough down', async () => {
     const closed = jest.fn();
-    const view = await render(`<app-dialog title="X" [open]="true" (closed)="onClosed()">B</app-dialog>`, {
-      imports: [DialogComponent],
-      componentProperties: { onClosed: closed },
-    });
+    const view = await render(
+      `<app-dialog heading="X" [open]="true" (closed)="onClosed()"><ng-template dialogBody>B</ng-template></app-dialog>`,
+      {
+        imports: [DialogComponent, DialogBodyDirective],
+        componentProperties: { onClosed: closed },
+      },
+    );
     const cmp = view.fixture.debugElement.children[0].componentInstance as DialogComponent;
     cmp.onDragStart(makeTouch(0, 0));
     cmp.onDragMove(makeTouch(200, 100)); // 200px down (> 120 threshold)
@@ -309,10 +365,13 @@ describe('DialogComponent', () => {
 
   it('closes on a fast downward flick (high velocity)', async () => {
     const closed = jest.fn();
-    const view = await render(`<app-dialog title="X" [open]="true" (closed)="onClosed()">B</app-dialog>`, {
-      imports: [DialogComponent],
-      componentProperties: { onClosed: closed },
-    });
+    const view = await render(
+      `<app-dialog heading="X" [open]="true" (closed)="onClosed()"><ng-template dialogBody>B</ng-template></app-dialog>`,
+      {
+        imports: [DialogComponent, DialogBodyDirective],
+        componentProperties: { onClosed: closed },
+      },
+    );
     const cmp = view.fixture.debugElement.children[0].componentInstance as DialogComponent;
     cmp.onDragStart(makeTouch(0, 0));
     cmp.onDragMove(makeTouch(60, 50));
@@ -322,10 +381,13 @@ describe('DialogComponent', () => {
 
   it('snaps back when dragged only a little and slowly (no close)', async () => {
     const closed = jest.fn();
-    const view = await render(`<app-dialog title="X" [open]="true" (closed)="onClosed()">B</app-dialog>`, {
-      imports: [DialogComponent],
-      componentProperties: { onClosed: closed },
-    });
+    const view = await render(
+      `<app-dialog heading="X" [open]="true" (closed)="onClosed()"><ng-template dialogBody>B</ng-template></app-dialog>`,
+      {
+        imports: [DialogComponent, DialogBodyDirective],
+        componentProperties: { onClosed: closed },
+      },
+    );
     const cmp = view.fixture.debugElement.children[0].componentInstance as DialogComponent;
     const paneEl = pane();
     cmp.onDragStart(makeTouch(0, 0));
@@ -339,9 +401,12 @@ describe('DialogComponent', () => {
     const vibrate = jest.fn(() => true);
     Object.defineProperty(navigator, 'vibrate', { value: vibrate, configurable: true });
     try {
-      const view = await render(`<app-dialog title="X" [open]="true">B</app-dialog>`, {
-        imports: [DialogComponent],
-      });
+      const view = await render(
+        `<app-dialog heading="X" [open]="true"><ng-template dialogBody>B</ng-template></app-dialog>`,
+        {
+          imports: [DialogComponent, DialogBodyDirective],
+        },
+      );
       const cmp = view.fixture.debugElement.children[0].componentInstance as DialogComponent;
       cmp.onDragStart(makeTouch(0, 0));
       cmp.onDragMove(makeTouch(100, 10));
@@ -359,9 +424,12 @@ describe('DialogComponent', () => {
   });
 
   it('only drags down, never up (clamped at 0)', async () => {
-    const view = await render(`<app-dialog title="X" [open]="true">B</app-dialog>`, {
-      imports: [DialogComponent],
-    });
+    const view = await render(
+      `<app-dialog heading="X" [open]="true"><ng-template dialogBody>B</ng-template></app-dialog>`,
+      {
+        imports: [DialogComponent, DialogBodyDirective],
+      },
+    );
     const cmp = view.fixture.debugElement.children[0].componentInstance as DialogComponent;
     const paneEl = pane();
     cmp.onDragStart(makeTouch(100, 0));
@@ -370,13 +438,19 @@ describe('DialogComponent', () => {
   });
 
   it('ignores multi-touch drag starts and stray move/end without an active drag', async () => {
-    const view = await render(`<app-dialog title="X" [open]="true">B</app-dialog>`, {
-      imports: [DialogComponent],
-    });
+    const view = await render(
+      `<app-dialog heading="X" [open]="true"><ng-template dialogBody>B</ng-template></app-dialog>`,
+      {
+        imports: [DialogComponent, DialogBodyDirective],
+      },
+    );
     const cmp = view.fixture.debugElement.children[0].componentInstance as DialogComponent;
     const paneEl = pane();
     // Two-finger start → dragging never begins.
-    cmp.onDragStart({ touches: [{ clientY: 0 }, { clientY: 10 }], timeStamp: 0 } as unknown as TouchEvent);
+    cmp.onDragStart({
+      touches: [{ clientY: 0 }, { clientY: 10 }],
+      timeStamp: 0,
+    } as unknown as TouchEvent);
     cmp.onDragMove(makeTouch(200, 50)); // ignored (not dragging)
     expect(paneEl.style.transform).toBe('');
     // touchend without an active drag → no-op (no throw, no close).

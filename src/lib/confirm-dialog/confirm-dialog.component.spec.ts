@@ -58,7 +58,9 @@ describe('ConfirmDialogComponent', () => {
   it('shows the title, the text, "Abbrechen" and "Löschen" in the danger look', async () => {
     const { view } = await setup();
     const dialog = screen.getByRole('dialog', { name: 'Rechnung löschen?' });
-    expect(dialog).toHaveTextContent('„R-17“ wird gelöscht. Das lässt sich nicht rückgängig machen.');
+    expect(dialog).toHaveTextContent(
+      '„R-17“ wird gelöscht. Das lässt sich nicht rückgängig machen.',
+    );
     const footer = view.container.querySelectorAll('.dialog__footer app-button');
     expect(Array.from(footer).map((b) => b.textContent?.trim())).toEqual(['Abbrechen', 'Löschen']);
     expect(confirmButton()).toHaveClass('btn--danger');
@@ -128,7 +130,7 @@ describe('ConfirmDialogComponent', () => {
     expect(confirmButton()).toBeDisabled();
     expect(confirmButton()).toHaveAttribute('aria-busy', 'true');
     const cmp = view.fixture.debugElement.children[0].componentInstance as ConfirmDialogComponent;
-    (cmp as unknown as { onConfirm(): void }).onConfirm();
+    (cmp as unknown as { onAction(key: string): void }).onAction('confirm');
     expect(host.confirms).toBe(0);
   });
 
@@ -136,7 +138,7 @@ describe('ConfirmDialogComponent', () => {
     const { host, view } = await setup((h) => h.disabled.set(true));
     expect(confirmButton()).toBeDisabled();
     const cmp = view.fixture.debugElement.children[0].componentInstance as ConfirmDialogComponent;
-    (cmp as unknown as { onConfirm(): void }).onConfirm();
+    (cmp as unknown as { onAction(key: string): void }).onAction('confirm');
     expect(host.confirms).toBe(0);
   });
 });

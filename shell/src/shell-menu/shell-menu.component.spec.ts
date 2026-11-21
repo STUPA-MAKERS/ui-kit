@@ -10,7 +10,13 @@ import { runAxe } from '../../../testing/a11y';
 async function setUp(menu: ShellMenuKind, items: readonly Action[] = [], reportBarrier = false) {
   const action = jest.fn();
   const view = await render(ShellMenuComponent, {
-    inputs: { variant: 'sheet', menu, items, statementLink: { commands: ['/a11y'] }, reportBarrier },
+    inputs: {
+      variant: 'sheet',
+      menu,
+      items,
+      statementLink: { commands: ['/a11y'] },
+      reportBarrier,
+    },
     on: { action },
     providers: [provideRouter([{ path: '**', children: [] }])],
   });
@@ -23,7 +29,13 @@ describe('ShellMenuComponent', () => {
 
   it('shows the display switches and the statement link in the a11y menu', async () => {
     await setUp('a11y');
-    for (const name of ['Dunkles Design', 'Weniger Bewegung', 'Weniger Transparenz', 'Mehr Kontrast', 'Hoher Kontrast']) {
+    for (const name of [
+      'Dunkles Design',
+      'Weniger Bewegung',
+      'Weniger Transparenz',
+      'Mehr Kontrast',
+      'Hoher Kontrast',
+    ]) {
       expect(screen.getByRole('switch', { name })).toBeInTheDocument();
     }
     expect(screen.getByRole('link', { name: 'Erklärung zur Barrierefreiheit' })).toHaveAttribute(
@@ -38,7 +50,9 @@ describe('ShellMenuComponent', () => {
     expect(screen.queryByRole('button', { name: 'Systemeinstellungen verwenden' })).toBeNull();
     await userEvent.click(screen.getByRole('switch', { name: 'Weniger Bewegung' }));
     expect(display.hasChoice()).toBe(true);
-    await userEvent.click(await screen.findByRole('button', { name: 'Systemeinstellungen verwenden' }));
+    await userEvent.click(
+      await screen.findByRole('button', { name: 'Systemeinstellungen verwenden' }),
+    );
     expect(display.hasChoice()).toBe(false);
   });
 

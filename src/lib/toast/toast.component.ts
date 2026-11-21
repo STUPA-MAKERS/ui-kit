@@ -205,7 +205,8 @@ export class ToastComponent {
       const el = this.stack()?.nativeElement as
         | (HTMLElement & { showPopover?: () => void; hidePopover?: () => void })
         | undefined;
-      if (!el || typeof el.showPopover !== 'function' || typeof el.hidePopover !== 'function') return;
+      if (!el || typeof el.showPopover !== 'function' || typeof el.hidePopover !== 'function')
+        return;
       let open = false;
       try {
         open = el.matches(':popover-open');

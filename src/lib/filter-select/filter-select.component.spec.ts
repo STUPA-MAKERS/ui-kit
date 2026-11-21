@@ -2,7 +2,12 @@ import { ChangeDetectionStrategy, Component, signal } from '@angular/core';
 import { fireEvent, render, screen, waitFor, within } from '@testing-library/angular';
 import userEvent from '@testing-library/user-event';
 import { runAxe } from '../../../testing/a11y';
-import { filterChipText, FilterSelectComponent, type FilterSelectOption, type FilterSelectPerson } from './filter-select.component';
+import {
+  filterChipText,
+  FilterSelectComponent,
+  type FilterSelectOption,
+  type FilterSelectPerson,
+} from './filter-select.component';
 
 const OPTIONS: FilterSelectOption[] = [
   { value: '', label: 'Alle Typen' },
@@ -286,7 +291,14 @@ describe('FilterSelectComponent', () => {
     // The list: 240 x 200. jsdom: the window is 1024 wide, so the list moves left.
     const rect = jest
       .spyOn(HTMLElement.prototype, 'getBoundingClientRect')
-      .mockReturnValue({ top: 0, bottom: 200, left: 0, right: 240, width: 240, height: 200 } as DOMRect);
+      .mockReturnValue({
+        top: 0,
+        bottom: 200,
+        left: 0,
+        right: 240,
+        width: 240,
+        height: 200,
+      } as DOMRect);
     try {
       await user.click(chip());
       const menu = document.querySelector('.fs__menu') as HTMLElement;
@@ -301,11 +313,25 @@ describe('FilterSelectComponent', () => {
 
   it('opens above the chip without room below, follows a scroll and closes when the chip leaves', async () => {
     const { chip, user } = await setup();
-    const chipRect = { top: 700, bottom: 732, left: 20, right: 120, width: 100, height: 32 } as DOMRect;
+    const chipRect = {
+      top: 700,
+      bottom: 732,
+      left: 20,
+      right: 120,
+      width: 100,
+      height: 32,
+    } as DOMRect;
     const chipSpy = jest.spyOn(chip(), 'getBoundingClientRect').mockReturnValue(chipRect);
     const rect = jest
       .spyOn(HTMLElement.prototype, 'getBoundingClientRect')
-      .mockReturnValue({ top: 0, bottom: 200, left: 0, right: 240, width: 240, height: 200 } as DOMRect);
+      .mockReturnValue({
+        top: 0,
+        bottom: 200,
+        left: 0,
+        right: 240,
+        width: 240,
+        height: 200,
+      } as DOMRect);
     try {
       await user.click(chip());
       const menu = () => document.querySelector('.fs__menu') as HTMLElement | null;
@@ -350,7 +376,10 @@ describe('FilterSelectComponent', () => {
     expect(host.values()).toEqual(['r', 'f']);
     expect(screen.getByRole('listbox')).toBeInTheDocument();
     view.fixture.detectChanges();
-    expect(within(list).getByRole('option', { name: 'Förderantrag' })).toHaveAttribute('aria-selected', 'true');
+    expect(within(list).getByRole('option', { name: 'Förderantrag' })).toHaveAttribute(
+      'aria-selected',
+      'true',
+    );
     expect(list.querySelectorAll('.fs__box--on')).toHaveLength(2);
     // The chip names the filter, not a value, when it holds several.
     expect(chip()).toHaveTextContent('Typ');

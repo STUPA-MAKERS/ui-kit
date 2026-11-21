@@ -3,6 +3,7 @@ import { Announcer } from '../announce/announcer';
 import { MEDIA } from '../breakpoints/breakpoints';
 import { mediaQuery } from '../signals/media-query';
 import type { IconName } from '../icon/icons';
+import type { Action } from '../screen/screen.types';
 import { withEntry } from '../util/immutable';
 
 export type ToastVariant = 'info' | 'success' | 'warning' | 'danger';
@@ -37,21 +38,6 @@ export type ToastIconPosition = 'start' | 'end';
  */
 export type ToastBarTone = 'accent' | 'danger';
 
-/** A toast that stays until the code that shows it removes it, for example a state. */
-export interface ToastNotice {
-  readonly message: string;
-  readonly variant?: ToastVariant;
-  readonly icon?: IconName;
-  /** Where `icon` sits. Default `start`. */
-  readonly iconPosition?: ToastIconPosition;
-  /** Show a close button. Default false. */
-  readonly closable?: boolean;
-  /** Where the notice shows on a phone. Default `stack`. */
-  readonly phonePlacement?: ToastPhonePlacement;
-  /** The colour of the phone top bar. Default `danger` for a `danger` notice, else `accent`. */
-  readonly barTone?: ToastBarTone;
-}
-
 /**
  * Where a toast shows on a phone. `stack`: in the toast stack, as on every width. `top`: as
  * a full-width bar at the top of the frame (`app-toast-bar`), which moves the page down.
@@ -63,30 +49,38 @@ export type ToastPhonePlacement = 'stack' | 'top';
 /** How a toast with an action closed. */
 export type ToastClose = 'action' | 'timeout' | 'dismiss';
 
-/** A toast with one action, for example the undo of a swipe. */
-export interface ActionToast {
-  readonly message: string;
-  /** The visible label of the button. */
-  readonly action: string;
-  readonly variant?: ToastVariant;
-  /** 0 keeps the toast until a press. */
-  readonly timeout?: number;
+/** The kind of a toast: its colour and the icon of its tile. */
+export type ToastKind = 'info' | 'success' | 'warning' | 'error';
+
+/** A toast: the one call `ToastService.show(options)` (002253). */
+export interface ToastOptions {
+  readonly text: string;
+  /** Default `info`. */
+  readonly kind?: ToastKind;
+  /** One button; a press closes the toast and calls `closed('action')`. Its icon replaces the label. */
+  readonly action?: Action;
   /**
-   * Called once when the toast goes: `action` after a press of the button, `timeout`
-   * when the time ran out, `dismiss` after the close button or `dismiss()`. A delete that
-   * waits for its undo sends its request on anything but `action`.
+   * True keeps the toast until a press, its close button or `dismiss(id)`. Default: it goes
+   * after 4 s, or after 6 s with an action, because the reader has to find the button.
    */
-  readonly closed: (how: ToastClose) => void;
-  /** Where the toast shows on a phone. Default `stack`. */
-  readonly phonePlacement?: ToastPhonePlacement;
-  /**
-   * Show the action as this icon at the end of the row; `action` is then its accessible
-   * name. In the phone top bar the whole bar is the action button.
-   */
-  readonly actionIcon?: IconName;
-  /** False hides the close button, so only the action closes the toast. Default true. */
+  readonly sticky?: boolean;
+  /** How the toast went (see {@link ToastClose}). */
+  readonly closed?: (how: ToastClose) => void;
+  /** An icon before the message, or at the end of the row (`iconPosition`). */
+  readonly icon?: IconName;
+  readonly iconPosition?: ToastIconPosition;
+  /** `top`: on a phone a full-width bar at the top of the frame (see {@link ToastPhonePlacement}). */
+  readonly placement?: ToastPhonePlacement;
+  /** False hides the close button: the code that shows the toast also removes it. Default true. */
   readonly closable?: boolean;
 }
+
+const VARIANT: Readonly<Record<ToastKind, ToastVariant>> = {
+  info: 'info',
+  success: 'success',
+  warning: 'warning',
+  error: 'danger',
+};
 
 let nextId = 0;
 
@@ -130,29 +124,31 @@ export class ToastService {
     return this.phone() ? stack.slice(-1) : stack;
   });
 
-  /** Zeigt einen Toast; `timeout=0` deaktiviert das automatische Schließen. */
-  show(message: string, variant: ToastVariant = 'info', timeout = 4000): number {
+  /** Shows a toast and returns its id for `dismiss(id)` (002253). */
+  show(o: ToastOptions): number {
     const id = nextId++;
-    this._toasts.update((list) => [...list, { id, message, variant }]);
-    this.say(message, variant);
-    if (timeout > 0) setTimeout(() => this.dismiss(id), timeout);
-    return id;
-  }
-
-  /**
-   * Shows a toast with one action button. The action closes the toast. The timeout is
-   * longer than the default (6 s), because the reader has to find and press the button.
-   */
-  showAction(toast: ActionToast): number {
-    const id = nextId++;
-    const { message, action, actionIcon, closable, variant = 'info', timeout = 6000 } = toast;
-    const { phonePlacement } = toast;
-    this.onClose = withEntry(this.onClose, id, toast.closed);
+    const variant = VARIANT[o.kind ?? 'info'];
+    const action = o.action;
+    const timeout = o.sticky ? 0 : action ? 6000 : 4000;
+    const closable = o.closable ?? true;
+    const barTone: ToastBarTone = variant === 'danger' ? 'danger' : 'accent';
+    if (o.closed) this.onClose = withEntry(this.onClose, id, o.closed);
     this._toasts.update((list) => [
       ...list,
-      { id, message, variant, action, actionIcon, closable, phonePlacement },
+      {
+        id,
+        message: o.text,
+        variant,
+        action: action?.label,
+        actionIcon: action?.icon,
+        icon: o.icon,
+        iconPosition: o.iconPosition,
+        closable,
+        phonePlacement: o.placement,
+        barTone,
+      },
     ]);
-    this.say(action ? `${message} ${action}` : message, variant);
+    this.say(action ? `${o.text} ${action.label}` : o.text, variant);
     if (timeout > 0) setTimeout(() => this.close(id, 'timeout'), timeout);
     return id;
   }
@@ -160,30 +156,6 @@ export class ToastService {
   /** The action button of a toast was pressed. */
   act(id: number): void {
     this.close(id, 'action');
-  }
-
-  success(message: string): number {
-    return this.show(message, 'success');
-  }
-  error(message: string): number {
-    return this.show(message, 'danger');
-  }
-
-  /**
-   * Shows a notice that stays until `dismiss(id)`, for example "offline" while the
-   * connection is gone. Without `closable` it has no close button.
-   */
-  showNotice(notice: ToastNotice): number {
-    const id = nextId++;
-    const { message, variant = 'info', icon, iconPosition, closable = false } = notice;
-    const { phonePlacement } = notice;
-    const barTone = notice.barTone ?? (variant === 'danger' ? 'danger' : 'accent');
-    this._toasts.update((list) => [
-      ...list,
-      { id, message, variant, icon, iconPosition, closable, phonePlacement, barTone },
-    ]);
-    this.say(message, variant);
-    return id;
   }
 
   /**

@@ -2,7 +2,9 @@
   @if (menu() === 'a11y') {
     <div class="hm__display" role="group" [attr.aria-labelledby]="panelId + '-display'">
       <div class="hm__groupHead">
-        <p class="hm__group" [class.cap]="variant() === 'sheet'" [id]="panelId + '-display'">{{ (variant() === 'sheet' ? title() : 'menu.display') | uiKitT }}</p>
+        <p class="hm__group" [class.cap]="variant() === 'sheet'" [id]="panelId + '-display'">
+          {{ (variant() === 'sheet' ? title() : 'menu.display') | uiKitT }}
+        </p>
         @if (hasDisplayChoice()) {
           <button
             type="button"
@@ -63,13 +65,7 @@
           <span class="hm__text">{{ item.label }}</span>
         </a>
       } @else if (item.href) {
-        <a
-          class="hm__item"
-          [href]="item.href"
-          target="_blank"
-          rel="noopener"
-          (click)="onPicked()"
-        >
+        <a class="hm__item" [href]="item.href" target="_blank" rel="noopener" (click)="onPicked()">
           @if (item.icon) {
             <app-icon [name]="item.icon" [size]="19" />
           }
@@ -144,9 +140,11 @@
     @if (sheetOpen()) {
       <div #layer class="hm__layer" popover="manual">
         <app-side-sheet side="bottom" [heading]="title() | uiKitT" [(open)]="sheetOpen">
-          <div class="hm hm--sheet hm--inSheet" role="group">
-            <ng-container [ngTemplateOutlet]="entries" />
-          </div>
+          <ng-template sheetBody>
+            <div class="hm hm--sheet hm--inSheet" role="group">
+              <ng-container [ngTemplateOutlet]="entries" />
+            </div>
+          </ng-template>
         </app-side-sheet>
       </div>
     }

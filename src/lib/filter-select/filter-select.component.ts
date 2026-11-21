@@ -16,14 +16,20 @@ import {
   viewChild,
 } from '@angular/core';
 import { NgTemplateOutlet } from '@angular/common';
-import { anchorOutOfView, placeBelow, showInTopLayer, watchAnchoredPopover } from '../popover/anchored-popover';
+import {
+  anchorOutOfView,
+  placeBelow,
+  showInTopLayer,
+  watchAnchoredPopover,
+} from '../popover/anchored-popover';
 import { IconComponent, type IconName } from '../icon/icon.component';
 import { MEDIA } from '../breakpoints/breakpoints';
 import { mediaQuery } from '../signals/media-query';
 import { UiKitTranslatePipe } from '../intl/translate.pipe';
 import { AvatarComponent, type AvatarPerson } from '../avatar/avatar.component';
-import { SideSheetComponent } from '../side-sheet/side-sheet.component';
+import { SheetBodyDirective, SideSheetComponent } from '../side-sheet/side-sheet.component';
 import { TruncatedDirective } from '../truncated/truncated.directive';
+import type { Action } from '../screen/screen.types';
 
 /** A person in front of the text of the chip or of an option. */
 export type FilterSelectPerson = AvatarPerson;
@@ -81,6 +87,7 @@ const TYPEAHEAD_RESET = 600;
     NgTemplateOutlet,
     UiKitTranslatePipe,
     SideSheetComponent,
+    SheetBodyDirective,
     TruncatedDirective,
   ],
   templateUrl: './filter-select.component.html',
@@ -137,14 +144,23 @@ export class FilterSelectComponent {
   protected readonly open = signal(false);
   protected readonly popoverOpen = computed(() => this.open() && !this.phone());
   protected readonly sheetOpen = computed(() => this.open() && this.phone());
+  /** The reset button in the sheet header, while values are set. */
+  protected readonly sheetActions = computed<readonly Action[]>(() => {
+    const label = this.resetLabel();
+    return this.multiple() && label && this.values().length ? [{ key: 'reset', label }] : [];
+  });
   protected readonly position = signal({ top: 0, left: 0 });
 
   /** With `filled`: a value other than `unsetValue` is chosen. */
-  protected readonly isSet = computed(() =>
-    this.filled() && (this.multiple() ? this.values().length > 0 : this.value() !== this.unsetValue()),
+  protected readonly isSet = computed(
+    () =>
+      this.filled() &&
+      (this.multiple() ? this.values().length > 0 : this.value() !== this.unsetValue()),
   );
   protected readonly shownActive = computed(() => this.isSet() || this.active());
-  protected readonly shownIcon = computed<IconName | null>(() => (this.isSet() ? 'check' : this.icon()));
+  protected readonly shownIcon = computed<IconName | null>(() =>
+    this.isSet() ? 'check' : this.icon(),
+  );
   protected readonly shownChevron = computed(() => !this.isSet() && this.chevron());
 
   protected readonly chipText = computed(() => {
@@ -352,7 +368,10 @@ export class FilterSelectComponent {
   private fit(list: HTMLElement): void {
     const pos = this.position();
     const anchor = this.trigger().nativeElement.getBoundingClientRect();
-    const { top, left } = placeBelow(anchor, list.getBoundingClientRect(), { gap: GAP, edge: EDGE });
+    const { top, left } = placeBelow(anchor, list.getBoundingClientRect(), {
+      gap: GAP,
+      edge: EDGE,
+    });
     if (top !== pos.top || left !== pos.left) this.position.set({ top, left });
   }
 
