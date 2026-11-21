@@ -14,7 +14,8 @@ import { ShellComponent } from './shell.component';
 
 @Component({
   changeDetection: ChangeDetectionStrategy.Eager,
-  standalone: true, template: '<h1>Seite</h1>'
+  standalone: true,
+  template: '<h1>Seite</h1>',
 })
 class StubPage {}
 
@@ -295,14 +296,13 @@ describe('ShellComponent', () => {
   describe('the phone top bar', () => {
     function showUpdate(): jest.Mock {
       const closed = jest.fn();
-      TestBed.inject(ToastService).showAction({
-        message: 'Eine neue Version der App ist bereit.',
-        action: 'Neu laden',
-        actionIcon: 'reload',
+      TestBed.inject(ToastService).show({
+        text: 'Eine neue Version der App ist bereit.',
+        action: { key: 'action', label: 'Neu laden', icon: 'reload' },
         closable: false,
-        timeout: 0,
-        phonePlacement: 'top',
-        closed,
+        placement: 'top',
+        closed: closed,
+        sticky: true,
       });
       return closed;
     }

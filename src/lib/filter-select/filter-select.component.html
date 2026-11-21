@@ -110,7 +110,10 @@
     [style.left.px]="position().left"
     (keydown)="onMenuKey($event)"
   >
-    <ng-container [ngTemplateOutlet]="optionList" [ngTemplateOutletContext]="{ $implicit: false }" />
+    <ng-container
+      [ngTemplateOutlet]="optionList"
+      [ngTemplateOutletContext]="{ $implicit: false }"
+    />
     @if (multiple() && resetLabel() && values().length) {
       <div class="fs__sep" role="separator"></div>
       <button type="button" class="fs__reset" (click)="reset()">{{ resetLabel() }}</button>
@@ -123,13 +126,20 @@
      scrolls or fades (overflow, mask) does not clip it. -->
 @if (sheetOpen()) {
   <div #layer class="fs__layer" popover="manual">
-    <app-side-sheet side="bottom" [heading]="label()" [open]="true" (openChange)="onSheetOpen($event)">
-      @if (multiple() && resetLabel() && values().length) {
-        <button sheet-actions type="button" class="fs__reset fs__reset--head" (click)="reset()">
-          {{ resetLabel() }}
-        </button>
-      }
-      <ng-container [ngTemplateOutlet]="optionList" [ngTemplateOutletContext]="{ $implicit: true }" />
+    <app-side-sheet
+      side="bottom"
+      [heading]="label()"
+      [open]="true"
+      [actions]="sheetActions()"
+      (action)="reset()"
+      (openChange)="onSheetOpen($event)"
+    >
+      <ng-template sheetBody>
+        <ng-container
+          [ngTemplateOutlet]="optionList"
+          [ngTemplateOutletContext]="{ $implicit: true }"
+        />
+      </ng-template>
     </app-side-sheet>
   </div>
 }

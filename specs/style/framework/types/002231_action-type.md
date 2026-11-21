@@ -4,7 +4,7 @@ title: The Action type has a fixed set of fields
 kind: style
 status: approved
 owner: frederikbeimgraben
-updated: 2026-11-20
+updated: 2026-11-21
 implementation:
   - src/lib/screen/screen.types.ts
   - src/lib/screen/actions.ts
@@ -24,6 +24,7 @@ interface Action {
   readonly kind?: 'main' | 'normal' | 'danger'; // default 'normal'
   readonly priority?: 'head' | 'menu' | 'fab';  // default 'menu'
   readonly disabled?: boolean;
+  readonly disabledReason?: string;           // why it is disabled: tooltip of the button, description of a menu item
   readonly busy?: boolean;                    // shows the spinner of the button and blocks a second press
   readonly route?: RouteLink;                 // a link instead of an output
   readonly href?: string;                     // an external link, opens in a new tab

@@ -60,12 +60,14 @@ export class OfflineService {
 
   private show(): void {
     if (this.noticeId !== null) return;
-    this.noticeId = this.toast.showNotice({
-      message: this.intl.translate('pwa.offline'),
-      variant: 'danger',
+    this.noticeId = this.toast.show({
+      text: this.intl.translate('pwa.offline'),
+      kind: 'error',
+      sticky: true,
       icon: 'cloud-off',
       iconPosition: 'end',
-      phonePlacement: 'top',
+      placement: 'top',
+      closable: false,
     });
   }
 

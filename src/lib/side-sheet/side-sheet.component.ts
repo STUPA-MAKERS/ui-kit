@@ -3,6 +3,10 @@ import {
   ChangeDetectionStrategy,
   Component,
   DestroyRef,
+  Directive,
+  TemplateRef,
+  computed,
+  contentChild,
   ElementRef,
   effect,
   inject,
@@ -17,6 +21,11 @@ import { focusableIn, lockBodyScroll, trapTab } from '../focus/focus-trap';
 import { IconComponent } from '../icon/icon.component';
 import { UiKitTranslatePipe } from '../intl/translate.pipe';
 import { haptic } from '../util/haptic';
+import { NgTemplateOutlet } from '@angular/common';
+import { MEDIA } from '../breakpoints/breakpoints';
+import { mediaQuery } from '../signals/media-query';
+import { RowMenuComponent, type RowMenuSection } from '../row-menu/row-menu.component';
+import type { Action } from '../screen/screen.types';
 
 /**
  * Where the sheet comes from: `end` (the attendance sheet), `start` (the agenda drawer)
@@ -24,6 +33,16 @@ import { haptic } from '../util/haptic';
  * secondary panes of a page on a phone).
  */
 export type SheetSide = 'end' | 'start' | 'bottom';
+
+/** The side of `app-side-sheet` (002252): `auto` is `end` on a wide screen, `bottom` on a phone. */
+export type SheetPlacement = SheetSide | 'auto';
+
+/** The content of a sheet: `<ng-template sheetBody>` (002252). */
+// eslint-disable-next-line @angular-eslint/directive-selector -- fixed slot name (002217)
+@Directive({ selector: 'ng-template[sheetBody]', standalone: true })
+export class SheetBodyDirective {
+  readonly template = inject<TemplateRef<unknown>>(TemplateRef);
+}
 
 let nextId = 0;
 
@@ -48,8 +67,9 @@ const NO_DRAG = 'button, a, input, select, textarea';
  * `open` is two-way: `[(open)]="attendanceOpen"`. `closed` fires when the sheet closes
  * itself (Escape, the scrim, the close button).
  *
- * Slots: the content, and `[sheet-actions]` for controls in the header before the close
- * button.
+ * Slot: `<ng-template sheetBody>`, the content. `actions` puts buttons into the header
+ * before the close button (icon buttons, `priority: 'menu'` in the three-dot menu), and
+ * `action` reports a press with its key (002252).
  *
  * The bottom sheet is the phone sheet: a handle above a fixed header, rounded top
  * corners, at most 85% of the viewport high. A swipe down on the handle or the header
@@ -69,7 +89,7 @@ const NO_DRAG = 'button, a, input, select, textarea';
   selector: 'app-side-sheet',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [ButtonComponent, IconComponent, UiKitTranslatePipe],
+  imports: [NgTemplateOutlet, ButtonComponent, IconComponent, RowMenuComponent, UiKitTranslatePipe],
   templateUrl: './side-sheet.component.html',
   styleUrl: './side-sheet.component.scss',
 })
@@ -77,11 +97,47 @@ export class SideSheetComponent {
   readonly open = model(false);
   /** The title of the sheet, also its accessible name. */
   readonly heading = input.required<string>();
-  readonly side = input<SheetSide>('end');
+  readonly placement = input<SheetPlacement>('end', { alias: 'side' });
+  /**
+   * The actions of the header, before the close button: an action with `priority: 'menu'`
+   * goes into a ⋮ menu (sections by `group`), the others are buttons (an icon button when the
+   * action has an icon, its label as the name).
+   */
+  readonly actions = input<readonly Action[]>([]);
+  /** A header action was pressed. */
+  readonly action = output<{ readonly key: string }>();
   /** The content scrolls by itself; the body does not. */
   readonly contentScrolls = input(false);
 
   readonly closed = output<void>();
+
+  private readonly phone = mediaQuery(MEDIA.phone);
+  /** The side the sheet comes from now. */
+  readonly side = computed<SheetSide>(() => {
+    const p = this.placement();
+    if (p !== 'auto') return p;
+    return this.phone() ? 'bottom' : 'end';
+  });
+  protected readonly bodySlot = contentChild(SheetBodyDirective);
+  protected readonly headActions = computed(() =>
+    this.actions().filter((a) => a.priority !== 'menu'),
+  );
+  protected readonly menu = computed<readonly RowMenuSection[]>(() => {
+    const items = this.actions().filter((a) => a.priority === 'menu');
+    const groups = [...new Set(items.map((a) => a.group ?? ''))];
+    return groups.map((g) => ({
+      label: g || null,
+      items: items
+        .filter((a) => (a.group ?? '') === g)
+        .map((a) => ({
+          id: a.key,
+          label: a.label,
+          icon: a.icon,
+          danger: a.kind === 'danger',
+          disabledReason: a.disabled ? (a.disabledReason ?? a.label) : null,
+        })),
+    }));
+  });
 
   /** Open, or still on its way out after the closing. */
   readonly shown = signal(false);

@@ -3,6 +3,15 @@ import { ChangeDetectionStrategy, Component, computed, inject, input, signal } f
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import {
+  ButtonComponent,
+  ConfirmDialogComponent,
+  DialogBodyDirective,
+  DialogComponent,
+  SelectSheetComponent,
+  SheetBodyDirective,
+  SideSheetComponent,
+  ToastService,
+  type SelectSheetOption,
   CheckboxComponent,
   InputComponent,
   FactsComponent,
@@ -745,4 +754,124 @@ export class DemoStatusPage {
         ]
       : [{ key: 'home', label: 'Zur Startseite', route: { commands: ['/demo/start'] } }],
   );
+}
+
+const SHEET_ROWS: readonly SelectSheetOption[] = [
+  { value: 'a-1', label: 'Sommerfest der Fachschaft', sub: 'A-0142 · 1.200,00 €' },
+  { value: 'a-2', label: 'Exkursion nach Stuttgart', sub: 'A-0143 · 450,00 €' },
+  { value: 'a-3', label: 'Neue Lautsprecher für den AStA', sub: 'A-0144 · 980,00 €' },
+  { value: 'a-4', label: 'Druck der Erstsemestermappe', sub: 'A-0145 · 310,00 €' },
+];
+
+/**
+ * The overlays (002251–002253): `/demo/overlays?open=dialog|confirm|sheet|select|toast`
+ * opens one of them, so a shot can show it.
+ */
+@Component({
+  selector: 'sc-demo-overlays',
+  imports: [
+    PageHeaderComponent,
+    ButtonComponent,
+    DialogComponent,
+    DialogBodyDirective,
+    ConfirmDialogComponent,
+    SideSheetComponent,
+    SheetBodyDirective,
+    SelectSheetComponent,
+    InputComponent,
+    FormsModule,
+  ],
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  template: `
+    <app-page-header title="Overlays" />
+    <div class="btn-grp" style="padding: var(--space-4)">
+      <app-button variant="tonal" (click)="open.set('dialog')">Dialog</app-button>
+      <app-button variant="tonal" (click)="open.set('confirm')">Bestätigen</app-button>
+      <app-button variant="tonal" (click)="open.set('sheet')">Seitenblatt</app-button>
+      <app-button variant="tonal" (click)="open.set('select')">Auswahl</app-button>
+      <app-button variant="tonal" (click)="toast()">Toast</app-button>
+    </div>
+    <app-dialog
+      [open]="open() === 'dialog'"
+      heading="Sitzung anlegen"
+      subtitle="Ausschuss für Finanzen"
+      size="md"
+      [actions]="dialogActions"
+      (action)="close()"
+      (closed)="close()"
+    >
+      <ng-template dialogBody>
+        <app-input label="Titel" [(ngModel)]="title" />
+      </ng-template>
+    </app-dialog>
+    <app-confirm-dialog
+      [open]="open() === 'confirm'"
+      title="Antrag löschen?"
+      body="Der Antrag und seine Anhänge werden endgültig gelöscht."
+      confirmLabel="Löschen"
+      [danger]="true"
+      (confirm)="close()"
+      (cancel)="close()"
+    />
+    <app-side-sheet
+      heading="Anwesenheit"
+      side="auto"
+      [open]="open() === 'sheet'"
+      [actions]="sheetActions"
+      (openChange)="$event || close()"
+    >
+      <ng-template sheetBody>
+        <p style="margin: 0">12 von 15 Mitgliedern anwesend.</p>
+      </ng-template>
+    </app-side-sheet>
+    <app-select-sheet
+      [open]="open() === 'select'"
+      (openChange)="$event || close()"
+      heading="TOP hinzufügen"
+      [options]="rows"
+      [(value)]="pick"
+      [search]="{ placeholder: 'Anträge suchen' }"
+      listLabel="Anträge"
+      emptyHeading="Keine Anträge"
+      submitLabel="Hinzufügen"
+      submitIcon="plus"
+      (picked)="close()"
+    />
+  `,
+})
+export class DemoOverlaysPage {
+  private readonly toasts = inject(ToastService);
+  private readonly query = toSignal(inject(ActivatedRoute).queryParamMap);
+  protected readonly open = signal<string | null>(null);
+  protected readonly rows = SHEET_ROWS;
+  protected readonly pick = signal<string | null>('a-2');
+  protected title = 'Sitzung im Dezember';
+  protected readonly dialogActions: readonly Action[] = [
+    { key: 'cancel', label: 'Abbrechen' },
+    { key: 'save', label: 'Anlegen', icon: 'plus', kind: 'main' },
+  ];
+  protected readonly sheetActions: readonly Action[] = [
+    { key: 'qr', label: 'QR-Code', icon: 'qr' },
+    { key: 'csv', label: 'Als CSV exportieren', priority: 'menu' },
+    { key: 'pdf', label: 'Als PDF exportieren', priority: 'menu' },
+  ];
+
+  constructor() {
+    const first = this.query()?.get('open') ?? null;
+    if (first === 'toast') queueMicrotask(() => this.toast());
+    else this.open.set(first);
+  }
+
+  protected close(): void {
+    this.open.set(null);
+  }
+
+  protected toast(): void {
+    this.toasts.show({
+      text: 'Antrag konnte nicht gespeichert werden.',
+      kind: 'error',
+      action: { key: 'retry', label: 'Erneut versuchen', icon: 'reload' },
+      sticky: true,
+    });
+  }
 }

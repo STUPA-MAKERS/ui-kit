@@ -109,12 +109,11 @@ export class PublicScreenComponent {
         if (s.state !== 'error') return hide();
         if (this.errorToast() !== null) return;
         this.errorToast.set(
-          this.toasts.showAction({
-            message: s.message,
-            action: this.intl.translate('note.retry'),
-            actionIcon: 'reload',
-            variant: 'danger',
-            timeout: 0,
+          this.toasts.show({
+            text: s.message,
+            action: { key: 'retry', label: this.intl.translate('note.retry'), icon: 'reload' },
+            kind: 'error',
+            sticky: true,
             closed: (how) => {
               this.errorToast.set(null);
               if (how === 'action') s.retry();

@@ -22,7 +22,12 @@ import {
   RouterLink,
   RouterLinkActive,
 } from '@angular/router';
-import { IconComponent, SideSheetComponent, UiKitTranslatePipe } from '@stupa-makers/ui-kit';
+import {
+  IconComponent,
+  SheetBodyDirective,
+  SideSheetComponent,
+  UiKitTranslatePipe,
+} from '@stupa-makers/ui-kit';
 import { filter } from 'rxjs';
 import type { NavMarkContext } from '../nav-mark.directive';
 import { navGroups, type ShellNavItem } from '../shell.types';
@@ -54,6 +59,7 @@ import { ShellMoreSheet } from './more-sheet';
     UiKitTranslatePipe,
     IconComponent,
     SideSheetComponent,
+    SheetBodyDirective,
   ],
   templateUrl: './bottom-bar.component.html',
   styleUrl: './bottom-bar.component.scss',

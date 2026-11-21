@@ -1,0 +1,64 @@
+<app-dialog
+  [open]="open()"
+  [heading]="heading()"
+  size="md"
+  [actions]="actions()"
+  (action)="onAction($event.key)"
+  (closed)="cancel()"
+>
+  <ng-template dialogBody>
+    <form class="sel" (submit)="$event.preventDefault(); submit()">
+      <div class="sel__area">
+        @if (search(); as s) {
+          <app-search-pill size="md" [placeholder]="s.placeholder" [(value)]="query" />
+        }
+        <div class="sel__slot">
+          @if (options(); as list) {
+            @if (list.length) {
+              <div
+                class="sel__list rowgroup rowgroup--bg3"
+                appScrollFade="y"
+                [attr.role]="multi() ? 'group' : 'radiogroup'"
+                [attr.aria-label]="listLabel()"
+              >
+                @for (o of list; track o.value) {
+                  @let on = isOn(o.value);
+                  <label
+                    class="sel__row"
+                    [class.sel__row--on]="on"
+                    [class.sel__row--off]="o.disabled"
+                    data-testid="select-sheet-row"
+                  >
+                    <input
+                      class="sel__input"
+                      [type]="multi() ? 'checkbox' : 'radio'"
+                      [name]="name"
+                      [value]="o.value"
+                      [checked]="on"
+                      [disabled]="!!o.disabled"
+                      (change)="toggle(o)"
+                    />
+                    <span class="sel__text">
+                      <span class="sel__title ell">{{ o.label }}</span>
+                      @if (o.sub) {
+                        <span class="sel__sub ell">{{ o.sub }}</span>
+                      }
+                    </span>
+                    @if (on) {
+                      <app-icon class="sel__check" name="check" [size]="18" />
+                    }
+                  </label>
+                }
+              </div>
+            } @else {
+              <app-empty-state [icon]="emptyIcon()" shape="choice" [heading]="emptyHeading()" />
+            }
+          } @else {
+            <app-skeleton variant="rows" [count]="4" [label]="loadingLabel()" />
+          }
+        </div>
+      </div>
+      <button type="submit" hidden></button>
+    </form>
+  </ng-template>
+</app-dialog>

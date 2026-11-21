@@ -295,7 +295,7 @@ export class WizardScreenComponent {
     if (!step) return;
     if (step.kind === 'intro' && !this.intro()?.chosen) return;
     if (step.kind === 'form' && !this.kitForm().showErrors(step.sections)) {
-      this.toast.error(this.intl.translate('wizard.invalid'));
+      this.toast.show({ text: this.intl.translate('wizard.invalid'), kind: 'error' });
       return;
     }
     this.move(this.active() + 1);
@@ -308,7 +308,7 @@ export class WizardScreenComponent {
       (s) => s.kind === 'form' && !this.kitForm().showErrors(s.sections),
     );
     if (bad >= 0) {
-      this.toast.error(this.intl.translate('wizard.invalid'));
+      this.toast.show({ text: this.intl.translate('wizard.invalid'), kind: 'error' });
       if (bad !== this.active()) this.move(bad);
       return;
     }

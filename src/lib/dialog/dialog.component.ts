@@ -1,6 +1,8 @@
 import {
   ChangeDetectionStrategy,
   Component,
+  ContentChild,
+  Directive,
   ElementRef,
   EventEmitter,
   HostListener,
@@ -9,8 +11,14 @@ import {
   OnDestroy,
   Output,
   SimpleChanges,
+  TemplateRef,
   ViewChild,
+  inject,
 } from '@angular/core';
+import { NgTemplateOutlet } from '@angular/common';
+import { ButtonComponent, type ButtonVariant } from '../button/button.component';
+import { IconComponent } from '../icon/icon.component';
+import type { Action } from '../screen/screen.types';
 import { focusableIn, lockBodyScroll, trapTab } from '../focus/focus-trap';
 import { showInTopLayer } from '../popover/anchored-popover';
 import { haptic } from '../util/haptic';
@@ -19,6 +27,19 @@ import { haptic } from '../util/haptic';
 const DRAG_CLOSE_PX = 120;
 
 let nextId = 0;
+
+/** The body of a data-driven dialog: `<ng-template dialogBody>` (002251). */
+// eslint-disable-next-line @angular-eslint/directive-selector -- fixed slot name (002217)
+@Directive({ selector: 'ng-template[dialogBody]', standalone: true })
+export class DialogBodyDirective {
+  readonly template = inject<TemplateRef<unknown>>(TemplateRef);
+}
+
+/** The look of a footer action, as the app's dialogs: the main one filled, a danger one red, the others text. */
+export function dialogActionVariant(action: Action): ButtonVariant {
+  if (action.kind === 'main') return 'fill';
+  return action.kind === 'danger' ? 'danger' : 'text';
+}
 
 /**
  * Modaler Dialog. Schließt per Backdrop-Klick, Schließen-Button oder ESC.
@@ -37,12 +58,12 @@ let nextId = 0;
   selector: 'app-dialog',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
+  imports: [NgTemplateOutlet, ButtonComponent, IconComponent],
   templateUrl: './dialog.component.html',
   styleUrl: './dialog.component.scss',
 })
 export class DialogComponent implements OnChanges, OnDestroy {
   @Input() open = false;
-  @Input() title = '';
   /**
    * A short line below the title that names the object of the dialog, for example
    * the meeting a new agenda item goes to. Empty: no line. The dialog uses it as its
@@ -50,12 +71,20 @@ export class DialogComponent implements OnChanges, OnDestroy {
    */
   @Input() subtitle = '';
   @Input() closeLabel = 'Schließen';
-  /**
-   * Breite: 'md' (35rem, Default), 'form' (40rem, Formulare mit zwei Feldern
-   * nebeneinander) oder 'lg' (44rem, z. B. Charts).
-   */
-  @Input() size: 'md' | 'form' | 'lg' = 'md';
+  /** The width: 'sm' (35rem, default), 'md' (40rem, a form with two fields side by side), 'lg' (44rem, a chart). */
+  @Input() size: 'sm' | 'md' | 'lg' = 'sm';
   @Output() closed = new EventEmitter<void>();
+
+  /** The title in the head of the dialog (002251). */
+  @Input() heading = '';
+  /** The footer as data: one button group, the main action filled (001353). */
+  @Input() actions: readonly Action[] = [];
+  /** A footer action without a route was pressed. */
+  @Output() readonly action = new EventEmitter<{ readonly key: string }>();
+  /** The `dialogBody` slot: the body of the dialog. */
+  @ContentChild(DialogBodyDirective) protected bodySlot?: DialogBodyDirective;
+
+  protected readonly variantOf = dialogActionVariant;
 
   @ViewChild('pane') private pane?: ElementRef<HTMLElement>;
 
@@ -83,7 +112,10 @@ export class DialogComponent implements OnChanges, OnDestroy {
 
   ngOnChanges(changes: SimpleChanges): void {
     const c = changes['open'];
-    if (!c || c.firstChange) {
+    // Only a change of `open` moves the focus: a change of the actions (a disabled flag
+    // that follows the form) must leave the focus in the field.
+    if (!c) return;
+    if (c.firstChange) {
       if (this.open) {
         this.captureAndFocus();
         this.lockScroll();

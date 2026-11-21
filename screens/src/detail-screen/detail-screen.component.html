@@ -1,8 +1,4 @@
-<article
-  class="ds"
-  [class.ds--beside]="commentsBeside()"
-  [attr.aria-labelledby]="titleId"
->
+<article class="ds" [class.ds--beside]="commentsBeside()" [attr.aria-labelledby]="titleId">
   <div class="ds__main">
     <app-sheet-bar>
       <h1 appSheetBarTitle class="ds__title" [id]="titleId" tabindex="-1">{{ head().title }}</h1>
@@ -54,10 +50,16 @@
       <ul class="ds__chips" role="list">
         <!-- The kicker is the first chip, never a grey line above the title (002230). -->
         @if (head().kicker; as k) {
-          <li><span class="ds__chip"><span class="ell">{{ k }}</span></span></li>
+          <li>
+            <span class="ds__chip"
+              ><span class="ell">{{ k }}</span></span
+            >
+          </li>
         }
         @if (head().status; as st) {
-          <li><app-status-text chip [kind]="st.kind">{{ st.label }}</app-status-text></li>
+          <li>
+            <app-status-text chip [kind]="st.kind">{{ st.label }}</app-status-text>
+          </li>
         }
         @for (m of head().meta ?? []; track $index) {
           <li>
@@ -177,7 +179,11 @@
         <app-icon name="left" [size]="16" />
         <app-icon [name]="s.icon" [size]="20" />
         @if (s.mark) {
-          <span class="ds__mark" [class.ds__mark--warn]="s.mark === 'warn'" aria-hidden="true"></span>
+          <span
+            class="ds__mark"
+            [class.ds__mark--warn]="s.mark === 'warn'"
+            aria-hidden="true"
+          ></span>
         }
       </button>
     }
@@ -188,13 +194,15 @@
   @if (!(phone() && s.replaces)) {
     <app-side-sheet
       [heading]="s.label"
-      [side]="phone() ? 'bottom' : 'end'"
+      side="auto"
       [open]="openSheet() === s.key"
       (openChange)="setSheet(s.key, $event)"
     >
-      @if (sheetTemplate(s.key); as t) {
-        <ng-container [ngTemplateOutlet]="t" />
-      }
+      <ng-template sheetBody>
+        @if (sheetTemplate(s.key); as t) {
+          <ng-container [ngTemplateOutlet]="t" />
+        }
+      </ng-template>
     </app-side-sheet>
   }
 }
@@ -203,13 +211,15 @@
   @if (!roomy()) {
     <app-side-sheet
       [heading]="c.label"
-      [side]="phone() ? 'bottom' : 'end'"
+      side="auto"
       [open]="commentsOpen()"
       (openChange)="setComments($event)"
     >
-      @if (commentsSlot(); as cs) {
-        <ng-container [ngTemplateOutlet]="cs.template" />
-      }
+      <ng-template sheetBody>
+        @if (commentsSlot(); as cs) {
+          <ng-container [ngTemplateOutlet]="cs.template" />
+        }
+      </ng-template>
     </app-side-sheet>
   }
 }

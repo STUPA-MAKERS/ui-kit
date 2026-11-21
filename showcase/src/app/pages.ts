@@ -5,6 +5,7 @@ import { demoConfig } from './demo/demo-config';
 import {
   DemoAboutPage,
   DemoStatusPage,
+  DemoOverlaysPage,
   DemoApplyPage,
   DemoSettingsListPage,
   DemoSettingsPage,
@@ -77,6 +78,7 @@ export const SHOWCASE_ROUTES: Routes = [
         footer: true,
       }),
       screenRoute({ path: 'status/:kind', title: 'Status', component: DemoStatusPage }),
+      screenRoute({ path: 'overlays', title: 'Overlays', component: DemoOverlaysPage }),
     ],
   },
 ];

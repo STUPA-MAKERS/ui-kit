@@ -1,24 +1,18 @@
 <app-dialog
   [open]="open()"
-  [title]="title()"
+  [heading]="title()"
   [subtitle]="subtitle()"
   [closeLabel]="'dialog.close' | uiKitT"
+  [actions]="actions()"
+  (action)="onAction($event.key)"
   (closed)="cancel.emit()"
 >
-  <div class="cfd">
-    @if (body()) {
-      <p class="cfd__body">{{ body() }}</p>
-    }
-    <ng-content />
-  </div>
-  <app-button dialog-footer variant="text" (click)="cancel.emit()">{{ 'confirm.cancel' | uiKitT }}</app-button>
-  <app-button
-    dialog-footer
-    [variant]="danger() ? 'danger' : 'fill'"
-    [loading]="busy()"
-    [disabled]="disabled()"
-    (click)="onConfirm()"
-  >
-    {{ confirmLabel() || ('confirm.delete' | uiKitT) }}
-  </app-button>
+  <ng-template dialogBody>
+    <div class="cfd">
+      @if (body()) {
+        <p class="cfd__body">{{ body() }}</p>
+      }
+      <ng-content />
+    </div>
+  </ng-template>
 </app-dialog>

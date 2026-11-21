@@ -224,7 +224,16 @@ describe('RangeChipComponent', () => {
       const { chip, user, view } = await setup();
       let left = 347;
       chip().getBoundingClientRect = () =>
-        ({ left, right: left + 100, top: 140, bottom: 172, width: 100, height: 32, x: left, y: 140 }) as DOMRect;
+        ({
+          left,
+          right: left + 100,
+          top: 140,
+          bottom: 172,
+          width: 100,
+          height: 32,
+          x: left,
+          y: 140,
+        }) as DOMRect;
       await user.click(chip());
       await new Promise((r) => setTimeout(r));
       view.fixture.detectChanges();
@@ -252,7 +261,14 @@ describe('RangeChipComponent', () => {
     let chipLeft = 1000;
     Element.prototype.getBoundingClientRect = function (this: Element) {
       if (this.classList.contains('rc__chip')) {
-        return { left: chipLeft, right: chipLeft + 100, top: chipTop, bottom: chipTop + 32, width: 100, height: 32 } as DOMRect;
+        return {
+          left: chipLeft,
+          right: chipLeft + 100,
+          top: chipTop,
+          bottom: chipTop + 32,
+          width: 100,
+          height: 32,
+        } as DOMRect;
       }
       if (this.classList.contains('rc__pop')) {
         return { left: 0, right: 300, top: 0, bottom: 200, width: 300, height: 200 } as DOMRect;

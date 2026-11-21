@@ -1,7 +1,8 @@
-import { ChangeDetectionStrategy, Component, input, output } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject, input, output } from '@angular/core';
 import { UiKitTranslatePipe } from '../intl/translate.pipe';
-import { ButtonComponent } from '../button/button.component';
-import { DialogComponent } from '../dialog/dialog.component';
+import { DialogBodyDirective, DialogComponent } from '../dialog/dialog.component';
+import { UI_KIT_INTL } from '../intl/intl';
+import type { Action } from '../screen/screen.types';
 
 /**
  * The one confirmation before a destructive action: a title ("Antrag löschen?"), one
@@ -20,7 +21,7 @@ import { DialogComponent } from '../dialog/dialog.component';
   selector: 'app-confirm-dialog',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [ButtonComponent, DialogComponent, UiKitTranslatePipe],
+  imports: [DialogComponent, DialogBodyDirective, UiKitTranslatePipe],
   templateUrl: './confirm-dialog.component.html',
   styleUrl: './confirm-dialog.component.scss',
 })
@@ -41,7 +42,22 @@ export class ConfirmDialogComponent {
   readonly confirm = output<void>();
   readonly cancel = output<void>();
 
-  protected onConfirm(): void {
+  private readonly intl = inject(UI_KIT_INTL);
+
+  /** Abbrechen and the confirm button, as the footer group of the dialog. */
+  protected readonly actions = computed<readonly Action[]>(() => [
+    { key: 'cancel', label: this.intl.translate('confirm.cancel') },
+    {
+      key: 'confirm',
+      label: this.confirmLabel() || this.intl.translate('confirm.delete'),
+      kind: this.danger() ? 'danger' : 'main',
+      busy: this.busy(),
+      disabled: this.disabled(),
+    },
+  ]);
+
+  protected onAction(key: string): void {
+    if (key === 'cancel') return this.cancel.emit();
     if (this.busy() || this.disabled()) return;
     this.confirm.emit();
   }

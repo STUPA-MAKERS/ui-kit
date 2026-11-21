@@ -18,6 +18,7 @@ import {
   DisplaySettingsService,
   IconComponent,
   MEDIA,
+  SheetBodyDirective,
   SideSheetComponent,
   SwitchComponent,
   ThemeService,
@@ -97,7 +98,15 @@ let nextId = 0;
   selector: 'app-shell-menu',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [NgTemplateOutlet, RouterLink, UiKitTranslatePipe, IconComponent, SideSheetComponent, SwitchComponent],
+  imports: [
+    NgTemplateOutlet,
+    RouterLink,
+    UiKitTranslatePipe,
+    IconComponent,
+    SideSheetComponent,
+    SheetBodyDirective,
+    SwitchComponent,
+  ],
   templateUrl: './shell-menu.component.html',
   styleUrl: './shell-menu.component.scss',
   host: { '[class.btn-grp__seg]': "variant() === 'header'" },
@@ -120,7 +129,9 @@ export class ShellMenuComponent {
   readonly action = output<string>();
 
   /** The name on the trigger, the popover, the sheet and the caption in "Mehr". */
-  readonly title = computed<UiKitTextKey>(() => (this.menu() === 'a11y' ? 'menu.a11y' : 'menu.help'));
+  readonly title = computed<UiKitTextKey>(() =>
+    this.menu() === 'a11y' ? 'menu.a11y' : 'menu.help',
+  );
   readonly icon = computed<IconName>(() => (this.menu() === 'a11y' ? 'eye' : 'help'));
 
   /** An entry was used: the sheet that holds the inline menu closes. */
@@ -134,7 +145,12 @@ export class ShellMenuComponent {
   /** The top-layer box of the phone sheet, so the glass of the header does not clip it. */
   private readonly layer = viewChild<ElementRef<HTMLElement>>('layer');
   /** Fixed position of the popover. */
-  readonly position = signal<{ left: number | null; right: number | null; top: number | null; bottom: number | null }>({
+  readonly position = signal<{
+    left: number | null;
+    right: number | null;
+    top: number | null;
+    bottom: number | null;
+  }>({
     left: null,
     right: null,
     top: null,

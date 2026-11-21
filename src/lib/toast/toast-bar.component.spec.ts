@@ -28,12 +28,12 @@ describe('ToastBarComponent', () => {
     it('shows a top toast as a bar with its message, action and close button', async () => {
       const { fixture, container, toast } = await setup();
       const closed = jest.fn();
-      toast.showAction({
-        message: 'Eine neue Version der App ist bereit.',
-        action: 'Neu laden',
-        timeout: 0,
-        phonePlacement: 'top',
-        closed,
+      toast.show({
+        text: 'Eine neue Version der App ist bereit.',
+        action: { key: 'action', label: 'Neu laden' },
+        placement: 'top',
+        closed: closed,
+        sticky: true,
       });
       fixture.detectChanges();
       const status = within(bar(container)).getByRole('status');
@@ -50,14 +50,13 @@ describe('ToastBarComponent', () => {
     it('makes the whole bar the action button of an icon action, without a close button', async () => {
       const { fixture, container, toast } = await setup();
       const closed = jest.fn();
-      toast.showAction({
-        message: 'Eine neue Version der App ist bereit.',
-        action: 'Neu laden',
-        actionIcon: 'reload',
+      toast.show({
+        text: 'Eine neue Version der App ist bereit.',
+        action: { key: 'action', label: 'Neu laden', icon: 'reload' },
         closable: false,
-        timeout: 0,
-        phonePlacement: 'top',
-        closed,
+        placement: 'top',
+        closed: closed,
+        sticky: true,
       });
       fixture.detectChanges();
       const status = within(bar(container)).getByRole('status');
@@ -76,7 +75,12 @@ describe('ToastBarComponent', () => {
     it('closes the bar with its close button', async () => {
       const { fixture, container, toast } = await setup();
       const closed = jest.fn();
-      toast.showAction({ message: 'Neu', action: 'Neu laden', phonePlacement: 'top', closed });
+      toast.show({
+        text: 'Neu',
+        action: { key: 'action', label: 'Neu laden' },
+        placement: 'top',
+        closed: closed,
+      });
       fixture.detectChanges();
       await userEvent.click(within(bar(container)).getByRole('button', { name: 'Schließen' }));
       expect(closed).toHaveBeenCalledWith('dismiss');
@@ -84,7 +88,7 @@ describe('ToastBarComponent', () => {
 
     it('keeps the other toasts in the stack', async () => {
       const { fixture, container, toast } = await setup();
-      toast.success('Gespeichert');
+      toast.show({ text: 'Gespeichert', kind: 'success' });
       fixture.detectChanges();
       expect(bar(container).querySelector('.tbar')).toBeNull();
       expect(within(stack(container)).getByRole('status')).toHaveTextContent('Gespeichert');
@@ -92,18 +96,20 @@ describe('ToastBarComponent', () => {
 
     it('shows a danger notice red, with its icon, without a close button, above the accent bar', async () => {
       const { fixture, container, toast } = await setup();
-      toast.showAction({
-        message: 'Update',
-        action: 'Neu laden',
-        phonePlacement: 'top',
+      toast.show({
+        text: 'Update',
+        action: { key: 'action', label: 'Neu laden' },
+        placement: 'top',
         closed: jest.fn(),
       });
-      const id = toast.showNotice({
-        message: 'Keine Verbindung',
-        variant: 'danger',
+      const id = toast.show({
+        text: 'Keine Verbindung',
+        kind: 'error',
         icon: 'cloud-off',
         iconPosition: 'end',
-        phonePlacement: 'top',
+        placement: 'top',
+        sticky: true,
+        closable: false,
       });
       fixture.detectChanges();
       const bars = within(bar(container)).getAllByRole('status');
@@ -127,10 +133,10 @@ describe('ToastBarComponent', () => {
 
     it('has no axe violations', async () => {
       const { fixture, container, toast } = await setup();
-      toast.showAction({
-        message: 'Neu',
-        action: 'Neu laden',
-        phonePlacement: 'top',
+      toast.show({
+        text: 'Neu',
+        action: { key: 'action', label: 'Neu laden' },
+        placement: 'top',
         closed: jest.fn(),
       });
       fixture.detectChanges();
@@ -143,10 +149,10 @@ describe('ToastBarComponent', () => {
 
     it('leaves the bar empty and shows a top toast in the stack', async () => {
       const { fixture, container, toast } = await setup();
-      toast.showAction({
-        message: 'Neu',
-        action: 'Neu laden',
-        phonePlacement: 'top',
+      toast.show({
+        text: 'Neu',
+        action: { key: 'action', label: 'Neu laden' },
+        placement: 'top',
         closed: jest.fn(),
       });
       fixture.detectChanges();
@@ -159,10 +165,10 @@ describe('ToastBarComponent', () => {
     restore = matchOnly(MEDIA.phone);
     const { fixture, container } = await render('<app-toast />', { imports: [ToastComponent] });
     const toast = TestBed.inject(ToastService);
-    toast.showAction({
-      message: 'Neu',
-      action: 'Neu laden',
-      phonePlacement: 'top',
+    toast.show({
+      text: 'Neu',
+      action: { key: 'action', label: 'Neu laden' },
+      placement: 'top',
       closed: jest.fn(),
     });
     fixture.detectChanges();

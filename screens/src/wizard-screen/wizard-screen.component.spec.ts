@@ -150,11 +150,14 @@ describe('WizardScreenComponent', () => {
 
   it('keeps a step with an error open, shows the errors and a toast', async () => {
     await setup();
-    const toast = jest.spyOn(TestBed.inject(ToastService), 'error');
+    const toast = jest.spyOn(TestBed.inject(ToastService), 'show');
     await pickAndContinue();
     await userEvent.click(next());
     expect(screen.getByText('Schritt 2 von 4 · Förderantrag')).toBeTruthy();
-    expect(toast).toHaveBeenCalledWith('Bitte prüfe die markierten Felder.');
+    expect(toast).toHaveBeenCalledWith({
+      text: 'Bitte prüfe die markierten Felder.',
+      kind: 'error',
+    });
     await waitFor(() =>
       expect(screen.getByLabelText(/Titel/).getAttribute('aria-invalid')).toBe('true'),
     );

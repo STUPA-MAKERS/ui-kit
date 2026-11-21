@@ -91,6 +91,8 @@ export interface Action {
   readonly kind?: ActionKind;
   readonly priority?: ActionPriority;
   readonly disabled?: boolean;
+  /** Why the action is disabled: the tooltip of the button, the description of a menu item. */
+  readonly disabledReason?: string;
   readonly busy?: boolean;
   readonly route?: RouteLink;
   readonly href?: string;

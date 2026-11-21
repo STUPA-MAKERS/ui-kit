@@ -160,19 +160,6 @@
   outline: none;
   box-shadow: inset 0 0 0 2px var(--color-focus-ring);
 }
-/* In the sheet header: a text button before the close button. */
-.fs__reset--head {
-  width: auto;
-  height: var(--control-height-sm);
-  padding: 0 var(--space-3);
-  border-radius: var(--radius-md);
-}
-@media (hover: hover) {
-  .fs__reset--head:hover {
-    background: var(--color-surface-3);
-  }
-}
-
 .fs__empty {
   @include om.empty;
 }

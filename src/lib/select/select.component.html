@@ -46,12 +46,19 @@
           [icon]="who.icon"
         />
       }
-      <span class="sel__value" [class.sel__value--empty]="!chosen()" [attr.lang]="chosen()?.lang ?? null">{{ display() }}</span>
+      <span
+        class="sel__value"
+        [class.sel__value--empty]="!chosen()"
+        [attr.lang]="chosen()?.lang ?? null"
+        >{{ display() }}</span
+      >
     </button>
     <app-icon class="fld__chevron" name="down" [size]="18" />
   </div>
   @if (hint() && !error()) {
-    <p class="fld__msg fld__msg--hint" [id]="id() + '-hint'" [attr.lang]="textLang()">{{ hint() }}</p>
+    <p class="fld__msg fld__msg--hint" [id]="id() + '-hint'" [attr.lang]="textLang()">
+      {{ hint() }}
+    </p>
   }
   @if (error()) {
     <p class="fld__msg fld__msg--error" [id]="id() + '-error'" role="alert">{{ error() }}</p>
@@ -83,7 +90,9 @@
         [icon]="who.icon"
       />
     }
-    <span class="sel__label" [class.sel__label--empty]="row.placeholder" [attr.lang]="row.lang">{{ row.label }}</span>
+    <span class="sel__label" [class.sel__label--empty]="row.placeholder" [attr.lang]="row.lang">{{
+      row.label
+    }}</span>
     @if (isChosen(row)) {
       <app-icon class="sel__check" name="check" [size]="18" />
     }
@@ -148,7 +157,10 @@
     [style.max-height.px]="position().maxHeight"
     (mousedown)="$event.preventDefault()"
   >
-    <ng-container [ngTemplateOutlet]="optionList" [ngTemplateOutletContext]="{ $implicit: false }" />
+    <ng-container
+      [ngTemplateOutlet]="optionList"
+      [ngTemplateOutletContext]="{ $implicit: false }"
+    />
   </div>
 }
 
@@ -156,8 +168,18 @@
      field when it goes. -->
 @if (sheetOpen()) {
   <div #layer class="sel__layer" popover="manual">
-    <app-side-sheet side="bottom" [heading]="heading()" [open]="true" (openChange)="onSheetOpen($event)">
-      <ng-container [ngTemplateOutlet]="optionList" [ngTemplateOutletContext]="{ $implicit: true }" />
+    <app-side-sheet
+      side="bottom"
+      [heading]="heading()"
+      [open]="true"
+      (openChange)="onSheetOpen($event)"
+    >
+      <ng-template sheetBody>
+        <ng-container
+          [ngTemplateOutlet]="optionList"
+          [ngTemplateOutletContext]="{ $implicit: true }"
+        />
+      </ng-template>
     </app-side-sheet>
   </div>
 }

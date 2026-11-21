@@ -1,39 +1,49 @@
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { ChangeDetectionStrategy, Component, signal } from '@angular/core';
-import { DialogComponent } from '../dialog/dialog.component';
+import { DialogBodyDirective, DialogComponent } from '../dialog/dialog.component';
 import { fireEvent, render, screen, waitFor } from '@testing-library/angular';
 import userEvent from '@testing-library/user-event';
 import { runAxe } from '../../../testing/a11y';
-import { SideSheetComponent, type SheetSide } from './side-sheet.component';
+import { matchOnly } from '../../../testing/media';
+import { MEDIA } from '../breakpoints/breakpoints';
+import type { Action } from '../screen/screen.types';
+import {
+  SheetBodyDirective,
+  SideSheetComponent,
+  type SheetPlacement,
+} from './side-sheet.component';
 
 @Component({
   changeDetection: ChangeDetectionStrategy.Eager,
   standalone: true,
-  imports: [SideSheetComponent],
+  imports: [SideSheetComponent, SheetBodyDirective],
   template: `
     <button type="button" (click)="open.set(true)">Anwesenheit</button>
     <app-side-sheet
       heading="Anwesenheit"
       [side]="side()"
       [contentScrolls]="contentScrolls()"
+      [actions]="withActions ? actions() : []"
       [(open)]="open"
       (closed)="closes = closes + 1"
+      (action)="keys.push($event.key)"
     >
-      @if (withActions) {
-        <button sheet-actions type="button">Zurücksetzen</button>
-      }
-      @if (withContent) {
-        <input aria-label="Mitglied suchen" />
-        <button type="button">Speichern</button>
-      }
+      <ng-template sheetBody>
+        @if (withContent) {
+          <input aria-label="Mitglied suchen" />
+          <button type="button">Speichern</button>
+        }
+      </ng-template>
     </app-side-sheet>
   `,
 })
 class HostComponent {
   readonly open = signal(false);
-  readonly side = signal<SheetSide>('end');
+  readonly side = signal<SheetPlacement>('end');
   readonly contentScrolls = signal(false);
+  readonly actions = signal<readonly Action[]>([{ key: 'reset', label: 'Zurücksetzen' }]);
+  readonly keys: string[] = [];
   closes = 0;
   withActions = true;
   withContent = true;
@@ -42,16 +52,20 @@ class HostComponent {
 @Component({
   changeDetection: ChangeDetectionStrategy.Eager,
   standalone: true,
-  imports: [SideSheetComponent, DialogComponent],
+  imports: [SideSheetComponent, SheetBodyDirective, DialogComponent, DialogBodyDirective],
   template: `
     <button type="button" (click)="open.set(true)">Kommentare</button>
     <app-side-sheet heading="Kommentare" [(open)]="open" (closed)="closes = closes + 1">
-      <button type="button" (click)="ask.set(true)">Löschen</button>
-      <input aria-label="Nachricht" (keydown.escape)="$event.preventDefault()" />
-      <app-dialog title="Kommentar löschen?" [open]="ask()" (closed)="ask.set(false)">
-        <input aria-label="Grund" />
-        <button type="button">Endgültig löschen</button>
-      </app-dialog>
+      <ng-template sheetBody>
+        <button type="button" (click)="ask.set(true)">Löschen</button>
+        <input aria-label="Nachricht" (keydown.escape)="$event.preventDefault()" />
+        <app-dialog heading="Kommentar löschen?" [open]="ask()" (closed)="ask.set(false)"
+          ><ng-template dialogBody>
+            <input aria-label="Grund" />
+            <button type="button">Endgültig löschen</button>
+          </ng-template></app-dialog
+        >
+      </ng-template>
     </app-side-sheet>
   `,
 })
@@ -90,9 +104,7 @@ describe('SideSheetComponent', () => {
     expect(dialog).toHaveAttribute('aria-modal', 'true');
     expect(dialog).toHaveClass('ss', 'ss--end');
     expect(document.documentElement.style.overflow).toBe('hidden');
-    await waitFor(() =>
-      expect(screen.getByRole('button', { name: 'Zurücksetzen' })).toHaveFocus(),
-    );
+    await waitFor(() => expect(screen.getByRole('button', { name: 'Zurücksetzen' })).toHaveFocus());
     expect(await runAxe(view.container)).toHaveNoViolations();
   });
 
@@ -100,7 +112,9 @@ describe('SideSheetComponent', () => {
     const { user, opener, host } = await setup();
     document.documentElement.style.overflow = 'auto';
     await user.click(opener);
-    await waitFor(() => expect(screen.getByRole('dialog')).toContainElement(document.activeElement as HTMLElement));
+    await waitFor(() =>
+      expect(screen.getByRole('dialog')).toContainElement(document.activeElement as HTMLElement),
+    );
     await user.keyboard('{Escape}');
     expect(screen.queryByRole('dialog')).toBeNull();
     expect(host.open()).toBe(false);
@@ -210,6 +224,49 @@ describe('SideSheetComponent', () => {
     host.side.set('bottom');
     view.fixture.detectChanges();
     expect(screen.getByRole('dialog')).toHaveClass('ss--bottom');
+  });
+
+  it('opens at the end on a wide screen with auto', async () => {
+    const { host, view } = await setup();
+    host.side.set('auto');
+    host.open.set(true);
+    view.fixture.detectChanges();
+    expect(screen.getByRole('dialog')).toHaveClass('ss--end');
+  });
+
+  it('opens from the bottom on a phone with auto', async () => {
+    const restore = matchOnly(MEDIA.phone);
+    try {
+      const { host, view } = await setup();
+      host.side.set('auto');
+      host.open.set(true);
+      view.fixture.detectChanges();
+      expect(screen.getByRole('dialog')).toHaveClass('ss--bottom');
+    } finally {
+      restore();
+    }
+  });
+
+  it('shows an action with an icon as an icon button and reports its key', async () => {
+    const { host, view, user } = await setup();
+    host.actions.set([{ key: 'filter', label: 'Filtern', icon: 'filter' }]);
+    host.open.set(true);
+    view.fixture.detectChanges();
+    await user.click(screen.getByRole('button', { name: 'Filtern' }));
+    expect(host.keys).toEqual(['filter']);
+  });
+
+  it('puts menu actions into the three-dot menu', async () => {
+    const { host, view } = await setup();
+    host.actions.set([
+      { key: 'csv', label: 'Als CSV', priority: 'menu' },
+      { key: 'pdf', label: 'Als PDF', priority: 'menu' },
+    ]);
+    host.open.set(true);
+    view.fixture.detectChanges();
+    expect(screen.queryByRole('button', { name: 'Als CSV' })).toBeNull();
+    const menu = screen.getByRole('dialog').querySelector('app-row-menu');
+    expect(menu).not.toBeNull();
   });
 
   it('lets the content scroll by itself when asked', async () => {
@@ -468,7 +525,10 @@ describe('SideSheetComponent', () => {
       host.open.set(true);
       view.fixture.detectChanges();
       const animationComplete = jest.fn();
-      (sheet as unknown as Leave).leave({ target: document.createElement('div'), animationComplete });
+      (sheet as unknown as Leave).leave({
+        target: document.createElement('div'),
+        animationComplete,
+      });
       expect(animationComplete).toHaveBeenCalled();
       expect(sheet.shown()).toBe(true);
     });

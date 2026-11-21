@@ -111,14 +111,12 @@ export class SwUpdateService {
     this._updateReady.set(true);
     if (this.toastOpen) return;
     this.toastOpen = true;
-    this.toast.showAction({
-      message: this.intl.translate('pwa.updateReady'),
-      action: this.intl.translate('pwa.reload'),
-      actionIcon: 'reload',
-      variant: 'info',
-      timeout: 0,
+    this.toast.show({
+      text: this.intl.translate('pwa.updateReady'),
+      action: { key: 'reload', label: this.intl.translate('pwa.reload'), icon: 'reload' },
+      sticky: true,
       closable: false,
-      phonePlacement: 'top',
+      placement: 'top',
       closed: (how) => {
         this.toastOpen = false;
         if (how === 'action') void this.reload();

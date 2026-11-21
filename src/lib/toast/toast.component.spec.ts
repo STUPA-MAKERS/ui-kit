@@ -20,18 +20,20 @@ describe('ToastComponent + ToastService', () => {
     proto.showPopover = show;
     proto.hidePopover = hide;
     proto.matches = function (this: HTMLElement, selector: string): boolean {
-      return selector === ':popover-open' ? this.dataset['open'] === '1' : had[2].call(this, selector);
+      return selector === ':popover-open'
+        ? this.dataset['open'] === '1'
+        : had[2].call(this, selector);
     };
     try {
       const { fixture } = await render(ToastComponent);
       expect(document.querySelector('.toasts')).toHaveAttribute('popover', 'manual');
       expect(show).not.toHaveBeenCalled();
       const svc = fixture.debugElement.injector.get(ToastService);
-      const id = svc.show('Gespeichert', 'success', 0);
+      const id = svc.show({ text: 'Gespeichert', kind: 'success', sticky: true });
       fixture.detectChanges();
       await fixture.whenStable();
       expect(show).toHaveBeenCalledTimes(1);
-      const second = svc.show('Noch einer', 'info', 0);
+      const second = svc.show({ text: 'Noch einer', sticky: true });
       fixture.detectChanges();
       await fixture.whenStable();
       expect(show).toHaveBeenCalledTimes(2);
@@ -89,7 +91,7 @@ describe('ToastComponent + ToastService', () => {
   it('renders toasts pushed through the service', async () => {
     const { fixture } = await render(ToastComponent);
     const svc = fixture.debugElement.injector.get(ToastService);
-    svc.success('Gespeichert');
+    svc.show({ text: 'Gespeichert', kind: 'success' });
     fixture.detectChanges();
     const toast = await screen.findByRole('status');
     expect(toast).toHaveTextContent('Gespeichert');
@@ -99,7 +101,7 @@ describe('ToastComponent + ToastService', () => {
   it('removes a toast when dismissed', async () => {
     const { fixture } = await render(ToastComponent);
     const svc = fixture.debugElement.injector.get(ToastService);
-    svc.show('Weg damit', 'info', 0);
+    svc.show({ text: 'Weg damit', sticky: true });
     fixture.detectChanges();
     await userEvent.click(screen.getByRole('button', { name: 'Schließen' }));
     fixture.detectChanges();
@@ -111,7 +113,7 @@ describe('ToastComponent + ToastService', () => {
     const intl = fixture.debugElement.injector.get(UI_KIT_INTL) as DefaultUiKitIntl;
     intl.setLang('en');
     const svc = fixture.debugElement.injector.get(ToastService);
-    svc.show('x', 'info', 0);
+    svc.show({ text: 'x', sticky: true });
     fixture.detectChanges();
     expect(screen.getByRole('button', { name: 'Close' })).toBeInTheDocument();
   });
@@ -120,7 +122,12 @@ describe('ToastComponent + ToastService', () => {
     const { fixture } = await render(ToastComponent);
     const svc = fixture.debugElement.injector.get(ToastService);
     const closed = jest.fn();
-    svc.showAction({ message: 'Archiviert', action: 'Rückgängig', timeout: 0, closed });
+    svc.show({
+      text: 'Archiviert',
+      action: { key: 'action', label: 'Rückgängig' },
+      closed: closed,
+      sticky: true,
+    });
     fixture.detectChanges();
     await userEvent.click(screen.getByRole('button', { name: 'Rückgängig' }));
     fixture.detectChanges();
@@ -132,20 +139,27 @@ describe('ToastComponent + ToastService', () => {
     const { fixture, container } = await render(ToastComponent);
     const svc = fixture.debugElement.injector.get(ToastService);
     const closed = jest.fn();
-    svc.showAction({
-      message: 'Neue Version',
-      action: 'Neu laden',
-      actionIcon: 'reload',
+    svc.show({
+      text: 'Neue Version',
+      action: { key: 'action', label: 'Neu laden', icon: 'reload' },
       closable: false,
-      timeout: 0,
-      closed,
+      closed: closed,
+      sticky: true,
     });
-    svc.showNotice({ message: 'Keine Verbindung', variant: 'danger', icon: 'cloud-off' });
-    svc.showNotice({
-      message: 'Offline',
-      variant: 'danger',
+    svc.show({
+      text: 'Keine Verbindung',
+      kind: 'error',
+      icon: 'cloud-off',
+      sticky: true,
+      closable: false,
+    });
+    svc.show({
+      text: 'Offline',
+      kind: 'error',
       icon: 'cloud-off',
       iconPosition: 'end',
+      sticky: true,
+      closable: false,
     });
     fixture.detectChanges();
     expect(screen.queryByRole('button', { name: 'Schließen' })).toBeNull();
@@ -180,14 +194,14 @@ describe('ToastComponent on a phone (specs 000562-000566)', () => {
   async function phoneToast(message = 'Gespeichert') {
     const { fixture } = await render(ToastComponent);
     const svc = fixture.debugElement.injector.get(ToastService);
-    svc.show(message, 'success', 0);
+    svc.show({ text: message, kind: 'success', sticky: true });
     fixture.detectChanges();
     return { fixture, svc, toast: await screen.findByRole('status') };
   }
 
   it('shows only the newest toast', async () => {
     const { fixture, svc } = await phoneToast('Erste');
-    svc.show('Zweite', 'info', 0);
+    svc.show({ text: 'Zweite', sticky: true });
     fixture.detectChanges();
     expect(screen.getAllByRole('status')).toHaveLength(1);
     expect(screen.getByRole('status')).toHaveTextContent('Zweite');
@@ -253,7 +267,12 @@ describe('ToastComponent on a phone (specs 000562-000566)', () => {
     const { fixture } = await render(ToastComponent);
     const svc = fixture.debugElement.injector.get(ToastService);
     const closed = jest.fn();
-    svc.showAction({ message: 'Archiviert', action: 'Rückgängig', actionIcon: 'undo', timeout: 0, closed });
+    svc.show({
+      text: 'Archiviert',
+      action: { key: 'action', label: 'Rückgängig', icon: 'undo' },
+      closed: closed,
+      sticky: true,
+    });
     fixture.detectChanges();
     const button = await screen.findByRole('button', { name: 'Rückgängig' });
     button.dispatchEvent(pointer('pointerdown', 100));
@@ -271,8 +290,8 @@ describe('ToastComponent on a wide screen', () => {
   it('keeps the whole stack and takes no swipe', async () => {
     const { fixture } = await render(ToastComponent);
     const svc = fixture.debugElement.injector.get(ToastService);
-    svc.show('Erste', 'info', 0);
-    svc.show('Zweite', 'info', 0);
+    svc.show({ text: 'Erste', sticky: true });
+    svc.show({ text: 'Zweite', sticky: true });
     fixture.detectChanges();
     const toasts = await screen.findAllByRole('status');
     expect(toasts).toHaveLength(2);
