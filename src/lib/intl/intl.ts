@@ -94,6 +94,8 @@ export type UiKitTextKey =
   | 'wizard.empty'
   | 'wizard.yes'
   | 'wizard.invalid'
+  | 'settings.save'
+  | 'settings.discard'
   | 'search.clear'
   | 'search.results'
   | 'search.resultsOne'
@@ -236,6 +238,8 @@ export const UI_KIT_DEFAULT_MESSAGES: Record<UiLang, UiKitMessages> = {
     'wizard.empty': 'Noch keine Angaben.',
     'wizard.yes': 'Ja',
     'wizard.invalid': 'Bitte prüfe die markierten Felder.',
+    'settings.save': 'Speichern',
+    'settings.discard': 'Verwerfen',
     'search.clear': 'Suche leeren',
     'search.results': '{n} Treffer',
     'search.resultsOne': '1 Treffer',
@@ -374,6 +378,8 @@ export const UI_KIT_DEFAULT_MESSAGES: Record<UiLang, UiKitMessages> = {
     'wizard.empty': 'No details yet.',
     'wizard.yes': 'Yes',
     'wizard.invalid': 'Please check the marked fields.',
+    'settings.save': 'Save',
+    'settings.discard': 'Discard',
     'search.clear': 'Clear search',
     'search.results': '{n} results',
     'search.resultsOne': '1 result',

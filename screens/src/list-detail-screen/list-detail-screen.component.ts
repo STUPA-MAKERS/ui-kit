@@ -109,6 +109,12 @@ export interface ListDetailScreenConfig {
   /** The route parameter of the detail child route. Default `id`. */
   readonly param?: string;
   readonly listWidth?: 'normal' | 'wide';
+  /**
+   * The phone bar names the detail from the start (`app-list-detail` `barTitle`), as the
+   * administration and Konto of the app do: for details whose page header docks in the bar,
+   * such as the settings screen.
+   */
+  readonly barTitle?: boolean;
 }
 
 const SKELETON_ROWS = 8;
