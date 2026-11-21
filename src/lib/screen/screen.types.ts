@@ -169,6 +169,19 @@ export interface ListQuery {
   readonly sort: { readonly key: string; readonly dir: 'asc' | 'desc' } | null;
 }
 
+/**
+ * A side sheet of a detail screen; its content is the slot `screenSheet` with the same key.
+ * An edge tab opens it beside the body; on a phone it is a bottom sheet, or it takes the
+ * place of the body when `replaces` is true. §S/framework/screens/002241
+ */
+export interface SideSheetDef {
+  readonly key: string;
+  readonly label: string;
+  readonly icon: IconName;
+  readonly mark?: Mark;
+  readonly replaces?: boolean;
+}
+
 /** A tab of a detail screen; its body is the slot with the same key. §S/framework/types/002235 */
 export interface ScreenTab {
   readonly key: string;

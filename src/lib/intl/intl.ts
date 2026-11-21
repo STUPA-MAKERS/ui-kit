@@ -61,6 +61,7 @@ export type UiKitTextKey =
   | 'selection.clear'
   | 'selection.count'
   | 'listDetail.back'
+  | 'screen.back'
   | 'search.clear'
   | 'search.results'
   | 'search.resultsOne'
@@ -170,6 +171,7 @@ export const UI_KIT_DEFAULT_MESSAGES: Record<UiLang, UiKitMessages> = {
     'selection.clear': 'Auswahl aufheben',
     'selection.count': '{count} ausgewählt',
     'listDetail.back': 'Zur Liste',
+    'screen.back': 'Zurück',
     'search.clear': 'Suche leeren',
     'search.results': '{n} Treffer',
     'search.resultsOne': '1 Treffer',
@@ -275,6 +277,7 @@ export const UI_KIT_DEFAULT_MESSAGES: Record<UiLang, UiKitMessages> = {
     'selection.clear': 'Clear selection',
     'selection.count': '{count} selected',
     'listDetail.back': 'Back to list',
+    'screen.back': 'Back',
     'search.clear': 'Clear search',
     'search.results': '{n} results',
     'search.resultsOne': '1 result',

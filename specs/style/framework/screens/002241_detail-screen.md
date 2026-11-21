@@ -2,10 +2,11 @@
 id: "002241"
 title: The detail screen has a fixed interface
 kind: style
-status: approved
+status: draft
 owner: frederikbeimgraben
-updated: 2026-11-20
-implementation: null
+updated: 2026-11-21
+implementation:
+  - screens/src/detail-screen/detail-screen.component.ts
 scope:
   - shell
   - src/lib
@@ -23,6 +24,20 @@ actions?: readonly Action[]
 sheets?: readonly SideSheetDef[]   // 001460, 001800: side sheets with an edge tab (001801)
 comments?: { readonly open: boolean; readonly label: string } // 000131, 000215
 ```
+
+A side sheet is a `SideSheetDef`:
+
+```ts
+interface SideSheetDef {
+  readonly key: string;
+  readonly label: string;      // the heading of the sheet and the name of its edge tab
+  readonly icon: IconName;     // the glyph of the edge tab
+  readonly mark?: Mark;        // a dot on the edge tab, never a count (000560)
+  readonly replaces?: boolean; // on a phone the open sheet takes the place of the body (001461)
+}
+```
+
+The open tab is in the URL as `tab`, so a reload and a shared link keep it.
 
 Slots: `screenTab="<key>"` per tab, `screenBody` when there are no tabs, `screenSheet="<key>"` per side sheet, `screenComments`.
 

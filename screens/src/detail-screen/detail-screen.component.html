@@ -1,0 +1,217 @@
+<article
+  class="ds"
+  [class.ds--beside]="commentsBeside()"
+  [class.ds--edge]="!phone() && sheets().length > 0"
+  [attr.aria-labelledby]="titleId"
+>
+  <div class="ds__main">
+    <app-sheet-bar>
+      <div appSheetBarTitle class="ds__titleBox">
+        @if (head().kicker; as k) {
+          <p class="ds__kicker ell">{{ k }}</p>
+        }
+        <h1 class="ds__title" [id]="titleId" tabindex="-1">{{ head().title }}</h1>
+      </div>
+      @if (backLink(); as commands) {
+        <a class="ds__back" [routerLink]="$any(commands)" [attr.aria-label]="'screen.back' | uiKitT"
+          ><app-icon name="back"
+        /></a>
+      }
+      @if (backAction(); as key) {
+        <app-button
+          variant="text"
+          [iconOnly]="true"
+          [ariaLabel]="'screen.back' | uiKitT"
+          (click)="action.emit({ key })"
+          ><app-icon name="back"
+        /></app-button>
+      }
+      @for (a of placed().head; track a.key) {
+        <app-button
+          variant="text"
+          [iconOnly]="true"
+          [ariaLabel]="a.label"
+          [disabled]="!!a.disabled"
+          [loading]="!!a.busy"
+          (click)="run(a)"
+          ><app-icon [name]="a.icon ?? 'plus'"
+        /></app-button>
+      }
+      @if (comments(); as c) {
+        <app-button
+          variant="text"
+          [iconOnly]="true"
+          [ariaLabel]="c.label"
+          [ariaPressed]="commentsOpen()"
+          (click)="toggleComments()"
+          ><app-icon name="chat"
+        /></app-button>
+      }
+      @if (menu().length) {
+        <app-row-menu
+          [label]="'rowMenu.trigger' | uiKitT"
+          [sections]="menu()"
+          (selected)="run($event)"
+        />
+      }
+    </app-sheet-bar>
+
+    @if (head().status || head().meta?.length) {
+      <ul class="ds__chips" role="list">
+        @if (head().status; as st) {
+          <li><app-status-text chip [kind]="st.kind">{{ st.label }}</app-status-text></li>
+        }
+        @for (m of head().meta ?? []; track $index) {
+          <li>
+            @if (m.link; as l) {
+              <a
+                class="ds__chip ds__chip--link"
+                [routerLink]="$any(l.commands)"
+                [queryParams]="l.query ?? null"
+                [title]="m.title ?? ''"
+              >
+                @if (m.icon) {
+                  <app-icon [name]="m.icon" [size]="16" />
+                }
+                <span class="ell">{{ m.label }}</span>
+              </a>
+            } @else {
+              <span class="ds__chip" [title]="m.title ?? ''">
+                @if (m.icon) {
+                  <app-icon [name]="m.icon" [size]="16" />
+                }
+                <span class="ell">{{ m.label }}</span>
+              </span>
+            }
+          </li>
+        }
+      </ul>
+    }
+
+    @switch (state().state) {
+      @case ('loading') {
+        <app-skeleton variant="lines" [count]="6" [label]="loadingLabel()" />
+      }
+      @case ('empty') {
+        @if (state(); as s) {
+          @if (s.state === 'empty') {
+            <app-empty-state [icon]="s.icon" [heading]="s.heading" />
+          }
+        }
+      }
+      @case ('error') {
+        @if (state(); as s) {
+          @if (s.state === 'error') {
+            <app-empty-state icon="alert" [heading]="s.message" />
+            <div class="ds__retry">
+              <app-button variant="outlined" (click)="s.retry()">{{
+                'note.retry' | uiKitT
+              }}</app-button>
+            </div>
+          }
+        }
+      }
+      @default {
+        @if (replacing(); as r) {
+          <section class="ds__replace" [attr.aria-label]="r.label">
+            <div class="ds__replaceHead">
+              <h2 class="ds__replaceTitle">{{ r.label }}</h2>
+              <app-button
+                variant="text"
+                [iconOnly]="true"
+                [ariaLabel]="'dialog.close' | uiKitT"
+                (click)="setSheet(r.key, false)"
+                ><app-icon name="x"
+              /></app-button>
+            </div>
+            @if (sheetTemplate(r.key); as t) {
+              <ng-container [ngTemplateOutlet]="t" />
+            }
+          </section>
+        } @else if (visibleTabs().length) {
+          <app-tabs
+            #t
+            class="ds__tabs"
+            [idPrefix]="tabsId"
+            [ariaLabel]="head().title"
+            [tabs]="tabItems()"
+            [active]="tab()"
+            (activeChange)="selectTab($event)"
+          />
+          <section
+            class="ds__body"
+            role="tabpanel"
+            [id]="t.panelId(tab())"
+            [attr.aria-labelledby]="t.tabId(tab())"
+          >
+            @if (tabTemplate(); as tt) {
+              <ng-container [ngTemplateOutlet]="tt" />
+            }
+          </section>
+        } @else if (bodySlot(); as b) {
+          <div class="ds__body"><ng-container [ngTemplateOutlet]="b.template" /></div>
+        }
+      }
+    }
+  </div>
+
+  @if (commentsBeside()) {
+    <aside class="ds__comments" [attr.aria-label]="comments()?.label">
+      @if (commentsSlot(); as c) {
+        <ng-container [ngTemplateOutlet]="c.template" />
+      }
+    </aside>
+  }
+</article>
+
+<!-- The edge tabs open the side sheets above the phone width (001801). -->
+@if (!phone() && sheets().length) {
+  <div class="ds__edgeTabs">
+    @for (s of sheets(); track s.key) {
+      <button
+        type="button"
+        class="ds__edgeTab"
+        [attr.aria-label]="s.label"
+        [attr.aria-expanded]="openSheet() === s.key"
+        [title]="s.label"
+        (click)="setSheet(s.key, true)"
+      >
+        <app-icon name="left" [size]="16" />
+        <app-icon [name]="s.icon" [size]="20" />
+        @if (s.mark) {
+          <span class="ds__mark" [class.ds__mark--warn]="s.mark === 'warn'" aria-hidden="true"></span>
+        }
+      </button>
+    }
+  </div>
+}
+
+@for (s of sheets(); track s.key) {
+  @if (!(phone() && s.replaces)) {
+    <app-side-sheet
+      [heading]="s.label"
+      [side]="phone() ? 'bottom' : 'end'"
+      [open]="openSheet() === s.key"
+      (openChange)="setSheet(s.key, $event)"
+    >
+      @if (sheetTemplate(s.key); as t) {
+        <ng-container [ngTemplateOutlet]="t" />
+      }
+    </app-side-sheet>
+  }
+}
+
+@if (comments(); as c) {
+  @if (!roomy()) {
+    <app-side-sheet
+      [heading]="c.label"
+      [side]="phone() ? 'bottom' : 'end'"
+      [open]="commentsOpen()"
+      (openChange)="setComments($event)"
+    >
+      @if (commentsSlot(); as cs) {
+        <ng-container [ngTemplateOutlet]="cs.template" />
+      }
+    </app-side-sheet>
+  }
+}

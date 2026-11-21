@@ -1,5 +1,12 @@
 /** Fixtures of the screen specs: rows, groups and filters of a list. */
-import type { FilterDef, ListGroup, ListRow } from '@stupa-makers/ui-kit';
+import type {
+  FilterDef,
+  ListGroup,
+  ListRow,
+  ScreenHead,
+  ScreenTab,
+  SideSheetDef,
+} from '@stupa-makers/ui-kit';
 
 export const LIST_ROWS: readonly ListRow[] = [
   {
@@ -35,4 +42,23 @@ export const LIST_FILTERS: readonly FilterDef[] = [
       { value: 'done', label: 'Erledigt' },
     ],
   },
+];
+
+/** The head of a detail: title, kicker, status and meta chips. */
+export const DETAIL_HEAD: ScreenHead = {
+  title: 'Zuschuss Sommerfest',
+  kicker: 'Antrag A-0042',
+  status: { label: 'In Prüfung', kind: 'accent' },
+  meta: [{ label: 'Fachschaft Informatik', icon: 'users' }, { label: '19.10.2026' }],
+};
+
+export const DETAIL_TABS: readonly ScreenTab[] = [
+  { key: 'data', label: 'Antrag' },
+  { key: 'history', label: 'Verlauf' },
+  { key: 'hidden', label: 'Versteckt', hidden: true },
+];
+
+export const DETAIL_SHEETS: readonly SideSheetDef[] = [
+  { key: 'votes', label: 'Abstimmungen', icon: 'vote', mark: 'new' },
+  { key: 'links', label: 'Verknüpfungen', icon: 'link', replaces: true },
 ];
