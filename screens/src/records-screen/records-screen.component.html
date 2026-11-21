@@ -1,14 +1,25 @@
 <section class="rcs">
   <app-page-header [flush]="true" [title]="head().title">
-    @for (a of placed().head; track a.key) {
-      <app-button
-        actions
-        variant="text"
-        [disabled]="!!a.disabled"
-        [loading]="!!a.busy"
-        (click)="run(a)"
-        >{{ a.label }}</app-button
-      >
+    @if (headToolsSlot(); as t) {
+      <div actions class="rcs__headTools">
+        @for (a of placed().head; track a.key) {
+          <app-button variant="text" [disabled]="!!a.disabled" [loading]="!!a.busy" (click)="run(a)">{{
+            a.label
+          }}</app-button>
+        }
+        <ng-container [ngTemplateOutlet]="t.template" />
+      </div>
+    } @else {
+      @for (a of placed().head; track a.key) {
+        <app-button
+          actions
+          variant="text"
+          [disabled]="!!a.disabled"
+          [loading]="!!a.busy"
+          (click)="run(a)"
+          >{{ a.label }}</app-button
+        >
+      }
     }
   </app-page-header>
 

@@ -9,6 +9,7 @@ import { runAxe } from '../../../testing/a11y';
 import {
   RecordsScreenComponent,
   ScreenFiltersDirective,
+  ScreenHeadToolsDirective,
   ScreenIntroDirective,
   ScreenListFootDirective,
   ScreenRecordDirective,
@@ -54,7 +55,13 @@ class Host {
 @Component({
   changeDetection: ChangeDetectionStrategy.Eager,
   standalone: true,
-  imports: [RecordsScreenComponent, ScreenRecordDirective, ScreenListFootDirective, ScreenIntroDirective],
+  imports: [
+    RecordsScreenComponent,
+    ScreenRecordDirective,
+    ScreenListFootDirective,
+    ScreenIntroDirective,
+    ScreenHeadToolsDirective,
+  ],
   template: `
     <app-records-screen
       [head]="{ title: 'Agent-Zugänge' }"
@@ -67,6 +74,7 @@ class Host {
         ><li><strong>{{ row.title }}</strong> eigene Zeile</li></ng-template
       >
       <ng-template screenIntro><p role="status">Kette geprüft</p></ng-template>
+      <ng-template screenHeadTools><button type="button">DE</button></ng-template>
       <ng-template screenListFoot><nav aria-label="Seiten">1–2 von 2</nav></ng-template>
     </app-records-screen>
   `,
@@ -160,6 +168,7 @@ describe('RecordsScreenComponent', () => {
     expect(list.querySelectorAll(':scope > li')).toHaveLength(2);
     expect(screen.getByRole('navigation', { name: 'Seiten' })).toBeTruthy();
     expect(screen.getByRole('status').textContent).toBe('Kette geprüft');
+    expect(document.querySelector('.ph__actions .rcs__headTools')?.textContent).toContain('DE');
   });
 
   it('keeps the rows of the last load on an error with keepOnError', async () => {

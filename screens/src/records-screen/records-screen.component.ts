@@ -39,6 +39,16 @@ export class ScreenFiltersDirective {
   readonly template = inject<TemplateRef<unknown>>(TemplateRef);
 }
 
+/**
+ * Controls at the end of the head after the head actions, for example the content language switch
+ * of Rollen & Rechte. The actions and the controls then sit in one row with 8px gaps.
+ */
+// eslint-disable-next-line @angular-eslint/directive-selector -- fixed slot name (002217)
+@Directive({ selector: 'ng-template[screenHeadTools]', standalone: true })
+export class ScreenHeadToolsDirective {
+  readonly template = inject<TemplateRef<unknown>>(TemplateRef);
+}
+
 /** A block between the head and the filters, for example the chain check of the Audit-Log. */
 // eslint-disable-next-line @angular-eslint/directive-selector -- fixed slot name (002217)
 @Directive({ selector: 'ng-template[screenIntro]', standalone: true })
@@ -112,6 +122,7 @@ export class RecordsScreenComponent {
 
   protected readonly intl = inject(UI_KIT_INTL);
   private readonly router = inject(Router);
+  protected readonly headToolsSlot = contentChild(ScreenHeadToolsDirective);
   protected readonly introSlot = contentChild(ScreenIntroDirective);
   protected readonly filtersSlot = contentChild(ScreenFiltersDirective);
   protected readonly recordSlot = contentChild(ScreenRecordDirective);
