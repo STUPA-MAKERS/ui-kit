@@ -1,4 +1,4 @@
-@for (section of form().sections; track section.key) {
+@for (section of sections(); track section.key) {
   <section
     class="frm__section"
     [attr.data-section]="section.key"

@@ -87,6 +87,13 @@ export type UiKitTextKey =
   | 'form.leaveTitle'
   | 'form.leaveBody'
   | 'form.leaveConfirm'
+  | 'wizard.stepOf'
+  | 'wizard.back'
+  | 'wizard.next'
+  | 'wizard.progress'
+  | 'wizard.empty'
+  | 'wizard.yes'
+  | 'wizard.invalid'
   | 'search.clear'
   | 'search.results'
   | 'search.resultsOne'
@@ -222,6 +229,13 @@ export const UI_KIT_DEFAULT_MESSAGES: Record<UiLang, UiKitMessages> = {
     'form.leaveTitle': 'Änderungen verwerfen?',
     'form.leaveBody': 'Die Änderungen auf dieser Seite sind nicht gespeichert und gehen verloren.',
     'form.leaveConfirm': 'Verwerfen',
+    'wizard.stepOf': 'Schritt {n} von {total}',
+    'wizard.back': 'Zurück',
+    'wizard.next': 'Weiter',
+    'wizard.progress': 'Fortschritt',
+    'wizard.empty': 'Noch keine Angaben.',
+    'wizard.yes': 'Ja',
+    'wizard.invalid': 'Bitte prüfe die markierten Felder.',
     'search.clear': 'Suche leeren',
     'search.results': '{n} Treffer',
     'search.resultsOne': '1 Treffer',
@@ -353,6 +367,13 @@ export const UI_KIT_DEFAULT_MESSAGES: Record<UiLang, UiKitMessages> = {
     'form.leaveTitle': 'Discard the changes?',
     'form.leaveBody': 'The changes on this page are not saved and will be lost.',
     'form.leaveConfirm': 'Discard',
+    'wizard.stepOf': 'Step {n} of {total}',
+    'wizard.back': 'Back',
+    'wizard.next': 'Next',
+    'wizard.progress': 'Progress',
+    'wizard.empty': 'No details yet.',
+    'wizard.yes': 'Yes',
+    'wizard.invalid': 'Please check the marked fields.',
     'search.clear': 'Clear search',
     'search.results': '{n} results',
     'search.resultsOne': '1 result',
@@ -474,8 +495,7 @@ export class DefaultUiKitIntl implements UiKitIntl {
   constructor(options: UiKitIntlOptions = {}) {
     this.lang = options.lang ?? this.internalLang.asReadonly();
     const lang = this.lang;
-    this.formatLocale =
-      options.formatLocale ?? computed(() => UI_KIT_FORMAT_LOCALES[lang()]);
+    this.formatLocale = options.formatLocale ?? computed(() => UI_KIT_FORMAT_LOCALES[lang()]);
     this.messages = {
       de: { ...UI_KIT_DEFAULT_MESSAGES.de, ...(options.messages?.de ?? {}) },
       en: { ...UI_KIT_DEFAULT_MESSAGES.en, ...(options.messages?.en ?? {}) },

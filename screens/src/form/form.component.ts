@@ -128,6 +128,8 @@ const INPUT_TYPE: Partial<Record<FieldDef['kind'], string>> = {
 export class FormComponent {
   // Not required: a screen reads `dirty` and `valid` before its template binds the inputs.
   readonly form = input<FormDef>({ sections: [] });
+  /** Render only these sections, as a step of a wizard does. `null` renders all of them. */
+  readonly only = input<readonly string[] | null>(null);
   readonly value = input<FormValue>({});
   /** Errors of the server by field key; each shows until its field changes. */
   readonly errors = input<Readonly<Record<string, string>>>({});
@@ -144,6 +146,12 @@ export class FormComponent {
   protected readonly uid = inject(_IdGenerator).getId('app-form-');
 
   private readonly fields = computed(() => valueFields(this.form()));
+  /** The sections on the page: all of them, or the ones `only` names. */
+  protected readonly sections = computed(() => {
+    const only = this.only();
+    const all = this.form().sections;
+    return only === null ? all : all.filter((s) => only.includes(s.key));
+  });
 
   /** The model of signal forms; it follows the input value, and keeps itself on an echo. */
   protected readonly model = linkedSignal<FormValue, FormValue>({
@@ -169,8 +177,8 @@ export class FormComponent {
   /** The person changed a field since the start or since `markPristine()`. */
   readonly dirty = computed(() => this.tree()().dirty());
 
-  /** After `showErrors()`, every field shows its error. */
-  private readonly showAll = signal(false);
+  /** The sections whose fields show every error, after `showErrors()`; `'all'` for all. */
+  private readonly shown = signal<'all' | ReadonlySet<string>>(new Set());
 
   /** The server errors and the values they were given for. */
   private readonly serverErrors = linkedSignal<
@@ -197,12 +205,15 @@ export class FormComponent {
 
   /**
    * Show every error and move the focus to the first field with one. Returns whether the
-   * form is valid, so a submit reads `f.showErrors() && save()`.
+   * form is valid, so a submit reads `f.showErrors() && save()`. With section keys, only
+   * those sections count, so a wizard checks one step before it goes on.
    */
-  showErrors(): boolean {
-    this.showAll.set(true);
-    if (this.valid() && !this.firstErrorKey()) return true;
-    const key = this.firstErrorKey();
+  showErrors(sections?: readonly string[]): boolean {
+    const shown = this.shown();
+    if (sections === undefined) this.shown.set('all');
+    else if (shown !== 'all') this.shown.set(new Set([...shown, ...sections]));
+    const key = this.firstErrorKey(sections);
+    if (!key && (sections !== undefined || this.valid())) return true;
     if (key) queueMicrotask(() => this.focusField(key));
     return false;
   }
@@ -210,7 +221,7 @@ export class FormComponent {
   /** The current value is the new start: `dirty` is false and no field shows an error. */
   markPristine(): void {
     this.tree()().reset();
-    this.showAll.set(false);
+    this.shown.set(new Set());
   }
 
   // ---------------------------------------------------------------- template helpers
@@ -243,7 +254,7 @@ export class FormComponent {
       const upload = this.uploadErrors()[field.key];
       if (upload) return upload;
     }
-    if (!this.showAll() && !state.touched()) return '';
+    if (!this.isShown(String(path[0] ?? field.key)) && !state.touched()) return '';
     const error = fieldError(field, value);
     return error ? this.message(error) : '';
   }
@@ -441,10 +452,21 @@ export class FormComponent {
     }, fields);
   }
 
-  private firstErrorKey(): string | null {
+  private isShown(key: string): boolean {
+    const shown = this.shown();
+    if (shown === 'all') return true;
+    const section = this.sectionOf(key);
+    return !!section && shown.has(section.key);
+  }
+
+  private firstErrorKey(sections?: readonly string[]): string | null {
     const model = this.model();
     const server = this.serverErrors();
-    const hit = this.fields().find((f) => {
+    const fields =
+      sections === undefined
+        ? this.fields()
+        : this.fields().filter((f) => sections.includes(this.sectionOf(f.key)?.key ?? ''));
+    const hit = fields.find((f) => {
       if (server.errors[f.key] && sameValue(server.at[f.key], model[f.key])) return true;
       if (fieldError(f, model[f.key])) return true;
       if (f.kind !== 'repeat') return false;
