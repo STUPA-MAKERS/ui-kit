@@ -9,6 +9,7 @@ import { runAxe } from '../../../testing/a11y';
 import {
   RecordsScreenComponent,
   ScreenFiltersDirective,
+  ScreenListFootDirective,
   ScreenRecordDirective,
 } from './records-screen.component';
 
@@ -52,15 +53,23 @@ class Host {
 @Component({
   changeDetection: ChangeDetectionStrategy.Eager,
   standalone: true,
-  imports: [RecordsScreenComponent, ScreenRecordDirective],
+  imports: [RecordsScreenComponent, ScreenRecordDirective, ScreenListFootDirective],
   template: `
-    <app-records-screen [head]="{ title: 'Agent-Zugänge' }" [rows]="{ state: 'ready', data: rows }">
-      <ng-template screenRecord let-row><strong>{{ row.title }}</strong> eigene Zeile</ng-template>
+    <app-records-screen
+      [head]="{ title: 'Agent-Zugänge' }"
+      [rows]="rows()"
+      variant="records"
+      [keepOnError]="true"
+    >
+      <ng-template screenRecord let-row
+        ><li><strong>{{ row.title }}</strong> eigene Zeile</li></ng-template
+      >
+      <ng-template screenListFoot><nav aria-label="Seiten">1–2 von 2</nav></ng-template>
     </app-records-screen>
   `,
 })
 class RecordHost {
-  readonly rows = ROWS;
+  readonly rows = signal<LoadState<readonly ListRow[]>>({ state: 'ready', data: ROWS });
 }
 
 async function setup(inputs: Partial<{ width: number }> = {}) {
@@ -126,10 +135,28 @@ describe('RecordsScreenComponent', () => {
     expect(host.onAction).toHaveBeenCalledWith({ key: 'new' });
   });
 
-  it('draws a record from the slot', async () => {
+  it('draws each record as a list item from the slot, the records group and the foot', async () => {
     await render(RecordHost, { providers: [provideRouter([])] });
     expect(screen.getAllByText('eigene Zeile', { exact: false })).toHaveLength(2);
+    const list = screen.getByRole('list', { name: 'Agent-Zugänge' });
+    expect(list.tagName).toBe('UL');
+    expect(list.classList).toContain('rowgroup--records');
+    expect(list.querySelectorAll(':scope > li')).toHaveLength(2);
+    expect(screen.getByRole('navigation', { name: 'Seiten' })).toBeTruthy();
+  });
+
+  it('keeps the rows of the last load on an error with keepOnError', async () => {
+    const view = await render(RecordHost, { providers: [provideRouter([])] });
+    view.fixture.componentInstance.rows.set({ state: 'error', message: 'Fehler', retry: () => undefined });
+    view.detectChanges();
     expect(screen.getAllByRole('listitem')).toHaveLength(2);
+  });
+
+  it('shows no rows on an error without keepOnError', async () => {
+    const { view, host } = await setup();
+    host.rows.set({ state: 'error', message: 'Fehler', retry: () => undefined });
+    view.detectChanges();
+    expect(screen.queryByRole('list')).toBeNull();
   });
 
   it.each([360, 700, 1200])('has no axe violations at %ipx', async (width) => {

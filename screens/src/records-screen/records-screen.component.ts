@@ -10,6 +10,7 @@ import {
   inject,
   input,
   output,
+  signal,
   untracked,
 } from '@angular/core';
 import { Router } from '@angular/router';
@@ -38,7 +39,17 @@ export class ScreenFiltersDirective {
   readonly template = inject<TemplateRef<unknown>>(TemplateRef);
 }
 
-/** The content of a record, in place of the title and the meta line. Context: the row. */
+/** A block under the rows, for example a pager. */
+// eslint-disable-next-line @angular-eslint/directive-selector -- fixed slot name (002217)
+@Directive({ selector: 'ng-template[screenListFoot]', standalone: true })
+export class ScreenListFootDirective {
+  readonly template = inject<TemplateRef<unknown>>(TemplateRef);
+}
+
+/**
+ * One record as a whole list item (`li`) with kit components, in place of the default row. The
+ * list is then a `ul`. Context: the row.
+ */
 // eslint-disable-next-line @angular-eslint/directive-selector -- fixed slot name (002217)
 @Directive({ selector: 'ng-template[screenRecord]', standalone: true })
 export class ScreenRecordDirective {
@@ -80,6 +91,10 @@ export class RecordsScreenComponent {
   readonly actions = input<readonly Action[]>([]);
   /** The name of the filter row for screen readers. */
   readonly filtersLabel = input<string | null>(null);
+  /** `records`: the denser row group of the record tables (`rowgroup--records`). */
+  readonly variant = input<'rows' | 'records'>('rows');
+  /** A load error keeps the rows or the empty state that showed before (Agent-Zugänge). */
+  readonly keepOnError = input(false);
   /** Grey rows while the first page loads. */
   readonly skeleton = input(5);
 
@@ -91,9 +106,21 @@ export class RecordsScreenComponent {
   private readonly toasts = inject(ToastService);
   protected readonly filtersSlot = contentChild(ScreenFiltersDirective);
   protected readonly recordSlot = contentChild(ScreenRecordDirective);
+  protected readonly footSlot = contentChild(ScreenListFootDirective);
+  /** The last rows or empty state that showed, for `keepOnError`. */
+  private readonly settled = signal<LoadState<readonly ListRow[]> | null>(null);
+  /** What the body draws: on an error with `keepOnError` the last settled state. */
+  protected readonly shown = computed<LoadState<readonly ListRow[]> | null>(() => {
+    const r = this.rows();
+    if (r.state === 'error') return this.keepOnError() ? this.settled() : null;
+    return r;
+  });
 
   /** The rows on screen: the loaded ones, and the previous ones while a filter reloads. */
-  protected readonly data = computed(() => loadedData(this.rows()) ?? []);
+  protected readonly data = computed(() => {
+    const r = this.shown();
+    return r ? (loadedData(r) ?? []) : [];
+  });
   protected readonly firstLoad = computed(
     () => this.rows().state === 'loading' && this.data().length === 0,
   );
@@ -104,6 +131,10 @@ export class RecordsScreenComponent {
   protected readonly placed = computed(() => placeActions(this.actions(), 'wide'));
 
   constructor() {
+    effect(() => {
+      const r = this.rows();
+      if (r.state === 'ready' || r.state === 'empty') untracked(() => this.settled.set(r));
+    });
     // A load error is a toast with Erneut versuchen, as `app-load-state` of the app shows it.
     effect(() => {
       const r = this.rows();

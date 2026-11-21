@@ -23,19 +23,21 @@
   @if (firstLoad()) {
     <app-skeleton variant="rows" [count]="skeleton()" [label]="intl.translate('loading')" />
   } @else {
-    @if (rows(); as r) {
+    @if (shown(); as r) {
       @if (r.state === 'empty') {
         <app-empty-state [icon]="r.icon" [heading]="r.heading" />
       }
     }
     @if (data().length) {
-      <div class="rowgroup" role="list" [attr.aria-label]="head().title">
-        @for (row of data(); track row.id) {
-          @if (recordSlot(); as slot) {
-            <div class="rcs__record" role="listitem">
-              <ng-container [ngTemplateOutlet]="slot.template" [ngTemplateOutletContext]="{ $implicit: row }" />
-            </div>
-          } @else {
+      @if (recordSlot(); as slot) {
+        <ul class="rowgroup rcs__list" [class.rowgroup--records]="variant() === 'records'" [attr.aria-label]="head().title">
+          @for (row of data(); track row.id) {
+            <ng-container [ngTemplateOutlet]="slot.template" [ngTemplateOutletContext]="{ $implicit: row }" />
+          }
+        </ul>
+      } @else {
+        <div class="rowgroup" [class.rowgroup--records]="variant() === 'records'" role="list" [attr.aria-label]="head().title">
+          @for (row of data(); track row.id) {
             <app-list-item
               role="listitem"
               [title]="row.title"
@@ -44,8 +46,11 @@
               [sub]="row.meta?.join(' · ') ?? null"
             />
           }
-        }
-      </div>
+        </div>
+      }
+    }
+    @if (footSlot(); as f) {
+      <ng-container [ngTemplateOutlet]="f.template" />
     }
     @if (hasMore()) {
       <div class="rcs__more">

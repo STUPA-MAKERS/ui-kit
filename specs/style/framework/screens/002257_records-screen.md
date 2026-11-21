@@ -25,11 +25,15 @@ rows: LoadState<readonly ListRow[]>  // empty and error come with the rows
 actions?: readonly Action[]          // head actions and FAB, placed by priority (002231)
 filtersLabel?: string | null         // the name of the filter row for screen readers
 skeleton?: number                    // grey rows on the first load, default 5
+variant?: 'rows' | 'records'         // records: the denser row group of record tables
+keepOnError?: boolean                // a load error keeps the rows or empty state shown before
 ```
 
 Slots: `screenFilters` (optional, the filter chips of the page, built with kit chips; the screen
 puts them in a sticky bar under the head) and `screenRecord` (optional, the content of a record
-with kit components, for example the scopes of an agent grant; context: the row).
+with kit components, for example the scopes of an agent grant; context: the row). The slot draws
+one whole list item (`li`), and the list is then a `ul`. `screenListFoot` (optional) is a block
+under the rows, for example the pager of Agent-Zugänge.
 
 Outputs: `action: { key }`, `more: void`.
 
