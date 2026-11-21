@@ -4,6 +4,7 @@ import { listDetailRoutes, provideFramework, screenRoute } from '@stupa-makers/u
 import { demoConfig } from './demo/demo-config';
 import {
   DemoAboutPage,
+  DemoApplyPage,
   DemoDetailPage,
   DemoEditPage,
   DemoFormPage,
@@ -49,6 +50,7 @@ export const SHOWCASE_ROUTES: Routes = [
         },
       }),
       screenRoute({ path: 'form', title: 'Formular', component: DemoFormPage }),
+      screenRoute({ path: 'apply', title: 'Antrag stellen', component: DemoApplyPage }),
       screenRoute({
         path: 'about',
         title: 'Über',

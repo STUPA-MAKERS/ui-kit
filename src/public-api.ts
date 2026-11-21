@@ -53,6 +53,12 @@ export * from './lib/badge/badge.component';
 export * from './lib/config-diff/config-diff.component';
 export * from './lib/config-diff/config-diff.types';
 export * from './lib/stepper/stepper.component';
+export {
+  markdownToSafeHtml,
+  type MarkdownOptions,
+  type BlackoutTexts,
+  type DocumentBadges,
+} from './lib/markdown/markdown.util';
 export * from './lib/dialog/dialog.component';
 export * from './lib/file-viewer/file-viewer.component';
 export * from './lib/file-viewer/file-viewer.types';

@@ -83,6 +83,13 @@ const NAV: readonly ShellNavItem[] = [
     place: 'main',
   },
   {
+    key: 'apply',
+    path: '/demo/apply',
+    label: 'Antrag stellen',
+    icon: 'fileplus',
+    place: 'main',
+  },
+  {
     key: 'about',
     path: '/demo/about',
     label: 'Über',
@@ -238,3 +245,45 @@ export const DEMO_FORM = (person: boolean): FormDef => ({
     },
   ],
 });
+
+/** The form of "Antrag stellen" in the demo: the details, the costs and the contact. */
+export const DEMO_APPLY: FormDef = {
+  sections: [
+    {
+      key: 'main',
+      label: 'Antrag',
+      fields: [
+        { key: 'title', kind: 'text', label: 'Titel', required: true, maxLength: 80 },
+        { key: 'reason', kind: 'textarea', label: 'Begründung', required: true },
+        { key: 'amount', kind: 'money', label: 'Betrag', width: 'half' },
+        { key: 'day', kind: 'date', label: 'Tag', width: 'half' },
+        { key: 'files', kind: 'file', label: 'Anlagen', multiple: true },
+      ],
+    },
+    {
+      key: 'costs',
+      label: 'Kostenaufstellung',
+      fields: [
+        {
+          key: 'items',
+          kind: 'repeat',
+          label: 'Posten',
+          addLabel: 'Posten hinzufügen',
+          min: 1,
+          fields: [
+            { key: 'what', kind: 'text', label: 'Was', required: true, width: 'half' },
+            { key: 'cost', kind: 'money', label: 'Kosten', width: 'half' },
+          ],
+        },
+      ],
+    },
+    {
+      key: 'contact',
+      label: 'Kontakt',
+      fields: [
+        { key: 'name', kind: 'text', label: 'Name' },
+        { key: 'mail', kind: 'email', label: 'E-Mail', required: true },
+      ],
+    },
+  ],
+};

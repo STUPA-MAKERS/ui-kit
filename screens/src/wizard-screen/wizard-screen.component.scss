@@ -1,0 +1,258 @@
+@use '../../../src/styles/breakpoints' as bp;
+@use '../../../src/styles/frosted' as *;
+@use '../../../src/styles/field' as f;
+
+// A copy of the apply wizard of the app ("Antrag stellen"); the measures are the same.
+
+:host {
+  display: block;
+}
+
+.wz {
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  gap: var(--space-7);
+}
+.wz__aside {
+  position: sticky;
+  top: calc(var(--space-5) + var(--app-top-safe-area, 0px));
+  display: flex;
+  flex: 0 0 18.125rem;
+  flex-direction: column;
+  gap: 18px;
+  min-width: 0;
+  padding-top: var(--space-2);
+}
+.wz__intro {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  padding: 0 6px;
+}
+.wz__title {
+  margin: 0;
+}
+.wz__saved {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  margin: 0;
+  padding: 0 14px;
+  color: var(--color-text-muted);
+  font-size: 0.8125rem;
+}
+
+.wz__sheet {
+  display: flex;
+  flex: 0 1 47.5rem;
+  flex-direction: column;
+  min-width: 0;
+  border-radius: var(--radius-2xl);
+  background: var(--color-surface-1);
+}
+.wz__head {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  padding: 28px 36px 0;
+}
+.wz__stepLine {
+  color: var(--color-text-muted);
+  font-size: 0.8125rem;
+}
+.wz__stepTitle {
+  margin: 0;
+}
+.wz__body {
+  padding: 20px 36px 28px;
+  min-width: 0;
+}
+.wz__step {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  min-width: 0;
+}
+.wz__step[hidden] {
+  display: none;
+}
+
+.wz__types {
+  display: flex;
+  flex-direction: column;
+}
+.wz__type {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  width: 100%;
+  min-height: 3.5rem;
+  padding: var(--space-2) var(--space-4);
+  border: 0;
+  background: var(--color-surface-2);
+  color: var(--color-text);
+  font: inherit;
+  font-size: var(--fs-md);
+  text-align: start;
+  cursor: pointer;
+}
+@media (hover: hover) {
+  .wz__type:hover {
+    background: var(--color-surface-3);
+  }
+}
+.wz__type.is-selected {
+  background: var(--color-selected);
+  color: var(--color-on-selected);
+  @include f.highlight-chosen;
+}
+// Highlighted fields (app spec 000598) set the `--check-*` tokens: a yellow box with a
+// black edge and a black dot.
+.wz__radio {
+  flex: none;
+  width: 18px;
+  height: 18px;
+  border-radius: var(--radius-pill);
+  background: var(--check-bg, transparent);
+  box-shadow: inset 0 0 0 2px var(--check-edge, var(--color-border-strong));
+}
+.is-selected .wz__radio {
+  box-shadow: inset 0 0 0 2px var(--check-edge, var(--color-accent));
+  background: radial-gradient(
+    circle,
+    var(--check-mark, var(--color-accent)) 0 4px,
+    var(--check-bg, transparent) 4.5px
+  );
+}
+.wz__typeName {
+  min-width: 0;
+  font-weight: var(--fw-medium);
+}
+// Step 1 (spec 001185): the groups, the types without a group and "Folgeantrag" are
+// blocks with one gap between them; the text of a group sits between its title and its
+// rows with the gap of a section.
+.wz__groups {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-6);
+}
+.wz__step:has(> .wz__groups) {
+  gap: var(--space-6);
+}
+.wz__groupText {
+  padding: 0 var(--space-1);
+  color: var(--color-text-muted);
+  font-size: var(--fs-sm);
+}
+.wz__groupText :first-child {
+  margin-top: 0;
+}
+.wz__groupText :last-child {
+  margin-bottom: 0;
+}
+.wz__empty {
+  margin: 0;
+  color: var(--color-text-muted);
+}
+
+.wz__block {
+  --section-gap: var(--space-2);
+}
+
+.wz__nav {
+  position: sticky;
+  bottom: var(--app-bottom-inset, 0px);
+  z-index: 2;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+  margin-top: auto;
+  padding: 14px 24px;
+  border-radius: 0 0 var(--radius-2xl) var(--radius-2xl);
+  // Solid in the colour of the sheet (`bar`, spec 002010), so at the end of the step the bar
+  // is one with the sheet.
+  @include bar(var(--color-surface-1));
+}
+.wz__navGap {
+  flex: 1 1 auto;
+}
+// WCAG 2.4.11: the focus scroll keeps the bar and a gap free, so a focused field never hides under
+// it.
+.wz__body ::ng-deep * {
+  scroll-margin-bottom: calc(var(--app-bottom-inset, 0px) + var(--wz-nav-clearance));
+}
+.wz {
+  --wz-nav-clearance: 5.5rem;
+}
+.wz__discardPhone {
+  display: none;
+}
+@include bp.narrow {
+  .wz {
+    gap: var(--space-5);
+  }
+  .wz__aside {
+    flex-basis: 15rem;
+  }
+  .wz__head {
+    padding: var(--space-5) var(--space-5) 0;
+  }
+  .wz__body {
+    padding: var(--space-4) var(--space-5) var(--space-5);
+  }
+}
+
+@include bp.phone {
+  .wz {
+    flex-direction: column;
+    align-items: stretch;
+    gap: var(--space-4);
+  }
+  .wz__aside {
+    position: static;
+    flex: none;
+    gap: var(--space-3);
+    padding-top: 0;
+  }
+  .wz__intro {
+    padding: 0;
+  }
+  .wz__stepper {
+    display: none;
+  }
+  .wz__saved {
+    order: 2;
+    padding: 0;
+  }
+  .wz__sheet {
+    flex: none;
+    margin-inline: calc(-1 * var(--space-2));
+    border-radius: var(--radius-xl);
+  }
+  .wz__head {
+    padding: var(--space-5) var(--space-4) 0;
+  }
+  .wz__body {
+    padding: var(--space-4);
+  }
+  // The whole group of "Verwerfen" goes, not only its button: an empty group would still
+  // take a gap of the bar and push the buttons off the middle.
+  .wz__discard.wz__discard,
+  .wz__navGap {
+    display: none;
+  }
+  .wz__discardPhone {
+    display: inline-flex;
+    align-self: center;
+  }
+  .wz__nav app-button {
+    flex: 1 1 0;
+  }
+  .wz__nav {
+    flex-wrap: nowrap;
+    padding: 10px var(--space-4);
+    border-radius: 0 0 var(--radius-xl) var(--radius-xl);
+  }
+}

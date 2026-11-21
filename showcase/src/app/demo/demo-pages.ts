@@ -22,11 +22,16 @@ import {
   ScreenSheetDirective,
   ScreenTabDirective,
   FormScreenComponent,
+  WizardScreenComponent,
+  type WizardDiscard,
+  type WizardIntro,
+  type WizardReview,
+  type WizardStep,
   type FormValue,
 } from '@stupa-makers/ui-kit/screens';
 import { FrameworkShellComponent } from '@stupa-makers/ui-kit/shell';
 
-import { DEMO_FORM, DEMO_ROWS, demoFrame } from './demo-config';
+import { DEMO_APPLY, DEMO_FORM, DEMO_ROWS, demoFrame } from './demo-config';
 
 /** The demo app: the framework shell with the config of `demoConfig()`. */
 @Component({
@@ -352,5 +357,98 @@ export class DemoFormPage {
       if (!taken) this.saved.set(value);
       this.saving.set(false);
     }, 600);
+  }
+}
+
+/** "Antrag stellen" as the wizard screen (002243): the choice, Angaben, Kontakt, Prüfen. */
+@Component({
+  selector: 'sc-demo-apply',
+  imports: [WizardScreenComponent],
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  template: `
+    <app-wizard-screen
+      [head]="{ title: 'Antrag stellen' }"
+      [form]="form"
+      [steps]="steps"
+      [intro]="intro()"
+      [review]="review"
+      [value]="value()"
+      [submit]="{ label: 'Antrag anlegen', busy: sending() }"
+      [discard]="chosen() ? discard : null"
+      [saved]="dirty() ? 'Entwurf in diesem Tab gespeichert' : null"
+      [leave]="{ label: 'Zur Startseite' }"
+      (valueChange)="onValue($event)"
+      (choice)="chosen.set($event)"
+      (submit)="send()"
+      (discard)="reset()"
+      (leave)="home()"
+    />
+  `,
+})
+export class DemoApplyPage {
+  private readonly router = inject(Router);
+  protected readonly form = DEMO_APPLY;
+  protected readonly value = signal<FormValue>({});
+  protected readonly dirty = signal(false);
+  protected readonly chosen = signal<string | null>(null);
+  protected readonly sending = signal(false);
+  protected readonly steps: readonly WizardStep[] = [
+    { key: 'details', label: 'Angaben', title: 'Angaben zum Antrag', sections: ['main', 'costs'] },
+    { key: 'contact', label: 'Kontakt', title: 'Kontakt', sections: ['contact'] },
+  ];
+  protected readonly review: WizardReview = {
+    key: 'review',
+    label: 'Prüfen & absenden',
+    title: 'Prüfen & absenden',
+    hint: 'Zusammenfassung',
+  };
+  protected readonly discard: WizardDiscard = {
+    label: 'Entwurf verwerfen',
+    title: 'Entwurf verwerfen?',
+    body: 'Deine Angaben und die hochgeladenen Dateien werden gelöscht.',
+  };
+  protected readonly intro = computed<WizardIntro>(() => ({
+    key: 'type',
+    label: 'Antragsart',
+    title: 'Antragsart wählen',
+    chosen: this.chosen(),
+    groups: [
+      {
+        key: 'money',
+        label: 'Mit Budget',
+        text:
+          '- **Förderantrag**: Geld für Veranstaltungen und Projekte.\n' +
+          '- **Anschaffung**: Beschaffung aus der eigenen Kostenstelle.\n' +
+          'Pro Kostenposition sind **drei Vergleichsangebote** nötig. [Mehr Informationen](https://example.org)',
+        options: [
+          { value: 'funding', label: 'Förderantrag' },
+          { value: 'purchase', label: 'Anschaffung' },
+        ],
+      },
+      {
+        key: 'other',
+        options: [{ value: 'motion', label: 'Sonstiger Antrag' }],
+      },
+    ],
+  }));
+
+  protected onValue(v: FormValue): void {
+    this.value.set(v);
+    this.dirty.set(true);
+  }
+
+  protected send(): void {
+    this.sending.set(true);
+    setTimeout(() => this.sending.set(false), 800);
+  }
+
+  protected reset(): void {
+    this.value.set({});
+    this.chosen.set(null);
+    this.dirty.set(false);
+  }
+
+  protected home(): void {
+    void this.router.navigate(['/demo/start']);
   }
 }

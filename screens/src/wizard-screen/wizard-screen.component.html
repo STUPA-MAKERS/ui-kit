@@ -1,0 +1,163 @@
+<div class="wz" [appListDetailNav]="bar()">
+  @if (bar()) {
+    <app-list-detail-bar [label]="leave()!.label" [title]="head().title" (back)="left.emit()" />
+  }
+  <aside class="wz__aside">
+    <div class="wz__intro">
+      <h1 class="wz__title" [class.sr-only]="bar()">{{ head().title }}</h1>
+    </div>
+    <app-stepper
+      class="wz__stepper"
+      orientation="vertical"
+      [steps]="stepperSteps()"
+      [activeIndex]="active()"
+      [navigable]="true"
+      [ariaLabel]="intl.translate('wizard.progress')"
+      (stepSelect)="goTo($event)"
+    />
+    @if (saved(); as note) {
+      <p class="wz__saved" role="status">
+        <app-icon name="check" [size]="15" />
+        {{ note }}
+      </p>
+    }
+  </aside>
+
+  <section class="wz__sheet" [attr.aria-labelledby]="titleId">
+    <header class="wz__head">
+      <span class="wz__stepLine">{{ stepLine() }}</span>
+      <h2 class="wz__stepTitle" [id]="titleId">{{ current()?.title }}</h2>
+    </header>
+
+    <div class="wz__body">
+      @if (current()?.kind === 'intro' && intro(); as choice) {
+        <section class="wz__step">
+          <div class="wz__groups" role="radiogroup" [attr.aria-label]="choice.label">
+            @for (group of choice.groups; track group.key) {
+              @if (group.options.length) {
+                @if (group.label) {
+                  <app-section class="wz__block" [heading]="group.label">
+                    @if (groupHtml().get(group.key); as html) {
+                      <div class="wz__groupText" [innerHTML]="html"></div>
+                    }
+                    <ng-container
+                      *ngTemplateOutlet="choiceRows; context: { $implicit: group.options }"
+                    />
+                  </app-section>
+                } @else {
+                  <ng-container
+                    *ngTemplateOutlet="choiceRows; context: { $implicit: group.options }"
+                  />
+                }
+              }
+            }
+          </div>
+          @if (slot(); as s) {
+            <ng-container [ngTemplateOutlet]="s.template" />
+          }
+        </section>
+      }
+
+      <section class="wz__step" [hidden]="current()?.kind !== 'form'">
+        <app-form
+          [form]="form()"
+          [only]="only()"
+          [value]="value()"
+          [errors]="errors()"
+          (valueChange)="onValue($event)"
+        />
+        @if (current()?.kind === 'form' && slot(); as s) {
+          <ng-container [ngTemplateOutlet]="s.template" />
+        }
+      </section>
+
+      @if (current()?.kind === 'review') {
+        <section class="wz__step wz__review">
+          @for (section of summary(); track section.key) {
+            <app-section class="wz__block" [heading]="section.label">
+              <app-field-group>
+                @for (row of section.rows; track row.key) {
+                  <app-field-row [label]="row.label">{{ row.value }}</app-field-row>
+                }
+              </app-field-group>
+            </app-section>
+          } @empty {
+            <p class="wz__empty">{{ intl.translate('wizard.empty') }}</p>
+          }
+          @if (slot(); as s) {
+            <ng-container [ngTemplateOutlet]="s.template" />
+          }
+        </section>
+      }
+    </div>
+
+    <footer class="wz__nav">
+      @if (discard(); as d) {
+        <app-button-group class="wz__discard">
+          <app-button variant="danger" (click)="confirmDiscard.set(true)">{{ d.label }}</app-button>
+        </app-button-group>
+      }
+      <span class="wz__navGap"></span>
+      <app-button-group [main]="true">
+        @if (active() > 0) {
+          <app-button variant="text" [block]="phone()" (click)="prev()">{{
+            intl.translate('wizard.back')
+          }}</app-button>
+        }
+        @if (last()) {
+          <app-button
+            variant="fill"
+            [block]="phone()"
+            [disabled]="!!submit().disabled"
+            [loading]="!!submit().busy"
+            (click)="onSubmit()"
+            >{{ submit().label }}</app-button
+          >
+        } @else {
+          <app-button
+            variant="fill"
+            [block]="phone()"
+            [disabled]="current()?.kind === 'intro' && !intro()?.chosen"
+            (click)="next()"
+            >{{ intl.translate('wizard.next') }}</app-button
+          >
+        }
+      </app-button-group>
+    </footer>
+  </section>
+
+  @if (discard(); as d) {
+    <app-button-group class="wz__discardPhone">
+      <app-button variant="danger" (click)="confirmDiscard.set(true)">{{ d.label }}</app-button>
+    </app-button-group>
+  }
+</div>
+
+<ng-template #choiceRows let-options>
+  <div class="wz__types rowgroup">
+    @for (o of $any(options); track o.value) {
+      <button
+        type="button"
+        class="wz__type"
+        role="radio"
+        [attr.aria-checked]="checked(o.value)"
+        [class.is-selected]="checked(o.value)"
+        (click)="pick(o.value)"
+      >
+        <span class="wz__radio" aria-hidden="true"></span>
+        <span class="wz__typeName">{{ o.label }}</span>
+      </button>
+    }
+  </div>
+</ng-template>
+
+@if (discard(); as d) {
+  <app-confirm-dialog
+    [open]="confirmDiscard()"
+    [title]="d.title"
+    [body]="d.body"
+    [confirmLabel]="d.label"
+    (confirm)="onDiscard()"
+    (cancel)="confirmDiscard.set(false)"
+  />
+}
