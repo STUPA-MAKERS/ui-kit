@@ -14,10 +14,6 @@
 .ds--beside {
   grid-template-columns: minmax(0, 1fr) minmax(18rem, 22rem);
 }
-/* Room at the end edge for the edge tabs (001801). */
-.ds--edge {
-  padding-inline-end: var(--space-6);
-}
 
 .ds__main {
   display: flex;
