@@ -40,11 +40,14 @@ Behaviour:
 - The public frame of the shell draws the header with its button group (001356) and the footer
   with the link to the accessibility statement (STUPA-Workflow:000496). The screen draws only
   the column.
+- The head is the page header of the signed-in pages (`app-page-header`): the crumbs above
+  the title, the lede as its subtitle, the actions as a button group beside the title (under
+  it on a phone).
 - `narrow` is the text column of 45rem, `wide` the list column of 67.5rem; both are centred
   (000201).
 - A crumb without a link is the current page. An action with a route is a link, else it reports
   its key.
-- Loading shows `skeletonRows` skeleton rows. Empty shows the kit empty state in a card, with
+- Loading shows `skeletonRows` skeleton rows. Empty shows the frameless kit empty state (001360), with
   `emptyAction` as its button. A load error is a toast with "Erneut versuchen".
 
 Decisions, each on its own card (pending):
@@ -55,7 +58,10 @@ Decisions, each on its own card (pending):
 - The empty state has the button of the app.
 - A load error is a toast, as on the signed-in pages.
 - The page picks the number of skeleton rows.
-- An empty statement shows the empty state card, not a grey line.
+- The head is the page header of the signed-in pages.
+- The empty state has no card.
+- The crumb trail stays.
+- An empty statement shows the empty-state face, not a grey line.
 
 Reason: Every public page then has the same header, footer, column and head.
 

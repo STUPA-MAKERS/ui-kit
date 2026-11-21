@@ -15,8 +15,12 @@ import {
 } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import {
+  ButtonComponent,
+  ButtonGroupComponent,
+  ButtonLinkComponent,
   EmptyStateComponent,
   IconComponent,
+  PageHeaderComponent,
   SkeletonComponent,
   ToastService,
   UI_KIT_INTL,
@@ -46,7 +50,17 @@ export interface PublicCrumb {
   selector: 'app-public-screen',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [NgTemplateOutlet, RouterLink, EmptyStateComponent, IconComponent, SkeletonComponent],
+  imports: [
+    NgTemplateOutlet,
+    RouterLink,
+    ButtonComponent,
+    ButtonGroupComponent,
+    ButtonLinkComponent,
+    EmptyStateComponent,
+    IconComponent,
+    PageHeaderComponent,
+    SkeletonComponent,
+  ],
   templateUrl: './public-screen.component.html',
   styleUrl: './public-screen.component.scss',
   host: { '[class.pub--wide]': "width() === 'wide'" },
