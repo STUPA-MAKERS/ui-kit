@@ -1,7 +1,9 @@
 import { ChangeDetectionStrategy, Component, computed, inject, input, signal } from '@angular/core';
+import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import {
   CheckboxComponent,
+  InputComponent,
   FactsComponent,
   PageHeaderComponent,
   SectionComponent,
@@ -23,6 +25,10 @@ import {
   ScreenTabDirective,
   FormScreenComponent,
   WizardScreenComponent,
+  SettingsScreenComponent,
+  ScreenGroupDirective,
+  type SettingsGroup,
+  type SettingsState,
   type WizardDiscard,
   type WizardIntro,
   type WizardReview,
@@ -450,5 +456,193 @@ export class DemoApplyPage {
 
   protected home(): void {
     void this.router.navigate(['/demo/start']);
+  }
+}
+
+/** The list of the settings: two pages, as Konto and Verwaltung list them. */
+@Component({
+  selector: 'sc-demo-settings-list',
+  imports: [ListDetailScreenComponent],
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  template: `
+    <app-list-detail-screen
+      [head]="{ title: 'Einstellungen' }"
+      [rows]="rows"
+      [none]="{ heading: 'Einstellung wählen', icon: 'gear' }"
+      [config]="{ barTitle: true }"
+    />
+  `,
+})
+export class DemoSettingsListPage {
+  protected readonly rows: LoadState<readonly ListRow[]> = {
+    state: 'ready',
+    data: [
+      {
+        id: 'notifications',
+        title: 'Benachrichtigungen',
+        meta: ['E-Mails je Anlass ein- und ausschalten'],
+        icon: 'bell',
+        link: { commands: ['/demo/settings', 'notifications'] },
+      },
+      {
+        id: 'tickets',
+        title: 'Hilfe & Tickets',
+        meta: ['Handbuch und Tickets ohne Konto'],
+        icon: 'help',
+        link: { commands: ['/demo/settings', 'tickets'] },
+      },
+    ],
+  };
+}
+
+/**
+ * The settings screen with data only: Benachrichtigungen saves each change at once, Hilfe &
+ * Tickets keeps a draft until Speichern and has a custom group (the Wiki address).
+ */
+@Component({
+  selector: 'sc-demo-settings',
+  imports: [SettingsScreenComponent, ScreenGroupDirective, InputComponent, FormsModule],
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  template: `
+    @if (id() === 'tickets') {
+      <app-settings-screen
+        [head]="{ title: 'Hilfe & Tickets' }"
+        [groups]="ticketGroups()"
+        [state]="state()"
+        [save]="{ dirty: dirty(), busy: saving() }"
+        (change)="setTicket($event.key, $event.value)"
+        (save)="save()"
+        (discard)="discard()"
+      >
+        <ng-template screenGroup="wiki">
+          <app-input
+            type="url"
+            label="Adresse des Handbuchs"
+            [required]="true"
+            [(ngModel)]="wiki"
+          />
+        </ng-template>
+      </app-settings-screen>
+    } @else {
+      <app-settings-screen
+        [head]="{ title: 'Benachrichtigungen' }"
+        [groups]="noticeGroups()"
+        [state]="state()"
+        (change)="setNotice($event.key, $event.value)"
+      />
+    }
+  `,
+})
+export class DemoSettingsPage {
+  readonly id = input('');
+  protected wiki = 'https://wiki.example.org/books/antragsplattform';
+  protected readonly state = signal<SettingsState>({ state: 'loading' });
+  private readonly notices = signal<Readonly<Record<string, boolean>>>({
+    status: false,
+    comments: true,
+    tasks: false,
+    meetings: true,
+    protocols: true,
+  });
+  private readonly saved = signal<Readonly<Record<string, boolean>>>({
+    publicEnabled: true,
+    notifyNew: true,
+    anonymize: false,
+  });
+  private readonly draft = signal<Readonly<Record<string, boolean>>>(this.saved());
+  protected readonly saving = signal(false);
+  protected readonly dirty = computed(() =>
+    Object.keys(this.saved()).some((k) => this.saved()[k] !== this.draft()[k]),
+  );
+
+  protected readonly noticeGroups = computed<readonly SettingsGroup[]>(() => {
+    const n = this.notices();
+    const label: Readonly<Record<string, string>> = {
+      status: 'Status-Updates zu Anträgen',
+      comments: 'Neue Kommentare',
+      tasks: 'Neue Aufgaben',
+      meetings: 'Sitzungen',
+      protocols: 'Protokolle',
+    };
+    return [
+      {
+        key: 'mails',
+        rows: Object.keys(label).map((key) => ({
+          key,
+          label: label[key],
+          control: 'switch' as const,
+          value: n[key],
+        })),
+      },
+    ];
+  });
+
+  protected readonly ticketGroups = computed<readonly SettingsGroup[]>(() => {
+    const d = this.draft();
+    return [
+      { key: 'wiki', label: 'Wiki', rows: [] },
+      {
+        key: 'tickets',
+        label: 'Tickets',
+        rows: [
+          {
+            key: 'publicEnabled',
+            label: 'Tickets ohne Konto erlauben',
+            control: 'switch',
+            value: d['publicEnabled'],
+          },
+          {
+            key: 'notifyNew',
+            label: 'Neue Tickets per E-Mail',
+            control: 'switch',
+            value: d['notifyNew'],
+          },
+          {
+            key: 'anonymize',
+            label: 'Erledigte Tickets anonymisieren',
+            meta: 'Nach 12 Monaten',
+            control: 'switch',
+            value: d['anonymize'],
+          },
+        ],
+      },
+      {
+        key: 'more',
+        label: 'Mehr',
+        rows: [
+          { key: 'version', label: 'Version', control: 'value', value: '2026.11.28' },
+          {
+            key: 'audit',
+            label: 'Audit-Log',
+            control: 'link',
+            link: { commands: ['/demo/start'] },
+          },
+        ],
+      },
+    ];
+  });
+
+  constructor() {
+    setTimeout(() => this.state.set({ state: 'ready' }), 600);
+  }
+
+  protected setNotice(key: string, value: boolean): void {
+    this.notices.update((n) => ({ ...n, [key]: value }));
+  }
+
+  protected setTicket(key: string, value: boolean): void {
+    this.draft.update((d) => ({ ...d, [key]: value }));
+  }
+
+  protected save(): void {
+    this.saving.set(true);
+    setTimeout(() => {
+      this.saved.set(this.draft());
+      this.saving.set(false);
+    }, 600);
+  }
+
+  protected discard(): void {
+    this.draft.set(this.saved());
   }
 }

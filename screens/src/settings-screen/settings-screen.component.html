@@ -1,0 +1,139 @@
+<section class="sts">
+  <app-page-header [flush]="true" [title]="head().title">
+    @if (dirty()) {
+      <app-button actions variant="text" [disabled]="!!save()?.busy" (click)="discarded.emit()">{{
+        intl.translate('settings.discard')
+      }}</app-button>
+    }
+  </app-page-header>
+
+  @switch (state().state) {
+    @case ('loading') {
+      <div class="sts__groups" aria-hidden="true">
+        @for (group of groups(); track group.key) {
+          <ng-container
+            *ngTemplateOutlet="block; context: { $implicit: group, body: skeletonRows }"
+          />
+        }
+      </div>
+      <span class="sr-only" role="status">{{ intl.translate('loading') }}</span>
+    }
+    @case ('forbidden') {
+      <app-note kind="warn" icon="lock" role="alert">{{ forbidden() }}</app-note>
+    }
+    @case ('ready') {
+      <div class="sts__groups">
+        @for (group of groups(); track group.key) {
+          <ng-container *ngTemplateOutlet="block; context: { $implicit: group, body: rows }" />
+        }
+      </div>
+    }
+  }
+
+  @if (dirty()) {
+    <app-fab
+      icon="check"
+      [label]="intl.translate('settings.save')"
+      [loading]="!!save()?.busy"
+      (activate)="onSave()"
+    />
+  }
+</section>
+
+<!-- One group: with a label a section with its heading, else the rows alone. -->
+<ng-template #block let-group let-body="body">
+  @if (group.label) {
+    <app-section class="sts__sec" [level]="2" [heading]="group.label">
+      <ng-container *ngTemplateOutlet="slotOf(group.key) ?? body; context: { $implicit: group }" />
+    </app-section>
+  } @else {
+    <ng-container *ngTemplateOutlet="slotOf(group.key) ?? body; context: { $implicit: group }" />
+  }
+</ng-template>
+
+<ng-template #rows let-group>
+  <div class="rowgroup rowgroup--settings">
+    @for (row of $any(group).rows; track row.key) {
+      @switch (row.control) {
+        @case ('switch') {
+          <app-switch
+            class="sts__row"
+            [checked]="row.value === true"
+            [disabled]="!!row.disabled"
+            [hint]="row.meta ?? ''"
+            (checkedChange)="toggle(row, $event)"
+            >{{ row.label }}</app-switch
+          >
+        }
+        @case ('link') {
+          @if (row.link; as l) {
+            <a
+              class="sts__row sts__line sts__press"
+              [routerLink]="$any(l.commands)"
+              [queryParams]="l.query"
+              [fragment]="l.fragment"
+              [attr.aria-disabled]="row.disabled ? 'true' : null"
+            >
+              <ng-container *ngTemplateOutlet="text; context: { $implicit: row }" />
+              <app-icon class="sts__chevron" name="chevron-right" [size]="18" />
+            </a>
+          }
+        }
+        @case ('value') {
+          <div class="sts__row sts__line">
+            <ng-container *ngTemplateOutlet="text; context: { $implicit: row }" />
+            <span class="sts__value">{{ row.value }}</span>
+          </div>
+        }
+        @case ('action') {
+          <button
+            type="button"
+            class="sts__row sts__line sts__press"
+            [class.sts__danger]="row.action?.kind === 'danger'"
+            [disabled]="!!row.disabled || !!row.action?.disabled"
+            (click)="run(row)"
+          >
+            <ng-container *ngTemplateOutlet="text; context: { $implicit: row }" />
+            @if (row.action?.icon; as icon) {
+              <app-icon class="sts__chevron" [name]="icon" [size]="18" />
+            }
+          </button>
+        }
+      }
+    }
+  </div>
+</ng-template>
+
+<ng-template #text let-row>
+  <span class="sts__text">
+    <span class="sts__label">{{ $any(row).label }}</span>
+    @if ($any(row).meta; as meta) {
+      <span class="sts__meta">{{ meta }}</span>
+    }
+  </span>
+</ng-template>
+
+<!-- The first load: the real labels with a grey switch, as the Funktionen page shows it. -->
+<ng-template #skeletonRows let-group>
+  <div class="rowgroup rowgroup--settings">
+    @for (row of $any(group).rows; track row.key) {
+      <div class="sts__line">
+        <span class="sts__label">{{ row.label }}</span>
+        @if (row.control === 'switch') {
+          <span class="skel-box sts__skelSwitch skel-in"></span>
+        }
+      </div>
+    }
+  </div>
+</ng-template>
+
+@if (asking(); as a) {
+  <app-confirm-dialog
+    [open]="true"
+    [title]="a.confirm?.title ?? a.label"
+    [body]="a.confirm?.text ?? ''"
+    [confirmLabel]="a.confirm?.confirmLabel ?? a.label"
+    (confirm)="confirmed()"
+    (cancel)="cancelled()"
+  />
+}

@@ -90,6 +90,13 @@ const NAV: readonly ShellNavItem[] = [
     place: 'main',
   },
   {
+    key: 'settings',
+    path: '/demo/settings',
+    label: 'Einstellungen',
+    icon: 'gear',
+    place: 'main',
+  },
+  {
     key: 'about',
     path: '/demo/about',
     label: 'Über',

@@ -1,5 +1,9 @@
 <div class="lds" [class.lds--split]="split()" [class.lds--wide]="config().listWidth === 'wide'">
-  <app-list-detail [detailOpen]="selectedId() !== null" (back)="back()">
+  <app-list-detail
+    [detailOpen]="selectedId() !== null"
+    [barTitle]="!!config().barTitle"
+    (back)="back()"
+  >
     <section list class="ld-pane lds__pane" [attr.aria-labelledby]="titleId">
       <app-page-header [pane]="true" [titleId]="titleId" [title]="head().title">
         @if (placed().head.length || menu().length || (selection() && !selectInMenu())) {

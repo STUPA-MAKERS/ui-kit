@@ -352,7 +352,7 @@ specs/
 | [S/framework/screens/002241](style/framework/screens/002241_detail-screen.md) | The detail screen has a fixed interface | approved |
 | [S/framework/screens/002242](style/framework/screens/002242_form-screen.md) | The form screen has a fixed interface | approved |
 | [S/framework/screens/002243](style/framework/screens/002243_wizard-screen.md) | The wizard screen has a fixed interface | approved |
-| [S/framework/screens/002244](style/framework/screens/002244_settings-screen.md) | The settings screen has a fixed interface | approved |
+| [S/framework/screens/002244](style/framework/screens/002244_settings-screen.md) | The settings screen has a fixed interface | draft |
 | [S/framework/screens/002245](style/framework/screens/002245_public-screen.md) | The public screen has a fixed interface | approved |
 | [S/framework/screens/002246](style/framework/screens/002246_status-screen.md) | The status screen has a fixed interface | approved |
 | [S/framework/screens/002247](style/framework/screens/002247_board-screen.md) | The board screen has a fixed interface | approved |

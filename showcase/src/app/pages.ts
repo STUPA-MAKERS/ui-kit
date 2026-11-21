@@ -5,6 +5,8 @@ import { demoConfig } from './demo/demo-config';
 import {
   DemoAboutPage,
   DemoApplyPage,
+  DemoSettingsListPage,
+  DemoSettingsPage,
   DemoDetailPage,
   DemoEditPage,
   DemoFormPage,
@@ -51,6 +53,13 @@ export const SHOWCASE_ROUTES: Routes = [
       }),
       screenRoute({ path: 'form', title: 'Formular', component: DemoFormPage }),
       screenRoute({ path: 'apply', title: 'Antrag stellen', component: DemoApplyPage }),
+      listDetailRoutes({
+        path: 'settings',
+        title: 'Einstellungen',
+        list: DemoSettingsListPage,
+        detail: DemoSettingsPage,
+        none: { icon: 'gear', heading: 'Einstellung wählen', emptyHeading: 'Keine Einstellungen' },
+      }),
       screenRoute({
         path: 'about',
         title: 'Über',

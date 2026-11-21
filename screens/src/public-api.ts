@@ -11,3 +11,4 @@ export * from './form/form.component';
 export * from './form/form.rules';
 export * from './form-screen/form-screen.component';
 export * from './wizard-screen/wizard-screen.component';
+export * from './settings-screen/settings-screen.component';
