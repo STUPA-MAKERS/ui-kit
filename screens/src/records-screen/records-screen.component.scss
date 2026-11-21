@@ -1,0 +1,34 @@
+// A copy of the record pages of STUPA-Workflow: `.admin-page` (the column with 20px gaps) and
+// the filter row of `.fs__filters`.
+:host {
+  display: block;
+}
+
+.rcs {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+}
+
+.rcs__filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+
+.rcs__more {
+  display: flex;
+  justify-content: center;
+}
+
+// In the pane of a list/detail page the column starts 32px below the top of the sheet, as
+// `.adl__body` of the admin pages does, and the page ends with room for the FAB.
+:host-context(.lds--split) .rcs {
+  padding-top: var(--space-6);
+}
+.rcs:has(app-fab) {
+  padding-bottom: calc(56px + 2 * var(--space-4));
+}
+:host-context(.lds--split) .rcs:has(app-fab) {
+  padding-bottom: calc(56px + var(--space-4));
+}

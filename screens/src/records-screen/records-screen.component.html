@@ -1,0 +1,60 @@
+<section class="rcs">
+  <app-page-header [flush]="true" [title]="head().title">
+    @for (a of placed().head; track a.key) {
+      <app-button
+        actions
+        variant="text"
+        [disabled]="!!a.disabled"
+        [loading]="!!a.busy"
+        (click)="run(a)"
+        >{{ a.label }}</app-button
+      >
+    }
+  </app-page-header>
+
+  @if (filtersSlot(); as f) {
+    <app-sticky-bar>
+      <div class="rcs__filters" role="group" [attr.aria-label]="filtersLabel()">
+        <ng-container [ngTemplateOutlet]="f.template" />
+      </div>
+    </app-sticky-bar>
+  }
+
+  @if (firstLoad()) {
+    <app-skeleton variant="rows" [count]="skeleton()" [label]="intl.translate('loading')" />
+  } @else {
+    @if (rows(); as r) {
+      @if (r.state === 'empty') {
+        <app-empty-state [icon]="r.icon" [heading]="r.heading" />
+      }
+    }
+    @if (data().length) {
+      <div class="rowgroup" role="list" [attr.aria-label]="head().title">
+        @for (row of data(); track row.id) {
+          @if (recordSlot(); as slot) {
+            <div class="rcs__record" role="listitem">
+              <ng-container [ngTemplateOutlet]="slot.template" [ngTemplateOutletContext]="{ $implicit: row }" />
+            </div>
+          } @else {
+            <app-list-item
+              role="listitem"
+              [title]="row.title"
+              [link]="row.link ? $any(row.link.commands) : null"
+              [subWrap]="true"
+              [sub]="row.meta?.join(' · ') ?? null"
+            />
+          }
+        }
+      </div>
+    }
+    @if (hasMore()) {
+      <div class="rcs__more">
+        <app-button variant="outlined" (click)="more.emit()">{{ intl.translate('screen.more') }}</app-button>
+      </div>
+    }
+  }
+
+  @for (a of placed().fab; track a.key) {
+    <app-fab [label]="a.label" [icon]="a.icon ?? 'plus'" [disabled]="!!a.disabled" [loading]="!!a.busy" (activate)="run(a)" />
+  }
+</section>
