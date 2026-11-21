@@ -57,6 +57,8 @@ export interface SettingsGroup {
   /** The group shows in every state of the screen, and its slot carries its own load state
    * (gesperrte Absender of Hilfe & Tickets). */
   readonly always?: boolean;
+  /** A muted line under the group once it is ready (the time of the last change, Anmeldung). */
+  readonly foot?: string;
 }
 
 /** What the screen shows: the skeleton, the groups, the missing right, or a load error. */

@@ -26,7 +26,7 @@ empty?: { readonly icon: IconName; readonly heading: string } | null
 
 interface SettingsGroup {
   readonly key: string; readonly label?: string; readonly rows: readonly SettingsRow[];
-  readonly always?: boolean;
+  readonly always?: boolean; readonly foot?: string;
 }
 interface SettingsRow {
   readonly key: string; readonly label: string; readonly meta?: string;
@@ -66,6 +66,7 @@ Behaviour:
 - `notice` is a note under the head in every state, with role alert (a failed save of Konto
   Benachrichtigungen, which saves at once). `empty` shows when the screen is ready and has no
   groups.
+- `foot` is a muted line 20 px under a ready group (the time of the last change, Anmeldung).
 - An action with `confirm` asks first.
 - In the pane of a list/detail page the screen starts 32 px below the top of the sheet, and the
   page ends with room for the FAB. On a phone the bar names the page from the start

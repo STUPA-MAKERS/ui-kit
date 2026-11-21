@@ -118,7 +118,7 @@ class NoticeHost {
 })
 class SlotHost {
   readonly groups: readonly SettingsGroup[] = [
-    { key: 'wiki', label: 'Wiki', rows: [] },
+    { key: 'wiki', label: 'Wiki', rows: [], foot: 'Geändert am 10.11.2026' },
     { key: 'blocked', label: 'Gesperrte Absender', rows: [], always: true },
   ];
   readonly state = signal<SettingsState>({ state: 'loading' });
@@ -225,14 +225,16 @@ describe('SettingsScreenComponent', () => {
     expect(screen.queryByRole('heading', { level: 2 })).toBeNull();
   });
 
-  it('shows the skeleton of a slot group while it loads, and its slot when ready', async () => {
+  it('shows the skeleton of a slot group while it loads, and its slot and foot when ready', async () => {
     const view = await render(SlotHost, { providers: [provideRouter([])] });
     expect(screen.getByText('Grauer Platzhalter')).toBeTruthy();
     expect(screen.queryByText('Adresse des Handbuchs')).toBeNull();
+    expect(screen.queryByText('Geändert am 10.11.2026')).toBeNull();
     view.fixture.componentInstance.state.set({ state: 'ready' });
     view.detectChanges();
     expect(screen.getByText('Adresse des Handbuchs')).toBeTruthy();
     expect(screen.queryByText('Grauer Platzhalter')).toBeNull();
+    expect(screen.getByText('Geändert am 10.11.2026')).toBeTruthy();
   });
 
   it('shows a group with always in every state, without a note for an empty message', async () => {

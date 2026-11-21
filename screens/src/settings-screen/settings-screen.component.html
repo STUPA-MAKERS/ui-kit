@@ -39,14 +39,14 @@
       }
       <div class="sts__groups">
         @for (group of stateGroups(); track group.key) {
-          <ng-container *ngTemplateOutlet="block; context: { $implicit: group, body: slotOf(group.key) ?? rows }" />
+          <ng-container *ngTemplateOutlet="block; context: { $implicit: group, body: slotOf(group.key) ?? rows, foot: true }" />
         }
       </div>
     }
   }
 
   @for (group of alwaysGroups(); track group.key) {
-    <ng-container *ngTemplateOutlet="block; context: { $implicit: group, body: slotOf(group.key) ?? rows }" />
+    <ng-container *ngTemplateOutlet="block; context: { $implicit: group, body: slotOf(group.key) ?? rows, foot: true }" />
   }
 
   @if (dirty()) {
@@ -61,11 +61,23 @@
 </section>
 
 <!-- One group: with a label a section with its heading, else the rows alone. -->
-<ng-template #block let-group let-body="body">
+<ng-template #block let-group let-body="body" let-foot="foot">
   @if (group.label) {
     <app-section class="sts__sec" [level]="2" [heading]="group.label">
-      <ng-container *ngTemplateOutlet="body; context: { $implicit: group }" />
+      <ng-container *ngTemplateOutlet="footed; context: { $implicit: group, body, foot }" />
     </app-section>
+  } @else {
+    <ng-container *ngTemplateOutlet="footed; context: { $implicit: group, body, foot }" />
+  }
+</ng-template>
+
+<!-- The body, and under it the foot line of a ready group, 20px apart. -->
+<ng-template #footed let-group let-body="body" let-foot="foot">
+  @if (foot && group.foot) {
+    <div class="sts__footed">
+      <ng-container *ngTemplateOutlet="body; context: { $implicit: group }" />
+      <p class="sts__foot">{{ group.foot }}</p>
+    </div>
   } @else {
     <ng-container *ngTemplateOutlet="body; context: { $implicit: group }" />
   }
