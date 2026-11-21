@@ -2,8 +2,18 @@
   <app-list-detail [detailOpen]="selectedId() !== null" (back)="back()">
     <section list class="ld-pane lds__pane" [attr.aria-labelledby]="titleId">
       <app-page-header [pane]="true" [titleId]="titleId" [title]="head().title">
-        @if (placed().head.length || menu().length) {
+        @if (placed().head.length || menu().length || (selection() && !selectInMenu())) {
           <ng-container ngProjectAs="[actions]">
+            @if (selection() && !selectInMenu()) {
+              <app-button
+                variant="text"
+                [iconOnly]="true"
+                [ariaLabel]="'screen.select' | uiKitT"
+                [ariaPressed]="selecting()"
+                (click)="toggleSelecting()"
+                ><app-icon name="boxok"
+              /></app-button>
+            }
             @for (a of placed().head; track a.key) {
               <app-button
                 variant="text"
@@ -26,7 +36,7 @@
         }
       </app-page-header>
 
-      @if (search() || filters().length) {
+      @if (search() || filters().length || selecting()) {
         <app-sticky-bar class="ld-pane__filters">
           @if (search(); as s) {
             <app-search-pill
@@ -61,6 +71,28 @@
                 }
               }
             </div>
+          }
+          @if (selecting()) {
+            <app-selection-bar
+              inline
+              [count]="selectedCount()"
+              [allSelected]="allSelected()"
+              [clearLabel]="'screen.selectStop' | uiKitT"
+              (selectAll)="toggleAll($event)"
+              (cleared)="stopSelecting()"
+            >
+              @for (a of selection()?.actions ?? []; track a.key) {
+                <app-button
+                  variant="text"
+                  [iconOnly]="true"
+                  [ariaLabel]="a.label"
+                  [disabled]="!selectedCount() || !!a.disabled"
+                  [loading]="!!a.busy"
+                  (click)="runSelected(a)"
+                  ><app-icon [name]="a.icon ?? 'check'"
+                /></app-button>
+              }
+            </app-selection-bar>
           }
         </app-sticky-bar>
       }
@@ -131,10 +163,25 @@
             role="listitem"
             [title]="row.title"
             [sub]="row.meta?.join(' · ') ?? null"
-            [link]="row.link ? $any(row.link.commands) : null"
+            [link]="!selecting() && row.link ? $any(row.link.commands) : null"
             linkQueryParamsHandling="preserve"
-            [selected]="row.id === selectedId()"
+            [selected]="!selecting() && row.id === selectedId()"
+            [checked]="selecting() && isSelected(row)"
+            appLongPress
+            [appLongPressOff]="!canSelect(row)"
+            (appLongPress)="pressRow(row)"
+            (activate)="activateRow(row)"
           >
+            @if (selecting() && canSelect(row)) {
+              <app-checkbox
+                lead
+                [ngModel]="isSelected(row)"
+                (ngModelChange)="toggleRow(row, $event)"
+                ><span class="sr-only">{{
+                  'screen.selectRow' | uiKitT: { title: row.title }
+                }}</span></app-checkbox
+              >
+            }
             <!-- One root per block, so that each part reaches its slot of the row. -->
             @if (rowSlot(); as slot) {
               <span sub class="lds__slot"
@@ -143,10 +190,10 @@
                   [ngTemplateOutletContext]="{ $implicit: row }"
               /></span>
             }
-            @if (leadPerson(row); as person) {
+            @if (!selecting() && leadPerson(row); as person) {
               <app-avatar lead [name]="person.name" size="sm" [decorative]="true" />
             }
-            @if (!row.avatar && row.icon) {
+            @if (!selecting() && !row.avatar && row.icon) {
               <app-icon lead [name]="row.icon" />
             }
             @if (!rowSlot() && (row.status || row.trailing)) {

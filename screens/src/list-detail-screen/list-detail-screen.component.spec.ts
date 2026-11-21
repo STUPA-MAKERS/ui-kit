@@ -16,9 +16,14 @@ import { ListDetailScreenComponent } from './list-detail-screen.component';
 })
 class StubDetail {}
 
+const SEND: Action = { key: 'send', label: 'Nachricht senden', icon: 'mail' };
+
 type Rows = LoadState<readonly ListRow[] | readonly ListGroup[]>;
 
-async function setUp(rows: Rows, extra: { actions?: readonly Action[]; search?: boolean } = {}) {
+async function setUp(
+  rows: Rows,
+  extra: { actions?: readonly Action[]; search?: boolean; selection?: boolean } = {},
+) {
   const action = jest.fn();
   const query = jest.fn();
   const more = jest.fn();
@@ -30,6 +35,7 @@ async function setUp(rows: Rows, extra: { actions?: readonly Action[]; search?: 
       search: extra.search === false ? null : { placeholder: 'Anträge durchsuchen' },
       filters: LIST_FILTERS,
       actions: extra.actions ?? [],
+      selection: extra.selection ? { actions: [SEND] } : null,
     },
     on: { action, query, more },
     providers: [provideRouter([{ path: ':id', component: StubDetail }])],
@@ -103,5 +109,49 @@ describe('ListDetailScreenComponent', () => {
   it('emits the query of the URL once at the start', async () => {
     const { query } = await setUp({ state: 'ready', data: LIST_ROWS });
     expect(query).toHaveBeenCalledWith({ search: '', filters: { state: null }, sort: null });
+  });
+
+  it('starts the selection from the head toggle and emits the action with the ids', async () => {
+    const { action } = await setUp({ state: 'ready', data: LIST_ROWS }, { selection: true });
+    await userEvent.click(screen.getByRole('button', { name: 'Mehrere auswählen' }));
+    expect(screen.getByRole('toolbar', { name: 'Auswahl' })).toBeInTheDocument();
+    const send = screen.getByRole('button', { name: 'Nachricht senden' });
+    expect(send.closest('button')).toBeDisabled();
+    await userEvent.click(screen.getByRole('checkbox', { name: 'Zuschuss Sommerfest auswählen' }));
+    await userEvent.click(send);
+    expect(action).toHaveBeenCalledWith({ key: 'send', ids: ['1'] });
+  });
+
+  it('selects every row and ends the selection', async () => {
+    const { action } = await setUp({ state: 'ready', data: LIST_ROWS }, { selection: true });
+    await userEvent.click(screen.getByRole('button', { name: 'Mehrere auswählen' }));
+    await userEvent.click(screen.getByRole('checkbox', { name: /Alle wählen/ }));
+    await userEvent.click(screen.getByRole('button', { name: 'Nachricht senden' }));
+    expect(action).toHaveBeenCalledWith({ key: 'send', ids: LIST_ROWS.map((r) => r.id) });
+    await userEvent.click(screen.getByRole('button', { name: 'Auswahl beenden' }));
+    expect(screen.queryByRole('toolbar', { name: 'Auswahl' })).toBeNull();
+  });
+
+  it('starts the selection with a long press on a row', async () => {
+    const { view } = await setUp({ state: 'ready', data: LIST_ROWS }, { selection: true });
+    const row = screen.getByText('Zuschuss Sommerfest').closest('app-list-item')!;
+    row.dispatchEvent(new MouseEvent('contextmenu', { bubbles: true, cancelable: true }));
+    // The test fixture has no automatic change detection; ngModel writes the box a tick later.
+    view.fixture.detectChanges();
+    await new Promise((r) => setTimeout(r, 0));
+    view.fixture.detectChanges();
+    expect(screen.getByRole('checkbox', { name: 'Zuschuss Sommerfest auswählen' })).toBeChecked();
+  });
+
+  it('shows no selection toggle without a selection', async () => {
+    await setUp({ state: 'ready', data: LIST_ROWS });
+    expect(screen.queryByRole('button', { name: 'Mehrere auswählen' })).toBeNull();
+  });
+
+  // §NF/accessibility/conformance/000493
+  it('has no axe violations in the selection', async () => {
+    const { view } = await setUp({ state: 'ready', data: LIST_GROUPS }, { selection: true });
+    await userEvent.click(screen.getByRole('button', { name: 'Mehrere auswählen' }));
+    expect(await runAxe(view.container)).toHaveNoViolations();
   });
 });
