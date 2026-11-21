@@ -82,7 +82,7 @@ export class ScreenFormTopDirective {
     ListDetailBarComponent,
     ListDetailNavDirective,
   ],
-  host: { '[class.fs--framed]': 'framed()' },
+  host: { '[class.fs--framed]': 'framed()', '[class.fs--onSheet]': 'onSheet()' },
   templateUrl: './form-screen.component.html',
   styleUrl: './form-screen.component.scss',
 })
@@ -129,8 +129,10 @@ export class FormScreenComponent {
   protected readonly ownBar = computed(
     () => !this.inLayout() && this.phone() && this.discard() === null,
   );
-  /** Wider than a phone and on the page itself, the screen is a sheet with round corners. */
-  protected readonly framed = computed(() => !this.inLayout() && !this.phone());
+  /** Wider than a phone, the form lies on a sheet: the detail pane, or its own frame. */
+  protected readonly onSheet = computed(() => !this.inLayout() && !this.phone());
+  /** Outside the list/detail layout the screen is that sheet itself, with round corners. */
+  protected readonly framed = computed(() => !this.nav && !this.phone());
   /** A bar at the top shows the title and the X, so the head stays for screen readers only. */
   protected readonly docked = computed(() => this.inLayout() || this.ownBar());
 
