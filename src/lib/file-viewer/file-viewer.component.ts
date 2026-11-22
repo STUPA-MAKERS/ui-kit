@@ -303,9 +303,21 @@ export class FileViewerComponent implements OnDestroy {
     if (target && typeof target.focus === 'function') target.focus();
   }
 
+  /**
+   * Holds the page while the viewer is open: no scroll, and `data-file-viewer` on `<html>`,
+   * which blurs the page (`base.scss`). The attribute replaces `body:has(.fv:popover-open)`:
+   * with that selector every element that the page inserts anywhere (the ripple of a press,
+   * a row) made the browser style the whole page again (app spec 002406).
+   */
   private lockScroll(): void {
     if (this.releaseScroll !== null || typeof document === 'undefined') return;
-    this.releaseScroll = lockBodyScroll();
+    const release = lockBodyScroll();
+    const root = document.documentElement;
+    root.setAttribute('data-file-viewer', '');
+    this.releaseScroll = () => {
+      root.removeAttribute('data-file-viewer');
+      release();
+    };
   }
 
   private unlockScroll(): void {

@@ -540,7 +540,9 @@ body app-list-detail-bar.ld__bar--under.ld__bar--under.ld__bar--covered {
 // blur of the viewer, so their text stays sharp under it. While the
 // viewer is open the page itself is blurred as well. The viewer lies in the top layer, so
 // the filter of its ancestors does not reach it. The rule reads the viewer and styles the
-// page, so it lives here.
-body:has(.fv:popover-open) > * {
+// page, so it lives here. The viewer sets `data-file-viewer` on `<html>` while it is open: a
+// `body:has()` would make every element that the page inserts restyle the whole page (app
+// spec 002406).
+html[data-file-viewer] body > * {
   filter: blur(16px);
 }
