@@ -209,7 +209,154 @@ export type UiKitTextKey =
   | 'palette.truncated'
   | 'palette.keysSelect'
   | 'palette.keysOpen'
-  | 'palette.archived';
+  | 'palette.archived'
+  | 'circular.status.objection'
+  | 'election.abstentions.one'
+  | 'election.abstentions.other'
+  | 'election.abstentionsLabel'
+  | 'election.ballot.abstainAll'
+  | 'election.ballot.counter'
+  | 'election.ballot.sole'
+  | 'election.candidate.erased'
+  | 'election.kind'
+  | 'election.lot.cancel'
+  | 'election.lot.confirm'
+  | 'election.lot.confirmHint'
+  | 'election.lot.draw'
+  | 'election.lot.drawn'
+  | 'election.lot.note'
+  | 'election.lot.pending'
+  | 'election.lot.waiting'
+  | 'election.names.one'
+  | 'election.names.other'
+  | 'election.nextRound.created'
+  | 'election.nextRound.lotNote'
+  | 'election.nextRound.second'
+  | 'election.nextRound.third'
+  | 'election.result.elected'
+  | 'election.result.noMajority'
+  | 'election.result.nobody'
+  | 'election.result.runoff'
+  | 'election.result.tie'
+  | 'election.runoff.banner'
+  | 'election.runoff.exists'
+  | 'election.runoffRound'
+  | 'election.seats.one'
+  | 'election.seats.other'
+  | 'election.status.elected'
+  | 'election.status.noMajority'
+  | 'election.status.rejected'
+  | 'election.status.runoff'
+  | 'election.status.tie'
+  | 'election.tag.elected'
+  | 'election.tag.tie'
+  | 'guests.vote.cast'
+  | 'guests.vote.castN'
+  | 'guests.vote.composition'
+  | 'guests.vote.majorityOfCast'
+  | 'guests.vote.notReached'
+  | 'guests.vote.reached'
+  | 'guests.vote.resultCaption'
+  | 'meetings.agenda.top'
+  | 'meetings.dock.insertResult'
+  | 'meetings.dock.of'
+  | 'meetings.dock.yourVote'
+  | 'meetings.toast.actionFailed'
+  | 'meetings.vote.attempt'
+  | 'meetings.vote.attemptElection'
+  | 'meetings.vote.cancel'
+  | 'meetings.vote.card.cancelled'
+  | 'meetings.vote.card.closed'
+  | 'meetings.vote.card.draft'
+  | 'meetings.vote.card.open'
+  | 'meetings.vote.close'
+  | 'meetings.vote.delete'
+  | 'meetings.vote.edit'
+  | 'meetings.vote.endedAt'
+  | 'meetings.vote.kind.circular'
+  | 'meetings.vote.menu'
+  | 'meetings.vote.open'
+  | 'meetings.vote.openBlocked'
+  | 'meetings.vote.opensLater'
+  | 'meetings.vote.progress'
+  | 'meetings.vote.quorumCount'
+  | 'meetings.vote.quorumPercent'
+  | 'meetings.vote.repeat'
+  | 'meetings.vote.repeatElection'
+  | 'meetings.vote.repeated'
+  | 'meetings.vote.rule.members_majority'
+  | 'meetings.vote.rule.simple'
+  | 'meetings.vote.since'
+  | 'meetings.vote.tally'
+  | 'meetings.vote.untitled'
+  | 'meetings.voteResult.inProtocol'
+  | 'meetings.voteStatus.cancelled'
+  | 'meetings.voteStatus.closed'
+  | 'meetings.voteStatus.draft'
+  | 'meetings.voteStatus.open'
+  | 'poll.answer.maybe'
+  | 'poll.ballot.counter'
+  | 'poll.ballot.submitDate'
+  | 'poll.caption'
+  | 'poll.mode.date'
+  | 'poll.mode.multi'
+  | 'poll.mode.multiMax'
+  | 'poll.mode.single'
+  | 'poll.options.one'
+  | 'poll.options.other'
+  | 'poll.result.dateCaption'
+  | 'poll.result.dateRow'
+  | 'poll.result.footer'
+  | 'poll.status.closed'
+  | 'poll.status.open'
+  | 'vote.failedQuorum'
+  | 'vote.majority.absolute'
+  | 'vote.majority.members_majority'
+  | 'vote.majority.members_two_thirds'
+  | 'vote.majority.simple'
+  | 'vote.majority.two_thirds'
+  | 'vote.majorityCast.absolute'
+  | 'vote.majorityCast.members_majority'
+  | 'vote.majorityCast.members_two_thirds'
+  | 'vote.majorityCast.simple'
+  | 'vote.majorityCast.two_thirds'
+  | 'vote.option.abstain'
+  | 'vote.option.no'
+  | 'vote.option.yes'
+  | 'vote.result.passed'
+  | 'vote.result.rejected'
+  | 'vote.tally.quorum'
+  | 'vote.tally.quorumMet'
+  | 'vote.tally.quorumMissed'
+  | 'voting.ballot.confirm'
+  | 'voting.ballot.confirmCount'
+  | 'voting.ballot.confirmEmpty'
+  | 'voting.ballot.confirmNames'
+  | 'voting.ballot.confirmProxy'
+  | 'voting.ballot.confirmProxyCount'
+  | 'voting.ballot.confirmProxyEmpty'
+  | 'voting.ballot.locked'
+  | 'voting.ballot.own'
+  | 'voting.ballot.ownWith'
+  | 'voting.ballot.ownWithCount'
+  | 'voting.ballot.proxy'
+  | 'voting.ballot.proxyCount'
+  | 'voting.ballot.proxyDone'
+  | 'voting.ballot.proxyDoneSecret'
+  | 'voting.ballot.thanks'
+  | 'voting.ballot.thanksSecret'
+  | 'voting.bars.label'
+  | 'voting.bars.row'
+  | 'voting.beamer.votesOf'
+  | 'voting.cast.toast.alreadyVoted'
+  | 'voting.cast.toast.asUnit'
+  | 'voting.cast.toast.noDelegationInElection'
+  | 'voting.live.closed'
+  | 'voting.live.opened'
+  | 'voting.live.vote'
+  | 'voting.panel.application'
+  | 'voting.panel.where'
+  | 'voting.progress.eligible';
 
 export type UiKitMessages = Record<UiKitTextKey, string>;
 
@@ -406,6 +553,153 @@ export const UI_KIT_DEFAULT_MESSAGES: Record<UiLang, UiKitMessages> = {
     'palette.keysSelect': 'Auswählen',
     'palette.keysOpen': 'Öffnen',
     'palette.archived': 'Archiviert',
+    'circular.status.objection': 'Abgebrochen durch Widerspruch',
+    'election.abstentions.one': '1 Enthaltung',
+    'election.abstentions.other': '{n} Enthaltungen',
+    'election.abstentionsLabel': 'Enthaltungen',
+    'election.ballot.abstainAll': 'Ganz enthalten',
+    'election.ballot.counter': '{n} von {m} Stimmen vergeben',
+    'election.ballot.sole': 'Zur Wahl steht: {name}',
+    'election.candidate.erased': 'Gelöscht',
+    'election.kind': 'Wahl',
+    'election.lot.cancel': 'Abbrechen',
+    'election.lot.confirm': 'Jetzt Los ziehen',
+    'election.lot.confirmHint': 'Das Los ist endgültig und lässt sich nicht zurücknehmen.',
+    'election.lot.draw': 'Los ziehen',
+    'election.lot.drawn': 'Das Los ist gezogen.',
+    'election.lot.note': 'Durch Los entschieden: {names}',
+    'election.lot.pending': 'Gleichstand zwischen {names}. Das Los entscheidet.',
+    'election.lot.waiting': 'Die Sitzungsleitung zieht das Los.',
+    'election.names.one': '1 Name',
+    'election.names.other': '{n} Namen',
+    'election.nextRound.created': 'Der nächste Wahlgang ist vorbereitet.',
+    'election.nextRound.lotNote': 'Das Los bestimmt für den dritten Wahlgang: {names}',
+    'election.nextRound.second': 'Zweiter Wahlgang',
+    'election.nextRound.third': 'Dritter Wahlgang',
+    'election.result.elected': 'Gewählt: {names}',
+    'election.result.noMajority': 'Keine Mehrheit der Mitglieder',
+    'election.result.nobody': 'Niemand gewählt',
+    'election.result.runoff': 'Stichwahl nötig',
+    'election.result.tie': 'Gleichstand: das Los steht aus',
+    'election.runoff.banner': 'Gleichstand an der Grenze: Stichwahl um {seats} zwischen {names}.',
+    'election.runoff.exists': 'Die Stichwahl ist angelegt.',
+    'election.runoffRound': 'Stichwahl ({n}. Wahlgang)',
+    'election.seats.one': '1 Posten',
+    'election.seats.other': '{n} Posten',
+    'election.status.elected': 'Gewählt',
+    'election.status.noMajority': 'Keine Mehrheit',
+    'election.status.rejected': 'Niemand gewählt',
+    'election.status.runoff': 'Stichwahl',
+    'election.status.tie': 'Los steht aus',
+    'election.tag.elected': 'gewählt',
+    'election.tag.tie': 'Gleichstand',
+    'guests.vote.cast': 'Abgegeben',
+    'guests.vote.castN': 'Abgegeben {n}',
+    'guests.vote.composition': '{members} Mitglieder + {guests} Gäste anwesend',
+    'guests.vote.majorityOfCast': 'Mehrheit der abgegebenen Stimmen',
+    'guests.vote.notReached': 'nicht erreicht',
+    'guests.vote.reached': 'erreicht',
+    'guests.vote.resultCaption': 'Ergebnis ohne Quorum',
+    'meetings.agenda.top': 'TOP {n}',
+    'meetings.dock.insertResult': 'Ins Protokoll übernehmen',
+    'meetings.dock.of': '{n} von {m}',
+    'meetings.dock.yourVote': 'Deine Stimme',
+    'meetings.toast.actionFailed': 'Aktion fehlgeschlagen.',
+    'meetings.vote.attempt': '{n}. Abstimmung',
+    'meetings.vote.attemptElection': '{n}. Wahlgang',
+    'meetings.vote.cancel': 'Abstimmung abbrechen',
+    'meetings.vote.card.cancelled': 'Abstimmung abgebrochen',
+    'meetings.vote.card.closed': 'Abstimmung geschlossen',
+    'meetings.vote.card.draft': 'Abstimmung vorbereitet',
+    'meetings.vote.card.open': 'Abstimmung offen',
+    'meetings.vote.close': 'Abstimmung schließen',
+    'meetings.vote.delete': 'Beschlussfrage löschen',
+    'meetings.vote.edit': 'Bearbeiten',
+    'meetings.vote.endedAt': 'beendet {time}',
+    'meetings.vote.kind.circular': 'Umlaufverfahren',
+    'meetings.vote.menu': 'Aktionen der Abstimmung',
+    'meetings.vote.open': 'Abstimmung öffnen',
+    'meetings.vote.openBlocked': 'Erst die offene Abstimmung schließen oder abbrechen.',
+    'meetings.vote.opensLater': 'Öffnen kannst du sie, sobald die Sitzung eröffnet ist.',
+    'meetings.vote.progress': '{voted} von {present} Anwesenden haben abgestimmt',
+    'meetings.vote.quorumCount': 'Quorum {n}',
+    'meetings.vote.quorumPercent': 'Quorum {n} %',
+    'meetings.vote.repeat': 'Erneut abstimmen',
+    'meetings.vote.repeatElection': 'Wahlgang wiederholen',
+    'meetings.vote.repeated': 'Wiederholt',
+    'meetings.vote.rule.members_majority': 'Mehrheit der Mitglieder',
+    'meetings.vote.rule.simple': 'Einfache Mehrheit',
+    'meetings.vote.since': 'seit {time}',
+    'meetings.vote.tally': 'Zwischenstand',
+    'meetings.vote.untitled': 'Beschlussfrage',
+    'meetings.voteResult.inProtocol': 'Im Protokoll',
+    'meetings.voteStatus.cancelled': 'Abgebrochen',
+    'meetings.voteStatus.closed': 'Geschlossen',
+    'meetings.voteStatus.draft': 'Geplant',
+    'meetings.voteStatus.open': 'Offen',
+    'poll.answer.maybe': 'Vielleicht',
+    'poll.ballot.counter': '{n} von höchstens {m} gewählt',
+    'poll.ballot.submitDate': 'Antworten abgeben',
+    'poll.caption': 'Umfrage · {mode}',
+    'poll.mode.date': 'Terminumfrage',
+    'poll.mode.multi': 'Mehrfachwahl',
+    'poll.mode.multiMax': 'Mehrfachwahl, höchstens {n}',
+    'poll.mode.single': 'Einzelwahl',
+    'poll.options.one': '1 Option',
+    'poll.options.other': '{n} Optionen',
+    'poll.result.dateCaption': 'Zahl = Ja, (+n) = Vielleicht',
+    'poll.result.dateRow': '{option}: {yes} Ja, {maybe} Vielleicht',
+    'poll.result.footer': '{n} von {m} haben geantwortet',
+    'poll.status.closed': 'Umfrage beendet',
+    'poll.status.open': 'Umfrage offen',
+    'vote.failedQuorum': 'Quorum nicht erreicht',
+    'vote.majority.absolute': 'Absolute Mehrheit',
+    'vote.majority.members_majority': 'Mehrheit der Mitglieder',
+    'vote.majority.members_two_thirds': 'Zweidrittelmehrheit der Mitglieder',
+    'vote.majority.simple': 'Einfache Mehrheit',
+    'vote.majority.two_thirds': 'Zweidrittelmehrheit',
+    'vote.majorityCast.absolute': 'Absolute Mehrheit der abgegebenen Stimmen',
+    'vote.majorityCast.members_majority': 'Mehrheit der Mitglieder',
+    'vote.majorityCast.members_two_thirds': 'Zweidrittelmehrheit der Mitglieder',
+    'vote.majorityCast.simple': 'Einfache Mehrheit der abgegebenen Stimmen',
+    'vote.majorityCast.two_thirds': 'Zweidrittelmehrheit der abgegebenen Stimmen',
+    'vote.option.abstain': 'Enthaltung',
+    'vote.option.no': 'Nein',
+    'vote.option.yes': 'Ja',
+    'vote.result.passed': 'Angenommen',
+    'vote.result.rejected': 'Abgelehnt',
+    'vote.tally.quorum': 'Quorum',
+    'vote.tally.quorumMet': 'erreicht',
+    'vote.tally.quorumMissed': 'nicht erreicht',
+    'voting.ballot.confirm': 'Stimme abgeben: {choice}',
+    'voting.ballot.confirmCount': 'Stimmen abgeben ({count})',
+    'voting.ballot.confirmEmpty': 'Stimme abgeben',
+    'voting.ballot.confirmNames': '{label}: {names}',
+    'voting.ballot.confirmProxy': 'Für {name} abgeben: {choice}',
+    'voting.ballot.confirmProxyCount': 'Für {name} abgeben ({count})',
+    'voting.ballot.confirmProxyEmpty': 'Für {name} abgeben',
+    'voting.ballot.locked': 'Eine Änderung der Stimme ist nicht möglich.',
+    'voting.ballot.own': 'Deine Stimme',
+    'voting.ballot.ownWith': 'Deine Stimme, auch für {name}',
+    'voting.ballot.ownWithCount': 'Deine Stimme, {count} Stimmrechte, auch für {name}',
+    'voting.ballot.proxy': 'Als Vertretung für {name}',
+    'voting.ballot.proxyCount': '{count} Stimmrechte als Vertretung für {name}',
+    'voting.ballot.proxyDone': 'Für {name} abgegeben: {choice}',
+    'voting.ballot.proxyDoneSecret': 'Für {name} abgegeben.',
+    'voting.ballot.thanks': 'Danke! Deine Stimme: {choice}',
+    'voting.ballot.thanksSecret': 'Danke! Deine Stimme ist abgegeben.',
+    'voting.bars.label': 'Ergebnis, {cast} Stimmen',
+    'voting.bars.row': '{option}: {count} Stimmen, {pct} %',
+    'voting.beamer.votesOf': '{cast} von {eligible} Stimmen',
+    'voting.cast.toast.alreadyVoted': 'Deine Stimme ist bereits abgegeben.',
+    'voting.cast.toast.asUnit': 'Gib zuerst deine eigene Stimme ab. Sie zählt auch für die Vertretenen.',
+    'voting.cast.toast.noDelegationInElection': 'In einer Wahl stimmst du nur für dich selbst ab.',
+    'voting.live.closed': 'Abstimmung beendet: {subject}. {result}',
+    'voting.live.opened': 'Abstimmung geöffnet: {subject}',
+    'voting.live.vote': 'Abstimmung',
+    'voting.panel.application': 'Antrag öffnen',
+    'voting.panel.where': '{meeting} · TOP {n}',
+    'voting.progress.eligible': '{voted} von {total} Stimmberechtigten haben abgestimmt',
   },
   en: {
     'dialog.close': 'Close',
@@ -598,6 +892,153 @@ export const UI_KIT_DEFAULT_MESSAGES: Record<UiLang, UiKitMessages> = {
     'palette.keysSelect': 'Select',
     'palette.keysOpen': 'Open',
     'palette.archived': 'Archived',
+    'circular.status.objection': 'Cancelled by an objection',
+    'election.abstentions.one': '1 abstention',
+    'election.abstentions.other': '{n} abstentions',
+    'election.abstentionsLabel': 'Abstentions',
+    'election.ballot.abstainAll': 'Abstain fully',
+    'election.ballot.counter': '{n} of {m} votes given',
+    'election.ballot.sole': 'Candidate: {name}',
+    'election.candidate.erased': 'Deleted',
+    'election.kind': 'Election',
+    'election.lot.cancel': 'Cancel',
+    'election.lot.confirm': 'Draw lot now',
+    'election.lot.confirmHint': 'The lot is final and cannot be undone.',
+    'election.lot.draw': 'Draw lot',
+    'election.lot.drawn': 'The lot is drawn.',
+    'election.lot.note': 'Decided by lot: {names}',
+    'election.lot.pending': 'Tie between {names}. The lot decides.',
+    'election.lot.waiting': 'The meeting lead draws the lot.',
+    'election.names.one': '1 name',
+    'election.names.other': '{n} names',
+    'election.nextRound.created': 'The next round is prepared.',
+    'election.nextRound.lotNote': 'The lot gives a place in the third round to: {names}',
+    'election.nextRound.second': 'Second round',
+    'election.nextRound.third': 'Third round',
+    'election.result.elected': 'Elected: {names}',
+    'election.result.noMajority': 'No majority of the members',
+    'election.result.nobody': 'Nobody elected',
+    'election.result.runoff': 'Runoff needed',
+    'election.result.tie': 'Tie: the lot is pending',
+    'election.runoff.banner': 'Tie at the boundary: runoff for {seats} between {names}.',
+    'election.runoff.exists': 'The runoff exists.',
+    'election.runoffRound': 'Runoff (round {n})',
+    'election.seats.one': '1 seat',
+    'election.seats.other': '{n} seats',
+    'election.status.elected': 'Elected',
+    'election.status.noMajority': 'No majority',
+    'election.status.rejected': 'Nobody elected',
+    'election.status.runoff': 'Runoff',
+    'election.status.tie': 'Lot pending',
+    'election.tag.elected': 'elected',
+    'election.tag.tie': 'tie',
+    'guests.vote.cast': 'Cast',
+    'guests.vote.castN': 'Cast {n}',
+    'guests.vote.composition': '{members} members + {guests} guests present',
+    'guests.vote.majorityOfCast': 'Majority of the votes cast',
+    'guests.vote.notReached': 'not reached',
+    'guests.vote.reached': 'reached',
+    'guests.vote.resultCaption': 'Result without quorum',
+    'meetings.agenda.top': 'Item {n}',
+    'meetings.dock.insertResult': 'Add to the minutes',
+    'meetings.dock.of': '{n} of {m}',
+    'meetings.dock.yourVote': 'Your vote',
+    'meetings.toast.actionFailed': 'Action failed.',
+    'meetings.vote.attempt': 'Vote {n}',
+    'meetings.vote.attemptElection': 'Ballot {n}',
+    'meetings.vote.cancel': 'Cancel vote',
+    'meetings.vote.card.cancelled': 'Vote cancelled',
+    'meetings.vote.card.closed': 'Vote closed',
+    'meetings.vote.card.draft': 'Vote prepared',
+    'meetings.vote.card.open': 'Vote open',
+    'meetings.vote.close': 'Close vote',
+    'meetings.vote.delete': 'Delete decision question',
+    'meetings.vote.edit': 'Edit',
+    'meetings.vote.endedAt': 'ended {time}',
+    'meetings.vote.kind.circular': 'Circular vote',
+    'meetings.vote.menu': 'Vote actions',
+    'meetings.vote.open': 'Open vote',
+    'meetings.vote.openBlocked': 'Close or cancel the open vote first.',
+    'meetings.vote.opensLater': 'You can open it once the meeting is open.',
+    'meetings.vote.progress': '{voted} of {present} present have voted',
+    'meetings.vote.quorumCount': 'Quorum {n}',
+    'meetings.vote.quorumPercent': 'Quorum {n} %',
+    'meetings.vote.repeat': 'Vote again',
+    'meetings.vote.repeatElection': 'Repeat ballot',
+    'meetings.vote.repeated': 'Repeated',
+    'meetings.vote.rule.members_majority': 'Majority of the members',
+    'meetings.vote.rule.simple': 'Simple majority',
+    'meetings.vote.since': 'since {time}',
+    'meetings.vote.tally': 'Current tally',
+    'meetings.vote.untitled': 'Decision question',
+    'meetings.voteResult.inProtocol': 'In the minutes',
+    'meetings.voteStatus.cancelled': 'Cancelled',
+    'meetings.voteStatus.closed': 'Closed',
+    'meetings.voteStatus.draft': 'Planned',
+    'meetings.voteStatus.open': 'Open',
+    'poll.answer.maybe': 'Maybe',
+    'poll.ballot.counter': '{n} of at most {m} chosen',
+    'poll.ballot.submitDate': 'Submit answers',
+    'poll.caption': 'Poll · {mode}',
+    'poll.mode.date': 'Date poll',
+    'poll.mode.multi': 'Multiple choice',
+    'poll.mode.multiMax': 'Multiple choice, at most {n}',
+    'poll.mode.single': 'Single choice',
+    'poll.options.one': '1 option',
+    'poll.options.other': '{n} options',
+    'poll.result.dateCaption': 'Number = Yes, (+n) = Maybe',
+    'poll.result.dateRow': '{option}: {yes} yes, {maybe} maybe',
+    'poll.result.footer': '{n} of {m} answered',
+    'poll.status.closed': 'Poll ended',
+    'poll.status.open': 'Poll open',
+    'vote.failedQuorum': 'Quorum not reached',
+    'vote.majority.absolute': 'Absolute majority',
+    'vote.majority.members_majority': 'Majority of the members',
+    'vote.majority.members_two_thirds': 'Two-thirds majority of the members',
+    'vote.majority.simple': 'Simple majority',
+    'vote.majority.two_thirds': 'Two-thirds majority',
+    'vote.majorityCast.absolute': 'Absolute majority of the votes cast',
+    'vote.majorityCast.members_majority': 'Majority of the members',
+    'vote.majorityCast.members_two_thirds': 'Two-thirds majority of the members',
+    'vote.majorityCast.simple': 'Simple majority of the votes cast',
+    'vote.majorityCast.two_thirds': 'Two-thirds majority of the votes cast',
+    'vote.option.abstain': 'Abstain',
+    'vote.option.no': 'No',
+    'vote.option.yes': 'Yes',
+    'vote.result.passed': 'Passed',
+    'vote.result.rejected': 'Rejected',
+    'vote.tally.quorum': 'Quorum',
+    'vote.tally.quorumMet': 'met',
+    'vote.tally.quorumMissed': 'not met',
+    'voting.ballot.confirm': 'Cast vote: {choice}',
+    'voting.ballot.confirmCount': 'Cast votes ({count})',
+    'voting.ballot.confirmEmpty': 'Cast vote',
+    'voting.ballot.confirmNames': '{label}: {names}',
+    'voting.ballot.confirmProxy': 'Cast for {name}: {choice}',
+    'voting.ballot.confirmProxyCount': 'Cast for {name} ({count})',
+    'voting.ballot.confirmProxyEmpty': 'Cast for {name}',
+    'voting.ballot.locked': 'You cannot change the vote.',
+    'voting.ballot.own': 'Your vote',
+    'voting.ballot.ownWith': 'Your vote, also for {name}',
+    'voting.ballot.ownWithCount': 'Your vote, {count} voting rights, also for {name}',
+    'voting.ballot.proxy': 'As proxy for {name}',
+    'voting.ballot.proxyCount': '{count} voting rights as proxy for {name}',
+    'voting.ballot.proxyDone': 'Cast for {name}: {choice}',
+    'voting.ballot.proxyDoneSecret': 'Cast for {name}.',
+    'voting.ballot.thanks': 'Thank you! Your vote: {choice}',
+    'voting.ballot.thanksSecret': 'Thank you! Your vote is cast.',
+    'voting.bars.label': 'Result, {cast} votes',
+    'voting.bars.row': '{option}: {count} votes, {pct} %',
+    'voting.beamer.votesOf': '{cast} of {eligible} votes',
+    'voting.cast.toast.alreadyVoted': 'Your vote is already cast.',
+    'voting.cast.toast.asUnit': 'Cast your own vote first. It also counts for the members you represent.',
+    'voting.cast.toast.noDelegationInElection': 'In an election you vote only for yourself.',
+    'voting.live.closed': 'Vote closed: {subject}. {result}',
+    'voting.live.opened': 'Vote opened: {subject}',
+    'voting.live.vote': 'Vote',
+    'voting.panel.application': 'Open application',
+    'voting.panel.where': '{meeting} · item {n}',
+    'voting.progress.eligible': '{voted} of {total} eligible voters have voted',
   },
 };
 

@@ -1,0 +1,106 @@
+@if (!inCard() && status(); as s) {
+  <p class="bars__status">
+    <app-status-text class="bars__result" [kind]="s.kind">{{ s.text }}</app-status-text>
+  </p>
+}
+<ul class="bars" [attr.aria-label]="'voting.bars.label' | uiKitT: { cast: total() }">
+  @for (bar of bars(); track bar.id) {
+    <li class="bars__row" [class.er__row--abstain]="bar.id === 'abstain'">
+      <div class="bars__line">
+        <span class="bars__label">
+          {{ bar.label }}
+          @if (bar.elected) {
+            <span class="er__tag er__tag--elected">{{ 'election.tag.elected' | uiKitT }}</span>
+          } @else if (bar.tied) {
+            <span class="er__tag er__tag--tie">{{ 'election.tag.tie' | uiKitT }}</span>
+          }
+        </span>
+        <span class="bars__count mono">{{ bar.count }}</span>
+        <span class="bars__pct mono">{{ pct(bar) }} %</span>
+      </div>
+      <app-seg-bar
+        [size]="variant() === 'beamer' ? 'xl' : 'normal'"
+        [segments]="[{ value: bar.count, tone: tone(bar) }]"
+        [total]="total()"
+        [label]="barLabel(bar)"
+      />
+    </li>
+  }
+</ul>
+
+@if (runoff(); as r) {
+  <div class="er__banner" role="status">
+    <p class="er__bannerText">
+      <app-icon name="repeat" [size]="18" />
+      <span>{{ r.text }}</span>
+    </p>
+    @if (!r.pending) {
+      <p class="er__hint">{{ 'election.runoff.exists' | uiKitT }}</p>
+    }
+  </div>
+}
+
+@if (lot(); as text) {
+  @if (inCard()) {
+    <ng-container *ngTemplateOutlet="lotActionsTpl" />
+  } @else {
+    <div class="er__banner" role="status">
+      <p class="er__bannerText">
+        <app-icon name="swap" [size]="18" />
+        <span>{{ text }}</span>
+      </p>
+      <ng-container *ngTemplateOutlet="lotActionsTpl" />
+    </div>
+  }
+}
+
+<ng-template #lotActionsTpl>
+  @if (canManage() && hasApi && voteId()) {
+    <div #lotActions class="er__actions">
+      @if (lotArmed()) {
+        <p class="er__hint">{{ 'election.lot.confirmHint' | uiKitT }}</p>
+      }
+      <app-button-group [main]="true">
+        @if (lotArmed()) {
+          <app-button variant="text" [block]="inCard()" (click)="cancelLot()">
+            {{ 'election.lot.cancel' | uiKitT }}
+          </app-button>
+        }
+        <app-button
+          class="er__lot"
+          variant="fill"
+          [block]="inCard()"
+          [loading]="busy() === 'lot'"
+          [ariaLabel]="lotArmed() ? ('election.lot.confirm' | uiKitT) + '. ' + ('election.lot.confirmHint' | uiKitT) : ''"
+          (click)="drawLot($event)"
+        >
+          @if (inCard()) {
+            <app-icon name="swap" />
+          }
+          {{ (lotArmed() ? 'election.lot.confirm' : 'election.lot.draw') | uiKitT }}
+        </app-button>
+      </app-button-group>
+    </div>
+  } @else {
+    <p class="er__hint">{{ 'election.lot.waiting' | uiKitT }}</p>
+  }
+</ng-template>
+
+@if (lotNote(); as note) {
+  <app-note icon="info">{{ note }}</app-note>
+}
+
+@if (nextRoundLotNote(); as note) {
+  <app-note icon="info">{{ note }}</app-note>
+}
+
+@if (nextRound(); as label) {
+  <div class="er__next">
+    <app-button-group [main]="true">
+      <app-button variant="fill" [block]="true" [loading]="busy() === 'next'" (click)="startNextRound()">
+        <app-icon name="repeat" />
+        {{ label | uiKitT }}
+      </app-button>
+    </app-button-group>
+  </div>
+}
