@@ -36,8 +36,8 @@ App parts: the views know no route, no permission and no server.
 - The TOP sheet takes the vote cards of the text (`voteInfo`) and the keeper line of a closed
   meeting (`keepers`) as inputs, and the linked rows below the title as a template
   (`linkedList`). It emits `documentOpen`, and the app opens its PDF viewer.
-- The protocol bar takes `hasSession` (the meeting page holds the session) and
-  `approvalSaving` as inputs. It emits `sendDraft`, `reopen`, `approve` (the meeting id, or
+- The protocol bar takes `hasSession` (the meeting page holds the session) as an input. It
+  emits `sendDraft`, `reopen`, `approve` (the meeting id, or
   null to remove the mark), `publish` (true to publish, false to hold back), `approvalRequest`
   (the app opens its approval dialog) and `pdfOpen` (the file and the click), and the app runs
   them.

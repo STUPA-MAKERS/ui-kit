@@ -58,6 +58,7 @@ export * from './lib/stepper/stepper.component';
 // initial bundle (the chat view pulled about 350 kB into main).
 export * from './lib/markdown/markdown.util';
 export * from './lib/markdown/linkify';
+export * from './lib/markdown/known-names';
 export * from './lib/dialog/dialog.component';
 export * from './lib/file-viewer/file-viewer.component';
 export * from './lib/file-viewer/file-viewer.types';
