@@ -54,14 +54,17 @@ export * from './lib/config-diff/config-diff.component';
 export * from './lib/config-diff/config-diff.types';
 export * from './lib/stepper/stepper.component';
 export {
+  escapeHtml,
   markdownToSafeHtml,
   type MarkdownOptions,
   type BlackoutTexts,
   type DocumentBadges,
 } from './lib/markdown/markdown.util';
+export { tagPieces } from './lib/markdown/linkify';
 export * from './lib/dialog/dialog.component';
 export * from './lib/file-viewer/file-viewer.component';
 export * from './lib/file-viewer/file-viewer.types';
+export * from './lib/image-thumb/image-thumb.component';
 export * from './lib/table/table.component';
 export * from './lib/data-table/data-table.component';
 export * from './lib/data-table/cell.directive';

@@ -7,6 +7,8 @@
     "paths": {
       "@stupa-makers/ui-kit": ["./src/public-api.ts"],
       "@stupa-makers/ui-kit/markdown-editor": ["./markdown-editor/src/public-api.ts"],
+      "@stupa-makers/ui-kit/markdown-view": ["./markdown-view/src/public-api.ts"],
+      "@stupa-makers/ui-kit/views/*": ["./views/*/src/public-api.ts"],
       "@stupa-makers/ui-kit/screens": ["./screens/src/public-api.ts"],
       "@stupa-makers/ui-kit/shell": ["./shell/src/public-api.ts"]
     }
