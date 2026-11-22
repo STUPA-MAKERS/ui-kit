@@ -356,7 +356,121 @@ export type UiKitTextKey =
   | 'voting.live.vote'
   | 'voting.panel.application'
   | 'voting.panel.where'
-  | 'voting.progress.eligible';
+  | 'voting.progress.eligible'
+  | 'action.cancel'
+  | 'action.close'
+  | 'action.remove'
+  | 'action.save'
+  | 'delegation.toast.revokeFailed'
+  | 'delegation.toast.revoked'
+  | 'guests.dock.pending'
+  | 'guests.dock.present'
+  | 'guests.dock.presentShort'
+  | 'guests.sheet.guests'
+  | 'guests.sheet.members'
+  | 'guests.sheet.present'
+  | 'guests.tab.guests'
+  | 'guests.tab.guestsWatching'
+  | 'guests.tab.members'
+  | 'meetings.agenda.dialogTitle'
+  | 'meetings.agenda.done'
+  | 'meetings.agenda.duration'
+  | 'meetings.agenda.durationEdit'
+  | 'meetings.agenda.durationRange'
+  | 'meetings.agenda.durationUnit'
+  | 'meetings.agenda.empty'
+  | 'meetings.agenda.kindApplication'
+  | 'meetings.agenda.kindTodo'
+  | 'meetings.agenda.link'
+  | 'meetings.agenda.markDone'
+  | 'meetings.agenda.markOpen'
+  | 'meetings.agenda.moveDown'
+  | 'meetings.agenda.moveUp'
+  | 'meetings.agenda.nonPublic'
+  | 'meetings.agenda.nonPublicLabel'
+  | 'meetings.agenda.planActual'
+  | 'meetings.agenda.planMinutes'
+  | 'meetings.agenda.planStart'
+  | 'meetings.agenda.remove'
+  | 'meetings.agenda.removeBlocked'
+  | 'meetings.agenda.removeConfirm'
+  | 'meetings.agenda.removeNeedsVoteRight'
+  | 'meetings.agenda.removeTitle'
+  | 'meetings.agenda.rename'
+  | 'meetings.agenda.renamePlaceholder'
+  | 'meetings.agenda.rowMenu'
+  | 'meetings.agenda.title'
+  | 'meetings.agenda.todo'
+  | 'meetings.agenda.untitled'
+  | 'meetings.agenda.voteOpen'
+  | 'meetings.attendance.absent'
+  | 'meetings.attendance.bySession'
+  | 'meetings.attendance.empty'
+  | 'meetings.attendance.excused'
+  | 'meetings.attendance.note'
+  | 'meetings.attendance.notePlaceholder'
+  | 'meetings.attendance.present'
+  | 'meetings.attendance.reset'
+  | 'meetings.attendance.selfExcused'
+  | 'meetings.attendance.selfPresent'
+  | 'meetings.attendance.title'
+  | 'meetings.attendance.unknown'
+  | 'meetings.attendance.you'
+  | 'meetings.attendanceSheet.addReason'
+  | 'meetings.attendanceSheet.delegationActive'
+  | 'meetings.attendanceSheet.delegationsTitle'
+  | 'meetings.attendanceSheet.editReason'
+  | 'meetings.attendanceSheet.reason'
+  | 'meetings.attendanceSheet.representedBy'
+  | 'meetings.attendanceSheet.revoke'
+  | 'meetings.attendanceSheet.revokeDelegation'
+  | 'meetings.attendanceSheet.revokeFirst'
+  | 'meetings.attendanceSheet.rowMenu'
+  | 'meetings.attendanceSheet.statusOf'
+  | 'meetings.attendanceSheet.withVote'
+  | 'meetings.dock.backToNow'
+  | 'meetings.dock.closedAt'
+  | 'meetings.dock.done'
+  | 'meetings.dock.formatBack'
+  | 'meetings.dock.keepersLocked'
+  | 'meetings.dock.next'
+  | 'meetings.dock.noKeeper'
+  | 'meetings.dock.noMember'
+  | 'meetings.dock.none'
+  | 'meetings.dock.notStarted'
+  | 'meetings.dock.now'
+  | 'meetings.dock.nowRunning'
+  | 'meetings.dock.pickProtokollant'
+  | 'meetings.dock.present'
+  | 'meetings.dock.presentShort'
+  | 'meetings.dock.prev'
+  | 'meetings.dock.protokollantIs'
+  | 'meetings.dock.protokollantMissing'
+  | 'meetings.dock.searchMember'
+  | 'meetings.dock.top'
+  | 'meetings.dock.tops'
+  | 'meetings.dock.topsOne'
+  | 'meetings.dock.topsPrepared'
+  | 'meetings.editor.modeRaw'
+  | 'meetings.editor.toolbar'
+  | 'meetings.handover.discard'
+  | 'meetings.handover.plannedShort'
+  | 'meetings.handover.title'
+  | 'meetings.keeper.assign'
+  | 'meetings.keeper.handTo'
+  | 'meetings.keeper.keeps'
+  | 'meetings.keeper.planned'
+  | 'meetings.keeper.takesOverAt'
+  | 'meetings.keeper.takesOverNext'
+  | 'meetings.leadSubstitute.action'
+  | 'meetings.page.back'
+  | 'meetings.protokollant.label'
+  | 'meetings.status.closed'
+  | 'meetings.viewers.empty'
+  | 'meetings.viewers.title'
+  | 'meetings.vote.count'
+  | 'todos.link.top'
+  | 'todos.linkKind.application';
 
 export type UiKitMessages = Record<UiKitTextKey, string>;
 
@@ -700,6 +814,120 @@ export const UI_KIT_DEFAULT_MESSAGES: Record<UiLang, UiKitMessages> = {
     'voting.panel.application': 'Antrag öffnen',
     'voting.panel.where': '{meeting} · TOP {n}',
     'voting.progress.eligible': '{voted} von {total} Stimmberechtigten haben abgestimmt',
+    'action.cancel': 'Abbrechen',
+    'action.close': 'Schließen',
+    'action.remove': 'Entfernen',
+    'action.save': 'Speichern',
+    'delegation.toast.revokeFailed': 'Widerruf fehlgeschlagen.',
+    'delegation.toast.revoked': 'Vertretung widerrufen.',
+    'guests.dock.pending': '{n} offene Beitrittsanfragen',
+    'guests.dock.present': 'Anwesend {n} + {g} Gäste',
+    'guests.dock.presentShort': '{n} + {g} Gäste',
+    'guests.sheet.guests': 'Gäste',
+    'guests.sheet.members': 'Mitglieder',
+    'guests.sheet.present': 'anwesend:',
+    'guests.tab.guests': 'Gäste {n}',
+    'guests.tab.guestsWatching': 'Gäste (zuschauend) {n}',
+    'guests.tab.members': 'Mitglieder {n} / {m}',
+    'meetings.agenda.dialogTitle': 'TOP hinzufügen',
+    'meetings.agenda.done': 'Erledigt',
+    'meetings.agenda.duration': 'Dauer',
+    'meetings.agenda.durationEdit': 'Dauer ändern',
+    'meetings.agenda.durationRange': 'Ganze Minuten von 1 bis 480',
+    'meetings.agenda.durationUnit': 'Min.',
+    'meetings.agenda.empty': 'Noch keine Punkte auf der Tagesordnung.',
+    'meetings.agenda.kindApplication': 'Antrag',
+    'meetings.agenda.kindTodo': 'To-Do',
+    'meetings.agenda.link': 'Verknüpfen',
+    'meetings.agenda.markDone': 'Als erledigt markieren',
+    'meetings.agenda.markOpen': 'Nicht mehr erledigt',
+    'meetings.agenda.moveDown': 'Nach unten',
+    'meetings.agenda.moveUp': 'Nach oben',
+    'meetings.agenda.nonPublic': 'NÖ',
+    'meetings.agenda.nonPublicLabel': 'Nicht öffentlich (NÖ)',
+    'meetings.agenda.planActual': '{time}',
+    'meetings.agenda.planMinutes': '{n} Min.',
+    'meetings.agenda.planStart': 'ca. {time}',
+    'meetings.agenda.remove': 'TOP entfernen',
+    'meetings.agenda.removeBlocked': 'Dieser TOP hat eine offene oder abgeschlossene Abstimmung und bleibt auf der Tagesordnung.',
+    'meetings.agenda.removeConfirm': '„{title}“ wird mit seinem Text von der Tagesordnung entfernt. Das lässt sich nicht rückgängig machen.',
+    'meetings.agenda.removeNeedsVoteRight': 'Dieser TOP hat Abstimmungen. Nur wer die Abstimmungen der Sitzung leitet, kann ihn entfernen.',
+    'meetings.agenda.removeTitle': 'TOP entfernen?',
+    'meetings.agenda.rename': 'TOP umbenennen',
+    'meetings.agenda.renamePlaceholder': 'TOP-Titel …',
+    'meetings.agenda.rowMenu': 'Aktionen für {title}',
+    'meetings.agenda.title': 'Tagesordnung',
+    'meetings.agenda.todo': 'To-Do anlegen',
+    'meetings.agenda.untitled': 'Unbenannter TOP',
+    'meetings.agenda.voteOpen': 'Abstimmung offen',
+    'meetings.attendance.absent': 'Unentschuldigt',
+    'meetings.attendance.bySession': 'durch Sitzungsleitung',
+    'meetings.attendance.empty': 'Noch keine Mitglieder erfasst.',
+    'meetings.attendance.excused': 'Entschuldigt',
+    'meetings.attendance.note': 'Grund',
+    'meetings.attendance.notePlaceholder': 'Grund (optional)',
+    'meetings.attendance.present': 'Anwesend',
+    'meetings.attendance.reset': 'Auf „Offen“ zurücksetzen',
+    'meetings.attendance.selfExcused': 'Abwesend',
+    'meetings.attendance.selfPresent': 'Anwesend',
+    'meetings.attendance.title': 'Anwesenheit',
+    'meetings.attendance.unknown': 'Offen',
+    'meetings.attendance.you': '(du)',
+    'meetings.attendanceSheet.addReason': 'Grund eintragen',
+    'meetings.attendanceSheet.delegationActive': 'Vertretung aktiv: erst widerrufen, dann als anwesend erfassen.',
+    'meetings.attendanceSheet.delegationsTitle': 'Vertretungen',
+    'meetings.attendanceSheet.editReason': 'Grund bearbeiten',
+    'meetings.attendanceSheet.reason': 'Grund: {note}',
+    'meetings.attendanceSheet.representedBy': 'vertreten durch {name}',
+    'meetings.attendanceSheet.revoke': 'Widerrufen',
+    'meetings.attendanceSheet.revokeDelegation': 'Vertretung widerrufen',
+    'meetings.attendanceSheet.revokeFirst': 'Erst die Vertretung widerrufen.',
+    'meetings.attendanceSheet.rowMenu': 'Aktionen für {name}',
+    'meetings.attendanceSheet.statusOf': 'Anwesenheit von {name}',
+    'meetings.attendanceSheet.withVote': 'mit Stimmrecht',
+    'meetings.dock.backToNow': 'Zurück zu Jetzt',
+    'meetings.dock.closedAt': 'Geschlossen um {time}',
+    'meetings.dock.done': 'behandelt',
+    'meetings.dock.formatBack': 'Zurück zur Navigation',
+    'meetings.dock.keepersLocked': 'Sitzung geschlossen — die Protokollführung steht fest.',
+    'meetings.dock.next': 'Nächster TOP',
+    'meetings.dock.noKeeper': 'Kein Mitglied mit Protokollrecht gefunden.',
+    'meetings.dock.noMember': 'Kein Mitglied gefunden.',
+    'meetings.dock.none': '—',
+    'meetings.dock.notStarted': 'Noch nicht eröffnet',
+    'meetings.dock.now': 'jetzt',
+    'meetings.dock.nowRunning': 'Jetzt läuft {top}',
+    'meetings.dock.pickProtokollant': 'Protokollführung wählen',
+    'meetings.dock.present': 'Anwesend {n} von {m}',
+    'meetings.dock.presentShort': '{n} von {m}',
+    'meetings.dock.prev': 'Vorheriger TOP',
+    'meetings.dock.protokollantIs': 'Protokoll: {name}',
+    'meetings.dock.protokollantMissing': 'Protokollführung fehlt',
+    'meetings.dock.searchMember': 'Mitglied suchen',
+    'meetings.dock.top': 'TOP',
+    'meetings.dock.tops': '{n} TOPs',
+    'meetings.dock.topsOne': '1 TOP',
+    'meetings.dock.topsPrepared': '{n} TOPs vorbereitet',
+    'meetings.editor.modeRaw': 'Markdown',
+    'meetings.editor.toolbar': 'Format',
+    'meetings.handover.discard': 'Verwerfen',
+    'meetings.handover.plannedShort': 'Übergabe geplant',
+    'meetings.handover.title': 'Protokollführung übergeben',
+    'meetings.keeper.assign': 'Protokollführung zuweisen',
+    'meetings.keeper.handTo': 'Protokollführung übergeben an',
+    'meetings.keeper.keeps': 'führt das Protokoll',
+    'meetings.keeper.planned': 'Geplant',
+    'meetings.keeper.takesOverAt': 'übernimmt ab {top}',
+    'meetings.keeper.takesOverNext': 'übernimmt mit dem nächsten TOP',
+    'meetings.leadSubstitute.action': 'Vertretung eintragen',
+    'meetings.page.back': 'Zurück zu Sitzungen',
+    'meetings.protokollant.label': 'Protokollführung',
+    'meetings.status.closed': 'Geschlossen',
+    'meetings.viewers.empty': 'Niemand hat die Sitzung gerade geöffnet.',
+    'meetings.viewers.title': 'Live dabei',
+    'meetings.vote.count': 'Abstimmungen',
+    'todos.link.top': 'TOP {n}',
+    'todos.linkKind.application': 'Antrag',
   },
   en: {
     'dialog.close': 'Close',
@@ -1039,6 +1267,120 @@ export const UI_KIT_DEFAULT_MESSAGES: Record<UiLang, UiKitMessages> = {
     'voting.panel.application': 'Open application',
     'voting.panel.where': '{meeting} · item {n}',
     'voting.progress.eligible': '{voted} of {total} eligible voters have voted',
+    'action.cancel': 'Cancel',
+    'action.close': 'Close',
+    'action.remove': 'Remove',
+    'action.save': 'Save',
+    'delegation.toast.revokeFailed': 'Revocation failed.',
+    'delegation.toast.revoked': 'Proxy revoked.',
+    'guests.dock.pending': '{n} open join requests',
+    'guests.dock.present': 'Present {n} + {g} guests',
+    'guests.dock.presentShort': '{n} + {g} guests',
+    'guests.sheet.guests': 'guests',
+    'guests.sheet.members': 'members',
+    'guests.sheet.present': 'present:',
+    'guests.tab.guests': 'Guests {n}',
+    'guests.tab.guestsWatching': 'Guests (watching) {n}',
+    'guests.tab.members': 'Members {n} / {m}',
+    'meetings.agenda.dialogTitle': 'Add agenda item',
+    'meetings.agenda.done': 'Done',
+    'meetings.agenda.duration': 'Duration',
+    'meetings.agenda.durationEdit': 'Change duration',
+    'meetings.agenda.durationRange': 'Whole minutes from 1 to 480',
+    'meetings.agenda.durationUnit': 'min',
+    'meetings.agenda.empty': 'No items on the agenda yet.',
+    'meetings.agenda.kindApplication': 'Application',
+    'meetings.agenda.kindTodo': 'To-do',
+    'meetings.agenda.link': 'Link',
+    'meetings.agenda.markDone': 'Mark as done',
+    'meetings.agenda.markOpen': 'Mark as not done',
+    'meetings.agenda.moveDown': 'Move down',
+    'meetings.agenda.moveUp': 'Move up',
+    'meetings.agenda.nonPublic': 'Non-public',
+    'meetings.agenda.nonPublicLabel': 'Non-public',
+    'meetings.agenda.planActual': '{time}',
+    'meetings.agenda.planMinutes': '{n} min',
+    'meetings.agenda.planStart': 'approx. {time}',
+    'meetings.agenda.remove': 'Remove item',
+    'meetings.agenda.removeBlocked': 'This item has an open or closed vote and stays on the agenda.',
+    'meetings.agenda.removeConfirm': '“{title}” is removed from the agenda with its text. This cannot be undone.',
+    'meetings.agenda.removeNeedsVoteRight': 'This item has votes. Only a person who manages the votes of the meeting can remove it.',
+    'meetings.agenda.removeTitle': 'Remove agenda item?',
+    'meetings.agenda.rename': 'Rename item',
+    'meetings.agenda.renamePlaceholder': 'Item title …',
+    'meetings.agenda.rowMenu': 'Actions for {title}',
+    'meetings.agenda.title': 'Agenda',
+    'meetings.agenda.todo': 'Add a to-do',
+    'meetings.agenda.untitled': 'Untitled item',
+    'meetings.agenda.voteOpen': 'Vote open',
+    'meetings.attendance.absent': 'Unexcused',
+    'meetings.attendance.bySession': 'set by chair',
+    'meetings.attendance.empty': 'No members recorded yet.',
+    'meetings.attendance.excused': 'Excused',
+    'meetings.attendance.note': 'Reason',
+    'meetings.attendance.notePlaceholder': 'Reason (optional)',
+    'meetings.attendance.present': 'Present',
+    'meetings.attendance.reset': 'Reset to “open”',
+    'meetings.attendance.selfExcused': 'Absent',
+    'meetings.attendance.selfPresent': 'Present',
+    'meetings.attendance.title': 'Attendance',
+    'meetings.attendance.unknown': 'Open',
+    'meetings.attendance.you': '(you)',
+    'meetings.attendanceSheet.addReason': 'Add reason',
+    'meetings.attendanceSheet.delegationActive': 'Delegation active: revoke it first, then record the member as present.',
+    'meetings.attendanceSheet.delegationsTitle': 'Delegations',
+    'meetings.attendanceSheet.editReason': 'Edit reason',
+    'meetings.attendanceSheet.reason': 'Reason: {note}',
+    'meetings.attendanceSheet.representedBy': 'represented by {name}',
+    'meetings.attendanceSheet.revoke': 'Revoke',
+    'meetings.attendanceSheet.revokeDelegation': 'Revoke delegation',
+    'meetings.attendanceSheet.revokeFirst': 'Revoke the delegation first.',
+    'meetings.attendanceSheet.rowMenu': 'Actions for {name}',
+    'meetings.attendanceSheet.statusOf': 'Attendance of {name}',
+    'meetings.attendanceSheet.withVote': 'with vote',
+    'meetings.dock.backToNow': 'Back to now',
+    'meetings.dock.closedAt': 'Closed at {time}',
+    'meetings.dock.done': 'done',
+    'meetings.dock.formatBack': 'Back to the navigation',
+    'meetings.dock.keepersLocked': 'Meeting closed – the minute-takers are fixed.',
+    'meetings.dock.next': 'Next item',
+    'meetings.dock.noKeeper': 'No member who can keep the minutes found.',
+    'meetings.dock.noMember': 'No member found.',
+    'meetings.dock.none': '–',
+    'meetings.dock.notStarted': 'Not opened yet',
+    'meetings.dock.now': 'now',
+    'meetings.dock.nowRunning': 'Now: {top}',
+    'meetings.dock.pickProtokollant': 'Choose minute-taker',
+    'meetings.dock.present': 'Present {n} of {m}',
+    'meetings.dock.presentShort': '{n} of {m}',
+    'meetings.dock.prev': 'Previous item',
+    'meetings.dock.protokollantIs': 'Minutes: {name}',
+    'meetings.dock.protokollantMissing': 'No minute-taker',
+    'meetings.dock.searchMember': 'Search member',
+    'meetings.dock.top': 'Item',
+    'meetings.dock.tops': '{n} items',
+    'meetings.dock.topsOne': '1 item',
+    'meetings.dock.topsPrepared': '{n} items prepared',
+    'meetings.editor.modeRaw': 'Markdown',
+    'meetings.editor.toolbar': 'Format',
+    'meetings.handover.discard': 'Discard',
+    'meetings.handover.plannedShort': 'handover planned',
+    'meetings.handover.title': 'Hand over the minutes',
+    'meetings.keeper.assign': 'Assign the minute-taker',
+    'meetings.keeper.handTo': 'Hand the minutes to',
+    'meetings.keeper.keeps': 'keeps the minutes',
+    'meetings.keeper.planned': 'Planned',
+    'meetings.keeper.takesOverAt': 'takes over from {top}',
+    'meetings.keeper.takesOverNext': 'takes over with the next item',
+    'meetings.leadSubstitute.action': 'Enter substitute',
+    'meetings.page.back': 'Back to meetings',
+    'meetings.protokollant.label': 'Minute-taker',
+    'meetings.status.closed': 'Closed',
+    'meetings.viewers.empty': 'Nobody has the session open right now.',
+    'meetings.viewers.title': 'Viewing live',
+    'meetings.vote.count': 'Votes',
+    'todos.link.top': 'Item {n}',
+    'todos.linkKind.application': 'Application',
   },
 };
 
