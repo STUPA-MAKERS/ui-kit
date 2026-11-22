@@ -12,6 +12,7 @@ module.exports = {
     '^@stupa-makers/ui-kit/markdown-editor$': '<rootDir>/markdown-editor/src/public-api.ts',
     '^@stupa-makers/ui-kit/screens$': '<rootDir>/screens/src/public-api.ts',
     '^@stupa-makers/ui-kit/shell$': '<rootDir>/shell/src/public-api.ts',
+    '^@stupa-makers/ui-kit/views/(.*)$': '<rootDir>/views/$1/src/public-api.ts',
   },
   transform: {
     '^.+\\.(ts|mjs|js|html)$': [

@@ -1,6 +1,6 @@
 /*
  * Secondary entry point '@stupa-makers/ui-kit/views/activity'.
- * The view models of the contract S/framework/views/002280. The view itself follows in its step
- * of docs/framework-plan.md.
+ * The activity view and its view models (contract S/framework/views/002280).
  */
 export * from './activity.types';
+export * from './activity-view.component';
