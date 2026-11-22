@@ -1,0 +1,72 @@
+<app-section class="rsec" [level]="level()" [heading]="heading()">
+  @if (actions().length) {
+    <app-button-group ngProjectAs="[sectionAction]">
+      @for (a of actions(); track a.key) {
+        <app-button size="sm" variant="tonal" [disabled]="!!a.disabled" [loading]="!!a.busy" (click)="run(a)">
+          @if (a.icon; as icon) {
+            <app-icon [name]="icon" />
+          }
+          {{ a.label }}<span class="sr-only">: {{ heading() }}</span>
+        </app-button>
+      }
+    </app-button-group>
+  }
+
+  @if (firstLoad()) {
+    <app-skeleton variant="rows" [count]="skeleton()" [label]="intl.translate('loading')" />
+  } @else {
+    @if (failed(); as message) {
+      <app-empty-state icon="alert" [heading]="message" />
+    } @else if (shown(); as r) {
+      @if (r.state === 'empty') {
+        <app-empty-state [icon]="r.icon" [heading]="r.heading" />
+      }
+    }
+    @if (data().length) {
+      @if (recordSlot(); as slot) {
+        @if (ordered()) {
+          <ol class="rowgroup rsec__list" [class.rowgroup--records]="variant() === 'records'" [attr.aria-label]="label()">
+            <ng-container *ngTemplateOutlet="items; context: { slot: slot.template }" />
+          </ol>
+        } @else {
+          <ul class="rowgroup rsec__list" [class.rowgroup--records]="variant() === 'records'" [attr.aria-label]="label()">
+            <ng-container *ngTemplateOutlet="items; context: { slot: slot.template }" />
+          </ul>
+        }
+      } @else {
+        <div class="rowgroup" role="list" [attr.aria-label]="label()">
+          @for (row of data(); track row.id) {
+            <app-list-item
+              role="listitem"
+              [title]="row.title"
+              [link]="row.link ? $any(row.link.commands) : null"
+              [subWrap]="true"
+              [sub]="row.meta?.join(' · ') ?? null"
+            >
+              @if (row.status; as st) {
+                <app-status-text status [kind]="st.kind">{{ st.label }}</app-status-text>
+              }
+              @if (row.actions?.length) {
+                <app-row-menu
+                  menu
+                  [sections]="menuOf(row)"
+                  [label]="intl.translate('rowMenu.trigger') + ': ' + row.title"
+                  (selected)="rowActed.emit({ id: row.id, key: $event.id })"
+                />
+              }
+            </app-list-item>
+          }
+        </div>
+      }
+    }
+    @if (footSlot(); as f) {
+      <ng-container [ngTemplateOutlet]="f.template" />
+    }
+  }
+</app-section>
+
+<ng-template #items let-slot="slot">
+  @for (row of data(); track row.id) {
+    <ng-container [ngTemplateOutlet]="slot" [ngTemplateOutletContext]="{ $implicit: row }" />
+  }
+</ng-template>

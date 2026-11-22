@@ -1,0 +1,22 @@
+// A copy of the section pages of STUPA-Workflow: `.admin-page`, the column with 20px gaps.
+:host {
+  display: block;
+}
+
+.scs {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+}
+
+// In the pane of a list/detail page the column starts 32px below the top of the sheet, as the
+// records screen does (002257), and the page ends with room for the FAB.
+:host-context(.lds--split) .scs {
+  padding-top: var(--space-6);
+}
+.scs:has(> app-fab) {
+  padding-bottom: calc(56px + 2 * var(--space-4));
+}
+:host-context(.lds--split) .scs:has(> app-fab) {
+  padding-bottom: calc(56px + var(--space-4));
+}

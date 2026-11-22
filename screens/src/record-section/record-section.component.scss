@@ -1,0 +1,10 @@
+// The list of a record section: a row group without the bullets of a list.
+:host {
+  display: block;
+}
+
+.rsec__list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}

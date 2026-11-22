@@ -15,9 +15,10 @@ scope:
 # The records screen has a fixed interface
 
 `app-records-screen` is a copy of the record pages of the administration of STUPA-Workflow
-(Erzwungene Statuswechsel, Agent-Zugänge, Audit-Log, Versionen, Backups, Webhooks, Kalender,
-Rollen, Gruppen-Zuordnung): a page in the detail pane with a head, filter chips and one row
-group of records. It must have this interface:
+(Erzwungene Statuswechsel, Agent-Zugänge, Audit-Log, Webhooks, Kalender, Rollen, CD-Varianten,
+Benutzer): a page in the detail pane with a head, filter chips and one row
+group of records. A page with more than one list is a sections screen (002259). It must have
+this interface:
 
 ```ts
 head: ScreenHead

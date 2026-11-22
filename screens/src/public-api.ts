@@ -15,3 +15,5 @@ export * from './settings-screen/settings-screen.component';
 export * from './public-screen/public-screen.component';
 export * from './status-screen/status-screen.component';
 export * from './records-screen/records-screen.component';
+export * from './record-section/record-section.component';
+export * from './sections-screen/sections-screen.component';
