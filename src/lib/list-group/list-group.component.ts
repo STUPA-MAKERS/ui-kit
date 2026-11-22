@@ -8,6 +8,7 @@ import {
   signal,
   viewChild,
 } from '@angular/core';
+import { StuckHeads } from '../sticky-bar/stuck-heads';
 
 let nextId = 0;
 
@@ -70,19 +71,25 @@ export class ListGroupComponent {
 
   constructor() {
     const host = inject<ElementRef<HTMLElement>>(ElementRef).nativeElement;
+    const heads = inject(StuckHeads);
     let frame = 0;
+    const setStuck = (stuck: boolean): void => {
+      if (stuck === this.stuck()) return;
+      this.stuck.set(stuck);
+      heads.group(stuck);
+    };
     const check = () => {
       frame = 0;
       const head = this.head()?.nativeElement;
       if (!head) {
-        this.stuck.set(false);
+        setStuck(false);
         this.under.set(false);
         return;
       }
       const own = head.getBoundingClientRect();
       const group = host.getBoundingClientRect();
       const stuck = own.top - group.top > 0.5;
-      this.stuck.set(stuck);
+      setStuck(stuck);
       // At the end of its group the next group pushes the head up: its foot is then at
       // the foot of the group, and it no longer sits right under the bar.
       this.under.set(stuck && group.bottom - own.bottom > 0.5);
@@ -94,6 +101,7 @@ export class ListGroupComponent {
     inject(DestroyRef).onDestroy(() => {
       window.removeEventListener('scroll', onScroll, { capture: true });
       if (frame) cancelAnimationFrame(frame);
+      setStuck(false);
     });
   }
 }
