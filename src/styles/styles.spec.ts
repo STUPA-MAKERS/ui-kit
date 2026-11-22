@@ -401,3 +401,37 @@ describe('SolidBars', () => {
     expect(tokens).toContain('--color-bar: var(--c-dark-c3);');
   });
 });
+
+/**
+ * A head is opaque in every state, also before the script notes the scroll (002420). The
+ * browser check of the app (`e2e/07-opaque-heads.spec.ts`) reads the computed colours.
+ */
+describe('OpaqueBeforeScript', () => {
+  const HEADS = [
+    '../lib/sticky-bar/sticky-bar.component.scss',
+    '../lib/list-detail/list-detail-bar.component.scss',
+    '../lib/list-group/list-group.component.scss',
+    '../lib/tab-pager/tab-pager.component.scss',
+    '../../shell/src/bottom-bar/bottom-bar.component.scss',
+  ];
+
+  it('gives no state that the script sets a transparent background', () => {
+    for (const path of HEADS) {
+      const scss = read(path);
+      const states = scss.match(/[^{};/]*(--stuck|--scrolled|--under|--condensed)[^{};]*\{[^}]*\}/g) ?? [];
+      for (const rule of states) expect(rule).not.toMatch(/background(-color)?:\s*transparent/);
+    }
+  });
+
+  it('keeps the phone search bar solid at rest, with the page header above it', () => {
+    const bar = read('../lib/sticky-bar/sticky-bar.component.scss');
+    const phone = block(bar, '@include bp.phone {');
+    expect(phone).toMatch(/:host \{[^}]*@include bar\(var\(--stb-bg, var\(--color-bg\)\)\);\s*\}/);
+    expect(phone).not.toMatch(/background: transparent/);
+    expect(bar).toContain('z-index: calc(var(--z-sticky) - 2);');
+    expect(read('../lib/list-group/list-group.component.scss')).toContain('z-index: calc(var(--z-sticky) - 3);');
+    expect(read('base.scss')).toMatch(
+      /app-page-header:has\(\+ app-sticky-bar:not\(\.stb--off\)\) \{\s*position: relative;\s*z-index: calc\(var\(--z-sticky\) - 1\);/,
+    );
+  });
+});

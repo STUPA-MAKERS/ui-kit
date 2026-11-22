@@ -518,6 +518,17 @@ input[type='radio'] {
     box-shadow: none;
   }
 }
+// A phone list: the top padding of the sticky search bar reaches over the lower edge of the
+// page header right above it, and the bar is solid in every state (002420). The header lies
+// above the bar, so the bar does not cut the outline of a round button in the header. Only
+// the lower 4px of the header overlap the bar, and the header has no background of its own,
+// so it never covers the rows. The rule reads one component and styles the other.
+@include bp.phone {
+  app-page-header:has(+ app-sticky-bar:not(.stb--off)) {
+    position: relative;
+    z-index: calc(var(--z-sticky) - 1);
+  }
+}
 // The same for a tab line stuck right under the bar of a detail (`TabPagerComponent`,
 // `ListDetailBarComponent`): only the tab line carries the edge.
 body app-list-detail-bar.ld__bar--under.ld__bar--under.ld__bar--covered {
