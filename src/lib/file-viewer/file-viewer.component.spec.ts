@@ -104,6 +104,8 @@ describe('FileViewerComponent', () => {
     expect(dialog()).toHaveAccessibleName('logo.png');
     expect(screen.getByRole('heading', { level: 2, name: 'logo.png' })).toBeInTheDocument();
     expect(document.documentElement.style.overflow).toBe('hidden');
+    // The blur of the page reads this attribute, not `body:has()` (app spec 002406).
+    expect(document.documentElement).toHaveAttribute('data-file-viewer');
     expect(screen.getByRole('button', { name: 'Vorschau schließen' })).toHaveFocus();
   });
 
@@ -121,6 +123,7 @@ describe('FileViewerComponent', () => {
     expect(host.open()).toBe(false);
     expect(host.closedCount).toBe(1);
     expect(document.documentElement.style.overflow).toBe('');
+    expect(document.documentElement).not.toHaveAttribute('data-file-viewer');
     expect(document.getElementById('trigger')).toHaveFocus();
   });
 
