@@ -41,9 +41,11 @@
 
 // A phone fab folds to its icon while the page is scrolled down (spec 000567). The label of
 // the button is a flex row, so no space between the icon and the text is left over, and the
-// folded padding makes the button a 56px square inside its border. The size changes at once:
-// the component animates the fold with a clip, a slide of the icon and a fade of the label
-// (app spec 002407), and puts on `fab--folded` when that animation ends.
+// folded padding makes the button a 56px square inside its border. The size changes at once
+// here: the component animates the width and the padding between the two measured sizes
+// (app spec 002407) and puts on `fab--folded` when that animation ends. While it runs
+// (`fab--folding`) the content starts at the start edge, the button clips what does not fit, and the label keeps its width, so it
+// is cut at the end edge and does not end in an ellipsis that changes in every frame.
 //
 // A rule here that sets a property the button sets too has the same specificity as the rule
 // of the button, so the stylesheet that the page added last wins, and that is the one of the
@@ -53,6 +55,14 @@
   overflow: hidden;
   white-space: nowrap;
   text-overflow: ellipsis;
+}
+:host(.fab--folding) ::ng-deep .btn--fab {
+  justify-content: flex-start;
+  overflow: clip;
+}
+:host(.fab--folding) ::ng-deep .btn--fab .btn__label,
+:host(.fab--folding) ::ng-deep .fab__label {
+  flex-shrink: 0;
 }
 :host(.fab--folded) ::ng-deep .btn--fab {
   padding: 0 calc((56px - var(--icon-size)) / 2 - var(--border-width, 1px));
