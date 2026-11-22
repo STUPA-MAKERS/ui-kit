@@ -5,7 +5,8 @@ kind: style
 status: approved
 owner: frederikbeimgraben
 updated: 2026-11-22
-implementation: views/activity/src/activity-view.component.ts
+implementation:
+  - views/activity/src/activity-view.component.ts
 scope:
   - views/activity
 ---
