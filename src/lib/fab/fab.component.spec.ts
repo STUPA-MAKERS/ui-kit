@@ -232,7 +232,7 @@ describe('FabComponent folds on a phone (spec 000567)', () => {
   });
 });
 
-describe('FabComponent fold moves no layout (app spec 002407)', () => {
+describe('FabComponent fold runs between measured sizes (app spec 002407)', () => {
   const realRO = (globalThis as { ResizeObserver?: unknown }).ResizeObserver;
   const realAnimate = Element.prototype.animate;
   let restore: () => void;
@@ -265,7 +265,8 @@ describe('FabComponent fold moves no layout (app spec 002407)', () => {
     jest.spyOn(window, 'getComputedStyle').mockImplementation(
       () =>
         ({
-          borderTopLeftRadius: '16px',
+          borderLeftWidth: '1px',
+          paddingLeft: '16px',
           getPropertyValue: (name: string) => (name === '--motion-base' ? '200ms' : 'ease'),
         }) as unknown as CSSStyleDeclaration,
     );
@@ -301,19 +302,23 @@ describe('FabComponent fold moves no layout (app spec 002407)', () => {
       <app-fab label="Antrag erfassen" icon="fileplus" />
     </app-fab-group>`;
 
-  it('clips, slides and fades, and takes the folded size only at the end', async () => {
+  it('animates width and padding to the folded square, and takes the folded class at the end', async () => {
     restore = matchOnly(MEDIA.phone);
     const view = await render(template, { imports: [FabComponent, FabGroupComponent] });
     await view.fixture.whenStable();
-    const [neutral, fab] = Array.from(view.container.querySelectorAll('app-fab')) as HTMLElement[];
+    const fab = view.container.querySelectorAll('app-fab')[1] as HTMLElement;
     scroll(view.container.querySelector('.area') as HTMLElement, 200);
     view.fixture.detectChanges();
     expect(fab).not.toHaveClass('fab--folded');
-    const props = anims.flatMap((a) => Object.keys(a.keyframes[1]).filter((k) => k !== 'offset'));
-    expect(props.sort()).toEqual(['clipPath', 'opacity', 'transform', 'transform']);
-    expect(anims.find((a) => a.el === neutral)?.keyframes[1]).toEqual({ transform: 'translateX(137px)' });
+    expect(fab).toHaveClass('fab--folding');
+    expect(anims.map((a) => a.el.tagName)).toEqual(['BUTTON', 'SPAN']);
+    expect(anims[0].keyframes).toEqual([
+      { width: '193px', paddingLeft: '16px' },
+      { width: '56px', paddingLeft: '17px' },
+    ]);
     finish();
     expect(fab).toHaveClass('fab--folded');
+    expect(fab).not.toHaveClass('fab--folding');
     anims.forEach((a) => expect(a.anim.cancel).toHaveBeenCalled());
   });
 
