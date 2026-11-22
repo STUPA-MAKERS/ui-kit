@@ -34,7 +34,7 @@
           </ul>
         }
       } @else {
-        <div class="rowgroup" [class.rowgroup--records]="variant() === 'records'" role="list" [attr.aria-label]="label()">
+        <div class="rowgroup" role="list" [attr.aria-label]="label()">
           @for (row of data(); track row.id) {
             <app-list-item
               role="listitem"

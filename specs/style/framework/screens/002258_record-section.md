@@ -25,7 +25,7 @@ level?: 2 | 3                        // default 2
 rows: LoadState<readonly ListRow[]>  // empty and error come with the rows
 actions?: readonly Action[]          // buttons at the end of the heading row
 listLabel?: string | null            // the name of the list for screen readers; default the heading
-variant?: 'rows' | 'records'         // records: the denser row group of record tables
+variant?: 'rows' | 'records'         // records: the denser row group of record tables, for rows from the slot
 ordered?: boolean                    // the rows have an order (versions): the list is an ol
 keepOnError?: boolean                // default true: a load error keeps the rows shown before
 skeleton?: number                    // grey rows on the first load, default 3
