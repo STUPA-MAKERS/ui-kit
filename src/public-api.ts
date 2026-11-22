@@ -53,14 +53,11 @@ export * from './lib/badge/badge.component';
 export * from './lib/config-diff/config-diff.component';
 export * from './lib/config-diff/config-diff.types';
 export * from './lib/stepper/stepper.component';
-export {
-  escapeHtml,
-  markdownToSafeHtml,
-  type MarkdownOptions,
-  type BlackoutTexts,
-  type DocumentBadges,
-} from './lib/markdown/markdown.util';
-export { tagPieces } from './lib/markdown/linkify';
+// `export *`, not `export { … } from`: a named re-export keeps this file alive in a lazy chunk
+// that uses it, and the app bundler then puts every module behind this file into the
+// initial bundle (the chat view pulled about 350 kB into main).
+export * from './lib/markdown/markdown.util';
+export * from './lib/markdown/linkify';
 export * from './lib/dialog/dialog.component';
 export * from './lib/file-viewer/file-viewer.component';
 export * from './lib/file-viewer/file-viewer.types';
