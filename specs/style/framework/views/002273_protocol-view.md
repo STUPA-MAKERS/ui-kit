@@ -2,7 +2,7 @@
 id: "002273"
 title: The protocol views take the TOP sheet and the protocol bar
 kind: style
-status: draft
+status: approved
 owner: frederikbeimgraben
 updated: 2026-11-22
 implementation: null
