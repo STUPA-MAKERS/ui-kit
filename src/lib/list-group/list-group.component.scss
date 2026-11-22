@@ -37,7 +37,7 @@
   .lg__head {
     position: sticky;
     top: var(--stb-bottom);
-    z-index: calc(var(--z-sticky) - 2);
+    z-index: calc(var(--z-sticky) - 3);
     margin-inline: calc(-1 * var(--stb-bleed, var(--space-4)));
     padding-inline: calc(var(--stb-bleed, var(--space-4)) + var(--space-1));
     @include bar(var(--stb-bg, var(--color-bg)));

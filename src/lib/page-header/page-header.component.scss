@@ -104,10 +104,9 @@
 }
 
 // On a phone the sticky bar below the header reaches up over the bottom of the header
-// (`app-sticky-bar`, the gutter above the stuck field), and its background is opaque. A control
-// whose popup is open has a filled background, so the bar cut off its bottom edge. The control
-// with the open popup goes above the bar; the header itself stays below it, so a header that
-// scrolls under the stuck bar stays hidden.
+// (`app-sticky-bar`, the gutter above the stuck field), and its background is opaque. The
+// header lies above the bar (`base.scss`, 002420), and a control whose popup is open goes up to
+// the layer of the bars, so its filled background is not cut.
 :host ::ng-deep .ph__actions [aria-expanded='true'] {
   position: relative;
   z-index: var(--z-sticky);
