@@ -42,7 +42,19 @@
               [link]="row.link ? $any(row.link.commands) : null"
               [subWrap]="true"
               [sub]="row.meta?.join(' · ') ?? null"
-            />
+            >
+              @if (row.status; as st) {
+                <app-status-text status [kind]="st.kind">{{ st.label }}</app-status-text>
+              }
+              @if (row.actions?.length) {
+                <app-row-menu
+                  menu
+                  [sections]="menuOf(row)"
+                  [label]="intl.translate('rowMenu.trigger') + ': ' + row.title"
+                  (selected)="rowActed.emit({ id: row.id, key: $event.id })"
+                />
+              }
+            </app-list-item>
           }
         </div>
       }

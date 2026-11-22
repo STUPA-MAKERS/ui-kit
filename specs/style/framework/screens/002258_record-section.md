@@ -34,7 +34,7 @@ skeleton?: number                    // grey rows on the first load, default 3
 Slots: `screenRecord` (optional, the content of a record as one whole list item, as in the
 records screen, 002257; context: the row) and `screenListFoot` (optional, a block under the rows).
 
-Outputs: `action: { key }`.
+Outputs: `action: { key }`, `rowAction: { id, key }` (an item of the row menu of a default row).
 
 Behaviour:
 
@@ -42,7 +42,10 @@ Behaviour:
   buttons at the end of the heading row, and the heading is the hidden end of their accessible
   name ("Zuordnung anlegen: Globale Rollen"). An action with a route navigates.
 - The rows are one row group, a list named by `listLabel`, else by the heading; a row without the
-  slot is a list item with the title, the meta parts joined by " · " and the link of the row.
+  slot is a list item with the title, the status text of the row beside it, the meta parts joined
+  by " · " on wrapping lines, the link of the row, and the actions of the row as a row menu (a
+  danger action in red, a disabled one with its reason). So a page whose records need nothing more
+  (Backups) writes no row markup and no row styles.
 - The first load shows `skeleton` grey rows. An empty state comes from the rows and shows the
   small face, not the centred one of a whole page, because the section shares the page with other
   blocks. A load error without rows shows the small face with the error text (002405), and a

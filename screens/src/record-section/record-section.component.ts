@@ -18,13 +18,16 @@ import {
   EmptyStateComponent,
   IconComponent,
   ListItemComponent,
+  RowMenuComponent,
   SectionComponent,
   SkeletonComponent,
+  StatusTextComponent,
   UI_KIT_INTL,
   loadedData,
   type Action,
   type ListRow,
   type LoadState,
+  type RowMenuSection,
 } from '@stupa-makers/ui-kit';
 import { errorToastOn } from '../error-toast';
 import { ScreenListFootDirective, ScreenRecordDirective } from '../records-screen/records-screen.component';
@@ -46,8 +49,10 @@ import { ScreenListFootDirective, ScreenRecordDirective } from '../records-scree
     EmptyStateComponent,
     IconComponent,
     ListItemComponent,
+    RowMenuComponent,
     SectionComponent,
     SkeletonComponent,
+    StatusTextComponent,
   ],
   templateUrl: './record-section.component.html',
   styleUrl: './record-section.component.scss',
@@ -70,6 +75,8 @@ export class RecordSectionComponent {
   readonly skeleton = input(3);
 
   readonly acted = output<{ readonly key: string }>({ alias: 'action' });
+  /** An item of the row menu of a default row (the `actions` of the row) was picked. */
+  readonly rowActed = output<{ readonly id: string; readonly key: string }>({ alias: 'rowAction' });
 
   protected readonly intl = inject(UI_KIT_INTL);
   private readonly router = inject(Router);
@@ -101,6 +108,21 @@ export class RecordSectionComponent {
       if (r.state === 'ready' || r.state === 'empty') untracked(() => this.settled.set(r));
     });
     errorToastOn(() => this.rows());
+  }
+
+  /** The row menu of a default row: its actions as one group, a danger action in red. */
+  protected menuOf(row: ListRow): readonly RowMenuSection[] {
+    return [
+      {
+        items: (row.actions ?? []).map((a) => ({
+          id: a.key,
+          label: a.label,
+          icon: a.icon,
+          danger: a.kind === 'danger',
+          disabledReason: a.disabled ? (a.disabledReason ?? a.label) : null,
+        })),
+      },
+    ];
   }
 
   /** An action with a route navigates; every other action is emitted with its key. */

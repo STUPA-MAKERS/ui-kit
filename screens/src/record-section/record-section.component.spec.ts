@@ -45,6 +45,8 @@ class RecordHost {
   readonly keep = signal(true);
 }
 
+const picked = jest.fn();
+
 async function setup() {
   const view = await render(Host, { providers: [provideRouter([])] });
   return { view, host: view.fixture.componentInstance };
@@ -111,6 +113,40 @@ describe('RecordSectionComponent', () => {
     view.detectChanges();
     expect(screen.queryByRole('list')).toBeNull();
     expect(document.querySelector('app-empty-state')?.textContent).toContain('Fehler');
+  });
+
+  it('shows the status of a default row and its actions as a row menu', async () => {
+    const view = await render(
+      `<app-record-section heading="Backups" [rows]="rows" (rowAction)="picked($event)" />`,
+      {
+        imports: [RecordSectionComponent],
+        componentProperties: {
+          picked,
+          rows: {
+            state: 'ready',
+            data: [
+              {
+                id: 'b1',
+                title: '22.11.2026, 02:00',
+                meta: ['Automatisch', '46 MB'],
+                status: { label: 'Fertig', kind: 'success' },
+                actions: [
+                  { key: 'download', label: 'Herunterladen', icon: 'download' },
+                  { key: 'delete', label: 'Löschen', kind: 'danger', disabled: true, disabledReason: 'Angeheftet' },
+                ],
+              },
+            ],
+          },
+        },
+        providers: [provideRouter([])],
+      },
+    );
+    expect(screen.getByText('Fertig')).toBeTruthy();
+    expect(screen.getByText('Automatisch · 46 MB')).toBeTruthy();
+    await userEvent.click(screen.getByRole('button', { name: 'Weitere Aktionen: 22.11.2026, 02:00' }));
+    await userEvent.click(await screen.findByRole('menuitem', { name: 'Herunterladen' }));
+    expect(picked).toHaveBeenCalledWith({ id: 'b1', key: 'download' });
+    expect(await runAxe(view.container)).toHaveNoViolations();
   });
 
   it('has no axe violations', async () => {
