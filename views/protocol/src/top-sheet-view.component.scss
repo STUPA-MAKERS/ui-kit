@@ -264,7 +264,7 @@
     padding-top: var(--space-1);
     @include bar(var(--color-bg));
   }
-  :host-context(body:has(app-list-detail-bar.ld__bar--under)) .ts__bar {
+  :host-context(html[data-ld-bar-under]) .ts__bar {
     @include bar(var(--color-bg), $scrolled: true);
   }
   .ts__head {
