@@ -10,6 +10,7 @@ import {
   signal,
 } from '@angular/core';
 import { frameReader } from '../util/frame-read';
+import { StuckHeads } from './stuck-heads';
 import { ancestors, nextSiblings } from '../util/dom-walk';
 
 /**
@@ -62,12 +63,15 @@ import { ancestors, nextSiblings } from '../util/dom-walk';
   host: {
     '[class.stb--stuck]': 'sticky() && stuck()',
     '[class.stb--off]': '!sticky()',
+    '[class.stb--covered]': 'heads.groupHead()',
   },
   template: '<ng-content />',
   styleUrl: './sticky-bar.component.scss',
 })
 export class StickyBarComponent {
   private readonly host = inject<ElementRef<HTMLElement>>(ElementRef);
+  /** A group head sticks right under the bar (`stb--covered`, `base.scss`). */
+  protected readonly heads = inject(StuckHeads);
 
   /** False turns the bar off: no sticky position, no background, no fade. */
   readonly sticky = input(true);

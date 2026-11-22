@@ -509,16 +509,18 @@ input[type='radio'] {
 // A phone list: a group head that is stuck right under the sticky search bar continues
 // the bar in the same colour, so in very high contrast only the head carries the white
 // edge at the foot (`bar`), not the bar above it as well (`StickyBarComponent`,
-// `ListGroupComponent`). The rule reads the class of one component and styles the other, so
-// it lives here and not in either component.
+// `ListGroupComponent`). The rule reads the state of one component and styles the other, so
+// it lives here and not in either component. The bar learns the state from `StuckHeads`
+// (`stb--covered`), not from `body:has()`: a class that changes inside `body:has()`
+// restyles the whole page (app spec 002165).
 @include bp.phone {
-  body:has(.lg__head--stuck) app-sticky-bar.stb--stuck {
+  body app-sticky-bar.stb--stuck.stb--covered {
     box-shadow: none;
   }
 }
 // The same for a tab line stuck right under the bar of a detail (`TabPagerComponent`,
 // `ListDetailBarComponent`): only the tab line carries the edge.
-body:has(.tp__bar--stuck) app-list-detail-bar.ld__bar--under.ld__bar--under {
+body app-list-detail-bar.ld__bar--under.ld__bar--under.ld__bar--covered {
   box-shadow: none;
 }
 
