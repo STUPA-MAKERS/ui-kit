@@ -2,7 +2,7 @@
 id: "002259"
 title: The sections screen has a fixed interface
 kind: style
-status: draft
+status: approved
 owner: frederikbeimgraben
 updated: 2026-11-22
 implementation:

@@ -361,8 +361,8 @@ specs/
 | [S/framework/screens/002249](style/framework/screens/002249_graph-screen.md) | The graph screen has a fixed interface | approved |
 | [S/framework/screens/002250](style/framework/screens/002250_editor-screen.md) | The editor screen has a fixed interface | approved |
 | [S/framework/screens/002257](style/framework/screens/002257_records-screen.md) | The records screen has a fixed interface | approved |
-| [S/framework/screens/002258](style/framework/screens/002258_record-section.md) | The record section has a fixed interface | draft |
-| [S/framework/screens/002259](style/framework/screens/002259_sections-screen.md) | The sections screen has a fixed interface | draft |
+| [S/framework/screens/002258](style/framework/screens/002258_record-section.md) | The record section has a fixed interface | approved |
+| [S/framework/screens/002259](style/framework/screens/002259_sections-screen.md) | The sections screen has a fixed interface | approved |
 | [S/framework/shell/002260](style/framework/shell/002260_framework-config.md) | provideFramework takes one FrameworkConfig | approved |
 | [S/framework/shell/002261](style/framework/shell/002261_port-types.md) | The ports have fixed types | approved |
 | [S/framework/shell/002262](style/framework/shell/002262_route-helpers.md) | The route helpers have fixed signatures | approved |
