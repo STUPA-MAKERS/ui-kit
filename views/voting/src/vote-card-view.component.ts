@@ -98,13 +98,14 @@ import { problemDetail, VOTING_API } from './voting-api';
   templateUrl: './vote-card-view.component.html',
   styleUrl: './vote-card-view.component.scss',
 })
-export class VoteCardViewComponent {
+export class VoteCardViewComponent<V extends MeetingVote = MeetingVote> {
   private readonly i18n = inject(UI_KIT_INTL);
   /** The server port: only an election ballot sends from the card. */
   private readonly api = inject(VOTING_API, { optional: true });
   private readonly toast = inject(ToastService);
 
-  readonly vote = input.required<MeetingVote>();
+  /** The vote; `V` is the vote type of the host, which the outputs give back. */
+  readonly vote = input.required<V>();
   readonly meetingStatus = input.required<MeetingStatus>();
   /** Prepare, cancel and delete votes (`Meeting.canManageVotes`). */
   readonly canManage = input(false);
@@ -143,11 +144,11 @@ export class VoteCardViewComponent {
   readonly open = output<Uuid>();
   readonly remove = output<Uuid>();
   /** "Bearbeiten" of a prepared vote: the page opens the vote dialog with it. */
-  readonly edit = output<MeetingVote>();
+  readonly edit = output<V>();
   /** "Erneut abstimmen" of a closed vote: the page opens the vote dialog with it. */
-  readonly repeat = output<MeetingVote>();
+  readonly repeat = output<V>();
   readonly cast = output<{ voteId: Uuid; choice: string }>();
-  readonly insertResult = output<MeetingVote>();
+  readonly insertResult = output<V>();
   /** The lot was drawn, or the runoff opened: the page reads the meeting again. */
   readonly electionChanged = output<Vote>();
 
