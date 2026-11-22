@@ -659,3 +659,24 @@
 .chat__box .btn-grp.btn-grp ::ng-deep .chat__attach .btn {
   background-color: transparent;
 }
+
+// Very high contrast (moved from the app stylesheet): on a wide screen the log is a surface with
+// the edge on every side; on the phone it fills a sheet, so it only ends in the line of a scroll
+// area. Every message has the edge, also an internal one, whose tinted ring has no colour of its
+// own in the mode. A public draft of the guarded switch (001692) gets a white ring outside its
+// edge, because the black ring that every field draws inside its edge looks the same for both
+// choices.
+:host-context(:root[data-very-high-contrast='on']):not(.chat--phone) .chat__log {
+  border: var(--vh-edge) !important;
+}
+@include d.host-on(veryHigh) {
+  .chat__bubble,
+  .chat__row .chat__bubble--internal {
+    border: var(--vh-edge);
+    box-shadow: none !important;
+  }
+  .chat__box.chat__box--public {
+    outline: 2px solid var(--vh-fg) !important;
+    outline-offset: 3px !important;
+  }
+}
