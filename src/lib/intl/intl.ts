@@ -470,7 +470,60 @@ export type UiKitTextKey =
   | 'meetings.viewers.title'
   | 'meetings.vote.count'
   | 'todos.link.top'
-  | 'todos.linkKind.application';
+  | 'todos.linkKind.application'
+  | 'todos.board.addCard'
+  | 'todos.board.archive'
+  | 'todos.board.columnEmpty'
+  | 'todos.board.create'
+  | 'todos.board.doneColumn'
+  | 'todos.board.more'
+  | 'todos.board.quickTitle'
+  | 'todos.card.transfer'
+  | 'todos.column.add'
+  | 'todos.column.archive'
+  | 'todos.column.menu'
+  | 'todos.column.settings'
+  | 'todos.drag.cancelled'
+  | 'todos.drag.dropped'
+  | 'todos.drag.lifted'
+  | 'todos.drag.moved'
+  | 'todos.due.change'
+  | 'todos.due.none'
+  | 'todos.due.overdue'
+  | 'todos.due.set'
+  | 'todos.due.today'
+  | 'todos.due.tomorrow'
+  | 'todos.link.noAccess'
+  | 'todos.linkKind.agenda_item'
+  | 'todos.linkKind.appointment'
+  | 'todos.linkKind.budget'
+  | 'todos.linkKind.expense'
+  | 'todos.linkKind.gremium'
+  | 'todos.linkKind.invoice'
+  | 'todos.linkKind.meeting'
+  | 'todos.linkKind.ticket'
+  | 'todos.linkKind.todo'
+  | 'todos.linkKind.vote'
+  | 'todos.list.due'
+  | 'todos.list.label'
+  | 'todos.list.linked'
+  | 'todos.list.title'
+  | 'todos.list.who'
+  | 'todos.move.bottom'
+  | 'todos.move.column'
+  | 'todos.move.confirm'
+  | 'todos.move.position'
+  | 'todos.move.title'
+  | 'todos.move.top'
+  | 'todos.new.short'
+  | 'todos.rows.openBoard'
+  | 'todos.rows.readOnly'
+  | 'todos.tile.checklist'
+  | 'todos.tile.comments'
+  | 'todos.tile.nobody'
+  | 'todos.list.done'
+  | 'todos.list.markDone'
+  | 'todos.list.reopen';
 
 export type UiKitMessages = Record<UiKitTextKey, string>;
 
@@ -928,6 +981,59 @@ export const UI_KIT_DEFAULT_MESSAGES: Record<UiLang, UiKitMessages> = {
     'meetings.vote.count': 'Abstimmungen',
     'todos.link.top': 'TOP {n}',
     'todos.linkKind.application': 'Antrag',
+    'todos.board.addCard': 'To-Do anlegen',
+    'todos.board.archive': 'Archiv',
+    'todos.board.columnEmpty': 'Keine Karten',
+    'todos.board.create': 'Anlegen',
+    'todos.board.doneColumn': 'Erledigt-Spalte',
+    'todos.board.more': '{n} weitere',
+    'todos.board.quickTitle': 'Titel der neuen Karte in {column}',
+    'todos.card.transfer': 'In anderes Board verschieben',
+    'todos.column.add': 'To-Do in dieser Spalte',
+    'todos.column.archive': 'Archiv öffnen',
+    'todos.column.menu': 'Aktionen der Spalte {name}',
+    'todos.column.settings': 'Spalten bearbeiten',
+    'todos.drag.cancelled': 'Verschieben von „{title}“ abgebrochen.',
+    'todos.drag.dropped': '„{title}“ abgelegt in {column}.',
+    'todos.drag.lifted': '„{title}“ aufgenommen, Spalte {column}, Position {n} von {total}.',
+    'todos.drag.moved': 'Spalte {column}, Position {n} von {total}.',
+    'todos.due.change': 'Fälligkeit ändern: {date}',
+    'todos.due.none': 'ohne Datum',
+    'todos.due.overdue': 'überfällig',
+    'todos.due.set': 'Datum setzen',
+    'todos.due.today': 'heute',
+    'todos.due.tomorrow': 'morgen',
+    'todos.link.noAccess': '{kind} (kein Zugriff)',
+    'todos.linkKind.agenda_item': 'TOP',
+    'todos.linkKind.appointment': 'Termin',
+    'todos.linkKind.budget': 'Kostenstelle',
+    'todos.linkKind.expense': 'Buchung',
+    'todos.linkKind.gremium': 'Gremium',
+    'todos.linkKind.invoice': 'Rechnung',
+    'todos.linkKind.meeting': 'Sitzung',
+    'todos.linkKind.ticket': 'Ticket',
+    'todos.linkKind.todo': 'To-Do',
+    'todos.linkKind.vote': 'Abstimmung',
+    'todos.list.due': 'Fällig',
+    'todos.list.label': 'Label',
+    'todos.list.linked': 'Verknüpft',
+    'todos.list.title': 'Titel',
+    'todos.list.who': 'Wer',
+    'todos.move.bottom': 'Unten',
+    'todos.move.column': 'Spalte',
+    'todos.move.confirm': 'Verschieben',
+    'todos.move.position': 'Position in der Spalte',
+    'todos.move.title': 'Verschieben',
+    'todos.move.top': 'Oben',
+    'todos.new.short': 'To-Do',
+    'todos.rows.openBoard': 'Board „{name}“ öffnen',
+    'todos.rows.readOnly': 'Nur lesen',
+    'todos.tile.checklist': 'Checkliste {done} von {total}',
+    'todos.tile.comments': '{n} Kommentare',
+    'todos.tile.nobody': 'Niemand zuständig',
+    'todos.list.done': 'Erledigt',
+    'todos.list.markDone': '„{title}“ erledigen',
+    'todos.list.reopen': '„{title}“ wieder öffnen',
   },
   en: {
     'dialog.close': 'Close',
@@ -1381,6 +1487,59 @@ export const UI_KIT_DEFAULT_MESSAGES: Record<UiLang, UiKitMessages> = {
     'meetings.vote.count': 'Votes',
     'todos.link.top': 'Item {n}',
     'todos.linkKind.application': 'Application',
+    'todos.board.addCard': 'Create to-do',
+    'todos.board.archive': 'Archive',
+    'todos.board.columnEmpty': 'No cards',
+    'todos.board.create': 'Create',
+    'todos.board.doneColumn': 'Done column',
+    'todos.board.more': '{n} more',
+    'todos.board.quickTitle': 'Title of the new card in {column}',
+    'todos.card.transfer': 'Move to another board',
+    'todos.column.add': 'To-do in this column',
+    'todos.column.archive': 'Open the archive',
+    'todos.column.menu': 'Actions of the column {name}',
+    'todos.column.settings': 'Edit the columns',
+    'todos.drag.cancelled': 'Moving “{title}” cancelled.',
+    'todos.drag.dropped': 'Dropped “{title}” in {column}.',
+    'todos.drag.lifted': 'Picked up “{title}”, column {column}, position {n} of {total}.',
+    'todos.drag.moved': 'Column {column}, position {n} of {total}.',
+    'todos.due.change': 'Change the due date: {date}',
+    'todos.due.none': 'no date',
+    'todos.due.overdue': 'overdue',
+    'todos.due.set': 'Set a date',
+    'todos.due.today': 'today',
+    'todos.due.tomorrow': 'tomorrow',
+    'todos.link.noAccess': '{kind} (no access)',
+    'todos.linkKind.agenda_item': 'Agenda item',
+    'todos.linkKind.appointment': 'Appointment',
+    'todos.linkKind.budget': 'Cost centre',
+    'todos.linkKind.expense': 'Booking',
+    'todos.linkKind.gremium': 'Committee',
+    'todos.linkKind.invoice': 'Invoice',
+    'todos.linkKind.meeting': 'Meeting',
+    'todos.linkKind.ticket': 'Ticket',
+    'todos.linkKind.todo': 'To-do',
+    'todos.linkKind.vote': 'Vote',
+    'todos.list.due': 'Due',
+    'todos.list.label': 'Label',
+    'todos.list.linked': 'Linked',
+    'todos.list.title': 'Title',
+    'todos.list.who': 'Who',
+    'todos.move.bottom': 'Bottom',
+    'todos.move.column': 'Column',
+    'todos.move.confirm': 'Move',
+    'todos.move.position': 'Position in the column',
+    'todos.move.title': 'Move',
+    'todos.move.top': 'Top',
+    'todos.new.short': 'To-do',
+    'todos.rows.openBoard': 'Open board “{name}”',
+    'todos.rows.readOnly': 'Read only',
+    'todos.tile.checklist': 'Checklist {done} of {total}',
+    'todos.tile.comments': '{n} comments',
+    'todos.tile.nobody': 'Nobody assigned',
+    'todos.list.done': 'Done',
+    'todos.list.markDone': 'Mark “{title}” done',
+    'todos.list.reopen': 'Reopen “{title}”',
   },
 };
 
