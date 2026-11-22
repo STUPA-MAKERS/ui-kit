@@ -1,0 +1,15 @@
+<section class="scs">
+  <app-page-header [flush]="true" [title]="head().title">
+    @for (a of placed().head; track a.key) {
+      <app-button actions variant="text" [disabled]="!!a.disabled" [loading]="!!a.busy" (click)="run(a)">{{
+        a.label
+      }}</app-button>
+    }
+  </app-page-header>
+
+  <ng-content />
+
+  @for (a of placed().fab; track a.key) {
+    <app-fab [label]="a.label" [icon]="a.icon ?? 'plus'" [disabled]="!!a.disabled" [loading]="!!a.busy" (activate)="run(a)" />
+  }
+</section>
