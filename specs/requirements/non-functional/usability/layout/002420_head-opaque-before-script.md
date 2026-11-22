@@ -2,7 +2,7 @@
 id: "002420"
 title: A head is opaque before the page notes that content scrolls under it
 kind: non-functional
-status: draft
+status: approved
 owner: frederikbeimgraben
 updated: 2026-11-22
 tests:
