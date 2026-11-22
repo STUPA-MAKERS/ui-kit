@@ -2,7 +2,7 @@
 id: "001426"
 title: The graph builds up node by node
 kind: functional
-status: draft
+status: approved
 owner: frederikbeimgraben
 updated: 2026-11-22
 implementation: null
