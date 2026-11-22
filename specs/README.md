@@ -389,7 +389,7 @@ specs/
 | [S/framework/views/002273](style/framework/views/002273_protocol-view.md) | The protocol view is the Markdown editor with the protocol tools | approved |
 | [S/framework/views/002274](style/framework/views/002274_voting-view.md) | The voting view takes a VoteCard and a Ballot | approved |
 | [S/framework/views/002275](style/framework/views/002275_meeting-view.md) | The meeting view takes the agenda, the attendance and the dock | approved |
-| [S/framework/views/002276](style/framework/views/002276_chat-view.md) | The chat view takes messages and a composer | approved |
+| [S/framework/views/002276](style/framework/views/002276_chat-view.md) | The chat view takes messages, events and a file port | approved |
 | [S/framework/views/002277](style/framework/views/002277_flow-editor-view.md) | The flow editor takes a FlowGraph | approved |
 | [S/framework/views/002278](style/framework/views/002278_form-editor-view.md) | The form editor edits a FormDef | approved |
 | [S/framework/views/002279](style/framework/views/002279_plan-table-view.md) | The plan table takes rows as a tree | approved |

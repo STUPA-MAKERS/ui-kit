@@ -54,6 +54,54 @@ export type UiKitTextKey =
   | 'activity.loading'
   | 'activity.new'
   | 'activity.more'
+  | 'chat.attach'
+  | 'chat.cancel'
+  | 'chat.copy'
+  | 'chat.delete'
+  | 'chat.deleteConfirm'
+  | 'chat.deleteShort'
+  | 'chat.deleteTitle'
+  | 'chat.deletedPerson'
+  | 'chat.discard'
+  | 'chat.download'
+  | 'chat.drop'
+  | 'chat.edit'
+  | 'chat.editShort'
+  | 'chat.edited'
+  | 'chat.empty'
+  | 'chat.error.delete'
+  | 'chat.error.fileTooLarge'
+  | 'chat.error.fileType'
+  | 'chat.error.tooManyFiles'
+  | 'chat.error.upload'
+  | 'chat.failed'
+  | 'chat.fileLost'
+  | 'chat.internal'
+  | 'chat.loading'
+  | 'chat.log'
+  | 'chat.mentions'
+  | 'chat.newCount'
+  | 'chat.newMessages.one'
+  | 'chat.newMessages.other'
+  | 'chat.ownMessage'
+  | 'chat.pastedImage'
+  | 'chat.placeholder'
+  | 'chat.public'
+  | 'chat.removeFile'
+  | 'chat.removeFileAction'
+  | 'chat.removeFileConfirm'
+  | 'chat.removeFileTitle'
+  | 'chat.retry'
+  | 'chat.save'
+  | 'chat.scan.clean'
+  | 'chat.scan.quarantined'
+  | 'chat.scan.scanning'
+  | 'chat.send'
+  | 'chat.sending'
+  | 'chat.today'
+  | 'chat.uploading'
+  | 'chat.visibility'
+  | 'chat.yesterday'
   | 'screen.select'
   | 'screen.selectRow'
   | 'screen.selectStop'
@@ -202,6 +250,54 @@ export const UI_KIT_DEFAULT_MESSAGES: Record<UiLang, UiKitMessages> = {
     'activity.loading': 'Aktivität wird geladen',
     'activity.new': 'Neu',
     'activity.more': 'Mehr laden',
+    'chat.attach': 'Datei anhängen',
+    'chat.cancel': 'Abbrechen',
+    'chat.copy': 'Text kopieren',
+    'chat.delete': 'Nachricht löschen',
+    'chat.deleteConfirm': 'Die Nachricht wird gelöscht. Das lässt sich nicht rückgängig machen.',
+    'chat.deleteShort': 'Löschen',
+    'chat.deleteTitle': 'Nachricht löschen?',
+    'chat.deletedPerson': 'Gelöschte Person',
+    'chat.discard': 'Verwerfen',
+    'chat.download': 'Herunterladen',
+    'chat.drop': 'Dateien zum Anhängen ablegen',
+    'chat.edit': 'Nachricht bearbeiten',
+    'chat.editShort': 'Bearbeiten',
+    'chat.edited': 'bearbeitet',
+    'chat.empty': 'Noch keine Nachrichten.',
+    'chat.error.delete': 'Die Datei konnte nicht entfernt werden.',
+    'chat.error.fileTooLarge': 'Datei zu groß (max. {mb} MB).',
+    'chat.error.fileType': 'Dieser Dateityp ist nicht erlaubt.',
+    'chat.error.tooManyFiles': 'Höchstens {max} Dateien pro Nachricht.',
+    'chat.error.upload': 'Die Datei konnte nicht hochgeladen werden.',
+    'chat.failed': 'Nicht gesendet',
+    'chat.fileLost': 'Nicht mehr vorhanden',
+    'chat.internal': 'Intern',
+    'chat.loading': 'Nachrichten werden geladen …',
+    'chat.log': 'Verlauf',
+    'chat.mentions': 'Personen erwähnen',
+    'chat.newCount': '{count} neue',
+    'chat.newMessages.one': '1 neue Nachricht',
+    'chat.newMessages.other': '{count} neue Nachrichten',
+    'chat.ownMessage': 'Deine Nachricht · {time}',
+    'chat.pastedImage': 'Bild',
+    'chat.placeholder': 'Nachricht schreiben …',
+    'chat.public': 'Öffentlich',
+    'chat.removeFile': '{name} entfernen',
+    'chat.removeFileAction': 'Entfernen',
+    'chat.removeFileConfirm': '„{name}“ wird entfernt. Das lässt sich nicht rückgängig machen.',
+    'chat.removeFileTitle': 'Anhang entfernen?',
+    'chat.retry': 'Erneut senden',
+    'chat.save': 'Speichern',
+    'chat.scan.clean': 'Gescannt',
+    'chat.scan.quarantined': 'Quarantäne',
+    'chat.scan.scanning': 'In Prüfung',
+    'chat.send': 'Senden',
+    'chat.sending': 'wird gesendet …',
+    'chat.today': 'Heute',
+    'chat.uploading': 'wird hochgeladen …',
+    'chat.visibility': 'Sichtbarkeit',
+    'chat.yesterday': 'Gestern',
     'screen.select': 'Mehrere auswählen',
     'screen.selectRow': '{title} auswählen',
     'screen.selectStop': 'Auswahl beenden',
@@ -346,6 +442,54 @@ export const UI_KIT_DEFAULT_MESSAGES: Record<UiLang, UiKitMessages> = {
     'activity.loading': 'Loading activity',
     'activity.new': 'New',
     'activity.more': 'Load more',
+    'chat.attach': 'Attach file',
+    'chat.cancel': 'Cancel',
+    'chat.copy': 'Copy text',
+    'chat.delete': 'Delete message',
+    'chat.deleteConfirm': 'The message is deleted. This cannot be undone.',
+    'chat.deleteShort': 'Delete',
+    'chat.deleteTitle': 'Delete message?',
+    'chat.deletedPerson': 'Deleted person',
+    'chat.discard': 'Discard',
+    'chat.download': 'Download',
+    'chat.drop': 'Drop files to attach',
+    'chat.edit': 'Edit message',
+    'chat.editShort': 'Edit',
+    'chat.edited': 'edited',
+    'chat.empty': 'No messages yet.',
+    'chat.error.delete': 'The file could not be removed.',
+    'chat.error.fileTooLarge': 'File too large (max {mb} MB).',
+    'chat.error.fileType': 'This file type is not allowed.',
+    'chat.error.tooManyFiles': 'At most {max} files per message.',
+    'chat.error.upload': 'The file could not be uploaded.',
+    'chat.failed': 'Not sent',
+    'chat.fileLost': 'No longer available',
+    'chat.internal': 'Internal',
+    'chat.loading': 'Loading the messages…',
+    'chat.log': 'Conversation',
+    'chat.mentions': 'Mention people',
+    'chat.newCount': '{count} new',
+    'chat.newMessages.one': '1 new message',
+    'chat.newMessages.other': '{count} new messages',
+    'chat.ownMessage': 'Your message · {time}',
+    'chat.pastedImage': 'image',
+    'chat.placeholder': 'Write a message …',
+    'chat.public': 'Public',
+    'chat.removeFile': 'Remove {name}',
+    'chat.removeFileAction': 'Remove',
+    'chat.removeFileConfirm': '“{name}” is removed. This cannot be undone.',
+    'chat.removeFileTitle': 'Remove attachment?',
+    'chat.retry': 'Send again',
+    'chat.save': 'Save',
+    'chat.scan.clean': 'Ready',
+    'chat.scan.quarantined': 'Quarantined',
+    'chat.scan.scanning': 'Scanning',
+    'chat.send': 'Send',
+    'chat.sending': 'sending …',
+    'chat.today': 'Today',
+    'chat.uploading': 'uploading …',
+    'chat.visibility': 'Visibility',
+    'chat.yesterday': 'Yesterday',
     'screen.select': 'Select several',
     'screen.selectRow': 'Select {title}',
     'screen.selectStop': 'End selection',
