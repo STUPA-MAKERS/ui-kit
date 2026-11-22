@@ -41,33 +41,18 @@
 
 // A phone fab folds to its icon while the page is scrolled down (spec 000567). The label of
 // the button is a flex row, so no space between the icon and the text is left over, and the
-// folded padding makes the button a 56px square inside its border. Reduced motion drops the
-// transitions (`base.scss`).
+// folded padding makes the button a 56px square inside its border. The size changes at once:
+// the component animates the fold with a clip, a slide of the icon and a fade of the label
+// (app spec 002407), and puts on `fab--folded` when that animation ends.
 //
 // A rule here that sets a property the button sets too has the same specificity as the rule
 // of the button, so the stylesheet that the page added last wins, and that is the one of the
-// component that the page created first. The gap therefore goes through `--fab-label-gap`,
-// and the transition of the button is `.btn.btn--fab`, one class more than `.btn`; it keeps
-// the transitions of the button and adds the padding.
-:host ::ng-deep .btn.btn--fab {
-  transition:
-    background-color var(--motion-fast) var(--ease-standard),
-    color var(--motion-fast) var(--ease-standard),
-    border-color var(--motion-fast) var(--ease-standard),
-    filter var(--motion-fast) var(--ease-standard),
-    padding var(--motion-base) var(--ease-standard);
-}
-:host ::ng-deep .btn--fab .btn__label {
-  transition: gap var(--motion-base) var(--ease-standard);
-}
+// component that the page created first. The gap therefore goes through `--fab-label-gap`.
 :host ::ng-deep .fab__label {
   max-width: 14rem;
   overflow: hidden;
   white-space: nowrap;
   text-overflow: ellipsis;
-  transition:
-    max-width var(--motion-base) var(--ease-standard),
-    opacity var(--motion-fast) var(--ease-standard);
 }
 :host(.fab--folded) ::ng-deep .btn--fab {
   padding: 0 calc((56px - var(--icon-size)) / 2 - var(--border-width, 1px));

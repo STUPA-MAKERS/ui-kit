@@ -1,0 +1,57 @@
+@use '../../../src/styles/list-pane' as lp;
+
+// A copy of the list of the page "Aktivität" of STUPA-Workflow (`.act__*`).
+:host {
+  @include lp.stack;
+}
+
+.acv__groups,
+.acv__rows,
+.acv__skel {
+  @include lp.stack;
+}
+
+.acv__lead {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 36px;
+  height: 36px;
+  border-radius: var(--radius-full);
+  background: var(--color-surface-2);
+  color: var(--color-text-muted);
+}
+.acv__lead--new {
+  color: var(--color-accent-text);
+}
+.acv__dot {
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 10px;
+  height: 10px;
+  border-radius: 5px;
+  background: var(--color-accent);
+  box-shadow: 0 0 0 2px var(--color-surface-1);
+}
+
+.acv__trail {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+.acv__time {
+  color: var(--color-text-muted);
+  font-size: 0.8125rem;
+  white-space: nowrap;
+}
+// The quiet arrow of a row that opens a page (001962): it pulls into the end padding of the row.
+.acv__chevron {
+  display: inline-flex;
+  flex: none;
+  margin-inline-end: calc(-1 * var(--space-2));
+  color: var(--color-text-muted);
+}
+.acv__more {
+  @include lp.more;
+}

@@ -12,6 +12,7 @@ import {
   viewChild,
 } from '@angular/core';
 import { frameReader } from '../util/frame-read';
+import { StuckHeads } from '../sticky-bar/stuck-heads';
 import { NgTemplateOutlet } from '@angular/common';
 import { IconComponent } from '../icon/icon.component';
 import { UiKitTranslatePipe } from '../intl/translate.pipe';
@@ -46,12 +47,15 @@ import { ListDetailNav } from './list-detail-nav';
     class: 'ld__bar',
     '[class.ld__bar--condensed]': 'nav.condensed() || title() !== null || nav.task() !== null',
     '[class.ld__bar--under]': 'under()',
+    '[class.ld__bar--covered]': 'heads.tabBar()',
   },
   templateUrl: './list-detail-bar.component.html',
   styleUrl: './list-detail-bar.component.scss',
 })
 export class ListDetailBarComponent {
   protected readonly nav = inject(ListDetailNav);
+  /** A tab line sticks right under the bar (`ld__bar--covered`, `base.scss`). */
+  protected readonly heads = inject(StuckHeads);
   private readonly host = inject<ElementRef<HTMLElement>>(ElementRef).nativeElement;
   private readonly backButton = viewChild<ElementRef<HTMLButtonElement>>('backButton');
 

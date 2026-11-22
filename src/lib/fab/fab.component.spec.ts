@@ -231,3 +231,119 @@ describe('FabComponent folds on a phone (spec 000567)', () => {
     expect(round.fab.querySelector('.fab__label')).toBeNull();
   });
 });
+
+describe('FabComponent fold moves no layout (app spec 002407)', () => {
+  const realRO = (globalThis as { ResizeObserver?: unknown }).ResizeObserver;
+  const realAnimate = Element.prototype.animate;
+  let restore: () => void;
+  let anims: { el: Element; keyframes: Keyframe[]; anim: Animation & { reversed: number } }[];
+
+  beforeEach(() => {
+    anims = [];
+    (globalThis as { ResizeObserver?: unknown }).ResizeObserver = class {
+      constructor(private readonly cb: (entries: { target: Element }[]) => void) {}
+      observe(target: Element): void {
+        this.cb([{ target }]);
+      }
+      disconnect(): void {
+        /* nothing to stop */
+      }
+    };
+    Element.prototype.animate = function (this: Element, keyframes: Keyframe[] | PropertyIndexedKeyframes | null) {
+      const state = { reversed: 0, onfinish: null as (() => void) | null, cancel: jest.fn() };
+      const anim = Object.assign(state, {
+        reverse: () => {
+          state.reversed += 1;
+        },
+        addEventListener: (_type: string, fn: () => void) => {
+          state.onfinish = fn;
+        },
+      }) as unknown as Animation & { reversed: number };
+      anims.push({ el: this, keyframes: keyframes as Keyframe[], anim });
+      return anim;
+    };
+    jest.spyOn(window, 'getComputedStyle').mockImplementation(
+      () =>
+        ({
+          borderTopLeftRadius: '16px',
+          getPropertyValue: (name: string) => (name === '--motion-base' ? '200ms' : 'ease'),
+        }) as unknown as CSSStyleDeclaration,
+    );
+    jest.spyOn(Element.prototype, 'getBoundingClientRect').mockImplementation(function (this: Element) {
+      const rect = (left: number, width: number) =>
+        ({ left, width, height: 56, top: 0, right: left + width, bottom: 56, x: left, y: 0 }) as DOMRect;
+      if (this.tagName === 'BUTTON') return rect(0, 193);
+      if (this.tagName === 'APP-ICON') return rect(17, 20);
+      return rect(0, 0);
+    });
+  });
+  afterEach(() => {
+    restore();
+    (globalThis as { ResizeObserver?: unknown }).ResizeObserver = realRO;
+    Element.prototype.animate = realAnimate;
+    jest.restoreAllMocks();
+  });
+
+  function scroll(area: HTMLElement, top: number): void {
+    Object.defineProperty(area, 'scrollHeight', { value: 400, configurable: true });
+    Object.defineProperty(area, 'clientHeight', { value: 100, configurable: true });
+    Object.defineProperty(area, 'scrollTop', { value: top, configurable: true });
+    area.dispatchEvent(new Event('scroll'));
+  }
+
+  const finish = (): void => {
+    (anims[0].anim as unknown as { onfinish: () => void }).onfinish();
+  };
+
+  const template = `<div class="area"></div>
+    <app-fab-group>
+      <app-fab label="Antrag stellen" icon="form" [iconOnly]="true" tone="neutral" />
+      <app-fab label="Antrag erfassen" icon="fileplus" />
+    </app-fab-group>`;
+
+  it('clips, slides and fades, and takes the folded size only at the end', async () => {
+    restore = matchOnly(MEDIA.phone);
+    const view = await render(template, { imports: [FabComponent, FabGroupComponent] });
+    await view.fixture.whenStable();
+    const [neutral, fab] = Array.from(view.container.querySelectorAll('app-fab')) as HTMLElement[];
+    scroll(view.container.querySelector('.area') as HTMLElement, 200);
+    view.fixture.detectChanges();
+    expect(fab).not.toHaveClass('fab--folded');
+    const props = anims.flatMap((a) => Object.keys(a.keyframes[1]).filter((k) => k !== 'offset'));
+    expect(props.sort()).toEqual(['clipPath', 'opacity', 'transform', 'transform']);
+    expect(anims.find((a) => a.el === neutral)?.keyframes[1]).toEqual({ transform: 'translateX(137px)' });
+    finish();
+    expect(fab).toHaveClass('fab--folded');
+    anims.forEach((a) => expect(a.anim.cancel).toHaveBeenCalled());
+  });
+
+  it('turns a running fold round when the page is back at the top', async () => {
+    restore = matchOnly(MEDIA.phone);
+    const view = await render(template, { imports: [FabComponent, FabGroupComponent] });
+    await view.fixture.whenStable();
+    const fab = view.container.querySelectorAll('app-fab')[1] as HTMLElement;
+    const area = view.container.querySelector('.area') as HTMLElement;
+    scroll(area, 200);
+    view.fixture.detectChanges();
+    scroll(area, 0);
+    view.fixture.detectChanges();
+    expect(anims.every((a) => a.anim.reversed === 1)).toBe(true);
+    finish();
+    expect(fab).not.toHaveClass('fab--folded');
+  });
+
+  it('folds at once with reduced motion', async () => {
+    restore = matchOnly(MEDIA.phone);
+    document.documentElement.setAttribute('data-display-motion', 'reduce');
+    try {
+      const view = await render(template, { imports: [FabComponent, FabGroupComponent] });
+      await view.fixture.whenStable();
+      scroll(view.container.querySelector('.area') as HTMLElement, 200);
+      view.fixture.detectChanges();
+      expect(view.container.querySelectorAll('app-fab')[1]).toHaveClass('fab--folded');
+      expect(anims).toHaveLength(0);
+    } finally {
+      document.documentElement.removeAttribute('data-display-motion');
+    }
+  });
+});

@@ -1,0 +1,61 @@
+@let state = entries();
+@if (state.state === 'loading' && !days().length) {
+  <div class="acv__skel skel-in">
+    <app-list-group skeleton="7rem" />
+    <app-skeleton variant="items" [count]="10" [lead]="true" [grouped]="true" [label]="intl.translate('activity.loading')" />
+  </div>
+} @else if (state.state === 'error') {
+  <app-empty-state icon="alert" [heading]="state.message" />
+} @else if (state.state === 'empty') {
+  <app-empty-state [icon]="state.icon" [heading]="state.heading" [body]="emptyBody()" />
+} @else {
+  <div class="acv__groups" animate.enter="motion-fade-in">
+    @for (day of days(); track day.key) {
+      <app-list-group [label]="day.label">
+        <div class="acv__rows rowgroup" role="list">
+          @for (e of day.entries; track e.id) {
+            <app-list-item
+              class="acv__row"
+              role="listitem"
+              [title]="e.item.title"
+              [link]="e.item.link.commands"
+              [linkQueryParams]="e.item.link.query ?? null"
+              [wrap]="phone()"
+              [subWrap]="phone()"
+            >
+              <span lead class="acv__lead" [class.acv__lead--new]="e.new">
+                <app-icon [name]="e.item.icon" [size]="18" />
+                @if (e.new) {
+                  <span class="acv__dot" aria-hidden="true"></span>
+                }
+              </span>
+              <span sub class="acv__sub">
+                @if (e.new) {
+                  <span class="sr-only">{{ intl.translate('activity.new') }}: </span>
+                }
+                {{ sub(e) }}
+              </span>
+              <span trail class="acv__trail">
+                <span class="mono acv__time">{{ e.time }}</span>
+                @if (!phone()) {
+                  <span class="acv__chevron" aria-hidden="true"><app-icon name="right" [size]="17" /></span>
+                }
+              </span>
+            </app-list-item>
+          }
+        </div>
+      </app-list-group>
+    }
+    @if (hasMore()) {
+      <div class="acv__sentinel" appInfiniteScroll (scrolledToEnd)="loadMore()" aria-hidden="true"></div>
+      <div class="acv__more">
+        <app-button-group>
+          <app-button variant="text" size="sm" [loading]="loadingMore()" (click)="loadMore()">
+            <app-icon name="down" />
+            {{ intl.translate('activity.more') }}
+          </app-button>
+        </app-button-group>
+      </div>
+    }
+  </div>
+}

@@ -17,6 +17,7 @@ import {
 } from '@angular/core';
 import { motionReduced } from '../gesture/gesture';
 import { TabsComponent, type TabItem } from '../tabs/tabs.component';
+import { StuckHeads } from '../sticky-bar/stuck-heads';
 import { TabPageDirective } from './tab-page.directive';
 
 /** The pager counts as at a page within this share of a page (a fractional screen width). */
@@ -81,6 +82,7 @@ export class TabPagerComponent {
 
   /** The bar sticks under the head bar of the page now (`tp__bar--stuck`). */
   private stuck = false;
+  private readonly heads = inject(StuckHeads);
 
   /**
    * While the tab line sticks under the head bar, both are solid in the colour
@@ -96,6 +98,7 @@ export class TabPagerComponent {
       const stuck = style.position === 'sticky' && !Number.isNaN(top) && top > 0 && el.getBoundingClientRect().top <= top + 0.5 && window.scrollY > 0;
       if (stuck === this.stuck) return;
       this.stuck = stuck;
+      this.heads.tab(stuck);
       el.classList.toggle('tp__bar--stuck', stuck);
     };
     this.zone.runOutsideAngular(() => {
@@ -110,6 +113,7 @@ export class TabPagerComponent {
 
   private unstick(): void {
     this.bar()?.nativeElement.classList.remove('tp__bar--stuck');
+    if (this.stuck) this.heads.tab(false);
     this.stuck = false;
   }
 

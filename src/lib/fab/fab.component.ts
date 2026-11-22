@@ -10,11 +10,14 @@ import {
   inject,
   input,
   output,
+  effect,
   signal,
+  untracked,
 } from '@angular/core';
 import { MEDIA } from '../breakpoints/breakpoints';
 import { ButtonComponent } from '../button/button.component';
 import { IconComponent, type IconName } from '../icon/icon.component';
+import { reducedMotion } from '../motion/motion';
 import { mediaQuery } from '../signals/media-query';
 import { FabGroupComponent } from './fab-group.component';
 
@@ -31,6 +34,47 @@ export const FAB_LINK = new InjectionToken<FabLink>('FAB_LINK');
 
 /** How far (px) a scroll area must be down before a phone fab folds. */
 export const FAB_FOLD_SCROLL_PX = 8;
+
+/** The side of a folded fab: a square. */
+const FAB_FOLDED_PX = 56;
+
+/** How far (px) the clip of a folding fab reaches past its box, so its shadow stays whole. */
+const FAB_SHADOW_REACH_PX = 48;
+
+/** The size of an unfolded fab and of its icon, read while it is unfolded. */
+interface FabGeometry {
+  readonly width: number;
+  readonly height: number;
+  readonly radius: number;
+  /** The start of the icon from the start of the button. */
+  readonly iconStart: number;
+  readonly iconWidth: number;
+  readonly duration: number;
+  readonly easing: string;
+}
+
+/**
+ * The clip of a folding fab: the button from `cut` to its end, with the round corners of
+ * the button at the cut. Above, below and past the end it reaches out by
+ * `FAB_SHADOW_REACH_PX`, so the shadow of the button stays.
+ */
+function foldClip(g: FabGeometry, cut: number): string {
+  const o = FAB_SHADOW_REACH_PX;
+  const r = g.radius;
+  const n = (v: number): string => v.toFixed(2);
+  return (
+    `path('M ${n(cut + r)} ${-o} H ${n(g.width + o)} V ${n(g.height + o)} H ${n(cut + r)} ` +
+    `V ${n(g.height)} A ${n(r)} ${n(r)} 0 0 1 ${n(cut)} ${n(g.height - r)} V ${n(r)} ` +
+    `A ${n(r)} ${n(r)} 0 0 1 ${n(cut + r)} 0 Z')`
+  );
+}
+
+/** A CSS time such as `200ms` or `0.2s` in milliseconds. */
+function cssMs(value: string): number {
+  const v = parseFloat(value);
+  if (Number.isNaN(v)) return 0;
+  return value.trim().endsWith('ms') ? v : v * 1000;
+}
 
 /** How long a fab shown again waits for the leaving sheet of its form to drop the focus. */
 const FAB_FOCUS_WAIT_MS = 1000;
@@ -81,6 +125,16 @@ export class FabFocusReturn {
  * top. Any scroll area that scrolls vertically counts, so a list pane folds it too; a row
  * that scrolls only sideways does not. The label stays the accessible name.
  *
+ * The fold moves no layout while it runs (app spec 002407). The button keeps its full width,
+ * and a clip cuts it from the start towards the end (`clip-path`), the icon slides to the
+ * centre of the square (`transform`) and the label fades (`opacity`). The fabs before it in a
+ * group slide along (`transform`). Only at the end does the button take its folded size
+ * (`fab--folded`), which looks the same, and the animations go. A width or a padding that
+ * moved would lay out and paint the button and the group in every frame. The unfold runs the
+ * other way: the button takes its full size first and the clip opens. A change of direction
+ * while the fold runs turns the running animations round. With reduced motion, before the
+ * first measure, or without the Web Animations API the size changes at once.
+ *
  * `iconOnly` makes it the round 56px icon button; the label is then its accessible name
  * and its title. `tone="neutral"` gives it the surface of a secondary action, for example
  * "Reset" beside "Save".
@@ -107,7 +161,6 @@ export class FabFocusReturn {
     '[class.fab--contained]': 'contained()',
     '[class.fab--grouped]': 'grouped',
     '[class.fab--neutral]': "tone() === 'neutral'",
-    '[class.fab--folded]': 'folded()',
   },
   template: `<app-button
     variant="fab"
@@ -153,8 +206,16 @@ export class FabComponent {
 
   private readonly back = inject(FabFocusReturn);
 
+  private readonly host = inject<ElementRef<HTMLElement>>(ElementRef).nativeElement;
+  /** The fold state that the fab goes to, or is in. */
+  private foldTarget = false;
+  /** The running fold or unfold, all with the same timing. */
+  private anims: Animation[] = [];
+  /** The size of the unfolded fab, from a `ResizeObserver` (app spec 002161). */
+  private geometry: FabGeometry | null = null;
+
   constructor() {
-    const host = inject<ElementRef<HTMLElement>>(ElementRef).nativeElement;
+    const host = this.host;
     const doc = host.ownerDocument;
     const take = (): void => {
       if (!doc.activeElement || doc.activeElement === doc.body) host.querySelector('button')?.focus();
@@ -184,11 +245,103 @@ export class FabComponent {
       this.scrolled.set(area.scrollTop > FAB_FOLD_SCROLL_PX);
     };
     doc.addEventListener('scroll', onScroll, { capture: true, passive: true });
+    effect(() => {
+      const folded = this.folded();
+      untracked(() => this.fold(folded));
+    });
+    const sizes =
+      typeof ResizeObserver === 'undefined'
+        ? null
+        : new ResizeObserver((entries) => entries.forEach((e) => this.measure(e.target as HTMLElement)));
+    afterNextRender({
+      read: () => {
+        const button = host.querySelector('button');
+        if (button) sizes?.observe(button);
+      },
+    });
     inject(DestroyRef).onDestroy(() => {
+      sizes?.disconnect();
+      this.stopFold();
       doc.removeEventListener('scroll', onScroll, { capture: true });
       host.removeEventListener('focusin', clear);
       stopWaiting();
     });
+  }
+
+  /** Read the size of the unfolded fab; a folded one keeps the last size. */
+  private measure(button: HTMLElement): void {
+    if (this.host.classList.contains('fab--folded') || this.anims.length) return;
+    const icon = button.querySelector('app-icon');
+    if (!icon) return;
+    const box = button.getBoundingClientRect();
+    const glyph = icon.getBoundingClientRect();
+    const style = getComputedStyle(button);
+    const tokens = getComputedStyle(this.host);
+    this.geometry = {
+      width: box.width,
+      height: box.height,
+      radius: parseFloat(style.borderTopLeftRadius) || 0,
+      iconStart: glyph.left - box.left,
+      iconWidth: glyph.width,
+      duration: cssMs(tokens.getPropertyValue('--motion-base')),
+      easing: tokens.getPropertyValue('--ease-standard').trim() || 'ease',
+    };
+  }
+
+  /** Go to the folded (`true`) or the unfolded state, with the animation of app spec 002407. */
+  private fold(folded: boolean): void {
+    if (folded === this.foldTarget) return;
+    this.foldTarget = folded;
+    if (this.anims.length) {
+      this.anims.forEach((anim) => anim.reverse());
+      return;
+    }
+    const button = this.host.querySelector<HTMLElement>('button');
+    const icon = button?.querySelector<HTMLElement>('app-icon');
+    const label = button?.querySelector<HTMLElement>('.fab__label');
+    const g = this.geometry;
+    const shift = g ? g.width - FAB_FOLDED_PX : 0;
+    if (!button || !icon || !label || !g || shift <= 0 || g.duration <= 0) {
+      this.host.classList.toggle('fab--folded', folded);
+      return;
+    }
+    if (typeof button.animate !== 'function' || reducedMotion()) {
+      this.host.classList.toggle('fab--folded', folded);
+      return;
+    }
+    // Unfold: the full size comes first, the animations start from the folded look.
+    if (!folded) this.host.classList.remove('fab--folded');
+    const timing: KeyframeAnimationOptions = { duration: g.duration, easing: g.easing, fill: 'both' };
+    const slide = (by: number): Keyframe[] => [{ transform: 'translateX(0)' }, { transform: `translateX(${by}px)` }];
+    const iconShift = shift + (FAB_FOLDED_PX - g.iconWidth) / 2 - g.iconStart;
+    // The fabs before this one in a group lie at its start: they keep to its edge.
+    const before = this.grouped ? this.siblingsBefore() : [];
+    const anims = [
+      button.animate([{ clipPath: foldClip(g, 0) }, { clipPath: foldClip(g, shift) }], timing),
+      icon.animate(slide(iconShift), timing),
+      label.animate([{ opacity: 1 }, { opacity: 0, offset: 0.5 }, { opacity: 0 }], timing),
+      ...before.map((el) => el.animate(slide(shift), { ...timing, composite: 'add' })),
+    ];
+    if (!folded) anims.forEach((anim) => anim.reverse());
+    anims[0].addEventListener('finish', () => this.settleFold());
+    this.anims = anims;
+  }
+
+  /** The elements before the host in its group. */
+  private siblingsBefore(): Element[] {
+    const all = Array.from(this.host.parentElement?.children ?? []);
+    return all.slice(0, all.indexOf(this.host));
+  }
+
+  /** The fold has ended: the fab takes the size it shows, and the animations go. */
+  private settleFold(): void {
+    this.host.classList.toggle('fab--folded', this.foldTarget);
+    this.stopFold();
+  }
+
+  private stopFold(): void {
+    this.anims.forEach((anim) => anim.cancel());
+    this.anims = [];
   }
 
   protected onClick(): void {
