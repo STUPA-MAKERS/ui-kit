@@ -19,10 +19,7 @@ import { TodoAssigneesViewComponent } from './todo-assignees-view.component';
 
 /** A set with `id` added, or taken out when it holds it. */
 function toggled<T>(set: ReadonlySet<T>, id: T): ReadonlySet<T> {
-  const next = new Set(set);
-  if (next.has(id)) next.delete(id);
-  else next.add(id);
-  return next;
+  return set.has(id) ? new Set([...set].filter((x) => x !== id)) : new Set([...set, id]);
 }
 
 export type DueSort = 'none' | 'asc' | 'desc';

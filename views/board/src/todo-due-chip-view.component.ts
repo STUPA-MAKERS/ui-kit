@@ -44,7 +44,7 @@ export class TodoDueChipViewComponent {
   /** Open the calendar of the browser; without `showPicker` the field takes a click. */
   pick(): void {
     const el = this.native().nativeElement;
-    el.value = this.value() ?? '';
+    Reflect.set(el, 'value', this.value() ?? '');
     try {
       if (typeof el.showPicker === 'function') {
         el.showPicker();

@@ -39,15 +39,15 @@ function dayNumber(d: Date): number {
   return Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()) / DAY_MS;
 }
 
-const formats = new Map<string, Intl.DateTimeFormat>();
+const formats: Record<string, Intl.DateTimeFormat | undefined> = {};
 
 /** The `Intl.DateTimeFormat` of a locale and options, made once: a board formats on every tile. */
 function dateFormat(locale: string, options: Intl.DateTimeFormatOptions): Intl.DateTimeFormat {
   const key = `${locale}|${JSON.stringify(options)}`;
-  const cached = formats.get(key);
+  const cached = formats[key];
   if (cached) return cached;
   const f = new Intl.DateTimeFormat(locale, options);
-  formats.set(key, f);
+  Reflect.set(formats, key, f);
   return f;
 }
 
