@@ -5,7 +5,10 @@ kind: style
 status: approved
 owner: frederikbeimgraben
 updated: 2026-11-22
-implementation: null
+implementation:
+  - views/protocol/src/top-sheet-view.component.ts
+  - views/protocol/src/protocol-bar-view.component.ts
+  - views/protocol/src/protocol-api.ts
 scope:
   - views/protocol
 ---
