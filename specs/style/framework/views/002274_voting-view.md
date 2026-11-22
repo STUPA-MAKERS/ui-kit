@@ -2,7 +2,7 @@
 id: "002274"
 title: The voting views take votes, ballots and a voting port
 kind: style
-status: draft
+status: approved
 owner: frederikbeimgraben
 updated: 2026-11-22
 implementation:
