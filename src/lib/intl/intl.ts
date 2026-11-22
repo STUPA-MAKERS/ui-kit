@@ -51,6 +51,9 @@ export type UiKitTextKey =
   | 'rowMenu.loading'
   | 'note.retry'
   | 'screen.more'
+  | 'activity.loading'
+  | 'activity.new'
+  | 'activity.more'
   | 'screen.select'
   | 'screen.selectRow'
   | 'screen.selectStop'
@@ -196,6 +199,9 @@ export const UI_KIT_DEFAULT_MESSAGES: Record<UiLang, UiKitMessages> = {
     'rowMenu.loading': 'Wird geladen …',
     'note.retry': 'Erneut versuchen',
     'screen.more': 'Mehr laden',
+    'activity.loading': 'Aktivität wird geladen',
+    'activity.new': 'Neu',
+    'activity.more': 'Mehr laden',
     'screen.select': 'Mehrere auswählen',
     'screen.selectRow': '{title} auswählen',
     'screen.selectStop': 'Auswahl beenden',
@@ -337,6 +343,9 @@ export const UI_KIT_DEFAULT_MESSAGES: Record<UiLang, UiKitMessages> = {
     'rowMenu.loading': 'Loading …',
     'note.retry': 'Try again',
     'screen.more': 'Load more',
+    'activity.loading': 'Loading activity',
+    'activity.new': 'New',
+    'activity.more': 'Load more',
     'screen.select': 'Select several',
     'screen.selectRow': 'Select {title}',
     'screen.selectStop': 'End selection',
