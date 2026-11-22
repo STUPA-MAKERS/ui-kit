@@ -1,0 +1,61 @@
+// A copy of the record pages of STUPA-Workflow: `.admin-page` (the column with 20px gaps) and
+// the filter row of `.fs__filters`.
+// The face of an empty list and of a failed load without content centres in the free height of
+// the page or pane (002405): the screen grows in a flex-column parent (`list-detail.scss` makes the page that
+// holds it one), and where the parent is only as high as its content (the phone page), the face
+// is at least most of a screen high.
+:host {
+  display: flex;
+  flex: 1 0 auto;
+  flex-direction: column;
+}
+
+.rcs {
+  display: flex;
+  flex: 1 0 auto;
+  flex-direction: column;
+  gap: var(--space-5);
+}
+
+.rcs__headTools {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.rcs__filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+
+.rcs__filters--below {
+  margin-top: var(--space-3);
+}
+
+.rcs__list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.rcs__more {
+  display: flex;
+  justify-content: center;
+}
+
+// In the pane of a list/detail page the column starts 32px below the top of the sheet, as
+// `.adl__body` of the admin pages does, and the page ends with room for the FAB.
+:host-context(.lds--split) .rcs {
+  padding-top: var(--space-6);
+}
+.rcs:has(app-fab) {
+  padding-bottom: calc(56px + 2 * var(--space-4));
+}
+:host-context(.lds--split) .rcs:has(app-fab) {
+  padding-bottom: calc(56px + var(--space-4));
+}
+
+.rcs > app-empty-state.es-host--fill {
+  min-height: min(60dvh, 32rem);
+}

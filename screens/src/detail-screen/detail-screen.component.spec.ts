@@ -3,7 +3,7 @@ import { TestBed } from '@angular/core/testing';
 import { Router, provideRouter } from '@angular/router';
 import { render, screen } from '@testing-library/angular';
 import userEvent from '@testing-library/user-event';
-import type { Action, LoadState, ScreenHead, ScreenTab, SideSheetDef } from '@stupa-makers/ui-kit';
+import { ToastService, type Action, type LoadState, type ScreenHead, type ScreenTab, type SideSheetDef } from '@stupa-makers/ui-kit';
 
 import { runAxe } from '../../../testing/a11y';
 import { DETAIL_HEAD, DETAIL_SHEETS, DETAIL_TABS } from '../../../testing/screens';
@@ -79,14 +79,19 @@ describe('DetailScreenComponent', () => {
     expect(screen.getByText('Der Inhalt')).toBeInTheDocument();
   });
 
-  it('shows the skeleton while loading and the error with a retry', async () => {
+  it('shows the skeleton while loading and the error face with a retry in the toast', async () => {
     const retry = jest.fn();
     const { view } = await setUp({ state: { state: 'loading' } });
     expect(view.container.querySelector('app-skeleton')).not.toBeNull();
     expect(screen.queryByText('Der Inhalt')).toBeNull();
+    const toast = jest.spyOn(TestBed.inject(ToastService), 'show');
     view.fixture.componentRef.setInput('state', { state: 'error', message: 'Fehler', retry });
     view.fixture.detectChanges();
-    await userEvent.click(screen.getByRole('button', { name: 'Erneut versuchen' }));
+    expect(view.container.querySelector('app-empty-state')?.textContent).toContain('Fehler');
+    expect(screen.queryByRole('button', { name: 'Erneut versuchen' })).toBeNull();
+    const opts = toast.mock.calls[0][0] as { action?: { label: string }; closed?: (how: string) => void };
+    expect(opts.action?.label).toBe('Erneut versuchen');
+    opts.closed?.('action');
     expect(retry).toHaveBeenCalled();
   });
 

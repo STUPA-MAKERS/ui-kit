@@ -76,6 +76,11 @@ export class PublicScreenComponent {
   readonly width = input<'narrow' | 'wide'>('narrow');
   /** The rows of the skeleton while it loads (Barrierefreiheit 6, Protokolle 4). */
   readonly skeletonRows = input(6);
+  /** The text of a load error, for the face (002405). */
+  protected readonly failed = computed(() => {
+    const s = this.state();
+    return s.state === 'error' ? s.message : null;
+  });
   /** The pill button in the empty state ("Zur Startseite"). */
   readonly emptyAction = input<Action | null>(null);
 

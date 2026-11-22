@@ -31,10 +31,17 @@
         <app-note kind="warn" icon="lock" role="alert">{{ forbidden() }}</app-note>
       }
     }
+    @case ('error') {
+      @if (state(); as s) {
+        @if (s.state === 'error') {
+          <app-empty-state icon="alert" fill [heading]="s.message" />
+        }
+      }
+    }
     @case ('ready') {
       @if (empty(); as e) {
         @if (!stateGroups().length) {
-          <app-empty-state [icon]="e.icon" [heading]="e.heading" />
+          <app-empty-state [icon]="e.icon" fill [heading]="e.heading" />
         }
       }
       <div class="sts__groups">

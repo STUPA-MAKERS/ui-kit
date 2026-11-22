@@ -1,0 +1,87 @@
+<section class="rcs">
+  <app-page-header [flush]="true" [title]="head().title">
+    @if (headToolsSlot(); as t) {
+      <div actions class="rcs__headTools">
+        @for (a of placed().head; track a.key) {
+          <app-button variant="text" [disabled]="!!a.disabled" [loading]="!!a.busy" (click)="run(a)">{{
+            a.label
+          }}</app-button>
+        }
+        <ng-container [ngTemplateOutlet]="t.template" />
+      </div>
+    } @else {
+      @for (a of placed().head; track a.key) {
+        <app-button
+          actions
+          variant="text"
+          [disabled]="!!a.disabled"
+          [loading]="!!a.busy"
+          (click)="run(a)"
+          >{{ a.label }}</app-button
+        >
+      }
+    }
+  </app-page-header>
+
+  @if (introSlot(); as i) {
+    <ng-container [ngTemplateOutlet]="i.template" />
+  }
+
+  @if (searchSlot() || filtersSlot()) {
+    <app-sticky-bar>
+      @if (searchSlot(); as q) {
+        <ng-container [ngTemplateOutlet]="q.template" />
+      }
+      @if (filtersSlot(); as f) {
+        <div class="rcs__filters" [class.rcs__filters--below]="!!searchSlot()" role="group" [attr.aria-label]="filtersLabel()">
+          <ng-container [ngTemplateOutlet]="f.template" />
+        </div>
+      }
+    </app-sticky-bar>
+  }
+
+  @if (firstLoad()) {
+    <app-skeleton variant="rows" [count]="skeleton()" [label]="intl.translate('loading')" />
+  } @else {
+    @if (failed(); as message) {
+      <app-empty-state icon="alert" fill [heading]="message" />
+    } @else if (shown(); as r) {
+      @if (r.state === 'empty') {
+        <app-empty-state [icon]="r.icon" fill [heading]="r.heading" />
+      }
+    }
+    @if (data().length) {
+      @if (recordSlot(); as slot) {
+        <ul class="rowgroup rcs__list" [class.rowgroup--records]="variant() === 'records'" [attr.aria-label]="listLabel() ?? head().title">
+          @for (row of data(); track row.id) {
+            <ng-container [ngTemplateOutlet]="slot.template" [ngTemplateOutletContext]="{ $implicit: row }" />
+          }
+        </ul>
+      } @else {
+        <div class="rowgroup" [class.rowgroup--records]="variant() === 'records'" role="list" [attr.aria-label]="listLabel() ?? head().title">
+          @for (row of data(); track row.id) {
+            <app-list-item
+              role="listitem"
+              [title]="row.title"
+              [link]="row.link ? $any(row.link.commands) : null"
+              [subWrap]="true"
+              [sub]="row.meta?.join(' · ') ?? null"
+            />
+          }
+        </div>
+      }
+    }
+    @if (footSlot(); as f) {
+      <ng-container [ngTemplateOutlet]="f.template" />
+    }
+    @if (hasMore()) {
+      <div class="rcs__more">
+        <app-button variant="outlined" (click)="more.emit()">{{ intl.translate('screen.more') }}</app-button>
+      </div>
+    }
+  }
+
+  @for (a of placed().fab; track a.key) {
+    <app-fab [label]="a.label" [icon]="a.icon ?? 'plus'" [disabled]="!!a.disabled" [loading]="!!a.busy" (activate)="run(a)" />
+  }
+</section>

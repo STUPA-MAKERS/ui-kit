@@ -114,6 +114,8 @@ describe('PublicScreenComponent', () => {
     );
     toast.mock.calls[0][0].closed?.('action');
     expect(retry).toHaveBeenCalledTimes(1);
+    expect(document.querySelectorAll('app-empty-state')).toHaveLength(1);
+    expect(screen.getByText('Konnte nicht geladen werden.')).toBeTruthy();
   });
 
   it.each([360, 700, 1200])('has no axe violations at %ipx', async (width) => {

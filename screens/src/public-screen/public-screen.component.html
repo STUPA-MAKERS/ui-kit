@@ -39,6 +39,11 @@
         </app-empty-state>
       }
     }
+    @case ('error') {
+      @if (failed(); as message) {
+        <app-empty-state icon="alert" [heading]="message" />
+      }
+    }
     @case ('ready') {
       @if (body(); as b) {
         <ng-container [ngTemplateOutlet]="b.template" />
