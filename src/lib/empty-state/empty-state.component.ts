@@ -68,9 +68,10 @@ export type EmptyStateShape =
  * list: a detail pane with nothing open, a missing record (`code`), a page the reader has
  * no access to.
  *
- * Set `fill` when the empty state is the whole page or pane. The host then takes the free
- * height of its flex-column parent and centres in it. Without it, the block keeps its own
- * height, for a card, a tab or a dialog.
+ * Set `fill` when the empty state is the whole page or pane, the content of a tab or of a
+ * side pane. The host then takes the free height of its flex-column parent and centres in it;
+ * in a tab panel or a side pane the kit passes that height down (002650). Without it, the
+ * block keeps its own height, for a card, a section or a dialog.
  */
 @Component({
   selector: 'app-empty-state',
