@@ -4,7 +4,7 @@ title: A scroll area cuts at the edge of a surface
 kind: non-functional
 status: approved
 owner: frederikbeimgraben
-updated: 2026-11-20
+updated: 2026-11-23
 implementation: null
 scope:
   - shell
@@ -21,7 +21,7 @@ see. At each kind of place, the content must cut as this table says:
 | A column on the page background that ends above the bottom edge of the screen, for example the agenda of a Sitzung | The column lies on a surface of its own with rounded corners, and the content cuts at its edge. |
 | A column that reaches the bottom edge of the screen, for example the cost-centre tree of the Haushalt | At the edge of the screen. The column has no surface of its own. |
 | A list inside a dialog or a sheet, for example the bookings of a cost centre or the attendance | At the rounded frame of the list itself. The rows run to the sides of the frame, without side padding. |
-| The page body of the administration sheet on a wide screen | At a rounded frame that is exactly as wide as the fields, 24 px inside the sheet, so that a field that scrolls past an end keeps its rounded corners. |
+| The page body of the administration sheet on a wide screen | At a rounded frame that is exactly as wide as the fields, 24 px inside the sheet, so that a field that scrolls past an end keeps its rounded corners. The top corners of the frame are round only while the page is scrolled down, so that at the top of the page a control at the right end of the page head shows all its corners. |
 | The scroll part of the navigation rail | The scroll part lies on a surface of its own with rounded corners (001441). |
 | A row of chips that scrolls sideways on a phone, for example the filters of Anträge or of the graph | At the edge of the screen. The row runs from screen edge to screen edge, also where it is a line of its own in a bar. |
 | The message log of a chat | At its rounded frame. |

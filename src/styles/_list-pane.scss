@@ -185,3 +185,58 @@
     }
   }
 }
+
+/// The detail of `frame($b)` as a sheet whose page scrolls in a round frame (the Verwaltung and
+/// the Konto of the app): `.<b>__body` inside `.<b>__detail`. Side by side the body is a round
+/// frame as wide as the fields, 24px inside the sheet, and it scrolls (000193): a field that
+/// scrolls past an end keeps its round corners, and a sticky bar sticks at its top edge. The top
+/// corners are round only while the body carries `data-scrolled` (the page sets it while it is
+/// scrolled down): at rest the page head starts at the top edge, and a round corner would cut a
+/// control at the right end of the head (000193). Call it after `frame($b)`.
+@mixin framed-detail($b) {
+  .#{$b}--split .#{$b}__detail {
+    padding: 0;
+    overflow: hidden;
+    // A sticky bar of the page lies on the sheet, so it takes the colour of the sheet.
+    --stb-bg: var(--color-surface-1);
+  }
+  .#{$b}--split .#{$b}__body {
+    position: relative;
+    display: flex;
+    flex: 1 1 0;
+    flex-direction: column;
+    min-height: 0;
+    margin: var(--space-6);
+    padding: 0 0 var(--space-2);
+    border-radius: 0 0 var(--radius-field) var(--radius-field);
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    --ld-sticky-top: 0px;
+  }
+  .#{$b}--split .#{$b}__body[data-scrolled] {
+    border-top-left-radius: var(--radius-field);
+    border-top-right-radius: var(--radius-field);
+  }
+  .#{$b}--split .#{$b}__body > ::ng-deep * {
+    flex-shrink: 0;
+  }
+  .#{$b}__body:focus-visible {
+    outline: 2px solid var(--color-focus-ring);
+    outline-offset: 2px;
+  }
+  // The empty detail (`app-detail-none`) brings its own sheet.
+  .#{$b}--split .#{$b}__body:has(app-detail-none) {
+    margin: 0;
+    padding: 0;
+  }
+  // The page ends with room for the floating button and 16px below and above it.
+  .#{$b}__body:has(app-fab) {
+    padding-bottom: calc(56px + 2 * var(--space-4));
+  }
+  .#{$b}--split .#{$b}__body:has(app-fab) {
+    padding-bottom: calc(56px + var(--space-4));
+  }
+  .#{$b}--split {
+    --fab-inset: var(--space-6);
+  }
+}
