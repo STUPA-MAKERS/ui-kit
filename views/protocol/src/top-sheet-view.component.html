@@ -216,6 +216,8 @@
             [timeNoteSuffix]="'meetings.editor.timeNoteSuffix' | uiKitT"
             [timeNoteLabel]="'meetings.editor.timeNoteTime' | uiKitT"
             [knownNames]="editable() ? knownNames : null"
+            [insertTrigger]="editable() ? insertTrigger() : null"
+            (insertRequest)="insertRequest.emit()"
             (valueChange)="onEditorChange(t, $event)"
           />
         } @placeholder {

@@ -203,6 +203,8 @@ export class TopSheetViewComponent {
   readonly keepers = input<string>('');
   /** The linked rows below the title (the application and the to-dos), from the app. */
   readonly linkedList = input<TemplateRef<TopSheetLinkedSlot> | null>(null);
+  /** The text that asks the app for an insert into the text (002761); `null` for none. */
+  readonly insertTrigger = input<string | null>(null);
 
   readonly bodyChange = output<{ itemId: Uuid; body: string }>();
   readonly startRename = output<AgendaItem>();
@@ -212,6 +214,8 @@ export class TopSheetViewComponent {
   readonly doneChange = output<{ item: AgendaItem; done: boolean }>();
   /** A click on a PDF badge (spec 000863): the app opens its PDF viewer. */
   readonly documentOpen = output<MarkdownDocumentRef>();
+  /** The person typed the `insertTrigger`: the app opens its picker (002761). */
+  readonly insertRequest = output<void>();
 
 
   readonly tools = TOOLS;
@@ -346,6 +350,11 @@ export class TopSheetViewComponent {
   private sendDocument(file: File): Promise<ProtocolDocument> {
     const api = this.api;
     return api ? api.uploadDocument(this.meeting().id, file) : Promise.reject(new Error('no port'));
+  }
+
+  /** Insert an embedded PDF that the app made, at the cursor of the formatted view (002761). */
+  insertDocumentRef(ref: MarkdownDocumentRef): boolean {
+    return this.editor()?.insertDocument(ref.src, ref.name) ?? false;
   }
 
   /** "PDF einfügen": the file dialog of the editor, or of the Markdown source. */
