@@ -1,0 +1,11 @@
+<div class="ins__head">
+  <h2 class="cap ins__title">{{ 'admin.flow.group.inspector' | uiKitT }}</h2>
+  <app-button-group>
+    <app-button variant="outlined" size="sm" (click)="dissolve.emit()">{{ 'admin.flow.group.dissolve' | uiKitT }}</app-button>
+  </app-button-group>
+</div>
+<app-input [label]="'admin.flow.group.name' | uiKitT" [ngModel]="group().name" (ngModelChange)="nameChange.emit($event)" />
+<app-flow-color-view [value]="group().color" (changed)="colorChange.emit($event)" />
+<p class="ins__hint">
+  {{ group().stateKeys.length }} {{ 'admin.flow.group.members' | uiKitT }}@if (group().groupIds?.length) {, {{ group().groupIds?.length }} {{ 'admin.flow.group.subgroups' | uiKitT }}}
+</p>

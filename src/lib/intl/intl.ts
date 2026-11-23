@@ -596,7 +596,80 @@ export type UiKitTextKey =
   | 'graph.zoom.group'
   | 'graph.zoom.in'
   | 'graph.zoom.out'
-  | 'graph.zoom.all';
+  | 'graph.zoom.all'
+  | 'admin.common.label'
+  | 'admin.common.key'
+  | 'admin.flow.approved'
+  | 'admin.flow.automatic'
+  | 'admin.flow.branch'
+  | 'admin.flow.branchNone'
+  | 'admin.flow.cfgGremium'
+  | 'admin.flow.cfgGremiumPh'
+  | 'admin.flow.cfgGremiumSource'
+  | 'admin.flow.cfgGremiumSourceBudget'
+  | 'admin.flow.cfgGremiumSourceFixed'
+  | 'admin.flow.cfgRolePh'
+  | 'admin.flow.color'
+  | 'admin.flow.colorCustom'
+  | 'admin.flow.colorNone'
+  | 'admin.flow.colorPreset'
+  | 'admin.flow.compareField'
+  | 'admin.flow.compareFieldPh'
+  | 'admin.flow.compareOp'
+  | 'admin.flow.compareValue'
+  | 'admin.flow.denied'
+  | 'admin.flow.editAllowed'
+  | 'admin.flow.from'
+  | 'admin.flow.group.dissolve'
+  | 'admin.flow.group.inspector'
+  | 'admin.flow.group.members'
+  | 'admin.flow.group.name'
+  | 'admin.flow.group.subgroups'
+  | 'admin.flow.guardAddChild'
+  | 'admin.flow.guardCombinator.and'
+  | 'admin.flow.guardCombinator.not'
+  | 'admin.flow.guardCombinator.or'
+  | 'admin.flow.guardDesc.and'
+  | 'admin.flow.guardDesc.not'
+  | 'admin.flow.guardDesc.or'
+  | 'admin.flow.guardNone'
+  | 'admin.flow.guardOp'
+  | 'admin.flow.guardOp.actorIsApplicant'
+  | 'admin.flow.guardOp.applicantCommitteeIs'
+  | 'admin.flow.guardOp.applicantRoleIs'
+  | 'admin.flow.guardOp.applicationTypeIs'
+  | 'admin.flow.guardOp.attachmentPresent'
+  | 'admin.flow.guardOp.budgetFitsApplication'
+  | 'admin.flow.guardOp.budgetHasDecisionGremium'
+  | 'admin.flow.guardOp.budgetIs'
+  | 'admin.flow.guardOp.compare'
+  | 'admin.flow.guardOp.fieldsComplete'
+  | 'admin.flow.guardOp.hasField'
+  | 'admin.flow.guardOp.isInCommittee'
+  | 'admin.flow.guardOp.isInVoteGremium'
+  | 'admin.flow.guardOp.manual'
+  | 'admin.flow.guardOp.permissionIs'
+  | 'admin.flow.guardOp.roleIs'
+  | 'admin.flow.guardOp.voteResult'
+  | 'admin.flow.guardPriority'
+  | 'admin.flow.guardRemove'
+  | 'admin.flow.guardValue'
+  | 'admin.flow.initial'
+  | 'admin.flow.kindLabel'
+  | 'admin.flow.legendAutomatic'
+  | 'admin.flow.list.empty'
+  | 'admin.flow.list.heading'
+  | 'admin.flow.list.incoming'
+  | 'admin.flow.list.outgoing'
+  | 'admin.flow.recipientKind.role'
+  | 'admin.flow.removeState'
+  | 'admin.flow.removeTransition'
+  | 'admin.flow.replacedTarget'
+  | 'admin.flow.requiresAction'
+  | 'admin.flow.stateInspector'
+  | 'admin.flow.terminal'
+  | 'admin.flow.to'
+  | 'admin.flow.transitionInspector';
 
 export type UiKitMessages = Record<UiKitTextKey, string>;
 
@@ -1180,6 +1253,79 @@ export const UI_KIT_DEFAULT_MESSAGES: Record<UiLang, UiKitMessages> = {
     'graph.zoom.in': 'Vergrößern',
     'graph.zoom.out': 'Verkleinern',
     'graph.zoom.all': 'Alles zeigen',
+    'admin.common.label': 'Bezeichnung',
+    'admin.common.key': 'Schlüssel',
+    'admin.flow.approved': 'Bewilligt',
+    'admin.flow.automatic': 'Automatischer Übergang',
+    'admin.flow.branch': 'Ergebnis-Zweig',
+    'admin.flow.branchNone': '— (kein Zweig)',
+    'admin.flow.cfgGremium': 'Gremium',
+    'admin.flow.cfgGremiumPh': 'Gremium wählen …',
+    'admin.flow.cfgGremiumSource': 'Wer entscheidet',
+    'admin.flow.cfgGremiumSourceBudget': 'Gremium aus der Kostenstelle',
+    'admin.flow.cfgGremiumSourceFixed': 'Festes Gremium',
+    'admin.flow.cfgRolePh': 'Rolle wählen …',
+    'admin.flow.color': 'Farbe',
+    'admin.flow.colorCustom': 'Eigene Farbe',
+    'admin.flow.colorNone': 'Keine Farbe',
+    'admin.flow.colorPreset': 'Farbe {c}',
+    'admin.flow.compareField': 'Feld',
+    'admin.flow.compareFieldPh': 'Feld-Schlüssel oder „amount"',
+    'admin.flow.compareOp': 'Operator',
+    'admin.flow.compareValue': 'Wert',
+    'admin.flow.denied': 'Abgelehnt',
+    'admin.flow.editAllowed': 'Bearbeitung erlaubt',
+    'admin.flow.from': 'Von',
+    'admin.flow.group.dissolve': 'Gruppe auflösen',
+    'admin.flow.group.inspector': 'Gruppe',
+    'admin.flow.group.members': 'Schritte',
+    'admin.flow.group.name': 'Name',
+    'admin.flow.group.subgroups': 'Untergruppen',
+    'admin.flow.guardAddChild': 'Bedingung',
+    'admin.flow.guardCombinator.and': 'UND (alle)',
+    'admin.flow.guardCombinator.not': 'NICHT',
+    'admin.flow.guardCombinator.or': 'ODER (mind. eine)',
+    'admin.flow.guardDesc.and': 'alle Bedingungen erfüllt',
+    'admin.flow.guardDesc.not': 'die Bedingung ist nicht erfüllt',
+    'admin.flow.guardDesc.or': 'mindestens eine Bedingung erfüllt',
+    'admin.flow.guardNone': '— ohne Bedingung —',
+    'admin.flow.guardOp': 'Operator',
+    'admin.flow.guardOp.actorIsApplicant': 'Akteur ist Antragsteller:in',
+    'admin.flow.guardOp.applicantCommitteeIs': 'Antragsteller im Gremium',
+    'admin.flow.guardOp.applicantRoleIs': 'Antragsteller hat Rolle',
+    'admin.flow.guardOp.applicationTypeIs': 'Antragsart ist',
+    'admin.flow.guardOp.attachmentPresent': 'Anhang vorhanden',
+    'admin.flow.guardOp.budgetFitsApplication': 'Budget reicht für Antrag',
+    'admin.flow.guardOp.budgetHasDecisionGremium': 'Kostenstelle hat entscheidendes Gremium',
+    'admin.flow.guardOp.budgetIs': 'Kostenstelle ist',
+    'admin.flow.guardOp.compare': 'Feld-Vergleich',
+    'admin.flow.guardOp.fieldsComplete': 'Pflichtfelder vollständig',
+    'admin.flow.guardOp.hasField': 'Feld ist ausgefüllt',
+    'admin.flow.guardOp.isInCommittee': 'Akteur im Gremium',
+    'admin.flow.guardOp.isInVoteGremium': 'Akteur im Gremium der Abstimmung',
+    'admin.flow.guardOp.manual': 'Nur manuell',
+    'admin.flow.guardOp.permissionIs': 'Akteur hat Berechtigung',
+    'admin.flow.guardOp.roleIs': 'Rolle des Akteurs ist',
+    'admin.flow.guardOp.voteResult': 'Abstimmungsergebnis ist',
+    'admin.flow.guardPriority': 'Guard-Priorität',
+    'admin.flow.guardRemove': 'Bedingung entfernen',
+    'admin.flow.guardValue': 'Wert',
+    'admin.flow.initial': 'Initial',
+    'admin.flow.kindLabel': 'State-Art',
+    'admin.flow.legendAutomatic': 'Automatisch',
+    'admin.flow.list.empty': 'Keine Übergänge.',
+    'admin.flow.list.heading': 'Übergänge des gewählten Schritts',
+    'admin.flow.list.incoming': 'Eingehend',
+    'admin.flow.list.outgoing': 'Ausgehend',
+    'admin.flow.recipientKind.role': 'Rolle',
+    'admin.flow.removeState': 'Status löschen',
+    'admin.flow.removeTransition': 'Übergang löschen',
+    'admin.flow.replacedTarget': 'Ziel für ersetzte Anträge',
+    'admin.flow.requiresAction': 'Erfordert Aktion',
+    'admin.flow.stateInspector': 'Status bearbeiten',
+    'admin.flow.terminal': 'Endzustand',
+    'admin.flow.to': 'Nach',
+    'admin.flow.transitionInspector': 'Übergang bearbeiten',
   },
   en: {
     'dialog.close': 'Close',
@@ -1759,6 +1905,79 @@ export const UI_KIT_DEFAULT_MESSAGES: Record<UiLang, UiKitMessages> = {
     'graph.zoom.in': 'Zoom in',
     'graph.zoom.out': 'Zoom out',
     'graph.zoom.all': 'Show all',
+    'admin.common.label': 'Label',
+    'admin.common.key': 'Key',
+    'admin.flow.approved': 'Approved',
+    'admin.flow.automatic': 'Automatic transition',
+    'admin.flow.branch': 'Outcome branch',
+    'admin.flow.branchNone': '— (no branch)',
+    'admin.flow.cfgGremium': 'Committee',
+    'admin.flow.cfgGremiumPh': 'Choose committee…',
+    'admin.flow.cfgGremiumSource': 'Who decides',
+    'admin.flow.cfgGremiumSourceBudget': 'Committee from the cost centre',
+    'admin.flow.cfgGremiumSourceFixed': 'Fixed committee',
+    'admin.flow.cfgRolePh': 'Choose role…',
+    'admin.flow.color': 'Color',
+    'admin.flow.colorCustom': 'Custom colour',
+    'admin.flow.colorNone': 'No colour',
+    'admin.flow.colorPreset': 'Colour {c}',
+    'admin.flow.compareField': 'Field',
+    'admin.flow.compareFieldPh': 'Field key or "amount"',
+    'admin.flow.compareOp': 'Operator',
+    'admin.flow.compareValue': 'Value',
+    'admin.flow.denied': 'Denied',
+    'admin.flow.editAllowed': 'Editing allowed',
+    'admin.flow.from': 'From',
+    'admin.flow.group.dissolve': 'Dissolve group',
+    'admin.flow.group.inspector': 'Group',
+    'admin.flow.group.members': 'steps',
+    'admin.flow.group.name': 'Name',
+    'admin.flow.group.subgroups': 'subgroups',
+    'admin.flow.guardAddChild': 'Condition',
+    'admin.flow.guardCombinator.and': 'AND (all)',
+    'admin.flow.guardCombinator.not': 'NOT',
+    'admin.flow.guardCombinator.or': 'OR (any)',
+    'admin.flow.guardDesc.and': 'all conditions hold',
+    'admin.flow.guardDesc.not': 'the condition does not hold',
+    'admin.flow.guardDesc.or': 'at least one condition holds',
+    'admin.flow.guardNone': '— no condition —',
+    'admin.flow.guardOp': 'Operator',
+    'admin.flow.guardOp.actorIsApplicant': 'Actor is the applicant',
+    'admin.flow.guardOp.applicantCommitteeIs': 'Applicant in committee',
+    'admin.flow.guardOp.applicantRoleIs': 'Applicant has role',
+    'admin.flow.guardOp.applicationTypeIs': 'Application type is',
+    'admin.flow.guardOp.attachmentPresent': 'Attachment present',
+    'admin.flow.guardOp.budgetFitsApplication': 'Budget fits application',
+    'admin.flow.guardOp.budgetHasDecisionGremium': 'Cost centre has a deciding committee',
+    'admin.flow.guardOp.budgetIs': 'Cost centre is',
+    'admin.flow.guardOp.compare': 'Field comparison',
+    'admin.flow.guardOp.fieldsComplete': 'Required fields complete',
+    'admin.flow.guardOp.hasField': 'Field is filled',
+    'admin.flow.guardOp.isInCommittee': 'Actor in committee',
+    'admin.flow.guardOp.isInVoteGremium': 'Actor in the committee of the vote',
+    'admin.flow.guardOp.manual': 'Manual only',
+    'admin.flow.guardOp.permissionIs': 'Actor has permission',
+    'admin.flow.guardOp.roleIs': 'Actor\'s role is',
+    'admin.flow.guardOp.voteResult': 'Vote result is',
+    'admin.flow.guardPriority': 'Guard priority',
+    'admin.flow.guardRemove': 'Remove condition',
+    'admin.flow.guardValue': 'Value',
+    'admin.flow.initial': 'Initial',
+    'admin.flow.kindLabel': 'State kind',
+    'admin.flow.legendAutomatic': 'Automatic',
+    'admin.flow.list.empty': 'No transitions.',
+    'admin.flow.list.heading': 'Transitions of the selected step',
+    'admin.flow.list.incoming': 'Incoming',
+    'admin.flow.list.outgoing': 'Outgoing',
+    'admin.flow.recipientKind.role': 'Role',
+    'admin.flow.removeState': 'Delete state',
+    'admin.flow.removeTransition': 'Delete transition',
+    'admin.flow.replacedTarget': 'Target for replaced applications',
+    'admin.flow.requiresAction': 'Requires action',
+    'admin.flow.stateInspector': 'Edit state',
+    'admin.flow.terminal': 'Terminal',
+    'admin.flow.to': 'To',
+    'admin.flow.transitionInspector': 'Edit transition',
   },
 };
 

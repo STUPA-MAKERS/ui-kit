@@ -226,3 +226,23 @@ export interface TransitionLists {
   readonly incoming: readonly TransitionListRow[];
   readonly outgoing: readonly TransitionListRow[];
 }
+
+/**
+ * Outgoing transitions of one node that share an identical guard. There is one
+ * connector dot per distinct guard. The group order is the evaluation order, also
+ * called the priority order. The first guard that matches wins.
+ */
+export interface GuardGroup {
+  /** Stable guard signature (`''` = no guard / catch-all). */
+  readonly sig: string;
+  readonly guard: TransitionDef['guard'] | null;
+  readonly op: string;
+  readonly value: string;
+  /** Indices of the member transitions in the `transitions` array. */
+  readonly indices: readonly number[];
+}
+
+export interface Point {
+  readonly x: number;
+  readonly y: number;
+}
