@@ -1,0 +1,28 @@
+@if (row().hasChildren) {
+  <button
+    type="button"
+    class="tn__chev"
+    [attr.aria-expanded]="open()"
+    [attr.aria-label]="(open() ? 'budget.dash.collapse' : 'budget.dash.expand') | uiKitT: { name: row().name }"
+    [disabled]="searching()"
+    (click)="toggle.emit(row())"
+  >
+    <app-icon [name]="open() ? 'down' : 'right'" [size]="17" />
+  </button>
+} @else {
+  <span class="tn__chev" aria-hidden="true"></span>
+}
+<button
+  type="button"
+  class="tn__main"
+  [attr.aria-current]="selected() ? 'true' : null"
+  (click)="pick.emit(row())"
+>
+  <span class="tn__line">
+    <span class="tn__name bp__treeName">{{ row().name }}</span>
+    @if (!row().active) {
+      <app-status-text kind="muted">{{ 'budget.cc.inactive' | uiKitT }}</app-status-text>
+    }
+    <span class="tn__amt mono">{{ amount() }}</span>
+  </span>
+</button>

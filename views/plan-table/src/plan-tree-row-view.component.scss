@@ -1,0 +1,109 @@
+@use '../../../src/styles/field' as f;
+
+// Copies of the tree row rules of the app Haushalt pages (budget-dashboard and
+// budget-plan component styles).
+:host {
+  position: relative;
+  display: flex;
+  flex: none;
+  align-items: center;
+  gap: var(--space-1);
+  min-height: 2.5rem;
+  padding: 4px var(--space-3) 4px calc(4px + var(--tn-depth, 0) * 20px);
+  border-radius: var(--radius-lg);
+}
+@media (hover: hover) {
+  :host(:hover) {
+    background: var(--color-surface-2);
+  }
+}
+:host(.tn--on) {
+  background: var(--color-selected);
+  color: var(--color-on-selected);
+  @include f.highlight-chosen;
+}
+@media (hover: hover) {
+  :host(.tn--on:hover) {
+    background: var(--color-selected);
+    color: var(--color-on-selected);
+  }
+}
+/* A line for each level above the row runs through the column of the chevrons, so a row shows
+   where it belongs also far below its Titel (001130). The rows stand 2px apart, and a line
+   reaches 1px into each gap, so the lines do not break. */
+:host::before {
+  content: '';
+  position: absolute;
+  inset-block: -1px;
+  inset-inline-start: calc(4px + var(--bp-g0, 1) * 20px + 0.875rem);
+  width: max(0px, calc((var(--tn-depth, 1) - var(--bp-g0, 1)) * 20px));
+  background: repeating-linear-gradient(to right, var(--color-border-strong) 0 1px, transparent 1px 20px);
+  pointer-events: none;
+}
+
+.tn__chev {
+  display: grid;
+  flex: none;
+  place-items: center;
+  width: 1.75rem;
+  height: 1.75rem;
+  padding: 0;
+  border: 0;
+  border-radius: var(--radius-pill);
+  background: none;
+  color: var(--color-text-muted);
+  cursor: pointer;
+}
+.tn__chev:disabled {
+  cursor: default;
+}
+@media (hover: hover) {
+  button.tn__chev:hover:not(:disabled) {
+    background: var(--color-surface-3);
+  }
+}
+.tn__main {
+  display: flex;
+  flex: 1 1 0;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 0;
+  padding: 4px 0;
+  border: 0;
+  background: none;
+  color: inherit;
+  font: inherit;
+  text-align: start;
+  cursor: pointer;
+}
+.tn__chev:focus-visible,
+.tn__main:focus-visible {
+  outline: 2px solid var(--color-focus-ring);
+  outline-offset: 2px;
+  border-radius: var(--radius-md);
+}
+.tn__line {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  min-width: 0;
+}
+.tn__name {
+  flex: 1 1 0;
+  min-width: 0;
+  font-size: 0.90625rem;
+  line-height: 1.25rem;
+  font-weight: var(--fw-medium);
+}
+.tn__amt {
+  flex: none;
+  font-size: 0.78125rem;
+}
+/* A Haushaltstitel has a long name. It breaks into a second line before it is cut. */
+.bp__treeName {
+  display: -webkit-box;
+  overflow: hidden;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow-wrap: anywhere;
+}

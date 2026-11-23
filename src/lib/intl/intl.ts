@@ -762,7 +762,19 @@ export type UiKitTextKey =
   | 'admin.flow.stateInspector'
   | 'admin.flow.terminal'
   | 'admin.flow.to'
-  | 'admin.flow.transitionInspector';
+  | 'admin.flow.transitionInspector'
+  | 'budget.dash.collapse'
+  | 'budget.dash.expand'
+  | 'budget.cc.inactive'
+  | 'budget.plan.marks.transferable'
+  | 'budget.plan.marks.coverable'
+  | 'budget.plan.marks.blockedBadge'
+  | 'budget.plan.amountOf'
+  | 'budget.plan.income'
+  | 'budget.plan.expense'
+  | 'budget.plan.difference'
+  | 'budget.plan.balanced'
+  | 'budget.plan.unbalanced';
 
 export type UiKitMessages = Record<UiKitTextKey, string>;
 
@@ -1512,6 +1524,18 @@ export const UI_KIT_DEFAULT_MESSAGES: Record<UiLang, UiKitMessages> = {
     'admin.flow.terminal': 'Endzustand',
     'admin.flow.to': 'Nach',
     'admin.flow.transitionInspector': 'Übergang bearbeiten',
+    'budget.dash.collapse': '{name} zuklappen',
+    'budget.dash.expand': '{name} aufklappen',
+    'budget.cc.inactive': 'inaktiv',
+    'budget.plan.marks.transferable': 'Übertragbar',
+    'budget.plan.marks.coverable': 'Deckungsfähig',
+    'budget.plan.marks.blockedBadge': 'Gesperrt: {amount}',
+    'budget.plan.amountOf': 'Ansatz: {name}',
+    'budget.plan.income': 'Einnahmen',
+    'budget.plan.expense': 'Ausgaben',
+    'budget.plan.difference': 'Differenz',
+    'budget.plan.balanced': 'Ausgeglichen',
+    'budget.plan.unbalanced': 'Nicht ausgeglichen',
   },
   en: {
     'dialog.close': 'Close',
@@ -2257,6 +2281,18 @@ export const UI_KIT_DEFAULT_MESSAGES: Record<UiLang, UiKitMessages> = {
     'admin.flow.terminal': 'Terminal',
     'admin.flow.to': 'To',
     'admin.flow.transitionInspector': 'Edit transition',
+    'budget.dash.collapse': 'Collapse {name}',
+    'budget.dash.expand': 'Expand {name}',
+    'budget.cc.inactive': 'inactive',
+    'budget.plan.marks.transferable': 'Transferable',
+    'budget.plan.marks.coverable': 'Coverable',
+    'budget.plan.marks.blockedBadge': 'Blocked: {amount}',
+    'budget.plan.amountOf': 'Planned amount: {name}',
+    'budget.plan.income': 'Income',
+    'budget.plan.expense': 'Expenses',
+    'budget.plan.difference': 'Difference',
+    'budget.plan.balanced': 'Balanced',
+    'budget.plan.unbalanced': 'Not balanced',
   },
 };
 

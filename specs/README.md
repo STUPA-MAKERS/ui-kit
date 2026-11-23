@@ -393,7 +393,7 @@ specs/
 | [S/framework/views/002276](style/framework/views/002276_chat-view.md) | The chat view takes messages, events and a file port | approved |
 | [S/framework/views/002277](style/framework/views/002277_flow-editor-view.md) | The flow editor views take the inspectors, the transition lists and the guard editor | approved |
 | [S/framework/views/002278](style/framework/views/002278_form-editor-view.md) | The form editor view takes the body of the Formular-Editor | approved |
-| [S/framework/views/002279](style/framework/views/002279_plan-table-view.md) | The plan table takes rows as a tree | approved |
+| [S/framework/views/002279](style/framework/views/002279_plan-table-view.md) | The plan views take the line table, the tree rows and the sums | approved |
 | [S/framework/views/002280](style/framework/views/002280_activity-view.md) | The activity view takes entries | approved |
 | [S/frontend/angular/000077](style/frontend/angular/000077_load-bar.md) | Only foreground reads show the load bar | replaced |
 | [S/frontend/angular/000395](style/frontend/angular/000395_semantic-tokens.md) | Components use semantic colour tokens | approved |

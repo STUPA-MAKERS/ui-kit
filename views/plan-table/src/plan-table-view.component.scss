@@ -1,0 +1,138 @@
+// Copies of the table rules of the app Haushaltsplan page (budget-plan.component.scss).
+:host {
+  display: contents;
+}
+
+.bp__nodeRow {
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+  min-width: 0;
+  padding-inline-start: calc(var(--bp-depth, 0) * 1.25rem);
+}
+.bp__node {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+.bp__name {
+  overflow-wrap: anywhere;
+}
+// A Vermerk of a line breaks between its words, and inside a word when the column has no
+// room for the word, as the name above it does. A text that cannot break sets the least
+// width of the name column, and the five columns of a draft then do not fit the table area.
+.bp__node app-status-text {
+  flex: 0 1 auto;
+  min-width: 0;
+  overflow-wrap: anywhere;
+  white-space: normal;
+}
+.bp__path {
+  font-size: var(--fs-xs);
+  color: var(--color-text-muted);
+}
+.bp__num {
+  white-space: nowrap;
+}
+.bp__plan {
+  font-weight: var(--fw-semibold);
+}
+.bp__sub {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-1) var(--space-2);
+}
+
+// The plan tables hold up to five amount columns beside the name. The shared table has one
+// cell padding for each page, so the columns get the narrower padding here, else the name
+// column is too narrow for a Kostenstelle at the list width of the tab.
+:host .bp__table ::ng-deep .dt__table th,
+:host .bp__table ::ng-deep .dt__table td {
+  padding-inline: var(--space-2);
+}
+:host .bp__table ::ng-deep .dt__table :is(th, td):first-child {
+  padding-inline-start: var(--space-3);
+}
+:host .bp__table ::ng-deep .dt__table :is(th, td):last-child {
+  padding-inline-end: var(--space-3);
+}
+
+/* Wide enough for an Ansatz below 10 million euro, so the five columns of a draft fit a
+   laptop window. A plan that holds a larger Ansatz takes the width of the largest one that a
+   plan takes (9.999.999.999,99 €), so the field never shows a part of an amount that reads
+   as another amount. */
+.bp__field {
+  display: block;
+  width: 9.5rem;
+  margin-inline-start: auto;
+}
+.bp__field--wide {
+  width: 12rem;
+}
+
+/* A field in a table row has no fill, only a thin edge. A filled field is a dark block in
+   each row, and the hover of a row takes the same surface step as the fill, so the box of
+   the field disappears under the pointer. The edge stays visible on every row surface.
+   The tokens of a display setting (highlighted fields, very high contrast) still win,
+   because the rule reads them first. */
+:host app-currency-input.bp__field ::ng-deep .cur {
+  background: var(--field-bg, transparent);
+}
+:host app-currency-input.bp__field ::ng-deep .cur:not(:focus-within, .cur--invalid) {
+  box-shadow: var(--field-edge, inset 0 0 0 1px var(--color-border));
+}
+@media (hover: hover) {
+  :host app-currency-input.bp__field ::ng-deep .cur:hover {
+    background: var(--field-bg-hover, transparent);
+  }
+}
+
+/* The sum of a parent in a table with amount fields has the geometry of a field without its
+   box: the same width, the same inner padding and the € in the same place. So every
+   amount and every € of the column end on one edge, and the sum reads as a value that
+   nobody types (001020). */
+.bp__sum {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: var(--space-1);
+  min-height: var(--control-height);
+  padding: 0 var(--space-4);
+  box-sizing: border-box;
+}
+.bp__sumDigits {
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+.bp__sumSign {
+  color: var(--color-text-muted);
+}
+
+// The chevron of a row with children: the chevron of the plan tree.
+.tn__chev {
+  display: grid;
+  flex: none;
+  place-items: center;
+  width: 1.75rem;
+  height: 1.75rem;
+  padding: 0;
+  border: 0;
+  border-radius: var(--radius-pill);
+  background: none;
+  color: var(--color-text-muted);
+  cursor: pointer;
+}
+.tn__chev:disabled {
+  cursor: default;
+}
+@media (hover: hover) {
+  button.tn__chev:hover:not(:disabled) {
+    background: var(--color-surface-3);
+  }
+}
+.tn__chev:focus-visible {
+  outline: 2px solid var(--color-focus-ring);
+  outline-offset: 2px;
+  border-radius: var(--radius-md);
+}

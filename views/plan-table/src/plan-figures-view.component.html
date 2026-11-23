@@ -1,0 +1,15 @@
+<dl class="bd__figs">
+  <div class="bd__fig">
+    <dt class="bd__figLabel">{{ 'budget.plan.income' | uiKitT }}</dt>
+    <dd class="bd__figValue mono">{{ money(income()) }}</dd>
+  </div>
+  <div class="bd__fig">
+    <dt class="bd__figLabel">{{ 'budget.plan.expense' | uiKitT }}</dt>
+    <dd class="bd__figValue mono">{{ money(expense()) }}</dd>
+  </div>
+  <div class="bd__fig bd__fig--main bp__figWide">
+    <dt class="bd__figLabel">{{ 'budget.plan.difference' | uiKitT }}</dt>
+    <dd class="bd__figValue mono" [class.bd__neg]="!balanced()">{{ money(difference()) }}</dd>
+    <dd class="bp__figNote">{{ (balanced() ? 'budget.plan.balanced' : 'budget.plan.unbalanced') | uiKitT }}</dd>
+  </div>
+</dl>
