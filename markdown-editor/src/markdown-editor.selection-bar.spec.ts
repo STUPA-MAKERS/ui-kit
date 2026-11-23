@@ -64,13 +64,16 @@ describe('MarkdownEditorSelectionBar', () => {
     expect(bar()).toBeNull();
   });
 
-  it('shows no bar without the input and in a read-only text', async () => {
-    const off = await setup({ bar: false });
-    off.select(1, 4);
-    expect(off.bar()).toBeNull();
-    const readOnly = await setup({ disabled: true });
-    readOnly.select(1, 4);
-    expect(readOnly.bar()).toBeNull();
+  it('shows no bar without the input', async () => {
+    const { select, bar } = await setup({ bar: false });
+    select(1, 4);
+    expect(bar()).toBeNull();
+  });
+
+  it('shows no bar in a read-only text', async () => {
+    const { select, bar } = await setup({ disabled: true });
+    select(1, 4);
+    expect(bar()).toBeNull();
   });
 
   it('waits while a pointer drags the selection', async () => {
