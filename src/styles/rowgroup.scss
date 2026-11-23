@@ -79,6 +79,16 @@
   min-height: 56px;
   padding: var(--space-3) var(--space-4);
 }
+// A check row: a check box as a row of a group (002421), for example the fields of a webhook
+// event. The row keeps 16px to both edges and is at least 48px high, so the box and its state
+// layer stay inside the row. The box itself sits on the start edge of its host.
+.rowgroup > app-checkbox {
+  display: flex;
+  box-sizing: border-box;
+  min-height: 48px;
+  justify-content: center;
+  padding: var(--space-1) var(--space-4);
+}
 // A group of record rows that a page builds by itself (a person with a date and a menu):
 // the anatomy of `app-list-item`. A row is at least 64px high and its content starts 24px
 // from the left edge. `.rowgroup__title` is the title of the row, in the size, the weight

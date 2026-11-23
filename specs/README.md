@@ -255,6 +255,7 @@ specs/
 | [NF/usability/controls/002012](requirements/non-functional/usability/controls/002012_round-back-button.md) | Every back button of a head is a round tonal button | approved |
 | [NF/usability/controls/002290](requirements/non-functional/usability/controls/002290_back-closes-dialogs.md) | Back closes an open dialog | approved |
 | [NF/usability/controls/002405](requirements/non-functional/usability/controls/002405_load-error-face.md) | A failed load without content shows the empty-state face with the error text | approved |
+| [NF/usability/controls/002421](requirements/non-functional/usability/controls/002421_check-row.md) | A check box in a row group is a row with an inset | draft |
 | [NF/usability/layout/000192](requirements/non-functional/usability/layout/000192_one-geometry.md) | All list and detail pages share one geometry | approved |
 | [NF/usability/layout/000193](requirements/non-functional/usability/layout/000193_scroll-edges.md) | A scroll area cuts at the edge of a surface | approved |
 | [NF/usability/layout/000194](requirements/non-functional/usability/layout/000194_phone-breakpoint.md) | The phone layout starts below 768 px | approved |
