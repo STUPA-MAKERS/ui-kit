@@ -1,27 +1,29 @@
-import type { ColourRole, IconName, RouteLink } from '@stupa-makers/ui-kit';
+/*
+ * The graph types of STUPA-Workflow that the graph view reads, with the same values, so the
+ * app passes its lines as they are (S/framework/views/002270).
+ */
 
-/** The data of the graph view. */
-export interface GraphView {
-  readonly nodes: readonly GraphNode[];
-  readonly edges: readonly GraphEdge[];
-  readonly focus?: string | null;
-}
+/** The kind of an element of the graph: the kinds of a to-do link. */
+export type GraphKind =
+  | 'application'
+  | 'meeting'
+  | 'agenda_item'
+  | 'vote'
+  | 'appointment'
+  | 'gremium'
+  | 'invoice'
+  | 'expense'
+  | 'budget'
+  | 'ticket'
+  | 'todo';
 
-/** One element of the graph. */
-export interface GraphNode {
-  readonly id: string;
-  readonly kind: string;
-  readonly label: string;
-  readonly icon: IconName;
-  readonly colour: ColourRole;
-  readonly link: RouteLink;
-  readonly date?: string;
-}
+/** Where a relation comes from: a link that a person set, or a built-in relation. */
+export type GraphSource = 'link' | 'builtin';
 
-/** One relation between two elements. */
-export interface GraphEdge {
-  readonly from: string;
-  readonly to: string;
-  readonly kind: 'link' | 'builtin';
-  readonly label?: string;
+/** A line between two nodes, by their keys. */
+export interface GraphLine {
+  readonly key: string;
+  readonly a: string;
+  readonly b: string;
+  readonly source: GraphSource;
 }

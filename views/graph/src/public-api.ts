@@ -1,6 +1,7 @@
 /*
- * Secondary entry point '@stupa-makers/ui-kit/views/graph'.
- * The view models of the contract S/framework/views/002270. The view itself follows in its step
- * of docs/framework-plan.md.
+ * Secondary entry point '@stupa-makers/ui-kit/views/graph': the graph canvas of
+ * S/framework/views/002270, a copy of the drawing of the graph page of STUPA-Workflow.
  */
 export * from './graph.types';
+export * from './graph-layout';
+export * from './graph-canvas-view.component';
