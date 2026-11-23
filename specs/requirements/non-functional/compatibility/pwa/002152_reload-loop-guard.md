@@ -2,9 +2,9 @@
 id: "002152"
 title: The app reloads at most twice for the same server version
 kind: non-functional
-status: draft
+status: approved
 owner: frederikbeimgraben
-updated: 2026-11-22
+updated: 2026-11-23
 implementation: null
 scope:
   - src/lib
