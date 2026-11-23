@@ -27,7 +27,7 @@ describe('no :has() at the page root (app spec 002406)', () => {
         }
       })
       .flatMap((file) =>
-        (withoutComments(readFileSync(file, 'utf8')).match(/(?:body|html|:root)\s*:has\(/g) ?? []).map(
+        (withoutComments(readFileSync(file, 'utf8')).match(/(?<![\w-])(?:body|html|:root)\s*:has\(/g) ?? []).map(
           (sel) => `${file}: ${sel}`,
         ),
       );
