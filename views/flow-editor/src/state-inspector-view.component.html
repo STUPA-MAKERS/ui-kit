@@ -17,7 +17,7 @@
 
 <app-flow-color-view [value]="state().color" (changed)="colorChange.emit($event)" />
 
-<div class="ins__switches">
+<div class="rowgroup rowgroup--settings">
   <app-switch
     [ngModel]="!!state().isInitial"
     [disabled]="!!state().isInitial"
