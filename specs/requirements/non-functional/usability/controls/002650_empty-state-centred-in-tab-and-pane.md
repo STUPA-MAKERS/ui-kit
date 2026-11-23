@@ -2,7 +2,7 @@
 id: "002650"
 title: An empty state that is the content of a tab or a side pane is centred in the free area
 kind: non-functional
-status: draft
+status: approved
 owner: frederikbeimgraben
 updated: 2026-11-23
 implementation: null
