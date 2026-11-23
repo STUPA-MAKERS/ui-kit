@@ -123,6 +123,7 @@ export * from './lib/list-detail/list-detail-bar.component';
 export * from './lib/search-pill/search-pill.component';
 export * from './lib/search-pill/shortcut';
 export * from './lib/live-search/live-search';
+export * from './lib/search-window/search-window.component';
 export * from './lib/status-text/status-text.component';
 export * from './lib/meta-line/meta-line.component';
 export * from './lib/error-text/error-text.component';

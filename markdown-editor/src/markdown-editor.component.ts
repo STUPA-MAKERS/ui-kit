@@ -255,8 +255,16 @@ export class MarkdownEditorComponent implements OnDestroy {
    * each typed character, so a list that loads later takes effect. `null` turns it off.
    */
   readonly knownNames = input<(() => readonly KnownName[]) | null>(null);
+  /**
+   * A text that asks the consumer for an insert (002761), for example `::`. When a person
+   * types it at the start of a word, the editor removes it and emits `insertRequest`.
+   * `null` keeps the text as plain text.
+   */
+  readonly insertTrigger = input<string | null>(null);
   /** A click, Enter or Space on the badge of an embedded PDF. */
   readonly documentOpen = output<MarkdownDocumentRef>();
+  /** The person typed the `insertTrigger`. The cursor stays where the text was. */
+  readonly insertRequest = output<void>();
 
   /** Emittiert das serialisierte Markdown bei jeder Änderung. */
   readonly valueChange = output<string>();
@@ -358,6 +366,7 @@ export class MarkdownEditorComponent implements OnDestroy {
           editorProps: {
             transformPastedHTML: (html) => stripForeignImages(html),
             handlePaste: (_view, event) => this.onPasteFiles(event),
+            handleTextInput: (view, from, to, text) => this.onTextInput(view, from, to, text),
             handleDrop: (view, event, _slice, moved) => this.onDropFiles(view, event, moved),
           },
           content: this.value(),
@@ -684,6 +693,25 @@ export class MarkdownEditorComponent implements OnDestroy {
    * Insert the badge of an embedded PDF at the cursor, or at `pos`. Only the canonical
    * path `/api/media/documents/<uuid>` is accepted; any other source inserts nothing.
    */
+  /**
+   * The typed text completes the `insertTrigger` at the start of a word: remove the
+   * trigger and ask the consumer for the insert. In code the trigger stays plain text.
+   */
+  private onTextInput(view: EditorView, from: number, to: number, text: string): boolean {
+    const trigger = this.insertTrigger();
+    if (!trigger || from !== to || !trigger.endsWith(text)) return false;
+    const $from = view.state.doc.resolve(from);
+    if ($from.parent.type.spec.code || $from.marks().some((mark) => mark.type.spec.code)) return false;
+    const typed = trigger.slice(0, trigger.length - text.length);
+    const before = $from.parent.textBetween(0, $from.parentOffset, undefined, '\ufffc');
+    if (!before.endsWith(typed)) return false;
+    const lead = before.slice(0, before.length - typed.length);
+    if (lead !== '' && !/\s$/.test(lead)) return false;
+    view.dispatch(view.state.tr.delete(from - typed.length, from));
+    this.insertRequest.emit();
+    return true;
+  }
+
   insertDocument(src: string, name: string): boolean {
     return this.insertDocumentAt({ src, name });
   }

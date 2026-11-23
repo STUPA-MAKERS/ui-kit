@@ -1,0 +1,73 @@
+<ng-template #panel>
+  <div class="sw__scrim" aria-hidden="true" (click)="close()"></div>
+  <div class="sw" role="dialog" aria-modal="true" [attr.aria-label]="label()" (keydown)="onKey($event)">
+    <div class="sw__field">
+      <app-icon class="sw__glass" name="search" [size]="22" />
+      <input
+        type="text"
+        class="sw__input"
+        role="combobox"
+        autocomplete="off"
+        spellcheck="false"
+        enterkeyhint="search"
+        aria-autocomplete="list"
+        aria-controls="search-window-results"
+        [attr.aria-label]="label()"
+        [attr.aria-expanded]="rows().length > 0"
+        [attr.aria-activedescendant]="activeId()"
+        [placeholder]="label()"
+        [value]="query()"
+        (input)="onQuery($any($event.target).value)"
+      />
+      @if (loading()) {
+        <span class="sw__spinner" aria-hidden="true"></span>
+      }
+      <button
+        type="button"
+        class="sw__close"
+        [attr.aria-label]="'palette.close' | uiKitT"
+        [title]="'palette.close' | uiKitT"
+        (click)="close()"
+      >
+        <span class="kbd sw__esc" aria-hidden="true">{{ escLabel }}</span>
+        <app-icon class="sw__x" name="x" [size]="20" />
+      </button>
+    </div>
+
+    <div id="search-window-results" class="sw__results" role="listbox" [attr.aria-label]="label()">
+      @if (error(); as text) {
+        <p class="sw__note" role="alert">{{ text }}</p>
+      } @else {
+        @for (row of rows(); track row.id; let i = $index) {
+          @let on = i === active();
+          <div
+            class="sw__row"
+            role="option"
+            [id]="optionId(row)"
+            [class.sw__row--active]="on"
+            [attr.aria-selected]="on"
+            tabindex="-1"
+            (mousedown)="$event.preventDefault()"
+            (mouseenter)="active.set(i)"
+            (click)="pick(row)"
+            (keydown.enter)="pick(row)"
+          >
+            <app-icon class="sw__rowIcon" [name]="row.icon" [size]="19" />
+            <span class="sw__rowText">
+              <span class="sw__rowTitle ell">{{ row.title }}</span>
+              @if (row.subtitle) {
+                <span class="sw__rowSub ell">{{ row.subtitle }}</span>
+              }
+            </span>
+            @if (on) {
+              <span class="kbd sw__enter" aria-hidden="true">Enter</span>
+            }
+          </div>
+        }
+        @if (showEmpty()) {
+          <app-empty-state class="sw__empty" icon="searchOff" shape="file" rows="3" [heading]="empty()!" />
+        }
+      }
+    </div>
+  </div>
+</ng-template>

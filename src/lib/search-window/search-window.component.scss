@@ -1,0 +1,218 @@
+@use '../../styles/breakpoints' as bp;
+@use '../../styles/frosted' as *;
+@use '../../styles/press';
+@use '../../styles/display' as d;
+
+:host {
+  display: contents;
+}
+
+/* The scrim, the panel and the field of the global search (002760). */
+.sw__scrim {
+  position: fixed;
+  inset: 0;
+  z-index: calc(var(--z-dialog) + 1);
+  background: color-mix(in srgb, var(--color-scrim) 60%, transparent);
+  animation: sw-fade var(--motion-fast) var(--ease-standard);
+}
+
+.sw {
+  position: fixed;
+  z-index: calc(var(--z-dialog) + 2);
+  top: 96px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  flex-direction: column;
+  width: min(680px, calc(100vw - 2 * var(--space-4)));
+  max-height: calc(100dvh - 96px - var(--space-6));
+  overflow: hidden;
+  /* Concentric with the search pill inset in it: the radius of the pill plus its inset. */
+  border-radius: calc(var(--control-height-lg) / 2 + var(--space-3));
+  color: var(--color-text);
+  box-shadow: var(--shadow-elevated);
+  animation: sw-in var(--motion-fast) var(--ease-enter);
+  @include frosted-pop(var(--color-glass-1), 85%, 20px, 1.3);
+}
+.sw__field,
+.sw__results {
+  @include glass-content;
+}
+
+.sw__field {
+  display: flex;
+  flex: none;
+  align-items: center;
+  gap: 14px;
+  height: var(--control-height-lg);
+  margin: var(--space-3) var(--space-3) var(--space-1);
+  padding: 0 6px 0 18px;
+  border-radius: var(--radius-pill);
+  background: var(--field-bg, var(--color-surface-2));
+  box-shadow: var(--field-edge, none);
+}
+/* Highlighted fields: every symbol in the field is black on the yellow. */
+@include d.host-on(fields) {
+  .sw__field {
+    --color-text: var(--field-text);
+    --color-text-muted: var(--field-text);
+    --color-text-subtle: var(--field-text);
+    --vh-ink: var(--field-text);
+    --vh-press: var(--field-text);
+  }
+}
+.sw__field:focus-within {
+  box-shadow: var(--field-focus, inset 0 0 0 2px var(--color-accent));
+}
+.sw__glass {
+  flex: none;
+  color: var(--field-text, var(--color-text-muted));
+}
+.sw__input {
+  flex: 1;
+  min-width: 0;
+  border: 0;
+  background: transparent;
+  color: var(--field-text, var(--color-text));
+  font: inherit;
+  font-size: var(--fs-md);
+  line-height: 1.4;
+}
+.sw__input::placeholder {
+  color: var(--field-label, var(--color-text-subtle));
+}
+.sw__input:focus {
+  outline: none;
+}
+
+.sw__close {
+  display: grid;
+  flex: none;
+  place-items: center;
+  min-width: 40px;
+  height: 40px;
+  padding: 0;
+  border: 0;
+  border-radius: var(--radius-pill);
+  background: transparent;
+  color: var(--color-text-muted);
+  cursor: pointer;
+  @include press.press;
+}
+.sw__close:focus-visible {
+  outline: 2px solid var(--color-focus-ring);
+  outline-offset: -2px;
+}
+.sw__esc {
+  display: grid;
+  place-items: center;
+  height: 32px;
+  min-width: 32px;
+  margin-inline-end: 4px;
+  padding: 0 10px;
+  border-radius: var(--radius-pill);
+}
+.sw__x {
+  display: none;
+}
+
+.sw__spinner {
+  flex: none;
+  width: 1rem;
+  height: 1rem;
+  border: 2px solid var(--color-border);
+  border-top-color: var(--color-accent-text);
+  border-radius: 50%;
+  animation: sw-spin 0.7s linear infinite;
+}
+@include d.host-on(motion) {
+  .sw__spinner {
+    animation-duration: 2s;
+  }
+}
+
+.sw__results {
+  overflow-y: auto;
+  padding: 2px var(--space-2) 10px;
+}
+.sw__row {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+  min-height: 54px;
+  padding: var(--space-2) 14px;
+  border-radius: var(--radius-field);
+  cursor: pointer;
+  @include press.press;
+}
+.sw__row--active {
+  background: var(--color-surface-3);
+}
+.sw__row--active .sw__rowIcon {
+  color: var(--color-accent-text);
+}
+.sw__rowIcon {
+  flex: none;
+  color: var(--color-text-muted);
+}
+.sw__rowText {
+  display: flex;
+  flex: 1 1 auto;
+  flex-direction: column;
+  min-width: 0;
+}
+.sw__rowTitle {
+  font-size: 14.5px;
+  line-height: 20px;
+  font-weight: var(--fw-medium);
+}
+.sw__rowSub {
+  font-size: var(--fs-small);
+  line-height: var(--lh-small);
+  color: var(--color-text-muted);
+}
+.sw__enter {
+  flex: none;
+}
+.sw__empty {
+  margin-top: var(--space-2);
+}
+.sw__note {
+  margin: 0;
+  padding: var(--space-4) 14px;
+  color: var(--color-text-muted);
+  font-size: var(--fs-body);
+}
+
+/* On a phone the panel stands at the top of the screen and the close button is a ×. */
+@include bp.phone {
+  .sw {
+    top: calc(var(--space-4) + var(--app-top-safe-area, 0px));
+    max-height: calc(100dvh - 2 * var(--space-4) - var(--app-top-safe-area, 0px));
+  }
+  .sw__esc,
+  .sw__enter {
+    display: none;
+  }
+  .sw__x {
+    display: block;
+  }
+}
+
+@keyframes sw-in {
+  from {
+    opacity: 0;
+    translate: 0 calc(var(--motion-shift-sm) * -1);
+    scale: var(--motion-scale-in);
+  }
+}
+@keyframes sw-fade {
+  from {
+    opacity: 0;
+  }
+}
+@keyframes sw-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
