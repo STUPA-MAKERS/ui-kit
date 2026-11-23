@@ -4,7 +4,7 @@ title: A settings row is a row of a row group, 56 px high
 kind: non-functional
 status: approved
 owner: frederikbeimgraben
-updated: 2026-11-20
+updated: 2026-11-23
 implementation: null
 scope:
   - src/lib
@@ -17,12 +17,12 @@ a child of the shared row group (`.rowgroup`). The row must be at least 56 px hi
 content must start 16 px from the left edge and end 16 px before the right edge. A page must
 not set the surface, the gap or the corners of such a row in its own stylesheet.
 
-This applies to the pages Benachrichtigungen and Hilfe & Tickets of Verwaltung and to
-Konto > Benachrichtigungen.
+This applies to the pages Benachrichtigungen, Hilfe & Tickets and Darstellung (the switch
+"Gravatar-Bilder zeigen" in Profilbilder) of Verwaltung and to Konto > Benachrichtigungen.
 
-Reason: One shared row gives the three pages the same height, inset, surface and corners. A
+Reason: One shared row gives the four pages the same height, inset, surface and corners. A
 row that a page draws by itself drifts from the other row groups with the next change.
 
-Test: A source test of the three templates expects the classes `rowgroup rowgroup--settings`
-on the list of the rows and no `min-height`, `background` or `border-radius` for the row in
-the stylesheet of the page. A screenshot shows the three pages.
+Test: A source test of the templates of Verwaltung expects the classes
+`rowgroup rowgroup--settings` on the list of the rows and no `min-height`, `background` or
+`border-radius` for the row in the stylesheet of the page. A screenshot shows the four pages.
