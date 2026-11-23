@@ -25,7 +25,7 @@
 
 <app-flow-color-view [value]="transition().color" (changed)="colorChange.emit($event)" />
 
-<div class="ins__switches">
+<div class="rowgroup rowgroup--settings">
   <app-switch
     [ngModel]="!!transition().automatic"
     (ngModelChange)="automaticChange.emit($event)"
