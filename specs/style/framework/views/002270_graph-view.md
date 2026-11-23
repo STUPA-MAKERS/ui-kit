@@ -2,7 +2,7 @@
 id: "002270"
 title: The graph view takes the canvas, the layout and the kind colours
 kind: style
-status: draft
+status: approved
 owner: frederikbeimgraben
 updated: 2026-11-23
 implementation:
