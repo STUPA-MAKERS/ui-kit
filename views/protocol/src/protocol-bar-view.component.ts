@@ -6,24 +6,30 @@ import {
   input,
   output,
   signal,
-} from '@angular/core';
-import type { Meeting, Protocol, Uuid } from './protocol.types';
+} from "@angular/core";
+import type { Meeting, Protocol, Uuid } from "./protocol.types";
 import {
   ButtonComponent,
   ButtonLinkComponent,
   ConfirmDialogComponent,
   IconComponent,
+  registerUiKitTexts,
   UI_KIT_INTL,
   type UiKitTextKey,
   UiKitTranslatePipe,
-} from '@stupa-makers/ui-kit';
-import { type ProtocolAction, protocolActions, protocolMenuItems } from './protocol-actions.util';
+} from "@stupa-makers/ui-kit";
+import {
+  type ProtocolAction,
+  protocolActions,
+  protocolMenuItems,
+} from "./protocol-actions.util";
+import { UI_KIT_PROTOCOL_TEXTS } from "./protocol.texts";
 
 /** A PDF of the protocol to open: its name, its path and its kind. */
 export interface ProtocolPdf {
   readonly name: string;
   readonly url: string;
-  readonly kind: 'pdf';
+  readonly kind: "pdf";
 }
 
 /** A PDF to open in the file viewer of the app; `event` is the click of a link, else null. */
@@ -69,7 +75,7 @@ export interface ProtocolPdfOpen {
  * and the app runs them (the approval dialog and the file viewer are the app's).
  */
 @Component({
-  selector: 'app-protocol-bar-view',
+  selector: "app-protocol-bar-view",
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
@@ -80,13 +86,16 @@ export interface ProtocolPdfOpen {
     IconComponent,
   ],
   host: {
-    '[class.btn-grp__seg]': 'hasAction()',
-    '[class.btn-grp--main]': 'hasAction()',
+    "[class.btn-grp__seg]": "hasAction()",
+    "[class.btn-grp--main]": "hasAction()",
   },
-  templateUrl: './protocol-bar-view.component.html',
-  styleUrl: './protocol-bar-view.component.scss',
+  templateUrl: "./protocol-bar-view.component.html",
+  styleUrl: "./protocol-bar-view.component.scss",
 })
 export class ProtocolBarViewComponent {
+  /** The texts of the view, registered before the first render (002237). */
+  protected readonly viewTexts = registerUiKitTexts(UI_KIT_PROTOCOL_TEXTS);
+
   readonly meeting = input.required<Meeting>();
   readonly protocol = input.required<Protocol>();
   readonly finalizing = input(false);
@@ -121,7 +130,9 @@ export class ProtocolBarViewComponent {
   private readonly draftPdf = computed(() => this.actions().draftPdf);
   /** The head shows an action: not on a phone, and only when there is one. */
   protected readonly hasAction = computed(
-    () => !this.compact() && (this.canFinalize() || this.needsRight() || this.finalPdf() !== null),
+    () =>
+      !this.compact() &&
+      (this.canFinalize() || this.needsRight() || this.finalPdf() !== null),
   );
 
   private readonly i18n = inject(UI_KIT_INTL);
@@ -131,12 +142,12 @@ export class ProtocolBarViewComponent {
   protected readonly draftBody = computed(() => {
     const last = this.protocol().draftSentAt;
     return last
-      ? this.i18n.translate('meetings.draftMail.again', {
-          date: new Intl.DateTimeFormat(this.i18n.formatLocale(), { dateStyle: 'long' }).format(
-            new Date(last),
-          ),
+      ? this.i18n.translate("meetings.draftMail.again", {
+          date: new Intl.DateTimeFormat(this.i18n.formatLocale(), {
+            dateStyle: "long",
+          }).format(new Date(last)),
         })
-      : this.i18n.translate('meetings.draftMail.body');
+      : this.i18n.translate("meetings.draftMail.body");
   });
   /** The confirmation of "Genehmigung entfernen" is open. */
   protected readonly confirmUnapprove = signal(false);
@@ -153,7 +164,7 @@ export class ProtocolBarViewComponent {
     return {
       name: `${this.meeting().title} · ${this.i18n.translate(label)}`,
       url,
-      kind: 'pdf',
+      kind: "pdf",
     };
   }
 
@@ -180,7 +191,7 @@ export class ProtocolBarViewComponent {
   }
 
   protected togglePublication(): void {
-    this.publish.emit(this.publication() === 'withheld');
+    this.publish.emit(this.publication() === "withheld");
   }
 
   /** The "Protokoll" section of the session menu, as the page builds it. */
@@ -194,43 +205,43 @@ export class ProtocolBarViewComponent {
   select(id: string): boolean {
     const p = this.protocol();
     switch (id as ProtocolAction) {
-      case 'protocol.finalize':
+      case "protocol.finalize":
         this.finalize.emit();
         return true;
-      case 'protocol.pdf': {
+      case "protocol.pdf": {
         const pdf = this.finalPdf();
         if (pdf) this.open(pdf.url, pdf.label);
         return true;
       }
-      case 'protocol.pdfPublic':
+      case "protocol.pdfPublic":
         if (p.publicPdfUrl)
-          this.open(p.publicPdfUrl, 'meetings.protocolBar.pdfPublic');
+          this.open(p.publicPdfUrl, "meetings.protocolBar.pdfPublic");
         return true;
-      case 'protocol.draftPdf': {
+      case "protocol.draftPdf": {
         const draft = this.draftPdf();
         if (draft)
-          this.open(draft.internal, 'meetings.protocolBar.pdfInternal');
+          this.open(draft.internal, "meetings.protocolBar.pdfInternal");
         return true;
       }
-      case 'protocol.draftPdfPublic': {
+      case "protocol.draftPdfPublic": {
         const draft = this.draftPdf();
-        if (draft) this.open(draft.public, 'meetings.protocolBar.pdfPublic');
+        if (draft) this.open(draft.public, "meetings.protocolBar.pdfPublic");
         return true;
       }
-      case 'protocol.sendDraft':
+      case "protocol.sendDraft":
         this.confirmDraft.set(true);
         return true;
-      case 'protocol.approve':
+      case "protocol.approve":
         this.approvalRequest.emit();
         return true;
-      case 'protocol.unapprove':
+      case "protocol.unapprove":
         this.confirmUnapprove.set(true);
         return true;
-      case 'protocol.reopen':
+      case "protocol.reopen":
         this.confirmReopen.set(true);
         return true;
-      case 'protocol.publish':
-      case 'protocol.withhold':
+      case "protocol.publish":
+      case "protocol.withhold":
         this.togglePublication();
         return true;
       default:

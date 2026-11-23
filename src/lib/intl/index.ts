@@ -4,14 +4,28 @@ export {
   UI_KIT_FORMAT_LOCALES,
   DefaultUiKitIntl,
   provideUiKit,
+  registerUiKitTexts,
   uiKitIntlFromLang,
-} from './intl';
+} from "./intl";
 export type {
   UiKitIntl,
   UiKitIntlOptions,
   UiKitMessages,
   UiKitOptions,
   UiKitTextKey,
+  UiKitTexts,
+  UiKitCoreTextKey,
+  UiKitActivityTextKey,
+  UiKitBoardTextKey,
+  UiKitCalendarTextKey,
+  UiKitChatTextKey,
+  UiKitFlowEditorTextKey,
+  UiKitFormEditorTextKey,
+  UiKitGraphTextKey,
+  UiKitMeetingTextKey,
+  UiKitPlanTableTextKey,
+  UiKitProtocolTextKey,
+  UiKitVotingTextKey,
   UiLang,
-} from './intl';
-export { UiKitTranslatePipe } from './translate.pipe';
+} from "./intl";
+export { UiKitTranslatePipe } from "./translate.pipe";

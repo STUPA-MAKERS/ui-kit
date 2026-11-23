@@ -1,5 +1,5 @@
-import { CdkScrollable } from '@angular/cdk/scrolling';
-import { CdkDrag, CdkDropList, type CdkDragDrop } from '@angular/cdk/drag-drop';
+import { CdkScrollable } from "@angular/cdk/scrolling";
+import { CdkDrag, CdkDropList, type CdkDragDrop } from "@angular/cdk/drag-drop";
 import {
   ChangeDetectionStrategy,
   Component,
@@ -13,8 +13,8 @@ import {
   output,
   signal,
   untracked,
-} from '@angular/core';
-import { RouterLink } from '@angular/router';
+} from "@angular/core";
+import { RouterLink } from "@angular/router";
 import type {
   TodoAssignedBoard,
   TodoCardMove,
@@ -22,17 +22,18 @@ import type {
   TodoColumn,
   TodoLabel,
   Uuid,
-} from './board.types';
+} from "./board.types";
 import {
   EmptyStateComponent,
   haptic,
   IconComponent,
   LongPressDirective,
+  registerUiKitTexts,
   UI_KIT_INTL,
   UiKitTranslatePipe,
-} from '@stupa-makers/ui-kit';
-import { TodoCardTileViewComponent } from './todo-card-tile-view.component';
-import type { TileMenuRequest } from './todo-move-sheet-view.component';
+} from "@stupa-makers/ui-kit";
+import { TodoCardTileViewComponent } from "./todo-card-tile-view.component";
+import type { TileMenuRequest } from "./todo-move-sheet-view.component";
 import {
   BOARD_ICON,
   DONE_PREVIEW,
@@ -46,16 +47,19 @@ import {
   sortedColumns,
   withHeld,
   type BoardFilter,
-} from './board.util';
-import { KanbanKeyDrag, type KeyDragPosition } from './kanban-key-drag';
+} from "./board.util";
+import { KanbanKeyDrag, type KeyDragPosition } from "./kanban-key-drag";
+import { UI_KIT_BOARD_TEXTS } from "./board.texts";
 
 /** A set with `id` added, or taken out when it holds it. */
 function toggled<T>(set: ReadonlySet<T>, id: T): ReadonlySet<T> {
-  return set.has(id) ? new Set([...set].filter((x) => x !== id)) : new Set([...set, id]);
+  return set.has(id)
+    ? new Set([...set].filter((x) => x !== id))
+    : new Set([...set, id]);
 }
 
 /** The ids of the collapsed rows, per browser ("Meine To-Dos" and "Alle" share them). */
-export const COLLAPSED_KEY = 'ap.todos.rows.collapsed';
+export const COLLAPSED_KEY = "ap.todos.rows.collapsed";
 
 /** A card of another board (the personal board above the rows) landed in a row. */
 export interface RowDrop {
@@ -115,9 +119,14 @@ export function boardRows(
   today: string,
   opts: RowOptions = {},
 ): readonly BoardRow[] {
-  const keepEmpty = !!opts.all && !filterActive(filter) && boards.some((b) => b.cards.length > 0);
+  const keepEmpty =
+    !!opts.all &&
+    !filterActive(filter) &&
+    boards.some((b) => b.cards.length > 0);
   const byName = opts.filterLabels;
-  const wanted = new Set(filter.labels.map((id) => byName?.get(id)?.name.toLowerCase() ?? ''));
+  const wanted = new Set(
+    filter.labels.map((id) => byName?.get(id)?.name.toLowerCase() ?? ""),
+  );
   const byLabelName = !!byName && filter.labels.length > 0;
   const filterOf = (board: TodoAssignedBoard): BoardFilter =>
     byLabelName ? rowFilter(board, filter, wanted) : filter;
@@ -135,8 +144,10 @@ function rowFilter(
   filter: BoardFilter,
   wanted: ReadonlySet<string>,
 ): BoardFilter {
-  const ids = board.labels.filter((l) => wanted.has(l.name.toLowerCase())).map((l) => l.id);
-  return { ...filter, labels: ids.length ? ids : [''] };
+  const ids = board.labels
+    .filter((l) => wanted.has(l.name.toLowerCase()))
+    .map((l) => l.id);
+  return { ...filter, labels: ids.length ? ids : [""] };
 }
 
 /** One row of `boardRows`: the columns in order and the cards of each that pass `filter`. */
@@ -148,14 +159,19 @@ function boardRow(
 ): BoardRow {
   const labels = new Map(board.labels.map((l) => [l.id, l]));
   const mine = opts.all
-    ? board.cards.filter((c) => opts.me && c.assignees.some((a) => a.principalId === opts.me))
+    ? board.cards.filter(
+        (c) => opts.me && c.assignees.some((a) => a.principalId === opts.me),
+      )
     : board.cards;
   const ctx = { today, mine: new Set(mine.map((c) => c.id)), labels };
   const columns = sortedColumns(board.columns);
   const passes = (card: TodoCardTile, columnId: Uuid): boolean =>
     card.columnId === columnId && matchesFilter(card, filter, ctx);
   const cards = new Map<Uuid, readonly TodoCardTile[]>(
-    columns.map((col) => [col.id, board.cards.filter((card) => passes(card, col.id))]),
+    columns.map((col) => [
+      col.id,
+      board.cards.filter((card) => passes(card, col.id)),
+    ]),
   );
   const count = [...cards.values()].reduce((n, list) => n + list.length, 0);
   return { board, columns, cards, labels, count };
@@ -165,7 +181,11 @@ function readCollapsed(): ReadonlySet<Uuid> {
   try {
     const raw = localStorage.getItem(COLLAPSED_KEY);
     const ids: unknown = raw ? JSON.parse(raw) : [];
-    return new Set(Array.isArray(ids) ? ids.filter((x): x is string => typeof x === 'string') : []);
+    return new Set(
+      Array.isArray(ids)
+        ? ids.filter((x): x is string => typeof x === "string")
+        : [],
+    );
   } catch {
     return new Set();
   }
@@ -214,7 +234,7 @@ export interface RowTransfer {
  * `menu`. `lead` (the personal board of the page) is the first section there.
  */
 @Component({
-  selector: 'app-todo-board-rows-view',
+  selector: "app-todo-board-rows-view",
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
@@ -229,14 +249,17 @@ export interface RowTransfer {
     TodoCardTileViewComponent,
   ],
   host: {
-    class: 'br-host',
-    '(document:focusin)': 'leaveDrag($event)',
-    '(document:pointerdown)': 'leaveDrag($event)',
+    class: "br-host",
+    "(document:focusin)": "leaveDrag($event)",
+    "(document:pointerdown)": "leaveDrag($event)",
   },
-  templateUrl: './todo-board-rows-view.component.html',
-  styleUrl: './todo-board-rows-view.component.scss',
+  templateUrl: "./todo-board-rows-view.component.html",
+  styleUrl: "./todo-board-rows-view.component.scss",
 })
 export class TodoBoardRowsViewComponent {
+  /** The texts of the view, registered before the first render (002237). */
+  protected readonly viewTexts = registerUiKitTexts(UI_KIT_BOARD_TEXTS);
+
   private readonly i18n = inject(UI_KIT_INTL);
   private readonly host = inject<ElementRef<HTMLElement>>(ElementRef);
   private readonly injector = inject(Injector);
@@ -284,7 +307,7 @@ export class TodoBoardRowsViewComponent {
   readonly ptr = signal<Uuid | null>(null);
   /** A card of the rows is held, by pointer or keyboard. */
   readonly dragging = computed(() => this.ptr() !== null || this.kb() !== null);
-  readonly announce = signal('');
+  readonly announce = signal("");
   readonly icon = BOARD_ICON;
 
   /**
@@ -296,9 +319,18 @@ export class TodoBoardRowsViewComponent {
     const lead = this.lead();
     if (!lead) return rows;
     const columns = sortedColumns(lead.board.columns);
-    const count = columns.reduce((n, c) => n + (lead.cards.get(c.id)?.length ?? 0), 0);
+    const count = columns.reduce(
+      (n, c) => n + (lead.cards.get(c.id)?.length ?? 0),
+      0,
+    );
     const labels = new Map(lead.board.labels.map((l) => [l.id, l]));
-    const first: BoardRow = { board: lead.board, columns, cards: lead.cards, labels, count };
+    const first: BoardRow = {
+      board: lead.board,
+      columns,
+      cards: lead.cards,
+      labels,
+      count,
+    };
     return [first, ...rows.filter((r) => r.board.id !== lead.board.id)];
   });
   /** The drop lists of the writable open rows. */
@@ -310,7 +342,10 @@ export class TodoBoardRowsViewComponent {
           .flatMap((r) => r.columns.map((c) => rowDropId(c.id))),
   );
   /** Where a drag of a writable row may go: every writable row and `extraDrops`. */
-  readonly connected = computed(() => [...this.dropIds(), ...this.extraDrops()]);
+  readonly connected = computed(() => [
+    ...this.dropIds(),
+    ...this.extraDrops(),
+  ]);
   /** A card of a shared board does not enter the row of the personal board (`canTransfer`). */
   readonly enter = DROP_ENTER;
   readonly dropId = rowDropId;
@@ -324,7 +359,12 @@ export class TodoBoardRowsViewComponent {
 
   /** Ask the page for the "Verschieben" sheet of a tile (a long press on the phone). */
   askMenu(row: BoardRow, card: TodoCardTile): void {
-    this.menu.emit({ card, boardId: row.board.id, boardKind: row.board.kind, columns: row.columns });
+    this.menu.emit({
+      card,
+      boardId: row.board.id,
+      boardKind: row.board.kind,
+      columns: row.columns,
+    });
   }
 
   isOpen(row: BoardRow): boolean {
@@ -354,7 +394,7 @@ export class TodoBoardRowsViewComponent {
   }
 
   onDragStart(col: TodoColumn): void {
-    haptic('lift');
+    haptic("lift");
     this.kb.set(null);
     this.ptr.set(col.id);
   }
@@ -374,14 +414,25 @@ export class TodoBoardRowsViewComponent {
     const cards = row.columns.map((c) => this.cardsIn(row, c.id));
     const lists = held ? withHeld(cards, held) : cards;
     const limit = (col: TodoColumn, list: readonly TodoCardTile[]): number =>
-      col.isDone && !this.expanded().has(col.id) && !held ? DONE_PREVIEW : list.length;
-    return new Map(row.columns.map((col, i) => [col.id, lists[i].slice(0, limit(col, lists[i]))]));
+      col.isDone && !this.expanded().has(col.id) && !held
+        ? DONE_PREVIEW
+        : list.length;
+    return new Map(
+      row.columns.map((col, i) => [
+        col.id,
+        lists[i].slice(0, limit(col, lists[i])),
+      ]),
+    );
   }
 
   drop(row: BoardRow, event: CdkDragDrop<Uuid>): void {
     const cardId = event.item.data as Uuid;
     const toCol = event.container.data;
-    if (toCol === event.previousContainer.data && event.previousIndex === event.currentIndex) return;
+    if (
+      toCol === event.previousContainer.data &&
+      event.previousIndex === event.currentIndex
+    )
+      return;
     const col = row.columns.find((c) => c.id === toCol);
     if (!col) return;
     const target = this.list(row, col).filter((c) => c.id !== cardId);
@@ -390,7 +441,11 @@ export class TodoBoardRowsViewComponent {
       .find((b) => b.cards.some((c) => c.id === cardId));
     const held = from?.cards.find((c) => c.id === cardId);
     if (!from || !held) {
-      this.dropIn.emit({ boardId: row.board.id, cardId, move: dropMove(target, event.currentIndex, toCol) });
+      this.dropIn.emit({
+        boardId: row.board.id,
+        cardId,
+        move: dropMove(target, event.currentIndex, toCol),
+      });
       return;
     }
     if (from.id !== row.board.id) {
@@ -403,39 +458,57 @@ export class TodoBoardRowsViewComponent {
       return;
     }
     const placed = insertAt(target, event.currentIndex, held);
-    this.rowMove.emit({ boardId: row.board.id, cardId, move: moveRequest(placed, event.currentIndex, toCol) });
+    this.rowMove.emit({
+      boardId: row.board.id,
+      cardId,
+      move: moveRequest(placed, event.currentIndex, toCol),
+    });
   }
 
   onTileKeyUp(event: KeyboardEvent): void {
     this.keyDrag.keyUp(event);
   }
 
-  onTileKey(event: KeyboardEvent, row: BoardRow, card: TodoCardTile, colIndex: number, index: number): void {
+  onTileKey(
+    event: KeyboardEvent,
+    row: BoardRow,
+    card: TodoCardTile,
+    colIndex: number,
+    index: number,
+  ): void {
     if (!this.canDrag(row)) return;
     const cols = row.columns;
     const step = this.keyDrag.key(
       event,
       card.id,
-      () => ({ boardId: row.board.id, cardId: card.id, col: colIndex, index, fromCol: colIndex, fromIndex: index }),
+      () => ({
+        boardId: row.board.id,
+        cardId: card.id,
+        col: colIndex,
+        index,
+        fromCol: colIndex,
+        fromIndex: index,
+      }),
       {
         count: cols.length,
         length: (col) => this.list(row, cols[col]).length,
-        others: (col, id) => this.cardsIn(row, cols[col].id).filter((c) => c.id !== id).length,
+        others: (col, id) =>
+          this.cardsIn(row, cols[col].id).filter((c) => c.id !== id).length,
       },
     );
     switch (step.kind) {
-      case 'lift':
-        this.say('todos.drag.lifted', row, card);
+      case "lift":
+        this.say("todos.drag.lifted", row, card);
         return;
-      case 'move':
-        this.say('todos.drag.moved', row, card);
+      case "move":
+        this.say("todos.drag.moved", row, card);
         this.refocus(card.id);
         return;
-      case 'drop':
+      case "drop":
         this.commit(step.at, row, card);
         return;
-      case 'cancel':
-        this.say('todos.drag.cancelled', row, card);
+      case "cancel":
+        this.say("todos.drag.cancelled", row, card);
         if (step.refocus) this.refocus(card.id);
         return;
       default:
@@ -448,11 +521,16 @@ export class TodoBoardRowsViewComponent {
     const kb = this.kb();
     if (!kb) return;
     const target = event.target instanceof Element ? event.target : null;
-    if (target?.closest('.br__item')?.querySelector(`[data-card-id="${kb.cardId}"]`)) return;
+    if (
+      target
+        ?.closest(".br__item")
+        ?.querySelector(`[data-card-id="${kb.cardId}"]`)
+    )
+      return;
     this.kb.set(null);
     const row = this.rows().find((r) => r.board.id === kb.boardId);
     const card = row?.board.cards.find((c) => c.id === kb.cardId);
-    if (row && card) this.say('todos.drag.cancelled', row, card);
+    if (row && card) this.say("todos.drag.cancelled", row, card);
   }
 
   private commit(kb: KeyDrag, row: BoardRow, card: TodoCardTile): void {
@@ -460,17 +538,25 @@ export class TodoBoardRowsViewComponent {
     const list = this.list(row, col);
     this.kb.set(null);
     if (kb.col === kb.fromCol && kb.index === kb.fromIndex) {
-      this.say('todos.drag.cancelled', row, card);
+      this.say("todos.drag.cancelled", row, card);
       this.refocus(card.id);
       return;
     }
-    this.rowMove.emit({ boardId: row.board.id, cardId: card.id, move: moveRequest(list, kb.index, col.id) });
-    this.say('todos.drag.dropped', row, card, col.name);
+    this.rowMove.emit({
+      boardId: row.board.id,
+      cardId: card.id,
+      move: moveRequest(list, kb.index, col.id),
+    });
+    this.say("todos.drag.dropped", row, card, col.name);
     this.refocus(card.id);
   }
 
   private say(
-    key: 'todos.drag.lifted' | 'todos.drag.moved' | 'todos.drag.dropped' | 'todos.drag.cancelled',
+    key:
+      | "todos.drag.lifted"
+      | "todos.drag.moved"
+      | "todos.drag.dropped"
+      | "todos.drag.cancelled",
     row: BoardRow,
     card: TodoCardTile,
     column?: string,
@@ -480,7 +566,7 @@ export class TodoBoardRowsViewComponent {
     this.announce.set(
       this.i18n.translate(key, {
         title: card.title,
-        column: column ?? col?.name ?? '',
+        column: column ?? col?.name ?? "",
         n: (kb?.index ?? 0) + 1,
         total: col ? this.list(row, col).length : 0,
       }),
@@ -489,7 +575,10 @@ export class TodoBoardRowsViewComponent {
 
   private refocus(cardId: Uuid): void {
     afterNextRender(
-      () => this.host.nativeElement.querySelector<HTMLElement>(`[data-card-id="${cardId}"]`)?.focus(),
+      () =>
+        this.host.nativeElement
+          .querySelector<HTMLElement>(`[data-card-id="${cardId}"]`)
+          ?.focus(),
       { injector: this.injector },
     );
   }

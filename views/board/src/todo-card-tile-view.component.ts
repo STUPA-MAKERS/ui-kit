@@ -1,15 +1,23 @@
-import { ChangeDetectionStrategy, Component, computed, inject, input, output } from '@angular/core';
-import type { Uuid } from './board.types';
-import type { TodoCardTile, TodoLabel } from './board.types';
-import { UI_KIT_INTL } from '@stupa-makers/ui-kit';
-import { UiKitTranslatePipe } from '@stupa-makers/ui-kit';
-import type { Translate } from './board-format';
-import { IconComponent } from '@stupa-makers/ui-kit';
-import { LINK_ICON, dueInfo, linkLine } from './board.util';
-import { personName, shortDay } from './board-format';
-import { TodoLabelViewComponent } from './todo-label-view.component';
-import { TodoDueViewComponent } from './todo-due-view.component';
-import { TodoAssigneesViewComponent } from './todo-assignees-view.component';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  computed,
+  inject,
+  input,
+  output,
+} from "@angular/core";
+import type { Uuid } from "./board.types";
+import type { TodoCardTile, TodoLabel } from "./board.types";
+import { registerUiKitTexts, UI_KIT_INTL } from "@stupa-makers/ui-kit";
+import { UiKitTranslatePipe } from "@stupa-makers/ui-kit";
+import type { Translate } from "./board-format";
+import { IconComponent } from "@stupa-makers/ui-kit";
+import { LINK_ICON, dueInfo, linkLine } from "./board.util";
+import { personName, shortDay } from "./board-format";
+import { TodoLabelViewComponent } from "./todo-label-view.component";
+import { TodoDueViewComponent } from "./todo-due-view.component";
+import { TodoAssigneesViewComponent } from "./todo-assignees-view.component";
+import { UI_KIT_BOARD_TEXTS } from "./board.texts";
 
 /** The most labels a tile shows; the drawer shows all. */
 const TILE_LABELS = 2;
@@ -25,21 +33,31 @@ const TILE_LABELS = 2;
  * through the button.
  */
 @Component({
-  selector: 'app-todo-card-tile-view',
+  selector: "app-todo-card-tile-view",
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [TodoAssigneesViewComponent, TodoDueViewComponent, TodoLabelViewComponent, UiKitTranslatePipe, IconComponent],
+  imports: [
+    TodoAssigneesViewComponent,
+    TodoDueViewComponent,
+    TodoLabelViewComponent,
+    UiKitTranslatePipe,
+    IconComponent,
+  ],
   host: {
-    class: 'tt',
-    '[class.tt--done]': 'done()',
-    '[class.tt--lifted]': 'lifted()',
+    class: "tt",
+    "[class.tt--done]": "done()",
+    "[class.tt--lifted]": "lifted()",
   },
-  templateUrl: './todo-card-tile-view.component.html',
-  styleUrl: './todo-card-tile-view.component.scss',
+  templateUrl: "./todo-card-tile-view.component.html",
+  styleUrl: "./todo-card-tile-view.component.scss",
 })
 export class TodoCardTileViewComponent {
+  /** The texts of the view, registered before the first render (002237). */
+  protected readonly viewTexts = registerUiKitTexts(UI_KIT_BOARD_TEXTS);
+
   private readonly i18n = inject(UI_KIT_INTL);
-  private readonly t: Translate = (key, params) => this.i18n.translate(key, params);
+  private readonly t: Translate = (key, params) =>
+    this.i18n.translate(key, params);
 
   readonly card = input.required<TodoCardTile>();
   readonly labels = input<ReadonlyMap<Uuid, TodoLabel>>(new Map());
@@ -68,7 +86,10 @@ export class TodoCardTileViewComponent {
   readonly link = computed(() => {
     const link = this.card().primaryLink;
     if (!link) return null;
-    return { icon: LINK_ICON[link.kind], text: linkLine(link, this.today(), this.i18n.formatLocale(), this.t) };
+    return {
+      icon: LINK_ICON[link.kind],
+      text: linkLine(link, this.today(), this.i18n.formatLocale(), this.t),
+    };
   });
 
   readonly due = computed(() => {
@@ -84,6 +105,10 @@ export class TodoCardTileViewComponent {
     return shortDay(at, this.i18n.formatLocale(), this.today()) || null;
   });
 
-  readonly names = computed(() => this.card().assignees.map((a) => personName(a, this.t)));
-  readonly ids = computed(() => this.card().assignees.map((a) => a.principalId));
+  readonly names = computed(() =>
+    this.card().assignees.map((a) => personName(a, this.t)),
+  );
+  readonly ids = computed(() =>
+    this.card().assignees.map((a) => a.principalId),
+  );
 }

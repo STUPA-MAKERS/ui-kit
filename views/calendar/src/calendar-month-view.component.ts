@@ -7,12 +7,18 @@ import {
   inject,
   input,
   output,
-} from '@angular/core';
-import { IconComponent, UI_KIT_INTL, UiKitTranslatePipe } from '@stupa-makers/ui-kit';
-import type { CalendarEntry } from './calendar.types';
-import { fullDate, parseDay } from './calendar-format';
-import { type CalendarDay, shiftDay } from './calendar-grid.util';
-import { type MonthRow, entryIcon, entryTime, kindKey } from './calendar.util';
+} from "@angular/core";
+import {
+  IconComponent,
+  registerUiKitTexts,
+  UI_KIT_INTL,
+  UiKitTranslatePipe,
+} from "@stupa-makers/ui-kit";
+import type { CalendarEntry } from "./calendar.types";
+import { fullDate, parseDay } from "./calendar-format";
+import { type CalendarDay, shiftDay } from "./calendar-grid.util";
+import { type MonthRow, entryIcon, entryTime, kindKey } from "./calendar.util";
+import { UI_KIT_CALENDAR_TEXTS } from "./calendar.texts";
 
 const KEY_STEPS: Readonly<Record<string, number>> = {
   ArrowLeft: -1,
@@ -29,22 +35,25 @@ const KEY_STEPS: Readonly<Record<string, number>> = {
  * follows the day. The host is the grid.
  */
 @Component({
-  selector: 'app-calendar-month-view',
+  selector: "app-calendar-month-view",
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [IconComponent, UiKitTranslatePipe],
-  templateUrl: './calendar-month-view.component.html',
-  styleUrl: './calendar-month-view.component.scss',
+  templateUrl: "./calendar-month-view.component.html",
+  styleUrl: "./calendar-month-view.component.scss",
   host: {
-    role: 'grid',
-    tabindex: '-1',
-    '[attr.aria-label]': 'label()',
-    '[attr.aria-busy]': "loading() ? 'true' : null",
-    '[class.calm--wide]': 'wide()',
-    '(keydown)': 'onKey($event)',
+    role: "grid",
+    tabindex: "-1",
+    "[attr.aria-label]": "label()",
+    "[attr.aria-busy]": "loading() ? 'true' : null",
+    "[class.calm--wide]": "wide()",
+    "(keydown)": "onKey($event)",
   },
 })
 export class CalendarMonthViewComponent {
+  /** The texts of the view, registered before the first render (002237). */
+  protected readonly viewTexts = registerUiKitTexts(UI_KIT_CALENDAR_TEXTS);
+
   private readonly i18n = inject(UI_KIT_INTL);
   private readonly host = inject<ElementRef<HTMLElement>>(ElementRef);
   private readonly injector = inject(Injector);
@@ -56,7 +65,7 @@ export class CalendarMonthViewComponent {
   /** The picked day, `YYYY-MM-DD`. */
   readonly selectedDay = input.required<string>();
   /** The name of the grid ("November 2026"). */
-  readonly label = input('');
+  readonly label = input("");
   readonly loading = input(false);
   /** The page fills the window: the weeks share its height. */
   readonly wide = input(false);
@@ -69,12 +78,19 @@ export class CalendarMonthViewComponent {
     if (!day) return;
     const weekday = (day.getDay() + 6) % 7;
     const delta: number | undefined =
-      event.key === 'Home' ? -weekday : event.key === 'End' ? 6 - weekday : KEY_STEPS[event.key];
+      event.key === "Home"
+        ? -weekday
+        : event.key === "End"
+          ? 6 - weekday
+          : KEY_STEPS[event.key];
     if (delta === undefined) return;
     event.preventDefault();
     this.selectDay.emit(shiftDay(this.selectedDay(), delta));
     afterNextRender(
-      () => this.host.nativeElement.querySelector<HTMLElement>('.cal__day[tabindex="0"]')?.focus(),
+      () =>
+        this.host.nativeElement
+          .querySelector<HTMLElement>('.cal__day[tabindex="0"]')
+          ?.focus(),
       { injector: this.injector },
     );
   }
@@ -82,13 +98,15 @@ export class CalendarMonthViewComponent {
   /** The name of a day cell for a screen reader: "Mittwoch, 11. November 2026, Heute, 2 Einträge". */
   dayLabel(day: CalendarDay, count: number): string {
     const text = fullDate(day.iso, this.i18n.formatLocale()) || day.iso;
-    const today = day.isToday ? `, ${this.i18n.translate('meetings.overview.today')}` : '';
+    const today = day.isToday
+      ? `, ${this.i18n.translate("meetings.overview.today")}`
+      : "";
     const entries =
       count === 0
-        ? this.i18n.translate('calendar.day.none')
+        ? this.i18n.translate("calendar.day.none")
         : count === 1
-          ? this.i18n.translate('calendar.day.one')
-          : this.i18n.translate('calendar.day.many', { n: count });
+          ? this.i18n.translate("calendar.day.one")
+          : this.i18n.translate("calendar.day.many", { n: count });
     return `${text}${today}, ${entries}`;
   }
 

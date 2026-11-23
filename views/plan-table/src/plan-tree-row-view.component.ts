@@ -1,7 +1,21 @@
-import { ChangeDetectionStrategy, Component, computed, inject, input, output } from '@angular/core';
-import { IconComponent, StatusTextComponent, UI_KIT_INTL, UiKitTranslatePipe } from '@stupa-makers/ui-kit';
-import { planMoney } from './plan-format';
-import type { PlanRow } from './plan-table.types';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  computed,
+  inject,
+  input,
+  output,
+} from "@angular/core";
+import {
+  IconComponent,
+  registerUiKitTexts,
+  StatusTextComponent,
+  UI_KIT_INTL,
+  UiKitTranslatePipe,
+} from "@stupa-makers/ui-kit";
+import { planMoney } from "./plan-format";
+import type { PlanRow } from "./plan-table.types";
+import { UI_KIT_PLAN_TABLE_TEXTS } from "./plan-table.texts";
 
 /**
  * One row of the plan tree, a copy of the tree row of the app Haushaltsplan page
@@ -11,19 +25,22 @@ import type { PlanRow } from './plan-table.types';
  * the row, so the tree around it sets its gaps.
  */
 @Component({
-  selector: 'app-plan-tree-row-view',
+  selector: "app-plan-tree-row-view",
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [IconComponent, StatusTextComponent, UiKitTranslatePipe],
-  templateUrl: './plan-tree-row-view.component.html',
-  styleUrl: './plan-tree-row-view.component.scss',
+  templateUrl: "./plan-tree-row-view.component.html",
+  styleUrl: "./plan-tree-row-view.component.scss",
   host: {
-    class: 'tn',
-    '[class.tn--on]': 'selected()',
-    '[style.--tn-depth]': 'row().depth + base()',
+    class: "tn",
+    "[class.tn--on]": "selected()",
+    "[style.--tn-depth]": "row().depth + base()",
   },
 })
 export class PlanTreeRowViewComponent {
+  /** The texts of the view, registered before the first render (002237). */
+  protected readonly viewTexts = registerUiKitTexts(UI_KIT_PLAN_TABLE_TEXTS);
+
   private readonly i18n = inject(UI_KIT_INTL);
 
   readonly row = input.required<PlanRow>();
@@ -39,5 +56,7 @@ export class PlanTreeRowViewComponent {
   /** The row was pressed. */
   readonly pick = output<PlanRow>();
 
-  readonly amount = computed(() => planMoney(this.row().amount, this.i18n.formatLocale()));
+  readonly amount = computed(() =>
+    planMoney(this.row().amount, this.i18n.formatLocale()),
+  );
 }

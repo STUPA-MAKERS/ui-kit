@@ -1,8 +1,19 @@
-import { ChangeDetectionStrategy, Component, computed, effect, inject, input, model, output, signal, untracked } from '@angular/core';
-import type { Uuid } from './board.types';
-import type { TodoBoardKind, TodoCardTile, TodoColumn } from './board.types';
-import { UI_KIT_INTL } from '@stupa-makers/ui-kit';
-import { UiKitTranslatePipe } from '@stupa-makers/ui-kit';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  computed,
+  effect,
+  inject,
+  input,
+  model,
+  output,
+  signal,
+  untracked,
+} from "@angular/core";
+import type { Uuid } from "./board.types";
+import type { TodoBoardKind, TodoCardTile, TodoColumn } from "./board.types";
+import { registerUiKitTexts, UI_KIT_INTL } from "@stupa-makers/ui-kit";
+import { UiKitTranslatePipe } from "@stupa-makers/ui-kit";
 import {
   ButtonComponent,
   ButtonGroupComponent,
@@ -11,7 +22,8 @@ import {
   type SegmentedOption,
   SideSheetComponent,
   SheetBodyDirective,
-} from '@stupa-makers/ui-kit';
+} from "@stupa-makers/ui-kit";
+import { UI_KIT_BOARD_TEXTS } from "./board.texts";
 
 /** A column of the sheet, by its name alone: a selector shows no count (spec 000560). */
 export interface MoveColumn {
@@ -30,7 +42,7 @@ export interface TileMenuRequest {
 /** The choice of the sheet: the column and the end of it. */
 export interface MoveChoice {
   readonly columnId: Uuid;
-  readonly position: 'top' | 'bottom';
+  readonly position: "top" | "bottom";
 }
 
 /**
@@ -44,7 +56,7 @@ export interface MoveChoice {
  * `dismissed`.
  */
 @Component({
-  selector: 'app-todo-move-sheet-view',
+  selector: "app-todo-move-sheet-view",
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
@@ -56,10 +68,13 @@ export interface MoveChoice {
     SegmentedComponent,
     SideSheetComponent,
   ],
-  templateUrl: './todo-move-sheet-view.component.html',
-  styleUrl: './todo-move-sheet-view.component.scss',
+  templateUrl: "./todo-move-sheet-view.component.html",
+  styleUrl: "./todo-move-sheet-view.component.scss",
 })
 export class TodoMoveSheetViewComponent {
+  /** The texts of the view, registered before the first render (002237). */
+  protected readonly viewTexts = registerUiKitTexts(UI_KIT_BOARD_TEXTS);
+
   private readonly i18n = inject(UI_KIT_INTL);
 
   readonly open = model(false);
@@ -75,11 +90,11 @@ export class TodoMoveSheetViewComponent {
   readonly dismissed = output<void>();
 
   readonly columnId = signal<Uuid | null>(null);
-  readonly position = signal<'top' | 'bottom'>('top');
+  readonly position = signal<"top" | "bottom">("top");
 
   readonly positions = computed<SegmentedOption[]>(() => [
-    { value: 'top', label: this.i18n.translate('todos.move.top') },
-    { value: 'bottom', label: this.i18n.translate('todos.move.bottom') },
+    { value: "top", label: this.i18n.translate("todos.move.top") },
+    { value: "bottom", label: this.i18n.translate("todos.move.bottom") },
   ]);
 
   constructor() {
@@ -87,13 +102,13 @@ export class TodoMoveSheetViewComponent {
       if (!this.open()) return;
       untracked(() => {
         this.columnId.set(this.current());
-        this.position.set('top');
+        this.position.set("top");
       });
     });
   }
 
   setPosition(value: string | null): void {
-    this.position.set(value === 'bottom' ? 'bottom' : 'top');
+    this.position.set(value === "bottom" ? "bottom" : "top");
   }
 
   confirm(): void {

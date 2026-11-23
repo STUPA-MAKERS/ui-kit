@@ -13,11 +13,21 @@ import {
   signal,
   type TemplateRef,
   viewChild,
-} from '@angular/core';
-import { NgTemplateOutlet } from '@angular/common';
-import { UI_KIT_INTL, UiKitTranslatePipe } from '@stupa-makers/ui-kit';
-import type { UiKitTextKey } from '@stupa-makers/ui-kit';
-import type { AgendaItem, Attendance, Meeting, MeetingVote, Uuid } from './meeting.types';
+} from "@angular/core";
+import { NgTemplateOutlet } from "@angular/common";
+import {
+  registerUiKitTexts,
+  UI_KIT_INTL,
+  UiKitTranslatePipe,
+} from "@stupa-makers/ui-kit";
+import type { UiKitTextKey } from "@stupa-makers/ui-kit";
+import type {
+  AgendaItem,
+  Attendance,
+  Meeting,
+  MeetingVote,
+  Uuid,
+} from "./meeting.types";
 import {
   ButtonComponent,
   ButtonGroupComponent,
@@ -27,20 +37,21 @@ import {
   mediaQuery,
   SideSheetComponent,
   SheetBodyDirective,
-} from '@stupa-makers/ui-kit';
-import { KeeperMenuViewComponent } from './keeper-menu-view.component';
-import { keeperNames } from './keepers.util';
-import { eligibleCount, presentCount } from './present-count.util';
-import { clock } from './meeting-display.util';
+} from "@stupa-makers/ui-kit";
+import { KeeperMenuViewComponent } from "./keeper-menu-view.component";
+import { keeperNames } from "./keepers.util";
+import { eligibleCount, presentCount } from "./present-count.util";
+import { clock } from "./meeting-display.util";
+import { UI_KIT_MEETING_TEXTS } from "./meeting.texts";
 
 /**
  * The panel that is open. The minute-taker menu is a popover above the dock (a bottom
  * sheet on a phone); the attendance is a side sheet of the page.
  */
 /** The mode of the TOP editor: formatted text or the raw Markdown. */
-export type EditorMode = 'formatted' | 'raw';
+export type EditorMode = "formatted" | "raw";
 
-export type DockPanel = 'none' | 'attendance' | 'protokollant';
+export type DockPanel = "none" | "attendance" | "protokollant";
 
 /**
  * The dock at the foot of the session page.
@@ -75,7 +86,7 @@ export type DockPanel = 'none' | 'attendance' | 'protokollant';
  * navigation bar covers the sheet and its scrim.
  */
 @Component({
-  selector: 'app-session-dock-view',
+  selector: "app-session-dock-view",
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
@@ -89,14 +100,18 @@ export type DockPanel = 'none' | 'attendance' | 'protokollant';
     KeeperMenuViewComponent,
     SideSheetComponent,
   ],
-  templateUrl: './session-dock-view.component.html',
-  styleUrl: './session-dock-view.component.scss',
+  templateUrl: "./session-dock-view.component.html",
+  styleUrl: "./session-dock-view.component.scss",
   host: {
-    '(document:keydown.escape)': 'closePanel()',
-    '[style.z-index]': "phone() && shownPanel() === 'protokollant' ? 'var(--z-dialog)' : null",
+    "(document:keydown.escape)": "closePanel()",
+    "[style.z-index]":
+      "phone() && shownPanel() === 'protokollant' ? 'var(--z-dialog)' : null",
   },
 })
 export class SessionDockViewComponent {
+  /** The texts of the view, registered before the first render (002237). */
+  protected readonly viewTexts = registerUiKitTexts(UI_KIT_MEETING_TEXTS);
+
   private readonly i18n = inject(UI_KIT_INTL);
   private readonly host = inject<ElementRef<HTMLElement>>(ElementRef);
 
@@ -110,7 +125,7 @@ export class SessionDockViewComponent {
   readonly attendance = input.required<Attendance[]>();
   /** The own ballot of the open vote ("Ja", "abgegeben"), or `null`. */
   readonly myVote = input<string | null>(null);
-  readonly panel = model<DockPanel>('none');
+  readonly panel = model<DockPanel>("none");
   /**
    * The done mark of the open item for the icon button of a phone, or `null` for no button
    * (only a writer of the minutes ticks an item).
@@ -118,7 +133,7 @@ export class SessionDockViewComponent {
   readonly done = input<boolean | null>(null);
   /** The view switch of the protocol text as an icon button of a phone. */
   readonly modeToggle = input(false);
-  readonly mode = model<EditorMode>('formatted');
+  readonly mode = model<EditorMode>("formatted");
   /** The icon button "Erledigt" of a phone: the new done mark of the open item. */
   readonly doneChange = output<boolean>();
   /** The vote icon button below the wide layout: the number of votes of the open item, or `null`. */
@@ -149,7 +164,7 @@ export class SessionDockViewComponent {
   /** The chips show only their numbers and icons. */
   protected readonly tight = computed(() => this.fold() >= 2);
   /** The row: its width decides `fold`. */
-  private readonly bar = viewChild<ElementRef<HTMLElement>>('bar');
+  private readonly bar = viewChild<ElementRef<HTMLElement>>("bar");
   /** The width the row needed at each fold, measured when it overflowed there. */
   private need: readonly number[] = [0, 0, 0];
 
@@ -164,8 +179,10 @@ export class SessionDockViewComponent {
     });
     afterEveryRender({ read: () => this.measure() });
     // The web font is wider than the fallback, so the row measures again once it is loaded.
-    void (typeof document !== 'undefined' ? document.fonts?.ready : undefined)?.then(() => this.measure());
-    if (typeof ResizeObserver !== 'undefined') {
+    void (
+      typeof document !== "undefined" ? document.fonts?.ready : undefined
+    )?.then(() => this.measure());
+    if (typeof ResizeObserver !== "undefined") {
       const observer = new ResizeObserver(() => this.measure());
       effect(() => {
         observer.disconnect();
@@ -189,14 +206,18 @@ export class SessionDockViewComponent {
       return;
     }
     if (fold === 2) return;
-    const texts = Array.from(el.querySelectorAll<HTMLElement>('.sd__chipText'));
+    const texts = Array.from(el.querySelectorAll<HTMLElement>(".sd__chipText"));
     const cut = texts.reduce(
       (sum, text) => sum + Math.max(0, text.scrollWidth - text.clientWidth),
       0,
     );
     const need = el.scrollWidth + cut;
     if (need > el.clientWidth) {
-      this.need = [...this.need.slice(0, fold), need, ...this.need.slice(fold + 1)];
+      this.need = [
+        ...this.need.slice(0, fold),
+        need,
+        ...this.need.slice(fold + 1),
+      ];
       this.fold.set((fold + 1) as 1 | 2);
     }
   }
@@ -219,24 +240,35 @@ export class SessionDockViewComponent {
    * The guest counts that the app has loaded for the lead (open requests, admitted guests),
    * or `null`: then the counts of the meeting apply.
    */
-  readonly guestCounts = input<{ readonly pending: number; readonly admitted: number } | null>(null);
+  readonly guestCounts = input<{
+    readonly pending: number;
+    readonly admitted: number;
+  } | null>(null);
 
   /**
    * The guests of a public meeting: "Anwesend 19 + 7 Gäste" on the chip and the
    * number of open requests as a badge (the lead only), or `null` without the public
    * participation.
    */
-  protected readonly guestChip = computed<{ admitted: number; pending: number } | null>(() => {
+  protected readonly guestChip = computed<{
+    admitted: number;
+    pending: number;
+  } | null>(() => {
     const m = this.meeting();
     if (!m.publicJoin && !m.admittedGuests) return null;
     const counts = this.guestCounts() ?? {
       pending: m.pendingGuests,
       admitted: m.admittedGuests,
     };
-    return { admitted: counts.admitted, pending: m.status === 'closed' ? 0 : counts.pending };
+    return {
+      admitted: counts.admitted,
+      pending: m.status === "closed" ? 0 : counts.pending,
+    };
   });
 
-  protected readonly presentCount = computed(() => presentCount(this.meeting(), this.attendance()));
+  protected readonly presentCount = computed(() =>
+    presentCount(this.meeting(), this.attendance()),
+  );
   protected readonly eligibleCount = computed(() =>
     eligibleCount(this.meeting(), this.attendance()),
   );
@@ -248,49 +280,62 @@ export class SessionDockViewComponent {
   /** The index of the item that the room handles now, or -1. A planned meeting has none. */
   private readonly nowIndex = computed(() => {
     const m = this.meeting();
-    if (m.status === 'planned' || !m.currentAgendaItemId) return -1;
+    if (m.status === "planned" || !m.currentAgendaItemId) return -1;
     return this.agenda().findIndex((a) => a.id === m.currentAgendaItemId);
   });
   /** The item the room handles now with its label, when it is not the open one. */
-  protected readonly nowElsewhere = computed<{ item: AgendaItem; label: string } | null>(() => {
+  protected readonly nowElsewhere = computed<{
+    item: AgendaItem;
+    label: string;
+  } | null>(() => {
     const now = this.nowIndex();
     if (now < 0 || this.topIndex() < 0 || now === this.topIndex()) return null;
     const item = this.agenda()[now];
-    const title = item.title || this.i18n.translate('meetings.agenda.untitled');
-    return { item, label: `${this.i18n.translate('meetings.agenda.top', { n: now + 1 })} · ${title}` };
+    const title = item.title || this.i18n.translate("meetings.agenda.untitled");
+    return {
+      item,
+      label: `${this.i18n.translate("meetings.agenda.top", { n: now + 1 })} · ${title}`,
+    };
   });
 
   /** The meeting lead names the minute-taker of a planned meeting. */
   protected readonly canPickKeeper = computed(() => {
     const m = this.meeting();
-    return m.status === 'planned' && m.canManage;
+    return m.status === "planned" && m.canManage;
   });
   /** The meeting lead and the minute-taker hand the minutes of a live meeting over. */
   protected readonly canHandOver = computed(() => {
     const m = this.meeting();
-    return m.status === 'live' && (m.canManage || m.isProtokollant);
+    return m.status === "live" && (m.canManage || m.isProtokollant);
   });
   /** Switch the protocol text between the formatted view and the Markdown source. */
   protected toggleMode(): void {
-    this.mode.set(this.mode() === 'raw' ? 'formatted' : 'raw');
+    this.mode.set(this.mode() === "raw" ? "formatted" : "raw");
   }
 
   /** The panel on screen: the minute-taker only for the people who may change it. */
   protected readonly shownPanel = computed<DockPanel>(() => {
     const panel = this.panel();
-    if (panel === 'protokollant' && !this.canPickKeeper() && !this.canHandOver()) return 'none';
+    if (
+      panel === "protokollant" &&
+      !this.canPickKeeper() &&
+      !this.canHandOver()
+    )
+      return "none";
     return panel;
   });
   protected readonly panelHeading = computed<UiKitTextKey>(() =>
-    this.canHandOver() ? 'meetings.handover.title' : 'meetings.dock.pickProtokollant',
+    this.canHandOver()
+      ? "meetings.handover.title"
+      : "meetings.dock.pickProtokollant",
   );
 
   /** The closed dock: "Geschlossen um 21:12", or "Geschlossen" without a known time. */
   protected readonly closedLine = computed(() => {
     const time = clock(this.meeting().closedAt, this.i18n.formatLocale());
     return time
-      ? this.i18n.translate('meetings.dock.closedAt', { time })
-      : this.i18n.translate('meetings.status.closed');
+      ? this.i18n.translate("meetings.dock.closedAt", { time })
+      : this.i18n.translate("meetings.status.closed");
   });
   /** Every minute-taker of the meeting once: "Lara Leitung, Uli Übernahme". */
   protected readonly keepers = computed(() => keeperNames(this.meeting()));
@@ -300,30 +345,33 @@ export class SessionDockViewComponent {
    */
   protected readonly closedKeeperTitle = computed(
     () =>
-      `${this.i18n.translate('meetings.dock.protokollantIs', { name: this.keepers() || '—' })}\n` +
-      this.i18n.translate('meetings.dock.keepersLocked'),
+      `${this.i18n.translate("meetings.dock.protokollantIs", { name: this.keepers() || "—" })}\n` +
+      this.i18n.translate("meetings.dock.keepersLocked"),
   );
 
   /**
    * Open or close a panel. `anchor` is the chip that opens it: the popover puts its end
    * edge in line with the end edge of the chip.
    */
-  togglePanel(panel: Exclude<DockPanel, 'none'>, anchor?: HTMLElement): void {
+  togglePanel(panel: Exclude<DockPanel, "none">, anchor?: HTMLElement): void {
     const opening = this.panel() !== panel;
     if (opening && anchor) this.popEnd.set(this.endOffset(anchor));
-    this.panel.set(opening ? panel : 'none');
+    this.panel.set(opening ? panel : "none");
   }
 
   /** The distance from the end edge of the dock to the end edge of `anchor`, at least 0. */
   private endOffset(anchor: HTMLElement): number {
     const dock = this.host.nativeElement.getBoundingClientRect();
     const chip = anchor.getBoundingClientRect();
-    const rtl = getComputedStyle(this.host.nativeElement).direction === 'rtl';
-    return Math.max(0, Math.round(rtl ? chip.left - dock.left : dock.right - chip.right));
+    const rtl = getComputedStyle(this.host.nativeElement).direction === "rtl";
+    return Math.max(
+      0,
+      Math.round(rtl ? chip.left - dock.left : dock.right - chip.right),
+    );
   }
 
   closePanel(): void {
-    this.panel.set('none');
+    this.panel.set("none");
   }
 
   /**
@@ -331,16 +379,16 @@ export class SessionDockViewComponent {
    * the person; a live meeting goes on to the handover dialog, which asks when.
    */
   pickKeeper(principalId: Uuid): void {
-    this.panel.set('none');
+    this.panel.set("none");
     const m = this.meeting();
     if (principalId === m.protokollantId) return;
-    if (m.status === 'live') this.pickHandover.emit(principalId);
+    if (m.status === "live") this.pickHandover.emit(principalId);
     else this.setProtokollant.emit(principalId);
   }
 
   /** Discard the planned handover and close the menu. */
   discardHandover(): void {
-    this.panel.set('none');
+    this.panel.set("none");
     this.cancelHandover.emit();
   }
 }
