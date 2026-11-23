@@ -280,7 +280,7 @@ export function moveQuestionTo(
   groups: readonly QuestionGroup[],
   from: QuestionPos,
   to: QuestionPos,
-): { readonly groups: QuestionGroup[]; readonly pos: QuestionPos } | null {
+): { readonly groups: readonly QuestionGroup[]; readonly pos: QuestionPos } | null {
   const source = groups[from.gi];
   if (!source || from.qi < 0 || from.qi >= source.fields.length || !groups[to.gi]) return null;
   const moved = source.fields[from.qi];
