@@ -1,6 +1,7 @@
 import {
   ChangeDetectionStrategy,
   Component,
+  afterRenderEffect,
   ElementRef,
   type OnDestroy,
   ViewEncapsulation,
@@ -13,6 +14,8 @@ import {
   viewChild,
 } from '@angular/core';
 import {
+  ButtonComponent,
+  ButtonGroupComponent,
   IconComponent,
   RowMenuComponent,
   UiKitTranslatePipe,
@@ -47,6 +50,11 @@ import {
   isMediaImageSrc,
   stripForeignImages,
 } from './media.extension';
+import {
+  SELECTION_TOOLS,
+  type SelectionBarPlace,
+  measureSelectionBar,
+} from './selection-bar';
 import { type TableControls, appendToTable, measureTableControls } from './table-controls';
 import {
   VoteCallout,
@@ -189,6 +197,11 @@ function setAttr(el: HTMLElement, name: string, value: string | null): void {
  * edge of its row, each with a menu (insert before, insert after, delete), a bar below
  * the table that adds a row, a bar at its end that adds a column, and the table menu
  * above that bar (delete the table).
+ *
+ * With `selectionBar`, a text selection shows a small format bar (`selection-bar.ts`):
+ * Fett, Kursiv and Schwärzung below the selection, or above it at the bottom of the
+ * visible area. The bar waits while a pointer drags the selection. Alt+F10 moves the
+ * focus into the bar, the arrow keys move between its buttons, Esc hides it.
  */
 @Component({
   selector: 'app-markdown-editor',
@@ -198,7 +211,7 @@ function setAttr(el: HTMLElement, name: string, value: string | null): void {
   // scope attribute never reaches them. Every rule is prefixed with `.mde__host` or
   // the element name instead.
   encapsulation: ViewEncapsulation.None,
-  imports: [IconComponent, RowMenuComponent, UiKitTranslatePipe],
+  imports: [ButtonComponent, ButtonGroupComponent, IconComponent, RowMenuComponent, UiKitTranslatePipe],
   // The controls of a table are placed against the editor element.
   host: {
     '(focusin)': 'focusWithin.set(true)',
@@ -261,6 +274,12 @@ export class MarkdownEditorComponent implements OnDestroy {
    * `null` keeps the text as plain text.
    */
   readonly insertTrigger = input<string | null>(null);
+  /**
+   * Show the format bar at a text selection (app specs 002780-002783): Fett, Kursiv and
+   * Schwärzung below the selection, above it at the bottom of the visible area. Alt+F10
+   * moves the focus into the bar, Esc hides it.
+   */
+  readonly selectionBar = input<boolean>(false);
   /** A click, Enter or Space on the badge of an embedded PDF. */
   readonly documentOpen = output<MarkdownDocumentRef>();
   /** The person typed the `insertTrigger`. The cursor stays where the text was. */
@@ -290,6 +309,29 @@ export class MarkdownEditorComponent implements OnDestroy {
     this.editable() && this.focusWithin() ? this.tablePlace() : null,
   );
 
+  /** Where the format bar of the selection goes; `null` without a text selection. */
+  private readonly selectionPlace = signal<SelectionBarPlace | null>(null);
+  /** A pointer drags a selection: the bar waits for the release (002782). */
+  private readonly pointerDown = signal(false);
+  /** Esc hid the bar; a new selection shows it again. */
+  private readonly barDismissed = signal(false);
+  /** The selection the bar was last placed for, to see a new selection. */
+  private lastSelection = '';
+  /** The size of the bar as it rendered last, for the flip and the clamp. */
+  private barSize = { width: 136, height: 48 };
+  /** The format bar of the selection, while it shows. */
+  protected readonly selectionBarPlace = computed(() =>
+    this.selectionBar() &&
+    this.editable() &&
+    this.focusWithin() &&
+    !this.pointerDown() &&
+    !this.barDismissed()
+      ? this.selectionPlace()
+      : null,
+  );
+  protected readonly selectionTools = SELECTION_TOOLS;
+  private readonly selectionBarEl = viewChild<ElementRef<HTMLElement>>('selectionBar');
+
   private readonly intl = inject(UI_KIT_INTL);
   protected readonly columnMenu = computed(() => this.menuOf(COLUMN_ITEMS));
   protected readonly rowMenu = computed(() => this.menuOf(ROW_ITEMS));
@@ -308,8 +350,27 @@ export class MarkdownEditorComponent implements OnDestroy {
   constructor() {
     // A wide table scrolls sideways in its wrapper. A scroll does not bubble, so the
     // listener catches it on the way down.
-    const onScroll = (): void => this.placeTableControls();
+    const onScroll = (): void => {
+      this.placeTableControls();
+      this.placeSelectionBar();
+    };
     this.frame.nativeElement.addEventListener('scroll', onScroll, { capture: true, passive: true });
+    // The bar of a selection shows when the pointer that drags the selection is released,
+    // also outside the editor.
+    const doc = this.frame.nativeElement.ownerDocument;
+    doc.addEventListener('pointerup', this.onPointerUp, { passive: true });
+    doc.addEventListener('pointercancel', this.onPointerUp, { passive: true });
+    // The buttons of the bar are not in the Tab order (002783): Alt+F10 reaches them. The
+    // size of the rendered bar corrects its place at the edges.
+    afterRenderEffect(() => {
+      const bar = this.selectionBarEl()?.nativeElement;
+      if (!bar) return;
+      bar.querySelectorAll('button').forEach((button) => (button.tabIndex = -1));
+      const size = { width: bar.offsetWidth, height: bar.offsetHeight };
+      if (size.width === this.barSize.width && size.height === this.barSize.height) return;
+      this.barSize = size;
+      this.placeSelectionBar();
+    });
     // Editor lazy aufbauen, sobald das Host-Element existiert, und auf
     // docKey/disabled reagieren.
     effect(() => {
@@ -367,6 +428,13 @@ export class MarkdownEditorComponent implements OnDestroy {
             transformPastedHTML: (html) => stripForeignImages(html),
             handlePaste: (_view, event) => this.onPasteFiles(event),
             handleTextInput: (view, from, to, text) => this.onTextInput(view, from, to, text),
+            handleKeyDown: (_view, event) => this.onSelectionKey(event),
+            handleDOMEvents: {
+              pointerdown: (_view, event) => {
+                if (event.button === 0) this.pointerDown.set(true);
+                return false;
+              },
+            },
             handleDrop: (view, event, _slice, moved) => this.onDropFiles(view, event, moved),
           },
           content: this.value(),
@@ -381,7 +449,10 @@ export class MarkdownEditorComponent implements OnDestroy {
         this.editable.set(!disabled);
         this.ensureTrailingLine();
         if (typeof ResizeObserver !== 'undefined') {
-          this.resize = new ResizeObserver(() => this.placeTableControls());
+          this.resize = new ResizeObserver(() => {
+            this.placeTableControls();
+            this.placeSelectionBar();
+          });
           this.resize.observe(this.editor.view.dom);
         }
         return;
@@ -431,9 +502,17 @@ export class MarkdownEditorComponent implements OnDestroy {
    * read-only editor does nothing.
    */
   toggleFormat(format: MarkdownFormat): void {
+    this.runFormat(format, true);
+  }
+
+  /**
+   * Switch a format; `focus` moves the focus to the text first. A button of the format
+   * bar keeps the focus where it is, so a keyboard user stays in the bar (002783).
+   */
+  private runFormat(format: MarkdownFormat, focus: boolean): void {
     const editor = this.editor;
     if (!editor || !editor.isEditable) return;
-    const chain = editor.chain().focus();
+    const chain = focus ? editor.chain().focus() : editor.chain();
     switch (format) {
       case 'heading':
         chain.toggleHeading({ level: 2 }).run();
@@ -554,6 +633,92 @@ export class MarkdownEditorComponent implements OnDestroy {
     const next = event.relatedTarget as Node | null;
     if (next && this.frame.nativeElement.contains(next)) return;
     this.focusWithin.set(false);
+    this.pointerDown.set(false);
+  }
+
+  /** A button of the format bar: switch its format on the selection (002781). */
+  protected onSelectionTool(format: MarkdownFormat): void {
+    this.runFormat(format, false);
+  }
+
+  /**
+   * Keys in the text for the format bar (002783): Esc hides the bar, Alt+F10 moves the
+   * focus to its first button.
+   */
+  private onSelectionKey(event: KeyboardEvent): boolean {
+    if (!this.selectionBarPlace()) return false;
+    if (event.key === 'Escape') {
+      this.barDismissed.set(true);
+      return true;
+    }
+    if (event.key === 'F10' && event.altKey) {
+      this.selectionButtons()[0]?.focus();
+      return true;
+    }
+    return false;
+  }
+
+  /**
+   * Keys in the format bar (002783): the arrow keys, Home and End move the focus between
+   * the buttons, Esc hides the bar and returns to the text with the same selection.
+   */
+  protected onSelectionBarKey(event: KeyboardEvent): void {
+    if (event.key === 'Escape') {
+      event.preventDefault();
+      this.editor?.commands.focus();
+      this.barDismissed.set(true);
+      return;
+    }
+    const buttons = this.selectionButtons();
+    const at = buttons.indexOf(event.target as HTMLButtonElement);
+    const n = buttons.length;
+    const moves: Record<string, number> = {
+      ArrowRight: (at + 1) % n,
+      ArrowDown: (at + 1) % n,
+      ArrowLeft: (at - 1 + n) % n,
+      ArrowUp: (at - 1 + n) % n,
+      Home: 0,
+      End: n - 1,
+    };
+    const next = moves[event.key];
+    if (next === undefined) return;
+    event.preventDefault();
+    buttons[next]?.focus();
+  }
+
+  /** The buttons of the format bar, in their order. */
+  private selectionButtons(): HTMLButtonElement[] {
+    const bar = this.selectionBarEl()?.nativeElement;
+    return bar ? Array.from(bar.querySelectorAll('button')) : [];
+  }
+
+  /** The pointer that dragged a selection is released: the bar may show. */
+  private readonly onPointerUp = (): void => {
+    if (!this.pointerDown()) return;
+    this.pointerDown.set(false);
+    this.placeSelectionBar();
+  };
+
+  /** Measure where the format bar of the selection goes (002782). */
+  private placeSelectionBar(): void {
+    const editor = this.editor;
+    if (!editor || !this.selectionBar()) {
+      if (this.selectionPlace()) this.selectionPlace.set(null);
+      return;
+    }
+    const { from, to } = editor.state.selection;
+    const key = `${from}:${to}`;
+    if (key !== this.lastSelection) {
+      this.lastSelection = key;
+      if (this.barDismissed()) this.barDismissed.set(false);
+    }
+    const next = measureSelectionBar(editor, this.frame.nativeElement, this.barSize);
+    const prev = this.selectionPlace();
+    if (prev === next) return;
+    if (prev && next && prev.left === next.left && prev.top === next.top && prev.above === next.above) {
+      return;
+    }
+    this.selectionPlace.set(next);
   }
 
   /** Measure where the controls of the table at the cursor go. */
@@ -733,6 +898,7 @@ export class MarkdownEditorComponent implements OnDestroy {
   /** Read the formats at the cursor into `activeFormats`. */
   private readFormats(editor: Editor): void {
     this.placeTableControls();
+    this.placeSelectionBar();
     const inTable = editor.isActive('table');
     if (inTable !== this.inTable()) this.inTable.set(inTable);
     const next = new Set(
@@ -763,6 +929,9 @@ export class MarkdownEditorComponent implements OnDestroy {
   }
 
   ngOnDestroy(): void {
+    const doc = this.frame.nativeElement.ownerDocument;
+    doc.removeEventListener('pointerup', this.onPointerUp);
+    doc.removeEventListener('pointercancel', this.onPointerUp);
     this.resize?.disconnect();
     this.resize = null;
     this.editor?.destroy();
