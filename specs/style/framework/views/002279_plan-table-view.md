@@ -2,7 +2,7 @@
 id: "002279"
 title: The plan views take the line table, the tree rows and the sums
 kind: style
-status: draft
+status: approved
 owner: frederikbeimgraben
 updated: 2026-11-23
 implementation:
