@@ -142,17 +142,14 @@ $-host: ':is(app-button, a.btn-link, app-row-menu, .btn-grp__seg)';
   aspect-ratio: auto;
 }
 
-// One icon size and one colour for every button of the group (app spec 002570). A button
-// with only an icon drew its glyph larger (20px) than the leading icon of a button with a
-// label (16px), the trigger of a row menu has its own 19px, and a page can give an icon a
-// `size`. The size of the group therefore goes on the button, which places a leading icon
-// by it (three group classes: the size classes of the button tie with two), and on every
-// icon in it. That one is `!important`, because the `size` of an icon is an
-// inline style on its host.
+// One icon size (18px, in a small group too) and one colour for every button of the group
+// (app spec 002570). A button with only an icon drew its glyph larger (20px) than the
+// leading icon of a button with a label (16px), the trigger of a row menu has its own 19px,
+// and a page can give an icon a `size`. The size of the group therefore goes on the button,
+// which places a leading icon by it (three group classes: the size classes of the button tie
+// with two), and on every icon in it. That one is `!important`, because the `size` of an
+// icon is an inline style on its host.
 .btn-grp {
-  --btn-grp-icon: 20px;
-}
-.btn-grp:not(.btn-grp--main):has(.btn--sm) {
   --btn-grp-icon: 18px;
 }
 .btn-grp.btn-grp.btn-grp :is(.btn, .rm__trigger) {
