@@ -592,7 +592,11 @@ export type UiKitTextKey =
   | 'calendar.public.protocol'
   | 'calendar.public.tops'
   | 'meetings.overview.more'
-  | 'meetings.overview.today';
+  | 'meetings.overview.today'
+  | 'graph.zoom.group'
+  | 'graph.zoom.in'
+  | 'graph.zoom.out'
+  | 'graph.zoom.all';
 
 export type UiKitMessages = Record<UiKitTextKey, string>;
 
@@ -1172,6 +1176,10 @@ export const UI_KIT_DEFAULT_MESSAGES: Record<UiLang, UiKitMessages> = {
     'calendar.public.tops': 'Tagesordnung',
     'meetings.overview.more': '+{n} weitere',
     'meetings.overview.today': 'Heute',
+    'graph.zoom.group': 'Ansicht der Zeichnung',
+    'graph.zoom.in': 'Vergrößern',
+    'graph.zoom.out': 'Verkleinern',
+    'graph.zoom.all': 'Alles zeigen',
   },
   en: {
     'dialog.close': 'Close',
@@ -1747,6 +1755,10 @@ export const UI_KIT_DEFAULT_MESSAGES: Record<UiLang, UiKitMessages> = {
     'calendar.public.tops': 'Agenda',
     'meetings.overview.more': '+{n} more',
     'meetings.overview.today': 'Today',
+    'graph.zoom.group': 'View of the drawing',
+    'graph.zoom.in': 'Zoom in',
+    'graph.zoom.out': 'Zoom out',
+    'graph.zoom.all': 'Show all',
   },
 };
 
