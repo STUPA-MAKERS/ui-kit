@@ -1,6 +1,6 @@
 ---
 id: "002650"
-title: An empty state that is the content of a tab or a side pane is centred in the free area
+title: An empty state that is the content of a page, a tab or a pane is centred in the free area
 kind: non-functional
 status: approved
 owner: frederikbeimgraben
@@ -11,11 +11,11 @@ scope:
   - src/styles
 ---
 
-# An empty state that is the content of a tab or a side pane is centred in the free area
+# An empty state that is the content of a page, a tab or a pane is centred in the free area
 
-When the content of a tab or of a side pane is an empty state, the empty state must sit in the
-horizontal and the vertical middle of the free area below the tabs or below the head of the
-pane, not at its top. A tool row above it (a search, filters, a button) stays at the top, and
+When the content of a page, a tab or a pane is an empty state or a failed load (002405), the state
+must sit in the horizontal and the vertical middle of the free area below the head, the tabs or
+the tool row, not at its top. A tool row above it (a search, filters, a button) stays at the top, and
 the empty state centres in the area below that row.
 
 - A tab: the tabs of the Gremium detail (Info, Sitzungen, Mitglieder, Anwesenheit, Beschlüsse,
@@ -24,20 +24,21 @@ the empty state centres in the area below that row.
   archive of a board.
 - A pane beside a main view: the day pane beside the month grid of the Kalender ("Keine
   Einträge an diesem Tag.").
-- Where the tab has no free height of its own (a page that scrolls below the split), the empty
-  state reaches from its top down to the bottom of the screen, above the bottom bar, and centres
-  in that height.
+- A page: every page and Verwaltung page whose content is an empty state or a failed load (for
+  example "Haushalte konnten nicht geladen werden.").
+- The free area ends at the bottom of the box that scrolls the state, or, where the page
+  scrolls, at the bottom of the screen above the bottom bar.
 - The size of the face does not change (001360).
 
 An empty section inside a longer content (for example "Verknüpft" in a detail) keeps its own
 height.
 
-The call site marks such an empty state with `fill`. The kit makes the tab panel, the body of the
-side pane and every box between them and the empty state into flex columns that pass the free
-height down.
+The call site marks such an empty state with `fill`; a failed load with the face always has it.
+The empty state measures the free height below its own top and takes at least that height, so the
+boxes between it and the page do not have to pass the height down.
 
 Reason: An empty state at the top of a tall tab or pane left a large empty band below it, and
 the page looked unfinished.
 
-Test: A source test of the kit styles expects the flex columns from the tab panel and the side
-pane body to the empty state. The screenshots of the app show the centred state.
+Test: A unit test gives a `fill` state a scrolling parent of a fixed height and expects the free
+height below the state as its minimum height. The screenshots of the app show the centred state.

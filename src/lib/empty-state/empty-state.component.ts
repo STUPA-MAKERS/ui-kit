@@ -10,21 +10,35 @@ import {
   input,
   numberAttribute,
 } from '@angular/core';
-import { MEDIA } from '../breakpoints/breakpoints';
 import { IconComponent, type IconName } from '../icon/icon.component';
 
-/**
- * The distance from the top of the scrolled content to the host, in px: the top in the
- * viewport plus every scroll offset above it, so the value does not change while the page
- * scrolls.
- */
-function contentTop(el: HTMLElement): number {
-  return el.getBoundingClientRect().top + (globalThis.scrollY ?? 0) + scrolledAbove(el.parentElement);
+/** The nearest box above `el` that scrolls up and down by itself, or null for the page. */
+function scrollBox(el: HTMLElement): HTMLElement | null {
+  const up = el.parentElement;
+  if (!up || up === document.body || up === document.documentElement) return null;
+  const y = getComputedStyle(up).overflowY;
+  return y === 'auto' || y === 'scroll' ? up : scrollBox(up);
 }
 
-/** The sum of the scroll offsets of `el` and every box above it. */
-function scrolledAbove(el: HTMLElement | null): number {
-  return el ? el.scrollTop + scrolledAbove(el.parentElement) : 0;
+/** A length of a computed style in px (0 when it is not set). */
+function px(el: Element, prop: string): number {
+  return parseFloat(getComputedStyle(el).getPropertyValue(prop)) || 0;
+}
+
+/**
+ * The free height below the top of `el`, in px: down to the bottom of the content box of the
+ * box that scrolls it, or, when the page scrolls, down to the bottom of the screen above the
+ * bottom bar and the padding of the main area. Scroll offsets do not change it.
+ */
+function freeHeight(el: HTMLElement): number {
+  const top = el.getBoundingClientRect().top;
+  const box = scrollBox(el);
+  if (box) {
+    const offset = top - box.getBoundingClientRect().top + box.scrollTop;
+    return box.clientHeight - px(box, 'padding-bottom') - offset;
+  }
+  const inset = px(el, '--app-bottom-inset') + px(el, '--main-pad-bottom');
+  return globalThis.innerHeight - inset - (top + globalThis.scrollY);
 }
 
 /**
@@ -151,17 +165,16 @@ export class EmptyStateComponent {
   private readonly host: ElementRef<HTMLElement> = inject(ElementRef);
 
   constructor() {
-    // Below the split a tab panel is often only as high as its content, so the page scrolls
-    // and gives no free height. A `fill` state there sets its top (`--es-top`), and the kit
-    // styles make it reach down to the bottom of the screen and centre in that height (002650).
+    // A `fill` state takes at least the free height below its own top and centres in it, so a
+    // page, a pane or a tab with nothing in it shows the state in the middle of the free area,
+    // whatever boxes stand between them (002650, 002405).
     const measure = (): void => {
       const el = this.host.nativeElement;
-      const below = globalThis.matchMedia?.(MEDIA.belowWide).matches ?? false;
-      if (!this.fill() || !below || !el.closest('[role="tabpanel"]')) {
-        el.style.removeProperty('--es-top');
+      if (!this.fill()) {
+        el.style.removeProperty('--es-free');
         return;
       }
-      el.style.setProperty('--es-top', `${Math.round(contentTop(el))}px`);
+      el.style.setProperty('--es-free', `${Math.max(0, Math.floor(freeHeight(el)))}px`);
     };
     afterRenderEffect({ read: measure });
     globalThis.addEventListener?.('resize', measure);

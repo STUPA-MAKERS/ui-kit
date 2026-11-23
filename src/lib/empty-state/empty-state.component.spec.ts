@@ -147,4 +147,28 @@ describe('EmptyStateComponent', () => {
     });
     expect(container.querySelector('app-empty-state')).toHaveClass('es-host--fill');
   });
+
+  /** § NF/usability/controls/002650: a `fill` state takes the free height below its top. */
+  it('measures the free height below a fill state in its scrolling box', async () => {
+    const { fixture } = await render(EmptyStateComponent, {
+      inputs: { heading: 'Noch keine Info', fill: true },
+    });
+    const host = fixture.nativeElement as HTMLElement;
+    const box = document.createElement('div');
+    document.body.append(box);
+    box.append(host);
+    box.style.overflowY = 'auto';
+    box.style.paddingBottom = '20px';
+    Object.defineProperty(box, 'clientHeight', { value: 600 });
+    box.getBoundingClientRect = () => ({ top: 100 }) as DOMRect;
+    host.getBoundingClientRect = () => ({ top: 160 }) as DOMRect;
+    window.dispatchEvent(new Event('resize'));
+    expect(host.style.getPropertyValue('--es-free')).toBe('520px');
+  });
+
+  it('sets no free height without fill', async () => {
+    const { fixture } = await render(EmptyStateComponent, { inputs: { heading: 'Nichts da' } });
+    window.dispatchEvent(new Event('resize'));
+    expect((fixture.nativeElement as HTMLElement).style.getPropertyValue('--es-free')).toBe('');
+  });
 });
