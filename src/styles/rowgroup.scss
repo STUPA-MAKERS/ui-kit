@@ -79,6 +79,46 @@
   min-height: 56px;
   padding: var(--space-3) var(--space-4);
 }
+// A settings row with a choice (000631): a label, one choice and the switch, for example
+// "Erledigte Tickets anonymisieren" with the months. The row is its own size container,
+// because its width, not the width of the screen, decides whether the three fit on one line
+// (a dialog on a desktop is as narrow as a phone). On a wide row the choice sits between the
+// label and the switch. On a narrow row the label and the switch share the first line and
+// the choice goes on a second line under the label, so the switch stays at the end edge as in
+// every other settings row.
+.rowgroup__setting {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto auto;
+  align-items: center;
+  gap: var(--space-3) var(--space-4);
+  container-type: inline-size;
+}
+.rowgroup__setting > .rowgroup__label {
+  grid-column: 1;
+  min-width: 0;
+  color: var(--color-text);
+  font-size: var(--fs-body);
+  line-height: var(--lh-body);
+}
+.rowgroup__setting > :not(.rowgroup__label, app-switch) {
+  grid-column: 2;
+  min-width: 0;
+}
+.rowgroup__setting > app-switch {
+  grid-row: 1;
+  grid-column: 3;
+}
+@container (max-width: 32rem) {
+  .rowgroup__setting > .rowgroup__label {
+    grid-column: 1 / 3;
+  }
+  .rowgroup__setting > :not(.rowgroup__label, app-switch) {
+    grid-row: 2;
+    grid-column: 1 / 3;
+    justify-self: start;
+    max-width: 100%;
+  }
+}
 // A check row: a check box as a row of a group (002421), for example the fields of a webhook
 // event. The row keeps 16px to both edges and is at least 48px high, so the box and its state
 // layer stay inside the row. The box itself sits on the start edge of its host.

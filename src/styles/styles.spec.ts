@@ -319,6 +319,22 @@ describe('motion and list pane partials', () => {
       expect(title.match(value)?.[0]).toBe(item.match(value)?.[0]);
     }
   });
+
+  it('keeps the switch of a settings row with a choice at the end edge on a narrow row', () => {
+    const rowgroup = read('rowgroup.scss');
+    const row = block(rowgroup, '.rowgroup__setting {');
+    expect(row).toMatch(/display: grid;/);
+    expect(row).toMatch(/grid-template-columns: minmax\(0, 1fr\) auto auto;/);
+    expect(row).toMatch(/container-type: inline-size;/);
+    const toggle = block(rowgroup, '.rowgroup__setting > app-switch {');
+    expect(toggle).toMatch(/grid-row: 1;/);
+    expect(toggle).toMatch(/grid-column: 3;/);
+    const narrow = rowgroup.slice(rowgroup.indexOf('@container (max-width: 32rem) {'));
+    expect(narrow).toMatch(
+      /\.rowgroup__setting > :not\(\.rowgroup__label, app-switch\) \{[^}]*grid-row: 2;[^}]*grid-column: 1 \/ 3;/,
+    );
+    expect(narrow).not.toMatch(/app-switch \{[^}]*grid-row: 2/);
+  });
 });
 
 // App spec 001500: the head of a list column on a wide screen.

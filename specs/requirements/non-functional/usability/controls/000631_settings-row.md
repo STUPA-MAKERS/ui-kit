@@ -34,15 +34,27 @@ It also applies to Konto > Benachrichtigungen. Switches that follow each other s
 group. A field between two switches (for example the lead time of a delegation) ends the
 group, and the next switch starts a new one.
 
+A settings row that also holds a choice (Hilfe & Tickets: "Erledigte Tickets anonymisieren"
+with "nach 12 Monaten") uses the kit anatomy `.rowgroup__setting`: the label
+(`.rowgroup__label`), the choice and the switch, in this order. The switch must stay at the
+end edge of the row at every width. When the row is wider than 32rem, the choice sits between
+the label and the switch on one line. When the row is 32rem or narrower, the label and the
+switch share the first line, and the choice goes on a second line under the label, from the
+start edge of the label. The width of the row decides this, not the width of the screen.
+
 A switch in the end slot of a record row (Übersetzungen > Sprachen, "Aktiv") is not a
 settings row, because the record row already is a row of a group.
 
 Reason: One shared row gives every page and dialog the same height, inset, surface and
 corners. A switch that a page draws by itself drifts from the other row groups with the next
-change, and a free switch beside raised rows looks like a different control.
+change, and a free switch beside raised rows looks like a different control. A switch that
+wraps with the choice leaves the end edge, so on a narrow screen it is not where the switches
+of the other rows are.
 
 Test: A source test of the templates of Verwaltung expects the classes
 `rowgroup rowgroup--settings` on the list of the rows and no `min-height`, `background` or
 `border-radius` for the row in the stylesheet of the page. A second source test finds no
 `app-switch` in a template of Verwaltung outside such a group, except in the end slot of a
-record row. A screenshot shows each page and dialog.
+record row. A source test of the kit expects the grid of `.rowgroup__setting`, the switch in the
+first line and the choice in the second line under the container query. A screenshot shows
+each page and dialog, and the row with a choice on a phone and on a desktop.
