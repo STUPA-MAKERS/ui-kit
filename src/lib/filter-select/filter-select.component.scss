@@ -29,6 +29,12 @@
 .fs__chip--md:not(.on) app-icon {
   color: var(--color-text-muted);
 }
+/* A select in a field row that is wider than its text (a column of a form stretches it):
+   the text takes the room, so the chevron sits at the end edge like the chevron of a field
+   (app spec 002581). The host still cuts a text that is wider than the row. */
+.fs__chip--md .fs__text {
+  max-width: none;
+}
 /* Only the icon: a square of the chip height. */
 .fs__chip--icon {
   flex: none;
