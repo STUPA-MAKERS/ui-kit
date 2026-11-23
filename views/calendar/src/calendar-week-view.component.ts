@@ -8,13 +8,13 @@ import {
   input,
   output,
   viewChild,
-} from '@angular/core';
-import type { CalendarEntry } from './calendar.types';
-import { registerUiKitTexts, UI_KIT_INTL } from '@stupa-makers/ui-kit';
-import { UiKitTranslatePipe } from '@stupa-makers/ui-kit';
-import { longDate, shortTime, weekdayName } from './calendar-format';
-import { IconComponent, ScrollFadeDirective } from '@stupa-makers/ui-kit';
-import type { CalendarDay } from './calendar-grid.util';
+} from "@angular/core";
+import type { CalendarEntry } from "./calendar.types";
+import { registerUiKitTexts, UI_KIT_INTL } from "@stupa-makers/ui-kit";
+import { UiKitTranslatePipe } from "@stupa-makers/ui-kit";
+import { longDate, shortTime, weekdayName } from "./calendar-format";
+import { IconComponent, ScrollFadeDirective } from "@stupa-makers/ui-kit";
+import type { CalendarDay } from "./calendar-grid.util";
 import {
   type Block,
   DAY_HOURS,
@@ -24,8 +24,8 @@ import {
   isSpan,
   openHour,
   spanText,
-} from './calendar.util';
-import { UI_KIT_CALENDAR_TEXTS } from './calendar.texts';
+} from "./calendar.util";
+import { UI_KIT_CALENDAR_TEXTS } from "./calendar.texts";
 
 /** One day column of the week view. */
 interface WeekColumn {
@@ -49,12 +49,12 @@ interface WeekColumn {
  * a day picks the day, a press on an entry opens it.
  */
 @Component({
-  selector: 'app-calendar-week-view',
+  selector: "app-calendar-week-view",
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [IconComponent, ScrollFadeDirective, UiKitTranslatePipe],
-  templateUrl: './calendar-week-view.component.html',
-  styleUrl: './calendar-week-view.component.scss',
+  templateUrl: "./calendar-week-view.component.html",
+  styleUrl: "./calendar-week-view.component.scss",
 })
 export class CalendarWeekViewComponent {
   /** The texts of the view, registered before the first render (002237). */
@@ -73,7 +73,8 @@ export class CalendarWeekViewComponent {
   readonly selectDay = output<string>();
   readonly openEntry = output<CalendarEntry>();
 
-  private readonly scroll = viewChild.required<ElementRef<HTMLElement>>('scroll');
+  private readonly scroll =
+    viewChild.required<ElementRef<HTMLElement>>("scroll");
   readonly hours = Array.from({ length: DAY_HOURS }, (_, i) => i);
   readonly columns = computed<readonly WeekColumn[]>(() =>
     this.days().map((day) => ({
@@ -105,12 +106,12 @@ export class CalendarWeekViewComponent {
    */
   blockLabel(e: CalendarEntry): string {
     if (isSpan(e)) return `${spanText(e, this.i18n.formatLocale())} ${e.title}`;
-    const end = e.endTime ? ` – ${shortTime(e.endTime)}` : '';
+    const end = e.endTime ? ` – ${shortTime(e.endTime)}` : "";
     return `${shortTime(e.startTime)}${end} ${e.title}`;
   }
 
   /** "08:00": an hour of the axis. */
   hourLabel(hour: number): string {
-    return `${String(hour).padStart(2, '0')}:00`;
+    return `${String(hour).padStart(2, "0")}:00`;
   }
 }

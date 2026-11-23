@@ -9,9 +9,9 @@ import {
   inject,
   input,
   numberAttribute,
-} from '@angular/core';
-import { MEDIA } from '../breakpoints/breakpoints';
-import { IconComponent, type IconName } from '../icon/icon.component';
+} from "@angular/core";
+import { MEDIA } from "../breakpoints/breakpoints";
+import { IconComponent, type IconName } from "../icon/icon.component";
 
 /**
  * The distance from the top of the scrolled content to the host, in px: the top in the
@@ -19,9 +19,16 @@ import { IconComponent, type IconName } from '../icon/icon.component';
  * scrolls.
  */
 function contentTop(el: HTMLElement): number {
-  let top = el.getBoundingClientRect().top + (globalThis.scrollY ?? 0);
-  for (let up = el.parentElement; up; up = up.parentElement) top += up.scrollTop;
-  return top;
+  return (
+    el.getBoundingClientRect().top +
+    (globalThis.scrollY ?? 0) +
+    scrolledAbove(el.parentElement)
+  );
+}
+
+/** The sum of the scroll offsets of `el` and every box above it. */
+function scrolledAbove(el: HTMLElement | null): number {
+  return el ? el.scrollTop + scrolledAbove(el.parentElement) : 0;
 }
 
 /**
@@ -65,7 +72,16 @@ const FACE_DOTS: readonly {
  * the look (001360) and stays so that callers keep compiling.
  */
 export type EmptyStateShape =
-  'row' | 'choice' | 'person' | 'date' | 'agenda' | 'file' | 'table' | 'card' | 'chat' | 'text';
+  | "row"
+  | "choice"
+  | "person"
+  | "date"
+  | "agenda"
+  | "file"
+  | "table"
+  | "card"
+  | "chat"
+  | "text";
 
 /**
  * One shape for "there is nothing here", in two looks.
@@ -90,16 +106,16 @@ export type EmptyStateShape =
  * block keeps its own height, for a card, a section or a dialog.
  */
 @Component({
-  selector: 'app-empty-state',
+  selector: "app-empty-state",
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [IconComponent],
-  templateUrl: './empty-state.component.html',
-  styleUrl: './empty-state.component.scss',
+  templateUrl: "./empty-state.component.html",
+  styleUrl: "./empty-state.component.scss",
   host: {
-    '[class.es-host--fill]': 'fill()',
-    '[class.es-host--plain]': 'plain()',
-    '[class.es-host--face]': 'face()',
+    "[class.es-host--fill]": "fill()",
+    "[class.es-host--plain]": "plain()",
+    "[class.es-host--face]": "face()",
   },
 })
 export class EmptyStateComponent {
@@ -116,9 +132,9 @@ export class EmptyStateComponent {
    * a `plain` state. It names what is missing (001364): `searchOff` only for a search or a
    * filter without a hit, else the icon of the section or of the missing thing.
    */
-  readonly icon = input<IconName>('file');
+  readonly icon = input<IconName>("file");
   /** No longer changes the look (001360); kept so that callers keep compiling. */
-  readonly shape = input<EmptyStateShape>('row');
+  readonly shape = input<EmptyStateShape>("row");
   /** No longer changes the look (001360); kept so that callers keep compiling. */
   readonly rows = input(5, { transform: numberAttribute });
   /**
@@ -131,7 +147,8 @@ export class EmptyStateComponent {
    * other state a plain line, so a list inside a page adds no heading.
    */
   readonly level = input<number | undefined, unknown>(undefined, {
-    transform: (v: unknown) => (v == null || v === '' ? undefined : numberAttribute(v)),
+    transform: (v: unknown) =>
+      v == null || v === "" ? undefined : numberAttribute(v),
   });
 
   protected readonly headingLevel = computed(() => {
@@ -155,13 +172,15 @@ export class EmptyStateComponent {
       const el = this.host.nativeElement;
       const below = globalThis.matchMedia?.(MEDIA.belowWide).matches ?? false;
       if (!this.fill() || !below || !el.closest('[role="tabpanel"]')) {
-        el.style.removeProperty('--es-top');
+        el.style.removeProperty("--es-top");
         return;
       }
-      el.style.setProperty('--es-top', `${Math.round(contentTop(el))}px`);
+      el.style.setProperty("--es-top", `${Math.round(contentTop(el))}px`);
     };
     afterRenderEffect({ read: measure });
-    globalThis.addEventListener?.('resize', measure);
-    inject(DestroyRef).onDestroy(() => globalThis.removeEventListener?.('resize', measure));
+    globalThis.addEventListener?.("resize", measure);
+    inject(DestroyRef).onDestroy(() =>
+      globalThis.removeEventListener?.("resize", measure),
+    );
   }
 }

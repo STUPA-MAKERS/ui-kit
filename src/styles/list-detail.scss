@@ -1,8 +1,8 @@
 // The one list/detail geometry. Consume from the global stylesheet of an app:
 //   @use 'list-detail';
-@use 'breakpoints' as bp;
-@use 'frosted' as *;
-@use 'display' as d;
+@use "breakpoints" as bp;
+@use "frosted" as *;
+@use "display" as d;
 
 // Every page with a list or a navigation column beside a sheet takes the width of that
 // column and the gap to the sheet from these two tokens (`app-list-detail` reads them).
@@ -37,7 +37,9 @@
 // buttons takes no room. A column without a filter bar (Konto) keeps its title line, because
 // nothing else names the page there. A phone keeps its title line.
 @include bp.not-phone {
-  .ld-pane:has(> .ld-pane__filters > :first-child) > app-page-header.ph--pane .ph__text.ph__text {
+  .ld-pane:has(> .ld-pane__filters > :first-child)
+    > app-page-header.ph--pane
+    .ph__text.ph__text {
     position: absolute;
     width: 1px;
     height: 1px;
@@ -52,7 +54,9 @@
     height: 0;
     margin-bottom: calc(-1 * var(--space-3));
   }
-  .ld-pane:has(> .ld-pane__filters > :first-child) > app-page-header.ph--pane .ph__bar.ph__bar {
+  .ld-pane:has(> .ld-pane__filters > :first-child)
+    > app-page-header.ph--pane
+    .ph__bar.ph__bar {
     min-height: 0;
     height: 0;
   }
@@ -62,18 +66,25 @@
     // The filter bar sticks with a gap above its controls (`--stb-pad` of the sticky bar),
     // so the buttons stick that much lower and stay level with the first control.
     top: calc(
-      var(--ld-sticky-top, calc(var(--layout-header-height, 0px) + env(safe-area-inset-top, 0px))) +
+      var(
+          --ld-sticky-top,
+          calc(var(--layout-header-height, 0px) + env(safe-area-inset-top, 0px))
+        ) +
         var(--space-2)
     );
     z-index: var(--z-sticky);
   }
-  .ld-pane:has(> .ld-pane__filters > app-search-pill:first-child) > app-page-header.ph--pane {
+  .ld-pane:has(> .ld-pane__filters > app-search-pill:first-child)
+    > app-page-header.ph--pane {
     --ph-pane-h: var(--control-height-lg);
   }
-  .ld-pane:has(> .ld-pane__filters > app-search-pill.sp--md:first-child) > app-page-header.ph--pane {
+  .ld-pane:has(> .ld-pane__filters > app-search-pill.sp--md:first-child)
+    > app-page-header.ph--pane {
     --ph-pane-h: 2.75rem;
   }
-  .ld-pane:has(> .ld-pane__filters > :first-child) > app-page-header.ph--pane .ph__actions.ph__actions {
+  .ld-pane:has(> .ld-pane__filters > :first-child)
+    > app-page-header.ph--pane
+    .ph__actions.ph__actions {
     --btn-grp-h: var(--ph-pane-h);
     position: absolute;
     top: 0;
@@ -82,7 +93,9 @@
     min-height: 0;
     margin: 0;
   }
-  .ld-pane:has(> app-page-header.ph--pane .ph__actions > *) > .ld-pane__filters > :first-child {
+  .ld-pane:has(> app-page-header.ph--pane .ph__actions > *)
+    > .ld-pane__filters
+    > :first-child {
     margin-inline-end: calc(var(--ph-pane-actions, 0px) + var(--space-3));
   }
 }
@@ -90,7 +103,9 @@
 // so its yellow is 4px lower than its box. The buttons beside it are as high as the yellow.
 @include d.on(veryHigh) {
   @include bp.not-phone {
-    .ld-pane:has(> .ld-pane__filters > app-search-pill:first-child) > app-page-header.ph--pane .ph__actions.ph__actions {
+    .ld-pane:has(> .ld-pane__filters > app-search-pill:first-child)
+      > app-page-header.ph--pane
+      .ph__actions.ph__actions {
       --btn-grp-h: calc(var(--ph-pane-h) - 4px);
     }
   }
@@ -220,7 +235,7 @@
 // It has the page colour in every state, also while rows are under it
 // (`.ld-pane--scrolled`); then it ends in a hairline and has no shadow.
 .ld-pane--head::before {
-  content: '';
+  content: "";
   position: absolute;
   inset-inline: 0;
   top: 0;
@@ -270,12 +285,15 @@
 // area below the tabs or the head of the pane (002650). The panel or the body and every box
 // between it and the state become flex columns, and each box between them grows, so the free
 // height reaches the state. A hidden tab panel stays hidden.
-:is([role='tabpanel'], .ss__body):not([hidden]):has(app-empty-state.es-host--fill) {
+:is([role="tabpanel"], .ss__body):not([hidden]):has(
+    app-empty-state.es-host--fill
+  ) {
   display: flex;
   flex-grow: 1;
   flex-direction: column;
 }
-:is([role='tabpanel'], .ss__body) :not([hidden]):has(app-empty-state.es-host--fill) {
+:is([role="tabpanel"], .ss__body)
+  :not([hidden]):has(app-empty-state.es-host--fill) {
   display: flex;
   flex: 1 0 auto;
   flex-direction: column;
@@ -285,11 +303,14 @@
 // state sets its own top (`--es-top`), reaches down to the bottom of the screen, above the
 // bottom bar and the padding of the main area, and centres in that height.
 @include bp.below-wide {
-  [role='tabpanel'] app-empty-state.es-host--fill {
+  [role="tabpanel"] app-empty-state.es-host--fill {
     min-height: max(
       12rem,
       calc(
-        100dvh - var(--es-top, 50dvh) - var(--app-bottom-inset, 0px) - var(--main-pad-bottom, 0px)
+        100dvh - var(--es-top, 50dvh) - var(--app-bottom-inset, 0px) - var(
+            --main-pad-bottom,
+            0px
+          )
       )
     );
   }

@@ -1,10 +1,21 @@
-import { ChangeDetectionStrategy, Component, computed, inject, input, output } from '@angular/core';
-import type { ExternalEntry } from './calendar.types';
-import { registerUiKitTexts, UI_KIT_INTL } from '@stupa-makers/ui-kit';
-import { UiKitTranslatePipe } from '@stupa-makers/ui-kit';
-import { DialogComponent, FactsComponent, DialogBodyDirective } from '@stupa-makers/ui-kit';
-import { spanText } from './calendar.util';
-import { UI_KIT_CALENDAR_TEXTS } from './calendar.texts';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  computed,
+  inject,
+  input,
+  output,
+} from "@angular/core";
+import type { ExternalEntry } from "./calendar.types";
+import { registerUiKitTexts, UI_KIT_INTL } from "@stupa-makers/ui-kit";
+import { UiKitTranslatePipe } from "@stupa-makers/ui-kit";
+import {
+  DialogComponent,
+  FactsComponent,
+  DialogBodyDirective,
+} from "@stupa-makers/ui-kit";
+import { spanText } from "./calendar.util";
+import { UI_KIT_CALENDAR_TEXTS } from "./calendar.texts";
 
 /**
  * The dialog of one entry of an external calendar (§ 000714): the title, the time, the
@@ -13,12 +24,17 @@ import { UI_KIT_CALENDAR_TEXTS } from './calendar.texts';
  * bottom sheet.
  */
 @Component({
-  selector: 'app-external-entry-view',
+  selector: "app-external-entry-view",
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [DialogBodyDirective, FactsComponent, DialogComponent, UiKitTranslatePipe],
-  templateUrl: './external-entry-view.component.html',
-  styleUrl: './external-entry-view.component.scss',
+  imports: [
+    DialogBodyDirective,
+    FactsComponent,
+    DialogComponent,
+    UiKitTranslatePipe,
+  ],
+  templateUrl: "./external-entry-view.component.html",
+  styleUrl: "./external-entry-view.component.scss",
 })
 export class ExternalEntryViewComponent {
   /** The texts of the view, registered before the first render (002237). */
@@ -32,6 +48,6 @@ export class ExternalEntryViewComponent {
 
   readonly when = computed(() => {
     const e = this.entry();
-    return e ? spanText(e, this.i18n.formatLocale()) : '';
+    return e ? spanText(e, this.i18n.formatLocale()) : "";
   });
 }

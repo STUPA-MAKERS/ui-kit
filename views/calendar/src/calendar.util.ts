@@ -1,27 +1,32 @@
-import type { IconName } from '@stupa-makers/ui-kit';
-import type { AnswerKey, CalendarEntry, EntryKind } from './calendar.types';
-import type { UiKitTextKey } from '@stupa-makers/ui-kit';
-import { dayMonth, isoDay, shortTime, weekdayDate } from './calendar-format';
-import type { CalendarDay } from './calendar-grid.util';
+import type { IconName } from "@stupa-makers/ui-kit";
+import type { AnswerKey, CalendarEntry, EntryKind } from "./calendar.types";
+import type { UiKitTextKey } from "@stupa-makers/ui-kit";
+import { dayMonth, isoDay, shortTime, weekdayDate } from "./calendar-format";
+import type { CalendarDay } from "./calendar-grid.util";
 
 /** The kinds of the filter "Art". An Event counts to the Termine (§ 000737). */
-export type FilterKind = 'meeting' | 'card' | 'appointment' | 'external';
-export const FILTER_KINDS: readonly FilterKind[] = ['meeting', 'card', 'appointment', 'external'];
+export type FilterKind = "meeting" | "card" | "appointment" | "external";
+export const FILTER_KINDS: readonly FilterKind[] = [
+  "meeting",
+  "card",
+  "appointment",
+  "external",
+];
 
 /** The two views of the desktop Kalender. */
-export type CalendarView = 'week' | 'month';
+export type CalendarView = "week" | "month";
 
 /** The kind of the filter that an entry counts to. */
 export function filterKind(kind: EntryKind): FilterKind {
-  return kind === 'event' ? 'appointment' : kind;
+  return kind === "event" ? "appointment" : kind;
 }
 
 const ICONS: Readonly<Record<EntryKind, IconName>> = {
-  meeting: 'users',
-  card: 'circleok',
-  event: 'cal',
-  appointment: 'cal',
-  external: 'globe',
+  meeting: "users",
+  card: "circleok",
+  event: "cal",
+  appointment: "cal",
+  external: "globe",
 };
 
 /** The icon of the kind of an entry. */
@@ -46,7 +51,7 @@ export function visibleEntries(
   return entries.filter(
     (e) =>
       (kinds.length === 0 || kinds.includes(filterKind(e.kind))) &&
-      (gremiumId === '' || e.gremiumIds.includes(gremiumId)),
+      (gremiumId === "" || e.gremiumIds.includes(gremiumId)),
   );
 }
 
@@ -56,12 +61,18 @@ export function isSpan(e: CalendarEntry): boolean {
 }
 
 /** The entries with this day in their span, in the order of the server (day, then time). */
-export function onDay(entries: readonly CalendarEntry[], iso: string): readonly CalendarEntry[] {
+export function onDay(
+  entries: readonly CalendarEntry[],
+  iso: string,
+): readonly CalendarEntry[] {
   return entries.filter((e) => e.startsOn <= iso && iso <= e.endsOn);
 }
 
 /** The entries of one day only, for the cell of the month grid. */
-export function singleDay(entries: readonly CalendarEntry[], iso: string): readonly CalendarEntry[] {
+export function singleDay(
+  entries: readonly CalendarEntry[],
+  iso: string,
+): readonly CalendarEntry[] {
   return entries.filter((e) => e.startsOn === iso && e.endsOn === iso);
 }
 
@@ -81,7 +92,10 @@ export interface Bar {
  * The bars of a week. Each bar takes the first lane that is free from its start, so two
  * entries that do not overlap share a lane.
  */
-export function weekBars(entries: readonly CalendarEntry[], week: readonly CalendarDay[]): readonly Bar[] {
+export function weekBars(
+  entries: readonly CalendarEntry[],
+  week: readonly CalendarDay[],
+): readonly Bar[] {
   const first = week[0].iso;
   const last = week[week.length - 1].iso;
   const column = (iso: string): number => week.findIndex((d) => d.iso === iso);
@@ -95,8 +109,15 @@ export function weekBars(entries: readonly CalendarEntry[], week: readonly Calen
       openEnd: e.endsOn > last,
     }));
   return spans.reduce<readonly Bar[]>((placed, span) => {
-    const taken = new Set(placed.filter((b) => b.from < span.to && span.from < b.to).map((b) => b.lane));
-    const lane = Array.from({ length: placed.length + 1 }, (_, i) => i).find((i) => !taken.has(i)) ?? 0;
+    const taken = new Set(
+      placed
+        .filter((b) => b.from < span.to && span.from < b.to)
+        .map((b) => b.lane),
+    );
+    const lane =
+      Array.from({ length: placed.length + 1 }, (_, i) => i).find(
+        (i) => !taken.has(i),
+      ) ?? 0;
     return [...placed, { ...span, lane }];
   }, []);
 }
@@ -112,7 +133,10 @@ export function isTimed(e: CalendarEntry): boolean {
 }
 
 /** The entries of a day for the row above the hours (§ui-kit:000728). */
-export function allDayOf(entries: readonly CalendarEntry[], iso: string): readonly CalendarEntry[] {
+export function allDayOf(
+  entries: readonly CalendarEntry[],
+  iso: string,
+): readonly CalendarEntry[] {
   return onDay(entries, iso).filter((e) => !isTimed(e));
 }
 
@@ -156,7 +180,12 @@ export interface Block {
 }
 
 /** The hour where the part of an entry on the day `iso` ends. */
-function partEnd(e: CalendarEntry, iso: string, from: number, lastHour: number): number {
+function partEnd(
+  e: CalendarEntry,
+  iso: string,
+  from: number,
+  lastHour: number,
+): number {
   if (e.endsOn !== iso) return lastHour;
   if (e.endTime) return Math.max(hoursOf(e.endTime), from);
   return isSpan(e) ? lastHour : from + 1;
@@ -184,36 +213,64 @@ export function dayBlocks(
     ...onDay(entries, iso)
       .filter(isTimed)
       .map((e) => {
-        const from = e.startsOn === iso ? hoursOf(e.startTime ?? '') : firstHour;
+        const from =
+          e.startsOn === iso ? hoursOf(e.startTime ?? "") : firstHour;
         const real = partEnd(e, iso, from, lastHour) - from;
         return { entry: e, from, real, to: from + Math.max(real, MIN_BLOCK) };
       }),
   ].sort((a, b) => a.from - b.from || b.to - a.to);
-  const placed = items.reduce<readonly ((typeof items)[number] & { readonly lane: number })[]>((done, item) => {
-    const taken = new Set(done.filter((o) => o.to > item.from).map((o) => o.lane));
-    const lane = Array.from({ length: done.length + 1 }, (_, i) => i).find((i) => !taken.has(i)) ?? 0;
+  const placed = items.reduce<
+    readonly ((typeof items)[number] & { readonly lane: number })[]
+  >((done, item) => {
+    const taken = new Set(
+      done.filter((o) => o.to > item.from).map((o) => o.lane),
+    );
+    const lane =
+      Array.from({ length: done.length + 1 }, (_, i) => i).find(
+        (i) => !taken.has(i),
+      ) ?? 0;
     return [...done, { ...item, lane }];
   }, []);
   type Placed = (typeof placed)[number];
-  const meets = (a: Placed, b: Placed): boolean => a.from < b.to && b.from < a.to;
+  const meets = (a: Placed, b: Placed): boolean =>
+    a.from < b.to && b.from < a.to;
   const cluster = (seed: readonly Placed[]): readonly Placed[] => {
-    const more = placed.filter((o) => !seed.includes(o) && seed.some((s) => meets(o, s)));
+    const more = placed.filter(
+      (o) => !seed.includes(o) && seed.some((s) => meets(o, s)),
+    );
     return more.length > 0 ? cluster([...seed, ...more]) : seed;
   };
-  const lanesOf = (item: Placed): number => Math.max(...cluster([item]).map((o) => o.lane)) + 1;
-  const lefts = placed.reduce<readonly { readonly item: Placed; readonly left: number }[]>((done, item) => {
+  const lanesOf = (item: Placed): number =>
+    Math.max(...cluster([item]).map((o) => o.lane)) + 1;
+  const lefts = placed.reduce<
+    readonly { readonly item: Placed; readonly left: number }[]
+  >((done, item) => {
     const lower = placed.filter((o) => o.lane < item.lane && meets(o, item));
     const own = (item.lane / lanesOf(item)) * 100;
-    const onTop = lower.length > 0 && lower.every((o) => item.from >= o.from + OVERLAP_HEAD);
-    const below = Math.max(0, ...done.filter((d) => lower.includes(d.item)).map((d) => d.left));
-    return [...done, { item, left: onTop ? Math.min(own, below + OVERLAP_INDENT) : own }];
+    const onTop =
+      lower.length > 0 &&
+      lower.every((o) => item.from >= o.from + OVERLAP_HEAD);
+    const below = Math.max(
+      0,
+      ...done.filter((d) => lower.includes(d.item)).map((d) => d.left),
+    );
+    return [
+      ...done,
+      { item, left: onTop ? Math.min(own, below + OVERLAP_INDENT) : own },
+    ];
   }, []);
   const boxes = lefts.map(({ item, left }) => {
     const lanes = lanesOf(item);
     const right = placed.filter((o) => o.lane > item.lane && meets(o, item));
     const next = Math.min(lanes, ...right.map((o) => o.lane));
-    const under = right.length > 0 && right.every((o) => o.lane > next || o.from >= item.from + OVERLAP_HEAD);
-    return { item, left, width: under ? 100 - left : (next * 100) / lanes - left };
+    const under =
+      right.length > 0 &&
+      right.every((o) => o.lane > next || o.from >= item.from + OVERLAP_HEAD);
+    return {
+      item,
+      left,
+      width: under ? 100 - left : (next * 100) / lanes - left,
+    };
   });
   return boxes.map(({ item, left, width }) => {
     const height = Math.max(item.real, MIN_BLOCK);
@@ -225,7 +282,10 @@ export function dayBlocks(
       width,
       lane: item.lane,
       over: boxes.some(
-        (o) => o.left < left && o.left + o.width > left + 0.01 && meets(o.item, item),
+        (o) =>
+          o.left < left &&
+          o.left + o.width > left + 0.01 &&
+          meets(o.item, item),
       ),
       short: item.real < SHORT_BLOCK,
       lines: Math.max(1, Math.floor((height * HOUR_REM * 16 - 28) / 16)),
@@ -245,10 +305,13 @@ export const OPEN_HOUR = 8;
  * timed entry that starts on one of the days when that is earlier, so no entry of the
  * week hides above the view.
  */
-export function openHour(entries: readonly CalendarEntry[], days: readonly string[]): number {
+export function openHour(
+  entries: readonly CalendarEntry[],
+  days: readonly string[],
+): number {
   const starts = entries
     .filter((e) => isTimed(e) && days.includes(e.startsOn))
-    .map((e) => Math.floor(hoursOf(e.startTime ?? '')));
+    .map((e) => Math.floor(hoursOf(e.startTime ?? "")));
   return Math.min(OPEN_HOUR, ...starts);
 }
 
@@ -257,17 +320,25 @@ export function openHour(entries: readonly CalendarEntry[], days: readonly strin
  * for an entry over several days. A card and an all-day entry of one day show no time.
  */
 export function entryTime(e: CalendarEntry, locale: string): string {
-  if (isSpan(e)) return `${dayMonth(e.startsOn, locale)} – ${dayMonth(e.endsOn, locale)}`;
-  if (e.startTime === null) return '';
-  return e.endTime ? `${shortTime(e.startTime)} – ${shortTime(e.endTime)}` : shortTime(e.startTime);
+  if (isSpan(e))
+    return `${dayMonth(e.startsOn, locale)} – ${dayMonth(e.endsOn, locale)}`;
+  if (e.startTime === null) return "";
+  return e.endTime
+    ? `${shortTime(e.startTime)} – ${shortTime(e.endTime)}`
+    : shortTime(e.startTime);
 }
 
 /** The days with entries from `from` to `to`, each with its entries, for the phone list. */
 export function dayList(
   entries: readonly CalendarEntry[],
   days: readonly string[],
-): readonly { readonly iso: string; readonly items: readonly CalendarEntry[] }[] {
-  return days.map((iso) => ({ iso, items: onDay(entries, iso) })).filter((day) => day.items.length > 0);
+): readonly {
+  readonly iso: string;
+  readonly items: readonly CalendarEntry[];
+}[] {
+  return days
+    .map((iso) => ({ iso, items: onDay(entries, iso) }))
+    .filter((day) => day.items.length > 0);
 }
 
 /** The entries of two reads as one list without doubles, in the order of the day. */
@@ -280,11 +351,10 @@ export function mergeEntries(
   return [...have.filter((e) => !fresh.has(key(e))), ...more].sort(
     (a, b) =>
       a.startsOn.localeCompare(b.startsOn) ||
-      (a.startTime ?? '').localeCompare(b.startTime ?? '') ||
+      (a.startTime ?? "").localeCompare(b.startTime ?? "") ||
       a.title.localeCompare(b.title),
   );
 }
-
 
 /** The span of an entry or of a Termin. */
 export interface Spanned {
@@ -301,18 +371,24 @@ export interface Spanned {
  */
 export function spanText(a: Spanned, locale: string): string {
   const start = weekdayDate(a.startsOn, locale);
-  const from = a.startTime ? shortTime(a.startTime) : '';
-  const to = a.endTime ? shortTime(a.endTime) : '';
-  if (a.startsOn === a.endsOn) return [start, [from, to].filter(Boolean).join(' – ')].filter(Boolean).join(' · ');
+  const from = a.startTime ? shortTime(a.startTime) : "";
+  const to = a.endTime ? shortTime(a.endTime) : "";
+  if (a.startsOn === a.endsOn)
+    return [start, [from, to].filter(Boolean).join(" – ")]
+      .filter(Boolean)
+      .join(" · ");
   const end = weekdayDate(a.endsOn, locale);
-  return `${[start, from].filter(Boolean).join(', ')} – ${[end, to].filter(Boolean).join(', ')}`;
+  return `${[start, from].filter(Boolean).join(", ")} – ${[end, to].filter(Boolean).join(", ")}`;
 }
 
 /** The span is over. An all-day span ends with its last day. */
 export function hasEnded(a: Spanned, now: Date): boolean {
   const today = isoDay(now);
-  const clock = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
-  return a.endsOn < today || (a.endsOn === today && a.endTime !== null && shortTime(a.endTime) <= clock);
+  const clock = `${String(now.getHours()).padStart(2, "0")}:${String(now.getMinutes()).padStart(2, "0")}`;
+  return (
+    a.endsOn < today ||
+    (a.endsOn === today && a.endTime !== null && shortTime(a.endTime) <= clock)
+  );
 }
 
 /** The text key of an answer. */
@@ -321,17 +397,16 @@ export function answerKey(answer: AnswerKey): UiKitTextKey {
 }
 
 /** The status look of an answer. */
-export function answerKind(answer: AnswerKey): 'accent' | 'warn' | 'muted' {
+export function answerKind(answer: AnswerKey): "accent" | "warn" | "muted" {
   switch (answer) {
-    case 'accept':
-      return 'accent';
-    case 'tentative':
-      return 'warn';
-    case 'decline':
-      return 'muted';
+    case "accept":
+      return "accent";
+    case "tentative":
+      return "warn";
+    case "decline":
+      return "muted";
   }
 }
-
 
 /** A day cell of the month grid with the entries that fit. */
 export interface MonthCell {
@@ -384,8 +459,13 @@ export function monthRows(
 /** The days from `from` to `to`, both included. */
 export function daysBetween(from: string, to: string): readonly string[] {
   const start = Date.parse(`${from}T00:00:00Z`);
-  const count = Math.max(0, Math.round((Date.parse(`${to}T00:00:00Z`) - start) / 86_400_000) + 1);
-  return Array.from({ length: count }, (_, i) => new Date(start + i * 86_400_000).toISOString().slice(0, 10));
+  const count = Math.max(
+    0,
+    Math.round((Date.parse(`${to}T00:00:00Z`) - start) / 86_400_000) + 1,
+  );
+  return Array.from({ length: count }, (_, i) =>
+    new Date(start + i * 86_400_000).toISOString().slice(0, 10),
+  );
 }
 
 /** A range of days of one request. The server takes at most 100 days. */
