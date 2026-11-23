@@ -598,6 +598,99 @@ export type UiKitTextKey =
   | 'graph.zoom.out'
   | 'graph.zoom.all'
   | 'admin.common.label'
+  | 'admin.common.delete'
+  | 'admin.common.errors'
+  | 'admin.common.remove'
+  | 'admin.common.required'
+  | 'admin.common.type'
+  | 'admin.form.addGroup'
+  | 'admin.form.addOption'
+  | 'admin.form.allowNoOffers'
+  | 'admin.form.compute'
+  | 'admin.form.deleteGroup'
+  | 'admin.form.dragGroup'
+  | 'admin.form.dupKeys'
+  | 'admin.form.formCard'
+  | 'admin.form.fundingNoPositions'
+  | 'admin.form.fundingTwice'
+  | 'admin.form.groupEmpty'
+  | 'admin.form.groupMenu'
+  | 'admin.form.groupStep'
+  | 'admin.form.groupTitle'
+  | 'admin.form.groupTitlePlaceholder'
+  | 'admin.form.isPII'
+  | 'admin.form.isPromoted'
+  | 'admin.form.max'
+  | 'admin.form.maxLen'
+  | 'admin.form.metric.amount'
+  | 'admin.form.min'
+  | 'admin.form.minLen'
+  | 'admin.form.minOffers'
+  | 'admin.form.minPositions'
+  | 'admin.form.moveGroupDown'
+  | 'admin.form.moveGroupUp'
+  | 'admin.form.optionValue'
+  | 'admin.form.options'
+  | 'admin.form.outline'
+  | 'admin.form.participants'
+  | 'admin.form.participantsTwice'
+  | 'admin.form.pattern'
+  | 'admin.form.positions'
+  | 'admin.form.promoteTarget'
+  | 'admin.form.rootPath'
+  | 'admin.form.type.budget_select'
+  | 'admin.form.type.checkbox'
+  | 'admin.form.type.computed'
+  | 'admin.form.type.currency'
+  | 'admin.form.type.date'
+  | 'admin.form.type.daterange'
+  | 'admin.form.type.email'
+  | 'admin.form.type.file'
+  | 'admin.form.type.funding'
+  | 'admin.form.type.gremium_select'
+  | 'admin.form.type.iban'
+  | 'admin.form.type.markdown'
+  | 'admin.form.type.multiselect'
+  | 'admin.form.type.number'
+  | 'admin.form.type.positions'
+  | 'admin.form.type.section'
+  | 'admin.form.type.select'
+  | 'admin.form.type.table'
+  | 'admin.form.type.text'
+  | 'admin.form.type.textarea'
+  | 'admin.form.typeMenu'
+  | 'admin.form.validation'
+  | 'admin.form.visibleIf'
+  | 'admin.form.visibleIfEmpty'
+  | 'admin.forms.addQuestion'
+  | 'admin.forms.advanced'
+  | 'admin.forms.attachmentRequired'
+  | 'admin.forms.cmpMinCount'
+  | 'admin.forms.cmpRequired'
+  | 'admin.forms.desc'
+  | 'admin.forms.descPlaceholder'
+  | 'admin.forms.duplicate'
+  | 'admin.forms.empty'
+  | 'admin.forms.hasBudget'
+  | 'admin.forms.help'
+  | 'admin.forms.name'
+  | 'admin.forms.overviewLoading'
+  | 'admin.forms.pdfSignatures'
+  | 'admin.forms.questionPlaceholder'
+  | 'admin.forms.rules.add'
+  | 'admin.forms.rules.block'
+  | 'admin.forms.rules.logic'
+  | 'admin.forms.rules.logicInvalid'
+  | 'admin.forms.rules.message'
+  | 'admin.forms.rules.messageMissing'
+  | 'admin.forms.rules.remove'
+  | 'admin.forms.rules.ruleN'
+  | 'admin.forms.rules.severity'
+  | 'admin.forms.rules.title'
+  | 'admin.forms.rules.warn'
+  | 'admin.forms.untitled'
+  | 'admin.forms.untitledQuestion'
+  | 'formly.select.placeholder'
   | 'admin.common.key'
   | 'admin.flow.approved'
   | 'admin.flow.automatic'
@@ -1254,6 +1347,99 @@ export const UI_KIT_DEFAULT_MESSAGES: Record<UiLang, UiKitMessages> = {
     'graph.zoom.out': 'Verkleinern',
     'graph.zoom.all': 'Alles zeigen',
     'admin.common.label': 'Bezeichnung',
+    'admin.common.delete': 'Löschen',
+    'admin.common.errors': 'Fehler',
+    'admin.common.remove': 'Entfernen',
+    'admin.common.required': 'Pflichtfeld',
+    'admin.common.type': 'Typ',
+    'admin.form.addGroup': 'Gruppe',
+    'admin.form.addOption': 'Option hinzufügen',
+    'admin.form.allowNoOffers': 'Verzicht auf Vergleichsangebote erlauben',
+    'admin.form.compute': 'Berechnung (JsonLogic)',
+    'admin.form.deleteGroup': 'Gruppe löschen',
+    'admin.form.dragGroup': 'Gruppe zum Umsortieren ziehen',
+    'admin.form.dupKeys': 'Doppelte Feld-Schlüssel: {keys}',
+    'admin.form.formCard': 'Formular',
+    'admin.form.fundingNoPositions': 'Das Feld „Beantragte Förderung“ braucht Kostenpositionen im selben Formular.',
+    'admin.form.fundingTwice': 'Ein Formular hat höchstens ein Feld „Beantragte Förderung“.',
+    'admin.form.groupEmpty': 'Noch keine Fragen in dieser Gruppe.',
+    'admin.form.groupMenu': 'Aktionen für Abschnitt {n}',
+    'admin.form.groupStep': 'Abschnitt {n}',
+    'admin.form.groupTitle': 'Gruppen-Titel',
+    'admin.form.groupTitlePlaceholder': 'Titel des Schritts …',
+    'admin.form.isPII': 'Personenbezogen (PII)',
+    'admin.form.isPromoted': 'In Kennzahl übernehmen',
+    'admin.form.max': 'Maximum',
+    'admin.form.maxLen': 'Max. Länge',
+    'admin.form.metric.amount': 'Betrag (Budget)',
+    'admin.form.min': 'Minimum',
+    'admin.form.minLen': 'Min. Länge',
+    'admin.form.minOffers': 'Min. Vergleichsangebote',
+    'admin.form.minPositions': 'Min. Positionen',
+    'admin.form.moveGroupDown': 'Gruppe nach unten',
+    'admin.form.moveGroupUp': 'Gruppe nach oben',
+    'admin.form.optionValue': 'Wert',
+    'admin.form.options': 'Auswahloptionen',
+    'admin.form.outline': 'Fragen des Formulars',
+    'admin.form.participants': 'Teilnehmerzahl',
+    'admin.form.participantsTwice': 'Nur ein Feld des Formulars kann die Teilnehmerzahl sein.',
+    'admin.form.pattern': 'Muster (Regex)',
+    'admin.form.positions': 'Kostenpositionen',
+    'admin.form.promoteTarget': 'Ziel-Kennzahl',
+    'admin.form.rootPath': 'Wurzel',
+    'admin.form.type.budget_select': 'Kostenstellen-Auswahl',
+    'admin.form.type.checkbox': 'Kontrollkästchen',
+    'admin.form.type.computed': 'Berechnetes Feld',
+    'admin.form.type.currency': 'Betrag (€)',
+    'admin.form.type.date': 'Datum',
+    'admin.form.type.daterange': 'Zeitraum',
+    'admin.form.type.email': 'E-Mail',
+    'admin.form.type.file': 'Datei-Anhang',
+    'admin.form.type.funding': 'Beantragte Förderung (€)',
+    'admin.form.type.gremium_select': 'Gremium-Auswahl',
+    'admin.form.type.iban': 'IBAN',
+    'admin.form.type.markdown': 'Hinweistext (Markdown)',
+    'admin.form.type.multiselect': 'Auswahl (mehrfach)',
+    'admin.form.type.number': 'Zahl',
+    'admin.form.type.positions': 'Kostenpositionen',
+    'admin.form.type.section': 'Abschnitt (neuer Schritt)',
+    'admin.form.type.select': 'Auswahl (einfach)',
+    'admin.form.type.table': 'Tabelle',
+    'admin.form.type.text': 'Kurztext',
+    'admin.form.type.textarea': 'Langtext',
+    'admin.form.typeMenu': 'Fragetyp wählen',
+    'admin.form.validation': 'Validierung',
+    'admin.form.visibleIf': 'Sichtbar wenn (JsonLogic)',
+    'admin.form.visibleIfEmpty': 'leer: immer sichtbar',
+    'admin.forms.addQuestion': 'Frage hinzufügen',
+    'admin.forms.advanced': 'Erweiterte Optionen',
+    'admin.forms.attachmentRequired': 'Anhang Pflicht',
+    'admin.forms.cmpMinCount': 'Mindestanzahl',
+    'admin.forms.cmpRequired': 'Vergleichsangebote erforderlich',
+    'admin.forms.desc': 'Beschreibung',
+    'admin.forms.descPlaceholder': 'Markdown wird unterstützt …',
+    'admin.forms.duplicate': 'Duplizieren',
+    'admin.forms.empty': 'Noch keine Fragen. Füge unten die erste hinzu.',
+    'admin.forms.hasBudget': 'Mit Budget',
+    'admin.forms.help': 'Hilfetext',
+    'admin.forms.name': 'Titel',
+    'admin.forms.overviewLoading': 'Formulare werden geladen …',
+    'admin.forms.pdfSignatures': 'Unterschriften im PDF',
+    'admin.forms.questionPlaceholder': 'Fragetext …',
+    'admin.forms.rules.add': 'Regel hinzufügen',
+    'admin.forms.rules.block': 'Blockiert das Einreichen',
+    'admin.forms.rules.logic': 'Bedingung (JsonLogic)',
+    'admin.forms.rules.logicInvalid': 'Die Bedingung ist kein gültiges JsonLogic mit den erlaubten Operatoren.',
+    'admin.forms.rules.message': 'Meldung',
+    'admin.forms.rules.messageMissing': 'Die Meldung braucht einen deutschen und einen englischen Text.',
+    'admin.forms.rules.remove': 'Regel entfernen',
+    'admin.forms.rules.ruleN': 'Regel {n}',
+    'admin.forms.rules.severity': 'Wirkung',
+    'admin.forms.rules.title': 'Regeln',
+    'admin.forms.rules.warn': 'Nur Hinweis',
+    'admin.forms.untitled': 'Unbenanntes Formular',
+    'admin.forms.untitledQuestion': 'Unbenannte Frage',
+    'formly.select.placeholder': 'Bitte wählen …',
     'admin.common.key': 'Schlüssel',
     'admin.flow.approved': 'Bewilligt',
     'admin.flow.automatic': 'Automatischer Übergang',
@@ -1906,6 +2092,99 @@ export const UI_KIT_DEFAULT_MESSAGES: Record<UiLang, UiKitMessages> = {
     'graph.zoom.out': 'Zoom out',
     'graph.zoom.all': 'Show all',
     'admin.common.label': 'Label',
+    'admin.common.delete': 'Delete',
+    'admin.common.errors': 'Errors',
+    'admin.common.remove': 'Remove',
+    'admin.common.required': 'Required',
+    'admin.common.type': 'Type',
+    'admin.form.addGroup': 'Group',
+    'admin.form.addOption': 'Add choice',
+    'admin.form.allowNoOffers': 'Allow opting out of comparison offers',
+    'admin.form.compute': 'Compute (JsonLogic)',
+    'admin.form.deleteGroup': 'Delete group',
+    'admin.form.dragGroup': 'Drag group to reorder',
+    'admin.form.dupKeys': 'Duplicate field keys: {keys}',
+    'admin.form.formCard': 'Form',
+    'admin.form.fundingNoPositions': 'The “Requested funding” field needs cost positions in the same form.',
+    'admin.form.fundingTwice': 'A form has at most one “Requested funding” field.',
+    'admin.form.groupEmpty': 'No questions in this group yet.',
+    'admin.form.groupMenu': 'Actions for section {n}',
+    'admin.form.groupStep': 'Section {n}',
+    'admin.form.groupTitle': 'Group title',
+    'admin.form.groupTitlePlaceholder': 'Step title …',
+    'admin.form.isPII': 'Personal data (PII)',
+    'admin.form.isPromoted': 'Promote to metric',
+    'admin.form.max': 'Maximum',
+    'admin.form.maxLen': 'Max length',
+    'admin.form.metric.amount': 'Amount (budget)',
+    'admin.form.min': 'Minimum',
+    'admin.form.minLen': 'Min length',
+    'admin.form.minOffers': 'Min. comparison offers',
+    'admin.form.minPositions': 'Min. positions',
+    'admin.form.moveGroupDown': 'Move group down',
+    'admin.form.moveGroupUp': 'Move group up',
+    'admin.form.optionValue': 'Value',
+    'admin.form.options': 'Choices',
+    'admin.form.outline': 'Questions of the form',
+    'admin.form.participants': 'Number of participants',
+    'admin.form.participantsTwice': 'Only one field of the form can be the number of participants.',
+    'admin.form.pattern': 'Pattern (regex)',
+    'admin.form.positions': 'Cost positions',
+    'admin.form.promoteTarget': 'Target metric',
+    'admin.form.rootPath': 'Root',
+    'admin.form.type.budget_select': 'Cost-centre picker',
+    'admin.form.type.checkbox': 'Checkbox',
+    'admin.form.type.computed': 'Computed field',
+    'admin.form.type.currency': 'Amount (€)',
+    'admin.form.type.date': 'Date',
+    'admin.form.type.daterange': 'Date range',
+    'admin.form.type.email': 'Email',
+    'admin.form.type.file': 'File attachment',
+    'admin.form.type.funding': 'Requested funding (€)',
+    'admin.form.type.gremium_select': 'Committee picker',
+    'admin.form.type.iban': 'IBAN',
+    'admin.form.type.markdown': 'Info text (Markdown)',
+    'admin.form.type.multiselect': 'Choice (multiple)',
+    'admin.form.type.number': 'Number',
+    'admin.form.type.positions': 'Cost positions',
+    'admin.form.type.section': 'Section (new step)',
+    'admin.form.type.select': 'Choice (single)',
+    'admin.form.type.table': 'Table',
+    'admin.form.type.text': 'Short text',
+    'admin.form.type.textarea': 'Long text',
+    'admin.form.typeMenu': 'Choose a question type',
+    'admin.form.validation': 'Validation',
+    'admin.form.visibleIf': 'Visible if (JsonLogic)',
+    'admin.form.visibleIfEmpty': 'empty: always visible',
+    'admin.forms.addQuestion': 'Add question',
+    'admin.forms.advanced': 'Advanced options',
+    'admin.forms.attachmentRequired': 'File required',
+    'admin.forms.cmpMinCount': 'Minimum count',
+    'admin.forms.cmpRequired': 'Comparison offers required',
+    'admin.forms.desc': 'Description',
+    'admin.forms.descPlaceholder': 'Markdown is supported …',
+    'admin.forms.duplicate': 'Duplicate',
+    'admin.forms.empty': 'No questions yet. Add the first one below.',
+    'admin.forms.hasBudget': 'With budget',
+    'admin.forms.help': 'Help text',
+    'admin.forms.name': 'Title',
+    'admin.forms.overviewLoading': 'Loading forms …',
+    'admin.forms.pdfSignatures': 'Signatures in the PDF',
+    'admin.forms.questionPlaceholder': 'Question text …',
+    'admin.forms.rules.add': 'Add rule',
+    'admin.forms.rules.block': 'Blocks the submit',
+    'admin.forms.rules.logic': 'Condition (JsonLogic)',
+    'admin.forms.rules.logicInvalid': 'The condition is no valid JsonLogic with the allowed operators.',
+    'admin.forms.rules.message': 'Message',
+    'admin.forms.rules.messageMissing': 'The message needs a German and an English text.',
+    'admin.forms.rules.remove': 'Remove rule',
+    'admin.forms.rules.ruleN': 'Rule {n}',
+    'admin.forms.rules.severity': 'Effect',
+    'admin.forms.rules.title': 'Rules',
+    'admin.forms.rules.warn': 'Warning only',
+    'admin.forms.untitled': 'Untitled form',
+    'admin.forms.untitledQuestion': 'Untitled question',
+    'formly.select.placeholder': 'Please select …',
     'admin.common.key': 'Key',
     'admin.flow.approved': 'Approved',
     'admin.flow.automatic': 'Automatic transition',

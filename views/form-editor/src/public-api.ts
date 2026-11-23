@@ -1,6 +1,8 @@
 /*
- * Secondary entry point '@stupa-makers/ui-kit/views/form-editor'.
- * The view models of the contract S/framework/views/002278. The view itself follows in its step
- * of docs/framework-plan.md.
+ * Secondary entry point '@stupa-makers/ui-kit/views/form-editor': the body of the form editor of
+ * S/framework/views/002278, a copy of the Formular-Editor of STUPA-Workflow.
  */
 export * from './form-editor.types';
+export * from './form-field.util';
+export * from './form-editor.util';
+export * from './form-editor-view.component';
