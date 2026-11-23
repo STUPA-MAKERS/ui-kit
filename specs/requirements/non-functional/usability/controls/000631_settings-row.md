@@ -22,12 +22,13 @@ in a dialog:
 
 - Benachrichtigungen, Hilfe & Tickets and Darstellung (the switch "Gravatar-Bilder zeigen" in
   Profilbilder).
-- Haushalt: the dialog of a Kostenstelle (Aktiv, Haushaltsplan führen, Ausgaben standardmäßig deckungsfähig) and the dialog
-  of a Haushaltsjahr (Aktiv).
+- Haushalt: the dialog of a Kostenstelle (Aktiv, Haushaltsplan führen, Ausgaben
+  standardmäßig deckungsfähig) and the dialog of a Haushaltsjahr (Aktiv).
 - Abläufe: the inspector of a state and the inspector of a transition (the views
   `state-inspector-view` and `transition-inspector-view` of the kit).
 - Gremien: the dialog of a Gremium and the dialog "Vorgaben für neue Gremien".
-- Benutzer: the switch "Konto zusätzlich deaktivieren" in the dialog that takes the rights away.
+- Benutzer: the switch "Konto zusätzlich deaktivieren" in the dialog that takes the rights
+  away.
 
 It also applies to Konto > Benachrichtigungen. Switches that follow each other share one row
 group. A field between two switches (for example the lead time of a delegation) ends the
