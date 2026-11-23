@@ -2,7 +2,7 @@
 id: "002272"
 title: The calendar views take the grid, the week, the day list and the entry sheets
 kind: style
-status: draft
+status: approved
 owner: frederikbeimgraben
 updated: 2026-11-23
 implementation:

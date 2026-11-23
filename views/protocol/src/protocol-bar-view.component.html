@@ -1,0 +1,55 @@
+@if (hasAction()) {
+  @if (canFinalize() || needsRight()) {
+    <app-button
+      variant="fill"
+      [loading]="finalizing()"
+      [disabled]="!canFinalize()"
+      [title]="
+        (canFinalize() ? 'meetings.protocol.finalize' : 'meetings.protocolBar.needsRight') | uiKitT
+      "
+      (click)="finalize.emit()"
+    >
+      <app-icon name="send" />
+      {{ 'meetings.protocol.finalize' | uiKitT }}
+    </app-button>
+  } @else if (finalPdf(); as pdf) {
+    <a
+      appButton="tonal"
+      [href]="pdf.url"
+      target="_blank"
+      rel="noopener"
+      (click)="openPdf($event, pdf.url, pdf.label)"
+    >
+      <app-icon name="file" />
+      {{ pdf.label | uiKitT }}
+    </a>
+  }
+}
+
+<app-confirm-dialog
+  [open]="confirmDraft()"
+  [title]="'meetings.draftMail.title' | uiKitT"
+  [body]="draftBody()"
+  [confirmLabel]="'meetings.draftMail.confirm' | uiKitT"
+  [danger]="false"
+  (confirm)="confirmSendDraft()"
+  (cancel)="confirmDraft.set(false)"
+/>
+
+<app-confirm-dialog
+  [open]="confirmUnapprove()"
+  [title]="'meetings.approval.removeTitle' | uiKitT"
+  [confirmLabel]="'action.remove' | uiKitT"
+  (confirm)="unapprove()"
+  (cancel)="confirmUnapprove.set(false)"
+/>
+
+<app-confirm-dialog
+  [open]="confirmReopen()"
+  [title]="'meetings.reopen.title' | uiKitT"
+  [body]="'meetings.reopen.body' | uiKitT"
+  [confirmLabel]="'meetings.reopen.confirm' | uiKitT"
+  [danger]="false"
+  (confirm)="confirmReopenDraft()"
+  (cancel)="confirmReopen.set(false)"
+/>

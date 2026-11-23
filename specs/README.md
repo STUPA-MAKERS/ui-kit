@@ -155,7 +155,7 @@ specs/
 | [NF/compatibility/pwa/000578](requirements/non-functional/compatibility/pwa/000578_server-unreachable-bar.md) | The offline bar shows when the server is unreachable | approved |
 | [NF/compatibility/pwa/000579](requirements/non-functional/compatibility/pwa/000579_reload-after-unreachable.md) | An unreachable server shows no error toast, and the page loads again | approved |
 | [NF/compatibility/pwa/002151](requirements/non-functional/compatibility/pwa/002151_reload-on-new-version.md) | A new app version reloads the app at once | approved |
-| [NF/compatibility/pwa/002152](requirements/non-functional/compatibility/pwa/002152_reload-loop-guard.md) | The app reloads only once for the same server version | approved |
+| [NF/compatibility/pwa/002152](requirements/non-functional/compatibility/pwa/002152_reload-loop-guard.md) | The app reloads at most twice for the same server version | approved |
 | [NF/compatibility/pwa/002153](requirements/non-functional/compatibility/pwa/002153_offline-bar.md) | The app shows the offline bar | approved |
 | [NF/performance/loading/000189](requirements/non-functional/performance/loading/000189_load-bar.md) | The load bar shows only for slow foreground reads | approved |
 | [NF/performance/loading/000191](requirements/non-functional/performance/loading/000191_search-as-you-type.md) | Search runs as you type | approved |
@@ -385,8 +385,8 @@ specs/
 | [S/framework/views/002227](style/framework/views/002227_view-contract.md) | Each domain view has a contract spec before it is built | approved |
 | [S/framework/views/002270](style/framework/views/002270_graph-view.md) | The graph view takes nodes and edges | approved |
 | [S/framework/views/002271](style/framework/views/002271_board-view.md) | The board views take the board, the rows, the list and the tiles | approved |
-| [S/framework/views/002272](style/framework/views/002272_calendar-view.md) | The calendar views take the grid, the week, the day list and the entry sheets | draft |
-| [S/framework/views/002273](style/framework/views/002273_protocol-view.md) | The protocol view is the Markdown editor with the protocol tools | approved |
+| [S/framework/views/002272](style/framework/views/002272_calendar-view.md) | The calendar views take the grid, the week, the day list and the entry sheets | approved |
+| [S/framework/views/002273](style/framework/views/002273_protocol-view.md) | The protocol views take the TOP sheet and the protocol bar | approved |
 | [S/framework/views/002274](style/framework/views/002274_voting-view.md) | The voting views take votes, ballots and a voting port | approved |
 | [S/framework/views/002275](style/framework/views/002275_meeting-view.md) | The meeting views take the agenda, the attendance and the dock | approved |
 | [S/framework/views/002276](style/framework/views/002276_chat-view.md) | The chat view takes messages, events and a file port | approved |

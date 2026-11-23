@@ -61,12 +61,10 @@
 }
 .btn-grp--main.btn-grp--main :is(.btn--sm, .btn--lg):not(.btn--icon) {
   padding: 0 var(--space-4);
-  --icon-size: 16px;
 }
 .btn-grp--main.btn-grp--main :is(.btn--sm, .btn--lg).btn--icon {
   width: 48px;
   padding: 0;
-  --icon-size: 20px;
 }
 
 // A group of full-width buttons (`[block]="true"`, the ballot of a vote) fills its row, and
@@ -142,7 +140,36 @@ $-host: ':is(app-button, a.btn-link, app-row-menu, .btn-grp__seg)';
   width: 48px;
   padding: 0;
   aspect-ratio: auto;
-  --icon-size: 20px;
+}
+
+// One icon size (18px, in a small group too) and one colour for every button of the group
+// (app spec 002570). A button with only an icon drew its glyph larger (20px) than the
+// leading icon of a button with a label (16px), the trigger of a row menu has its own 19px,
+// and a page can give an icon a `size`. The size of the group therefore goes on the button,
+// which places a leading icon by it (three group classes: the size classes of the button tie
+// with two), and on every icon in it. That one is `!important`, because the `size` of an
+// icon is an inline style on its host.
+.btn-grp {
+  --btn-grp-icon: 18px;
+}
+.btn-grp.btn-grp.btn-grp :is(.btn, .rm__trigger) {
+  --icon-size: var(--btn-grp-icon);
+}
+.btn-grp.btn-grp :is(.btn, .rm__trigger) app-icon {
+  --icon-size: var(--btn-grp-icon) !important;
+}
+
+// A text button with only an icon is a grey glyph outside a group (`.btn--text.btn--icon`
+// in the button). Its rules carry the attribute of the encapsulation and tie with the
+// rules of the group, so the group names that look here and gives it the colour of the
+// group, also on hover and when it is pressed.
+.btn-grp.btn-grp .btn--text.btn--icon {
+  color: var(--color-on-accent-container);
+}
+@media (hover: hover) {
+  .btn-grp.btn-grp .btn--text.btn--icon:hover:not(:disabled) {
+    color: var(--color-on-accent-container);
+  }
 }
 @media (hover: hover) {
   .btn-grp.btn-grp :is(.btn, .rm__trigger):hover:not(:disabled) {
@@ -196,6 +223,9 @@ $-host: ':is(app-button, a.btn-link, app-row-menu, .btn-grp__seg)';
   :is(.btn[aria-pressed='true'], .btn[aria-expanded='true'], .rm__trigger--on) {
   border-radius: var(--btn-grp-out);
   background-color: var(--color-accent);
+  color: var(--color-on-accent);
+}
+.btn-grp.btn-grp .btn--text.btn--icon[aria-pressed='true']:not(:disabled) {
   color: var(--color-on-accent);
 }
 @media (hover: hover) {
