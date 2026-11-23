@@ -2,7 +2,7 @@
 id: "002421"
 title: A check box in a row group is a row with an inset
 kind: non-functional
-status: draft
+status: approved
 owner: frederikbeimgraben
 updated: 2026-11-23
 implementation:
