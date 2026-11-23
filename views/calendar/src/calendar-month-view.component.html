@@ -1,0 +1,56 @@
+<div class="cal__row cal__row--head" role="row">
+  @for (name of weekdays(); track $index) {
+    <span class="cal__wd cap" role="columnheader">{{ name }}</span>
+  }
+</div>
+@for (row of rows(); track row.key) {
+  <div class="cal__row" role="row" [style.--cal-lanes]="row.lanes">
+    @for (c of row.cells; track c.day.iso) {
+      <div
+        class="cal__cell"
+        role="gridcell"
+        [class.cal__cell--out]="!c.day.inMonth"
+        [class.cal__cell--sel]="c.day.iso === selectedDay()"
+        [attr.aria-selected]="c.day.iso === selectedDay()"
+      >
+        <button
+          type="button"
+          class="cal__day"
+          [attr.tabindex]="c.day.iso === selectedDay() ? 0 : -1"
+          [attr.aria-label]="dayLabel(c.day, c.count)"
+          [attr.aria-current]="c.day.isToday ? 'date' : null"
+          (click)="selectDay.emit(c.day.iso)"
+        ></button>
+        <span class="cal__num" [class.cal__num--today]="c.day.isToday" aria-hidden="true">{{ c.day.day }}</span>
+        <span class="cal__entries" aria-hidden="true">
+          @for (e of c.shown; track e.kind + e.id) {
+            <span class="cal__entry">
+              <span class="cal__entryTime">
+                <app-icon [name]="icon(e.kind)" [size]="12" />
+                <span [class.mono]="!!e.startTime">{{ time(e) || (kindKey(e.kind) | uiKitT) }}</span>
+              </span>
+              <span class="cal__entryTitle">{{ e.title }}</span>
+            </span>
+          }
+          @if (c.more > 0) {
+            <span class="cal__more">{{ 'meetings.overview.more' | uiKitT: { n: c.more } }}</span>
+          }
+        </span>
+      </div>
+    }
+    <div class="cal__bars" aria-hidden="true">
+      @for (b of row.bars; track b.entry.kind + b.entry.id) {
+        <span
+          class="cal__bar"
+          [class.cal__bar--openStart]="b.openStart"
+          [class.cal__bar--openEnd]="b.openEnd"
+          [style.grid-column]="b.from + ' / ' + b.to"
+          [style.grid-row]="b.lane + 1"
+        >
+          <app-icon [name]="icon(b.entry.kind)" [size]="12" />
+          <span class="cal__barTitle">{{ b.entry.title }}</span>
+        </span>
+      }
+    </div>
+  </div>
+}

@@ -1,0 +1,23 @@
+@if (error()) {
+  <app-empty-state icon="alert" [heading]="errorText()" />
+} @else if (firstLoad()) {
+  <app-skeleton class="skel-in" variant="items" [count]="3" [lead]="true" [grouped]="true" [label]="'loading' | uiKitT" />
+} @else if (!entries().length && !loading()) {
+  <app-empty-state icon="cal" shape="date" rows="3" [heading]="'calendar.day.empty' | uiKitT" />
+} @else {
+  <div class="rowgroup cal__rows" role="list">
+    @for (e of entries(); track e.kind + e.id) {
+      <app-list-item class="cal__dayRow" role="listitem" [title]="e.title" [wrap]="true" [subWrap]="true" (activate)="openEntry.emit(e)">
+        <span lead class="cal__lead cal__rowIcon"><app-icon [name]="icon(e.kind)" /></span>
+        <span sub class="cal__sub"><app-meta-line>
+          <app-status-text kind="neutral">{{ kindKey(e.kind) | uiKitT }}</app-status-text>
+          @if (time(e); as when) {<span class="mono">{{ when }}</span>}
+          @if (e.source) {<span>{{ e.source }}</span>}
+          @if (e.place) {<span>{{ e.place }}</span>}
+          @if (e.myAnswer) {<app-status-text [kind]="answerKind(e.myAnswer)">{{ answerKey(e.myAnswer) | uiKitT }}</app-status-text>}
+        </app-meta-line></span>
+        <app-calendar-chevron trail />
+      </app-list-item>
+    }
+  </div>
+}

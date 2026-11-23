@@ -523,7 +523,27 @@ export type UiKitTextKey =
   | 'todos.tile.nobody'
   | 'todos.list.done'
   | 'todos.list.markDone'
-  | 'todos.list.reopen';
+  | 'todos.list.reopen'
+  | 'calendar.allDay'
+  | 'calendar.answer.accept'
+  | 'calendar.answer.decline'
+  | 'calendar.answer.tentative'
+  | 'calendar.day.empty'
+  | 'calendar.day.many'
+  | 'calendar.day.none'
+  | 'calendar.day.one'
+  | 'calendar.detail.when'
+  | 'calendar.external.calendar'
+  | 'calendar.field.place'
+  | 'calendar.filter.gremium'
+  | 'calendar.kind.appointment'
+  | 'calendar.kind.card'
+  | 'calendar.kind.external'
+  | 'calendar.kind.meeting'
+  | 'calendar.public.protocol'
+  | 'calendar.public.tops'
+  | 'meetings.overview.more'
+  | 'meetings.overview.today';
 
 export type UiKitMessages = Record<UiKitTextKey, string>;
 
@@ -1034,6 +1054,26 @@ export const UI_KIT_DEFAULT_MESSAGES: Record<UiLang, UiKitMessages> = {
     'todos.list.done': 'Erledigt',
     'todos.list.markDone': '„{title}“ erledigen',
     'todos.list.reopen': '„{title}“ wieder öffnen',
+    'calendar.allDay': 'Ganztägig',
+    'calendar.answer.accept': 'Zusage',
+    'calendar.answer.decline': 'Absage',
+    'calendar.answer.tentative': 'Vorbehalt',
+    'calendar.day.empty': 'Keine Einträge an diesem Tag.',
+    'calendar.day.many': '{n} Einträge',
+    'calendar.day.none': 'keine Einträge',
+    'calendar.day.one': '1 Eintrag',
+    'calendar.detail.when': 'Wann',
+    'calendar.external.calendar': 'Kalender',
+    'calendar.field.place': 'Ort',
+    'calendar.filter.gremium': 'Gremium',
+    'calendar.kind.appointment': 'Termin',
+    'calendar.kind.card': 'Karte',
+    'calendar.kind.external': 'Extern',
+    'calendar.kind.meeting': 'Sitzung',
+    'calendar.public.protocol': 'Protokoll ansehen',
+    'calendar.public.tops': 'Tagesordnung',
+    'meetings.overview.more': '+{n} weitere',
+    'meetings.overview.today': 'Heute',
   },
   en: {
     'dialog.close': 'Close',
@@ -1540,6 +1580,26 @@ export const UI_KIT_DEFAULT_MESSAGES: Record<UiLang, UiKitMessages> = {
     'todos.list.done': 'Done',
     'todos.list.markDone': 'Mark “{title}” done',
     'todos.list.reopen': 'Reopen “{title}”',
+    'calendar.allDay': 'All day',
+    'calendar.answer.accept': 'Accept',
+    'calendar.answer.decline': 'Decline',
+    'calendar.answer.tentative': 'Tentative',
+    'calendar.day.empty': 'No entries on this day.',
+    'calendar.day.many': '{n} entries',
+    'calendar.day.none': 'no entries',
+    'calendar.day.one': '1 entry',
+    'calendar.detail.when': 'When',
+    'calendar.external.calendar': 'Calendar',
+    'calendar.field.place': 'Place',
+    'calendar.filter.gremium': 'Committee',
+    'calendar.kind.appointment': 'Appointment',
+    'calendar.kind.card': 'Card',
+    'calendar.kind.external': 'External',
+    'calendar.kind.meeting': 'Meeting',
+    'calendar.public.protocol': 'Open minutes',
+    'calendar.public.tops': 'Agenda',
+    'meetings.overview.more': '+{n} more',
+    'meetings.overview.today': 'Today',
   },
 };
 
