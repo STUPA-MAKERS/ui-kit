@@ -1,11 +1,4 @@
-import {
-  ChangeDetectionStrategy,
-  Component,
-  computed,
-  inject,
-  input,
-  output,
-} from "@angular/core";
+import { ChangeDetectionStrategy, Component, computed, inject, input, output } from '@angular/core';
 import {
   ButtonComponent,
   ButtonGroupComponent,
@@ -21,14 +14,10 @@ import {
   registerUiKitTexts,
   SkeletonComponent,
   UI_KIT_INTL,
-} from "@stupa-makers/ui-kit";
+} from '@stupa-makers/ui-kit';
 
-import {
-  activityDays,
-  type ActivityDay,
-  type ActivityEntry,
-} from "./activity.types";
-import { UI_KIT_ACTIVITY_TEXTS } from "./activity.texts";
+import { activityDays, type ActivityDay, type ActivityEntry } from './activity.types';
+import { UI_KIT_ACTIVITY_TEXTS } from './activity.texts';
 
 /**
  * The activity view (002280): a copy of the list of the page "Aktivität" of STUPA-Workflow.
@@ -39,7 +28,7 @@ import { UI_KIT_ACTIVITY_TEXTS } from "./activity.texts";
  * button below it (`more`).
  */
 @Component({
-  selector: "app-activity-view",
+  selector: 'app-activity-view',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
@@ -52,8 +41,8 @@ import { UI_KIT_ACTIVITY_TEXTS } from "./activity.texts";
     ListItemComponent,
     SkeletonComponent,
   ],
-  templateUrl: "./activity-view.component.html",
-  styleUrl: "./activity-view.component.scss",
+  templateUrl: './activity-view.component.html',
+  styleUrl: './activity-view.component.scss',
 })
 export class ActivityViewComponent {
   /** The texts of the view, registered before the first render (002237). */
@@ -77,7 +66,7 @@ export class ActivityViewComponent {
   );
   protected readonly hasMore = computed(() => {
     const e = this.entries();
-    return e.state === "ready" && !!e.more;
+    return e.state === 'ready' && !!e.more;
   });
 
   protected sub(e: ActivityEntry): string {
@@ -85,7 +74,7 @@ export class ActivityViewComponent {
   }
 
   protected loadMore(): void {
-    if (this.loadingMore() || this.entries().state !== "ready") return;
+    if (this.loadingMore() || this.entries().state !== 'ready') return;
     this.more.emit();
   }
 }

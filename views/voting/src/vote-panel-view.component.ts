@@ -1,30 +1,26 @@
-import {
-  ChangeDetectionStrategy,
-  Component,
-  computed,
-  inject,
-  input,
-  output,
-} from "@angular/core";
-import { RouterLink } from "@angular/router";
-import type { UiKitTextKey } from "@stupa-makers/ui-kit";
-import type { Translate } from "./voting-display.util";
-import type { MyBallot, Vote } from "./voting.types";
-import { ElectionResultViewComponent } from "./election-result-view.component";
-import { electionCaption, electionOf } from "./election.util";
-import { PollResultViewComponent } from "./poll-result-view.component";
-import { pollCaption, pollOf, pollStatus } from "./poll.util";
-import { meetingVoteStatus, type StatusView } from "./voting-status";
+import { ChangeDetectionStrategy, Component, computed, inject, input, output } from '@angular/core';
+import { RouterLink } from '@angular/router';
+import type { UiKitTextKey } from '@stupa-makers/ui-kit';
+import type { Translate } from './voting-display.util';
+import type { MyBallot, Vote } from './voting.types';
+import { ElectionResultViewComponent } from './election-result-view.component';
+import { electionCaption, electionOf } from './election.util';
+import { PollResultViewComponent } from './poll-result-view.component';
+import { pollCaption, pollOf, pollStatus } from './poll.util';
+import { meetingVoteStatus, type StatusView } from './voting-status';
 import {
   BallotViewComponent,
   type BallotCast,
   type BallotCaster,
   type BallotFailure,
-} from "./ballot-view.component";
-import { VoteBarsViewComponent } from "./vote-bars-view.component";
-import { VoteProgressViewComponent } from "./vote-progress-view.component";
-import { NO_CONTEXT, type VoteContext } from "./vote-context";
-import { guestComposition, voteRulesParts } from "./voting-display.util";
+} from './ballot-view.component';
+import { VoteBarsViewComponent } from './vote-bars-view.component';
+import { VoteProgressViewComponent } from './vote-progress-view.component';
+import { NO_CONTEXT, type VoteContext } from './vote-context';
+import {
+  guestComposition,
+  voteRulesParts,
+} from './voting-display.util';
 import {
   NoteComponent,
   registerUiKitTexts,
@@ -33,8 +29,8 @@ import {
   StatusTextComponent,
   UI_KIT_INTL,
   UiKitTranslatePipe,
-} from "@stupa-makers/ui-kit";
-import { UI_KIT_VOTING_TEXTS } from "./voting.texts";
+} from '@stupa-makers/ui-kit';
+import { UI_KIT_VOTING_TEXTS } from './voting.texts';
 
 /**
  * One vote as a card or as the phone page body: the status, "<Sitzung> · TOP 3 · Einfache
@@ -46,7 +42,7 @@ import { UI_KIT_VOTING_TEXTS } from "./voting.texts";
  * instead of the meeting line, and counts its turnout against the eligible voters.
  */
 @Component({
-  selector: "app-vote-panel-view",
+  selector: 'app-vote-panel-view',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
@@ -63,13 +59,13 @@ import { UI_KIT_VOTING_TEXTS } from "./voting.texts";
     VoteProgressViewComponent,
   ],
   host: {
-    "[class.vpn--phone]": "layout() === 'phone'",
-    "[class.vpn--card]": "layout() === 'card'",
-    "[class.vpn--strip]": "layout() === 'strip'",
-    "[class.vpn--flat]": "flat()",
+    '[class.vpn--phone]': "layout() === 'phone'",
+    '[class.vpn--card]': "layout() === 'card'",
+    '[class.vpn--strip]': "layout() === 'strip'",
+    '[class.vpn--flat]': 'flat()',
   },
-  templateUrl: "./vote-panel-view.component.html",
-  styleUrl: "./vote-panel-view.component.scss",
+  templateUrl: './vote-panel-view.component.html',
+  styleUrl: './vote-panel-view.component.scss',
 })
 export class VotePanelViewComponent {
   /** The texts of the view, registered before the first render (002237). */
@@ -90,7 +86,7 @@ export class VotePanelViewComponent {
    * `strip`: the card above the text on a narrow screen: the
    * caption with the TOP and the turnout "14 von 19", the rows side by side.
    */
-  readonly layout = input<"page" | "phone" | "card" | "strip">("page");
+  readonly layout = input<'page' | 'phone' | 'card' | 'strip'>('page');
 
   /**
    * No box of its own: the panel sits on a sheet that is already the box (the detail
@@ -102,13 +98,9 @@ export class VotePanelViewComponent {
   readonly notice = input<string | null>(null);
 
   /** The router commands of a meeting by its id; without it the meeting line is plain text. */
-  readonly meetingLink = input<
-    ((meetingId: string) => readonly unknown[]) | null
-  >(null);
+  readonly meetingLink = input<((meetingId: string) => readonly unknown[]) | null>(null);
   /** The router commands of an application by its id; without it the panel shows no link. */
-  readonly applicationLink = input<
-    ((applicationId: string) => readonly unknown[]) | null
-  >(null);
+  readonly applicationLink = input<((applicationId: string) => readonly unknown[]) | null>(null);
 
   readonly castDone = output<BallotCast>();
   readonly castFailed = output<BallotFailure>();
@@ -124,42 +116,33 @@ export class VotePanelViewComponent {
   /** The status; a poll reads "Umfrage offen" or "Umfrage beendet". */
   protected readonly status = computed<StatusView>(() => {
     const status = this.vote().status;
-    if (status === "cancelled" && this.vote().cancelReason === "objection") {
-      return { kind: "muted", key: "circular.status.objection" };
+    if (status === 'cancelled' && this.vote().cancelReason === 'objection') {
+      return { kind: 'muted', key: 'circular.status.objection' };
     }
-    return (
-      (this.poll() ? pollStatus(status) : null) ?? meetingVoteStatus(status)
-    );
+    return (this.poll() ? pollStatus(status) : null) ?? meetingVoteStatus(status);
   });
   /** The caption of the card: "Abstimmung offen", "Abstimmung geschlossen". */
   protected readonly cardCap = computed<UiKitTextKey>(() => {
     const status = this.vote().status;
-    if (this.poll() && (status === "open" || status === "closed"))
-      return this.status().key;
-    if (status === "open") return "meetings.vote.card.open";
-    if (status === "closed") return "meetings.vote.card.closed";
+    if (this.poll() && (status === 'open' || status === 'closed')) return this.status().key;
+    if (status === 'open') return 'meetings.vote.card.open';
+    if (status === 'closed') return 'meetings.vote.card.closed';
     return this.status().key;
   });
   /** The caption of the strip: "Abstimmung offen · TOP 3". */
   protected readonly stripCap = computed(() => {
     const cap = this.i18n.translate(this.cardCap());
     const n = this.context().position;
-    return n === null
-      ? cap
-      : `${cap} · ${this.i18n.translate("meetings.agenda.top", { n })}`;
+    return n === null ? cap : `${cap} · ${this.i18n.translate('meetings.agenda.top', { n })}`;
   });
   /** The card keeps its confirm button inside the card, also on a phone. */
-  protected readonly ballotLayout = computed<"page" | "phone">(() =>
-    this.layout() === "phone" ? "phone" : "page",
+  protected readonly ballotLayout = computed<'page' | 'phone'>(() =>
+    this.layout() === 'phone' ? 'phone' : 'page',
   );
-  protected readonly isOpen = computed(() => this.vote().status === "open");
+  protected readonly isOpen = computed(() => this.vote().status === 'open');
   /** The card and the strip carry the small ballot. */
-  protected readonly compact = computed(
-    () => this.layout() === "card" || this.layout() === "strip",
-  );
-  protected readonly secret = computed(
-    () => this.vote().secret || !!this.vote().config.secret,
-  );
+  protected readonly compact = computed(() => this.layout() === 'card' || this.layout() === 'strip');
+  protected readonly secret = computed(() => this.vote().secret || !!this.vote().config.secret);
   protected readonly options = computed(() => this.vote().config.options ?? []);
 
   /** "34. Sitzung des Studierendenparlaments · TOP 3", or `null` without a meeting. */
@@ -168,10 +151,7 @@ export class VotePanelViewComponent {
     if (!meeting) return null;
     return position === null
       ? meeting.title
-      : this.i18n.translate("voting.panel.where", {
-          meeting: meeting.title,
-          n: position,
-        });
+      : this.i18n.translate('voting.panel.where', { meeting: meeting.title, n: position });
   });
 
   /** The link of the meeting line, or `null`. */
@@ -185,9 +165,7 @@ export class VotePanelViewComponent {
   protected readonly applicationCommands = computed(() => {
     const v = this.vote();
     const link = this.applicationLink();
-    return !v.meetingId && v.applicationId && link
-      ? link(v.applicationId)
-      : null;
+    return !v.meetingId && v.applicationId && link ? link(v.applicationId) : null;
   });
 
   /** "Einfache Mehrheit · Quorum 12", or the caption of a poll or an election. */
@@ -202,16 +180,13 @@ export class VotePanelViewComponent {
     }
     const parts = voteRulesParts(
       {
-        majorityRule: v.majorityRule ?? v.config.majorityRule ?? "simple",
+        majorityRule: v.majorityRule ?? v.config.majorityRule ?? 'simple',
         quorum: v.quorum ?? v.config.quorum,
         guestsVote: this.guestsVote(),
       },
       t,
     );
-    return [
-      ...(v.kind === "circular" ? [t("meetings.vote.kind.circular")] : []),
-      ...parts,
-    ].join(" · ");
+    return [...(v.kind === 'circular' ? [t('meetings.vote.kind.circular')] : []), ...parts].join(' · ');
   });
 
   /** Admitted guests vote too (public meeting). */
@@ -222,27 +197,25 @@ export class VotePanelViewComponent {
   protected readonly composition = computed(() => {
     if (!this.guestsVote()) return null;
     const { presentMembers, presentGuests } = this.vote().tally;
-    return guestComposition(presentMembers, presentGuests, (k, p) =>
-      this.i18n.translate(k, p),
-    );
+    return guestComposition(presentMembers, presentGuests, (k, p) => this.i18n.translate(k, p));
   });
 
   protected readonly question = computed(
-    () => this.vote().question || this.i18n.translate("meetings.vote.untitled"),
+    () => this.vote().question || this.i18n.translate('meetings.vote.untitled'),
   );
 
   /** A meeting vote counts the turnout against the present members. */
-  protected readonly basis = computed<"present" | "eligible">(() =>
-    this.vote().meetingId ? "present" : "eligible",
+  protected readonly basis = computed<'present' | 'eligible'>(() =>
+    this.vote().meetingId ? 'present' : 'eligible',
   );
   protected readonly turnoutTotal = computed(() => {
     const t = this.vote().tally;
-    return this.basis() === "present" ? (t.present ?? 0) : t.eligible;
+    return this.basis() === 'present' ? (t.present ?? 0) : t.eligible;
   });
 
   /** "14 von 19 Anwesenden haben abgestimmt": the long form of the turnout of the strip. */
   protected readonly turnoutLabel = computed(() =>
-    this.i18n.translate("meetings.vote.progress", {
+    this.i18n.translate('meetings.vote.progress', {
       voted: this.vote().tally.voted ?? 0,
       present: this.turnoutTotal(),
     }),
@@ -260,33 +233,26 @@ export class VotePanelViewComponent {
    */
   protected readonly closedSummary = computed<string | null>(() => {
     const v = this.vote();
-    if (v.status !== "closed" || this.poll()) return null;
+    if (v.status !== 'closed' || this.poll()) return null;
     const t = v.tally;
-    const cast =
-      t.voted ?? Object.values(t.counts).reduce((sum, n) => sum + n, 0);
+    const cast = t.voted ?? Object.values(t.counts).reduce((sum, n) => sum + n, 0);
     if (this.guestsVote()) {
       const comp = this.composition();
       return [
         ...(comp ? [comp] : []),
-        this.i18n.translate("guests.vote.castN", { n: cast }),
-        this.i18n.translate("guests.vote.majorityOfCast"),
-      ].join(" · ");
+        this.i18n.translate('guests.vote.castN', { n: cast }),
+        this.i18n.translate('guests.vote.majorityOfCast'),
+      ].join(' · ');
     }
-    const votes = this.i18n.translate("voting.beamer.votesOf", {
-      cast,
-      eligible: t.eligible,
-    });
-    const showQuorum =
-      (v.quorum ?? v.config.quorum) && t.failedReason !== "quorum";
+    const votes = this.i18n.translate('voting.beamer.votesOf', { cast, eligible: t.eligible });
+    const showQuorum = (v.quorum ?? v.config.quorum) && t.failedReason !== 'quorum';
     return showQuorum ? `${votes} · ${this.quorumText(t.quorumMet)}` : votes;
   });
 
   /** "Quorum: erreicht" or "Quorum: nicht erreicht". */
   private quorumText(met: boolean | null | undefined): string {
-    const state = this.i18n.translate(
-      met ? "vote.tally.quorumMet" : "vote.tally.quorumMissed",
-    );
-    return `${this.i18n.translate("vote.tally.quorum")}: ${state}`;
+    const state = this.i18n.translate(met ? 'vote.tally.quorumMet' : 'vote.tally.quorumMissed');
+    return `${this.i18n.translate('vote.tally.quorum')}: ${state}`;
   }
 
   /** The answers of a poll: the ballots of its result, else the turnout. */
@@ -301,7 +267,7 @@ export class VotePanelViewComponent {
     const v = this.vote();
     const t = v.tally;
     if (!v.meetingId) return t.eligible;
-    if (v.status !== "closed") return t.present ?? 0;
+    if (v.status !== 'closed') return t.present ?? 0;
     const guests = this.guestsVote() ? (t.presentGuests ?? 0) : 0;
     return t.presentMembers != null ? t.presentMembers + guests : t.eligible;
   });
@@ -309,11 +275,7 @@ export class VotePanelViewComponent {
   /** Counts show after the close, or while open once the server revealed them. */
   protected readonly showBars = computed(() => {
     const v = this.vote();
-    if (v.status === "closed") return true;
-    return (
-      v.status === "open" &&
-      v.tally.revealed !== false &&
-      Object.keys(v.tally.counts).length > 0
-    );
+    if (v.status === 'closed') return true;
+    return v.status === 'open' && v.tally.revealed !== false && Object.keys(v.tally.counts).length > 0;
   });
 }

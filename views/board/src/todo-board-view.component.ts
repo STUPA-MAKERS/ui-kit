@@ -1,10 +1,5 @@
-import {
-  CdkDrag,
-  CdkDropList,
-  CdkDropListGroup,
-  type CdkDragDrop,
-} from "@angular/cdk/drag-drop";
-import { CdkScrollable } from "@angular/cdk/scrolling";
+import { CdkDrag, CdkDropList, CdkDropListGroup, type CdkDragDrop } from '@angular/cdk/drag-drop';
+import { CdkScrollable } from '@angular/cdk/scrolling';
 import {
   ChangeDetectionStrategy,
   Component,
@@ -17,36 +12,15 @@ import {
   input,
   output,
   signal,
-} from "@angular/core";
-import { FormsModule } from "@angular/forms";
-import type {
-  TodoBoard,
-  TodoCardMove,
-  TodoCardTile,
-  TodoColumn,
-  TodoLabel,
-  Uuid,
-} from "./board.types";
-import { registerUiKitTexts, UI_KIT_INTL } from "@stupa-makers/ui-kit";
-import type { UiKitTextKey } from "@stupa-makers/ui-kit";
-import { UiKitTranslatePipe } from "@stupa-makers/ui-kit";
-import {
-  ButtonComponent,
-  ButtonGroupComponent,
-  haptic,
-  IconComponent,
-  LongPressDirective,
-  MetaLineComponent,
-  RowMenuComponent,
-  type RowMenuItem,
-  type RowMenuSection,
-  ScrollFadeDirective,
-  type TabItem,
-  TabPageDirective,
-  TabPagerComponent,
-} from "@stupa-makers/ui-kit";
-import { TodoCardTileViewComponent } from "./todo-card-tile-view.component";
-import type { TileMenuRequest } from "./todo-move-sheet-view.component";
+} from '@angular/core';
+import { FormsModule } from '@angular/forms';
+import type { TodoBoard, TodoCardMove, TodoCardTile, TodoColumn, TodoLabel, Uuid } from './board.types';
+import { registerUiKitTexts, UI_KIT_INTL } from '@stupa-makers/ui-kit';
+import type { UiKitTextKey } from '@stupa-makers/ui-kit';
+import { UiKitTranslatePipe } from '@stupa-makers/ui-kit';
+import { ButtonComponent, ButtonGroupComponent, haptic, IconComponent, LongPressDirective, MetaLineComponent, RowMenuComponent, type RowMenuItem, type RowMenuSection, ScrollFadeDirective, type TabItem, TabPageDirective, TabPagerComponent } from '@stupa-makers/ui-kit';
+import { TodoCardTileViewComponent } from './todo-card-tile-view.component';
+import type { TileMenuRequest } from './todo-move-sheet-view.component';
 import {
   DONE_PREVIEW,
   DROP_ENTER,
@@ -56,9 +30,9 @@ import {
   moveRequest,
   sortedColumns,
   withHeld,
-} from "./board.util";
-import { KanbanKeyDrag, type KeyDragPosition } from "./kanban-key-drag";
-import { UI_KIT_BOARD_TEXTS } from "./board.texts";
+} from './board.util';
+import { KanbanKeyDrag, type KeyDragPosition } from './kanban-key-drag';
+import { UI_KIT_BOARD_TEXTS } from './board.texts';
 
 /** A move of the board: the card and the request for the server. */
 export interface BoardMove {
@@ -91,7 +65,7 @@ export interface BoardMove {
  * stays a swipe, because a drift of the finger stops the press.
  */
 @Component({
-  selector: "app-todo-board-view",
+  selector: 'app-todo-board-view',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
@@ -113,13 +87,13 @@ export interface BoardMove {
     TodoCardTileViewComponent,
   ],
   host: {
-    "[class.bv-host--natural]": "!fill()",
-    "[class.bv-host--scrolled]": "pageScrolled()",
-    "(document:focusin)": "leaveDrag($event)",
-    "(document:pointerdown)": "leaveDrag($event)",
+    '[class.bv-host--natural]': '!fill()',
+    '[class.bv-host--scrolled]': 'pageScrolled()',
+    '(document:focusin)': 'leaveDrag($event)',
+    '(document:pointerdown)': 'leaveDrag($event)',
   },
-  templateUrl: "./todo-board-view.component.html",
-  styleUrl: "./todo-board-view.component.scss",
+  templateUrl: './todo-board-view.component.html',
+  styleUrl: './todo-board-view.component.scss',
 })
 export class TodoBoardViewComponent {
   /** The texts of the view, registered before the first render (002237). */
@@ -140,13 +114,10 @@ export class TodoBoardViewComponent {
     const el = this.host.nativeElement;
     const onScroll = (e: Event): void => {
       const t = e.target;
-      if (t instanceof HTMLElement && t.getAttribute("role") === "tabpanel")
-        this.pageScrolled.set(t.scrollTop > 0);
+      if (t instanceof HTMLElement && t.getAttribute('role') === 'tabpanel') this.pageScrolled.set(t.scrollTop > 0);
     };
-    el.addEventListener("scroll", onScroll, { capture: true, passive: true });
-    inject(DestroyRef).onDestroy(() =>
-      el.removeEventListener("scroll", onScroll, { capture: true }),
-    );
+    el.addEventListener('scroll', onScroll, { capture: true, passive: true });
+    inject(DestroyRef).onDestroy(() => el.removeEventListener('scroll', onScroll, { capture: true }));
   }
 
   readonly board = input.required<TodoBoard>();
@@ -185,12 +156,7 @@ export class TodoBoardViewComponent {
   /** Ask the page for the "Verschieben" sheet of a tile (a long press on the phone). */
   askMenu(card: TodoCardTile): void {
     const b = this.board();
-    this.menu.emit({
-      card,
-      boardId: b.id,
-      boardKind: b.kind,
-      columns: this.columns(),
-    });
+    this.menu.emit({ card, boardId: b.id, boardKind: b.kind, columns: this.columns() });
   }
   /** A card of a shared board does not enter the personal board (`canTransfer`). */
   readonly enter = computed(() => DROP_ENTER[this.board().kind]);
@@ -199,7 +165,7 @@ export class TodoBoardViewComponent {
   /** Done columns opened past the preview. */
   readonly expanded = signal<ReadonlySet<Uuid>>(new Set());
   readonly adding = signal<Uuid | null>(null);
-  readonly draft = signal("");
+  readonly draft = signal('');
   /** The keyboard drag; `kb` is the held card. */
   private readonly keyDrag = new KanbanKeyDrag<KeyDragPosition>();
   readonly kb = this.keyDrag.held;
@@ -209,7 +175,7 @@ export class TodoBoardViewComponent {
   readonly ptr = signal<Uuid | null>(null);
   /** A card is held, by pointer or keyboard: the page holds a live read until it lands. */
   readonly dragging = computed(() => this.ptr() !== null || this.kb() !== null);
-  readonly announce = signal("");
+  readonly announce = signal('');
   /** Phone: the column on screen. */
   readonly phoneColumn = signal(0);
 
@@ -220,12 +186,8 @@ export class TodoBoardViewComponent {
     const kb = this.kb();
     const lists = kb ? withHeld(cards, kb) : cards;
     const limit = (col: TodoColumn, list: readonly TodoCardTile[]): number =>
-      col.isDone && !this.expanded().has(col.id) && !kb
-        ? DONE_PREVIEW
-        : list.length;
-    return new Map(
-      cols.map((col, i) => [col.id, lists[i].slice(0, limit(col, lists[i]))]),
-    );
+      col.isDone && !this.expanded().has(col.id) && !kb ? DONE_PREVIEW : list.length;
+    return new Map(cols.map((col, i) => [col.id, lists[i].slice(0, limit(col, lists[i]))]));
   });
 
   readonly tabs = computed<TabItem[]>(() =>
@@ -247,7 +209,7 @@ export class TodoBoardViewComponent {
 
   /** A pointer drag computes its move from the shown lists, so a held card goes back first. */
   onDragStart(col: TodoColumn): void {
-    haptic("lift");
+    haptic('lift');
     this.cancelKeyDrag();
     this.ptr.set(col.id);
   }
@@ -265,25 +227,13 @@ export class TodoBoardViewComponent {
     const archive = col.isDone && !!this.board().archivedCount;
     const items: RowMenuItem[] = [
       ...(this.canWrite()
-        ? [{ id: "add", label: t("todos.column.add"), icon: "plus" } as const]
+        ? [{ id: 'add', label: t('todos.column.add'), icon: 'plus' } as const]
         : []),
       ...(this.board().canConfigure
-        ? [
-            {
-              id: "settings",
-              label: t("todos.column.settings"),
-              icon: "tune",
-            } as const,
-          ]
+        ? [{ id: 'settings', label: t('todos.column.settings'), icon: 'tune' } as const]
         : []),
       ...(archive
-        ? [
-            {
-              id: "archive",
-              label: t("todos.column.archive"),
-              icon: "archive",
-            } as const,
-          ]
+        ? [{ id: 'archive', label: t('todos.column.archive'), icon: 'archive' } as const]
         : []),
     ];
     return items.length ? [{ items }] : [];
@@ -291,11 +241,11 @@ export class TodoBoardViewComponent {
 
   onColumnMenu(col: TodoColumn, item: RowMenuItem): void {
     switch (item.id) {
-      case "add":
+      case 'add':
         return this.addIn.emit(col.id);
-      case "settings":
+      case 'settings':
         return this.settings.emit();
-      case "archive":
+      case 'archive':
         return this.archive.emit();
       default:
         return;
@@ -303,7 +253,7 @@ export class TodoBoardViewComponent {
   }
 
   startAdd(col: TodoColumn): void {
-    this.draft.set("");
+    this.draft.set('');
     this.adding.set(col.id);
     this.focus(`[data-quick="${col.id}"]`);
   }
@@ -312,14 +262,14 @@ export class TodoBoardViewComponent {
     const title = this.draft().trim();
     if (!title) return;
     this.quickAdd.emit({ columnId: col.id, title });
-    this.draft.set("");
+    this.draft.set('');
   }
 
   onAddKey(event: KeyboardEvent, col: TodoColumn): void {
-    if (event.key === "Escape") {
+    if (event.key === 'Escape') {
       event.preventDefault();
       this.adding.set(null);
-    } else if (event.key === "Enter" && !event.shiftKey) {
+    } else if (event.key === 'Enter' && !event.shiftKey) {
       event.preventDefault();
       this.submitAdd(col);
     }
@@ -328,72 +278,49 @@ export class TodoBoardViewComponent {
   drop(event: CdkDragDrop<Uuid>): void {
     const cardId = event.item.data as Uuid;
     const toCol = event.container.data;
-    if (
-      toCol === event.previousContainer.data &&
-      event.previousIndex === event.currentIndex
-    )
-      return;
+    if (toCol === event.previousContainer.data && event.previousIndex === event.currentIndex) return;
     const col = this.columns().find((c) => c.id === toCol);
     if (!col) return;
     const target = this.list(col).filter((c) => c.id !== cardId);
     const held = this.board().cards.find((c) => c.id === cardId);
     if (!held) {
-      this.dropIn.emit({
-        cardId,
-        move: dropMove(target, event.currentIndex, toCol),
-      });
+      this.dropIn.emit({ cardId, move: dropMove(target, event.currentIndex, toCol) });
       return;
     }
     const placed = insertAt(target, event.currentIndex, held);
-    this.moveCard.emit({
-      cardId,
-      move: moveRequest(placed, event.currentIndex, toCol),
-    });
+    this.moveCard.emit({ cardId, move: moveRequest(placed, event.currentIndex, toCol) });
   }
 
   onTileKeyUp(event: KeyboardEvent): void {
     this.keyDrag.keyUp(event);
   }
 
-  onTileKey(
-    event: KeyboardEvent,
-    card: TodoCardTile,
-    colIndex: number,
-    index: number,
-  ): void {
+  onTileKey(event: KeyboardEvent, card: TodoCardTile, colIndex: number, index: number): void {
     if (!this.canWrite() || this.phone()) return;
     const cols = this.columns();
     const step = this.keyDrag.key(
       event,
       card.id,
-      () => ({
-        cardId: card.id,
-        col: colIndex,
-        index,
-        fromCol: colIndex,
-        fromIndex: index,
-      }),
+      () => ({ cardId: card.id, col: colIndex, index, fromCol: colIndex, fromIndex: index }),
       {
         count: cols.length,
         length: (col) => this.list(cols[col]).length,
-        others: (col, id) =>
-          (this.cards().get(cols[col].id) ?? []).filter((c) => c.id !== id)
-            .length,
+        others: (col, id) => (this.cards().get(cols[col].id) ?? []).filter((c) => c.id !== id).length,
       },
     );
     switch (step.kind) {
-      case "lift":
-        this.say("todos.drag.lifted", card);
+      case 'lift':
+        this.say('todos.drag.lifted', card);
         return;
-      case "move":
-        this.say("todos.drag.moved", card);
+      case 'move':
+        this.say('todos.drag.moved', card);
         this.refocus(card.id);
         return;
-      case "drop":
+      case 'drop':
         this.commit(card);
         return;
-      case "cancel":
-        this.say("todos.drag.cancelled", card);
+      case 'cancel':
+        this.say('todos.drag.cancelled', card);
         if (step.refocus) this.refocus(card.id);
         return;
       default:
@@ -411,7 +338,7 @@ export class TodoBoardViewComponent {
     const kb = this.kb();
     if (!kb) return;
     const target = event.target instanceof Element ? event.target : null;
-    const item = target?.closest(".bv__item");
+    const item = target?.closest('.bv__item');
     if (item?.querySelector(`[data-card-id="${kb.cardId}"]`)) return;
     this.cancelKeyDrag();
   }
@@ -421,7 +348,7 @@ export class TodoBoardViewComponent {
     if (!kb) return;
     this.kb.set(null);
     const card = this.board().cards.find((c) => c.id === kb.cardId);
-    if (card) this.say("todos.drag.cancelled", card);
+    if (card) this.say('todos.drag.cancelled', card);
   }
 
   private commit(card: TodoCardTile): void {
@@ -431,33 +358,22 @@ export class TodoBoardViewComponent {
     const list = this.list(col);
     this.kb.set(null);
     if (kb.col === kb.fromCol && kb.index === kb.fromIndex) {
-      this.say("todos.drag.cancelled", card);
+      this.say('todos.drag.cancelled', card);
       this.refocus(card.id);
       return;
     }
-    this.moveCard.emit({
-      cardId: card.id,
-      move: moveRequest(list, kb.index, col.id),
-    });
-    this.say("todos.drag.dropped", card, col.name);
+    this.moveCard.emit({ cardId: card.id, move: moveRequest(list, kb.index, col.id) });
+    this.say('todos.drag.dropped', card, col.name);
     this.refocus(card.id);
   }
 
-  private say(
-    key:
-      | "todos.drag.lifted"
-      | "todos.drag.moved"
-      | "todos.drag.dropped"
-      | "todos.drag.cancelled",
-    card: TodoCardTile,
-    column?: string,
-  ): void {
+  private say(key: 'todos.drag.lifted' | 'todos.drag.moved' | 'todos.drag.dropped' | 'todos.drag.cancelled', card: TodoCardTile, column?: string): void {
     const kb = this.kb();
     const col = kb ? this.columns()[kb.col] : null;
     this.announce.set(
       this.i18n.translate(key, {
         title: card.title,
-        column: column ?? col?.name ?? "",
+        column: column ?? col?.name ?? '',
         n: (kb?.index ?? 0) + 1,
         total: col ? this.list(col).length : 0,
       }),
@@ -470,8 +386,7 @@ export class TodoBoardViewComponent {
 
   private focus(selector: string): void {
     afterNextRender(
-      () =>
-        this.host.nativeElement.querySelector<HTMLElement>(selector)?.focus(),
+      () => this.host.nativeElement.querySelector<HTMLElement>(selector)?.focus(),
       { injector: this.injector },
     );
   }

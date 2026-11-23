@@ -1,4 +1,4 @@
-import { NgTemplateOutlet } from "@angular/common";
+import { NgTemplateOutlet } from '@angular/common';
 import {
   ChangeDetectionStrategy,
   Component,
@@ -9,15 +9,9 @@ import {
   output,
   signal,
   viewChild,
-} from "@angular/core";
-import type {
-  ElectionConfig,
-  ElectionResult,
-  Uuid,
-  Vote,
-  VoteResult,
-} from "./voting.types";
-import type { UiKitTextKey } from "@stupa-makers/ui-kit";
+} from '@angular/core';
+import type { ElectionConfig, ElectionResult, Uuid, Vote, VoteResult } from './voting.types';
+import type { UiKitTextKey } from '@stupa-makers/ui-kit';
 import {
   ButtonComponent,
   ButtonGroupComponent,
@@ -31,8 +25,8 @@ import {
   ToastService,
   UI_KIT_INTL,
   UiKitTranslatePipe,
-} from "@stupa-makers/ui-kit";
-import { problemDetail, VOTING_API } from "./voting-api";
+} from '@stupa-makers/ui-kit';
+import { problemDetail, VOTING_API } from './voting-api';
 import {
   type ElectionBar,
   candidateNames,
@@ -42,8 +36,8 @@ import {
   nextRoundOf,
   runoffPending,
   seatsText,
-} from "./election.util";
-import { UI_KIT_VOTING_TEXTS } from "./voting.texts";
+} from './election.util';
+import { UI_KIT_VOTING_TEXTS } from './voting.texts';
 
 /**
  * The result of a personnel election: one bar per candidate (best first) with the
@@ -67,7 +61,7 @@ import { UI_KIT_VOTING_TEXTS } from "./voting.texts";
  * does not confirm.
  */
 @Component({
-  selector: "app-election-result-view",
+  selector: 'app-election-result-view',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
@@ -81,14 +75,11 @@ import { UI_KIT_VOTING_TEXTS } from "./voting.texts";
     UiKitTranslatePipe,
   ],
   host: {
-    "[class.bars--beamer]": "variant() === 'beamer'",
-    "[class.er--card]": "inCard()",
+    '[class.bars--beamer]': "variant() === 'beamer'",
+    '[class.er--card]': 'inCard()',
   },
-  templateUrl: "./election-result-view.component.html",
-  styleUrls: [
-    "./vote-bars-view.component.scss",
-    "./election-result-view.component.scss",
-  ],
+  templateUrl: './election-result-view.component.html',
+  styleUrls: ['./vote-bars-view.component.scss', './election-result-view.component.scss'],
 })
 export class ElectionResultViewComponent {
   /** The texts of the view, registered before the first render (002237). */
@@ -106,7 +97,7 @@ export class ElectionResultViewComponent {
   readonly electionResult = input<ElectionResult | null>(null);
   /** The counts that the server revealed (an open, not secret vote), as a fallback. */
   readonly counts = input<Readonly<Record<string, number>>>({});
-  readonly variant = input<"compact" | "beamer">("compact");
+  readonly variant = input<'compact' | 'beamer'>('compact');
   /** The vote id, for the actions. */
   readonly voteId = input<Uuid | null>(null);
   /** The caller may draw the lot and start the runoff (vote manager or meeting lead). */
@@ -125,41 +116,33 @@ export class ElectionResultViewComponent {
   /** The lot was drawn or the next Wahlgang created: the caller reads the votes again. */
   readonly changed = output<Vote>();
 
-  protected readonly busy = signal<"lot" | "next" | null>(null);
+  protected readonly busy = signal<'lot' | 'next' | null>(null);
   /** The first click on "Los ziehen" asks again: the draw cannot be undone. */
   protected readonly lotArmed = signal(false);
-  private readonly lotActions =
-    viewChild<ElementRef<HTMLElement>>("lotActions");
+  private readonly lotActions = viewChild<ElementRef<HTMLElement>>('lotActions');
 
-  private readonly t = (
-    key: UiKitTextKey,
-    params?: Record<string, string | number>,
-  ) => this.i18n.translate(key, params);
+  private readonly t = (key: UiKitTextKey, params?: Record<string, string | number>) =>
+    this.i18n.translate(key, params);
 
   protected readonly bars = computed<readonly ElectionBar[]>(() =>
     electionBars(this.election(), this.electionResult(), this.counts(), this.t),
   );
   /** All votes and abstentions: the base of the bars. */
-  protected readonly total = computed(() =>
-    this.bars().reduce((sum, b) => sum + b.count, 0),
-  );
+  protected readonly total = computed(() => this.bars().reduce((sum, b) => sum + b.count, 0));
 
-  protected readonly status = computed<{
-    kind: StatusKind;
-    text: string;
-  } | null>(() => {
+  protected readonly status = computed<{ kind: StatusKind; text: string } | null>(() => {
     const result = this.result();
     if (!result) return null;
     const er = this.electionResult();
     const kind: StatusKind =
-      result === "elected"
-        ? "accent"
-        : result === "rejected" || result === "no_majority"
-          ? "error"
-          : "warn";
+      result === 'elected'
+        ? 'accent'
+        : result === 'rejected' || result === 'no_majority'
+          ? 'error'
+          : 'warn';
     const text =
-      result === "runoff"
-        ? this.t("election.result.runoff")
+      result === 'runoff'
+        ? this.t('election.result.runoff')
         : electionResultLine(this.election(), result, er, this.t);
     return { kind, text };
   });
@@ -167,15 +150,11 @@ export class ElectionResultViewComponent {
   /** "Bereits gewählt: Anna. Stichwahl um 1 Posten zwischen Ben und Cem." */
   protected readonly runoff = computed(() => {
     const er = this.electionResult();
-    if (this.result() !== "runoff" || !er?.runoff) return null;
+    if (this.result() !== 'runoff' || !er?.runoff) return null;
     return {
-      text: this.t("election.runoff.banner", {
+      text: this.t('election.runoff.banner', {
         seats: seatsText(er.runoff.seats, this.t),
-        names: candidateNames(
-          this.election(),
-          er.runoff.candidateIds,
-          this.t,
-        ).join(", "),
+        names: candidateNames(this.election(), er.runoff.candidateIds, this.t).join(', '),
       }),
       pending: runoffPending(this.result(), er),
     };
@@ -185,8 +164,8 @@ export class ElectionResultViewComponent {
   protected readonly lot = computed(() => {
     const er = this.electionResult();
     if (!lotPending(this.result(), er) || !er?.lot) return null;
-    return this.t("election.lot.pending", {
-      names: candidateNames(this.election(), er.lot.among, this.t).join(", "),
+    return this.t('election.lot.pending', {
+      names: candidateNames(this.election(), er.lot.among, this.t).join(', '),
     });
   });
 
@@ -194,8 +173,8 @@ export class ElectionResultViewComponent {
   protected readonly lotNote = computed(() => {
     const drawn = this.electionResult()?.lot?.drawn;
     if (!drawn) return null;
-    return this.t("election.lot.note", {
-      names: candidateNames(this.election(), drawn, this.t).join(", "),
+    return this.t('election.lot.note', {
+      names: candidateNames(this.election(), drawn, this.t).join(', '),
     });
   });
 
@@ -204,22 +183,20 @@ export class ElectionResultViewComponent {
     if (!this.canNextRound() || !this.voteId()) return null;
     const next = nextRoundOf(this.election(), this.result(), this.round());
     if (next === null) return null;
-    return next === 2
-      ? "election.nextRound.second"
-      : "election.nextRound.third";
+    return next === 2 ? 'election.nextRound.second' : 'election.nextRound.third';
   });
 
   /** The lot for a place in the third Wahlgang: "Das Los bestimmt …: Ben". */
   protected readonly nextRoundLotNote = computed(() => {
     const drawn = this.electionResult()?.nextRoundLot?.drawn;
     if (!drawn) return null;
-    return this.t("election.nextRound.lotNote", {
-      names: candidateNames(this.election(), drawn, this.t).join(", "),
+    return this.t('election.nextRound.lotNote', {
+      names: candidateNames(this.election(), drawn, this.t).join(', '),
     });
   });
 
   protected barLabel(bar: ElectionBar): string {
-    return this.t("voting.bars.row", {
+    return this.t('voting.bars.row', {
       option: bar.label,
       count: bar.count,
       pct: this.pct(bar),
@@ -230,12 +207,12 @@ export class ElectionResultViewComponent {
    *  abstentions grey, every other candidate in the second tone. */
   protected tone(bar: ElectionBar): SegTone {
     switch (bar.id) {
-      case "abstain":
-        return "muted";
-      case "no":
-        return "error";
+      case 'abstain':
+        return 'muted';
+      case 'no':
+        return 'error';
       default:
-        return bar.id === "yes" || bar.elected ? "filled" : "second";
+        return bar.id === 'yes' || bar.elected ? 'filled' : 'second';
     }
   }
 
@@ -258,12 +235,12 @@ export class ElectionResultViewComponent {
     }
     if (event && event.detail > 1) return;
     this.lotArmed.set(false);
-    this.busy.set("lot");
+    this.busy.set('lot');
     if (!this.api) return;
     this.api.drawLot(id).subscribe({
       next: (vote) => {
         this.busy.set(null);
-        this.toast.show(this.t("election.lot.drawn"), "success");
+        this.toast.show(this.t('election.lot.drawn'), 'success');
         this.changed.emit(vote);
       },
       error: (err: unknown) => this.fail(err),
@@ -274,11 +251,11 @@ export class ElectionResultViewComponent {
   startNextRound(): void {
     const id = this.voteId();
     if (!id || this.busy() || !this.api) return;
-    this.busy.set("next");
+    this.busy.set('next');
     this.api.nextRound(id).subscribe({
       next: (vote) => {
         this.busy.set(null);
-        this.toast.show(this.t("election.nextRound.created"), "success");
+        this.toast.show(this.t('election.nextRound.created'), 'success');
         this.changed.emit(vote);
       },
       error: (err: unknown) => this.fail(err),
@@ -288,15 +265,13 @@ export class ElectionResultViewComponent {
   /** Step back from the armed lot; focus returns to the lot button. */
   cancelLot(): void {
     this.lotArmed.set(false);
-    this.lotActions()
-      ?.nativeElement.querySelector<HTMLElement>(".er__lot button")
-      ?.focus();
+    this.lotActions()?.nativeElement.querySelector<HTMLElement>('.er__lot button')?.focus();
   }
 
   private fail(err: unknown): void {
     this.busy.set(null);
     const detail = problemDetail(err);
-    const base = this.t("meetings.toast.actionFailed");
-    this.toast.show(detail ? `${base}: ${detail}` : base, "error");
+    const base = this.t('meetings.toast.actionFailed');
+    this.toast.show(detail ? `${base}: ${detail}` : base, 'error');
   }
 }

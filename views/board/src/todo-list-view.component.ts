@@ -1,41 +1,30 @@
-import {
-  ChangeDetectionStrategy,
-  Component,
-  computed,
-  inject,
-  input,
-  output,
-  signal,
-} from "@angular/core";
-import type {
-  TodoBoard,
-  TodoCardTile,
-  TodoColumn,
-  TodoLabel,
-  Uuid,
-} from "./board.types";
+import { ChangeDetectionStrategy, Component, computed, inject, input, output, signal } from '@angular/core';
+import type { TodoBoard, TodoCardTile, TodoColumn, TodoLabel, Uuid } from './board.types';
 import {
   EmptyStateComponent,
   IconComponent,
   registerUiKitTexts,
   UI_KIT_INTL,
   UiKitTranslatePipe,
-} from "@stupa-makers/ui-kit";
-import { dueInfo, linkLine, sortedColumns, type DueInfo } from "./board.util";
-import { personName, type Translate } from "./board-format";
-import { TodoLabelViewComponent } from "./todo-label-view.component";
-import { TodoDueViewComponent } from "./todo-due-view.component";
-import { TodoAssigneesViewComponent } from "./todo-assignees-view.component";
-import { UI_KIT_BOARD_TEXTS } from "./board.texts";
+} from '@stupa-makers/ui-kit';
+import {
+  dueInfo,
+  linkLine,
+  sortedColumns,
+  type DueInfo,
+} from './board.util';
+import { personName, type Translate } from './board-format';
+import { TodoLabelViewComponent } from './todo-label-view.component';
+import { TodoDueViewComponent } from './todo-due-view.component';
+import { TodoAssigneesViewComponent } from './todo-assignees-view.component';
+import { UI_KIT_BOARD_TEXTS } from './board.texts';
 
 /** A set with `id` added, or taken out when it holds it. */
 function toggled<T>(set: ReadonlySet<T>, id: T): ReadonlySet<T> {
-  return set.has(id)
-    ? new Set([...set].filter((x) => x !== id))
-    : new Set([...set, id]);
+  return set.has(id) ? new Set([...set].filter((x) => x !== id)) : new Set([...set, id]);
 }
 
-export type DueSort = "none" | "asc" | "desc";
+export type DueSort = 'none' | 'asc' | 'desc';
 
 interface ListRow {
   readonly card: TodoCardTile;
@@ -58,27 +47,19 @@ interface ListGroup {
  * column, or back into the first column.
  */
 @Component({
-  selector: "app-todo-list-view",
+  selector: 'app-todo-list-view',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [
-    TodoAssigneesViewComponent,
-    TodoDueViewComponent,
-    TodoLabelViewComponent,
-    UiKitTranslatePipe,
-    IconComponent,
-    EmptyStateComponent,
-  ],
-  templateUrl: "./todo-list-view.component.html",
-  styleUrl: "./todo-list-view.component.scss",
+  imports: [TodoAssigneesViewComponent, TodoDueViewComponent, TodoLabelViewComponent, UiKitTranslatePipe, IconComponent, EmptyStateComponent],
+  templateUrl: './todo-list-view.component.html',
+  styleUrl: './todo-list-view.component.scss',
 })
 export class TodoListViewComponent {
   /** The texts of the view, registered before the first render (002237). */
   protected readonly viewTexts = registerUiKitTexts(UI_KIT_BOARD_TEXTS);
 
   private readonly i18n = inject(UI_KIT_INTL);
-  private readonly t: Translate = (key, params) =>
-    this.i18n.translate(key, params);
+  private readonly t: Translate = (key, params) => this.i18n.translate(key, params);
 
   readonly board = input.required<TodoBoard>();
   readonly cards = input.required<ReadonlyMap<Uuid, readonly TodoCardTile[]>>();
@@ -88,7 +69,7 @@ export class TodoListViewComponent {
   readonly openCard = output<Uuid>();
   readonly toggleDone = output<TodoCardTile>();
 
-  readonly sort = signal<DueSort>("none");
+  readonly sort = signal<DueSort>('none');
   /** Open groups among the done columns (they start folded). */
   readonly openDone = signal<ReadonlySet<Uuid>>(new Set());
 
@@ -98,15 +79,9 @@ export class TodoListViewComponent {
     return sortedColumns(this.board().columns).map((column) => {
       const rows = (this.cards().get(column.id) ?? []).map<ListRow>((card) => ({
         card,
-        link: card.primaryLink
-          ? linkLine(card.primaryLink, today, locale, this.t)
-          : null,
-        labels: card.labelIds
-          .map((id) => this.labels().get(id))
-          .filter((l): l is TodoLabel => !!l),
-        due: card.dueDate
-          ? dueInfo(card.dueDate, today, locale, this.t, column.isDone)
-          : null,
+        link: card.primaryLink ? linkLine(card.primaryLink, today, locale, this.t) : null,
+        labels: card.labelIds.map((id) => this.labels().get(id)).filter((l): l is TodoLabel => !!l),
+        due: card.dueDate ? dueInfo(card.dueDate, today, locale, this.t, column.isDone) : null,
         names: card.assignees.map((a) => personName(a, this.t)),
         ids: card.assignees.map((a) => a.principalId),
       }));
@@ -116,26 +91,24 @@ export class TodoListViewComponent {
 
   private sorted(rows: readonly ListRow[]): readonly ListRow[] {
     const dir = this.sort();
-    if (dir === "none") return rows;
+    if (dir === 'none') return rows;
     return [...rows].sort((a, b) => {
       const x = a.card.dueDate;
       const y = b.card.dueDate;
       if (!x && !y) return 0;
       if (!x) return 1;
       if (!y) return -1;
-      return dir === "asc" ? x.localeCompare(y) : y.localeCompare(x);
+      return dir === 'asc' ? x.localeCompare(y) : y.localeCompare(x);
     });
   }
 
   nextSort(): void {
-    this.sort.update((s) =>
-      s === "none" ? "asc" : s === "asc" ? "desc" : "none",
-    );
+    this.sort.update((s) => (s === 'none' ? 'asc' : s === 'asc' ? 'desc' : 'none'));
   }
 
-  ariaSort(): "ascending" | "descending" | "none" {
+  ariaSort(): 'ascending' | 'descending' | 'none' {
     const s = this.sort();
-    return s === "asc" ? "ascending" : s === "desc" ? "descending" : "none";
+    return s === 'asc' ? 'ascending' : s === 'desc' ? 'descending' : 'none';
   }
 
   folded(group: ListGroup): boolean {

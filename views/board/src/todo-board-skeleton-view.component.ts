@@ -1,12 +1,7 @@
-import { NgTemplateOutlet } from "@angular/common";
-import {
-  ChangeDetectionStrategy,
-  Component,
-  computed,
-  input,
-} from "@angular/core";
-import { registerUiKitTexts, UiKitTranslatePipe } from "@stupa-makers/ui-kit";
-import { UI_KIT_BOARD_TEXTS } from "./board.texts";
+import { NgTemplateOutlet } from '@angular/common';
+import { ChangeDetectionStrategy, Component, computed, input } from '@angular/core';
+import { registerUiKitTexts, UiKitTranslatePipe } from '@stupa-makers/ui-kit';
+import { UI_KIT_BOARD_TEXTS } from './board.texts';
 
 /** One placeholder tile: a label line or not, one or two title lines, a fact bar. */
 interface SkelTile {
@@ -16,74 +11,68 @@ interface SkelTile {
 }
 
 /** Placeholder columns. Four, as a new board has; the widths are fixed per place. More columns repeat them. */
-const COLUMNS: readonly {
-  readonly name: string;
-  readonly tiles: readonly SkelTile[];
-}[] = [
+const COLUMNS: readonly { readonly name: string; readonly tiles: readonly SkelTile[] }[] = [
   {
-    name: "3.5rem",
+    name: '3.5rem',
     tiles: [
-      { label: "5.5rem", title: ["88%", "42%"], fact: "5.5rem" },
-      { label: "3.5rem", title: ["80%", "30%"], fact: "3rem" },
-      { label: null, title: ["86%"], fact: "4rem" },
+      { label: '5.5rem', title: ['88%', '42%'], fact: '5.5rem' },
+      { label: '3.5rem', title: ['80%', '30%'], fact: '3rem' },
+      { label: null, title: ['86%'], fact: '4rem' },
     ],
   },
   {
-    name: "4.5rem",
+    name: '4.5rem',
     tiles: [
-      { label: "7rem", title: ["84%"], fact: "7.5rem" },
-      { label: "3.5rem", title: ["78%"], fact: "6rem" },
+      { label: '7rem', title: ['84%'], fact: '7.5rem' },
+      { label: '3.5rem', title: ['78%'], fact: '6rem' },
     ],
   },
   {
-    name: "3.75rem",
+    name: '3.75rem',
     tiles: [
-      { label: "5.5rem", title: ["80%", "50%"], fact: "4.5rem" },
-      { label: "3.5rem", title: ["86%", "36%"], fact: "0" },
+      { label: '5.5rem', title: ['80%', '50%'], fact: '4.5rem' },
+      { label: '3.5rem', title: ['86%', '36%'], fact: '0' },
     ],
   },
   {
-    name: "4rem",
+    name: '4rem',
     tiles: [
-      { label: "3.5rem", title: ["82%"], fact: "3rem" },
-      { label: "4rem", title: ["76%"], fact: "3rem" },
-      { label: null, title: ["70%", "40%"], fact: "3rem" },
+      { label: '3.5rem', title: ['82%'], fact: '3rem' },
+      { label: '4rem', title: ['76%'], fact: '3rem' },
+      { label: null, title: ['70%', '40%'], fact: '3rem' },
     ],
   },
 ];
 
 /** The phone shows one column: five tiles. */
 const PHONE_TILES: readonly SkelTile[] = [
-  { label: "5.5rem", title: ["84%"], fact: "6.5rem" },
-  { label: "3.5rem", title: ["78%"], fact: "3rem" },
-  { label: null, title: ["88%"], fact: "4.5rem" },
-  { label: "4rem", title: ["70%"], fact: "3rem" },
-  { label: "3.5rem", title: ["74%"], fact: "2.5rem" },
+  { label: '5.5rem', title: ['84%'], fact: '6.5rem' },
+  { label: '3.5rem', title: ['78%'], fact: '3rem' },
+  { label: null, title: ['88%'], fact: '4.5rem' },
+  { label: '4rem', title: ['70%'], fact: '3rem' },
+  { label: '3.5rem', title: ['74%'], fact: '2.5rem' },
 ];
 
 /** The phone list of "Meine To-Dos" and "Alle": three board sections of full-width tiles. */
-const SECTIONS: readonly {
-  readonly name: string;
-  readonly tiles: readonly SkelTile[];
-}[] = [
+const SECTIONS: readonly { readonly name: string; readonly tiles: readonly SkelTile[] }[] = [
   {
-    name: "7rem",
+    name: '7rem',
     tiles: [
-      { label: "5.5rem", title: ["84%"], fact: "6.5rem" },
-      { label: null, title: ["78%"], fact: "3rem" },
+      { label: '5.5rem', title: ['84%'], fact: '6.5rem' },
+      { label: null, title: ['78%'], fact: '3rem' },
     ],
   },
   {
-    name: "9rem",
+    name: '9rem',
     tiles: [
-      { label: "3.5rem", title: ["88%", "40%"], fact: "4.5rem" },
-      { label: "4rem", title: ["70%"], fact: "3rem" },
-      { label: null, title: ["74%"], fact: "2.5rem" },
+      { label: '3.5rem', title: ['88%', '40%'], fact: '4.5rem' },
+      { label: '4rem', title: ['70%'], fact: '3rem' },
+      { label: null, title: ['74%'], fact: '2.5rem' },
     ],
   },
   {
-    name: "6rem",
-    tiles: [{ label: "4rem", title: ["80%"], fact: "5rem" }],
+    name: '6rem',
+    tiles: [{ label: '4rem', title: ['80%'], fact: '5rem' }],
   },
 ];
 
@@ -96,26 +85,23 @@ interface SkelRow {
 }
 
 /** The list shows two groups of rows; the widths are fixed per place. */
-const LIST_GROUPS: readonly {
-  readonly name: string;
-  readonly rows: readonly SkelRow[];
-}[] = [
+const LIST_GROUPS: readonly { readonly name: string; readonly rows: readonly SkelRow[] }[] = [
   {
-    name: "3.5rem",
+    name: '3.5rem',
     rows: [
-      { title: "62%", link: "0", label: "70%", due: "60%" },
-      { title: "70%", link: "80%", label: "45%", due: "35%" },
-      { title: "66%", link: "75%", label: "0", due: "35%" },
-      { title: "58%", link: "0", label: "50%", due: "35%" },
-      { title: "54%", link: "0", label: "45%", due: "0" },
+      { title: '62%', link: '0', label: '70%', due: '60%' },
+      { title: '70%', link: '80%', label: '45%', due: '35%' },
+      { title: '66%', link: '75%', label: '0', due: '35%' },
+      { title: '58%', link: '0', label: '50%', due: '35%' },
+      { title: '54%', link: '0', label: '45%', due: '0' },
     ],
   },
   {
-    name: "4.5rem",
+    name: '4.5rem',
     rows: [
-      { title: "60%", link: "80%", label: "75%", due: "35%" },
-      { title: "56%", link: "65%", label: "40%", due: "55%" },
-      { title: "64%", link: "0", label: "65%", due: "0" },
+      { title: '60%', link: '80%', label: '75%', due: '35%' },
+      { title: '56%', link: '65%', label: '40%', due: '55%' },
+      { title: '64%', link: '0', label: '65%', due: '0' },
     ],
   },
 ];
@@ -134,23 +120,23 @@ const LIST_GROUPS: readonly {
  * page carries the `role="status"` line.
  */
 @Component({
-  selector: "app-todo-board-skeleton-view",
+  selector: 'app-todo-board-skeleton-view',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [NgTemplateOutlet, UiKitTranslatePipe],
-  templateUrl: "./todo-board-skeleton-view.component.html",
+  templateUrl: './todo-board-skeleton-view.component.html',
   styleUrls: [
-    "./todo-board-view.component.scss",
-    "./todo-list-view.component.scss",
-    "./todo-board-skeleton-view.component.scss",
+    './todo-board-view.component.scss',
+    './todo-list-view.component.scss',
+    './todo-board-skeleton-view.component.scss',
   ],
-  host: { "aria-hidden": "true", "[class.bv-host--natural]": "natural()" },
+  host: { 'aria-hidden': 'true', '[class.bv-host--natural]': 'natural()' },
 })
 export class TodoBoardSkeletonViewComponent {
   /** The texts of the view, registered before the first render (002237). */
   protected readonly viewTexts = registerUiKitTexts(UI_KIT_BOARD_TEXTS);
 
-  readonly view = input<"board" | "list" | "rows">("board");
+  readonly view = input<'board' | 'list' | 'rows'>('board');
   readonly phone = input(false);
   /** The person may add cards: each open column ends with the place of "+ To-Do". */
   readonly canWrite = input(false);

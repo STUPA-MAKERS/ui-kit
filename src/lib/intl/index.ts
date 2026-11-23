@@ -6,7 +6,7 @@ export {
   provideUiKit,
   registerUiKitTexts,
   uiKitIntlFromLang,
-} from "./intl";
+} from './intl';
 export type {
   UiKitIntl,
   UiKitIntlOptions,
@@ -27,5 +27,5 @@ export type {
   UiKitProtocolTextKey,
   UiKitVotingTextKey,
   UiLang,
-} from "./intl";
-export { UiKitTranslatePipe } from "./translate.pipe";
+} from './intl';
+export { UiKitTranslatePipe } from './translate.pipe';

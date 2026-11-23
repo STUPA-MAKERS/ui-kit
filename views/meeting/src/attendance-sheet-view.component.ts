@@ -12,8 +12,8 @@ import {
   type TemplateRef,
   untracked,
   viewChild,
-} from "@angular/core";
-import { NgTemplateOutlet } from "@angular/common";
+} from '@angular/core';
+import { NgTemplateOutlet } from '@angular/common';
 import type {
   Attendance,
   AttendanceStatus,
@@ -21,14 +21,10 @@ import type {
   LiveViewer,
   Meeting,
   Uuid,
-} from "./meeting.types";
-import { MEETING_API } from "./meeting-api";
-import {
-  registerUiKitTexts,
-  UI_KIT_INTL,
-  UiKitTranslatePipe,
-} from "@stupa-makers/ui-kit";
-import type { UiKitTextKey } from "@stupa-makers/ui-kit";
+} from './meeting.types';
+import { MEETING_API } from './meeting-api';
+import { registerUiKitTexts, UI_KIT_INTL, UiKitTranslatePipe } from '@stupa-makers/ui-kit';
+import type { UiKitTextKey } from '@stupa-makers/ui-kit';
 import {
   AvatarComponent,
   ButtonComponent,
@@ -49,11 +45,11 @@ import {
   TruncatedDirective,
   ErrorTextComponent,
   SheetBodyDirective,
-} from "@stupa-makers/ui-kit";
-import { eligibleCount, presentCount } from "./present-count.util";
-import { SegmentedComponent, type SegmentedOption } from "@stupa-makers/ui-kit";
-import { personLabel } from "./person-label.util";
-import { UI_KIT_MEETING_TEXTS } from "./meeting.texts";
+} from '@stupa-makers/ui-kit';
+import { eligibleCount, presentCount } from './present-count.util';
+import { SegmentedComponent, type SegmentedOption } from '@stupa-makers/ui-kit';
+import { personLabel } from './person-label.util';
+import { UI_KIT_MEETING_TEXTS } from './meeting.texts';
 
 /** One attendance change. `note` is the reason of an excuse; omitted keeps the stored one. */
 /** The context of an app part in the sheet: the meeting and the search text. */
@@ -75,7 +71,7 @@ export interface AttendanceChange {
 }
 
 /** A choice of the attendance control. `open` resets the record (lead only). */
-type Choice = AttendanceStatus | "open";
+type Choice = AttendanceStatus | 'open';
 
 /** One option of the control of a row. */
 interface ChoiceOption {
@@ -98,26 +94,20 @@ interface Row {
   readonly readOnly: { readonly kind: StatusKind; readonly key: UiKitTextKey };
   readonly menu: readonly RowMenuSection[];
   /** The server refused "present" for this member; the delegation is in the way. */
-  readonly conflict: Delegation | "unknown" | null;
+  readonly conflict: Delegation | 'unknown' | null;
 }
 
-const LEAD_CHOICES: readonly {
-  readonly value: Choice;
-  readonly label: UiKitTextKey;
-}[] = [
-  { value: "present", label: "meetings.attendance.present" },
-  { value: "excused", label: "meetings.attendance.excused" },
-  { value: "absent", label: "meetings.attendance.absent" },
-  { value: "open", label: "meetings.attendance.unknown" },
+const LEAD_CHOICES: readonly { readonly value: Choice; readonly label: UiKitTextKey }[] = [
+  { value: 'present', label: 'meetings.attendance.present' },
+  { value: 'excused', label: 'meetings.attendance.excused' },
+  { value: 'absent', label: 'meetings.attendance.absent' },
+  { value: 'open', label: 'meetings.attendance.unknown' },
 ];
 
 /** A member reports the own record as present or absent ("Abwesend" means excused). */
-const SELF_CHOICES: readonly {
-  readonly value: Choice;
-  readonly label: UiKitTextKey;
-}[] = [
-  { value: "present", label: "meetings.attendance.selfPresent" },
-  { value: "excused", label: "meetings.attendance.selfExcused" },
+const SELF_CHOICES: readonly { readonly value: Choice; readonly label: UiKitTextKey }[] = [
+  { value: 'present', label: 'meetings.attendance.selfPresent' },
+  { value: 'excused', label: 'meetings.attendance.selfExcused' },
 ];
 
 /**
@@ -154,7 +144,7 @@ const SELF_CHOICES: readonly {
  * the sheet.
  */
 @Component({
-  selector: "app-attendance-sheet-view",
+  selector: 'app-attendance-sheet-view',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
@@ -175,8 +165,8 @@ const SELF_CHOICES: readonly {
     SegmentedComponent,
     NgTemplateOutlet,
   ],
-  templateUrl: "./attendance-sheet-view.component.html",
-  styleUrl: "./attendance-sheet-view.component.scss",
+  templateUrl: './attendance-sheet-view.component.html',
+  styleUrl: './attendance-sheet-view.component.scss',
 })
 export class AttendanceSheetViewComponent {
   /** The texts of the view, registered before the first render (002237). */
@@ -225,9 +215,9 @@ export class AttendanceSheetViewComponent {
   /** The app part of the own delegation below the rows. */
   readonly ownDelegation = input<TemplateRef<AttendanceSlot> | null>(null);
   /** The tab of the lead: the members or the guests. */
-  protected readonly tab = signal<"members" | "guests">("members");
+  protected readonly tab = signal<'members' | 'guests'>('members');
 
-  protected readonly query = signal("");
+  protected readonly query = signal('');
   /** The delegations of the meeting: all of them for the lead, else the own ones. */
   protected readonly delegations = signal<Delegation[]>([]);
   /** The row whose reason is being edited. */
@@ -236,7 +226,7 @@ export class AttendanceSheetViewComponent {
   /** The option that has the keyboard focus in a row (roving tab stop), or `null`. */
   private readonly focused = signal<{ id: Uuid; value: Choice } | null>(null);
   /** The reason field of the row in edit; it takes the focus when it appears. */
-  private readonly noteInput = viewChild<ElementRef<HTMLInputElement>>("note");
+  private readonly noteInput = viewChild<ElementRef<HTMLInputElement>>('note');
 
   constructor() {
     effect(() => {
@@ -248,7 +238,7 @@ export class AttendanceSheetViewComponent {
     effect(() => {
       if (!this.open()) {
         untracked(() => {
-          this.query.set("");
+          this.query.set('');
           this.editingNote.set(null);
         });
       }
@@ -262,17 +252,17 @@ export class AttendanceSheetViewComponent {
    */
   protected readonly lead = computed(() => this.meeting().canControl);
   protected readonly locked = computed(
-    () =>
-      this.meeting().status === "closed" &&
-      (!this.lead() || this.protocolLocked()),
+    () => this.meeting().status === 'closed' && (!this.lead() || this.protocolLocked()),
   );
   /** The line below the title of the delegation dialog. */
 
   /** The guest part shows: the lead of a public meeting, with the list loaded. */
-  protected readonly guestsActive = computed(() => this.guestCount() !== null);
+  protected readonly guestsActive = computed(
+    () => this.guestCount() !== null,
+  );
   /** The admitted guests: the loaded list of the lead, else the count of the meeting. */
-  private readonly admittedGuests = computed(
-    () => this.guestCount() ?? this.meeting().admittedGuests,
+  private readonly admittedGuests = computed(() =>
+    this.guestCount() ?? this.meeting().admittedGuests,
   );
   /** "26 anwesend: 19 Mitglieder + 7 Gäste", or `null` without guests in the meeting. */
   protected readonly guestSummary = computed(() => {
@@ -286,36 +276,28 @@ export class AttendanceSheetViewComponent {
   protected readonly tabs = computed<SegmentedOption[]>(() => {
     const present = presentCount(this.meeting(), this.attendance());
     const eligible = eligibleCount(this.meeting(), this.attendance());
-    const watch = this.meeting().guestsMode === "watch";
+    const watch = this.meeting().guestsMode === 'watch';
     return [
       {
-        value: "members",
-        label: this.i18n.translate("guests.tab.members", {
-          n: present,
-          m: eligible,
-        }),
+        value: 'members',
+        label: this.i18n.translate('guests.tab.members', { n: present, m: eligible }),
       },
       {
-        value: "guests",
-        label: this.i18n.translate(
-          watch ? "guests.tab.guestsWatching" : "guests.tab.guests",
-          {
-            n: this.admittedGuests(),
-          },
-        ),
+        value: 'guests',
+        label: this.i18n.translate(watch ? 'guests.tab.guestsWatching' : 'guests.tab.guests', {
+          n: this.admittedGuests(),
+        }),
       },
     ];
   });
 
   setTab(value: string | null): void {
-    if (value === "members" || value === "guests") this.tab.set(value);
+    if (value === 'members' || value === 'guests') this.tab.set(value);
   }
 
   /** The delegation of a member for this meeting, as the delegator. */
   private delegationOf(principalId: Uuid): Delegation | null {
-    return (
-      this.delegations().find((d) => d.delegatorId === principalId) ?? null
-    );
+    return this.delegations().find((d) => d.delegatorId === principalId) ?? null;
   }
 
   /** The delegations the lead manages: every delegation of the meeting. */
@@ -328,11 +310,7 @@ export class AttendanceSheetViewComponent {
     const t = (key: UiKitTextKey, params?: Record<string, string | number>) =>
       this.i18n.translate(key, params);
     return this.attendance()
-      .filter(
-        (a) =>
-          !q ||
-          [a.displayName, a.email].some((v) => v?.toLowerCase().includes(q)),
-      )
+      .filter((a) => !q || [a.displayName, a.email].some((v) => v?.toLowerCase().includes(q)))
       .map((a) => this.row(a, t));
   });
 
@@ -340,9 +318,7 @@ export class AttendanceSheetViewComponent {
    * Some row has a row menu. Only then do the other rows keep a gap at the end, so that
    * all controls line up. Without a menu the control ends at the right inset of the row.
    */
-  protected readonly anyMenu = computed(() =>
-    this.rows().some((r) => r.menu.length > 0),
-  );
+  protected readonly anyMenu = computed(() => this.rows().some((r) => r.menu.length > 0));
 
   private row(
     a: Attendance,
@@ -350,51 +326,34 @@ export class AttendanceSheetViewComponent {
   ): Row {
     const delegation = this.delegationOf(a.principalId);
     const sub = [
-      ...(a.note
-        ? [t("meetings.attendanceSheet.reason", { note: a.note })]
-        : []),
+      ...(a.note ? [t('meetings.attendanceSheet.reason', { note: a.note })] : []),
       ...(delegation
-        ? [
-            t("meetings.attendanceSheet.representedBy", {
-              name: delegation.delegateName ?? "—",
-            }),
-          ]
+        ? [t('meetings.attendanceSheet.representedBy', { name: delegation.delegateName ?? '—' })]
         : []),
-      ...(delegation?.delegateVoting
-        ? [t("meetings.attendanceSheet.withVote")]
-        : []),
-      ...(a.source === "lead" ? [t("meetings.attendance.bySession")] : []),
-      ...(a.principalId === this.meeting().protokollantId
-        ? [t("meetings.keeper.keeps")]
-        : []),
+      ...(delegation?.delegateVoting ? [t('meetings.attendanceSheet.withVote')] : []),
+      ...(a.source === 'lead' ? [t('meetings.attendance.bySession')] : []),
+      ...(a.principalId === this.meeting().protokollantId ? [t('meetings.keeper.keeps')] : []),
     ];
 
-    const blocked: UiKitTextKey | null = delegation
-      ? "meetings.attendanceSheet.revokeFirst"
-      : null;
+    const blocked: UiKitTextKey | null = delegation ? 'meetings.attendanceSheet.revokeFirst' : null;
     const choices = this.locked()
       ? null
       : this.lead()
         ? LEAD_CHOICES
-        : a.isSelf && a.source !== "lead"
+        : a.isSelf && a.source !== 'lead'
           ? SELF_CHOICES
           : null;
     const options: readonly ChoiceOption[] | null =
-      choices?.map((c) => ({
-        ...c,
-        blocked: c.value === "present" ? blocked : null,
-      })) ?? null;
+      choices?.map((c) => ({ ...c, blocked: c.value === 'present' ? blocked : null })) ?? null;
 
     const conflict =
-      this.conflictId() === a.principalId && a.status !== "present"
-        ? (delegation ?? "unknown")
-        : null;
+      this.conflictId() === a.principalId && a.status !== 'present' ? (delegation ?? 'unknown') : null;
     return {
       a,
-      name: personLabel(a, "—"),
-      sub: sub.join(" · "),
+      name: personLabel(a, '—'),
+      sub: sub.join(' · '),
       options,
-      value: a.status ?? "open",
+      value: a.status ?? 'open',
       readOnly: this.readOnly(a.status),
       menu: this.menuOf(a),
       conflict,
@@ -402,20 +361,11 @@ export class AttendanceSheetViewComponent {
   }
 
   /** The status text of a read-only row. A member reads "Abwesend" for an excuse. */
-  private readOnly(status: AttendanceStatus | null): {
-    kind: StatusKind;
-    key: UiKitTextKey;
-  } {
-    if (status === "present")
-      return { kind: "accent", key: "meetings.attendance.present" };
-    if (status === null)
-      return { kind: "muted", key: "meetings.attendance.unknown" };
-    if (!this.lead())
-      return { kind: "neutral", key: "meetings.attendance.selfExcused" };
-    return {
-      kind: status === "absent" ? "warn" : "neutral",
-      key: `meetings.attendance.${status}`,
-    };
+  private readOnly(status: AttendanceStatus | null): { kind: StatusKind; key: UiKitTextKey } {
+    if (status === 'present') return { kind: 'accent', key: 'meetings.attendance.present' };
+    if (status === null) return { kind: 'muted', key: 'meetings.attendance.unknown' };
+    if (!this.lead()) return { kind: 'neutral', key: 'meetings.attendance.selfExcused' };
+    return { kind: status === 'absent' ? 'warn' : 'neutral', key: `meetings.attendance.${status}` };
   }
 
   /**
@@ -425,9 +375,9 @@ export class AttendanceSheetViewComponent {
    * member's.
    */
   private noteEditable(a: Attendance): boolean {
-    if (this.locked() || a.status !== "excused") return false;
-    if (this.lead()) return a.source === "lead" || a.isSelf;
-    return a.isSelf && a.source !== "lead";
+    if (this.locked() || a.status !== 'excused') return false;
+    if (this.lead()) return a.source === 'lead' || a.isSelf;
+    return a.isSelf && a.source !== 'lead';
   }
 
   /**
@@ -439,10 +389,10 @@ export class AttendanceSheetViewComponent {
   private substitutable(a: Attendance): boolean {
     const m = this.meeting();
     return (
-      m.status === "live" &&
+      m.status === 'live' &&
       m.canManage &&
       !a.isSelf &&
-      a.status !== "present" &&
+      a.status !== 'present' &&
       a.canVote !== false &&
       this.delegationOf(a.principalId) === null &&
       !this.delegations().some((d) => d.delegateId === a.principalId)
@@ -451,18 +401,16 @@ export class AttendanceSheetViewComponent {
 
   private menuOf(a: Attendance): readonly RowMenuSection[] {
     const substitute: RowMenuItem = {
-      id: "substitute",
-      label: this.i18n.translate("meetings.leadSubstitute.action"),
-      icon: "repeat",
+      id: 'substitute',
+      label: this.i18n.translate('meetings.leadSubstitute.action'),
+      icon: 'repeat',
     };
     const note: RowMenuItem = {
-      id: "note",
+      id: 'note',
       label: this.i18n.translate(
-        a.note
-          ? "meetings.attendanceSheet.editReason"
-          : "meetings.attendanceSheet.addReason",
+        a.note ? 'meetings.attendanceSheet.editReason' : 'meetings.attendanceSheet.addReason',
       ),
-      icon: "edit",
+      icon: 'edit',
     };
     const items = [
       ...(this.substitutable(a) ? [substitute] : []),
@@ -473,7 +421,7 @@ export class AttendanceSheetViewComponent {
 
   protected choose(row: Row, option: ChoiceOption): void {
     if (option.blocked || this.saving() || option.value === row.value) return;
-    if (option.value === "open") {
+    if (option.value === 'open') {
       this.statusReset.emit(row.a);
       return;
     }
@@ -488,12 +436,8 @@ export class AttendanceSheetViewComponent {
   protected onKey(event: KeyboardEvent, row: Row, index: number): void {
     const options = row.options;
     if (!options) return;
-    const dir =
-      event.key === "ArrowRight" || event.key === "ArrowDown"
-        ? 1
-        : event.key === "ArrowLeft" || event.key === "ArrowUp"
-          ? -1
-          : 0;
+    const dir = event.key === 'ArrowRight' || event.key === 'ArrowDown' ? 1
+      : event.key === 'ArrowLeft' || event.key === 'ArrowUp' ? -1 : 0;
     if (!dir) return;
     event.preventDefault();
     const steps = Array.from({ length: options.length }, (_, i) => i + 1);
@@ -518,9 +462,7 @@ export class AttendanceSheetViewComponent {
     const f = this.focused();
     const value = f?.id === row.a.principalId ? f.value : row.value;
     const stop =
-      options.find((o) => o.value === value) ??
-      options.find((o) => !o.blocked) ??
-      options[0];
+      options.find((o) => o.value === value) ?? options.find((o) => !o.blocked) ?? options[0];
     return option === stop ? 0 : -1;
   }
 
@@ -532,8 +474,8 @@ export class AttendanceSheetViewComponent {
   }
 
   protected onMenu(row: Row, item: RowMenuItem): void {
-    if (item.id === "note") this.editingNote.set(row.a.principalId);
-    else if (item.id === "substitute") this.substitute.emit(row.a);
+    if (item.id === 'note') this.editingNote.set(row.a.principalId);
+    else if (item.id === 'substitute') this.substitute.emit(row.a);
   }
 
   /** The lead entered a substitute in the dialog of the app; the row shows "vertreten durch …". */
@@ -547,7 +489,7 @@ export class AttendanceSheetViewComponent {
     this.editingNote.set(null);
     const note = value.trim() || null;
     if (note === a.note) return;
-    this.statusChange.emit({ member: a, status: "excused", note });
+    this.statusChange.emit({ member: a, status: 'excused', note });
   }
 
   protected cancelNote(event: Event): void {
@@ -562,20 +504,14 @@ export class AttendanceSheetViewComponent {
     this.api.revokeDelegation(d.id).subscribe({
       next: () => {
         this.revoking.set(null);
-        this.toast.show(
-          this.i18n.translate("delegation.toast.revoked"),
-          "success",
-        );
+        this.toast.show(this.i18n.translate('delegation.toast.revoked'), 'success');
         this.loadDelegations(this.meeting().id);
         this.ownReload.emit();
         this.resolveConflict(d.delegatorId);
       },
       error: () => {
         this.revoking.set(null);
-        this.toast.show(
-          this.i18n.translate("delegation.toast.revokeFailed"),
-          "error",
-        );
+        this.toast.show(this.i18n.translate('delegation.toast.revokeFailed'), 'error');
       },
     });
   }
@@ -583,25 +519,23 @@ export class AttendanceSheetViewComponent {
   /** The own delegation changed in the card of the app: the rows load the delegations again. */
   delegationChanged(change: OwnDelegationChange): void {
     this.loadDelegations(this.meeting().id);
-    if (change.kind === "revoked") this.resolveConflict(change.delegatorId);
+    if (change.kind === 'revoked') this.resolveConflict(change.delegatorId);
   }
 
   /** A revoked delegation of the refused member ends the delegation conflict of the row. */
   private resolveConflict(delegatorId: Uuid): void {
-    if (this.conflictId() === delegatorId)
-      this.conflictResolved.emit(delegatorId);
+    if (this.conflictId() === delegatorId) this.conflictResolved.emit(delegatorId);
   }
 
   protected delegationLine(d: Delegation): string {
-    return `${d.delegatorName ?? "—"} → ${d.delegateName ?? "—"}`;
+    return `${d.delegatorName ?? '—'} → ${d.delegateName ?? '—'}`;
   }
 
   private loadDelegations(meetingId: Uuid): void {
     if (!this.api) return;
     this.api.listDelegations(meetingId).subscribe({
       next: (rows) => {
-        if (this.meeting().id === meetingId)
-          this.delegations.set(rows.filter((d) => d.meetingId === meetingId));
+        if (this.meeting().id === meetingId) this.delegations.set(rows.filter((d) => d.meetingId === meetingId));
       },
       error: () => this.delegations.set([]),
     });

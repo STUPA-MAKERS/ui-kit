@@ -1,10 +1,5 @@
-import {
-  ChangeDetectionStrategy,
-  Component,
-  input,
-  output,
-} from "@angular/core";
-import { FormsModule } from "@angular/forms";
+import { ChangeDetectionStrategy, Component, input, output } from '@angular/core';
+import { FormsModule } from '@angular/forms';
 import {
   ButtonComponent,
   ButtonGroupComponent,
@@ -16,10 +11,10 @@ import {
   type SelectOption,
   SwitchComponent,
   UiKitTranslatePipe,
-} from "@stupa-makers/ui-kit";
-import type { TransitionDef } from "./flow-editor.types";
-import { FlowColorViewComponent } from "./flow-color-view.component";
-import { UI_KIT_FLOW_EDITOR_TEXTS } from "./flow-editor.texts";
+} from '@stupa-makers/ui-kit';
+import type { TransitionDef } from './flow-editor.types';
+import { FlowColorViewComponent } from './flow-color-view.component';
+import { UI_KIT_FLOW_EDITOR_TEXTS } from './flow-editor.texts';
 
 /**
  * Inspector panel for the selected transition. It edits endpoints, labels, colour, the
@@ -27,7 +22,7 @@ import { UI_KIT_FLOW_EDITOR_TEXTS } from "./flow-editor.texts";
  * follow it in the panel (`app-transition-detail`).
  */
 @Component({
-  selector: "app-transition-inspector-view",
+  selector: 'app-transition-inspector-view',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
@@ -41,8 +36,8 @@ import { UI_KIT_FLOW_EDITOR_TEXTS } from "./flow-editor.texts";
     SwitchComponent,
     FlowColorViewComponent,
   ],
-  templateUrl: "./transition-inspector-view.component.html",
-  styleUrl: "./transition-inspector-view.component.scss",
+  templateUrl: './transition-inspector-view.component.html',
+  styleUrl: './transition-inspector-view.component.scss',
 })
 export class TransitionInspectorViewComponent {
   /** The texts of the view, registered before the first render (002237). */
