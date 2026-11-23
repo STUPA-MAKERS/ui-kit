@@ -49,6 +49,7 @@ export const LINK_ICON: Record<TodoLinkKind, IconName> = {
   budget: 'pie',
   ticket: 'chat',
   todo: 'circleok',
+  paperless: 'archive',
 };
 
 export const LINK_KIND_LABEL: Record<TodoLinkKind, UiKitTextKey> = {
@@ -63,6 +64,7 @@ export const LINK_KIND_LABEL: Record<TodoLinkKind, UiKitTextKey> = {
   budget: 'todos.linkKind.budget',
   ticket: 'todos.linkKind.ticket',
   todo: 'todos.linkKind.todo',
+  paperless: 'todos.linkKind.paperless',
 };
 
 /** The colour of a due date: overdue red, today and tomorrow amber. */
