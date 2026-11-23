@@ -121,6 +121,12 @@ export class SearchWindowComponent {
     this.active.set(0);
     this.host = this.document.createElement('div');
     this.host.setAttribute('class', 'sw-layer');
+    // The layer stands for the host: a `:host-context` rule of the stylesheet (the display
+    // settings) needs an element with the host attribute above the panel.
+    const element = this.viewContainer.element.nativeElement as HTMLElement;
+    [...element.attributes]
+      .filter((attr) => attr.name.startsWith('_nghost'))
+      .forEach((attr) => this.host?.setAttribute(attr.name, ''));
     this.document.body.appendChild(this.host);
     this.outlet = new DomPortalOutlet(this.host, this.appRef, this.injector);
     this.outlet.attach(new TemplatePortal(panel, this.viewContainer));
