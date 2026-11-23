@@ -390,7 +390,7 @@ specs/
 | [S/framework/views/002274](style/framework/views/002274_voting-view.md) | The voting views take votes, ballots and a voting port | approved |
 | [S/framework/views/002275](style/framework/views/002275_meeting-view.md) | The meeting views take the agenda, the attendance and the dock | approved |
 | [S/framework/views/002276](style/framework/views/002276_chat-view.md) | The chat view takes messages, events and a file port | approved |
-| [S/framework/views/002277](style/framework/views/002277_flow-editor-view.md) | The flow editor takes a FlowGraph | approved |
+| [S/framework/views/002277](style/framework/views/002277_flow-editor-view.md) | The flow editor views take the inspectors, the transition lists and the guard editor | draft |
 | [S/framework/views/002278](style/framework/views/002278_form-editor-view.md) | The form editor edits a FormDef | approved |
 | [S/framework/views/002279](style/framework/views/002279_plan-table-view.md) | The plan table takes rows as a tree | approved |
 | [S/framework/views/002280](style/framework/views/002280_activity-view.md) | The activity view takes entries | approved |
