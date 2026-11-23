@@ -141,6 +141,16 @@
                 (mousedown)="$event.preventDefault()"
                 (click)="insertTimeNote()"
               ><app-icon name="clock" /></app-button>
+              @for (extra of extraCommands(); track extra.id) {
+                <app-button
+                  variant="text"
+                  [iconOnly]="true"
+                  [ariaLabel]="extra.label"
+                  [title]="extra.label"
+                  (mousedown)="$event.preventDefault()"
+                  (click)="command.emit(extra.id)"
+                ><app-icon [name]="extra.icon" /></app-button>
+              }
             </app-button-group>
           </div>
         }
