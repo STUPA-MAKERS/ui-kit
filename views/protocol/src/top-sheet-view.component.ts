@@ -213,8 +213,8 @@ export class TopSheetViewComponent {
   /** The linked rows below the title (the application and the to-dos), from the app. */
   readonly linkedList = input<TemplateRef<TopSheetLinkedSlot> | null>(null);
   /**
-   * Slash commands of the app (002771). They show after the commands of the view, and a
-   * run emits `command`.
+   * Commands of the app (002771). Each is a slash command after the commands of the view
+   * and a tool of the format bar after `Anmerkung`. A run emits `command`.
    */
   readonly extraCommands = input<readonly SlashCommand[]>([]);
 
@@ -391,9 +391,23 @@ export class TopSheetViewComponent {
     return api ? api.uploadDocument(this.meeting().id, file) : Promise.reject(new Error('no port'));
   }
 
-  /** Insert an embedded PDF that the app made, at the cursor of the formatted view (002761). */
+  /**
+   * Insert an embedded PDF that the app made (002771): at the cursor of the formatted view,
+   * or as a reference at the caret of the Markdown source.
+   */
   insertDocumentRef(ref: MarkdownDocumentRef): boolean {
-    return this.editor()?.insertDocument(ref.src, ref.name) ?? false;
+    if (this.mode() !== 'raw') return this.editor()?.insertDocument(ref.src, ref.name) ?? false;
+    const area = this.rawArea()?.nativeElement;
+    const t = this.top();
+    if (!area || !t || area.readOnly) return false;
+    const next = insertRawInline(
+      { text: area.value, start: area.selectionStart, end: area.selectionEnd },
+      protocolDocument(ref.name, ref.src),
+    );
+    Reflect.set(area, 'value', next.text);
+    area.setSelectionRange(next.start, next.end);
+    this.bodyChange.emit({ itemId: t.id, body: next.text });
+    return true;
   }
 
   /** "PDF einfügen": the file dialog of the editor, or of the Markdown source. */
