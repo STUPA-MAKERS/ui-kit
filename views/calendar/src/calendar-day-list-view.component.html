@@ -1,9 +1,9 @@
 @if (error()) {
-  <app-empty-state icon="alert" [heading]="errorText()" />
+  <app-empty-state icon="alert" [fill]="fill()" [heading]="errorText()" />
 } @else if (firstLoad()) {
   <app-skeleton class="skel-in" variant="items" [count]="3" [lead]="true" [grouped]="true" [label]="'loading' | uiKitT" />
 } @else if (!entries().length && !loading()) {
-  <app-empty-state icon="cal" shape="date" rows="3" [heading]="'calendar.day.empty' | uiKitT" />
+  <app-empty-state icon="cal" shape="date" rows="3" [fill]="fill()" [heading]="'calendar.day.empty' | uiKitT" />
 } @else {
   <div class="rowgroup cal__rows" role="list">
     @for (e of entries(); track e.kind + e.id) {

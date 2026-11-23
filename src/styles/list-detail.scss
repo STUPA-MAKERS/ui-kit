@@ -281,11 +281,17 @@
   flex-direction: column;
   min-width: 0;
 }
-// Below the split, a tab panel is often only as high as its content (the page scrolls), so
-// the state there is at least most of a screen high and centres in that height.
+// Below the split, a tab panel is often only as high as its content (the page scrolls). The
+// state sets its own top (`--es-top`), reaches down to the bottom of the screen, above the
+// bottom bar and the padding of the main area, and centres in that height.
 @include bp.below-wide {
   [role='tabpanel'] app-empty-state.es-host--fill {
-    min-height: min(60dvh, 32rem);
+    min-height: max(
+      12rem,
+      calc(
+        100dvh - var(--es-top, 50dvh) - var(--app-bottom-inset, 0px) - var(--main-pad-bottom, 0px)
+      )
+    );
   }
 }
 

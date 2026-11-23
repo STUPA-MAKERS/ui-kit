@@ -22,8 +22,11 @@ the empty state centres in the area below that row.
   To-Dos), and every other tab whose content is a list.
 - A side pane: "Verknüpft mit TOP", the To-Dos of a meeting, the attendance of a member and the
   archive of a board.
-- Where the tab or the pane has no free height of its own (a page that scrolls below the split),
-  the empty state is at least most of a screen high and centres in that height.
+- A pane beside a main view: the day pane beside the month grid of the Kalender ("Keine
+  Einträge an diesem Tag.").
+- Where the tab has no free height of its own (a page that scrolls below the split), the empty
+  state reaches from its top down to the bottom of the screen, above the bottom bar, and centres
+  in that height.
 - The size of the face does not change (001360).
 
 An empty section inside a longer content (for example "Verknüpft" in a detail) keeps its own

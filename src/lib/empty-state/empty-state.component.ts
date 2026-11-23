@@ -1,12 +1,28 @@
 import {
+  afterRenderEffect,
   booleanAttribute,
   ChangeDetectionStrategy,
   Component,
   computed,
+  DestroyRef,
+  ElementRef,
+  inject,
   input,
   numberAttribute,
 } from '@angular/core';
+import { MEDIA } from '../breakpoints/breakpoints';
 import { IconComponent, type IconName } from '../icon/icon.component';
+
+/**
+ * The distance from the top of the scrolled content to the host, in px: the top in the
+ * viewport plus every scroll offset above it, so the value does not change while the page
+ * scrolls.
+ */
+function contentTop(el: HTMLElement): number {
+  let top = el.getBoundingClientRect().top + (globalThis.scrollY ?? 0);
+  for (let up = el.parentElement; up; up = up.parentElement) top += up.scrollTop;
+  return top;
+}
 
 /**
  * The dots around the face of an empty list: centre, radius, and the periods and delays of
@@ -128,4 +144,24 @@ export class EmptyStateComponent {
   protected readonly face = computed(() => !this.plain());
 
   protected readonly dots = FACE_DOTS;
+
+  private readonly host: ElementRef<HTMLElement> = inject(ElementRef);
+
+  constructor() {
+    // Below the split a tab panel is often only as high as its content, so the page scrolls
+    // and gives no free height. A `fill` state there sets its top (`--es-top`), and the kit
+    // styles make it reach down to the bottom of the screen and centre in that height (002650).
+    const measure = (): void => {
+      const el = this.host.nativeElement;
+      const below = globalThis.matchMedia?.(MEDIA.belowWide).matches ?? false;
+      if (!this.fill() || !below || !el.closest('[role="tabpanel"]')) {
+        el.style.removeProperty('--es-top');
+        return;
+      }
+      el.style.setProperty('--es-top', `${Math.round(contentTop(el))}px`);
+    };
+    afterRenderEffect({ read: measure });
+    globalThis.addEventListener?.('resize', measure);
+    inject(DestroyRef).onDestroy(() => globalThis.removeEventListener?.('resize', measure));
+  }
 }

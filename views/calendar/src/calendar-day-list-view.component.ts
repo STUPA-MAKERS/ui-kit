@@ -42,6 +42,7 @@ import { UI_KIT_CALENDAR_TEXTS } from './calendar.texts';
     role: 'region',
     'aria-live': 'polite',
     '[attr.aria-label]': 'label()',
+    '[class.cal-day--fill]': 'fill()',
   },
 })
 export class CalendarDayListViewComponent {
@@ -60,6 +61,11 @@ export class CalendarDayListViewComponent {
   /** The read failed: the face with `errorText` shows. */
   readonly error = input(false);
   readonly errorText = input('');
+  /**
+   * The list is the whole content of a pane with a height of its own (the pane beside the
+   * month grid): the view takes the free height and its empty state centres in it (002650).
+   */
+  readonly fill = input(false);
 
   readonly openEntry = output<CalendarEntry>();
 
