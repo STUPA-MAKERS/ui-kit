@@ -58,3 +58,32 @@
     <app-icon name="plus" [size]="18" />
   </button>
 }
+@if (selectionBarPlace(); as sb) {
+  <div
+    #selectionBar
+    class="mde__selbar"
+    role="toolbar"
+    tabindex="-1"
+    [class.mde__selbar--above]="sb.above"
+    [style.left.px]="sb.left"
+    [style.top.px]="sb.top"
+    [attr.aria-label]="'editorSelection.toolbar' | uiKitT"
+    (keydown)="onSelectionBarKey($event)"
+  >
+    <app-button-group>
+      @for (tool of selectionTools; track tool.format) {
+        <app-button
+          variant="tonal"
+          [iconOnly]="true"
+          [ariaPressed]="activeFormats().has(tool.format)"
+          [ariaLabel]="tool.label | uiKitT"
+          [title]="tool.label | uiKitT"
+          (pointerdown)="$event.preventDefault()"
+          (mousedown)="$event.preventDefault()"
+          (click)="onSelectionTool(tool.format)"
+          ><app-icon [name]="tool.icon"
+        /></app-button>
+      }
+    </app-button-group>
+  </div>
+}

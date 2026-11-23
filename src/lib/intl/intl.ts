@@ -122,6 +122,10 @@ export type UiKitCoreTextKey =
   | 'editorTable.insertRowBelow'
   | 'editorTable.deleteRow'
   | 'editorTable.addRow'
+  | 'editorSelection.toolbar'
+  | 'editorSelection.bold'
+  | 'editorSelection.italic'
+  | 'editorSelection.blackout'
   | 'editorTable.addColumn'
   | 'editorTable.delete'
   | 'editorDocument.open'
@@ -934,6 +938,10 @@ export const UI_KIT_DEFAULT_MESSAGES: UiKitTexts<UiKitCoreTextKey> = {
     'editorTable.insertRowBelow': 'Zeile unterhalb einfügen',
     'editorTable.deleteRow': 'Zeile löschen',
     'editorTable.addRow': 'Zeile hinzufügen',
+    'editorSelection.toolbar': 'Format der Auswahl',
+    'editorSelection.bold': 'Fett',
+    'editorSelection.italic': 'Kursiv',
+    'editorSelection.blackout': 'Schwärzen',
     'editorTable.addColumn': 'Spalte hinzufügen',
     'editorTable.delete': 'Tabelle löschen',
     'editorDocument.open': 'PDF öffnen: {name}',
@@ -1160,6 +1168,10 @@ export const UI_KIT_DEFAULT_MESSAGES: UiKitTexts<UiKitCoreTextKey> = {
     'editorTable.insertRowBelow': 'Insert row below',
     'editorTable.deleteRow': 'Delete row',
     'editorTable.addRow': 'Add row',
+    'editorSelection.toolbar': 'Format of the selection',
+    'editorSelection.bold': 'Bold',
+    'editorSelection.italic': 'Italic',
+    'editorSelection.blackout': 'Black out',
     'editorTable.addColumn': 'Add column',
     'editorTable.delete': 'Delete table',
     'editorDocument.open': 'Open PDF: {name}',
