@@ -2,9 +2,9 @@
 id: "002271"
 title: The board views take the board, the rows, the list and the tiles
 kind: style
-status: draft
+status: approved
 owner: frederikbeimgraben
-updated: 2026-11-22
+updated: 2026-11-23
 implementation:
   - views/board/src/todo-board-view.component.ts
   - views/board/src/todo-board-rows-view.component.ts
