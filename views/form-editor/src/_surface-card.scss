@@ -1,0 +1,19 @@
+// On surface 3 the subtle text gives less than 4.5:1 (WCAG 1.4.3), so a field label on a raised
+// field takes the muted text colour (`$muted-label`).
+
+@mixin raised-fields($muted-label: true) {
+  --color-surface-sunken: var(--color-surface-3);
+  @if $muted-label {
+    --color-text-subtle: var(--color-text-muted);
+  }
+}
+
+@mixin card($pad: var(--space-5), $gap: var(--space-3), $direction: column, $muted-label: true) {
+  @include raised-fields($muted-label);
+  display: flex;
+  flex-direction: $direction;
+  gap: $gap;
+  padding: $pad;
+  border-radius: var(--radius-xl);
+  background: var(--color-surface-2);
+}
