@@ -1,5 +1,7 @@
 @use '../../src/styles/field' as f;
 @use '../../src/styles/frosted' as *;
+@use '../../src/styles/display' as d;
+@use '../../src/styles/option-menu' as om;
 
 app-markdown-editor {
   display: block;
@@ -171,6 +173,45 @@ app-markdown-editor {
   text-align: center;
   margin: var(--space-3) 0;
   padding: var(--space-2) 0;
+}
+
+/* The slash menu (§002769): the option list of the kit at the caret, in the top layer. The
+   focus stays in the text, so the marked command shows as the active row. */
+.mde__slash {
+  @include om.menu;
+  min-width: 13rem;
+  max-width: min(22rem, calc(100vw - 16px));
+  max-height: min(20rem, calc(100vh - 16px));
+}
+.mde__slash:not(:popover-open) {
+  display: block;
+}
+.mde__slashItem {
+  @include om.option;
+}
+.mde__slashItem--active {
+  @include om.option-focus;
+}
+.mde__slashIcon {
+  flex: none;
+  color: var(--color-text-muted);
+}
+@include d.on(fields) {
+  .mde__slash {
+    --color-text: var(--field-text);
+    --color-text-muted: var(--field-text);
+    --color-focus-ring: var(--field-text);
+    background: var(--field-bg);
+    color: var(--field-text);
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+    box-shadow: var(--field-edge), var(--shadow-elevated);
+    outline: 2px solid var(--field-text);
+    outline-offset: -2px;
+  }
+  .mde__slashItem--active {
+    background: color-mix(in srgb, var(--field-text) 12%, transparent);
+  }
 }
 
 /* The vote callout as a card. One atom: selected and deleted as a whole. A caption

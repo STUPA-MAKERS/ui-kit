@@ -114,6 +114,7 @@ export type UiKitCoreTextKey =
   | 'viewer.noPreview'
   | 'editorTable.columnMenu'
   | 'editorTable.rowMenu'
+  | 'editorSlash.menu'
   | 'editorTable.menu'
   | 'editorTable.insertColumnLeft'
   | 'editorTable.insertColumnRight'
@@ -648,6 +649,10 @@ export type UiKitProtocolTextKey =
   | 'meetings.editor.mode'
   | 'meetings.editor.modeFormatted'
   | 'meetings.editor.quote'
+  | 'meetings.editor.slash.document'
+  | 'meetings.editor.slash.image'
+  | 'meetings.editor.slash.table'
+  | 'meetings.editor.slash.timeNote'
   | 'meetings.editor.table'
   | 'meetings.editor.timeNote'
   | 'meetings.editor.timeNoteSuffix'
@@ -930,6 +935,7 @@ export const UI_KIT_DEFAULT_MESSAGES: UiKitTexts<UiKitCoreTextKey> = {
     'viewer.noPreview': 'Für diese Datei gibt es keine Vorschau.',
     'editorTable.columnMenu': 'Spalte',
     'editorTable.rowMenu': 'Zeile',
+    'editorSlash.menu': 'Befehle',
     'editorTable.menu': 'Tabelle',
     'editorTable.insertColumnLeft': 'Spalte links einfügen',
     'editorTable.insertColumnRight': 'Spalte rechts einfügen',
@@ -1160,6 +1166,7 @@ export const UI_KIT_DEFAULT_MESSAGES: UiKitTexts<UiKitCoreTextKey> = {
     'viewer.noPreview': 'There is no preview for this file.',
     'editorTable.columnMenu': 'Column',
     'editorTable.rowMenu': 'Row',
+    'editorSlash.menu': 'Commands',
     'editorTable.menu': 'Table',
     'editorTable.insertColumnLeft': 'Insert column left',
     'editorTable.insertColumnRight': 'Insert column right',

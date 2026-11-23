@@ -1,4 +1,32 @@
 <div #host class="mde__host" [class.mde__host--disabled]="disabled()"></div>
+@if (slashMenu(); as sm) {
+  <div
+    #slashList
+    class="mde__slash"
+    popover="manual"
+    role="listbox"
+    [id]="slashId"
+    [attr.aria-label]="'editorSlash.menu' | uiKitT"
+  >
+    @for (command of sm.commands; track command.id; let i = $index) {
+      <button
+        type="button"
+        role="option"
+        tabindex="-1"
+        class="mde__slashItem"
+        [class.mde__slashItem--active]="i === sm.active"
+        [id]="slashId + '-' + i"
+        [attr.aria-selected]="i === sm.active"
+        (mousedown)="$event.preventDefault()"
+        (mouseenter)="slash.mark(i)"
+        (click)="runSlash(command.id)"
+      >
+        <app-icon class="mde__slashIcon" [name]="command.icon" [size]="20" />
+        <span>{{ command.label }}</span>
+      </button>
+    }
+  </div>
+}
 @if (tableControls(); as tc) {
   @if (tc.colX !== null) {
     <app-row-menu
