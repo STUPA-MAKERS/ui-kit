@@ -52,4 +52,16 @@ describe('ButtonGroupComponent', () => {
       /\.btn-grp--main\.btn-grp--main :is\(\.btn, \.rm__trigger\) \{\s*--btn-h: var\(--control-height\);\s*height: var\(--control-height\);/,
     );
   });
+
+  it('gives every icon of the group one size and one colour (002570)', () => {
+    expect(STYLE).toMatch(/\.btn-grp \{\s*--btn-grp-icon: 20px;\s*\}/);
+    expect(STYLE).toMatch(/\.btn-grp:not\(\.btn-grp--main\):has\(\.btn--sm\) \{\s*--btn-grp-icon: 18px;\s*\}/);
+    expect(STYLE).toMatch(
+      /\.btn-grp\.btn-grp :is\(\.btn, \.rm__trigger\) app-icon \{\s*--icon-size: var\(--btn-grp-icon\) !important;/,
+    );
+    expect(STYLE).toMatch(
+      /\.btn-grp\.btn-grp \.btn--text\.btn--icon \{\s*color: var\(--color-on-accent-container\);/,
+    );
+    expect(STYLE).not.toMatch(/\.btn--icon, \.rm__trigger:not\(\.rm__trigger--text\)\) \{[^}]*--icon-size: 20px/);
+  });
 });
