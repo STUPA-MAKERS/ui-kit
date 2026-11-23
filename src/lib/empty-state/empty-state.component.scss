@@ -13,6 +13,8 @@
   flex: 1 0 auto;
   flex-direction: column;
   justify-content: center;
+  /* The free height below the top of the state, which the component measures (002650). */
+  min-height: var(--es-free, auto);
 }
 
 /* Small, in its own height, in a section, a tile or a dialog. In the list column of a
