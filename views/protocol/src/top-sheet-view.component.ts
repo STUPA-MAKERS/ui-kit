@@ -40,6 +40,7 @@ import {
   type MarkdownFormat,
   type MarkdownImageUploader,
   type VoteCalloutResolver,
+  type SlashCommand,
 } from '@stupa-makers/ui-kit/markdown-editor';
 import type { AgendaItem, Meeting, Protocol, Uuid } from './protocol.types';
 import {
@@ -72,6 +73,14 @@ export type SaveState = 'idle' | 'saving' | 'saved' | 'error';
 export type EditorMode = 'formatted' | 'raw';
 
 const NO_FORMATS: ReadonlySet<MarkdownFormat> = new Set();
+
+/** The inserts of the format bar as slash commands (002771), with the icon of their tool. */
+const OWN_COMMANDS: readonly { readonly id: string; readonly icon: IconName; readonly label: UiKitTextKey }[] = [
+  { id: 'table', icon: 'table', label: 'meetings.editor.slash.table' },
+  { id: 'image', icon: 'image', label: 'meetings.editor.slash.image' },
+  { id: 'document', icon: 'file', label: 'meetings.editor.slash.document' },
+  { id: 'timeNote', icon: 'clock', label: 'meetings.editor.slash.timeNote' },
+];
 
 /** A button of the format bar. */
 interface FormatTool {
@@ -203,8 +212,11 @@ export class TopSheetViewComponent {
   readonly keepers = input<string>('');
   /** The linked rows below the title (the application and the to-dos), from the app. */
   readonly linkedList = input<TemplateRef<TopSheetLinkedSlot> | null>(null);
-  /** The text that asks the app for an insert into the text (002761); `null` for none. */
-  readonly insertTrigger = input<string | null>(null);
+  /**
+   * Slash commands of the app (002771). They show after the commands of the view, and a
+   * run emits `command`.
+   */
+  readonly extraCommands = input<readonly SlashCommand[]>([]);
 
   readonly bodyChange = output<{ itemId: Uuid; body: string }>();
   readonly startRename = output<AgendaItem>();
@@ -214,8 +226,8 @@ export class TopSheetViewComponent {
   readonly doneChange = output<{ item: AgendaItem; done: boolean }>();
   /** A click on a PDF badge (spec 000863): the app opens its PDF viewer. */
   readonly documentOpen = output<MarkdownDocumentRef>();
-  /** The person typed the `insertTrigger`: the app opens its picker (002761). */
-  readonly insertRequest = output<void>();
+  /** The person ran one of the `extraCommands`: the ID of the command. */
+  readonly command = output<string>();
 
 
   readonly tools = TOOLS;
@@ -306,6 +318,33 @@ export class TopSheetViewComponent {
   });
 
   private readonly editor = viewChild<MarkdownEditorComponent>('ed');
+
+  /** The slash commands of the editor: the inserts of the format bar, then `extraCommands`. */
+  protected readonly slashCommands = computed<readonly SlashCommand[]>(() => {
+    this.i18n.lang();
+    const own = OWN_COMMANDS.map(({ id, icon, label }) => ({
+      id,
+      icon,
+      label: this.i18n.translate(label),
+    }));
+    return [...own, ...this.extraCommands()];
+  });
+
+  /** Run a slash command: an insert of the view, or a command of the app. */
+  protected onSlashCommand(id: string): void {
+    switch (id) {
+      case 'table':
+        return this.insertTable();
+      case 'image':
+        return this.insertImage();
+      case 'document':
+        return this.insertDocument();
+      case 'timeNote':
+        return this.insertTimeNote();
+      default:
+        return this.command.emit(id);
+    }
+  }
   private readonly rawArea = viewChild<ElementRef<HTMLTextAreaElement>>('raw');
   private readonly rawUpload = viewChild(ProtocolImageUploadDirective);
 

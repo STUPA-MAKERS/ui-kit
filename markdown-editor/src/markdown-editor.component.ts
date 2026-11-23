@@ -23,6 +23,9 @@ import {
   type RowMenuSection,
   type UiKitTextKey,
   UI_KIT_INTL,
+  placeBelow,
+  showInTopLayer,
+  watchAnchoredPopover,
 } from '@stupa-makers/ui-kit';
 import { Editor } from '@tiptap/core';
 import type { EditorView } from '@tiptap/pm/view';
@@ -55,12 +58,16 @@ import {
   type SelectionBarPlace,
   measureSelectionBar,
 } from './selection-bar';
+import { SlashMenu, type SlashCommand } from './slash-menu';
 import { type TableControls, appendToTable, measureTableControls } from './table-controls';
 import {
   VoteCallout,
   type VoteCalloutResolver,
   type VoteCalloutView,
 } from './vote-callout.extension';
+
+/** How often the open slash menu reads the place of the caret again. */
+const SLASH_FOLLOW_MS = 100;
 
 // A formula with an error shows the source in red instead of failing the render.
 const KATEX_OPTIONS = { throwOnError: false };
@@ -269,11 +276,10 @@ export class MarkdownEditorComponent implements OnDestroy {
    */
   readonly knownNames = input<(() => readonly KnownName[]) | null>(null);
   /**
-   * A text that asks the consumer for an insert (002761), for example `::`. When a person
-   * types it at the start of a word, the editor removes it and emits `insertRequest`.
-   * `null` keeps the text as plain text.
+   * The commands of the slash menu (§002769). A typed `/` at the start of a word shows
+   * them at the cursor, and a run emits `slashCommand`. Without commands `/` is plain text.
    */
-  readonly insertTrigger = input<string | null>(null);
+  readonly slashCommands = input<readonly SlashCommand[]>([]);
   /**
    * Show the format bar at a text selection (app specs 002780-002783): Fett, Kursiv and
    * Schwärzung below the selection, above it at the bottom of the visible area. Alt+F10
@@ -282,8 +288,8 @@ export class MarkdownEditorComponent implements OnDestroy {
   readonly selectionBar = input<boolean>(false);
   /** A click, Enter or Space on the badge of an embedded PDF. */
   readonly documentOpen = output<MarkdownDocumentRef>();
-  /** The person typed the `insertTrigger`. The cursor stays where the text was. */
-  readonly insertRequest = output<void>();
+  /** The person ran a slash command. The cursor stays where the slash text was. */
+  readonly slashCommand = output<string>();
 
   /** Emittiert das serialisierte Markdown bei jeder Änderung. */
   readonly valueChange = output<string>();
@@ -332,6 +338,21 @@ export class MarkdownEditorComponent implements OnDestroy {
   protected readonly selectionTools = SELECTION_TOOLS;
   private readonly selectionBarEl = viewChild<ElementRef<HTMLElement>>('selectionBar');
 
+  /** The slash menu (§002769): its state follows the transactions of the editor. */
+  protected readonly slash = new SlashMenu(
+    () => this.slashCommands(),
+    (id) => this.slashCommand.emit(id),
+  );
+  /** The slash menu, while it shows. */
+  protected readonly slashMenu = computed(() =>
+    this.editable() && this.focusWithin() ? this.slash.state() : null,
+  );
+  /** The ID of the list box, one per editor on the page. */
+  protected readonly slashId = `mde-slash-${Math.random().toString(36).slice(2, 10)}`;
+  /** Counts the scrolls and resizes while the slash menu is open. */
+  private readonly slashScrolled = signal(0);
+  private readonly slashList = viewChild<ElementRef<HTMLElement>>('slashList');
+
   private readonly intl = inject(UI_KIT_INTL);
   protected readonly columnMenu = computed(() => this.menuOf(COLUMN_ITEMS));
   protected readonly rowMenu = computed(() => this.menuOf(ROW_ITEMS));
@@ -370,6 +391,13 @@ export class MarkdownEditorComponent implements OnDestroy {
       if (size.width === this.barSize.width && size.height === this.barSize.height) return;
       this.barSize = size;
       this.placeSelectionBar();
+    });
+    // A press outside the slash menu closes it, and a scroll places it at the caret again.
+    watchAnchoredPopover({
+      isOpen: () => this.slash.state() !== null,
+      inside: () => [this.slashList()?.nativeElement],
+      close: () => this.slash.close(),
+      follow: () => this.slashScrolled.update((n) => n + 1),
     });
     // Editor lazy aufbauen, sobald das Host-Element existiert, und auf
     // docKey/disabled reagieren.
@@ -427,8 +455,8 @@ export class MarkdownEditorComponent implements OnDestroy {
           editorProps: {
             transformPastedHTML: (html) => stripForeignImages(html),
             handlePaste: (_view, event) => this.onPasteFiles(event),
-            handleTextInput: (view, from, to, text) => this.onTextInput(view, from, to, text),
-            handleKeyDown: (_view, event) => this.onSelectionKey(event),
+            handleKeyDown: (view, event) =>
+              this.slash.onKeyDown(view, event) || this.onSelectionKey(event),
             handleDOMEvents: {
               pointerdown: (_view, event) => {
                 if (event.button === 0) this.pointerDown.set(true);
@@ -443,7 +471,10 @@ export class MarkdownEditorComponent implements OnDestroy {
             if (this.emitting) return;
             this.valueChange.emit(this.toMarkdown(editor));
           },
-          onTransaction: ({ editor }) => this.readFormats(editor),
+          onTransaction: ({ editor, transaction }) => {
+            this.readFormats(editor);
+            this.slash.onTransaction(editor.view, transaction);
+          },
         });
         this.loadedKey = key;
         this.editable.set(!disabled);
@@ -485,6 +516,44 @@ export class MarkdownEditorComponent implements OnDestroy {
       setAttr(dom, 'aria-multiline', editable ? 'true' : null);
       setAttr(dom, 'aria-label', editable && label ? label : null);
     });
+  }
+
+  /**
+   * The slash menu goes into the top layer and below the caret, or above it when it does
+   * not fit below. It runs after the render, so the place follows the height of the list,
+   * and again after a scroll: the editor scrolls the caret into view after a key press.
+   */
+  private readonly slashPlace = afterRenderEffect((onCleanup) => {
+    this.slashScrolled();
+    const menu = this.slashMenu();
+    const el = this.slashList()?.nativeElement;
+    const view = this.editor?.view;
+    const dom = view?.dom;
+    if (dom) {
+      setAttr(dom, 'aria-controls', menu ? this.slashId : null);
+      setAttr(dom, 'aria-activedescendant', menu ? `${this.slashId}-${menu.active}` : null);
+    }
+    if (!menu || !el || !view) return;
+    showInTopLayer(el);
+    const place = (): void => {
+      const { left, top, bottom } = view.coordsAtPos(menu.from);
+      const at = placeBelow({ left, right: left, top, bottom } as DOMRect, el.getBoundingClientRect(), {
+        gap: 6,
+      });
+      el.style.setProperty('left', `${at.left}px`);
+      el.style.setProperty('top', `${at.top}px`);
+    };
+    place();
+    // The text can move without a scroll or a resize, for example when a line above it
+    // changes its height, so the menu follows the caret while it is open.
+    const timer = setInterval(place, SLASH_FOLLOW_MS);
+    onCleanup(() => clearInterval(timer));
+  });
+
+  /** Run the command of a pressed row of the slash menu. */
+  protected runSlash(id: string): void {
+    const view = this.editor?.view;
+    if (view) this.slash.pick(view, id);
   }
 
   /**
@@ -634,6 +703,7 @@ export class MarkdownEditorComponent implements OnDestroy {
     if (next && this.frame.nativeElement.contains(next)) return;
     this.focusWithin.set(false);
     this.pointerDown.set(false);
+    this.slash.close();
   }
 
   /** A button of the format bar: switch its format on the selection (002781). */
@@ -858,25 +928,6 @@ export class MarkdownEditorComponent implements OnDestroy {
    * Insert the badge of an embedded PDF at the cursor, or at `pos`. Only the canonical
    * path `/api/media/documents/<uuid>` is accepted; any other source inserts nothing.
    */
-  /**
-   * The typed text completes the `insertTrigger` at the start of a word: remove the
-   * trigger and ask the consumer for the insert. In code the trigger stays plain text.
-   */
-  private onTextInput(view: EditorView, from: number, to: number, text: string): boolean {
-    const trigger = this.insertTrigger();
-    if (!trigger || from !== to || !trigger.endsWith(text)) return false;
-    const $from = view.state.doc.resolve(from);
-    if ($from.parent.type.spec.code || $from.marks().some((mark) => mark.type.spec.code)) return false;
-    const typed = trigger.slice(0, trigger.length - text.length);
-    const before = $from.parent.textBetween(0, $from.parentOffset, undefined, '\ufffc');
-    if (!before.endsWith(typed)) return false;
-    const lead = before.slice(0, before.length - typed.length);
-    if (lead !== '' && !/\s$/.test(lead)) return false;
-    view.dispatch(view.state.tr.delete(from - typed.length, from));
-    this.insertRequest.emit();
-    return true;
-  }
-
   insertDocument(src: string, name: string): boolean {
     return this.insertDocumentAt({ src, name });
   }

@@ -2,13 +2,10 @@
 id: "002761"
 title: A typed trigger text asks the consumer of the editor for an insert
 kind: functional
-status: approved
+status: replaced
 owner: frederikbeimgraben
 updated: 2026-11-23
-tests:
-  - "markdown-editor/src/markdown-editor.insert-trigger.spec.ts:MarkdownEditorInsertTrigger"
-implementation:
-  - markdown-editor/src/markdown-editor.component.ts
+replaced_by: F/meetings/protocols/002769
 scope:
   - markdown-editor
 ---

@@ -89,7 +89,10 @@ specs/
 | [F/meetings/protocols/000873](requirements/functional/meetings/protocols/000873_time-note-tool.md) | A toolbar tool inserts a time note | approved |
 | [F/meetings/protocols/000969](requirements/functional/meetings/protocols/000969_blackout-known-names.md) | The editor blacks out a known name after it is typed | approved |
 | [F/meetings/protocols/001304](requirements/functional/meetings/protocols/001304_protocol-in-meeting-head.md) | The protocol state and its actions sit in the meeting head | approved |
-| [F/meetings/protocols/002761](requirements/functional/meetings/protocols/002761_editor-insert-trigger.md) | A typed trigger text asks the consumer of the editor for an insert | approved |
+| [F/meetings/protocols/002761](requirements/functional/meetings/protocols/002761_editor-insert-trigger.md) | A typed trigger text asks the consumer of the editor for an insert | replaced |
+| [F/meetings/protocols/002769](requirements/functional/meetings/protocols/002769_editor-slash-menu.md) | A slash at the start of a word opens the command menu of the editor | approved |
+| [F/meetings/protocols/002770](requirements/functional/meetings/protocols/002770_editor-slash-menu-keys.md) | The command menu filters, runs and closes with the keyboard | approved |
+| [F/meetings/protocols/002771](requirements/functional/meetings/protocols/002771_protocol-text-slash-commands.md) | The protocol text offers its inserts as slash commands | approved |
 | [F/meetings/voting/001006](requirements/functional/meetings/voting/001006_vote-card-states-result-once.md) | The vote card states the result once | approved |
 | [F/meetings/voting/001007](requirements/functional/meetings/voting/001007_vote-card-one-action.md) | The vote card has one main action and a menu | approved |
 | [F/meetings/voting/002070](requirements/functional/meetings/voting/002070_vote-card-opaque-on-glass.md) | A vote card on a glass sheet is opaque in the light theme | approved |

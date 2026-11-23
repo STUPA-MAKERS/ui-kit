@@ -12,6 +12,7 @@ export type {
   MarkdownImageUploader,
   MarkdownTableCommand,
 } from './markdown-editor.component';
+export type { SlashCommand } from './slash-menu';
 export { IMAGE_UPLOAD_TYPES, MEDIA_IMAGE_PATH, isMediaImageSrc } from './media.extension';
 export type { VoteCalloutInfo, VoteCalloutResolver } from './vote-callout.extension';
 export { normalTime, timeNoteLine } from './time-note.extension';
