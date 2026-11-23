@@ -3,85 +3,74 @@
  * not applied in a unit test, so these read the SCSS and assert the rule is written.
  * The pixel checks of the running app cover what the rules look like.
  */
-import { readFileSync } from "node:fs";
-import { join } from "node:path";
+import { readFileSync } from 'node:fs';
+import { join } from 'node:path';
 
-const read = (rel: string): string =>
-  readFileSync(join(__dirname, rel), "utf8");
+const read = (rel: string): string => readFileSync(join(__dirname, rel), 'utf8');
 
 /** The body of a mixin or rule block, from its opening brace to the matching one. */
 function block(source: string, head: string): string {
   const start = source.indexOf(head);
   if (start < 0) throw new Error(`block not found: ${head}`);
   let depth = 0;
-  for (let i = source.indexOf("{", start); i < source.length; i++) {
-    if (source[i] === "{") depth++;
-    if (source[i] === "}" && --depth === 0) return source.slice(start, i + 1);
+  for (let i = source.indexOf('{', start); i < source.length; i++) {
+    if (source[i] === '{') depth++;
+    if (source[i] === '}' && --depth === 0) return source.slice(start, i + 1);
   }
   throw new Error(`unbalanced block: ${head}`);
 }
 
 /** The block without its nested state blocks (`&:hover { … }` and so on). */
 function restingState(body: string): string {
-  return body.replace(/&[^{]*\{[^}]*\}/g, "");
+  return body.replace(/&[^{]*\{[^}]*\}/g, '');
 }
 
-const FIELD = read("_field.scss");
+const FIELD = read('_field.scss');
 
-describe("design-system rules in the stylesheets", () => {
-  it("draws fields without a shadow at rest; only focus and error draw an inside line", () => {
-    const box = block(FIELD, "@mixin box {");
+describe('design-system rules in the stylesheets', () => {
+  it('draws fields without a shadow at rest; only focus and error draw an inside line', () => {
+    const box = block(FIELD, '@mixin box {');
     // At rest only the edge of a highlighted field (§000598), which is unset otherwise.
     expect(restingState(box).match(/box-shadow\s*:[^;]*;/g)).toEqual([
-      "box-shadow: var(--field-edge, none);",
+      'box-shadow: var(--field-edge, none);',
     ]);
     expect(box).toMatch(
       /&:focus-within\s*\{\s*box-shadow: var\(--field-focus, inset 0 0 0 var\(--focus-width, 2px\) var\(--color-focus-ring\)\)/,
     );
-    expect(block(FIELD, "@mixin control {")).not.toMatch(/box-shadow\s*:/);
-    expect(block(FIELD, "@mixin box-invalid {")).toMatch(
-      /inset 0 0 0 2px var\(--color-danger\)/,
-    );
-    expect(box).toMatch(
-      /background: var\(--field-bg, var\(--color-surface-sunken\)\)/,
-    );
+    expect(block(FIELD, '@mixin control {')).not.toMatch(/box-shadow\s*:/);
+    expect(block(FIELD, '@mixin box-invalid {')).toMatch(/inset 0 0 0 2px var\(--color-danger\)/);
+    expect(box).toMatch(/background: var\(--field-bg, var\(--color-surface-sunken\)\)/);
     expect(box).toMatch(/border-radius: var\(--radius-field\)/);
   });
 
   it.each([
-    ["input", "../lib/input/input.component.scss"],
-    ["select", "../lib/select/select.component.scss"],
-    ["datepicker", "../lib/datepicker/datepicker.component.scss"],
-    ["time input", "../lib/time-input/time-input.component.scss"],
-    ["currency input", "../lib/currency-input/currency-input.component.scss"],
-  ])("builds the %s on the shared filled field", (_name, path) => {
+    ['input', '../lib/input/input.component.scss'],
+    ['select', '../lib/select/select.component.scss'],
+    ['datepicker', '../lib/datepicker/datepicker.component.scss'],
+    ['time input', '../lib/time-input/time-input.component.scss'],
+    ['currency input', '../lib/currency-input/currency-input.component.scss'],
+  ])('builds the %s on the shared filled field', (_name, path) => {
     const scss = read(path);
     expect(scss).toContain("@use '../../styles/field' as f;");
-    expect(scss).toContain("@include f.box;");
+    expect(scss).toContain('@include f.box;');
     // No shadow of its own: only the focus line, which the select also draws while its
     // list is open and the focus is in the list.
     for (const m of scss.matchAll(/box-shadow\s*:([^;]*);/g)) {
-      expect(m[1].trim()).toBe("inset 0 0 0 2px var(--color-focus-ring)");
+      expect(m[1].trim()).toBe('inset 0 0 0 2px var(--color-focus-ring)');
     }
     expect(scss).not.toMatch(/border: var\(--border-width\) solid/);
   });
 
-  it("gives a dialog or a sheet over another one the tint of the first level", () => {
+  it('gives a dialog or a sheet over another one the tint of the first level', () => {
     // A sheet inside a dialog body inherits `glass-content`, so the glass must read a
     // token that the mixin does not change (spec 000532).
-    const content = block(read("_frosted.scss"), "@mixin glass-content {");
+    const content = block(read('_frosted.scss'), '@mixin glass-content {');
     expect(content).not.toMatch(/--color-glass-/);
     expect(content).not.toMatch(/--color-pop/);
     const glass: [string, RegExp][] = [
-      ["../lib/dialog/dialog.component.scss", /frosted-pop\(var\(([^)]*)\)/g],
-      [
-        "../lib/side-sheet/side-sheet.component.scss",
-        /frosted-pop\(var\(([^)]*)\)/g,
-      ],
-      [
-        "../../shell/src/command-palette/command-palette.component.scss",
-        /frosted-pop\(var\(([^)]*)\)/g,
-      ],
+      ['../lib/dialog/dialog.component.scss', /frosted-pop\(var\(([^)]*)\)/g],
+      ['../lib/side-sheet/side-sheet.component.scss', /frosted-pop\(var\(([^)]*)\)/g],
+      ['../../shell/src/command-palette/command-palette.component.scss', /frosted-pop\(var\(([^)]*)\)/g],
     ];
     for (const [path, re] of glass) {
       const tokens = [...read(path).matchAll(re)].map((m) => m[1]);
@@ -90,203 +79,158 @@ describe("design-system rules in the stylesheets", () => {
     }
   });
 
-  it("draws the danger button as an outline, never filled", () => {
-    const danger = block(
-      read("../lib/button/button.component.scss"),
-      ".btn--danger {",
-    );
+  it('draws the danger button as an outline, never filled', () => {
+    const danger = block(read('../lib/button/button.component.scss'), '.btn--danger {');
     expect(danger).toMatch(/background: transparent/);
     expect(danger).toMatch(/color: var\(--color-danger\)/);
   });
 
-  it("keeps the block modifier to the width, so the base button rule applies to every button", () => {
-    const scss = read("../lib/button/button.component.scss");
-    expect(block(scss, ":host(.btn-block) .btn {").replace(/\s+/g, " ")).toBe(
-      ":host(.btn-block) .btn { width: 100%; }",
+  it('keeps the block modifier to the width, so the base button rule applies to every button', () => {
+    const scss = read('../lib/button/button.component.scss');
+    expect(block(scss, ':host(.btn-block) .btn {').replace(/\s+/g, ' ')).toBe(
+      ':host(.btn-block) .btn { width: 100%; }',
     );
-    const base = block(scss, "\n.btn {");
+    const base = block(scss, '\n.btn {');
     expect(base).toMatch(/border-radius: var\(--radius-pill\)/);
     expect(base).toMatch(/display: inline-flex/);
   });
 
-  it("puts the count plate beside the label and trims the chip text (app spec 000603)", () => {
-    const count = block(
-      read("../lib/button/button.component.scss"),
-      ".btn__count {",
-    );
+  it('puts the count plate beside the label and trims the chip text (app spec 000603)', () => {
+    const count = block(read('../lib/button/button.component.scss'), '.btn__count {');
     expect(count).toMatch(/flex: none/);
     expect(count).toMatch(/height: 20px/);
     // One global rule for every chip, not one per component.
-    const chip = block(
-      read("base.scss"),
-      "@supports (text-box: trim-both cap alphabetic) {",
-    );
-    expect(chip).toMatch(
-      /\.chip > :is\(\.ell, \.chip__text\) \{[^}]*text-box: trim-both cap alphabetic/,
-    );
+    const chip = block(read('base.scss'), '@supports (text-box: trim-both cap alphabetic) {');
+    expect(chip).toMatch(/\.chip > :is\(\.ell, \.chip__text\) \{[^}]*text-box: trim-both cap alphabetic/);
     // The padding keeps the descenders in the clip box; the margin keeps the trimmed height.
     expect(chip).toMatch(/padding-block: 0\.5em;\s*margin-block: -0\.5em/);
   });
 
-  it("centres a projected icon and text in the button label", () => {
-    const scss = read("../lib/button/button.component.scss");
-    expect(block(scss, ".btn__label ::ng-deep > * {")).toMatch(
-      /vertical-align: top/,
-    );
+  it('centres a projected icon and text in the button label', () => {
+    const scss = read('../lib/button/button.component.scss');
+    expect(block(scss, '.btn__label ::ng-deep > * {')).toMatch(/vertical-align: top/);
     // One text line high at the top of the line box: the glyph centres on the capitals.
-    const icon = block(scss, ".btn__label ::ng-deep > app-icon {");
+    const icon = block(scss, '.btn__label ::ng-deep > app-icon {');
     expect(icon).toMatch(/height: 1\.3em/);
     expect(icon).not.toMatch(/vertical-align: middle/);
-    const iconOnly = block(scss, ".btn--icon .btn__label {");
+    const iconOnly = block(scss, '.btn--icon .btn__label {');
     expect(iconOnly).toMatch(/display: inline-flex/);
     expect(iconOnly).toMatch(/align-items: center/);
     // An icon button never clips its glyph and keeps the glyph height.
     expect(iconOnly).toMatch(/overflow: visible/);
-    expect(
-      block(scss, ".btn--icon .btn__label ::ng-deep > app-icon {"),
-    ).toMatch(/height: auto/);
+    expect(block(scss, '.btn--icon .btn__label ::ng-deep > app-icon {')).toMatch(/height: auto/);
   });
 
-  it("draws a configured badge colour as text, never as a plate", () => {
-    const scss = read("../lib/badge/badge.component.scss");
-    const custom = block(scss, ".badge--custom {");
+  it('draws a configured badge colour as text, never as a plate', () => {
+    const scss = read('../lib/badge/badge.component.scss');
+    const custom = block(scss, '.badge--custom {');
     expect(custom).toMatch(/color: var\(--badge-text-light/);
     expect(custom).not.toMatch(/background/);
-    expect(scss).toMatch(
-      /data-theme='dark'\]\) \.badge--custom \{\s*color: var\(--badge-text-dark/,
-    );
+    expect(scss).toMatch(/data-theme='dark'\]\) \.badge--custom \{\s*color: var\(--badge-text-dark/);
   });
 
-  it("draws the filter chip 32px high with radius 8, in the selection colour when on", () => {
-    const chip = block(read("base.scss"), ".chip {");
+  it('draws the filter chip 32px high with radius 8, in the selection colour when on', () => {
+    const chip = block(read('base.scss'), '.chip {');
     expect(chip).toMatch(/height: var\(--control-height-sm\)/);
     expect(chip).toMatch(/border-radius: var\(--radius-md\)/);
-    expect(read("base.scss")).toMatch(
-      /\.chip\.on \{[\s\S]*?background: var\(--color-selected\)/,
-    );
+    expect(read('base.scss')).toMatch(/\.chip\.on \{[\s\S]*?background: var\(--color-selected\)/);
   });
 
-  it("lays out a dialog-footer wrapper like the footer, with a settable gap", () => {
+  it('lays out a dialog-footer wrapper like the footer, with a settable gap', () => {
     const wrapper = block(
-      read("../lib/dialog/dialog.component.scss"),
-      ".dialog__footer ::ng-deep > div[dialog-footer] {",
+      read('../lib/dialog/dialog.component.scss'),
+      '.dialog__footer ::ng-deep > div[dialog-footer] {',
     );
     expect(wrapper).toMatch(/justify-content: flex-end/);
     expect(wrapper).toMatch(/flex-wrap: wrap/);
-    expect(wrapper).toMatch(
-      /gap: var\(--dialog-footer-gap, var\(--space-3\)\)/,
-    );
+    expect(wrapper).toMatch(/gap: var\(--dialog-footer-gap, var\(--space-3\)\)/);
   });
 
-  it("lets a page set the height, padding, font size and text hover of a button", () => {
-    const scss = read("../lib/button/button.component.scss");
-    for (const size of ["sm", "md", "lg"]) {
+  it('lets a page set the height, padding, font size and text hover of a button', () => {
+    const scss = read('../lib/button/button.component.scss');
+    for (const size of ['sm', 'md', 'lg']) {
       const rule = block(scss, `.btn--${size} {`);
       expect(rule).toMatch(/--btn-h: var\(--button-height,/);
       expect(rule).toMatch(/padding: 0 var\(--button-padding-inline,/);
       expect(rule).toMatch(/font-size: var\(--button-font-size,/);
     }
-    expect(block(scss, ".btn--text:hover:not(:disabled) {")).toMatch(
+    expect(block(scss, '.btn--text:hover:not(:disabled) {')).toMatch(
       /background: var\(--button-hover-bg, var\(--color-surface-2\)\)/,
     );
   });
 
-  it("lays out a key/value grid with settable columns, the label muted above the value", () => {
-    const base = read("base.scss");
-    expect(block(base, ".kv {")).toMatch(
-      /grid-template-columns: repeat\(var\(--kv-cols, 3\), minmax\(0, 1fr\)\)/,
-    );
-    expect(block(base, ".kv > div {")).toMatch(
-      /gap: var\(--kv-item-gap, 2px\)/,
-    );
-    expect(block(base, ".kv dt {")).toMatch(/color: var\(--color-text-muted\)/);
-    expect(block(base, ".kv dd {")).toMatch(/overflow-wrap: anywhere/);
-    expect(block(base, ".kv__wide {")).toMatch(/grid-column: 1 \/ -1/);
+  it('lays out a key/value grid with settable columns, the label muted above the value', () => {
+    const base = read('base.scss');
+    expect(block(base, '.kv {')).toMatch(/grid-template-columns: repeat\(var\(--kv-cols, 3\), minmax\(0, 1fr\)\)/);
+    expect(block(base, '.kv > div {')).toMatch(/gap: var\(--kv-item-gap, 2px\)/);
+    expect(block(base, '.kv dt {')).toMatch(/color: var\(--color-text-muted\)/);
+    expect(block(base, '.kv dd {')).toMatch(/overflow-wrap: anywhere/);
+    expect(block(base, '.kv__wide {')).toMatch(/grid-column: 1 \/ -1/);
   });
 
-  it("draws a code tag in the mono face that wraps, filled or outlined", () => {
-    const base = read("base.scss");
-    const tag = block(base, ".code-tag {");
+  it('draws a code tag in the mono face that wraps, filled or outlined', () => {
+    const base = read('base.scss');
+    const tag = block(base, '.code-tag {');
     expect(tag).toMatch(/font-family: var\(--font-mono\)/);
     expect(tag).toMatch(/overflow-wrap: anywhere/);
     expect(tag).toMatch(/background: var\(--color-surface-3\)/);
-    expect(block(base, ".code-tag--outlined {")).toMatch(
-      /border: 1px solid var\(--color-border-strong\)/,
-    );
+    expect(block(base, '.code-tag--outlined {')).toMatch(/border: 1px solid var\(--color-border-strong\)/);
   });
 
-  it("gives a selected table row the selection colour, its pinned cells included", () => {
-    const scss = read("../lib/data-table/data-table.component.scss");
-    expect(block(scss, ".dt__table tbody tr.dt__row--selected td {")).toMatch(
+  it('gives a selected table row the selection colour, its pinned cells included', () => {
+    const scss = read('../lib/data-table/data-table.component.scss');
+    expect(block(scss, '.dt__table tbody tr.dt__row--selected td {')).toMatch(
       /background: var\(--color-selected\)/,
     );
-    expect(scss).toMatch(
-      /tr\.dt__row--selected:hover td\.dt__cell--stickyEnd[\s\S]*?--pin-bg: var\(--color-selected\)/,
-    );
-    expect(block(scss, ".dt__table tbody tr {")).toMatch(/height: 3\.5rem/);
+    expect(scss).toMatch(/tr\.dt__row--selected:hover td\.dt__cell--stickyEnd[\s\S]*?--pin-bg: var\(--color-selected\)/);
+    expect(block(scss, '.dt__table tbody tr {')).toMatch(/height: 3\.5rem/);
   });
 
-  it("colours the whole card for a selected row on a phone, never a box of cells", () => {
-    const scss = read("../lib/data-table/data-table.component.scss");
-    const last = scss.slice(scss.lastIndexOf("@media (max-width: 767.98px)"));
+  it('colours the whole card for a selected row on a phone, never a box of cells', () => {
+    const scss = read('../lib/data-table/data-table.component.scss');
+    const last = scss.slice(scss.lastIndexOf('@media (max-width: 767.98px)'));
     // The cells go transparent and the row takes the colour, after every surface rule.
-    expect(block(last, ".dt .dt__table tbody tr > td,")).toMatch(
-      /background: transparent/,
-    );
-    expect(block(last, ".dt .dt__table tbody tr.dt__row--selected,")).toMatch(
+    expect(block(last, '.dt .dt__table tbody tr > td,')).toMatch(/background: transparent/);
+    expect(block(last, '.dt .dt__table tbody tr.dt__row--selected,')).toMatch(
       /background: var\(--color-selected\)/,
     );
   });
 
-  it("puts the card checkbox and actions in the card header with a 44px touch target", () => {
-    const scss = read("../lib/data-table/data-table.component.scss");
-    expect(block(scss, ".dt__table td.dt__selectCell {")).toMatch(
-      /grid-column: 1;/,
-    );
-    expect(
-      block(scss, "\n  .dt__table td[data-card='actions'] {\n    grid-column"),
-    ).toMatch(/grid-column: 3;/);
-    const hit = block(scss, ".dt__table td.dt__selectCell .dt__checkHit {");
+  it('puts the card checkbox and actions in the card header with a 44px touch target', () => {
+    const scss = read('../lib/data-table/data-table.component.scss');
+    expect(block(scss, '.dt__table td.dt__selectCell {')).toMatch(/grid-column: 1;/);
+    expect(block(scss, "\n  .dt__table td[data-card='actions'] {\n    grid-column")).toMatch(/grid-column: 3;/);
+    const hit = block(scss, '.dt__table td.dt__selectCell .dt__checkHit {');
     expect(hit).toMatch(/width: 2\.75rem/);
     expect(hit).toMatch(/height: 2\.75rem/);
   });
 
-  it("draws the table checkbox as the design-system checkbox, centred in its cell", () => {
-    const scss = read("../lib/data-table/data-table.component.scss");
-    const box = block(scss, "\n.dt__check {");
+  it('draws the table checkbox as the design-system checkbox, centred in its cell', () => {
+    const scss = read('../lib/data-table/data-table.component.scss');
+    const box = block(scss, '\n.dt__check {');
     // No native box: it is a grey filled square in the dark theme.
     expect(box).toMatch(/appearance: none/);
-    expect(box).toMatch(
-      /box-shadow: inset 0 0 0 2px var\(--check-edge, var\(--color-border-strong\)\)/,
-    );
-    expect(block(scss, ".dt__check:checked {")).toMatch(
-      /background: var\(--check-on, var\(--color-accent\)\)/,
-    );
-    expect(block(scss, ".dt__check:indeterminate {")).toMatch(
-      /background: var\(--check-on, var\(--color-accent\)\)/,
-    );
-    expect(block(scss, ".dt__check:focus-visible {")).toMatch(
-      /outline: 2px solid var\(--color-focus-ring\)/,
-    );
+    expect(box).toMatch(/box-shadow: inset 0 0 0 2px var\(--check-edge, var\(--color-border-strong\)\)/);
+    expect(block(scss, '.dt__check:checked {')).toMatch(/background: var\(--check-on, var\(--color-accent\)\)/);
+    expect(block(scss, '.dt__check:indeterminate {')).toMatch(/background: var\(--check-on, var\(--color-accent\)\)/);
+    expect(block(scss, '.dt__check:focus-visible {')).toMatch(/outline: 2px solid var\(--color-focus-ring\)/);
     // A flex label, so the box sits in the middle of the cell and not on a baseline.
-    const hit = block(scss, "\n.dt__checkHit {");
+    const hit = block(scss, '\n.dt__checkHit {');
     expect(hit).toMatch(/display: flex/);
     expect(hit).toMatch(/align-items: center/);
   });
 
-  it("draws the dialog as a sheet with radius 24", () => {
-    const scss = read("../lib/dialog/dialog.component.scss");
-    expect(block(scss, ".dialog {")).toMatch(
-      /border-radius: var\(--radius-2xl\)/,
-    );
-    expect(read("tokens.scss")).toMatch(/--radius-2xl: 24px;/);
+  it('draws the dialog as a sheet with radius 24', () => {
+    const scss = read('../lib/dialog/dialog.component.scss');
+    expect(block(scss, '.dialog {')).toMatch(/border-radius: var\(--radius-2xl\)/);
+    expect(read('tokens.scss')).toMatch(/--radius-2xl: 24px;/);
   });
 
-  it("uses IBM Plex for the sans and mono faces", () => {
-    const tokens = read("tokens.scss");
+  it('uses IBM Plex for the sans and mono faces', () => {
+    const tokens = read('tokens.scss');
     expect(tokens).toMatch(/--font-sans: 'IBM Plex Sans'/);
     expect(tokens).toMatch(/--font-mono: 'IBM Plex Mono'/);
-    const fonts = read("fonts.scss");
+    const fonts = read('fonts.scss');
     expect(fonts).not.toMatch(/Archivo/);
     for (const w of [400, 500, 600, 700]) {
       expect(fonts).toContain(`ibm-plex-sans-latin-${w}-normal.woff2`);
@@ -296,115 +240,81 @@ describe("design-system rules in the stylesheets", () => {
     }
   });
 
-  it("takes the table surface from the container context, never a fixed surface", () => {
-    const dt = read("../lib/data-table/data-table.component.scss");
+  it('takes the table surface from the container context, never a fixed surface', () => {
+    const dt = read('../lib/data-table/data-table.component.scss');
     // The aliases are the only place that names a surface; the tongue keeps its own.
-    const aliases = block(dt, "\n.dt {");
-    expect(aliases).toMatch(
-      /--dt-bg: var\(--table-bg, var\(--color-surface-1\)\)/,
-    );
+    const aliases = block(dt, '\n.dt {');
+    expect(aliases).toMatch(/--dt-bg: var\(--table-bg, var\(--color-surface-1\)\)/);
     expect(aliases).toMatch(/--dt-hover: var\(--table-hover-bg, /);
-    expect(aliases).toMatch(
-      /--dt-head-fg: var\(--table-head-fg, var\(--color-text-subtle\)\)/,
-    );
-    const rest = dt
-      .replace(aliases, "")
-      .replace(block(dt, ".dt__tongue {"), "");
+    expect(aliases).toMatch(/--dt-head-fg: var\(--table-head-fg, var\(--color-text-subtle\)\)/);
+    const rest = dt.replace(aliases, '').replace(block(dt, '.dt__tongue {'), '');
     expect(rest).not.toMatch(/var\(--color-surface/);
-    expect(block(dt, ".dt--boxed {")).toMatch(/background: var\(--dt-bg\)/);
-    expect(block(dt, ".dt__table th {")).toMatch(/background: var\(--dt-bg\)/);
-    expect(block(dt, ".dt__table th {")).toMatch(/color: var\(--dt-head-fg\)/);
-    expect(block(dt, ".dt--rowgroup {")).toMatch(/background: var\(--dt-bg\)/);
+    expect(block(dt, '.dt--boxed {')).toMatch(/background: var\(--dt-bg\)/);
+    expect(block(dt, '.dt__table th {')).toMatch(/background: var\(--dt-bg\)/);
+    expect(block(dt, '.dt__table th {')).toMatch(/color: var\(--dt-head-fg\)/);
+    expect(block(dt, '.dt--rowgroup {')).toMatch(/background: var\(--dt-bg\)/);
 
-    const tbl = block(read("../lib/table/table.component.scss"), ".tbl {");
-    expect(tbl).toMatch(
-      /background: var\(--table-bg, var\(--color-surface-1\)\)/,
-    );
+    const tbl = block(read('../lib/table/table.component.scss'), '.tbl {');
+    expect(tbl).toMatch(/background: var\(--table-bg, var\(--color-surface-1\)\)/);
   });
 
-  it("steps a table up one surface inside a dialog", () => {
-    const scss = read("../lib/dialog/dialog.component.scss");
+  it('steps a table up one surface inside a dialog', () => {
+    const scss = read('../lib/dialog/dialog.component.scss');
     expect(scss).toContain("@use '../../styles/surface';");
-    expect(block(scss, "\n.dialog {")).toMatch(
-      /@include surface\.context\(1\);/,
-    );
+    expect(block(scss, '\n.dialog {')).toMatch(/@include surface\.context\(1\);/);
   });
 });
 
-describe("motion and list pane partials", () => {
-  it("loads the motion classes and the route transitions with the styles entry", () => {
-    expect(read("index.scss")).toMatch(/@use 'motion';/);
-    const motion = read("motion.scss");
-    for (const name of [
-      "pop-in",
-      "pop-out",
-      "rise-in",
-      "fade-in",
-      "fade-out",
-      "expand-in",
-      "expand-out",
-    ]) {
+describe('motion and list pane partials', () => {
+  it('loads the motion classes and the route transitions with the styles entry', () => {
+    expect(read('index.scss')).toMatch(/@use 'motion';/);
+    const motion = read('motion.scss');
+    for (const name of ['pop-in', 'pop-out', 'rise-in', 'fade-in', 'fade-out', 'expand-in', 'expand-out']) {
       expect(motion).toContain(`.motion-${name} {`);
     }
-    for (const kind of ["push", "pop"]) {
-      expect(motion).toContain(
-        `:root[data-motion='${kind}']::view-transition-new(root)`,
-      );
+    for (const kind of ['push', 'pop']) {
+      expect(motion).toContain(`:root[data-motion='${kind}']::view-transition-new(root)`);
     }
     // A switch of section has no transition (app spec 002162).
     expect(motion).not.toContain("data-motion='section'");
-    expect(motion).toContain(":root[data-motion] .frame__rail {");
-    expect(motion).toContain(":root[data-motion] .bb {");
+    expect(motion).toContain(':root[data-motion] .frame__rail {');
+    expect(motion).toContain(':root[data-motion] .bb {');
   });
 
-  it("shows the new rail and bottom bar at once, without a cross-fade", () => {
-    const motion = read("motion.scss");
-    expect(motion).toMatch(
-      /::view-transition-old\(rail\),\n::view-transition-old\(bottom-bar\) \{\n {2}display: none;/,
-    );
-    expect(motion).toMatch(
-      /::view-transition-new\(rail\),[^{]*\{\n {2}animation: none;/,
-    );
-    expect(motion).toMatch(
-      /:root\[data-motion\] \.frame__rail \{\n {2}background: var\(--color-bg\);/,
-    );
+  it('shows the new rail and bottom bar at once, without a cross-fade', () => {
+    const motion = read('motion.scss');
+    expect(motion).toMatch(/::view-transition-old\(rail\),\n::view-transition-old\(bottom-bar\) \{\n {2}display: none;/);
+    expect(motion).toMatch(/::view-transition-new\(rail\),[^{]*\{\n {2}animation: none;/);
+    expect(motion).toMatch(/:root\[data-motion\] \.frame__rail \{\n {2}background: var\(--color-bg\);/);
   });
 
-  it("times every motion with the tokens, never a literal duration", () => {
-    const motion = read("motion.scss");
+  it('times every motion with the tokens, never a literal duration', () => {
+    const motion = read('motion.scss');
     for (const m of motion.matchAll(/animation(?:-duration)?\s*:([^;]*);/g)) {
       expect(m[1]).not.toMatch(/\d+m?s\b/);
     }
   });
 
-  it("builds the frame of a list page from the list pane mixins", () => {
-    const pane = read("_list-pane.scss");
-    const frame = block(pane, "@mixin frame($b) {");
-    expect(frame).toContain("@include stack;");
-    expect(frame).toContain("@include split-scroll(--#{$b}-fade);");
-    expect(frame).not.toContain("fade.fade-y");
+  it('builds the frame of a list page from the list pane mixins', () => {
+    const pane = read('_list-pane.scss');
+    const frame = block(pane, '@mixin frame($b) {');
+    expect(frame).toContain('@include stack;');
+    expect(frame).toContain('@include split-scroll(--#{$b}-fade);');
+    expect(frame).not.toContain('fade.fade-y');
     expect(pane).not.toContain("@use 'scroll-fade'");
   });
 
-  it("gives settings rows 56px and record rows the anatomy of the list item", () => {
-    const rowgroup = read("rowgroup.scss");
-    const settings = block(rowgroup, ".rowgroup.rowgroup--settings > * {");
+  it('gives settings rows 56px and record rows the anatomy of the list item', () => {
+    const rowgroup = read('rowgroup.scss');
+    const settings = block(rowgroup, '.rowgroup.rowgroup--settings > * {');
     expect(settings).toMatch(/min-height: 56px;/);
     expect(settings).toMatch(/padding: var\(--space-3\) var\(--space-4\);/);
-    const records = block(
-      rowgroup,
-      ".rowgroup.rowgroup--records > *,\n.rowgroup__record {",
-    );
+    const records = block(rowgroup, '.rowgroup.rowgroup--records > *,\n.rowgroup__record {');
     expect(records).toMatch(/min-height: 4rem;/);
-    expect(records).toMatch(
-      /padding: 10px var\(--space-4\) 10px var\(--space-5\);/,
-    );
-    const title = block(rowgroup, ".rowgroup__title {");
-    const item = block(
-      read("../lib/list-item/list-item.component.scss"),
-      "\n.li__title {",
-    );
-    for (const rule of ["font-size", "font-weight", "line-height"]) {
+    expect(records).toMatch(/padding: 10px var\(--space-4\) 10px var\(--space-5\);/);
+    const title = block(rowgroup, '.rowgroup__title {');
+    const item = block(read('../lib/list-item/list-item.component.scss'), '\n.li__title {');
+    for (const rule of ['font-size', 'font-weight', 'line-height']) {
       const value = new RegExp(`${rule}: [^;]+;`);
       expect(title.match(value)?.[0]).toBe(item.match(value)?.[0]);
     }
@@ -412,55 +322,42 @@ describe("motion and list pane partials", () => {
 });
 
 // App spec 001500: the head of a list column on a wide screen.
-describe("WideListHead", () => {
-  const scss = read("list-detail.scss");
+describe('WideListHead', () => {
+  const scss = read('list-detail.scss');
 
-  it("shows the title only to a screen reader", () => {
+  it('shows the title only to a screen reader', () => {
     expect(scss).toMatch(
       /\.ld-pane:has\(> \.ld-pane__filters > :first-child\) > app-page-header\.ph--pane \.ph__text\.ph__text \{[^}]*clip: rect\(0 0 0 0\)/,
     );
   });
 
-  it("keeps the title of a column without a filter bar", () => {
-    expect(scss).not.toMatch(
-      /^\s*\.ld-pane > app-page-header\.ph--pane[^{]*\{/m,
-    );
+  it('keeps the title of a column without a filter bar', () => {
+    expect(scss).not.toMatch(/^\s*\.ld-pane > app-page-header\.ph--pane[^{]*\{/m);
   });
 
-  it("puts the buttons at the end of the first filter line, as high as the search bar", () => {
-    expect(scss).toMatch(
-      /app-search-pill:first-child\) > app-page-header\.ph--pane \{\s*--ph-pane-h: var\(--control-height-lg\);/,
-    );
-    expect(scss).toMatch(
-      /\.ph__actions\.ph__actions \{\s*--btn-grp-h: var\(--ph-pane-h\);\s*position: absolute;/,
-    );
-    expect(scss).toContain(
-      "margin-inline-end: calc(var(--ph-pane-actions, 0px) + var(--space-3));",
-    );
+  it('puts the buttons at the end of the first filter line, as high as the search bar', () => {
+    expect(scss).toMatch(/app-search-pill:first-child\) > app-page-header\.ph--pane \{\s*--ph-pane-h: var\(--control-height-lg\);/);
+    expect(scss).toMatch(/\.ph__actions\.ph__actions \{\s*--btn-grp-h: var\(--ph-pane-h\);\s*position: absolute;/);
+    expect(scss).toContain('margin-inline-end: calc(var(--ph-pane-actions, 0px) + var(--space-3));');
   });
 
-  it("matches the yellow of the search bar in the very high contrast", () => {
-    expect(scss).toContain("--btn-grp-h: calc(var(--ph-pane-h) - 4px);");
+  it('matches the yellow of the search bar in the very high contrast', () => {
+    expect(scss).toContain('--btn-grp-h: calc(var(--ph-pane-h) - 4px);');
   });
 
-  it("sticks the buttons level with the first control of the stuck filter bar", () => {
-    expect(scss).toMatch(
-      /position: sticky;[^}]*top: calc\([^;]*\+\s*var\(--space-2\)\s*\);/,
-    );
+  it('sticks the buttons level with the first control of the stuck filter bar', () => {
+    expect(scss).toMatch(/position: sticky;[^}]*top: calc\([^;]*\+\s*var\(--space-2\)\s*\);/);
   });
 });
 
 /** The rows below a stuck sticky bar cut at its edge with round corners, never fade (app 000193). */
-describe("StickyBarCut", () => {
-  const scss = read("../lib/sticky-bar/sticky-bar.component.scss");
+describe('StickyBarCut', () => {
+  const scss = read('../lib/sticky-bar/sticky-bar.component.scss');
 
-  it("draws round inner corners below the bar, not a fade", () => {
+  it('draws round inner corners below the bar, not a fade', () => {
     expect(scss).not.toMatch(/linear-gradient\(to bottom, var\(--stb-bg/);
     expect(scss).toMatch(/:host::after \{[^}]*@include bar-corners\(/);
-    const corners = block(
-      read("_frosted.scss"),
-      "@mixin bar-corners($radius, $color) {",
-    );
+    const corners = block(read('_frosted.scss'), '@mixin bar-corners($radius, $color) {');
     expect(corners).toMatch(/radial-gradient\(\s*circle at 100% 100%/);
     expect(corners).toMatch(/radial-gradient\(circle at 0 100%/);
   });
@@ -471,45 +368,37 @@ describe("StickyBarCut", () => {
  * shadow. They keep the colour they sit on, also scrolled. Only a floating
  * box (`frosted-pop`) keeps the glass.
  */
-describe("SolidBars", () => {
+describe('SolidBars', () => {
   const BARS = [
-    "../../shell/src/bottom-bar/bottom-bar.component.scss",
-    "../lib/sticky-bar/sticky-bar.component.scss",
-    "../lib/list-detail/list-detail-bar.component.scss",
-    "../lib/list-group/list-group.component.scss",
-    "../lib/tab-pager/tab-pager.component.scss",
-    "list-detail.scss",
+    '../../shell/src/bottom-bar/bottom-bar.component.scss',
+    '../lib/sticky-bar/sticky-bar.component.scss',
+    '../lib/list-detail/list-detail-bar.component.scss',
+    '../lib/list-group/list-group.component.scss',
+    '../lib/tab-pager/tab-pager.component.scss',
+    'list-detail.scss',
   ];
 
-  it("has no glass, no fade of glass and no shadow in a bar", () => {
+  it('has no glass, no fade of glass and no shadow in a bar', () => {
     for (const path of BARS) {
       const scss = read(path);
       expect(scss).not.toMatch(/backdrop-filter/);
-      expect(scss).not.toMatch(
-        /frosted\(|frosted-rest|glass-corners|glass-top-fade/,
-      );
+      expect(scss).not.toMatch(/frosted\(|frosted-rest|glass-corners|glass-top-fade/);
       expect(scss).not.toMatch(/box-shadow: var\(--shadow/);
       expect(scss).toMatch(/@include bar\(/);
     }
   });
 
-  it("keeps the colour of a scrolled bar and ends it in a hairline, white in very high contrast", () => {
-    const mixin = block(
-      read("_frosted.scss"),
-      "@mixin bar($color, $scrolled: false) {",
-    );
-    expect(mixin).toMatch(
-      /background: var\(--bar-scrolled, #\{\$color\}\);\s*box-shadow: var\(--bar-edge, inset 0 calc\(-1 \* var\(--border-width\)\) 0 var\(--color-border\)\);/,
-    );
+  it('keeps the colour of a scrolled bar and ends it in a hairline, white in very high contrast', () => {
+    const mixin = block(read('_frosted.scss'), '@mixin bar($color, $scrolled: false) {');
+    expect(mixin).toMatch(/background: var\(--bar-scrolled, #\{\$color\}\);\s*box-shadow: var\(--bar-edge, inset 0 calc\(-1 \* var\(--border-width\)\) 0 var\(--color-border\)\);/);
     expect(mixin).not.toMatch(/--color-bar/);
-    for (const path of BARS.slice(1))
-      expect(read(path)).toMatch(/\$scrolled: true/);
+    for (const path of BARS.slice(1)) expect(read(path)).toMatch(/\$scrolled: true/);
   });
 
-  it("defines the bar colour per theme as surface 3", () => {
-    const tokens = read("tokens.scss");
-    expect(tokens).toContain("--color-bar: var(--c-light-c3);");
-    expect(tokens).toContain("--color-bar: var(--c-dark-c3);");
+  it('defines the bar colour per theme as surface 3', () => {
+    const tokens = read('tokens.scss');
+    expect(tokens).toContain('--color-bar: var(--c-light-c3);');
+    expect(tokens).toContain('--color-bar: var(--c-dark-c3);');
   });
 });
 
@@ -517,55 +406,41 @@ describe("SolidBars", () => {
  * A head is opaque in every state, also before the script notes the scroll (002420). The
  * browser check of the app (`e2e/07-opaque-heads.spec.ts`) reads the computed colours.
  */
-describe("OpaqueBeforeScript", () => {
+describe('OpaqueBeforeScript', () => {
   const HEADS = [
-    "../lib/sticky-bar/sticky-bar.component.scss",
-    "../lib/list-detail/list-detail-bar.component.scss",
-    "../lib/list-group/list-group.component.scss",
-    "../lib/tab-pager/tab-pager.component.scss",
-    "../../shell/src/bottom-bar/bottom-bar.component.scss",
+    '../lib/sticky-bar/sticky-bar.component.scss',
+    '../lib/list-detail/list-detail-bar.component.scss',
+    '../lib/list-group/list-group.component.scss',
+    '../lib/tab-pager/tab-pager.component.scss',
+    '../../shell/src/bottom-bar/bottom-bar.component.scss',
   ];
 
-  it("gives no state that the script sets a transparent background", () => {
+  it('gives no state that the script sets a transparent background', () => {
     for (const path of HEADS) {
       const scss = read(path);
-      const states =
-        scss.match(
-          /[^{};/]*(--stuck|--scrolled|--under|--condensed)[^{};]*\{[^}]*\}/g,
-        ) ?? [];
-      for (const rule of states)
-        expect(rule).not.toMatch(/background(-color)?:\s*transparent/);
+      const states = scss.match(/[^{};/]*(--stuck|--scrolled|--under|--condensed)[^{};]*\{[^}]*\}/g) ?? [];
+      for (const rule of states) expect(rule).not.toMatch(/background(-color)?:\s*transparent/);
     }
   });
 
-  it("keeps the phone search bar solid at rest, with the page header above it", () => {
-    const bar = read("../lib/sticky-bar/sticky-bar.component.scss");
-    const phone = block(bar, "@include bp.phone {");
-    expect(phone).toMatch(
-      /:host \{[^}]*@include bar\(var\(--stb-bg, var\(--color-bg\)\)\);\s*\}/,
-    );
+  it('keeps the phone search bar solid at rest, with the page header above it', () => {
+    const bar = read('../lib/sticky-bar/sticky-bar.component.scss');
+    const phone = block(bar, '@include bp.phone {');
+    expect(phone).toMatch(/:host \{[^}]*@include bar\(var\(--stb-bg, var\(--color-bg\)\)\);\s*\}/);
     expect(phone).not.toMatch(/background: transparent/);
-    expect(bar).toContain("z-index: calc(var(--z-sticky) - 2);");
-    expect(read("../lib/list-group/list-group.component.scss")).toContain(
-      "z-index: calc(var(--z-sticky) - 3);",
-    );
-    expect(read("base.scss")).toMatch(
+    expect(bar).toContain('z-index: calc(var(--z-sticky) - 2);');
+    expect(read('../lib/list-group/list-group.component.scss')).toContain('z-index: calc(var(--z-sticky) - 3);');
+    expect(read('base.scss')).toMatch(
       /app-page-header:has\(\+ app-sticky-bar:not\(\.stb--off\)\) \{\s*position: relative;\s*z-index: calc\(var\(--z-sticky\) - 1\);/,
     );
   });
 
-  it("passes the free height of a tab panel or a side pane down to a `fill` empty state (002650)", () => {
-    const ld = read("list-detail.scss");
-    const panel = block(
-      ld,
-      ":is([role='tabpanel'], .ss__body):not([hidden]):has(app-empty-state.es-host--fill) {",
-    );
+  it('passes the free height of a tab panel or a side pane down to a `fill` empty state (002650)', () => {
+    const ld = read('list-detail.scss');
+    const panel = block(ld, ":is([role='tabpanel'], .ss__body):not([hidden]):has(app-empty-state.es-host--fill) {");
     expect(panel).toMatch(/display: flex;/);
     expect(panel).toMatch(/flex-direction: column;/);
-    const between = block(
-      ld,
-      ":is([role='tabpanel'], .ss__body) :not([hidden]):has(app-empty-state.es-host--fill) {",
-    );
+    const between = block(ld, ":is([role='tabpanel'], .ss__body) :not([hidden]):has(app-empty-state.es-host--fill) {");
     expect(between).toMatch(/flex: 1 0 auto;/);
     expect(between).toMatch(/flex-direction: column;/);
   });

@@ -6,15 +6,10 @@
 export type Uuid = string;
 
 /** The kinds of entries on the wire. The page counts an Event to the Termine. */
-export type EntryKind =
-  | "meeting"
-  | "card"
-  | "event"
-  | "appointment"
-  | "external";
+export type EntryKind = 'meeting' | 'card' | 'event' | 'appointment' | 'external';
 
 /** The answers of an invited person, in the order of the answer control. */
-export type AnswerKey = "accept" | "tentative" | "decline";
+export type AnswerKey = 'accept' | 'tentative' | 'decline';
 
 /** One entry of the Kalender. A time is `HH:MM:SS`, and null for an all-day entry. */
 export interface CalendarEntry {

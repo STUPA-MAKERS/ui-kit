@@ -1,14 +1,7 @@
-import {
-  ChangeDetectionStrategy,
-  Component,
-  computed,
-  inject,
-  input,
-  output,
-} from "@angular/core";
-import type { PublicAppointment, PublicMeeting } from "./calendar.types";
-import { registerUiKitTexts, UI_KIT_INTL } from "@stupa-makers/ui-kit";
-import { UiKitTranslatePipe } from "@stupa-makers/ui-kit";
+import { ChangeDetectionStrategy, Component, computed, inject, input, output } from '@angular/core';
+import type { PublicAppointment, PublicMeeting } from './calendar.types';
+import { registerUiKitTexts, UI_KIT_INTL } from '@stupa-makers/ui-kit';
+import { UiKitTranslatePipe } from '@stupa-makers/ui-kit';
 import {
   ButtonComponent,
   ButtonGroupComponent,
@@ -16,14 +9,14 @@ import {
   IconComponent,
   FactsComponent,
   DialogBodyDirective,
-} from "@stupa-makers/ui-kit";
-import { spanText } from "./calendar.util";
-import { UI_KIT_CALENDAR_TEXTS } from "./calendar.texts";
+} from '@stupa-makers/ui-kit';
+import { spanText } from './calendar.util';
+import { UI_KIT_CALENDAR_TEXTS } from './calendar.texts';
 
 /** An entry of the public calendar with its public fields: a Termin or a meeting. */
 export type PublicEntry =
-  | { readonly kind: "appointment"; readonly data: PublicAppointment }
-  | { readonly kind: "meeting"; readonly data: PublicMeeting };
+  | { readonly kind: 'appointment'; readonly data: PublicAppointment }
+  | { readonly kind: 'meeting'; readonly data: PublicMeeting };
 
 /**
  * The dialog of one entry of the public calendar (§ 000730-000732). A public Termin
@@ -33,7 +26,7 @@ export type PublicEntry =
  * dialog as a bottom sheet.
  */
 @Component({
-  selector: "app-public-entry-view",
+  selector: 'app-public-entry-view',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
@@ -45,11 +38,8 @@ export type PublicEntry =
     IconComponent,
     UiKitTranslatePipe,
   ],
-  templateUrl: "./public-entry-view.component.html",
-  styleUrls: [
-    "./external-entry-view.component.scss",
-    "./public-entry-view.component.scss",
-  ],
+  templateUrl: './public-entry-view.component.html',
+  styleUrls: ['./external-entry-view.component.scss', './public-entry-view.component.scss'],
 })
 export class PublicEntryViewComponent {
   /** The texts of the view, registered before the first render (002237). */
@@ -63,18 +53,13 @@ export class PublicEntryViewComponent {
   /** Open the public protocol of a meeting: the app routes to it. */
   readonly protocolOpen = output<string>();
 
-  readonly title = computed(() => this.entry()?.data.title ?? "");
+  readonly title = computed(() => this.entry()?.data.title ?? '');
   readonly when = computed(() => {
     const e = this.entry();
-    if (!e) return "";
+    if (!e) return '';
     const span =
-      e.kind === "meeting"
-        ? {
-            startsOn: e.data.day,
-            endsOn: e.data.day,
-            startTime: e.data.startTime,
-            endTime: e.data.endTime,
-          }
+      e.kind === 'meeting'
+        ? { startsOn: e.data.day, endsOn: e.data.day, startTime: e.data.startTime, endTime: e.data.endTime }
         : e.data;
     return spanText(span, this.i18n.formatLocale());
   });
