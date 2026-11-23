@@ -2,7 +2,7 @@
 id: "002277"
 title: The flow editor views take the inspectors, the transition lists and the guard editor
 kind: style
-status: draft
+status: approved
 owner: frederikbeimgraben
 updated: 2026-11-23
 implementation:
