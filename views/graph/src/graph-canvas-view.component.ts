@@ -10,16 +10,17 @@ import {
   output,
   signal,
   untracked,
-} from '@angular/core';
+} from "@angular/core";
 import {
   ButtonComponent,
   ButtonGroupComponent,
   IconComponent,
   type IconName,
   reducedMotion,
+  registerUiKitTexts,
   UiKitTranslatePipe,
-} from '@stupa-makers/ui-kit';
-import type { GraphKind, GraphLine } from './graph.types';
+} from "@stupa-makers/ui-kit";
+import type { GraphKind, GraphLine } from "./graph.types";
 import {
   ALPHA_DECAY,
   ALPHA_MIN,
@@ -40,7 +41,8 @@ import {
   settle,
   step,
   zoomAt,
-} from './graph-layout';
+} from "./graph-layout";
+import { UI_KIT_GRAPH_TEXTS } from "./graph.texts";
 
 /** A node as the drawing shows it. */
 export interface CanvasNode {
@@ -91,10 +93,10 @@ const JOIN_ALPHA = 0.5;
 const REVEAL_MARGIN = 48;
 
 const ARROWS: Readonly<Record<string, Direction>> = {
-  ArrowUp: 'up',
-  ArrowDown: 'down',
-  ArrowLeft: 'left',
-  ArrowRight: 'right',
+  ArrowUp: "up",
+  ArrowDown: "down",
+  ArrowLeft: "left",
+  ArrowRight: "right",
 };
 
 /**
@@ -113,14 +115,22 @@ const ARROWS: Readonly<Record<string, Direction>> = {
  * keys to the nearest node in that direction.
  */
 @Component({
-  selector: 'app-graph-canvas-view',
+  selector: "app-graph-canvas-view",
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [ButtonComponent, ButtonGroupComponent, IconComponent, UiKitTranslatePipe],
-  templateUrl: './graph-canvas-view.component.html',
-  styleUrl: './graph-canvas-view.component.scss',
+  imports: [
+    ButtonComponent,
+    ButtonGroupComponent,
+    IconComponent,
+    UiKitTranslatePipe,
+  ],
+  templateUrl: "./graph-canvas-view.component.html",
+  styleUrl: "./graph-canvas-view.component.scss",
 })
 export class GraphCanvasViewComponent {
+  /** The texts of the view, registered before the first render (002237). */
+  protected readonly viewTexts = registerUiKitTexts(UI_KIT_GRAPH_TEXTS);
+
   private readonly host = inject<ElementRef<HTMLElement>>(ElementRef);
 
   readonly nodes = input.required<readonly CanvasNode[]>();
@@ -133,7 +143,10 @@ export class GraphCanvasViewComponent {
    * Where a chosen node goes when the view moves to it, as parts of the width and the
    * height of the frame. The page moves it away from the panel that covers a part.
    */
-  readonly focusAt = input<{ readonly x: number; readonly y: number }>({ x: 0.5, y: 0.5 });
+  readonly focusAt = input<{ readonly x: number; readonly y: number }>({
+    x: 0.5,
+    y: 0.5,
+  });
   /** The room at the top and at the foot that the fit leaves free for controls over the drawing. */
   readonly edge = input(0);
   /** A press on a node (its key) or on the empty drawing (null). */
@@ -141,7 +154,10 @@ export class GraphCanvasViewComponent {
 
   readonly bodies = signal<readonly Body[]>([]);
   readonly view = signal<View>({ x: 0, y: 0, zoom: 1 });
-  readonly size = signal<{ readonly width: number; readonly height: number }>({ width: 0, height: 0 });
+  readonly size = signal<{ readonly width: number; readonly height: number }>({
+    width: 0,
+    height: 0,
+  });
   /** The node that the keyboard is on. */
   readonly focused = signal<string | null>(null);
   /** True while nothing may move (spec 001427). */
@@ -163,12 +179,16 @@ export class GraphCanvasViewComponent {
   });
   readonly labels = computed(() => this.view().zoom >= LABEL_ZOOM);
 
-  private readonly places = computed(() => new Map(this.bodies().map((b) => [b.id, b] as const)));
+  private readonly places = computed(
+    () => new Map(this.bodies().map((b) => [b.id, b] as const)),
+  );
 
   /** The chosen node and its neighbours; null without a choice. */
   readonly lit = computed<ReadonlySet<string> | null>(() => {
     const chosen = this.selected();
-    return chosen === null ? null : new Set([chosen, ...(this.near().get(chosen) ?? [])]);
+    return chosen === null
+      ? null
+      : new Set([chosen, ...(this.near().get(chosen) ?? [])]);
   });
 
   readonly drawn = computed<readonly DrawnLine[]>(() => {
@@ -185,7 +205,7 @@ export class GraphCanvasViewComponent {
               y1: a.y,
               x2: b.x,
               y2: b.y,
-              builtin: l.source === 'builtin',
+              builtin: l.source === "builtin",
               dim: chosen !== null && l.a !== chosen && l.b !== chosen,
             },
           ]
@@ -196,7 +216,13 @@ export class GraphCanvasViewComponent {
   /** The one node that Tab reaches: the focused one, else the chosen one, else the first. */
   readonly tabStop = computed<string | null>(() => {
     const keys = this.visible().map((n) => n.key);
-    return [this.focused(), this.selected()].find((k) => k !== null && keys.includes(k)) ?? keys[0] ?? null;
+    return (
+      [this.focused(), this.selected()].find(
+        (k) => k !== null && keys.includes(k),
+      ) ??
+      keys[0] ??
+      null
+    );
   });
 
   private alpha = 0;
@@ -209,8 +235,12 @@ export class GraphCanvasViewComponent {
   private pointers: ReadonlyMap<number, Point> = new Map();
   private travel = 0;
   /** The node under a pointer that went down on it; `moved` after the travel of a press. */
-  private grab: { readonly key: string; readonly pointer: number; readonly last: Point; readonly travel: number } | null =
-    null;
+  private grab: {
+    readonly key: string;
+    readonly pointer: number;
+    readonly last: Point;
+    readonly travel: number;
+  } | null = null;
   /** True right after a drag of a node: the click that follows is no press. */
   private dragged = false;
   /** The key of the node that a drag moves, for its look. */
@@ -266,8 +296,9 @@ export class GraphCanvasViewComponent {
     event.preventDefault();
     if (event.altKey) {
       const body = this.places().get(key);
-      const dx = direction === 'left' ? -NUDGE : direction === 'right' ? NUDGE : 0;
-      const dy = direction === 'up' ? -NUDGE : direction === 'down' ? NUDGE : 0;
+      const dx =
+        direction === "left" ? -NUDGE : direction === "right" ? NUDGE : 0;
+      const dy = direction === "up" ? -NUDGE : direction === "down" ? NUDGE : 0;
       if (body) this.moveNode(key, body.x + dx, body.y + dy);
       this.reveal(key);
       return;
@@ -276,25 +307,35 @@ export class GraphCanvasViewComponent {
     if (next === null) return;
     this.focused.set(next);
     this.reveal(next);
-    Array.from(this.host.nativeElement.querySelectorAll<HTMLElement>('.gc__node'))
-      .find((el) => el.dataset['key'] === next)
+    Array.from(
+      this.host.nativeElement.querySelectorAll<HTMLElement>(".gc__node"),
+    )
+      .find((el) => el.dataset["key"] === next)
       ?.focus({ preventScroll: true });
   }
 
   onDown(event: PointerEvent): void {
     const target = event.target as Element;
-    const node = target.closest<HTMLElement>('.gc__node');
+    const node = target.closest<HTMLElement>(".gc__node");
     if (node) {
-      const key = node.dataset['key'];
+      const key = node.dataset["key"];
       if (key !== undefined && this.grab === null && this.pointers.size === 0) {
-        this.grab = { key, pointer: event.pointerId, last: { x: event.clientX, y: event.clientY }, travel: 0 };
+        this.grab = {
+          key,
+          pointer: event.pointerId,
+          last: { x: event.clientX, y: event.clientY },
+          travel: 0,
+        };
       }
       return;
     }
-    if (target.closest('.gc__tools')) return;
+    if (target.closest(".gc__tools")) return;
     (event.currentTarget as Element).setPointerCapture?.(event.pointerId);
     if (this.pointers.size === 0) this.travel = 0;
-    this.pointers = new Map(this.pointers).set(event.pointerId, { x: event.clientX, y: event.clientY });
+    this.pointers = new Map(this.pointers).set(event.pointerId, {
+      x: event.clientX,
+      y: event.clientY,
+    });
   }
 
   onMove(event: PointerEvent): void {
@@ -305,20 +346,34 @@ export class GraphCanvasViewComponent {
     const last = this.pointers.get(event.pointerId);
     if (!last) return;
     const point: Point = { x: event.clientX, y: event.clientY };
-    const other = Array.from(this.pointers).find(([id]) => id !== event.pointerId)?.[1];
+    const other = Array.from(this.pointers).find(
+      ([id]) => id !== event.pointerId,
+    )?.[1];
     this.pointers = new Map(this.pointers).set(event.pointerId, point);
     this.travel = this.travel + Math.hypot(point.x - last.x, point.y - last.y);
     if (other) {
       const frame = this.host.nativeElement.getBoundingClientRect();
-      const before = Math.max(1, Math.hypot(last.x - other.x, last.y - other.y));
+      const before = Math.max(
+        1,
+        Math.hypot(last.x - other.x, last.y - other.y),
+      );
       const after = Math.hypot(point.x - other.x, point.y - other.y);
       this.free = true;
       this.view.update((v) =>
-        zoomAt(v, after / before, (point.x + other.x) / 2 - frame.left, (point.y + other.y) / 2 - frame.top),
+        zoomAt(
+          v,
+          after / before,
+          (point.x + other.x) / 2 - frame.left,
+          (point.y + other.y) / 2 - frame.top,
+        ),
       );
     } else if (this.travel > PRESS_TRAVEL) {
       this.free = true;
-      this.view.update((v) => ({ ...v, x: v.x + point.x - last.x, y: v.y + point.y - last.y }));
+      this.view.update((v) => ({
+        ...v,
+        x: v.x + point.x - last.x,
+        y: v.y + point.y - last.y,
+      }));
     }
   }
 
@@ -333,8 +388,14 @@ export class GraphCanvasViewComponent {
       return;
     }
     if (!this.pointers.has(event.pointerId)) return;
-    this.pointers = new Map(Array.from(this.pointers).filter(([id]) => id !== event.pointerId));
-    if (this.pointers.size === 0 && this.travel <= PRESS_TRAVEL && event.type === 'pointerup') {
+    this.pointers = new Map(
+      Array.from(this.pointers).filter(([id]) => id !== event.pointerId),
+    );
+    if (
+      this.pointers.size === 0 &&
+      this.travel <= PRESS_TRAVEL &&
+      event.type === "pointerup"
+    ) {
       this.chosen.emit(null);
     }
   }
@@ -344,7 +405,12 @@ export class GraphCanvasViewComponent {
     const frame = this.host.nativeElement.getBoundingClientRect();
     this.free = true;
     this.view.update((v) =>
-      zoomAt(v, Math.exp(-event.deltaY * 0.0015), event.clientX - frame.left, event.clientY - frame.top),
+      zoomAt(
+        v,
+        Math.exp(-event.deltaY * 0.0015),
+        event.clientX - frame.left,
+        event.clientY - frame.top,
+      ),
     );
   }
 
@@ -370,9 +436,13 @@ export class GraphCanvasViewComponent {
   }
 
   /** A pointer that went down on a node moves: after the travel of a press, the node follows it. */
-  private drag(event: PointerEvent, grab: NonNullable<GraphCanvasViewComponent['grab']>): void {
+  private drag(
+    event: PointerEvent,
+    grab: NonNullable<GraphCanvasViewComponent["grab"]>,
+  ): void {
     const point: Point = { x: event.clientX, y: event.clientY };
-    const travel = grab.travel + Math.hypot(point.x - grab.last.x, point.y - grab.last.y);
+    const travel =
+      grab.travel + Math.hypot(point.x - grab.last.x, point.y - grab.last.y);
     this.grab = { ...grab, last: point, travel };
     if (travel <= PRESS_TRAVEL) return;
     if (this.held() === null) {
@@ -381,7 +451,11 @@ export class GraphCanvasViewComponent {
     }
     const frame = this.host.nativeElement.getBoundingClientRect();
     const v = this.view();
-    this.moveNode(grab.key, (point.x - frame.left - v.x) / v.zoom, (point.y - frame.top - v.y) / v.zoom);
+    this.moveNode(
+      grab.key,
+      (point.x - frame.left - v.x) / v.zoom,
+      (point.y - frame.top - v.y) / v.zoom,
+    );
   }
 
   /** Put a node at a place of the layout and hold it; its neighbours follow unless nothing may move. */
@@ -421,7 +495,10 @@ export class GraphCanvasViewComponent {
     const known = new Set(before.map((b) => b.id));
     const waiting = this.queue.filter((id) => all.has(id));
     const queued = new Set(waiting);
-    this.queue = [...waiting, ...ids.filter((id) => !known.has(id) && !queued.has(id))];
+    this.queue = [
+      ...waiting,
+      ...ids.filter((id) => !known.has(id) && !queued.has(id)),
+    ];
     this.shown.set(known);
     this.bodies.set(before);
     this.refit();
@@ -449,7 +526,10 @@ export class GraphCanvasViewComponent {
     this.shown.set(new Set(ids));
     this.bodies.set(place(this.bodies(), ids, near));
     this.refit();
-    this.alpha = Math.max(this.alpha, this.bodies().length === 1 ? ALPHA_START : JOIN_ALPHA);
+    this.alpha = Math.max(
+      this.alpha,
+      this.bodies().length === 1 ? ALPHA_START : JOIN_ALPHA,
+    );
     this.run();
     if (this.queue.length === 0) {
       this.busy.set(false);
@@ -505,7 +585,11 @@ export class GraphCanvasViewComponent {
     if (this.free) return;
     const { width, height } = this.size();
     const edge = this.edge();
-    const view = fit(bounds(this.bodies(), FIT_PAD), width, Math.max(height - 2 * edge, 1));
+    const view = fit(
+      bounds(this.bodies(), FIT_PAD),
+      width,
+      Math.max(height - 2 * edge, 1),
+    );
     this.view.set({ ...view, y: view.y + edge });
   }
 
@@ -521,15 +605,26 @@ export class GraphCanvasViewComponent {
     const at = this.focusAt();
     if (v.zoom < LABEL_ZOOM) {
       this.free = true;
-      this.view.set({ x: width * at.x - body.x, y: height * at.y - body.y, zoom: 1 });
+      this.view.set({
+        x: width * at.x - body.x,
+        y: height * at.y - body.y,
+        zoom: 1,
+      });
       return;
     }
     const x = body.x * v.zoom + v.x;
     const y = body.y * v.zoom + v.y;
     const inside =
-      x >= REVEAL_MARGIN && x <= width - REVEAL_MARGIN && y >= REVEAL_MARGIN && y <= height - REVEAL_MARGIN;
+      x >= REVEAL_MARGIN &&
+      x <= width - REVEAL_MARGIN &&
+      y >= REVEAL_MARGIN &&
+      y <= height - REVEAL_MARGIN;
     if (inside) return;
     this.free = true;
-    this.view.set({ x: width * at.x - body.x * v.zoom, y: height * at.y - body.y * v.zoom, zoom: v.zoom });
+    this.view.set({
+      x: width * at.x - body.x * v.zoom,
+      y: height * at.y - body.y * v.zoom,
+      zoom: v.zoom,
+    });
   }
 }

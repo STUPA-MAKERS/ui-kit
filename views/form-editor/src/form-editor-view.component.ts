@@ -8,8 +8,8 @@ import {
   input,
   model,
   signal,
-} from '@angular/core';
-import { FormsModule } from '@angular/forms';
+} from "@angular/core";
+import { FormsModule } from "@angular/forms";
 import {
   ButtonComponent,
   ButtonGroupComponent,
@@ -18,8 +18,8 @@ import {
   ContentLangState,
   EmptyStateComponent,
   fallbackChain,
-  type I18nMap,
   I18nInputComponent,
+  type I18nMap,
   IconComponent,
   InputComponent,
   langFieldLabel,
@@ -27,6 +27,7 @@ import {
   mediaQuery,
   MetaLineComponent,
   MoveButtonsComponent,
+  registerUiKitTexts,
   RowMenuComponent,
   type RowMenuItem,
   type RowMenuSection,
@@ -38,10 +39,10 @@ import {
   SheetBodyDirective,
   SideSheetComponent,
   UI_KIT_INTL,
-  UiKitTranslatePipe,
   type UiKitTextKey,
-} from '@stupa-makers/ui-kit';
-import type { FieldType, FormFieldDef } from './form-editor.types';
+  UiKitTranslatePipe,
+} from "@stupa-makers/ui-kit";
+import type { FieldType, FormFieldDef } from "./form-editor.types";
 import {
   FIELD_TYPES,
   PROMOTE_TARGETS,
@@ -54,15 +55,25 @@ import {
   moveQuestionTo,
   participantsProblem,
   validateFormField,
-} from './form-field.util';
-import { type RuleDraft, menuTarget, movedTo, resolveI18n, ruleProblem, withoutKey } from './form-editor.util';
+} from "./form-field.util";
+import {
+  type RuleDraft,
+  menuTarget,
+  movedTo,
+  resolveI18n,
+  ruleProblem,
+  withoutKey,
+} from "./form-editor.util";
+import { UI_KIT_FORM_EDITOR_TEXTS } from "./form-editor.texts";
 
 /**
  * Visible order of the question types in the "add question" menu. `section` is **not** a
  * selectable type. Group containers model the sections, and the marker stays the
  * serialization primitive.
  */
-const TYPE_MENU: readonly FieldType[] = FIELD_TYPES.filter((t) => t !== 'section');
+const TYPE_MENU: readonly FieldType[] = FIELD_TYPES.filter(
+  (t) => t !== "section",
+);
 
 /** The height of the type menu (nine rows of two types), for the side it opens on. */
 const TYPE_MENU_HEIGHT = 9 * 36 + 16;
@@ -96,7 +107,7 @@ type QPos = QuestionPos;
  * columns, so their edges and fades do not cut it.
  */
 @Component({
-  selector: 'app-form-editor-view',
+  selector: "app-form-editor-view",
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
@@ -117,10 +128,13 @@ type QPos = QuestionPos;
     SideSheetComponent,
     ScrollFadeDirective,
   ],
-  templateUrl: './form-editor-view.component.html',
-  styleUrl: './form-editor-view.component.scss',
+  templateUrl: "./form-editor-view.component.html",
+  styleUrl: "./form-editor-view.component.scss",
 })
 export class FormEditorViewComponent {
+  /** The texts of the view, registered before the first render (002237). */
+  protected readonly viewTexts = registerUiKitTexts(UI_KIT_FORM_EDITOR_TEXTS);
+
   /** The groups of the outline the first load draws: the name widths of their rows. */
   protected readonly skeletonGroups: readonly (readonly number[])[] = [
     [60, 75, 45, 70, 55],
@@ -149,8 +163,8 @@ export class FormEditorViewComponent {
 
   /** Editor state: questions grouped into titled containers, one per wizard step. */
   readonly groups = model<readonly QuestionGroup[]>([]);
-  readonly title = model<I18nMap>({ de: '', en: '' });
-  readonly description = model<I18nMap>({ de: '', en: '' });
+  readonly title = model<I18nMap>({ de: "", en: "" });
+  readonly description = model<I18nMap>({ de: "", en: "" });
   /** "With budget": the application may select a pot (application_type.has_budget). */
   readonly hasBudget = model(false);
   /** The Antrag PDF of this type ends with the signature section (app spec 000888). */
@@ -167,7 +181,9 @@ export class FormEditorViewComponent {
   /** The selected question: outlined card, highlighted outline row. */
   readonly selected = model<QPos | null>(null);
 
-  protected readonly severityOptions: SelectOption[] = (['block', 'warn'] as const).map((v) => ({
+  protected readonly severityOptions: SelectOption[] = (
+    ["block", "warn"] as const
+  ).map((v) => ({
     value: v,
     label: this.i18n.translate(`admin.forms.rules.${v}`),
   }));
@@ -181,14 +197,18 @@ export class FormEditorViewComponent {
   /** Open "add question" type menu per group: the group index, or null for none. */
   protected readonly typeMenuGroup = signal<number | null>(null);
   /** Where the type menu opens: under its button, or above it near the window bottom. */
-  protected readonly menuPos = signal<{ left: number; top: number | null; bottom: number | null }>(
-    { left: 0, top: 0, bottom: null },
-  );
+  protected readonly menuPos = signal<{
+    left: number;
+    top: number | null;
+    bottom: number | null;
+  }>({ left: 0, top: 0, bottom: null });
   /**
    * Raw edit strings of the JsonLogic fields: "gi:qi" maps to {visibleIf, compute}. A
    * change of the structure re-keys it, the same as `expanded`.
    */
-  private readonly rawLogic = signal<Record<string, { visibleIf?: string; compute?: string }>>({});
+  private readonly rawLogic = signal<
+    Record<string, { visibleIf?: string; compute?: string }>
+  >({});
   /** The "Frage hinzufügen" button that opened the type menu. Escape gives it the focus. */
   private menuOpener: HTMLElement | null = null;
   /** Closes the type menu on a scroll. Only one is registered at a time. */
@@ -212,18 +232,26 @@ export class FormEditorViewComponent {
     label: this.i18n.translate(`admin.form.type.${t}` as UiKitTextKey),
   }));
   /** Valid promote targets as a dropdown. It lists the server-evaluated values only. */
-  protected readonly promoteTargetOptions: SelectOption[] = PROMOTE_TARGETS.map((v) => ({
-    value: v,
-    label: this.i18n.translate(`admin.form.metric.${v}` as UiKitTextKey),
-  }));
+  protected readonly promoteTargetOptions: SelectOption[] = PROMOTE_TARGETS.map(
+    (v) => ({
+      value: v,
+      label: this.i18n.translate(`admin.form.metric.${v}` as UiKitTextKey),
+    }),
+  );
 
   /** Flat view of the question fields, without markers. The key and validation checks use it. */
-  private readonly flatQuestions = computed(() => this.groups().flatMap((g) => g.fields));
+  private readonly flatQuestions = computed(() =>
+    this.groups().flatMap((g) => g.fields),
+  );
 
-  protected readonly duplicates = computed(() => duplicateKeys(this.flatQuestions()));
+  protected readonly duplicates = computed(() =>
+    duplicateKeys(this.flatQuestions()),
+  );
   /** The form-level problem of the requested funding field, or null. */
   protected readonly fundingIssue = computed(
-    () => fundingProblem(this.flatQuestions()) ?? participantsProblem(this.flatQuestions()),
+    () =>
+      fundingProblem(this.flatQuestions()) ??
+      participantsProblem(this.flatQuestions()),
   );
   /** Validation errors per question, indexed by "gi:qi". */
   protected readonly fieldErrors = computed(
@@ -240,7 +268,7 @@ export class FormEditorViewComponent {
   }
 
   protected resolved(map: I18nMap | undefined): string {
-    return map ? resolveI18n(map, this.languages.current()) : '';
+    return map ? resolveI18n(map, this.languages.current()) : "";
   }
 
   /**
@@ -250,13 +278,18 @@ export class FormEditorViewComponent {
    */
   protected infoHelp(field: FormFieldDef): string {
     const help = this.resolved(field.help).trim();
-    return help && help !== this.resolved(field.label).trim() ? help : '';
+    return help && help !== this.resolved(field.label).trim() ? help : "";
   }
 
   /** The description that a reader of the content language gets while its field is empty. */
   protected readonly descFallback = computed(() => {
     const map = this.description();
-    return fallbackChain(this.contentLang.lang()).slice(1).map((code) => map[code]).find(Boolean) ?? '';
+    return (
+      fallbackChain(this.contentLang.lang())
+        .slice(1)
+        .map((code) => map[code])
+        .find(Boolean) ?? ""
+    );
   });
 
   protected setDescription(lang: string, value: string): void {
@@ -264,11 +297,17 @@ export class FormEditorViewComponent {
   }
 
   /** Replace one group and poke the signal. */
-  private patchGroup(gi: number, fn: (g: QuestionGroup) => QuestionGroup): void {
+  private patchGroup(
+    gi: number,
+    fn: (g: QuestionGroup) => QuestionGroup,
+  ): void {
     this.groups.update((list) => list.map((g, i) => (i === gi ? fn(g) : g)));
   }
 
-  private patchQuestion(pos: QPos, fn: (f: FormFieldDef) => FormFieldDef): void {
+  private patchQuestion(
+    pos: QPos,
+    fn: (f: FormFieldDef) => FormFieldDef,
+  ): void {
     this.patchGroup(pos.gi, (g) => ({
       ...g,
       fields: g.fields.map((f, i) => (i === pos.qi ? fn(f) : f)),
@@ -280,17 +319,24 @@ export class FormEditorViewComponent {
   }
 
   protected addGroup(): void {
-    this.groups.update((list) => [...list, { title: { de: '', en: '' }, fields: [] }]);
+    this.groups.update((list) => [
+      ...list,
+      { title: { de: "", en: "" }, fields: [] },
+    ]);
     this.selectGroup(this.groups().length - 1);
   }
 
   protected removeGroup(gi: number): void {
-    this.restructure(() => this.groups.update((list) => list.filter((_, i) => i !== gi)));
+    this.restructure(() =>
+      this.groups.update((list) => list.filter((_, i) => i !== gi)),
+    );
     const sel = this.selected();
     if (sel?.gi === gi) this.selected.set(null);
-    else if (sel && sel.gi > gi) this.selected.set({ gi: sel.gi - 1, qi: sel.qi });
+    else if (sel && sel.gi > gi)
+      this.selected.set({ gi: sel.gi - 1, qi: sel.qi });
     const active = this.activeGroup();
-    if (active > gi || active >= this.groups().length) this.activeGroup.set(Math.max(0, active - 1));
+    if (active > gi || active >= this.groups().length)
+      this.activeGroup.set(Math.max(0, active - 1));
   }
 
   protected moveGroup(gi: number, dir: -1 | 1): void {
@@ -349,14 +395,21 @@ export class FormEditorViewComponent {
       const below = window.innerHeight - rect.bottom;
       this.menuPos.set(
         below < TYPE_MENU_HEIGHT
-          ? { left: rect.left, top: null, bottom: window.innerHeight - rect.top + 4 }
+          ? {
+              left: rect.left,
+              top: null,
+              bottom: window.innerHeight - rect.top + 4,
+            }
           : { left: rect.left, top: rect.bottom + 4, bottom: null },
       );
     }
     this.typeMenuGroup.set(gi);
     if (this.phone()) return;
-    window.removeEventListener('scroll', this.closeOnScroll, { capture: true });
-    window.addEventListener('scroll', this.closeOnScroll, { capture: true, once: true });
+    window.removeEventListener("scroll", this.closeOnScroll, { capture: true });
+    window.addEventListener("scroll", this.closeOnScroll, {
+      capture: true,
+      once: true,
+    });
     setTimeout(() => this.menuItems()[0]?.focus({ preventScroll: true }));
   }
 
@@ -364,17 +417,21 @@ export class FormEditorViewComponent {
   protected closeTypeMenu(refocus: boolean): void {
     if (this.typeMenuGroup() === null) return;
     this.typeMenuGroup.set(null);
-    window.removeEventListener('scroll', this.closeOnScroll, { capture: true });
+    window.removeEventListener("scroll", this.closeOnScroll, { capture: true });
     if (refocus) {
       const opener = this.menuOpener;
-      (opener?.querySelector<HTMLElement>('button') ?? opener)?.focus({ preventScroll: true });
+      (opener?.querySelector<HTMLElement>("button") ?? opener)?.focus({
+        preventScroll: true,
+      });
     }
   }
 
   /** The type buttons of the open menu (wide and tablet only). */
   private menuItems(): HTMLElement[] {
     return Array.from(
-      this.host.nativeElement.querySelectorAll<HTMLElement>('.fe__menu .fe__menu-item'),
+      this.host.nativeElement.querySelectorAll<HTMLElement>(
+        ".fe__menu .fe__menu-item",
+      ),
     );
   }
 
@@ -385,7 +442,7 @@ export class FormEditorViewComponent {
   protected onMenuKeydown(event: KeyboardEvent): void {
     const items = this.menuItems();
     const at = items.indexOf(document.activeElement as HTMLElement);
-    if (event.key === 'Tab') {
+    if (event.key === "Tab") {
       event.preventDefault();
       this.closeTypeMenu(true);
       return;
@@ -397,18 +454,18 @@ export class FormEditorViewComponent {
   }
 
   /** Escape closes the open type menu, wherever the focus is, and focuses its button. */
-  @HostListener('document:keydown.escape')
+  @HostListener("document:keydown.escape")
   protected onDocumentEscape(): void {
     if (this.typeMenuGroup() === null || this.phone()) return;
     this.closeTypeMenu(true);
   }
 
   /** A press outside the type menu and its buttons closes the menu. */
-  @HostListener('document:pointerdown', ['$event'])
+  @HostListener("document:pointerdown", ["$event"])
   protected onDocumentPointerDown(event: PointerEvent): void {
     if (this.typeMenuGroup() === null || this.phone()) return;
     const target = event.target as Element | null;
-    if (target?.closest('.fe__menu, .fe__addBtn')) return;
+    if (target?.closest(".fe__menu, .fe__addBtn")) return;
     this.closeTypeMenu(false);
   }
 
@@ -428,36 +485,41 @@ export class FormEditorViewComponent {
       const card = this.host.nativeElement.querySelector<HTMLElement>(
         `[data-q="${pos.gi}:${pos.qi}"]`,
       );
-      card?.scrollIntoView?.({ block: 'nearest', behavior: scrollBehavior() });
+      card?.scrollIntoView?.({ block: "nearest", behavior: scrollBehavior() });
     });
   }
 
   /** An action of the ⋮ menu of a group in the outline. */
   protected onGroupMenu(gi: number, item: RowMenuItem): void {
-    if (item.id === 'up') this.moveGroup(gi, -1);
-    else if (item.id === 'down') this.moveGroup(gi, 1);
-    else if (item.id === 'delete') this.removeGroup(gi);
+    if (item.id === "up") this.moveGroup(gi, -1);
+    else if (item.id === "down") this.moveGroup(gi, 1);
+    else if (item.id === "delete") this.removeGroup(gi);
   }
 
   /** The ⋮ menu of a group: move it up or down (not past an edge) and delete it. */
   protected groupMenu(gi: number): RowMenuSection[] {
     const last = this.groups().length - 1;
     const up: RowMenuItem = {
-      id: 'up',
-      label: this.i18n.translate('admin.form.moveGroupUp'),
-      icon: 'up',
+      id: "up",
+      label: this.i18n.translate("admin.form.moveGroupUp"),
+      icon: "up",
     };
     const down: RowMenuItem = {
-      id: 'down',
-      label: this.i18n.translate('admin.form.moveGroupDown'),
-      icon: 'down',
+      id: "down",
+      label: this.i18n.translate("admin.form.moveGroupDown"),
+      icon: "down",
     };
     const move = [...(gi > 0 ? [up] : []), ...(gi < last ? [down] : [])];
     return [
       { items: move },
       {
         items: [
-          { id: 'delete', label: this.i18n.translate('admin.form.deleteGroup'), icon: 'trash', danger: true },
+          {
+            id: "delete",
+            label: this.i18n.translate("admin.form.deleteGroup"),
+            icon: "trash",
+            danger: true,
+          },
         ],
       },
     ];
@@ -465,13 +527,16 @@ export class FormEditorViewComponent {
 
   /** The heading of a group in the outline and on its card: "Abschnitt 2 · Kosten". */
   protected groupHeading(group: QuestionGroup, gi: number): string {
-    const step = this.i18n.translate('admin.form.groupStep', { n: gi + 1 });
+    const step = this.i18n.translate("admin.form.groupStep", { n: gi + 1 });
     const title = this.resolved(group.title);
     return title ? `${step} · ${title}` : step;
   }
 
   protected addQuestion(gi: number, type: FieldType): void {
-    this.patchGroup(gi, (g) => ({ ...g, fields: [...g.fields, blankField(type, '')] }));
+    this.patchGroup(gi, (g) => ({
+      ...g,
+      fields: [...g.fields, blankField(type, "")],
+    }));
     this.closeTypeMenu(false);
     const qi = (this.groups()[gi]?.fields.length ?? 1) - 1;
     this.selectQuestion({ gi, qi });
@@ -494,10 +559,17 @@ export class FormEditorViewComponent {
     this.restructure(() =>
       this.patchGroup(pos.gi, (g) => {
         const clone: FormFieldDef = structuredClone(g.fields[pos.qi]);
-        const copy: FormFieldDef = { ...clone, key: clone.key ? `${clone.key}_copy` : '' };
+        const copy: FormFieldDef = {
+          ...clone,
+          key: clone.key ? `${clone.key}_copy` : "",
+        };
         return {
           ...g,
-          fields: [...g.fields.slice(0, pos.qi + 1), copy, ...g.fields.slice(pos.qi + 1)],
+          fields: [
+            ...g.fields.slice(0, pos.qi + 1),
+            copy,
+            ...g.fields.slice(pos.qi + 1),
+          ],
         };
       }),
     );
@@ -512,7 +584,10 @@ export class FormEditorViewComponent {
     const target = pos.qi + dir;
     if (target >= 0 && target < group.fields.length) {
       this.restructure(() =>
-        this.patchGroup(pos.gi, (g) => ({ ...g, fields: movedTo(g.fields, pos.qi, target) })),
+        this.patchGroup(pos.gi, (g) => ({
+          ...g,
+          fields: movedTo(g.fields, pos.qi, target),
+        })),
       );
       this.follow(pos, { gi: pos.gi, qi: target });
       return;
@@ -523,13 +598,20 @@ export class FormEditorViewComponent {
       this.groups.update((list) => {
         const moved = list[pos.gi].fields[pos.qi];
         return list.map((g, gi) => {
-          if (gi === pos.gi) return { ...g, fields: g.fields.filter((_, qi) => qi !== pos.qi) };
+          if (gi === pos.gi)
+            return { ...g, fields: g.fields.filter((_, qi) => qi !== pos.qi) };
           if (gi !== ngi) return { ...g, fields: [...g.fields] };
-          return { ...g, fields: dir === -1 ? [...g.fields, moved] : [moved, ...g.fields] };
+          return {
+            ...g,
+            fields: dir === -1 ? [...g.fields, moved] : [moved, ...g.fields],
+          };
         });
       }),
     );
-    this.follow(pos, { gi: ngi, qi: dir === -1 ? groups[ngi].fields.length : 0 });
+    this.follow(pos, {
+      gi: ngi,
+      qi: dir === -1 ? groups[ngi].fields.length : 0,
+    });
   }
 
   /**
@@ -543,10 +625,12 @@ export class FormEditorViewComponent {
     const before = this.groups();
     change();
     const now = new Map(
-      this.groups().flatMap((g, gi) => g.fields.map((f, qi) => [f, `${gi}:${qi}`] as const)),
+      this.groups().flatMap((g, gi) =>
+        g.fields.map((f, qi) => [f, `${gi}:${qi}`] as const),
+      ),
     );
     const placeOf = (key: string): string | undefined => {
-      const [gi, qi] = key.split(':').map(Number);
+      const [gi, qi] = key.split(":").map(Number);
       const field = before[gi]?.fields[qi];
       return field ? now.get(field) : undefined;
     };
@@ -571,28 +655,37 @@ export class FormEditorViewComponent {
   }
 
   private adaptToType(field: FormFieldDef, type: FieldType): FormFieldDef {
-    const needsOption = (type === 'select' || type === 'multiselect') && !field.options?.length;
+    const needsOption =
+      (type === "select" || type === "multiselect") && !field.options?.length;
     const next: FormFieldDef = {
       ...field,
       type,
       ...(needsOption ? { options: [blankOption()] } : {}),
-      ...(type === 'computed' && !field.compute ? { compute: { var: '' } } : {}),
+      ...(type === "computed" && !field.compute
+        ? { compute: { var: "" } }
+        : {}),
     };
-    if (type === 'number' || type === 'currency') return next;
-    return withoutKey(withoutKey(next, 'isPromoted'), 'promoteTarget');
+    if (type === "number" || type === "currency") return next;
+    return withoutKey(withoutKey(next, "isPromoted"), "promoteTarget");
   }
 
   /** Metric toggle: prefill a valid promote target when the user turns it on. */
   protected onPromotedToggle(pos: QPos, checked: boolean): void {
     this.patchQuestion(pos, (f) => {
       const next = { ...f, isPromoted: checked };
-      if (!checked) return withoutKey(next, 'promoteTarget');
-      return { ...next, promoteTarget: next.promoteTarget || PROMOTE_TARGETS[0] };
+      if (!checked) return withoutKey(next, "promoteTarget");
+      return {
+        ...next,
+        promoteTarget: next.promoteTarget || PROMOTE_TARGETS[0],
+      };
     });
   }
 
   protected addOption(pos: QPos): void {
-    this.patchQuestion(pos, (f) => ({ ...f, options: [...(f.options ?? []), blankOption()] }));
+    this.patchQuestion(pos, (f) => ({
+      ...f,
+      options: [...(f.options ?? []), blankOption()],
+    }));
   }
 
   /** Set fields of one question; the template binds its edits here instead of writing in place. */
@@ -604,7 +697,9 @@ export class FormEditorViewComponent {
   protected setOptionLabel(pos: QPos, oi: number, label: I18nMap): void {
     this.patchQuestion(pos, (f) => ({
       ...f,
-      options: (f.options ?? []).map((o, k) => (k === oi ? { ...o, label } : o)),
+      options: (f.options ?? []).map((o, k) =>
+        k === oi ? { ...o, label } : o,
+      ),
     }));
   }
 
@@ -634,21 +729,21 @@ export class FormEditorViewComponent {
   }
 
   protected isChoice(type: FieldType): boolean {
-    return type === 'select' || type === 'multiselect';
+    return type === "select" || type === "multiselect";
   }
 
   protected isPositions(type: FieldType): boolean {
-    return type === 'positions';
+    return type === "positions";
   }
 
   /** Numeric types: they accept min and max, and they can be promoted. */
   protected isNumeric(type: FieldType): boolean {
-    return type === 'number' || type === 'currency';
+    return type === "number" || type === "currency";
   }
 
   /** Text types: the length and pattern validation applies. */
   protected isText(type: FieldType): boolean {
-    return type === 'text' || type === 'textarea';
+    return type === "text" || type === "textarea";
   }
 
   protected onDragStart(gi: number): void {
@@ -682,7 +777,7 @@ export class FormEditorViewComponent {
    */
   protected onQuestionDragStart(event: DragEvent, pos: QPos): void {
     event.stopPropagation();
-    event.dataTransfer?.setData('text/plain', `${pos.gi}:${pos.qi}`);
+    event.dataTransfer?.setData("text/plain", `${pos.gi}:${pos.qi}`);
     this.dragQuestion = pos;
     this.dragGroup = null;
   }
@@ -707,23 +802,34 @@ export class FormEditorViewComponent {
     if (!selField) return;
     moved.groups.forEach((g, gi) => {
       const qi = g.fields.indexOf(selField);
-      if (qi >= 0) this.selectQuestion({ gi, qi }, gi === moved.pos.gi && qi === moved.pos.qi);
+      if (qi >= 0)
+        this.selectQuestion(
+          { gi, qi },
+          gi === moved.pos.gi && qi === moved.pos.qi,
+        );
     });
   }
 
   protected setVal(
     pos: QPos,
-    key: 'min' | 'max' | 'minLen' | 'maxLen' | 'pattern' | 'minOffers' | 'minPositions',
+    key:
+      | "min"
+      | "max"
+      | "minLen"
+      | "maxLen"
+      | "pattern"
+      | "minOffers"
+      | "minPositions",
     value: string,
   ): void {
-    const numeric = key !== 'pattern';
+    const numeric = key !== "pattern";
     this.patchQuestion(pos, (f) => {
       const current = f.validation ?? {};
       const validation =
-        value === ''
+        value === ""
           ? withoutKey(current, key)
           : { ...current, [key]: numeric ? Number(value) : value };
-      return { ...f, validation: validation as FormFieldDef['validation'] };
+      return { ...f, validation: validation as FormFieldDef["validation"] };
     });
   }
 
@@ -732,18 +838,22 @@ export class FormEditorViewComponent {
     this.patchQuestion(pos, (f) => {
       const current = f.validation ?? {};
       const validation = allowed
-        ? withoutKey(current, 'allowNoOffers')
+        ? withoutKey(current, "allowNoOffers")
         : { ...current, allowNoOffers: false };
-      return { ...f, validation: validation as FormFieldDef['validation'] };
+      return { ...f, validation: validation as FormFieldDef["validation"] };
     });
   }
 
-  protected onLogicInput(pos: QPos, kind: 'visibleIf' | 'compute', raw: string): void {
+  protected onLogicInput(
+    pos: QPos,
+    kind: "visibleIf" | "compute",
+    raw: string,
+  ): void {
     const k = `${pos.gi}:${pos.qi}`;
     this.rawLogic.update((m) => ({ ...m, [k]: { ...m[k], [kind]: raw } }));
     const trimmed = raw.trim();
     this.patchQuestion(pos, (f) => {
-      if (trimmed === '') return withoutKey(f, kind);
+      if (trimmed === "") return withoutKey(f, kind);
       try {
         return { ...f, [kind]: JSON.parse(trimmed) as Record<string, unknown> };
       } catch {
@@ -755,18 +865,21 @@ export class FormEditorViewComponent {
   protected logicRaw(
     gi: number,
     qi: number,
-    kind: 'visibleIf' | 'compute',
+    kind: "visibleIf" | "compute",
     current?: Record<string, unknown>,
   ): string {
     const raw = this.rawLogic()[`${gi}:${qi}`]?.[kind];
     if (raw !== undefined) return raw;
-    return current ? JSON.stringify(current) : '';
+    return current ? JSON.stringify(current) : "";
   }
 
   /** The field is a number field, and another number field already holds the participants. */
   protected participantsTaken(field: FormFieldDef): boolean {
     return this.flatQuestions().some(
-      (f) => f !== field && f.type === 'number' && f.validation?.participants === true,
+      (f) =>
+        f !== field &&
+        f.type === "number" &&
+        f.validation?.participants === true,
     );
   }
 
@@ -774,8 +887,10 @@ export class FormEditorViewComponent {
   protected setParticipants(pos: QPos, on: boolean): void {
     this.patchQuestion(pos, (f) => {
       const current = f.validation ?? {};
-      const validation = on ? { ...current, participants: true } : withoutKey(current, 'participants');
-      return { ...f, validation: validation as FormFieldDef['validation'] };
+      const validation = on
+        ? { ...current, participants: true }
+        : withoutKey(current, "participants");
+      return { ...f, validation: validation as FormFieldDef["validation"] };
     });
   }
 
@@ -783,13 +898,18 @@ export class FormEditorViewComponent {
   protected setRootPath(pos: QPos, value: string): void {
     this.patchQuestion(pos, (f) => {
       const current = f.validation ?? {};
-      const validation = value.trim() ? { ...current, rootPath: value } : withoutKey(current, 'rootPath');
-      return { ...f, validation: validation as FormFieldDef['validation'] };
+      const validation = value.trim()
+        ? { ...current, rootPath: value }
+        : withoutKey(current, "rootPath");
+      return { ...f, validation: validation as FormFieldDef["validation"] };
     });
   }
 
   protected addRule(): void {
-    this.rules.update((list) => [...list, { logic: '', message: { de: '', en: '' }, severity: 'block' }]);
+    this.rules.update((list) => [
+      ...list,
+      { logic: "", message: { de: "", en: "" }, severity: "block" },
+    ]);
   }
 
   protected removeRule(index: number): void {
@@ -798,10 +918,14 @@ export class FormEditorViewComponent {
 
   protected moveRule(index: number, dir: -1 | 1): void {
     const to = index + dir;
-    this.rules.update((list) => (to < 0 || to >= list.length ? list : movedTo(list, index, to)));
+    this.rules.update((list) =>
+      to < 0 || to >= list.length ? list : movedTo(list, index, to),
+    );
   }
 
   protected setRule(index: number, patch: Partial<RuleDraft>): void {
-    this.rules.update((list) => list.map((r, i) => (i === index ? { ...r, ...patch } : r)));
+    this.rules.update((list) =>
+      list.map((r, i) => (i === index ? { ...r, ...patch } : r)),
+    );
   }
 }

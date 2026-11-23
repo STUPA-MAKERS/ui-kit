@@ -12,9 +12,9 @@ import {
   type TemplateRef,
   untracked,
   viewChild,
-} from '@angular/core';
-import { NgTemplateOutlet } from '@angular/common';
-import { FormsModule } from '@angular/forms';
+} from "@angular/core";
+import { NgTemplateOutlet } from "@angular/common";
+import { FormsModule } from "@angular/forms";
 import {
   ButtonComponent,
   ButtonGroupComponent,
@@ -24,13 +24,14 @@ import {
   type IconName,
   type KnownName,
   NoteComponent,
+  registerUiKitTexts,
+  ScrollFadeDirective,
   SegmentedComponent,
   type SegmentedOption,
-  ScrollFadeDirective,
   UI_KIT_INTL,
   type UiKitTextKey,
   UiKitTranslatePipe,
-} from '@stupa-makers/ui-kit';
+} from "@stupa-makers/ui-kit";
 import {
   MarkdownEditorComponent,
   type MarkdownDocumentInfo,
@@ -39,15 +40,15 @@ import {
   type MarkdownFormat,
   type MarkdownImageUploader,
   type VoteCalloutResolver,
-} from '@stupa-makers/ui-kit/markdown-editor';
-import type { AgendaItem, Meeting, Protocol, Uuid } from './protocol.types';
+} from "@stupa-makers/ui-kit/markdown-editor";
+import type { AgendaItem, Meeting, Protocol, Uuid } from "./protocol.types";
 import {
   PROTOCOL_API,
   PROTOCOL_DOCUMENT_TYPES,
   type ProtocolDocument,
   protocolDocument,
-} from './protocol-api';
-import { ProtocolImageUploadDirective } from './protocol-image-upload.directive';
+} from "./protocol-api";
+import { ProtocolImageUploadDirective } from "./protocol-image-upload.directive";
 import {
   applyRawFormat,
   rawKnownName,
@@ -55,7 +56,8 @@ import {
   insertRawTable,
   insertRawTimeNote,
   protocolNow,
-} from './raw-format';
+} from "./raw-format";
+import { UI_KIT_PROTOCOL_TEXTS } from "./protocol.texts";
 
 /** The context of the `linkedList` template: the open item and the participant view. */
 export interface TopSheetLinkedSlot {
@@ -64,10 +66,10 @@ export interface TopSheetLinkedSlot {
 }
 
 /** The autosave state of the text of the open item. */
-export type SaveState = 'idle' | 'saving' | 'saved' | 'error';
+export type SaveState = "idle" | "saving" | "saved" | "error";
 
 /** The view of the text: rendered as it reads, or the Markdown source. */
-export type EditorMode = 'formatted' | 'raw';
+export type EditorMode = "formatted" | "raw";
 
 const NO_FORMATS: ReadonlySet<MarkdownFormat> = new Set();
 
@@ -79,12 +81,12 @@ interface FormatTool {
 }
 
 const TOOLS: readonly FormatTool[] = [
-  { format: 'heading', icon: 'heading', label: 'meetings.editor.heading' },
-  { format: 'bold', icon: 'bold', label: 'meetings.editor.bold' },
-  { format: 'italic', icon: 'italic', label: 'meetings.editor.italic' },
-  { format: 'bulletList', icon: 'list', label: 'meetings.editor.list' },
-  { format: 'blockquote', icon: 'quote', label: 'meetings.editor.quote' },
-  { format: 'blackout', icon: 'eyeslash', label: 'meetings.editor.blackout' },
+  { format: "heading", icon: "heading", label: "meetings.editor.heading" },
+  { format: "bold", icon: "bold", label: "meetings.editor.bold" },
+  { format: "italic", icon: "italic", label: "meetings.editor.italic" },
+  { format: "bulletList", icon: "list", label: "meetings.editor.list" },
+  { format: "blockquote", icon: "quote", label: "meetings.editor.quote" },
+  { format: "blackout", icon: "eyeslash", label: "meetings.editor.blackout" },
 ];
 
 /**
@@ -122,7 +124,7 @@ const TOOLS: readonly FormatTool[] = [
  * opens the PDF viewer on `documentOpen`.
  */
 @Component({
-  selector: 'app-top-sheet-view',
+  selector: "app-top-sheet-view",
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
@@ -139,10 +141,13 @@ const TOOLS: readonly FormatTool[] = [
     ScrollFadeDirective,
     SegmentedComponent,
   ],
-  templateUrl: './top-sheet-view.component.html',
-  styleUrl: './top-sheet-view.component.scss',
+  templateUrl: "./top-sheet-view.component.html",
+  styleUrl: "./top-sheet-view.component.scss",
 })
 export class TopSheetViewComponent {
+  /** The texts of the view, registered before the first render (002237). */
+  protected readonly viewTexts = registerUiKitTexts(UI_KIT_PROTOCOL_TEXTS);
+
   private readonly i18n = inject(UI_KIT_INTL);
   private readonly api = inject(PROTOCOL_API, { optional: true });
 
@@ -191,11 +196,11 @@ export class TopSheetViewComponent {
   readonly canRename = input(false);
   /** The item in the inline rename of the agenda, shared with the agenda pane. */
   readonly renamingTopId = input<Uuid | null>(null);
-  readonly renameDraft = model<string>('');
+  readonly renameDraft = model<string>("");
   /** The vote cards of the text: the closed votes of this meeting, from the app. */
   readonly voteInfo = input<VoteCalloutResolver | null>(null);
   /** The keeper line of a closed meeting: every minute-taker with the TOPs they wrote. */
-  readonly keepers = input<string>('');
+  readonly keepers = input<string>("");
   /** The linked rows below the title (the application and the to-dos), from the app. */
   readonly linkedList = input<TemplateRef<TopSheetLinkedSlot> | null>(null);
 
@@ -208,15 +213,16 @@ export class TopSheetViewComponent {
   /** A click on a PDF badge (spec 000863): the app opens its PDF viewer. */
   readonly documentOpen = output<MarkdownDocumentRef>();
 
-
   readonly tools = TOOLS;
   /**
    * The format tools as connected button groups (spec 001354): the inline marks (bold, italic,
    * blackout) and the blocks (heading, list, quote). The insert tools are a third group.
    */
   readonly toolGroups: readonly (readonly FormatTool[])[] = [
-    TOOLS.filter((t) => ['bold', 'italic', 'blackout'].includes(t.format)),
-    TOOLS.filter((t) => ['heading', 'bulletList', 'blockquote'].includes(t.format)),
+    TOOLS.filter((t) => ["bold", "italic", "blackout"].includes(t.format)),
+    TOOLS.filter((t) =>
+      ["heading", "bulletList", "blockquote"].includes(t.format),
+    ),
   ];
 
   /**
@@ -226,7 +232,8 @@ export class TopSheetViewComponent {
   private readonly renamingHere = signal<Uuid | null>(null);
   /** The rename of `renamingHere` reached the agenda; its end clears `renamingHere`. */
   private renameStarted = false;
-  private readonly titleInput = viewChild<ElementRef<HTMLInputElement>>('titleInput');
+  private readonly titleInput =
+    viewChild<ElementRef<HTMLInputElement>>("titleInput");
 
   /** The title of the open item can change here. */
   protected readonly titleRenamable = computed(() => {
@@ -234,12 +241,14 @@ export class TopSheetViewComponent {
     return this.canRename() && !this.follow() && !!t;
   });
   /** The heading shows the title field. */
-  protected readonly titleEditing = computed(
-    () => {
-      const id = this.top()?.id;
-      return this.titleRenamable() && this.renamingHere() === id && this.renamingTopId() === id;
-    },
-  );
+  protected readonly titleEditing = computed(() => {
+    const id = this.top()?.id;
+    return (
+      this.titleRenamable() &&
+      this.renamingHere() === id &&
+      this.renamingTopId() === id
+    );
+  });
 
   /**
    * Only a rename end after the start counts, because the agenda names the item only after the
@@ -286,18 +295,21 @@ export class TopSheetViewComponent {
   }
 
   /** The view of the text. */
-  readonly mode = model<EditorMode>('formatted');
+  readonly mode = model<EditorMode>("formatted");
 
   protected readonly modeOptions = computed<SegmentedOption[]>(() => {
     this.i18n.lang();
     return [
-      { value: 'formatted', label: this.i18n.translate('meetings.editor.modeFormatted') },
-      { value: 'raw', label: this.i18n.translate('meetings.editor.modeRaw') },
+      {
+        value: "formatted",
+        label: this.i18n.translate("meetings.editor.modeFormatted"),
+      },
+      { value: "raw", label: this.i18n.translate("meetings.editor.modeRaw") },
     ];
   });
 
-  private readonly editor = viewChild<MarkdownEditorComponent>('ed');
-  private readonly rawArea = viewChild<ElementRef<HTMLTextAreaElement>>('raw');
+  private readonly editor = viewChild<MarkdownEditorComponent>("ed");
+  private readonly rawArea = viewChild<ElementRef<HTMLTextAreaElement>>("raw");
   private readonly rawUpload = viewChild(ProtocolImageUploadDirective);
 
   /**
@@ -306,9 +318,9 @@ export class TopSheetViewComponent {
    */
   protected readonly imageUpload: MarkdownImageUploader = async (file) => {
     const api = this.api;
-    if (!api) throw new Error('no port');
+    if (!api) throw new Error("no port");
     const [picked] = await api.imageAlts([file]);
-    if (!picked) throw new Error('cancelled');
+    if (!picked) throw new Error("cancelled");
     const src = await api.uploadImage(file);
     return { src, alt: picked.alt };
   };
@@ -317,17 +329,23 @@ export class TopSheetViewComponent {
    * Upload a PDF of the formatted view to the protocol of the meeting (spec 000862). An
    * error shows as a toast; the editor then inserts nothing.
    */
-  protected readonly documentUpload: MarkdownDocumentUploader = async (file) => {
+  protected readonly documentUpload: MarkdownDocumentUploader = async (
+    file,
+  ) => {
     const doc = await this.sendDocument(file);
     return { src: doc.src, name: doc.name };
   };
 
   /** The page count of a PDF badge, from its info route; cached per path. */
-  private readonly pageCounts = signal<ReadonlyMap<string, Promise<number | null>>>(new Map());
+  private readonly pageCounts = signal<
+    ReadonlyMap<string, Promise<number | null>>
+  >(new Map());
   protected readonly documentInfo: MarkdownDocumentInfo = (src) => {
     const known = this.pageCounts().get(src);
     if (known) return known;
-    const next = (this.api?.documentInfo(src) ?? Promise.resolve(null)).catch(() => null);
+    const next = (this.api?.documentInfo(src) ?? Promise.resolve(null)).catch(
+      () => null,
+    );
     this.pageCounts.update((counts) => new Map([...counts, [src, next]]));
     return next;
   };
@@ -340,22 +358,27 @@ export class TopSheetViewComponent {
   /** Upload a PDF through the port. The port shows its own error and rejects. */
   private sendDocument(file: File): Promise<ProtocolDocument> {
     const api = this.api;
-    return api ? api.uploadDocument(this.meeting().id, file) : Promise.reject(new Error('no port'));
+    return api
+      ? api.uploadDocument(this.meeting().id, file)
+      : Promise.reject(new Error("no port"));
   }
 
   /** "PDF einfügen": the file dialog of the editor, or of the Markdown source. */
   insertDocument(): void {
-    if (this.mode() !== 'raw') {
+    if (this.mode() !== "raw") {
       this.editor()?.pickDocument();
       return;
     }
     const area = this.rawArea()?.nativeElement;
     if (!area || area.readOnly) return;
-    const picker = document.createElement('input');
-    picker.setAttribute('type', 'file');
-    picker.setAttribute('accept', PROTOCOL_DOCUMENT_TYPES.join(','));
-    picker.toggleAttribute('multiple', true);
-    picker.addEventListener('change', () => void this.uploadRawDocuments(Array.from(picker.files ?? [])));
+    const picker = document.createElement("input");
+    picker.setAttribute("type", "file");
+    picker.setAttribute("accept", PROTOCOL_DOCUMENT_TYPES.join(","));
+    picker.toggleAttribute("multiple", true);
+    picker.addEventListener(
+      "change",
+      () => void this.uploadRawDocuments(Array.from(picker.files ?? [])),
+    );
     picker.click();
   }
 
@@ -384,30 +407,38 @@ export class TopSheetViewComponent {
       const t = this.top();
       if (!doc || !area || !t || area.readOnly) return;
       const next = insertRawInline(
-        { text: area.value, start: area.selectionStart, end: area.selectionEnd },
+        {
+          text: area.value,
+          start: area.selectionStart,
+          end: area.selectionEnd,
+        },
         protocolDocument(doc.name, doc.src),
       );
-      Reflect.set(area, 'value', next.text);
+      Reflect.set(area, "value", next.text);
       area.setSelectionRange(next.start, next.end);
       this.bodyChange.emit({ itemId: t.id, body: next.text });
     }, Promise.resolve());
   }
 
   /** The text has a `%%` without its closing pair (000686): the public variant would show the name. */
-  protected readonly openBlackout = computed(() => hasOpenBlackout(this.top()?.body ?? ''));
+  protected readonly openBlackout = computed(() =>
+    hasOpenBlackout(this.top()?.body ?? ""),
+  );
 
   /** The formats at the cursor. The Markdown source shows none as pressed. */
   readonly activeFormats = computed(() =>
-    this.mode() === 'raw' ? NO_FORMATS : (this.editor()?.activeFormats() ?? NO_FORMATS),
+    this.mode() === "raw"
+      ? NO_FORMATS
+      : (this.editor()?.activeFormats() ?? NO_FORMATS),
   );
 
   protected setMode(value: string | null): void {
-    this.mode.set(value === 'raw' ? 'raw' : 'formatted');
+    this.mode.set(value === "raw" ? "raw" : "formatted");
   }
 
   /** A button of the format bar: in the editor, or in the Markdown source. */
   toggleFormat(format: MarkdownFormat): void {
-    if (this.mode() !== 'raw') {
+    if (this.mode() !== "raw") {
       this.editor()?.toggleFormat(format);
       return;
     }
@@ -418,7 +449,7 @@ export class TopSheetViewComponent {
       { text: area.value, start: area.selectionStart, end: area.selectionEnd },
       format,
     );
-    Reflect.set(area, 'value', next.text);
+    Reflect.set(area, "value", next.text);
     area.focus();
     area.setSelectionRange(next.start, next.end);
     this.bodyChange.emit({ itemId: t.id, body: next.text });
@@ -426,15 +457,19 @@ export class TopSheetViewComponent {
 
   /** "Tabelle einfügen": in the editor, or as a Markdown table in the source. */
   insertTable(): void {
-    if (this.mode() !== 'raw') {
+    if (this.mode() !== "raw") {
       this.editor()?.insertTable();
       return;
     }
     const area = this.rawArea()?.nativeElement;
     const t = this.top();
     if (!area || !t || area.readOnly) return;
-    const next = insertRawTable({ text: area.value, start: area.selectionStart, end: area.selectionEnd });
-    Reflect.set(area, 'value', next.text);
+    const next = insertRawTable({
+      text: area.value,
+      start: area.selectionStart,
+      end: area.selectionEnd,
+    });
+    Reflect.set(area, "value", next.text);
     area.focus();
     area.setSelectionRange(next.start, next.end);
     this.bodyChange.emit({ itemId: t.id, body: next.text });
@@ -446,15 +481,18 @@ export class TopSheetViewComponent {
    */
   insertTimeNote(): void {
     const time = protocolNow();
-    if (this.mode() !== 'raw') {
+    if (this.mode() !== "raw") {
       this.editor()?.insertTimeNote(time);
       return;
     }
     const area = this.rawArea()?.nativeElement;
     const t = this.top();
     if (!area || !t || area.readOnly) return;
-    const next = insertRawTimeNote({ text: area.value, start: area.selectionStart, end: area.selectionEnd }, time);
-    Reflect.set(area, 'value', next.text);
+    const next = insertRawTimeNote(
+      { text: area.value, start: area.selectionStart, end: area.selectionEnd },
+      time,
+    );
+    Reflect.set(area, "value", next.text);
     area.focus();
     area.setSelectionRange(next.start, next.end);
     this.bodyChange.emit({ itemId: t.id, body: next.text });
@@ -462,7 +500,7 @@ export class TopSheetViewComponent {
 
   /** "Bild einfügen": the file dialog of the editor or of the Markdown source. */
   insertImage(): void {
-    if (this.mode() !== 'raw') {
+    if (this.mode() !== "raw") {
       this.editor()?.pickImage();
       return;
     }
@@ -484,9 +522,14 @@ export class TopSheetViewComponent {
     this.editable() ? (this.api?.knownNames(this.meeting().id) ?? []) : [];
 
   /** An edit of the Markdown source. A reader changes nothing. */
-  protected onRawInput(t: AgendaItem, area: HTMLTextAreaElement, event: Event): void {
+  protected onRawInput(
+    t: AgendaItem,
+    area: HTMLTextAreaElement,
+    event: Event,
+  ): void {
     if (!this.editable()) return;
-    if (event instanceof InputEvent && event.inputType === 'insertText') this.markRawName(area);
+    if (event instanceof InputEvent && event.inputType === "insertText")
+      this.markRawName(area);
     this.bodyChange.emit({ itemId: t.id, body: area.value });
   }
 
@@ -503,18 +546,22 @@ export class TopSheetViewComponent {
     const caret = area.selectionStart;
     const marked = `%%${area.value.slice(match.from, match.to)}%%`;
     area.setSelectionRange(match.from, match.to);
-    const inserted = 'execCommand' in document && document.execCommand('insertText', false, marked);
+    const inserted =
+      "execCommand" in document &&
+      document.execCommand("insertText", false, marked);
     if (!inserted) area.setRangeText(marked, match.from, match.to);
     area.setSelectionRange(caret + 4, caret + 4);
   }
 
   /** "TOP 3 · Antrag", "TOP 3 · Haushaltsplan", or "TOP 3" for a free-text item. */
   protected kindLine(t: AgendaItem): string {
-    const top = this.i18n.translate('meetings.agenda.top', { n: this.topIndex() + 1 });
+    const top = this.i18n.translate("meetings.agenda.top", {
+      n: this.topIndex() + 1,
+    });
     const kind = t.applicationId
-      ? 'meetings.agenda.kindApplication'
+      ? "meetings.agenda.kindApplication"
       : t.planVersionId
-        ? 'meetings.agenda.planSub'
+        ? "meetings.agenda.planSub"
         : null;
     return kind ? `${top} · ${this.i18n.translate(kind)}` : top;
   }
@@ -529,27 +576,36 @@ export class TopSheetViewComponent {
    */
   protected readonly docKey = computed(() => {
     const t = this.top();
-    if (!t) return '';
+    if (!t) return "";
     const reader = this.follow() || !this.editable();
-    return reader ? `${t.id}:${textHash(t.body ?? '')}` : `${t.id}:${this.revision()}`;
+    return reader
+      ? `${t.id}:${textHash(t.body ?? "")}`
+      : `${t.id}:${this.revision()}`;
   });
 
   /** The item is the one that the room handles now (participant view, live meeting). */
   protected readonly isNow = computed(() => {
     const m = this.meeting();
-    return this.follow() && m.status === 'live' && !!m.currentAgendaItemId && this.top()?.id === m.currentAgendaItemId;
+    return (
+      this.follow() &&
+      m.status === "live" &&
+      !!m.currentAgendaItemId &&
+      this.top()?.id === m.currentAgendaItemId
+    );
   });
 }
 
 /** A short hash of a text (FNV-1a, 32 bit), so that a document key changes with it. */
 function textHash(text: string): string {
   const hash = text
-    .split('')
+    .split("")
     .reduce((h, c) => Math.imul(h ^ c.charCodeAt(0), 0x01000193), 0x811c9dc5);
   return `${text.length}.${(hash >>> 0).toString(36)}`;
 }
 
 /** The PDF files of a paste or a drop. */
 function pdfFiles(list: FileList | null | undefined): readonly File[] {
-  return Array.from(list ?? []).filter((f) => PROTOCOL_DOCUMENT_TYPES.includes(f.type));
+  return Array.from(list ?? []).filter((f) =>
+    PROTOCOL_DOCUMENT_TYPES.includes(f.type),
+  );
 }

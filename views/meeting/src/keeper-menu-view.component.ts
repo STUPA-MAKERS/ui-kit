@@ -6,10 +6,14 @@ import {
   input,
   output,
   signal,
-} from '@angular/core';
-import type { Attendance, Meeting, Uuid } from './meeting.types';
-import { UI_KIT_INTL, UiKitTranslatePipe } from '@stupa-makers/ui-kit';
-import type { UiKitTextKey } from '@stupa-makers/ui-kit';
+} from "@angular/core";
+import type { Attendance, Meeting, Uuid } from "./meeting.types";
+import {
+  registerUiKitTexts,
+  UI_KIT_INTL,
+  UiKitTranslatePipe,
+} from "@stupa-makers/ui-kit";
+import type { UiKitTextKey } from "@stupa-makers/ui-kit";
 import {
   AvatarComponent,
   ButtonComponent,
@@ -17,8 +21,9 @@ import {
   IconComponent,
   SearchPillComponent,
   TruncatedDirective,
-} from '@stupa-makers/ui-kit';
-import { personLabel } from './person-label.util';
+} from "@stupa-makers/ui-kit";
+import { personLabel } from "./person-label.util";
+import { UI_KIT_MEETING_TEXTS } from "./meeting.texts";
 
 /** One member of the picker. */
 interface Candidate {
@@ -42,15 +47,26 @@ interface Candidate {
  * the list; the server refuses any other with 422.
  */
 @Component({
-  selector: 'app-keeper-menu-view',
+  selector: "app-keeper-menu-view",
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [TruncatedDirective, SearchPillComponent, UiKitTranslatePipe, ButtonComponent, ButtonGroupComponent, IconComponent, AvatarComponent],
-  templateUrl: './keeper-menu-view.component.html',
-  styleUrl: './keeper-menu-view.component.scss',
-  host: { '[class.km--sheet]': 'inSheet()' },
+  imports: [
+    TruncatedDirective,
+    SearchPillComponent,
+    UiKitTranslatePipe,
+    ButtonComponent,
+    ButtonGroupComponent,
+    IconComponent,
+    AvatarComponent,
+  ],
+  templateUrl: "./keeper-menu-view.component.html",
+  styleUrl: "./keeper-menu-view.component.scss",
+  host: { "[class.km--sheet]": "inSheet()" },
 })
 export class KeeperMenuViewComponent {
+  /** The texts of the view, registered before the first render (002237). */
+  protected readonly viewTexts = registerUiKitTexts(UI_KIT_MEETING_TEXTS);
+
   private readonly i18n = inject(UI_KIT_INTL);
 
   readonly meeting = input.required<Meeting>();
@@ -63,22 +79,24 @@ export class KeeperMenuViewComponent {
   /** Discard the planned handover. */
   readonly discard = output<void>();
 
-  protected readonly query = signal('');
+  protected readonly query = signal("");
 
-  protected readonly live = computed(() => this.meeting().status === 'live');
+  protected readonly live = computed(() => this.meeting().status === "live");
   protected readonly heading = computed<UiKitTextKey>(() =>
-    this.live() ? 'meetings.keeper.handTo' : 'meetings.keeper.assign',
+    this.live() ? "meetings.keeper.handTo" : "meetings.keeper.assign",
   );
 
   /** "übernimmt ab TOP 4", or "übernimmt mit dem nächsten TOP" without a known number. */
   protected readonly plannedSub = computed(() => {
     const plan = this.meeting().plannedHandover;
-    if (!plan) return '';
+    if (!plan) return "";
     return plan.fromPosition !== null
-      ? this.i18n.translate('meetings.keeper.takesOverAt', {
-          top: this.i18n.translate('meetings.agenda.top', { n: plan.fromPosition }),
+      ? this.i18n.translate("meetings.keeper.takesOverAt", {
+          top: this.i18n.translate("meetings.agenda.top", {
+            n: plan.fromPosition,
+          }),
         })
-      : this.i18n.translate('meetings.keeper.takesOverNext');
+      : this.i18n.translate("meetings.keeper.takesOverNext");
   });
 
   protected readonly candidates = computed<Candidate[]>(() => {
@@ -86,14 +104,27 @@ export class KeeperMenuViewComponent {
     const q = this.query().trim().toLowerCase();
     return this.attendance()
       .filter((a) => a.canKeepProtocol)
-      .filter((a) => !q || [a.displayName, a.email].some((v) => v?.toLowerCase().includes(q)))
+      .filter(
+        (a) =>
+          !q ||
+          [a.displayName, a.email].some((v) => v?.toLowerCase().includes(q)),
+      )
       .map((a) => {
         const current = a.principalId === m.protokollantId;
         const state = this.i18n.translate(
-          a.status ? `meetings.attendance.${a.status}` : 'meetings.attendance.unknown',
+          a.status
+            ? `meetings.attendance.${a.status}`
+            : "meetings.attendance.unknown",
         );
-        const sub = current ? `${state} · ${this.i18n.translate('meetings.keeper.keeps')}` : state;
-        return { principalId: a.principalId, name: personLabel(a, '—'), sub, current };
+        const sub = current
+          ? `${state} · ${this.i18n.translate("meetings.keeper.keeps")}`
+          : state;
+        return {
+          principalId: a.principalId,
+          name: personLabel(a, "—"),
+          sub,
+          current,
+        };
       });
   });
 

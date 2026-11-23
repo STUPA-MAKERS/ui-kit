@@ -1,18 +1,25 @@
-import { ChangeDetectionStrategy, Component, input, output } from '@angular/core';
-import { FormsModule } from '@angular/forms';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  input,
+  output,
+} from "@angular/core";
+import { FormsModule } from "@angular/forms";
 import {
   ButtonComponent,
   ButtonGroupComponent,
   I18nInputComponent,
   type I18nMap,
   IconComponent,
+  registerUiKitTexts,
   SelectFieldComponent,
   type SelectOption,
   SwitchComponent,
   UiKitTranslatePipe,
-} from '@stupa-makers/ui-kit';
-import type { TransitionDef } from './flow-editor.types';
-import { FlowColorViewComponent } from './flow-color-view.component';
+} from "@stupa-makers/ui-kit";
+import type { TransitionDef } from "./flow-editor.types";
+import { FlowColorViewComponent } from "./flow-color-view.component";
+import { UI_KIT_FLOW_EDITOR_TEXTS } from "./flow-editor.texts";
 
 /**
  * Inspector panel for the selected transition. It edits endpoints, labels, colour, the
@@ -20,7 +27,7 @@ import { FlowColorViewComponent } from './flow-color-view.component';
  * follow it in the panel (`app-transition-detail`).
  */
 @Component({
-  selector: 'app-transition-inspector-view',
+  selector: "app-transition-inspector-view",
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
@@ -34,10 +41,13 @@ import { FlowColorViewComponent } from './flow-color-view.component';
     SwitchComponent,
     FlowColorViewComponent,
   ],
-  templateUrl: './transition-inspector-view.component.html',
-  styleUrl: './transition-inspector-view.component.scss',
+  templateUrl: "./transition-inspector-view.component.html",
+  styleUrl: "./transition-inspector-view.component.scss",
 })
 export class TransitionInspectorViewComponent {
+  /** The texts of the view, registered before the first render (002237). */
+  protected readonly viewTexts = registerUiKitTexts(UI_KIT_FLOW_EDITOR_TEXTS);
+
   readonly transition = input.required<TransitionDef>();
   readonly stateOptions = input.required<SelectOption[]>();
   /** Result branches of the source state. An empty list hides the branch select. */

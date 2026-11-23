@@ -1,17 +1,31 @@
-import { ChangeDetectionStrategy, Component, inject, input, output } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  inject,
+  input,
+  output,
+} from "@angular/core";
 import {
   EmptyStateComponent,
   IconComponent,
   ListItemComponent,
   MetaLineComponent,
+  registerUiKitTexts,
   SkeletonComponent,
   StatusTextComponent,
   UI_KIT_INTL,
   UiKitTranslatePipe,
-} from '@stupa-makers/ui-kit';
-import type { CalendarEntry } from './calendar.types';
-import { CalendarChevronComponent } from './calendar-chevron.component';
-import { answerKey, answerKind, entryIcon, entryTime, kindKey } from './calendar.util';
+} from "@stupa-makers/ui-kit";
+import type { CalendarEntry } from "./calendar.types";
+import { CalendarChevronComponent } from "./calendar-chevron.component";
+import {
+  answerKey,
+  answerKind,
+  entryIcon,
+  entryTime,
+  kindKey,
+} from "./calendar.util";
+import { UI_KIT_CALENDAR_TEXTS } from "./calendar.texts";
 
 /**
  * The entries of the picked day beside the desktop month grid: one row group, like the list
@@ -21,7 +35,7 @@ import { answerKey, answerKind, entryIcon, entryTime, kindKey } from './calendar
  * the app shows the retry.
  */
 @Component({
-  selector: 'app-calendar-day-list-view',
+  selector: "app-calendar-day-list-view",
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
@@ -34,27 +48,30 @@ import { answerKey, answerKind, entryIcon, entryTime, kindKey } from './calendar
     StatusTextComponent,
     UiKitTranslatePipe,
   ],
-  templateUrl: './calendar-day-list-view.component.html',
-  styleUrl: './calendar-day-list-view.component.scss',
+  templateUrl: "./calendar-day-list-view.component.html",
+  styleUrl: "./calendar-day-list-view.component.scss",
   host: {
-    role: 'region',
-    'aria-live': 'polite',
-    '[attr.aria-label]': 'label()',
+    role: "region",
+    "aria-live": "polite",
+    "[attr.aria-label]": "label()",
   },
 })
 export class CalendarDayListViewComponent {
+  /** The texts of the view, registered before the first render (002237). */
+  protected readonly viewTexts = registerUiKitTexts(UI_KIT_CALENDAR_TEXTS);
+
   private readonly i18n = inject(UI_KIT_INTL);
 
   /** The entries of the picked day. */
   readonly entries = input.required<readonly CalendarEntry[]>();
   /** The name of the list ("Mittwoch, 11. November"). */
-  readonly label = input('');
+  readonly label = input("");
   readonly loading = input(false);
   /** The first read runs: the skeleton shows. */
   readonly firstLoad = input(false);
   /** The read failed: the face with `errorText` shows. */
   readonly error = input(false);
-  readonly errorText = input('');
+  readonly errorText = input("");
 
   readonly openEntry = output<CalendarEntry>();
 

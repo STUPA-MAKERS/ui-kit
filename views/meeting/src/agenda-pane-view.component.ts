@@ -1,4 +1,9 @@
-import { CdkDrag, CdkDragPlaceholder, CdkDropList, type CdkDragDrop } from '@angular/cdk/drag-drop';
+import {
+  CdkDrag,
+  CdkDragPlaceholder,
+  CdkDropList,
+  type CdkDragDrop,
+} from "@angular/cdk/drag-drop";
 import {
   ChangeDetectionStrategy,
   Component,
@@ -12,11 +17,15 @@ import {
   output,
   signal,
   viewChild,
-} from '@angular/core';
-import { FormsModule } from '@angular/forms';
-import { UI_KIT_INTL, UiKitTranslatePipe } from '@stupa-makers/ui-kit';
-import type { UiKitTextKey } from '@stupa-makers/ui-kit';
-import type { AgendaItem, Meeting, MeetingVote, Uuid } from './meeting.types';
+} from "@angular/core";
+import { FormsModule } from "@angular/forms";
+import {
+  registerUiKitTexts,
+  UI_KIT_INTL,
+  UiKitTranslatePipe,
+} from "@stupa-makers/ui-kit";
+import type { UiKitTextKey } from "@stupa-makers/ui-kit";
+import type { AgendaItem, Meeting, MeetingVote, Uuid } from "./meeting.types";
 import {
   BadgeComponent,
   ButtonComponent,
@@ -32,13 +41,28 @@ import {
   type RowMenuSection,
   ToastService,
   DialogBodyDirective,
-} from '@stupa-makers/ui-kit';
-import { BodyPortalDirective } from './body-portal.directive';
-import { TopBadgeViewComponent } from './top-badge-view.component';
-import { agendaPlan, minutesInvalid, parseMinutes, planClock } from './agenda-plan.util';
+} from "@stupa-makers/ui-kit";
+import { BodyPortalDirective } from "./body-portal.directive";
+import { TopBadgeViewComponent } from "./top-badge-view.component";
+import {
+  agendaPlan,
+  minutesInvalid,
+  parseMinutes,
+  planClock,
+} from "./agenda-plan.util";
+import { UI_KIT_MEETING_TEXTS } from "./meeting.texts";
 
 /** The ids of the row menu items of an agenda item. */
-type AgendaAction = 'done' | 'rename' | 'duration' | 'up' | 'down' | 'nonPublic' | 'remove' | 'todo' | 'link';
+type AgendaAction =
+  | "done"
+  | "rename"
+  | "duration"
+  | "up"
+  | "down"
+  | "nonPublic"
+  | "remove"
+  | "todo"
+  | "link";
 
 /**
  * Rename an agenda item and set its mark "nicht öffentlich": the meeting lead with write
@@ -53,20 +77,20 @@ export function canEditTop(meeting: Meeting, locked: boolean): boolean {
  * meeting is planned or live and the protocol is not locked.
  */
 export function canChangeAgenda(meeting: Meeting, locked: boolean): boolean {
-  return meeting.canWrite && !locked && meeting.status !== 'closed';
+  return meeting.canWrite && !locked && meeting.status !== "closed";
 }
 
 /** A move of an agenda item from one position to another (0-based). */
 /** A link of a new to-do card: the kind, the id and the chip text. */
 export interface AgendaTodoLink {
-  readonly kind: 'application' | 'agenda_item';
+  readonly kind: "application" | "agenda_item";
   readonly targetId: string;
   readonly label: string;
 }
 
 /** The item as a link end. */
 export interface AgendaLinkEnd {
-  readonly kind: 'agenda_item';
+  readonly kind: "agenda_item";
   readonly id: string;
 }
 
@@ -103,7 +127,7 @@ export interface AgendaMove {
  * Both dialogs live in the body, because the scroll fade of the agenda would clip them.
  */
 @Component({
-  selector: 'app-agenda-pane-view',
+  selector: "app-agenda-pane-view",
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
@@ -126,10 +150,13 @@ export interface AgendaMove {
     RowMenuComponent,
     BodyPortalDirective,
   ],
-  templateUrl: './agenda-pane-view.component.html',
-  styleUrl: './agenda-pane-view.component.scss',
+  templateUrl: "./agenda-pane-view.component.html",
+  styleUrl: "./agenda-pane-view.component.scss",
 })
 export class AgendaPaneViewComponent {
+  /** The texts of the view, registered before the first render (002237). */
+  protected readonly viewTexts = registerUiKitTexts(UI_KIT_MEETING_TEXTS);
+
   private readonly i18n = inject(UI_KIT_INTL);
   private readonly toast = inject(ToastService);
 
@@ -141,13 +168,16 @@ export class AgendaPaneViewComponent {
   readonly locked = input(false);
   readonly savingAgenda = input(false);
   readonly renamingTopId = input<Uuid | null>(null);
-  readonly renameDraft = model<string>('');
-  private readonly renameInput = viewChild<ElementRef<HTMLInputElement>>('renameInput');
+  readonly renameDraft = model<string>("");
+  private readonly renameInput =
+    viewChild<ElementRef<HTMLInputElement>>("renameInput");
   /**
    * The rename field takes the focus when it opens. The `autofocus` attribute works only on
    * page load, and the template lint refuses it (§ui-kit:NF/accessibility/conformance/000492).
    */
-  private readonly focusRename = effect(() => this.renameInput()?.nativeElement.focus());
+  private readonly focusRename = effect(() =>
+    this.renameInput()?.nativeElement.focus(),
+  );
   /**
    * The item whose rename started from the row menu of this pane. The heading of the TOP
    * shows its own field for a rename from the title; with both fields open, the second took
@@ -202,7 +232,9 @@ export class AgendaPaneViewComponent {
   protected readonly removing = signal<AgendaItem | null>(null);
 
   /** Rename and set the non-public flag: the meeting lead with write access, protocol not locked. */
-  protected readonly canEditAgenda = computed(() => canEditTop(this.meeting(), this.locked()));
+  protected readonly canEditAgenda = computed(() =>
+    canEditTop(this.meeting(), this.locked()),
+  );
   /** Add, reorder and remove: also only while the meeting is planned or live. */
   protected readonly canChangeAgenda = computed(() =>
     canChangeAgenda(this.meeting(), this.locked()),
@@ -215,7 +247,7 @@ export class AgendaPaneViewComponent {
    */
   private readonly nowId = computed(() => {
     const m = this.meeting();
-    return m.status === 'planned' ? null : m.currentAgendaItemId;
+    return m.status === "planned" ? null : m.currentAgendaItemId;
   });
   /** The clock of the live plan: one tick each minute (§ 001143). */
   private readonly clock = signal(new Date());
@@ -225,15 +257,22 @@ export class AgendaPaneViewComponent {
     return id;
   })();
   /** The time plan of the agenda (§ 001141 – § 001144). */
-  protected readonly plan = computed(() => agendaPlan(this.agenda(), this.meeting(), this.clock()));
+  protected readonly plan = computed(() =>
+    agendaPlan(this.agenda(), this.meeting(), this.clock()),
+  );
   /** "Dauer ändern": the item of the open dialog and the value of its field (§ 001140). */
   protected readonly durationItem = signal<AgendaItem | null>(null);
   protected readonly durationDraft = signal<number | string | null>(null);
-  protected readonly durationInvalid = computed(() => minutesInvalid(this.durationDraft()));
+  protected readonly durationInvalid = computed(() =>
+    minutesInvalid(this.durationDraft()),
+  );
   protected saveDuration(): void {
     const item = this.durationItem();
     if (!item || this.durationInvalid()) return;
-    this.setDuration.emit({ item, minutes: parseMinutes(this.durationDraft()) });
+    this.setDuration.emit({
+      item,
+      minutes: parseMinutes(this.durationDraft()),
+    });
     this.durationItem.set(null);
   }
   /** The plan part of the row subline: `ca. 18:10 · 10 Min.`, or `18:04` for a reached item. */
@@ -244,28 +283,45 @@ export class AgendaPaneViewComponent {
       row.start === null
         ? []
         : [
-            this.i18n.translate(row.actual ? 'meetings.agenda.planActual' : 'meetings.agenda.planStart', {
-              time: planClock(row.start),
+            this.i18n.translate(
+              row.actual
+                ? "meetings.agenda.planActual"
+                : "meetings.agenda.planStart",
+              {
+                time: planClock(row.start),
+              },
+            ),
+          ];
+    const minutes =
+      row.minutes === null
+        ? []
+        : [
+            this.i18n.translate("meetings.agenda.planMinutes", {
+              n: row.minutes,
             }),
           ];
-    const minutes = row.minutes === null ? [] : [this.i18n.translate('meetings.agenda.planMinutes', { n: row.minutes })];
     const parts = [...clock, ...minutes];
-    return parts.length ? parts.join(' · ') : null;
+    return parts.length ? parts.join(" · ") : null;
   }
 
   /** A row lifts while the agenda may change, is not saving and the row is not in rename. */
   protected canDrag(item: AgendaItem): boolean {
-    return this.canChangeAgenda() && !this.savingAgenda() && !this.renaming(item);
+    return (
+      this.canChangeAgenda() && !this.savingAgenda() && !this.renaming(item)
+    );
   }
 
   /** A row dropped at another place of the agenda. */
-  protected dropped(event: Pick<CdkDragDrop<unknown>, 'previousIndex' | 'currentIndex'>): void {
-    if (event.previousIndex === event.currentIndex || this.savingAgenda()) return;
+  protected dropped(
+    event: Pick<CdkDragDrop<unknown>, "previousIndex" | "currentIndex">,
+  ): void {
+    if (event.previousIndex === event.currentIndex || this.savingAgenda())
+      return;
     this.move.emit({ from: event.previousIndex, to: event.currentIndex });
   }
 
   protected title(item: AgendaItem): string {
-    return item.title || this.i18n.translate('meetings.agenda.untitled');
+    return item.title || this.i18n.translate("meetings.agenda.untitled");
   }
 
   /**
@@ -275,15 +331,15 @@ export class AgendaPaneViewComponent {
   protected sub(item: AgendaItem, index: number): string | null {
     const plan = this.planText(index);
     const kind = item.applicationId
-      ? [this.i18n.translate('meetings.agenda.kindApplication')]
+      ? [this.i18n.translate("meetings.agenda.kindApplication")]
       : item.todoId
-        ? [this.i18n.translate('meetings.agenda.kindTodo')]
+        ? [this.i18n.translate("meetings.agenda.kindTodo")]
         : [];
-    const open = this.votesFor(item.id).some((v) => v.status === 'open')
-      ? [this.i18n.translate('meetings.agenda.voteOpen')]
+    const open = this.votesFor(item.id).some((v) => v.status === "open")
+      ? [this.i18n.translate("meetings.agenda.voteOpen")]
       : [];
     const parts = [...(plan ? [plan] : []), ...kind, ...open];
-    return parts.length ? parts.join(' · ') : null;
+    return parts.length ? parts.join(" · ") : null;
   }
 
   /** The item the room handles now. */
@@ -309,24 +365,40 @@ export class AgendaPaneViewComponent {
    */
   protected removeBlockedReason(itemId: Uuid): UiKitTextKey | null {
     const votes = this.votesFor(itemId);
-    if (votes.some((v) => v.status === 'open' || v.status === 'closed')) {
-      return 'meetings.agenda.removeBlocked';
+    if (votes.some((v) => v.status === "open" || v.status === "closed")) {
+      return "meetings.agenda.removeBlocked";
     }
     if (!this.meeting().canManageVotes && votes.length > 0) {
-      return 'meetings.agenda.removeNeedsVoteRight';
+      return "meetings.agenda.removeNeedsVoteRight";
     }
     return null;
   }
 
   /** The row menus in agenda order, built once per change of their inputs. */
-  protected readonly menus = computed(() => this.agenda().map((item, i) => this.menu(item, i)));
+  protected readonly menus = computed(() =>
+    this.agenda().map((item, i) => this.menu(item, i)),
+  );
 
   /** The row menu of an item. Empty when nothing on the agenda may change. */
   private menu(item: AgendaItem, index: number): readonly RowMenuSection[] {
-    const todo: RowMenuItem = { id: 'todo', label: this.i18n.translate('meetings.agenda.todo'), icon: 'circleok' };
-    const link: RowMenuItem = { id: 'link', label: this.i18n.translate('meetings.agenda.link'), icon: 'link' };
-    const key: UiKitTextKey = item.doneAt ? 'meetings.agenda.markOpen' : 'meetings.agenda.markDone';
-    const done: RowMenuItem = { id: 'done', label: this.i18n.translate(key), icon: 'check' };
+    const todo: RowMenuItem = {
+      id: "todo",
+      label: this.i18n.translate("meetings.agenda.todo"),
+      icon: "circleok",
+    };
+    const link: RowMenuItem = {
+      id: "link",
+      label: this.i18n.translate("meetings.agenda.link"),
+      icon: "link",
+    };
+    const key: UiKitTextKey = item.doneAt
+      ? "meetings.agenda.markOpen"
+      : "meetings.agenda.markDone";
+    const done: RowMenuItem = {
+      id: "done",
+      label: this.i18n.translate(key),
+      icon: "check",
+    };
     return [
       ...(this.canTick() ? [{ items: [done] }] : []),
       ...(this.canTodo() ? [{ items: [todo, link] }] : []),
@@ -334,21 +406,41 @@ export class AgendaPaneViewComponent {
     ];
   }
 
-  private agendaMenu(item: AgendaItem, index: number): readonly RowMenuSection[] {
+  private agendaMenu(
+    item: AgendaItem,
+    index: number,
+  ): readonly RowMenuSection[] {
     if (!this.canEditAgenda()) return [];
     const t = (key: UiKitTextKey): string => this.i18n.translate(key);
     const nonPublic: RowMenuItem = {
-      id: 'nonPublic',
-      label: t('meetings.agenda.nonPublicLabel'),
-      icon: 'lock',
+      id: "nonPublic",
+      label: t("meetings.agenda.nonPublicLabel"),
+      icon: "lock",
       checked: item.nonPublic === true,
     };
-    const rename: RowMenuItem = { id: 'rename', label: t('meetings.agenda.rename'), icon: 'edit' };
-    if (!this.canChangeAgenda()) return [{ items: [rename] }, { items: [nonPublic] }];
+    const rename: RowMenuItem = {
+      id: "rename",
+      label: t("meetings.agenda.rename"),
+      icon: "edit",
+    };
+    if (!this.canChangeAgenda())
+      return [{ items: [rename] }, { items: [nonPublic] }];
 
-    const up: RowMenuItem = { id: 'up', label: t('meetings.agenda.moveUp'), icon: 'up' };
-    const down: RowMenuItem = { id: 'down', label: t('meetings.agenda.moveDown'), icon: 'down' };
-    const duration: RowMenuItem = { id: 'duration', label: t('meetings.agenda.durationEdit'), icon: 'clock' };
+    const up: RowMenuItem = {
+      id: "up",
+      label: t("meetings.agenda.moveUp"),
+      icon: "up",
+    };
+    const down: RowMenuItem = {
+      id: "down",
+      label: t("meetings.agenda.moveDown"),
+      icon: "down",
+    };
+    const duration: RowMenuItem = {
+      id: "duration",
+      label: t("meetings.agenda.durationEdit"),
+      icon: "clock",
+    };
     const edit: readonly RowMenuItem[] = [
       rename,
       duration,
@@ -362,9 +454,9 @@ export class AgendaPaneViewComponent {
       {
         items: [
           {
-            id: 'remove',
-            label: t('meetings.agenda.remove'),
-            icon: 'trash',
+            id: "remove",
+            label: t("meetings.agenda.remove"),
+            icon: "trash",
             danger: true,
             disabledReason: blocked ? t(blocked) : null,
           },
@@ -374,40 +466,46 @@ export class AgendaPaneViewComponent {
   }
 
   protected menuLabel(item: AgendaItem): string {
-    return this.i18n.translate('meetings.agenda.rowMenu', { title: this.title(item) });
+    return this.i18n.translate("meetings.agenda.rowMenu", {
+      title: this.title(item),
+    });
   }
 
-  protected onAction(item: AgendaItem, index: number, action: RowMenuItem): void {
+  protected onAction(
+    item: AgendaItem,
+    index: number,
+    action: RowMenuItem,
+  ): void {
     const id = action.id as AgendaAction;
-    if (id !== 'todo' && id !== 'link' && this.savingAgenda()) return;
+    if (id !== "todo" && id !== "link" && this.savingAgenda()) return;
     switch (id) {
-      case 'todo':
+      case "todo":
         this.openTodo(item, index);
         break;
-      case 'link':
+      case "link":
         this.openLink(item);
         break;
-      case 'done':
+      case "done":
         this.setDone.emit({ item, done: !item.doneAt });
         break;
-      case 'duration':
+      case "duration":
         this.durationItem.set(item);
         this.durationDraft.set(item.estimatedMinutes ?? null);
         break;
-      case 'rename':
+      case "rename":
         this.renamingHere.set(item.id);
         this.startRename.emit(item);
         break;
-      case 'up':
+      case "up":
         this.move.emit({ from: index, to: index - 1 });
         break;
-      case 'down':
+      case "down":
         this.move.emit({ from: index, to: index + 1 });
         break;
-      case 'nonPublic':
+      case "nonPublic":
         this.setNonPublic.emit({ item, nonPublic: !item.nonPublic });
         break;
-      case 'remove':
+      case "remove":
         this.removing.set(item);
         break;
     }
@@ -426,18 +524,18 @@ export class AgendaPaneViewComponent {
    */
   private openTodo(item: AgendaItem, index: number): void {
     const title = this.title(item);
-    const top = this.i18n.translate('todos.link.top', { n: index + 1 });
+    const top = this.i18n.translate("todos.link.top", { n: index + 1 });
     const application: readonly AgendaTodoLink[] = item.applicationId
       ? [
           {
-            kind: 'application',
+            kind: "application",
             targetId: item.applicationId,
-            label: `${this.i18n.translate('todos.linkKind.application')} · ${item.applicationTitle || title}`,
+            label: `${this.i18n.translate("todos.linkKind.application")} · ${item.applicationTitle || title}`,
           },
         ]
       : [];
     const agendaItem: AgendaTodoLink = {
-      kind: 'agenda_item',
+      kind: "agenda_item",
       targetId: item.id,
       label: `${this.meeting().title} · ${top}`,
     };
@@ -449,6 +547,6 @@ export class AgendaPaneViewComponent {
    * item and what it links already.
    */
   private openLink(item: AgendaItem): void {
-    this.todoLink.emit({ kind: 'agenda_item', id: item.id });
+    this.todoLink.emit({ kind: "agenda_item", id: item.id });
   }
 }

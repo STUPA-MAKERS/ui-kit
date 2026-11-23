@@ -5,29 +5,31 @@ import {
   inject,
   input,
   output,
-} from '@angular/core';
-import { FormsModule } from '@angular/forms';
+} from "@angular/core";
+import { FormsModule } from "@angular/forms";
 import {
   ButtonComponent,
   ButtonGroupComponent,
   IconComponent,
   InputComponent,
+  registerUiKitTexts,
   SelectFieldComponent,
   type SelectOption,
   UI_KIT_INTL,
   type UiKitTextKey,
   UiKitTranslatePipe,
-} from '@stupa-makers/ui-kit';
+} from "@stupa-makers/ui-kit";
 import {
   COMPARE_OPS,
   GUARD_ACTOR_OPERATORS,
   GUARD_CONDITION_OPERATORS,
   type Guard,
   type GuardLeafOperator,
-} from './flow-editor.types';
-import { defaultGuard, guardValueKind } from './flow-guard.util';
+} from "./flow-editor.types";
+import { defaultGuard, guardValueKind } from "./flow-guard.util";
+import { UI_KIT_FLOW_EDITOR_TEXTS } from "./flow-editor.texts";
 
-type ValueKind = 'none' | 'role' | 'committee' | 'compare' | 'text';
+type ValueKind = "none" | "role" | "committee" | "compare" | "text";
 
 /**
  * Recursive guard editor. It builds a boolean condition tree from and/or/not and leaf
@@ -38,7 +40,7 @@ type ValueKind = 'none' | 'role' | 'committee' | 'compare' | 'text';
  * component. It reads `guard` and emits a new object on every change.
  */
 @Component({
-  selector: 'app-guard-editor-view',
+  selector: "app-guard-editor-view",
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
@@ -50,10 +52,13 @@ type ValueKind = 'none' | 'role' | 'committee' | 'compare' | 'text';
     IconComponent,
     InputComponent,
   ],
-  templateUrl: './guard-editor-view.component.html',
-  styleUrl: './guard-editor-view.component.scss',
+  templateUrl: "./guard-editor-view.component.html",
+  styleUrl: "./guard-editor-view.component.scss",
 })
 export class GuardEditorViewComponent {
+  /** The texts of the view, registered before the first render (002237). */
+  protected readonly viewTexts = registerUiKitTexts(UI_KIT_FLOW_EDITOR_TEXTS);
+
   private readonly i18n = inject(UI_KIT_INTL);
 
   readonly guard = input<Guard | null>(null);
@@ -64,70 +69,80 @@ export class GuardEditorViewComponent {
   readonly guardChange = output<Guard | null>();
 
   /** The comparison operators as options. The symbols need no translation. */
-  protected readonly compareOpOptions: SelectOption[] = COMPARE_OPS.map((o) => ({
-    value: o,
-    label: o,
-  }));
+  protected readonly compareOpOptions: SelectOption[] = COMPARE_OPS.map(
+    (o) => ({
+      value: o,
+      label: o,
+    }),
+  );
 
   /** Current operator. An empty string means no guard. */
   protected readonly op = computed<string>(() => {
     const g = this.guard();
-    return g ? Object.keys(g)[0] : '';
+    return g ? Object.keys(g)[0] : "";
   });
 
-  protected readonly kind = computed<'combinator' | 'leaf' | 'none'>(() => {
+  protected readonly kind = computed<"combinator" | "leaf" | "none">(() => {
     const op = this.op();
-    if (!op) return 'none';
-    return op === 'and' || op === 'or' || op === 'not' ? 'combinator' : 'leaf';
+    if (!op) return "none";
+    return op === "and" || op === "or" || op === "not" ? "combinator" : "leaf";
   });
 
   protected readonly children = computed<Guard[]>(() => {
     const g = this.guard();
     const op = this.op();
-    if (!g || (op !== 'and' && op !== 'or' && op !== 'not')) return [];
+    if (!g || (op !== "and" && op !== "or" && op !== "not")) return [];
     const v = g[op];
     return Array.isArray(v) ? (v as Guard[]) : [];
   });
 
-  protected readonly valueKind = computed<ValueKind>(() => this.kindForOp(this.op()));
+  protected readonly valueKind = computed<ValueKind>(() =>
+    this.kindForOp(this.op()),
+  );
 
   /** What a combinator means, beside its operator: "alle Bedingungen erfüllt". */
   protected readonly combinatorText = computed(() => {
     const op = this.op();
-    return op === 'and' || op === 'or' || op === 'not'
+    return op === "and" || op === "or" || op === "not"
       ? this.i18n.translate(`admin.flow.guardDesc.${op}` as UiKitTextKey)
-      : '';
+      : "";
   });
 
   protected readonly strValue = computed<string>(() => {
     const g = this.guard();
-    if (!g) return '';
+    if (!g) return "";
     const v = Object.values(g)[0];
-    return v == null || typeof v === 'object' ? '' : String(v);
+    return v == null || typeof v === "object" ? "" : String(v);
   });
 
-  protected readonly cmp = computed<{ field: string; op: string; value: string }>(() => {
-    const c = this.guard()?.['compare'];
-    if (typeof c === 'object' && c !== null) {
+  protected readonly cmp = computed<{
+    field: string;
+    op: string;
+    value: string;
+  }>(() => {
+    const c = this.guard()?.["compare"];
+    if (typeof c === "object" && c !== null) {
       const o = c as { field?: unknown; op?: unknown; value?: unknown };
       return {
-        field: String(o.field ?? ''),
-        op: String(o.op ?? '=='),
-        value: String(o.value ?? ''),
+        field: String(o.field ?? ""),
+        op: String(o.op ?? "=="),
+        value: String(o.value ?? ""),
       };
     }
-    return { field: '', op: '==', value: '' };
+    return { field: "", op: "==", value: "" };
   });
 
   protected opOptions(): SelectOption[] {
     const leafs: readonly string[] = this.automatic()
       ? GUARD_CONDITION_OPERATORS
       : [...GUARD_CONDITION_OPERATORS, ...GUARD_ACTOR_OPERATORS];
-    const combinators = ['and', 'or', 'not'];
+    const combinators = ["and", "or", "not"];
     return [
       ...combinators.map((op) => ({
         value: op,
-        label: this.i18n.translate(`admin.flow.guardCombinator.${op}` as UiKitTextKey),
+        label: this.i18n.translate(
+          `admin.flow.guardCombinator.${op}` as UiKitTextKey,
+        ),
       })),
       ...leafs.map((op) => ({
         value: op,
@@ -141,15 +156,22 @@ export class GuardEditorViewComponent {
       this.guardChange.emit(null);
       return;
     }
-    if (op === 'and' || op === 'or') {
+    if (op === "and" || op === "or") {
       const existing = this.children();
-      const seed = existing.length ? existing : this.guard() ? [this.guard() as Guard] : [];
+      const seed = existing.length
+        ? existing
+        : this.guard()
+          ? [this.guard() as Guard]
+          : [];
       this.guardChange.emit({ [op]: seed });
       return;
     }
-    if (op === 'not') {
+    if (op === "not") {
       const existing = this.children();
-      const child = existing[0] ?? (this.guard() as Guard | null) ?? this.defaultLeaf('compare');
+      const child =
+        existing[0] ??
+        (this.guard() as Guard | null) ??
+        this.defaultLeaf("compare");
       this.guardChange.emit({ not: [child] });
       return;
     }
@@ -158,24 +180,26 @@ export class GuardEditorViewComponent {
 
   protected addChild(): void {
     const op = this.op();
-    if (op !== 'and' && op !== 'or') return;
-    this.guardChange.emit({ [op]: [...this.children(), this.defaultLeaf('compare')] });
+    if (op !== "and" && op !== "or") return;
+    this.guardChange.emit({
+      [op]: [...this.children(), this.defaultLeaf("compare")],
+    });
   }
 
   protected removeChild(index: number): void {
     const op = this.op();
-    if (op !== 'and' && op !== 'or') return;
+    if (op !== "and" && op !== "or") return;
     const next = this.children().filter((_, i) => i !== index);
     this.guardChange.emit(next.length ? { [op]: next } : null);
   }
 
   protected setChild(index: number, child: Guard | null): void {
     const op = this.op();
-    if (op !== 'and' && op !== 'or' && op !== 'not') return;
+    if (op !== "and" && op !== "or" && op !== "not") return;
     const next = this.children()
       .map((c, i) => (i === index ? child : c))
       .filter((c): c is Guard => c !== null);
-    if (op === 'not') {
+    if (op === "not") {
       this.guardChange.emit(next.length ? { not: [next[0]] } : null);
       return;
     }
@@ -188,7 +212,9 @@ export class GuardEditorViewComponent {
     this.guardChange.emit({ [op]: value });
   }
 
-  protected setCompare(patch: Partial<{ field: string; op: string; value: string }>): void {
+  protected setCompare(
+    patch: Partial<{ field: string; op: string; value: string }>,
+  ): void {
     this.guardChange.emit({ compare: { ...this.cmp(), ...patch } });
   }
 

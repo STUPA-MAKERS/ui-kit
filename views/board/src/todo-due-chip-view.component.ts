@@ -7,25 +7,29 @@ import {
   input,
   output,
   viewChild,
-} from '@angular/core';
-import { UI_KIT_INTL } from '@stupa-makers/ui-kit';
-import { UiKitTranslatePipe } from '@stupa-makers/ui-kit';
-import { IconComponent } from '@stupa-makers/ui-kit';
-import { weekdayDate } from './board-format';
+} from "@angular/core";
+import { registerUiKitTexts, UI_KIT_INTL } from "@stupa-makers/ui-kit";
+import { UiKitTranslatePipe } from "@stupa-makers/ui-kit";
+import { IconComponent } from "@stupa-makers/ui-kit";
+import { weekdayDate } from "./board-format";
+import { UI_KIT_BOARD_TEXTS } from "./board.texts";
 
 /**
  * The due date of a card as a chip ("Di, 03.11.2026 ⌄"). The chip opens the
  * date picker of the browser; a set date has a remove button beside it.
  */
 @Component({
-  selector: 'app-todo-due-chip-view',
+  selector: "app-todo-due-chip-view",
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [UiKitTranslatePipe, IconComponent],
-  templateUrl: './todo-due-chip-view.component.html',
-  styleUrl: './todo-due-chip-view.component.scss',
+  templateUrl: "./todo-due-chip-view.component.html",
+  styleUrl: "./todo-due-chip-view.component.scss",
 })
 export class TodoDueChipViewComponent {
+  /** The texts of the view, registered before the first render (002237). */
+  protected readonly viewTexts = registerUiKitTexts(UI_KIT_BOARD_TEXTS);
+
   private readonly i18n = inject(UI_KIT_INTL);
 
   /** `YYYY-MM-DD` or null. */
@@ -34,7 +38,8 @@ export class TodoDueChipViewComponent {
   /** A new date, or null to remove it. */
   readonly changed = output<string | null>();
 
-  private readonly native = viewChild.required<ElementRef<HTMLInputElement>>('native');
+  private readonly native =
+    viewChild.required<ElementRef<HTMLInputElement>>("native");
 
   readonly text = computed(() => {
     const v = this.value();
@@ -44,9 +49,9 @@ export class TodoDueChipViewComponent {
   /** Open the calendar of the browser; without `showPicker` the field takes a click. */
   pick(): void {
     const el = this.native().nativeElement;
-    Reflect.set(el, 'value', this.value() ?? '');
+    Reflect.set(el, "value", this.value() ?? "");
     try {
-      if (typeof el.showPicker === 'function') {
+      if (typeof el.showPicker === "function") {
         el.showPicker();
         return;
       }
@@ -58,7 +63,7 @@ export class TodoDueChipViewComponent {
 
   /** A picked date, or null when the calendar of the browser cleared the date. */
   onNative(value: string): void {
-    if (value === (this.value() ?? '')) return;
+    if (value === (this.value() ?? "")) return;
     this.changed.emit(value || null);
   }
 }

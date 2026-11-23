@@ -16,9 +16,9 @@ import {
   signal,
   untracked,
   viewChild,
-} from '@angular/core';
-import { NgTemplateOutlet } from '@angular/common';
-import { DomSanitizer, type SafeHtml } from '@angular/platform-browser';
+} from "@angular/core";
+import { NgTemplateOutlet } from "@angular/common";
+import { DomSanitizer, type SafeHtml } from "@angular/platform-browser";
 import {
   AvatarComponent,
   ButtonComponent,
@@ -31,31 +31,32 @@ import {
   FileDragTracker,
   FileViewerComponent,
   type FileViewerItem,
+  formatBytes,
   IconComponent,
+  ImageThumbComponent,
+  inlineUrl,
   isFileDrag,
+  isThumbImage,
+  markdownToSafeHtml,
   MEDIA,
   mediaQuery,
   MetaLineComponent,
+  type PersonRef,
   PressSelectDirective,
+  registerUiKitTexts,
   ScrollFadeDirective,
   SegmentedComponent,
   type SegmentedOption,
+  SheetBodyDirective,
   SideSheetComponent,
   SkeletonComponent,
+  type StatusKind,
   StatusTextComponent,
   ToastService,
-  SheetBodyDirective,
-  formatBytes,
-  ImageThumbComponent,
-  inlineUrl,
-  markdownToSafeHtml,
-  isThumbImage,
   UI_KIT_INTL,
-  UiKitTranslatePipe,
-  type PersonRef,
-  type StatusKind,
   type UiKitTextKey,
-} from '@stupa-makers/ui-kit';
+  UiKitTranslatePipe,
+} from "@stupa-makers/ui-kit";
 import {
   type ChatPerson,
   MentionPicker,
@@ -63,7 +64,7 @@ import {
   highlightMentions,
   mentionIds,
   mentionQuery,
-} from './chat-mentions';
+} from "./chat-mentions";
 import {
   CHAT_FILES,
   noChatFiles,
@@ -77,8 +78,15 @@ import {
   type ChatSend,
   type ChatUploadError,
   type ChatVisibilityOption,
-} from './chat.types';
-import { CHAT_MAX_FILES, buildItems, dayKey, isPending, newCount } from './chat.util';
+} from "./chat.types";
+import {
+  CHAT_MAX_FILES,
+  buildItems,
+  dayKey,
+  isPending,
+  newCount,
+} from "./chat.util";
+import { UI_KIT_CHAT_TEXTS } from "./chat.texts";
 
 /** The state of a file that is not a link: its colour and its text. */
 interface StatusView {
@@ -87,18 +95,17 @@ interface StatusView {
 }
 
 const SCAN: Readonly<Record<ChatScanState, StatusView>> = {
-  scanning: { kind: 'muted', key: 'chat.scan.scanning' },
-  clean: { kind: 'neutral', key: 'chat.scan.clean' },
-  quarantined: { kind: 'error', key: 'chat.scan.quarantined' },
+  scanning: { kind: "muted", key: "chat.scan.scanning" },
+  clean: { kind: "neutral", key: "chat.scan.clean" },
+  quarantined: { kind: "error", key: "chat.scan.quarantined" },
 };
-
 
 /** The log counts as "at the newest message" this close to its end, in px. */
 const BOTTOM_SLACK = 24;
-const DRAFT_PREFIX = 'ap.chat.draft.';
+const DRAFT_PREFIX = "ap.chat.draft.";
 /** The longest body the server takes for a comment, a note or a card comment. */
 export const CHAT_MAX_LENGTH = 10_000;
-const SEEN_PREFIX = 'ap.chat.seen.';
+const SEEN_PREFIX = "ap.chat.seen.";
 /** Numbers the "@" lists of the chats on a page, for their element ids. */
 // eslint-disable-next-line functional/no-let -- a counter of the module, copied from the app chat
 let mentionListSeq = 0;
@@ -110,25 +117,25 @@ export const SCAN_BACKOFF: readonly number[] = [2_000, 4_000, 8_000, 16_000];
 
 /** The extension of a pasted image without a name of its own. */
 const PASTE_EXT: Readonly<Record<string, string>> = {
-  'image/png': 'png',
-  'image/jpeg': 'jpg',
-  'image/gif': 'gif',
-  'image/webp': 'webp',
+  "image/png": "png",
+  "image/jpeg": "jpg",
+  "image/gif": "gif",
+  "image/webp": "webp",
 };
 
 /** The chat text of a refused upload. */
 export function chatUploadError(reason: ChatUploadError): UiKitTextKey {
-  if (reason === 'type') return 'chat.error.fileType';
-  if (reason === 'tooLarge') return 'chat.error.fileTooLarge';
-  return 'chat.error.upload';
+  if (reason === "type") return "chat.error.fileType";
+  if (reason === "tooLarge") return "chat.error.fileTooLarge";
+  return "chat.error.upload";
 }
 
 function pad(n: number): string {
-  return String(n).padStart(2, '0');
+  return String(n).padStart(2, "0");
 }
 
 /** The body of a message as safe HTML: escaped Markdown, bare URLs as links, marked mentions. */
-@Pipe({ name: 'chatBody', standalone: true })
+@Pipe({ name: "chatBody", standalone: true })
 export class ChatBodyPipe implements PipeTransform {
   private readonly sanitizer = inject(DomSanitizer);
   /**
@@ -138,7 +145,9 @@ export class ChatBodyPipe implements PipeTransform {
   transform(body: string, mentions?: readonly PersonRef[] | null): SafeHtml {
     const html = markdownToSafeHtml(body);
     const names = (mentions ?? []).flatMap((p) => (p.name ? [p.name] : []));
-    return this.sanitizer.bypassSecurityTrustHtml(highlightMentions(html, names));
+    return this.sanitizer.bypassSecurityTrustHtml(
+      highlightMentions(html, names),
+    );
   }
 }
 
@@ -193,7 +202,7 @@ function writeStore(key: string, value: string | null): void {
  *   comes with an HTML `<img>`) becomes files.
  */
 @Component({
-  selector: 'app-chat-view',
+  selector: "app-chat-view",
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
@@ -220,21 +229,25 @@ function writeStore(key: string, value: string | null): void {
     UiKitTranslatePipe,
   ],
   host: {
-    '[class.chat--phone]': 'phone()',
-    '(dragenter)': 'fileDrag.enter($event)',
-    '(dragover)': 'fileDrag.over($event)',
-    '(dragleave)': 'fileDrag.leave($event)',
-    '(drop)': 'onDrop($event)',
+    "[class.chat--phone]": "phone()",
+    "(dragenter)": "fileDrag.enter($event)",
+    "(dragover)": "fileDrag.over($event)",
+    "(dragleave)": "fileDrag.leave($event)",
+    "(drop)": "onDrop($event)",
   },
-  templateUrl: './chat-view.component.html',
-  styleUrl: './chat-view.component.scss',
+  templateUrl: "./chat-view.component.html",
+  styleUrl: "./chat-view.component.scss",
 })
 export class ChatViewComponent {
+  /** The texts of the view, registered before the first render (002237). */
+  protected readonly viewTexts = registerUiKitTexts(UI_KIT_CHAT_TEXTS);
+
   private readonly i18n = inject(UI_KIT_INTL);
   private readonly destroyRef = inject(DestroyRef);
   private readonly injector = inject(Injector);
   /** The draft files of the composer, from the app; without a port the chat takes no files. */
-  private readonly drafts = inject(CHAT_FILES, { optional: true }) ?? noChatFiles();
+  private readonly drafts =
+    inject(CHAT_FILES, { optional: true }) ?? noChatFiles();
   private readonly toast = inject(ToastService);
   private readonly host = inject<ElementRef<HTMLElement>>(ElementRef);
 
@@ -280,21 +293,29 @@ export class ChatViewComponent {
   protected readonly viewerIndex = signal(0);
   private readonly viewerFiles = signal<readonly ChatFile[]>([]);
   protected readonly viewerItems = computed<FileViewerItem[]>(() =>
-    this.viewerFiles().map((f) => ({ name: f.filename, mime: f.mime, url: inlineUrl(f.url) })),
+    this.viewerFiles().map((f) => ({
+      name: f.filename,
+      mime: f.mime,
+      url: inlineUrl(f.url),
+    })),
   );
   /** The file the viewer shows, for its download link. */
   protected readonly viewerFile = computed<ChatFile | null>(() => {
     const files = this.viewerFiles();
-    return files[Math.min(Math.max(0, this.viewerIndex()), files.length - 1)] ?? null;
+    return (
+      files[Math.min(Math.max(0, this.viewerIndex()), files.length - 1)] ?? null
+    );
   });
   /**
    * The long press opens the actions only on a phone with a touch screen. A narrow
    * window or a zoomed page with a mouse or a keyboard keeps the hover and focus actions.
    */
   protected readonly touchMenu = computed(() => this.phone() && this.coarse());
-  private readonly log = viewChild.required<ElementRef<HTMLElement>>('log');
-  private readonly composerInput = viewChild<ElementRef<HTMLTextAreaElement>>('composerInput');
-  private readonly fileInput = viewChild<ElementRef<HTMLInputElement>>('fileInput');
+  private readonly log = viewChild.required<ElementRef<HTMLElement>>("log");
+  private readonly composerInput =
+    viewChild<ElementRef<HTMLTextAreaElement>>("composerInput");
+  private readonly fileInput =
+    viewChild<ElementRef<HTMLInputElement>>("fileInput");
 
   protected readonly accept = this.drafts.accept;
   /** The uploaded files of the composer, oldest first. */
@@ -303,17 +324,25 @@ export class ChatViewComponent {
   protected readonly uploads = this.drafts.pending;
   protected readonly uploading = this.drafts.busy;
   /** No room for another file. */
-  protected readonly full = computed(() => this.files().length + this.uploads().length >= CHAT_MAX_FILES);
+  protected readonly full = computed(
+    () => this.files().length + this.uploads().length >= CHAT_MAX_FILES,
+  );
 
   protected readonly maxLength = CHAT_MAX_LENGTH;
   private readonly mentionSeq = ++mentionListSeq;
   /** The "@" list of the composer and the one of the open edit. */
-  protected readonly composerMentions = new MentionPicker(`chat-mentions-${this.mentionSeq}`);
-  protected readonly editMentions = new MentionPicker(`chat-mentions-${this.mentionSeq}-edit`);
-  protected readonly draft = signal('');
+  protected readonly composerMentions = new MentionPicker(
+    `chat-mentions-${this.mentionSeq}`,
+  );
+  protected readonly editMentions = new MentionPicker(
+    `chat-mentions-${this.mentionSeq}-edit`,
+  );
+  protected readonly draft = signal("");
   protected readonly visibility = signal<string | null>(null);
   /** The values of the visibility switch. */
-  private readonly visibilityOptions = computed(() => this.visibilities().map((v) => v.value));
+  private readonly visibilityOptions = computed(() =>
+    this.visibilities().map((v) => v.value),
+  );
   /** The people that "@" can list: those with an id and a name. */
   private readonly people = computed(() => chatPeople(this.mentionables()));
   /** The people that "@" lists in the composer, for the chosen visibility. */
@@ -323,11 +352,12 @@ export class ChatViewComponent {
   /** The people that "@" lists in the edit, for the visibility of the message. */
   private readonly editPeople = computed(() => {
     const id = this.editingId();
-    const msg = id === null ? undefined : this.messages().find((m) => m.id === id);
+    const msg =
+      id === null ? undefined : this.messages().find((m) => m.id === id);
     return this.mayMention(msg?.visibility ?? null) ? this.people() : [];
   });
   protected readonly editingId = signal<string | null>(null);
-  protected readonly editDraft = signal('');
+  protected readonly editDraft = signal("");
   protected readonly deleting = signal<ChatMessage | null>(null);
   /** The draft file whose remove waits for the confirmation. */
   protected readonly fileToRemove = signal<ChatDraftFile | null>(null);
@@ -359,7 +389,7 @@ export class ChatViewComponent {
   private readonly marked = computed(() => {
     if (this.visibilityOptions().length > 1) return true;
     const kinds = new Set(this.messages().map((m) => m.visibility ?? null));
-    return kinds.has('internal') && kinds.has('public');
+    return kinds.has("internal") && kinds.has("public");
   });
 
   protected readonly items = computed(() =>
@@ -380,10 +410,12 @@ export class ChatViewComponent {
   private readonly scanning = computed(() => {
     return this.messages()
       .filter((m) => !isPending(m))
-      .flatMap((m) => (m.files ?? []).filter((f) => !f.lost && f.scanState === 'scanning'))
+      .flatMap((m) =>
+        (m.files ?? []).filter((f) => !f.lost && f.scanState === "scanning"),
+      )
       .map((f) => f.id)
       .sort()
-      .join(' ');
+      .join(" ");
   });
   /** The scanning files the current back-off waits for. */
   private scanIds = new Set<string>();
@@ -398,14 +430,17 @@ export class ChatViewComponent {
     effect(() => {
       const key = this.draftKey();
       untracked(() => {
-        this.draft.set(readStore(DRAFT_PREFIX + key) ?? '');
+        this.draft.set(readStore(DRAFT_PREFIX + key) ?? "");
         this.seenAt.set(readStore(SEEN_PREFIX + key));
         this.markerAt.set(null);
         this.markerSet = false;
         this.stick = true;
         this.atBottom.set(true);
         this.editingId.set(null);
-        if (this.drafts.threadKey() !== key && (this.drafts.files().length || this.drafts.busy())) {
+        if (
+          this.drafts.threadKey() !== key &&
+          (this.drafts.files().length || this.drafts.busy())
+        ) {
           void this.drafts.discard();
         }
         this.drafts.setThreadKey(key);
@@ -455,10 +490,10 @@ export class ChatViewComponent {
       observer.observe(log);
       // A native listener: a template `(scroll)` would check the app on each event (002160).
       const scroll = (): void => this.onScroll();
-      log.addEventListener('scroll', scroll, { passive: true });
+      log.addEventListener("scroll", scroll, { passive: true });
       this.destroyRef.onDestroy(() => {
         observer.disconnect();
-        log.removeEventListener('scroll', scroll);
+        log.removeEventListener("scroll", scroll);
       });
     });
   }
@@ -473,7 +508,7 @@ export class ChatViewComponent {
       this.scanIds = new Set();
       return;
     }
-    const ids = joined.split(' ');
+    const ids = joined.split(" ");
     const fresh = ids.some((id) => !this.scanIds.has(id));
     this.scanIds = new Set(ids);
     if (!fresh) return;
@@ -503,7 +538,10 @@ export class ChatViewComponent {
     return this.messages()
       .filter((m) => !isPending(m))
       .reduce<string | null>(
-        (newest, m) => (newest === null || Date.parse(m.at) > Date.parse(newest) ? m.at : newest),
+        (newest, m) =>
+          newest === null || Date.parse(m.at) > Date.parse(newest)
+            ? m.at
+            : newest,
         null,
       );
   }
@@ -511,41 +549,52 @@ export class ChatViewComponent {
   protected authorName(msg: ChatMessage): string | null {
     if (msg.authorLabel) return msg.authorLabel;
     if (!msg.author) return null;
-    return msg.author.name || this.i18n.translate('chat.deletedPerson');
+    return msg.author.name || this.i18n.translate("chat.deletedPerson");
   }
 
   protected dayLabel(date: Date): string {
     const today = this.now();
-    const yesterday = new Date(today.getFullYear(), today.getMonth(), today.getDate() - 1);
-    if (dayKey(date) === dayKey(today)) return this.i18n.translate('chat.today');
-    if (dayKey(date) === dayKey(yesterday)) return this.i18n.translate('chat.yesterday');
+    const yesterday = new Date(
+      today.getFullYear(),
+      today.getMonth(),
+      today.getDate() - 1,
+    );
+    if (dayKey(date) === dayKey(today))
+      return this.i18n.translate("chat.today");
+    if (dayKey(date) === dayKey(yesterday))
+      return this.i18n.translate("chat.yesterday");
     const locale = this.i18n.formatLocale();
-    const weekday = new Intl.DateTimeFormat(locale, { weekday: 'short' }).format(date).replace(/\.$/, '');
+    const weekday = new Intl.DateTimeFormat(locale, { weekday: "short" })
+      .format(date)
+      .replace(/\.$/, "");
     const sameYear = date.getFullYear() === today.getFullYear();
     const opts: Intl.DateTimeFormatOptions = {
-      day: '2-digit',
-      month: '2-digit',
-      ...(sameYear ? {} : { year: 'numeric' }),
+      day: "2-digit",
+      month: "2-digit",
+      ...(sameYear ? {} : { year: "numeric" }),
     };
     const day = new Intl.DateTimeFormat(locale, opts).format(date);
-    const dotted = sameYear && locale.startsWith('de') && !day.endsWith('.') ? `${day}.` : day;
+    const dotted =
+      sameYear && locale.startsWith("de") && !day.endsWith(".")
+        ? `${day}.`
+        : day;
     return `${weekday}, ${dotted}`;
   }
 
   /** "PNG · 96 KB": the file type from the name, then the size. */
   protected fileMeta(file: { filename: string; size: number }): string {
-    const dot = file.filename.lastIndexOf('.');
-    const ext = dot > 0 ? file.filename.slice(dot + 1).toUpperCase() : '';
-    const size = formatBytes(file.size, this.i18n.formatLocale(), 'file');
+    const dot = file.filename.lastIndexOf(".");
+    const ext = dot > 0 ? file.filename.slice(dot + 1).toUpperCase() : "";
+    const size = formatBytes(file.size, this.i18n.formatLocale(), "file");
     return ext ? `${ext} · ${size}` : size;
   }
 
   /** The scan state of a file that is not a link; a lost file says so. */
   protected fileState(file: ChatFile | ChatDraftFile): StatusView {
-    if (('lost' in file && file.lost) || ('failed' in file && file.failed)) {
-      return { kind: 'error', key: 'chat.fileLost' };
+    if (("lost" in file && file.lost) || ("failed" in file && file.failed)) {
+      return { kind: "error", key: "chat.fileLost" };
     }
-    return SCAN[file.scanState ?? 'clean'];
+    return SCAN[file.scanState ?? "clean"];
   }
 
   /** A clean raster image shows as a thumbnail instead of a file chip. */
@@ -558,8 +607,19 @@ export class ChatViewComponent {
    * message that preview. A click with a modifier, any other file, and a PDF on a coarse
    * pointer (a phone browser has no PDF frame) keep the link: a new tab or a download.
    */
-  protected openViewer(event: MouseEvent, message: ChatMessage, file: ChatFile): void {
-    if (event.button !== 0 || event.ctrlKey || event.metaKey || event.shiftKey || event.altKey) return;
+  protected openViewer(
+    event: MouseEvent,
+    message: ChatMessage,
+    file: ChatFile,
+  ): void {
+    if (
+      event.button !== 0 ||
+      event.ctrlKey ||
+      event.metaKey ||
+      event.shiftKey ||
+      event.altKey
+    )
+      return;
     const files = (message.files ?? []).filter((f) => this.inViewer(f));
     const index = files.findIndex((f) => f.id === file.id);
     if (index < 0) return;
@@ -571,7 +631,9 @@ export class ChatViewComponent {
 
   private inViewer(file: ChatFile): boolean {
     if (!this.isLink(file)) return false;
-    return this.isImage(file) || (file.mime === 'application/pdf' && !this.coarse());
+    return (
+      this.isImage(file) || (file.mime === "application/pdf" && !this.coarse())
+    );
   }
 
   /** The inline preview URL of a message file. */
@@ -581,14 +643,14 @@ export class ChatViewComponent {
 
   /** A file of a message opens only when the scan found it clean. */
   protected isLink(file: ChatFile): boolean {
-    return !file.lost && (file.scanState ?? 'clean') === 'clean';
+    return !file.lost && (file.scanState ?? "clean") === "clean";
   }
 
   protected time(at: string): string {
     return new Intl.DateTimeFormat(this.i18n.formatLocale(), {
-      hour: '2-digit',
-      minute: '2-digit',
-      hourCycle: 'h23',
+      hour: "2-digit",
+      minute: "2-digit",
+      hourCycle: "h23",
     }).format(new Date(at));
   }
 
@@ -613,7 +675,8 @@ export class ChatViewComponent {
 
   private onScroll(): void {
     const el = this.log().nativeElement;
-    this.stick = el.scrollHeight - el.scrollTop - el.clientHeight <= BOTTOM_SLACK;
+    this.stick =
+      el.scrollHeight - el.scrollTop - el.clientHeight <= BOTTOM_SLACK;
     this.atBottom.set(this.stick);
     if (this.stick) this.markSeen();
   }
@@ -637,7 +700,9 @@ export class ChatViewComponent {
   }
 
   protected setVisibility(value: string | null): void {
-    this.visibility.set(value !== null && this.visibilityOptions().includes(value) ? value : null);
+    this.visibility.set(
+      value !== null && this.visibilityOptions().includes(value) ? value : null,
+    );
   }
 
   /**
@@ -646,7 +711,13 @@ export class ChatViewComponent {
    */
   protected onComposerKey(event: KeyboardEvent): void {
     if (this.mentionKey(event, this.composerMentions)) return;
-    if (event.key !== 'Enter' || event.shiftKey || event.isComposing || this.phone()) return;
+    if (
+      event.key !== "Enter" ||
+      event.shiftKey ||
+      event.isComposing ||
+      this.phone()
+    )
+      return;
     event.preventDefault();
     this.submit();
   }
@@ -658,7 +729,11 @@ export class ChatViewComponent {
     const files = this.drafts.usable();
     if (!body && !files.length) return;
     const vis = this.visibility();
-    const mentions = mentionIds(body, this.composerPeople(), this.composerMentions.picked());
+    const mentions = mentionIds(
+      body,
+      this.composerPeople(),
+      this.composerMentions.picked(),
+    );
     this.composerMentions.reset();
     const withFiles = files.length
       ? {
@@ -681,8 +756,9 @@ export class ChatViewComponent {
     };
     this.send.emit(req);
     this.drafts.clear();
-    this.onDraft('');
-    if (this.guarded()) this.visibility.set(this.visibilityOptions()[0] ?? null);
+    this.onDraft("");
+    if (this.guarded())
+      this.visibility.set(this.visibilityOptions()[0] ?? null);
     this.scrollToEnd();
   }
 
@@ -694,7 +770,7 @@ export class ChatViewComponent {
     const box = event.target as HTMLInputElement;
     const files = Array.from(box.files ?? []);
     // eslint-disable-next-line functional/immutable-data -- a DOM property
-    box.value = '';
+    box.value = "";
     void this.addFiles(files);
   }
 
@@ -707,7 +783,7 @@ export class ChatViewComponent {
   protected onPaste(event: ClipboardEvent): void {
     if (!this.canAttach()) return;
     const data = event.clipboardData;
-    if (data?.getData('text/plain').trim()) return;
+    if (data?.getData("text/plain").trim()) return;
     const files = Array.from(data?.files ?? []);
     if (!files.length) return;
     event.preventDefault();
@@ -715,7 +791,9 @@ export class ChatViewComponent {
   }
 
   /** The chat takes dropped files: the whole chat, log and composer, is the drop target. */
-  protected readonly takesFiles = computed(() => this.canPost() && this.canAttach());
+  protected readonly takesFiles = computed(
+    () => this.canPost() && this.canAttach(),
+  );
   protected readonly fileDrag = new FileDragTracker(() => this.takesFiles());
 
   /**
@@ -727,7 +805,7 @@ export class ChatViewComponent {
     if (!isFileDrag(event) || this.takesFiles()) return;
     event.preventDefault();
     // eslint-disable-next-line functional/immutable-data -- a DOM property
-    (event.dataTransfer as DataTransfer).dropEffect = 'none';
+    (event.dataTransfer as DataTransfer).dropEffect = "none";
   }
 
   protected onComposerDrop(event: DragEvent): void {
@@ -749,9 +827,12 @@ export class ChatViewComponent {
     if (/.\.[^.]+$/.test(file.name)) return file;
     const d = this.now();
     const stamp = `${d.getFullYear()}${pad(d.getMonth() + 1)}${pad(d.getDate())}-${pad(d.getHours())}${pad(d.getMinutes())}${pad(d.getSeconds())}`;
-    const ext = PASTE_EXT[file.type] ?? 'bin';
-    const name = `${this.i18n.translate('chat.pastedImage')}-${stamp}.${ext}`;
-    return new File([file], name, { type: file.type, lastModified: file.lastModified });
+    const ext = PASTE_EXT[file.type] ?? "bin";
+    const name = `${this.i18n.translate("chat.pastedImage")}-${stamp}.${ext}`;
+    return new File([file], name, {
+      type: file.type,
+      lastModified: file.lastModified,
+    });
   }
 
   /** Upload files: the count and the size are checked here first, the server checks again. */
@@ -759,8 +840,8 @@ export class ChatViewComponent {
     const room = CHAT_MAX_FILES - this.files().length - this.uploads().length;
     if (list.length > room) {
       this.toast.show(
-        this.i18n.translate('chat.error.tooManyFiles', { max: CHAT_MAX_FILES }),
-        'error',
+        this.i18n.translate("chat.error.tooManyFiles", { max: CHAT_MAX_FILES }),
+        "error",
       );
     }
     const maxBytes = this.drafts.maxFileBytes();
@@ -769,7 +850,10 @@ export class ChatViewComponent {
     offered
       .filter((f) => f.size > maxBytes)
       .forEach((file) =>
-        this.toast.show(`${file.name}: ${this.i18n.translate('chat.error.fileTooLarge', { mb })}`, 'error'),
+        this.toast.show(
+          `${file.name}: ${this.i18n.translate("chat.error.fileTooLarge", { mb })}`,
+          "error",
+        ),
       );
     const take = offered.filter((f) => f.size <= maxBytes);
     if (!take.length) return;
@@ -777,7 +861,10 @@ export class ChatViewComponent {
     this.leaveFullAttach();
     const { failed } = await done;
     failed.forEach((f) =>
-      this.toast.show(`${f.filename}: ${this.i18n.translate(chatUploadError(f.reason), { mb })}`, 'error'),
+      this.toast.show(
+        `${f.filename}: ${this.i18n.translate(chatUploadError(f.reason), { mb })}`,
+        "error",
+      ),
     );
   }
 
@@ -787,7 +874,7 @@ export class ChatViewComponent {
    * before the next render disables the button.
    */
   private leaveFullAttach(): void {
-    const attach = this.host.nativeElement.querySelector('.chat__attach');
+    const attach = this.host.nativeElement.querySelector(".chat__attach");
     if (this.full() && attach?.contains(document.activeElement)) {
       this.composerInput()?.nativeElement.focus();
     }
@@ -807,12 +894,16 @@ export class ChatViewComponent {
   protected async removeFile(file: ChatDraftFile): Promise<void> {
     const at = this.files().findIndex((f) => f.id === file.id);
     if (!(await this.drafts.remove(file.id))) {
-      this.toast.show(this.i18n.translate('chat.error.delete'), 'error');
+      this.toast.show(this.i18n.translate("chat.error.delete"), "error");
       return;
     }
     afterNextRender(
       () => {
-        const buttons = Array.from(this.host.nativeElement.querySelectorAll<HTMLElement>('.chat__draft button'));
+        const buttons = Array.from(
+          this.host.nativeElement.querySelectorAll<HTMLElement>(
+            ".chat__draft button",
+          ),
+        );
         const next = buttons[Math.min(at, buttons.length - 1)];
         (next ?? this.composerInput()?.nativeElement)?.focus();
       },
@@ -826,14 +917,19 @@ export class ChatViewComponent {
   }
 
   private mayMention(visibility: string | null | undefined): boolean {
-    return this.publicMentions() || visibility === 'internal';
+    return this.publicMentions() || visibility === "internal";
   }
 
   /** Read the "@" search of a text box after an input, a click or a caret move. */
   protected readMention(picker: MentionPicker, event: Event): void {
     const box = event.target as HTMLTextAreaElement;
-    if (picker === this.composerMentions && event.type === 'input') this.internalForMention(box);
-    picker.setPeople(picker === this.composerMentions ? this.composerPeople() : this.editPeople());
+    if (picker === this.composerMentions && event.type === "input")
+      this.internalForMention(box);
+    picker.setPeople(
+      picker === this.composerMentions
+        ? this.composerPeople()
+        : this.editPeople(),
+    );
     picker.update(box.value, box.selectionStart ?? box.value.length);
   }
 
@@ -844,9 +940,13 @@ export class ChatViewComponent {
    */
   private internalForMention(box: HTMLTextAreaElement): void {
     if (this.mayMention(this.visibility()) || !this.people().length) return;
-    if (!this.visibilityOptions().includes('internal')) return;
-    if (mentionQuery(box.value, box.selectionStart ?? box.value.length)?.query !== '') return;
-    this.visibility.set('internal');
+    if (!this.visibilityOptions().includes("internal")) return;
+    if (
+      mentionQuery(box.value, box.selectionStart ?? box.value.length)?.query !==
+      ""
+    )
+      return;
+    this.visibility.set("internal");
   }
 
   /** A key for the open "@" list. True: the list took it. */
@@ -854,7 +954,7 @@ export class ChatViewComponent {
     const hit = picker.key(event);
     if (hit === null) return false;
     event.preventDefault();
-    if (hit !== 'handled') this.pickMention(picker, hit);
+    if (hit !== "handled") this.pickMention(picker, hit);
     return true;
   }
 
@@ -863,7 +963,9 @@ export class ChatViewComponent {
     const box =
       picker === this.composerMentions
         ? this.composerInput()?.nativeElement
-        : this.log().nativeElement.querySelector<HTMLTextAreaElement>('.chat__editInput');
+        : this.log().nativeElement.querySelector<HTMLTextAreaElement>(
+            ".chat__editInput",
+          );
     if (!box) return;
     const next = picker.apply(box.value, person);
     if (!next) return;
@@ -884,7 +986,10 @@ export class ChatViewComponent {
   protected editFailed(msg: ChatMessage): void {
     const draft = this.draft().trim();
     this.onDraft(draft ? `${msg.body}\n\n${draft}` : msg.body);
-    if (msg.visibility && this.segmentOptions().some((o) => o.value === msg.visibility)) {
+    if (
+      msg.visibility &&
+      this.segmentOptions().some((o) => o.value === msg.visibility)
+    ) {
       this.visibility.set(msg.visibility);
     }
     this.discard.emit({ id: msg.id });
@@ -893,7 +998,10 @@ export class ChatViewComponent {
         const box = this.composerInput();
         if (!box) return;
         box.nativeElement.focus();
-        box.nativeElement.setSelectionRange(box.nativeElement.value.length, box.nativeElement.value.length);
+        box.nativeElement.setSelectionRange(
+          box.nativeElement.value.length,
+          box.nativeElement.value.length,
+        );
       },
       { injector: this.injector },
     );
@@ -910,12 +1018,17 @@ export class ChatViewComponent {
 
   private openEdit(id: string, body: string): void {
     const msg = this.messages().find((m) => m.id === id);
-    this.editMentions.reset((msg?.mentions ?? []).flatMap((p) => p.principalId ?? []));
+    this.editMentions.reset(
+      (msg?.mentions ?? []).flatMap((p) => p.principalId ?? []),
+    );
     this.editDraft.set(body);
     this.editingId.set(id);
     afterNextRender(
       () => {
-        const box = this.log().nativeElement.querySelector<HTMLTextAreaElement>('.chat__editInput');
+        const box =
+          this.log().nativeElement.querySelector<HTMLTextAreaElement>(
+            ".chat__editInput",
+          );
         if (!box) return;
         box.focus();
         box.setSelectionRange(box.value.length, box.value.length);
@@ -941,8 +1054,10 @@ export class ChatViewComponent {
     if (id === null || !inside) return;
     afterNextRender(
       () => {
-        const row = Array.from(log.querySelectorAll<HTMLElement>('.chat__row')).find((r) => r.dataset['msgId'] === id);
-        (row?.querySelector<HTMLElement>('.chat__acts button') ?? log).focus();
+        const row = Array.from(
+          log.querySelectorAll<HTMLElement>(".chat__row"),
+        ).find((r) => r.dataset["msgId"] === id);
+        (row?.querySelector<HTMLElement>(".chat__acts button") ?? log).focus();
       },
       { injector: this.injector },
     );
@@ -950,12 +1065,18 @@ export class ChatViewComponent {
 
   protected onEditKey(event: KeyboardEvent): void {
     if (this.mentionKey(event, this.editMentions)) return;
-    if (event.key === 'Escape') {
+    if (event.key === "Escape") {
       event.preventDefault();
       this.cancelEdit();
       return;
     }
-    if (event.key !== 'Enter' || event.shiftKey || event.isComposing || this.phone()) return;
+    if (
+      event.key !== "Enter" ||
+      event.shiftKey ||
+      event.isComposing ||
+      this.phone()
+    )
+      return;
     event.preventDefault();
     this.saveEdit();
   }
@@ -970,7 +1091,10 @@ export class ChatViewComponent {
     const listed = this.editPeople();
     const known = new Set(listed.map((p) => p.principalId));
     const people = listed.length
-      ? [...listed, ...chatPeople(msg?.mentions).filter((p) => !known.has(p.principalId))]
+      ? [
+          ...listed,
+          ...chatPeople(msg?.mentions).filter((p) => !known.has(p.principalId)),
+        ]
       : listed;
     const picked = this.editMentions.picked();
     this.endEdit();
@@ -978,7 +1102,9 @@ export class ChatViewComponent {
       this.edit.emit({
         id,
         body,
-        ...(people.length ? { mentions: mentionIds(body, people, picked) } : {}),
+        ...(people.length
+          ? { mentions: mentionIds(body, people, picked) }
+          : {}),
         restore: () => this.restoreEdit(id, body),
       });
     }
@@ -989,7 +1115,8 @@ export class ChatViewComponent {
    * lost. Not while another edit is open, and not for a message that is gone.
    */
   private restoreEdit(id: string, body: string): void {
-    if (this.editingId() !== null || !this.messages().some((m) => m.id === id)) return;
+    if (this.editingId() !== null || !this.messages().some((m) => m.id === id))
+      return;
     this.openEdit(id, body);
   }
 
@@ -1009,7 +1136,10 @@ export class ChatViewComponent {
 
   private focusComposer(): void {
     afterNextRender(
-      () => (this.composerInput()?.nativeElement ?? this.log().nativeElement).focus(),
+      () =>
+        (
+          this.composerInput()?.nativeElement ?? this.log().nativeElement
+        ).focus(),
       { injector: this.injector },
     );
   }
@@ -1037,13 +1167,16 @@ export class ChatViewComponent {
     if (id === null || messages.some((m) => m.id === id)) return;
     this.deletedId = null;
     const active = this.log().nativeElement.ownerDocument.activeElement;
-    if (active && active !== active.ownerDocument.body && active.isConnected) return;
+    if (active && active !== active.ownerDocument.body && active.isConnected)
+      return;
     (this.composerInput()?.nativeElement ?? this.log().nativeElement).focus();
   }
 
   protected readonly menuHeading = computed(() => {
     const msg = this.menuFor();
-    return msg ? this.i18n.translate('chat.ownMessage', { time: this.time(msg.at) }) : '';
+    return msg
+      ? this.i18n.translate("chat.ownMessage", { time: this.time(msg.at) })
+      : "";
   });
 
   protected onMenuOpen(open: boolean): void {
