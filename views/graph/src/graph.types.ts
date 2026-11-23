@@ -15,7 +15,8 @@ export type GraphKind =
   | 'expense'
   | 'budget'
   | 'ticket'
-  | 'todo';
+  | 'todo'
+  | 'paperless';
 
 /** Where a relation comes from: a link that a person set, or a built-in relation. */
 export type GraphSource = 'link' | 'builtin';

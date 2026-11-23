@@ -288,6 +288,7 @@ export type UiKitBoardTextKey =
   | 'todos.linkKind.gremium'
   | 'todos.linkKind.invoice'
   | 'todos.linkKind.meeting'
+  | 'todos.linkKind.paperless'
   | 'todos.linkKind.ticket'
   | 'todos.linkKind.todo'
   | 'todos.linkKind.vote'

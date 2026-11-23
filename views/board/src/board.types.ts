@@ -27,7 +27,8 @@ export type TodoLinkKind =
   | 'expense'
   | 'budget'
   | 'ticket'
-  | 'todo';
+  | 'todo'
+  | 'paperless';
 export type TodoVoteStatus = 'draft' | 'open' | 'closed' | 'cancelled';
 export type TodoVoteResult = 'passed' | 'rejected' | 'tie' | 'elected' | 'runoff' | 'no_majority';
 export type TodoTicketStatus = 'new' | 'in_progress' | 'done' | 'rejected';
@@ -69,6 +70,8 @@ export interface TodoLinkDetail {
   readonly startTime?: string | null;
   readonly endTime?: string | null;
   readonly place?: string | null;
+  /** The name of the document type of a Paperless document. */
+  readonly documentType?: string | null;
 }
 
 export interface TodoLink {
