@@ -89,7 +89,7 @@ specs/
 | [F/meetings/protocols/000873](requirements/functional/meetings/protocols/000873_time-note-tool.md) | A toolbar tool inserts a time note | approved |
 | [F/meetings/protocols/000969](requirements/functional/meetings/protocols/000969_blackout-known-names.md) | The editor blacks out a known name after it is typed | approved |
 | [F/meetings/protocols/001304](requirements/functional/meetings/protocols/001304_protocol-in-meeting-head.md) | The protocol state and its actions sit in the meeting head | approved |
-| [F/meetings/protocols/002761](requirements/functional/meetings/protocols/002761_editor-insert-trigger.md) | A typed trigger text asks the consumer of the editor for an insert | draft |
+| [F/meetings/protocols/002761](requirements/functional/meetings/protocols/002761_editor-insert-trigger.md) | A typed trigger text asks the consumer of the editor for an insert | approved |
 | [F/meetings/voting/001006](requirements/functional/meetings/voting/001006_vote-card-states-result-once.md) | The vote card states the result once | approved |
 | [F/meetings/voting/001007](requirements/functional/meetings/voting/001007_vote-card-one-action.md) | The vote card has one main action and a menu | approved |
 | [F/meetings/voting/002070](requirements/functional/meetings/voting/002070_vote-card-opaque-on-glass.md) | A vote card on a glass sheet is opaque in the light theme | approved |
@@ -258,7 +258,7 @@ specs/
 | [NF/usability/controls/002405](requirements/non-functional/usability/controls/002405_load-error-face.md) | A failed load without content shows the empty-state face with the error text | approved |
 | [NF/usability/controls/002421](requirements/non-functional/usability/controls/002421_check-row.md) | A check box in a row group is a row with an inset | approved |
 | [NF/usability/controls/002650](requirements/non-functional/usability/controls/002650_empty-state-centred-in-tab-and-pane.md) | An empty state that is the content of a page, a tab or a pane is centred in the free area | approved |
-| [NF/usability/controls/002760](requirements/non-functional/usability/controls/002760_search-window.md) | The kit has one search window with the look of the global search | draft |
+| [NF/usability/controls/002760](requirements/non-functional/usability/controls/002760_search-window.md) | The kit has one search window with the look of the global search | approved |
 | [NF/usability/layout/000192](requirements/non-functional/usability/layout/000192_one-geometry.md) | All list and detail pages share one geometry | approved |
 | [NF/usability/layout/000193](requirements/non-functional/usability/layout/000193_scroll-edges.md) | A scroll area cuts at the edge of a surface | approved |
 | [NF/usability/layout/000194](requirements/non-functional/usability/layout/000194_phone-breakpoint.md) | The phone layout starts below 768 px | approved |

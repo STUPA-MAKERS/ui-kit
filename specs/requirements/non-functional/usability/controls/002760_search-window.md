@@ -2,7 +2,7 @@
 id: "002760"
 title: The kit has one search window with the look of the global search
 kind: non-functional
-status: draft
+status: approved
 owner: frederikbeimgraben
 updated: 2026-11-23
 tests:

@@ -2,7 +2,7 @@
 id: "002761"
 title: A typed trigger text asks the consumer of the editor for an insert
 kind: functional
-status: draft
+status: approved
 owner: frederikbeimgraben
 updated: 2026-11-23
 tests:
