@@ -1,0 +1,61 @@
+<app-data-table class="bp__table" surface="rowgroup" [loading]="loading()" [columns]="columns()" [rows]="rows()" [rowKey]="rowId" [clickable]="true" (rowClick)="rowClick.emit(asRow($event))">
+  <ng-template appCell="node" let-r>
+    @let row = asRow(r);
+    <span class="bp__nodeRow" [style.--bp-depth]="nested() ? row.depth : 0">
+    @if (nested()) {
+      @if (row.hasChildren) {
+        <button type="button" class="tn__chev" [attr.aria-expanded]="isOpen(row)" [attr.aria-label]="(isOpen(row) ? 'budget.dash.collapse' : 'budget.dash.expand') | uiKitT: { name: row.name }" [disabled]="searching()" (click)="onToggle($event, row)">
+          <app-icon [name]="isOpen(row) ? 'down' : 'right'" [size]="17" />
+        </button>
+      } @else {
+        <span class="tn__chev" aria-hidden="true"></span>
+      }
+    }
+    <span class="bp__node">
+      <span class="bp__name">{{ row.name }}</span>
+      <span class="bp__sub">
+        <span class="bp__path mono">{{ row.pathKey }}</span>
+        @if (!row.active) {
+          <app-status-text kind="muted">{{ 'budget.cc.inactive' | uiKitT }}</app-status-text>
+        }
+        @if (row.transferable) {
+          <app-status-text>{{ 'budget.plan.marks.transferable' | uiKitT }}</app-status-text>
+        }
+        @if (row.coverable) {
+          <app-status-text>{{ 'budget.plan.marks.coverable' | uiKitT }}</app-status-text>
+        }
+        @if (row.blocked > 0) {
+          <app-status-text kind="warn">{{ 'budget.plan.marks.blockedBadge' | uiKitT: { amount: money(row.blocked) } }}</app-status-text>
+        }
+      </span>
+    </span>
+    </span>
+  </ng-template>
+  <ng-template appCell="amount" let-r>
+    @let row = asRow(r);
+    @if (fields() && !row.hasChildren) {
+      <app-currency-input
+        class="bp__field"
+        [class.bp__field--wide]="wideFields()"
+        [name]="'amount-' + row.id"
+        [ariaLabel]="'budget.plan.amountOf' | uiKitT: { name: row.name }"
+        [ngModel]="fieldValue()(row)"
+        (ngModelChange)="edit.emit({ row, value: $event })"
+        (focusout)="save.emit(row)"
+        (click)="$event.stopPropagation()"
+        (keydown.enter)="onEnter($event, row)"
+      />
+    } @else if (fields()) {
+      <span class="bp__field bp__sum" [class.bp__field--wide]="wideFields()">
+        <span class="bp__sumDigits mono">{{ sumDigits(row.amount) }}</span>
+        <span class="bp__sumSign">€</span>
+      </span>
+    } @else {
+      <span class="bp__num bp__plan mono">{{ money(row.amount) }}</span>
+    }
+  </ng-template>
+  <ng-template appCell="base" let-r><span class="bp__num mono">{{ money(asRow(r).base) }}</span></ng-template>
+  <ng-template appCell="prev" let-r><span class="bp__num mono">{{ money(asRow(r).prev) }}</span></ng-template>
+  <ng-template appCell="actual" let-r><span class="bp__num mono">{{ money(asRow(r).actual) }}</span></ng-template>
+  <ng-template appCell="change" let-r><span class="bp__num mono">{{ changeText(asRow(r)) }}</span></ng-template>
+</app-data-table>

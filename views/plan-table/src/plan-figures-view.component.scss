@@ -1,0 +1,111 @@
+@use '../../../src/styles/breakpoints' as bp;
+@use '../../../src/styles/display' as d;
+
+// Copies of the figure rules of the app Haushalt pages (budget-dashboard and budget-plan
+// component styles).
+:host {
+  display: contents;
+}
+
+// The figures stand in a box of columns of at least `--fig-min`, spread evenly over the rows
+// (`--fig-cols`, both set by the page), so a second row lines up with the first. The line
+// between two tiles is a shadow on the start of each tile; the box cuts the shadow of the
+// first tile of each row, so a row has lines only between its tiles.
+.bd__figs {
+  display: grid;
+  grid-template-columns: repeat(var(--fig-cols, auto-fit), minmax(min(100%, var(--fig-min, 9rem)), 1fr));
+  row-gap: var(--space-3);
+  margin: 0;
+  padding: var(--space-4) 0;
+  overflow: hidden;
+  // The box cuts its content, so in the column of the sheet it would shrink below its rows.
+  flex-shrink: 0;
+  border-radius: var(--radius-lg);
+  background: var(--color-surface-2);
+}
+.bd__fig {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+  padding: 0 var(--space-3);
+  box-shadow: -1px 0 0 var(--color-border);
+}
+.bd__figLabel {
+  font-size: 0.78125rem;
+  line-height: 1.125rem;
+  color: var(--color-text-muted);
+}
+.bd__figValue {
+  margin: 0;
+  font-size: 1.125rem;
+  line-height: 1.75rem;
+  font-weight: var(--fw-medium);
+  white-space: nowrap;
+}
+.bd__fig--main .bd__figValue {
+  color: var(--color-accent-text);
+}
+.bd__neg,
+.bd__fig--main .bd__figValue.bd__neg {
+  color: var(--color-danger);
+}
+.bp__figNote {
+  margin: 0;
+  font-size: var(--fs-xs);
+  line-height: var(--lh-small);
+  color: var(--color-text-muted);
+}
+
+@include bp.below-wide {
+  .bd__figs {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: var(--space-3);
+    padding: 0;
+    background: none;
+  }
+  .bd__fig {
+    padding: 14px 18px;
+    border: 0;
+    box-shadow: none;
+    border-radius: var(--radius-lg);
+    background: var(--color-surface-1);
+  }
+  // A large amount breaks inside its tile and is not cut or laid over the next one.
+  .bd__figValue {
+    white-space: normal;
+    overflow-wrap: anywhere;
+  }
+}
+
+// On a phone the figures stand in two columns: the difference takes the whole row, so no
+// cell stays empty.
+@include bp.phone {
+  .bd__figs {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .bd__figValue {
+    font-size: 1rem;
+  }
+  .bp__figWide {
+    grid-column: 1 / -1;
+  }
+}
+
+/* Very high contrast (000605): the box has a white edge of 2 px. Below the wide layout the
+   box is no surface: each figure is a card of its own, so the edge belongs to it. */
+@include d.host-on(veryHigh) {
+  .bd__figs {
+    border: 2px solid #ffffff;
+  }
+  @include bp.below-wide {
+    .bd__figs {
+      border: 0;
+    }
+    .bd__fig,
+    .bd__fig + .bd__fig {
+      border: 2px solid #ffffff;
+    }
+  }
+}
