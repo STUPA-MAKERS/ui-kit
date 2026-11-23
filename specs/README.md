@@ -385,7 +385,7 @@ specs/
 | [S/framework/views/002227](style/framework/views/002227_view-contract.md) | Each domain view has a contract spec before it is built | approved |
 | [S/framework/views/002270](style/framework/views/002270_graph-view.md) | The graph view takes nodes and edges | approved |
 | [S/framework/views/002271](style/framework/views/002271_board-view.md) | The board views take the board, the rows, the list and the tiles | approved |
-| [S/framework/views/002272](style/framework/views/002272_calendar-view.md) | The calendar view takes entries | approved |
+| [S/framework/views/002272](style/framework/views/002272_calendar-view.md) | The calendar views take the grid, the week, the day list and the entry sheets | approved |
 | [S/framework/views/002273](style/framework/views/002273_protocol-view.md) | The protocol views take the TOP sheet and the protocol bar | approved |
 | [S/framework/views/002274](style/framework/views/002274_voting-view.md) | The voting views take votes, ballots and a voting port | approved |
 | [S/framework/views/002275](style/framework/views/002275_meeting-view.md) | The meeting views take the agenda, the attendance and the dock | approved |

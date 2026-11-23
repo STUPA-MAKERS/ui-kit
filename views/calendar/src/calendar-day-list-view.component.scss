@@ -1,0 +1,26 @@
+@use '../../../src/styles/list-pane' as lp;
+
+:host {
+  display: block;
+  min-width: 0;
+}
+.cal__lead {
+  display: grid;
+  place-items: center;
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: var(--radius-md);
+  background: var(--color-surface-2);
+}
+.cal__sub {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0 6px;
+}
+.cal__rows {
+  @include lp.stack;
+}
+// The row lies on surface 2, so the lead icon takes surface 3 to stand out.
+.cal__rowIcon {
+  background: var(--color-surface-3);
+}
