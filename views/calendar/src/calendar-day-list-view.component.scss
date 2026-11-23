@@ -4,6 +4,13 @@
   display: block;
   min-width: 0;
 }
+/* `fill`: the view takes the free height of its flex-column pane, so the empty state centres
+   in it (002650). */
+:host(.cal-day--fill) {
+  display: flex;
+  flex: 1 0 auto;
+  flex-direction: column;
+}
 .cal__lead {
   display: grid;
   place-items: center;

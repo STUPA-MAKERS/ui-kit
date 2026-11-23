@@ -434,4 +434,14 @@ describe('OpaqueBeforeScript', () => {
       /app-page-header:has\(\+ app-sticky-bar:not\(\.stb--off\)\) \{\s*position: relative;\s*z-index: calc\(var\(--z-sticky\) - 1\);/,
     );
   });
+
+  it('passes the free height of a tab panel or a side pane down to a `fill` empty state (002650)', () => {
+    const ld = read('list-detail.scss');
+    const panel = block(ld, ":is([role='tabpanel'], .ss__body):not([hidden]):has(app-empty-state.es-host--fill) {");
+    expect(panel).toMatch(/display: flex;/);
+    expect(panel).toMatch(/flex-direction: column;/);
+    const between = block(ld, ":is([role='tabpanel'], .ss__body) :not([hidden]):has(app-empty-state.es-host--fill) {");
+    expect(between).toMatch(/flex: 1 0 auto;/);
+    expect(between).toMatch(/flex-direction: column;/);
+  });
 });
