@@ -1,0 +1,89 @@
+import { ChangeDetectionStrategy, Component, computed, inject, input, output } from '@angular/core';
+import type { Uuid } from './board.types';
+import type { TodoCardTile, TodoLabel } from './board.types';
+import { UI_KIT_INTL } from '@stupa-makers/ui-kit';
+import { UiKitTranslatePipe } from '@stupa-makers/ui-kit';
+import type { Translate } from './board-format';
+import { IconComponent } from '@stupa-makers/ui-kit';
+import { LINK_ICON, dueInfo, linkLine } from './board.util';
+import { personName, shortDay } from './board-format';
+import { TodoLabelViewComponent } from './todo-label-view.component';
+import { TodoDueViewComponent } from './todo-due-view.component';
+import { TodoAssigneesViewComponent } from './todo-assignees-view.component';
+
+/** The most labels a tile shows; the drawer shows all. */
+const TILE_LABELS = 2;
+
+/**
+ * One card on the board: the labels, the title, the first link,
+ * the due date, the checklist, the comments and the people, and in a list of the phone
+ * the column tag. A card in the done column
+ * shows the done mark and the day it was done instead of the due date.
+ *
+ * The whole tile is the target: its title is a button that opens the card. The board
+ * gives the tile its drag behaviour; the keys of the keyboard drag reach the board
+ * through the button.
+ */
+@Component({
+  selector: 'app-todo-card-tile-view',
+  standalone: true,
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  imports: [TodoAssigneesViewComponent, TodoDueViewComponent, TodoLabelViewComponent, UiKitTranslatePipe, IconComponent],
+  host: {
+    class: 'tt',
+    '[class.tt--done]': 'done()',
+    '[class.tt--lifted]': 'lifted()',
+  },
+  templateUrl: './todo-card-tile-view.component.html',
+  styleUrl: './todo-card-tile-view.component.scss',
+})
+export class TodoCardTileViewComponent {
+  private readonly i18n = inject(UI_KIT_INTL);
+  private readonly t: Translate = (key, params) => this.i18n.translate(key, params);
+
+  readonly card = input.required<TodoCardTile>();
+  readonly labels = input<ReadonlyMap<Uuid, TodoLabel>>(new Map());
+  /** The card sits in the done column. */
+  readonly done = input(false);
+  /** Today as `YYYY-MM-DD`. */
+  readonly today = input.required<string>();
+  /** The keyboard drag holds this card. */
+  readonly lifted = input(false);
+  /**
+   * The name of the column of the card, as a tag in the fact bar: a list of the phone
+   * shows the cards of every column of a board in one list.
+   */
+  readonly column = input<string | null>(null);
+
+  /** The title was activated: open the card. */
+  readonly open = output<void>();
+
+  readonly tileLabels = computed(() =>
+    this.card()
+      .labelIds.map((id) => this.labels().get(id))
+      .filter((l): l is TodoLabel => !!l)
+      .slice(0, TILE_LABELS),
+  );
+
+  readonly link = computed(() => {
+    const link = this.card().primaryLink;
+    if (!link) return null;
+    return { icon: LINK_ICON[link.kind], text: linkLine(link, this.today(), this.i18n.formatLocale(), this.t) };
+  });
+
+  readonly due = computed(() => {
+    const day = this.card().dueDate;
+    if (!day || this.done()) return null;
+    return dueInfo(day, this.today(), this.i18n.formatLocale(), this.t);
+  });
+
+  /** The day the card entered the done column. */
+  readonly doneOn = computed(() => {
+    const at = this.card().completedAt;
+    if (!this.done() || !at) return null;
+    return shortDay(at, this.i18n.formatLocale(), this.today()) || null;
+  });
+
+  readonly names = computed(() => this.card().assignees.map((a) => personName(a, this.t)));
+  readonly ids = computed(() => this.card().assignees.map((a) => a.principalId));
+}
