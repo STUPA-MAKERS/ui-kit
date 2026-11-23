@@ -1,0 +1,74 @@
+@switch (kind()) {
+  @case ('combinator') {
+    <div class="ge__box">
+      <div class="ge__comb">
+        <app-select
+          class="ge__combOp"
+          [ariaLabel]="'admin.flow.guardOp' | uiKitT"
+          [options]="opOptions()"
+          [placeholder]="'admin.flow.guardNone' | uiKitT"
+          [ngModel]="op()"
+          (ngModelChange)="onOpChange($event)"
+        />
+        <span class="ge__combText">{{ combinatorText() }}</span>
+        @if (op() !== 'not') {
+          <app-button-group>
+            <app-button variant="text" size="sm" (click)="addChild()">
+              <app-icon name="plus" /> {{ 'admin.flow.guardAddChild' | uiKitT }}
+            </app-button>
+          </app-button-group>
+        }
+      </div>
+      <div class="ge__children">
+        @for (child of children(); track $index) {
+          <div class="ge__child">
+            <app-guard-editor-view
+              [guard]="child"
+              [roleOptions]="roleOptions()"
+              [gremiumOptions]="gremiumOptions()"
+              [automatic]="automatic()"
+              (guardChange)="setChild($index, $event)"
+            />
+            @if (op() !== 'not') {
+              <app-button-group>
+                <app-button variant="text" size="sm" [iconOnly]="true" [ariaLabel]="'admin.flow.guardRemove' | uiKitT" [title]="'admin.flow.guardRemove' | uiKitT" (click)="removeChild($index)">
+                  <app-icon name="x" />
+                </app-button>
+              </app-button-group>
+            }
+          </div>
+        }
+      </div>
+    </div>
+  }
+  @default {
+    <div class="ge__leaf">
+      <app-select
+        class="ge__op"
+        [label]="'admin.flow.guardOp' | uiKitT"
+        [options]="opOptions()"
+        [placeholder]="'admin.flow.guardNone' | uiKitT"
+        [ngModel]="op()"
+        (ngModelChange)="onOpChange($event)"
+      />
+      @switch (valueKind()) {
+        @case ('role') {
+          <app-select [label]="'admin.flow.recipientKind.role' | uiKitT" [options]="roleOptions()" [placeholder]="'admin.flow.cfgRolePh' | uiKitT" [ngModel]="strValue()" (ngModelChange)="setValue($event)" />
+        }
+        @case ('committee') {
+          <app-select [label]="'admin.flow.cfgGremium' | uiKitT" [options]="gremiumOptions()" [placeholder]="'admin.flow.cfgGremiumPh' | uiKitT" [ngModel]="strValue()" (ngModelChange)="setValue($event)" />
+        }
+        @case ('text') {
+          <app-input class="ge__mono" [label]="'admin.flow.guardValue' | uiKitT" [ngModel]="strValue()" (ngModelChange)="setValue($event)" />
+        }
+        @case ('compare') {
+          <div class="ge__compare">
+            <app-input class="ge__mono" [label]="'admin.flow.compareField' | uiKitT" [placeholder]="'admin.flow.compareFieldPh' | uiKitT" [ngModel]="cmp().field" (ngModelChange)="setCompare({ field: $event })" />
+            <app-select class="ge__cmpOp" [label]="'admin.flow.compareOp' | uiKitT" [options]="compareOpOptions" [ngModel]="cmp().op" (ngModelChange)="setCompare({ op: $event })" />
+            <app-input class="ge__mono" [label]="'admin.flow.compareValue' | uiKitT" [ngModel]="cmp().value" (ngModelChange)="setCompare({ value: $event })" />
+          </div>
+        }
+      }
+    </div>
+  }
+}

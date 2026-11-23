@@ -1,0 +1,49 @@
+<div class="ins__head">
+  <h2 class="cap ins__title">{{ 'admin.flow.transitionInspector' | uiKitT }}</h2>
+  <app-button-group>
+    <app-button variant="danger" size="sm" (click)="remove.emit()">
+      <app-icon name="trash" /> {{ 'admin.flow.removeTransition' | uiKitT }}
+    </app-button>
+  </app-button-group>
+</div>
+
+<div class="ins__pair">
+  <app-select
+    [label]="'admin.flow.from' | uiKitT"
+    [options]="stateOptions()"
+    [ngModel]="transition().from"
+    (ngModelChange)="fromChange.emit($event)"
+  />
+  <app-select
+    [label]="'admin.flow.to' | uiKitT"
+    [options]="stateOptions()"
+    [ngModel]="transition().to"
+    (ngModelChange)="toChange.emit($event)"
+  />
+</div>
+<app-i18n-input [value]="transition().label ?? {}" (valueChange)="labelChange.emit($event)" />
+
+<app-flow-color-view [value]="transition().color" (changed)="colorChange.emit($event)" />
+
+<div class="ins__switches">
+  <app-switch
+    [ngModel]="!!transition().automatic"
+    (ngModelChange)="automaticChange.emit($event)"
+  >{{ 'admin.flow.automatic' | uiKitT }}</app-switch>
+  @if (!transition().automatic) {
+    <app-switch
+      [ngModel]="transition().requiresAction !== false"
+      (ngModelChange)="requiresActionChange.emit($event)"
+    >{{ 'admin.flow.requiresAction' | uiKitT }}</app-switch>
+  }
+</div>
+
+@if (branchOptions().length) {
+  <app-select
+    [label]="'admin.flow.branch' | uiKitT"
+    [placeholder]="'admin.flow.branchNone' | uiKitT"
+    [options]="branchOptions()"
+    [ngModel]="transition().branch ?? ''"
+    (ngModelChange)="branchChange.emit($event)"
+  />
+}
