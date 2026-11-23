@@ -22,5 +22,5 @@ export {
   isMediaDocumentSrc,
 } from './document.extension';
 export type { MarkdownDocumentRef } from './document.extension';
-export { MASK, matchKnownName } from './known-names';
-export type { KnownName, NameMatch } from './known-names';
+export { MASK, matchKnownName } from '@stupa-makers/ui-kit';
+export type { KnownName, NameMatch } from '@stupa-makers/ui-kit';

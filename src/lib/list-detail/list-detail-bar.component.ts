@@ -75,7 +75,9 @@ export class ListDetailBarComponent {
   /**
    * The page or a panel around the bar has scrolled, so content runs under the bar: only
    * then does the bar end in a hairline at its foot (`ld__bar--under`).
-   * It keeps the page colour in every state.
+   * It keeps the page colour in every state. `<html>` carries `data-ld-bar-under` meanwhile,
+   * so a head below the bar (the format bar of the TOP sheet) takes the scrolled look without
+   * a `:has()` at the page root (app spec 002406).
    */
   protected readonly under = signal(false);
 
@@ -84,13 +86,17 @@ export class ListDetailBarComponent {
     // With the other reads of the frame, before their writes (app spec 002161).
     const check = frameReader(
       () => scrolledAround(this.host),
-      (under) => this.under.set(under),
+      (under) => {
+        this.under.set(under);
+        markUnder(under);
+      },
     );
     const onScroll = (): void => check.schedule();
     window.addEventListener('scroll', onScroll, { capture: true, passive: true });
     check.schedule();
     inject(DestroyRef).onDestroy(() => {
       this.nav.barBottom = () => 0;
+      markUnder(false);
       window.removeEventListener('scroll', onScroll, { capture: true });
       check.cancel();
     });
@@ -100,6 +106,11 @@ export class ListDetailBarComponent {
   focus(): void {
     this.backButton()?.nativeElement.focus();
   }
+}
+
+/** Set or remove `data-ld-bar-under` on `<html>`. */
+function markUnder(under: boolean): void {
+  document.documentElement.toggleAttribute('data-ld-bar-under', under);
 }
 
 /** The document or an element around `el` has scrolled away from its top. */

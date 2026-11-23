@@ -3,7 +3,7 @@ import { closeHistory } from '@tiptap/pm/history';
 import type { MarkType } from '@tiptap/pm/model';
 import { Plugin, PluginKey, type EditorState, type Transaction } from '@tiptap/pm/state';
 import type { EditorView } from '@tiptap/pm/view';
-import { MASK, matchKnownName, type KnownName } from './known-names';
+import { MASK, matchKnownName, type KnownName } from '@stupa-makers/ui-kit';
 
 export interface AutoBlackoutOptions {
   /** The known names, read at each typed character. `null` or empty turns it off. */

@@ -28,7 +28,7 @@ import StarterKit from '@tiptap/starter-kit';
 import { Markdown } from 'tiptap-markdown';
 import { AutoBlackout } from './auto-blackout.extension';
 import { Blackout, BlackoutBlock, inBlackoutBlock } from './blackout.extension';
-import type { KnownName } from './known-names';
+import type { KnownName } from '@stupa-makers/ui-kit';
 import { TimeNote } from './time-note.extension';
 import {
   DOCUMENT_UPLOAD_TYPES,

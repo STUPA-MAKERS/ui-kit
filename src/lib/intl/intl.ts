@@ -453,6 +453,55 @@ export type UiKitTextKey =
   | 'meetings.dock.topsPrepared'
   | 'meetings.editor.modeRaw'
   | 'meetings.editor.toolbar'
+  | 'markdown.blackout.mark'
+  | 'markdown.image.uploading'
+  | 'meetings.agenda.planSub'
+  | 'meetings.approval.removeTitle'
+  | 'meetings.dock.noTop'
+  | 'meetings.draftMail.again'
+  | 'meetings.draftMail.body'
+  | 'meetings.draftMail.confirm'
+  | 'meetings.draftMail.title'
+  | 'meetings.editor.blackout'
+  | 'meetings.editor.blackoutOpen'
+  | 'meetings.editor.bold'
+  | 'meetings.editor.document'
+  | 'meetings.editor.heading'
+  | 'meetings.editor.image'
+  | 'meetings.editor.italic'
+  | 'meetings.editor.list'
+  | 'meetings.editor.mode'
+  | 'meetings.editor.modeFormatted'
+  | 'meetings.editor.quote'
+  | 'meetings.editor.table'
+  | 'meetings.editor.timeNote'
+  | 'meetings.editor.timeNoteSuffix'
+  | 'meetings.editor.timeNoteTime'
+  | 'meetings.follow.now'
+  | 'meetings.protocol.finalize'
+  | 'meetings.protocol.none'
+  | 'meetings.protocol.placeholder'
+  | 'meetings.protocol.publicNotice'
+  | 'meetings.protocol.saveFailed'
+  | 'meetings.protocol.saved'
+  | 'meetings.protocol.saving'
+  | 'meetings.protocol.selectTop'
+  | 'meetings.protocolBar.approve'
+  | 'meetings.protocolBar.needsRight'
+  | 'meetings.protocolBar.pdf'
+  | 'meetings.protocolBar.pdfInternal'
+  | 'meetings.protocolBar.pdfPublic'
+  | 'meetings.protocolBar.publish'
+  | 'meetings.protocolBar.reopen'
+  | 'meetings.protocolBar.sendDraft'
+  | 'meetings.protocolBar.unapprove'
+  | 'meetings.protocolBar.withhold'
+  | 'meetings.reopen.body'
+  | 'meetings.reopen.confirm'
+  | 'meetings.reopen.title'
+  | 'participant.top.empty'
+  | 'participant.top.keeper'
+  | 'participant.top.protocol'
   | 'meetings.handover.discard'
   | 'meetings.handover.plannedShort'
   | 'meetings.handover.title'
@@ -963,6 +1012,55 @@ export const UI_KIT_DEFAULT_MESSAGES: Record<UiLang, UiKitMessages> = {
     'meetings.dock.topsPrepared': '{n} TOPs vorbereitet',
     'meetings.editor.modeRaw': 'Markdown',
     'meetings.editor.toolbar': 'Format',
+    'markdown.blackout.mark': 'Wird öffentlich geschwärzt',
+    'markdown.image.uploading': 'Bild wird hochgeladen …',
+    'meetings.agenda.planSub': 'Haushaltsplan',
+    'meetings.approval.removeTitle': 'Genehmigung entfernen?',
+    'meetings.dock.noTop': 'Noch kein TOP geöffnet',
+    'meetings.draftMail.again': 'Der Entwurf ging zuletzt am {date} an die Mitglieder des Gremiums. Sie erhalten ihn jetzt noch einmal.',
+    'meetings.draftMail.body': 'Die Mitglieder des Gremiums erhalten das Protokoll als PDF mit dem Wasserzeichen „Entwurf“. Das Protokoll bleibt ein Entwurf.',
+    'meetings.draftMail.confirm': 'Senden',
+    'meetings.draftMail.title': 'Entwurf senden?',
+    'meetings.editor.blackout': 'Schwärzen (Strg+Umschalt+X)',
+    'meetings.editor.blackoutOpen': 'Eine Schwärzung ist nicht geschlossen: Das schließende %% fehlt. So bleibt der Name öffentlich sichtbar, und das Protokoll lässt sich nicht finalisieren.',
+    'meetings.editor.bold': 'Fett',
+    'meetings.editor.document': 'PDF einfügen',
+    'meetings.editor.heading': 'Überschrift',
+    'meetings.editor.image': 'Bild einfügen',
+    'meetings.editor.italic': 'Kursiv',
+    'meetings.editor.list': 'Liste',
+    'meetings.editor.mode': 'Ansicht des Texts',
+    'meetings.editor.modeFormatted': 'Formatiert',
+    'meetings.editor.quote': 'Zitat',
+    'meetings.editor.table': 'Tabelle einfügen',
+    'meetings.editor.timeNote': 'Anmerkung mit Uhrzeit einfügen',
+    'meetings.editor.timeNoteSuffix': 'Uhr',
+    'meetings.editor.timeNoteTime': 'Uhrzeit der Anmerkung',
+    'meetings.follow.now': 'Jetzt',
+    'meetings.protocol.finalize': 'Finalisieren & senden',
+    'meetings.protocol.none': 'Für diese Sitzung gibt es noch kein Protokoll.',
+    'meetings.protocol.placeholder': 'Protokolltext in Markdown … Bausteine über die Leiste einfügen.',
+    'meetings.protocol.publicNotice': 'Dieses Protokoll wird öffentlich. Keine Namen Dritter im Freitext.',
+    'meetings.protocol.saveFailed': 'Speichern fehlgeschlagen',
+    'meetings.protocol.saved': 'Gespeichert',
+    'meetings.protocol.saving': 'Wird gespeichert …',
+    'meetings.protocol.selectTop': 'Wähle links einen TOP, um seinen Text zu bearbeiten.',
+    'meetings.protocolBar.approve': 'Als genehmigt markieren',
+    'meetings.protocolBar.needsRight': 'Finalisieren braucht das Gremien-Recht „Protokoll finalisieren & senden“.',
+    'meetings.protocolBar.pdf': 'PDF',
+    'meetings.protocolBar.pdfInternal': 'PDF intern',
+    'meetings.protocolBar.pdfPublic': 'PDF öffentlich',
+    'meetings.protocolBar.publish': 'Veröffentlichen',
+    'meetings.protocolBar.reopen': 'Zurück in Entwurf',
+    'meetings.protocolBar.sendDraft': 'Entwurf senden',
+    'meetings.protocolBar.unapprove': 'Genehmigung entfernen',
+    'meetings.protocolBar.withhold': 'Nicht veröffentlichen',
+    'meetings.reopen.body': 'Das Protokoll verschwindet von den öffentlichen Seiten, bis es wieder final ist. Das nächste Finalisieren verschickt das PDF erneut an den Verteiler.',
+    'meetings.reopen.confirm': 'Zurück in Entwurf',
+    'meetings.reopen.title': 'Protokoll zurück in den Entwurf setzen?',
+    'participant.top.empty': 'Noch kein Text zu diesem TOP.',
+    'participant.top.keeper': '{name} führt das Protokoll',
+    'participant.top.protocol': 'Protokoll',
     'meetings.handover.discard': 'Verwerfen',
     'meetings.handover.plannedShort': 'Übergabe geplant',
     'meetings.handover.title': 'Protokollführung übergeben',
@@ -1469,6 +1567,55 @@ export const UI_KIT_DEFAULT_MESSAGES: Record<UiLang, UiKitMessages> = {
     'meetings.dock.topsPrepared': '{n} items prepared',
     'meetings.editor.modeRaw': 'Markdown',
     'meetings.editor.toolbar': 'Format',
+    'markdown.blackout.mark': 'Blacked out in public',
+    'markdown.image.uploading': 'Uploading image …',
+    'meetings.agenda.planSub': 'Budget plan',
+    'meetings.approval.removeTitle': 'Remove the approval?',
+    'meetings.dock.noTop': 'No item open yet',
+    'meetings.draftMail.again': 'The draft last went to the members of the committee on {date}. They now get it once more.',
+    'meetings.draftMail.body': 'The members of the committee get the minutes as a PDF with the watermark “Entwurf”. The minutes stay a draft.',
+    'meetings.draftMail.confirm': 'Send',
+    'meetings.draftMail.title': 'Send the draft?',
+    'meetings.editor.blackout': 'Black out (Ctrl+Shift+X)',
+    'meetings.editor.blackoutOpen': 'A blackout is not closed: the closing %% is missing. The name stays visible in public, and the minutes cannot be finalized.',
+    'meetings.editor.bold': 'Bold',
+    'meetings.editor.document': 'Insert PDF',
+    'meetings.editor.heading': 'Heading',
+    'meetings.editor.image': 'Insert image',
+    'meetings.editor.italic': 'Italic',
+    'meetings.editor.list': 'List',
+    'meetings.editor.mode': 'View of the text',
+    'meetings.editor.modeFormatted': 'Formatted',
+    'meetings.editor.quote': 'Quote',
+    'meetings.editor.table': 'Insert table',
+    'meetings.editor.timeNote': 'Insert note with time',
+    'meetings.editor.timeNoteSuffix': 'h',
+    'meetings.editor.timeNoteTime': 'Time of the note',
+    'meetings.follow.now': 'Now',
+    'meetings.protocol.finalize': 'Finalize & send',
+    'meetings.protocol.none': 'There are no minutes for this meeting yet.',
+    'meetings.protocol.placeholder': 'Minutes text in Markdown … insert snippets via the toolbar.',
+    'meetings.protocol.publicNotice': 'These minutes become public. Do not name third persons in the free text.',
+    'meetings.protocol.saveFailed': 'Save failed',
+    'meetings.protocol.saved': 'Saved',
+    'meetings.protocol.saving': 'Saving …',
+    'meetings.protocol.selectTop': 'Select an item on the left to edit its text.',
+    'meetings.protocolBar.approve': 'Mark as approved',
+    'meetings.protocolBar.needsRight': 'Finalizing needs the committee right “Finalize & send minutes”.',
+    'meetings.protocolBar.pdf': 'PDF',
+    'meetings.protocolBar.pdfInternal': 'Internal PDF',
+    'meetings.protocolBar.pdfPublic': 'Public PDF',
+    'meetings.protocolBar.publish': 'Publish',
+    'meetings.protocolBar.reopen': 'Back to draft',
+    'meetings.protocolBar.sendDraft': 'Send draft',
+    'meetings.protocolBar.unapprove': 'Remove approval',
+    'meetings.protocolBar.withhold': 'Do not publish',
+    'meetings.reopen.body': 'The minutes leave the public pages until they are final again. The next finalization sends the PDF to the mailing list again.',
+    'meetings.reopen.confirm': 'Back to draft',
+    'meetings.reopen.title': 'Set the minutes back to draft?',
+    'participant.top.empty': 'No text for this item yet.',
+    'participant.top.keeper': '{name} keeps the minutes',
+    'participant.top.protocol': 'Minutes',
     'meetings.handover.discard': 'Discard',
     'meetings.handover.plannedShort': 'handover planned',
     'meetings.handover.title': 'Hand over the minutes',
