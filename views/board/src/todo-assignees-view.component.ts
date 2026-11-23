@@ -1,7 +1,10 @@
-import { ChangeDetectionStrategy, Component, input } from "@angular/core";
-import { registerUiKitTexts, UiKitTranslatePipe } from "@stupa-makers/ui-kit";
-import { AvatarStackComponent, IconComponent } from "@stupa-makers/ui-kit";
-import { UI_KIT_BOARD_TEXTS } from "./board.texts";
+import { ChangeDetectionStrategy, Component, input } from '@angular/core';
+import { registerUiKitTexts, UiKitTranslatePipe } from '@stupa-makers/ui-kit';
+import {
+  AvatarStackComponent,
+  IconComponent,
+} from '@stupa-makers/ui-kit';
+import { UI_KIT_BOARD_TEXTS } from './board.texts';
 
 /**
  * The people of a to-do card: up to three small avatars, or an empty circle with a person
@@ -12,12 +15,12 @@ import { UI_KIT_BOARD_TEXTS } from "./board.texts";
  * ```
  */
 @Component({
-  selector: "app-todo-assignees-view",
+  selector: 'app-todo-assignees-view',
   standalone: true,
   imports: [AvatarStackComponent, IconComponent, UiKitTranslatePipe],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  templateUrl: "./todo-assignees-view.component.html",
-  styleUrl: "./todo-assignees-view.component.scss",
+  templateUrl: './todo-assignees-view.component.html',
+  styleUrl: './todo-assignees-view.component.scss',
 })
 export class TodoAssigneesViewComponent {
   /** The texts of the view, registered before the first render (002237). */

@@ -1,12 +1,5 @@
-import {
-  ChangeDetectionStrategy,
-  Component,
-  computed,
-  inject,
-  input,
-  output,
-} from "@angular/core";
-import { FormsModule } from "@angular/forms";
+import { ChangeDetectionStrategy, Component, computed, inject, input, output } from '@angular/core';
+import { FormsModule } from '@angular/forms';
 import {
   ButtonComponent,
   ButtonGroupComponent,
@@ -22,10 +15,10 @@ import {
   TruncatedDirective,
   UI_KIT_INTL,
   UiKitTranslatePipe,
-} from "@stupa-makers/ui-kit";
-import type { StateDef } from "./flow-editor.types";
-import { FlowColorViewComponent } from "./flow-color-view.component";
-import { UI_KIT_FLOW_EDITOR_TEXTS } from "./flow-editor.texts";
+} from '@stupa-makers/ui-kit';
+import type { StateDef } from './flow-editor.types';
+import { FlowColorViewComponent } from './flow-color-view.component';
+import { UI_KIT_FLOW_EDITOR_TEXTS } from './flow-editor.texts';
 
 /** Row of the guard priority stack. The parent computes the label. */
 export interface GuardPriorityRow {
@@ -39,7 +32,7 @@ export interface GuardPriorityRow {
  * of the exits.
  */
 @Component({
-  selector: "app-state-inspector-view",
+  selector: 'app-state-inspector-view',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
@@ -56,8 +49,8 @@ export interface GuardPriorityRow {
     SwitchComponent,
     FlowColorViewComponent,
   ],
-  templateUrl: "./state-inspector-view.component.html",
-  styleUrl: "./state-inspector-view.component.scss",
+  templateUrl: './state-inspector-view.component.html',
+  styleUrl: './state-inspector-view.component.scss',
 })
 export class StateInspectorViewComponent {
   /** The texts of the view, registered before the first render (002237). */
@@ -78,31 +71,22 @@ export class StateInspectorViewComponent {
   readonly editAllowedChange = output<boolean>();
   readonly terminalChange = output<boolean>();
   /** The flag `Bewilligt` or `Abgelehnt` of a normal state (spec 000571). */
-  readonly outcomeChange = output<{
-    outcome: "approved" | "denied";
-    on: boolean;
-  }>();
+  readonly outcomeChange = output<{ outcome: 'approved' | 'denied'; on: boolean }>();
   /** "Ziel für ersetzte Anträge" (001722) was switched. */
   readonly replacedTargetChange = output<boolean>();
   readonly kindChange = output<string>();
   readonly gremiumChange = output<string>();
-  readonly gremiumSourceChange = output<"fixed" | "budget">();
+  readonly gremiumSourceChange = output<'fixed' | 'budget'>();
 
   /** The gremium source of a vote state: `budget`, else a fixed gremium. */
-  protected readonly gremiumSource = computed<"fixed" | "budget">(() =>
-    this.state().config?.gremiumSource === "budget" ? "budget" : "fixed",
+  protected readonly gremiumSource = computed<'fixed' | 'budget'>(() =>
+    this.state().config?.gremiumSource === 'budget' ? 'budget' : 'fixed',
   );
 
   protected gremiumSourceOptions(): SelectOption[] {
     return [
-      {
-        value: "fixed",
-        label: this.i18n.translate("admin.flow.cfgGremiumSourceFixed"),
-      },
-      {
-        value: "budget",
-        label: this.i18n.translate("admin.flow.cfgGremiumSourceBudget"),
-      },
+      { value: 'fixed', label: this.i18n.translate('admin.flow.cfgGremiumSourceFixed') },
+      { value: 'budget', label: this.i18n.translate('admin.flow.cfgGremiumSourceBudget') },
     ];
   }
   readonly guardMove = output<{ sig: string; dir: -1 | 1 }>();

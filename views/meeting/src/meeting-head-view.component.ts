@@ -7,24 +7,12 @@ import {
   input,
   output,
   viewChild,
-} from "@angular/core";
-import { NgTemplateOutlet } from "@angular/common";
-import { RouterLink } from "@angular/router";
-import { registerUiKitTexts, UiKitTranslatePipe } from "@stupa-makers/ui-kit";
-import {
-  ButtonComponent,
-  ButtonGroupComponent,
-  dockInListDetailBar,
-  IconComponent,
-  ListDetailBarComponent,
-  ListDetailNav,
-  MEDIA,
-  mediaQuery,
-  MetaLineComponent,
-  type StatusKind,
-  StatusTextComponent,
-} from "@stupa-makers/ui-kit";
-import { UI_KIT_MEETING_TEXTS } from "./meeting.texts";
+} from '@angular/core';
+import { NgTemplateOutlet } from '@angular/common';
+import { RouterLink } from '@angular/router';
+import { registerUiKitTexts, UiKitTranslatePipe } from '@stupa-makers/ui-kit';
+import { ButtonComponent, ButtonGroupComponent, dockInListDetailBar, IconComponent, ListDetailBarComponent, ListDetailNav, MEDIA, mediaQuery, MetaLineComponent, type StatusKind, StatusTextComponent } from '@stupa-makers/ui-kit';
+import { UI_KIT_MEETING_TEXTS } from './meeting.texts';
 
 /**
  * The head of a meeting view: "Zurück", the title with the status after it, and a quiet
@@ -53,7 +41,7 @@ import { UI_KIT_MEETING_TEXTS } from "./meeting.texts";
  */
 @Component({
   // eslint-disable-next-line @angular-eslint/component-selector -- the host is the header of the page, which keeps its frame rules
-  selector: "header[appMeetingHead]",
+  selector: 'header[appMeetingHead]',
   standalone: true,
   imports: [
     MetaLineComponent,
@@ -68,8 +56,8 @@ import { UI_KIT_MEETING_TEXTS } from "./meeting.texts";
   ],
   providers: [ListDetailNav],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  templateUrl: "./meeting-head-view.component.html",
-  styleUrl: "./meeting-head-view.component.scss",
+  templateUrl: './meeting-head-view.component.html',
+  styleUrl: './meeting-head-view.component.scss',
 })
 export class MeetingHeadViewComponent {
   /** The texts of the view, registered before the first render (002237). */
@@ -78,23 +66,21 @@ export class MeetingHeadViewComponent {
   /** The title of the meeting. */
   readonly heading = input.required<string>();
   /** The colour of the status. */
-  readonly statusKind = input<StatusKind>("neutral");
+  readonly statusKind = input<StatusKind>('neutral');
   /** The translated status. */
   readonly statusText = input.required<string>();
   /** The sub line, such as the date and the place. `null`: no sub line. */
   readonly sub = input<string | null>(null);
   /** A link after the sub line, such as the first meeting of a Wiederholungssitzung. */
-  readonly link = input<{ readonly label: string; readonly to: string } | null>(
-    null,
-  );
+  readonly link = input<{ readonly label: string; readonly to: string } | null>(null);
   /** The person pressed "Zurück". */
   readonly back = output<void>();
 
   /** A phone: the head is the bar of the kit. */
   protected readonly phone = mediaQuery(MEDIA.phone);
 
-  private readonly actions = viewChild<TemplateRef<unknown>>("actions");
-  private readonly subtitle = viewChild<TemplateRef<unknown>>("subtitle");
+  private readonly actions = viewChild<TemplateRef<unknown>>('actions');
+  private readonly subtitle = viewChild<TemplateRef<unknown>>('subtitle');
 
   constructor() {
     const nav = inject(ListDetailNav);

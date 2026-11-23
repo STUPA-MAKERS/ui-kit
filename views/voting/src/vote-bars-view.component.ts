@@ -1,13 +1,7 @@
-import {
-  ChangeDetectionStrategy,
-  Component,
-  computed,
-  inject,
-  input,
-} from "@angular/core";
-import type { VoteResult } from "./voting.types";
-import { voteResultStatus, type StatusView } from "./voting-status";
-import { voteOptionLabel } from "./voting-display.util";
+import { ChangeDetectionStrategy, Component, computed, inject, input } from '@angular/core';
+import type { VoteResult } from './voting.types';
+import { voteResultStatus, type StatusView } from './voting-status';
+import { voteOptionLabel } from './voting-display.util';
 import {
   registerUiKitTexts,
   SegBarComponent,
@@ -15,8 +9,8 @@ import {
   StatusTextComponent,
   UI_KIT_INTL,
   UiKitTranslatePipe,
-} from "@stupa-makers/ui-kit";
-import { UI_KIT_VOTING_TEXTS } from "./voting.texts";
+} from '@stupa-makers/ui-kit';
+import { UI_KIT_VOTING_TEXTS } from './voting.texts';
 
 interface BarRow {
   readonly option: string;
@@ -28,11 +22,7 @@ interface BarRow {
 }
 
 /** Ja in the accent, Nein in the error colour, Enthaltung grey. */
-const TONES: Readonly<Record<string, SegTone>> = {
-  yes: "filled",
-  no: "error",
-  abstain: "muted",
-};
+const TONES: Readonly<Record<string, SegTone>> = { yes: 'filled', no: 'error', abstain: 'muted' };
 
 /**
  * The result of a vote: one row per option with the count, the share of the cast
@@ -46,15 +36,15 @@ const TONES: Readonly<Record<string, SegTone>> = {
  * aggregated counts only, never a name. Pass counts only when the server revealed them.
  */
 @Component({
-  selector: "app-vote-bars-view",
+  selector: 'app-vote-bars-view',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [SegBarComponent, StatusTextComponent, UiKitTranslatePipe],
   host: {
-    "[class.bars--beamer]": "variant() === 'beamer'",
+    '[class.bars--beamer]': "variant() === 'beamer'",
   },
-  templateUrl: "./vote-bars-view.component.html",
-  styleUrl: "./vote-bars-view.component.scss",
+  templateUrl: './vote-bars-view.component.html',
+  styleUrl: './vote-bars-view.component.scss',
 })
 export class VoteBarsViewComponent {
   /** The texts of the view, registered before the first render (002237). */
@@ -67,8 +57,8 @@ export class VoteBarsViewComponent {
   /** The result of a closed vote. Without it the component shows no status line. */
   readonly result = input<VoteResult | string | null>(null);
   /** Why a closed vote failed. `quorum` adds "Quorum nicht erreicht". */
-  readonly failedReason = input<"quorum" | "majority" | null | undefined>(null);
-  readonly variant = input<"compact" | "beamer">("compact");
+  readonly failedReason = input<'quorum' | 'majority' | null | undefined>(null);
+  readonly variant = input<'compact' | 'beamer'>('compact');
 
   /** All cast ballots: the base of the shares. */
   protected readonly cast = computed(() =>
@@ -85,7 +75,7 @@ export class VoteBarsViewComponent {
         label: voteOptionLabel(option, (key) => this.i18n.translate(key)),
         count,
         pct: cast > 0 ? Math.round((count / cast) * 100) : 0,
-        tone: TONES[option] ?? "filled",
+        tone: TONES[option] ?? 'filled',
       };
     });
   });
@@ -94,11 +84,11 @@ export class VoteBarsViewComponent {
   protected readonly status = computed<StatusView | null>(() => {
     const result = this.result();
     if (!result) return null;
-    return voteResultStatus(result === "passed" ? "passed" : "rejected");
+    return voteResultStatus(result === 'passed' ? 'passed' : 'rejected');
   });
 
   protected rowLabel(row: BarRow): string {
-    return this.i18n.translate("voting.bars.row", {
+    return this.i18n.translate('voting.bars.row', {
       option: row.label,
       count: row.count,
       pct: row.pct,

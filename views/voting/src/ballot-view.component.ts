@@ -11,19 +11,13 @@ import {
   signal,
   untracked,
   viewChild,
-} from "@angular/core";
-import type { Observable } from "rxjs";
-import { take } from "rxjs/operators";
-import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
-import type { Translate } from "./voting-display.util";
-import { NgTemplateOutlet } from "@angular/common";
-import type {
-  DateAnswer,
-  ElectionConfig,
-  MyBallot,
-  PollConfig,
-  ProblemDetail,
-} from "./voting.types";
+} from '@angular/core';
+import type { Observable } from 'rxjs';
+import { take } from 'rxjs/operators';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import type { Translate } from './voting-display.util';
+import { NgTemplateOutlet } from '@angular/common';
+import type { DateAnswer, ElectionConfig, MyBallot, PollConfig, ProblemDetail } from './voting.types';
 import {
   ButtonComponent,
   ButtonGroupComponent,
@@ -34,15 +28,15 @@ import {
   SectionComponent,
   UI_KIT_INTL,
   UiKitTranslatePipe,
-} from "@stupa-makers/ui-kit";
-import { voteOptionLabel } from "./voting-display.util";
+} from '@stupa-makers/ui-kit';
+import { voteOptionLabel } from './voting-display.util';
 import {
   candidateLabel,
   candidateNames,
   electionChoiceLabel,
   electionCountText,
   isYesNoElection,
-} from "./election.util";
+} from './election.util';
 import {
   DATE_ANSWERS,
   answersComplete,
@@ -50,13 +44,13 @@ import {
   pollChoiceLabel,
   pollCountText,
   pollOptionLabel,
-} from "./poll.util";
-import { UI_KIT_VOTING_TEXTS } from "./voting.texts";
+} from './poll.util';
+import { UI_KIT_VOTING_TEXTS } from './voting.texts';
 
 /** The two rows a ballot can show: the own one, and the one of the members that a person
  *  without an open own ballot represents. One cast of the own row counts for the
  *  represented members too (spec 000932). */
-export type BallotRow = "own" | "proxy";
+export type BallotRow = 'own' | 'proxy';
 
 /** The answers of a date poll ballot, one per date. */
 export type DateAnswers = Readonly<Record<string, DateAnswer>>;
@@ -67,7 +61,7 @@ export type BallotPick = string | readonly string[] | DateAnswers;
 
 /** The pick holds the answers of a date poll. */
 function isAnswers(pick: BallotPick | null): pick is DateAnswers {
-  return typeof pick === "object" && pick !== null && !Array.isArray(pick);
+  return typeof pick === 'object' && pick !== null && !Array.isArray(pick);
 }
 
 /**
@@ -75,10 +69,7 @@ function isAnswers(pick: BallotPick | null): pick is DateAnswers {
  * accepted the ballot, and it fails with the HTTP error otherwise. The page passes
  * `ApiClient.castBallot` here.
  */
-export type BallotCaster = (
-  choice: BallotPick,
-  asDelegation: boolean,
-) => Observable<unknown>;
+export type BallotCaster = (choice: BallotPick, asDelegation: boolean) => Observable<unknown>;
 
 /** The error of a refused cast, as the HTTP client reports it. */
 export interface BallotCastError {
@@ -104,8 +95,7 @@ const NOT_CAST: MyBallot = { cast: false, choice: null };
 
 /** The ballot of a row after the server accepted `choice` (`null`: secret, or not known). */
 function castBallot(choice: BallotPick | null): MyBallot {
-  if (typeof choice === "string" || choice === null)
-    return { cast: true, choice };
+  if (typeof choice === 'string' || choice === null) return { cast: true, choice };
   return isAnswers(choice)
     ? { cast: true, choice: null, answers: { ...choice } }
     : { cast: true, choice: null, choices: [...choice] };
@@ -143,25 +133,18 @@ function castBallot(choice: BallotPick | null): MyBallot {
  * reload (`castDone`, `castFailed`).
  */
 @Component({
-  selector: "app-ballot-view",
+  selector: 'app-ballot-view',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [
-    SectionComponent,
-    ButtonComponent,
-    ButtonGroupComponent,
-    IconComponent,
-    NgTemplateOutlet,
-    UiKitTranslatePipe,
-  ],
+  imports: [SectionComponent, ButtonComponent, ButtonGroupComponent, IconComponent, NgTemplateOutlet, UiKitTranslatePipe],
   host: {
-    class: "ballot",
-    "[class.ballot--phone]": "layout() === 'phone'",
-    "[class.ballot--compact]": "compact()",
-    "[class.ballot--columns]": "columns()",
+    class: 'ballot',
+    '[class.ballot--phone]': "layout() === 'phone'",
+    '[class.ballot--compact]': 'compact()',
+    '[class.ballot--columns]': 'columns()',
   },
-  templateUrl: "./ballot-view.component.html",
-  styleUrl: "./ballot-view.component.scss",
+  templateUrl: './ballot-view.component.html',
+  styleUrl: './ballot-view.component.scss',
 })
 export class BallotViewComponent {
   /** The texts of the view, registered before the first render (002237). */
@@ -184,7 +167,7 @@ export class BallotViewComponent {
   /** The represented ballot as the server knows it (`representedCast`). */
   readonly proxyCast = input(false);
   readonly caster = input.required<BallotCaster>();
-  readonly layout = input<"page" | "phone">("page");
+  readonly layout = input<'page' | 'phone'>('page');
   /**
    * The small ballot of a side column (the participant view): the own options are a
    * row of buttons like the represented ones, and the rows always carry their name.
@@ -204,19 +187,16 @@ export class BallotViewComponent {
   readonly castFailed = output<BallotFailure>();
 
   /** The pick of each row (step 1). */
-  protected readonly picked = signal<Record<BallotRow, BallotPick | null>>({
-    own: null,
-    proxy: null,
-  });
+  protected readonly picked = signal<Record<BallotRow, BallotPick | null>>({ own: null, proxy: null });
 
   /** The candidate rows: the election, or a single or multi poll as an election. */
   protected readonly ballotElection = computed<ElectionConfig | null>(() => {
     const poll = this.poll();
-    if (poll) return poll.mode === "date" ? null : pollAsElection(poll);
+    if (poll) return poll.mode === 'date' ? null : pollAsElection(poll);
     return this.election();
   });
   /** A date poll: Ja, Vielleicht or Nein per date. */
-  protected readonly dateMode = computed(() => this.poll()?.mode === "date");
+  protected readonly dateMode = computed(() => this.poll()?.mode === 'date');
   /** The ballot picks candidates (an election with more than one candidate) or options. */
   protected readonly candidateMode = computed(
     () => (this.ballotElection()?.candidates.length ?? 0) > 1,
@@ -228,28 +208,23 @@ export class BallotViewComponent {
   protected readonly soleCandidate = computed(() => {
     const election = this.election();
     if (!isYesNoElection(election)) return null;
-    return candidateLabel(election!.candidates[0], (key, params) =>
-      this.i18n.translate(key, params),
-    );
+    return candidateLabel(election!.candidates[0], (key, params) => this.i18n.translate(key, params));
   });
   /** Several seats, or a multi poll: check boxes and a counter. */
   protected readonly multiSeat = computed(() => {
     const poll = this.poll();
-    if (poll) return poll.mode === "multi";
+    if (poll) return poll.mode === 'multi';
     return (this.election()?.seats ?? 1) > 1;
   });
   protected readonly seats = computed(() => this.ballotElection()?.seats ?? 1);
   /** The three answers of a date row. */
   protected readonly dateAnswers = DATE_ANSWERS;
   /** The row the button acts on: the row of the last pick. */
-  protected readonly active = signal<BallotRow>("own");
+  protected readonly active = signal<BallotRow>('own');
   /** The row whose ballot is on its way to the server. */
   protected readonly pending = signal<BallotRow | null>(null);
   /** Ballots of this page view, before the page reloads the vote. */
-  private readonly local = signal<Record<BallotRow, MyBallot | null>>({
-    own: null,
-    proxy: null,
-  });
+  private readonly local = signal<Record<BallotRow, MyBallot | null>>({ own: null, proxy: null });
 
   /** The own ballot: this page view first, then the server copy. */
   protected readonly ownState = computed<MyBallot | null>(() => {
@@ -268,50 +243,44 @@ export class BallotViewComponent {
   });
   protected readonly proxyState = computed<MyBallot | null>(() => {
     if (!this.proxyName() || this.unit()) return null;
-    return (
-      this.local().proxy ??
-      (this.proxyCast() ? { cast: true, choice: null } : NOT_CAST)
-    );
+    return this.local().proxy ?? (this.proxyCast() ? { cast: true, choice: null } : NOT_CAST);
   });
 
   /** Name the rows when the person represents somebody, and always on a phone (board).
    *  A lone own row needs no name. */
   protected readonly named = computed(
-    () => this.layout() === "phone" || this.compact() || !!this.proxyName(),
+    () => this.layout() === 'phone' || this.compact() || !!this.proxyName(),
   );
   /**
    * "Deine Stimme", or "Deine Stimme, 3 Stimmrechte, auch für Anna, Ben" for the one cast:
    * the number of voting rights that the cast exercises, the own one included.
    */
   protected readonly ownHeading = computed(() => {
-    if (!this.unit()) return this.i18n.translate("voting.ballot.own");
-    const name = this.proxyName() ?? "";
+    if (!this.unit()) return this.i18n.translate('voting.ballot.own');
+    const name = this.proxyName() ?? '';
     const count = this.proxyCount();
     return count > 0
-      ? this.i18n.translate("voting.ballot.ownWithCount", {
-          name,
-          count: count + 1,
-        })
-      : this.i18n.translate("voting.ballot.ownWith", { name });
+      ? this.i18n.translate('voting.ballot.ownWithCount', { name, count: count + 1 })
+      : this.i18n.translate('voting.ballot.ownWith', { name });
   });
   /** "Als Vertretung für Anna", or "2 Stimmrechte als Vertretung für Anna, Ben". */
   protected readonly proxyHeading = computed(() => {
-    const name = this.proxyName() ?? "";
+    const name = this.proxyName() ?? '';
     const count = this.proxyCount();
     return count > 1
-      ? this.i18n.translate("voting.ballot.proxyCount", { name, count })
-      : this.i18n.translate("voting.ballot.proxy", { name });
+      ? this.i18n.translate('voting.ballot.proxyCount', { name, count })
+      : this.i18n.translate('voting.ballot.proxy', { name });
   });
 
   /** The row the button acts on now, or `null` when every row is cast. */
   protected readonly target = computed<BallotRow | null>(() => {
     const open = (row: BallotRow) => {
-      const state = row === "own" ? this.ownState() : this.proxyState();
+      const state = row === 'own' ? this.ownState() : this.proxyState();
       return state !== null && !state.cast;
     };
     const active = this.active();
     if (open(active)) return active;
-    const other: BallotRow = active === "own" ? "proxy" : "own";
+    const other: BallotRow = active === 'own' ? 'proxy' : 'own';
     return open(other) ? other : null;
   });
 
@@ -323,37 +292,29 @@ export class BallotViewComponent {
   protected readonly confirmLabel = computed(() => {
     const row = this.target();
     const choice = row ? this.picked()[row] : null;
-    const name = this.proxyName() ?? "";
+    const name = this.proxyName() ?? '';
     if (this.dateMode()) {
-      return row === "proxy"
-        ? this.i18n.translate("voting.ballot.confirmProxyEmpty", { name })
-        : this.i18n.translate("poll.ballot.submitDate");
+      return row === 'proxy'
+        ? this.i18n.translate('voting.ballot.confirmProxyEmpty', { name })
+        : this.i18n.translate('poll.ballot.submitDate');
     }
     if (this.multiSeat() && Array.isArray(choice)) {
       const t: Translate = (key, params) => this.i18n.translate(key, params);
       const count = this.poll()
         ? pollCountText(choice.length, t)
         : electionCountText(this.election(), choice, t);
-      return row === "proxy"
-        ? this.i18n.translate("voting.ballot.confirmProxyCount", {
-            name,
-            count,
-          })
-        : this.i18n.translate("voting.ballot.confirmCount", { count });
+      return row === 'proxy'
+        ? this.i18n.translate('voting.ballot.confirmProxyCount', { name, count })
+        : this.i18n.translate('voting.ballot.confirmCount', { count });
     }
-    if (row === "proxy") {
+    if (row === 'proxy') {
       return choice !== null
-        ? this.i18n.translate("voting.ballot.confirmProxy", {
-            name,
-            choice: this.choiceLabel(choice),
-          })
-        : this.i18n.translate("voting.ballot.confirmProxyEmpty", { name });
+        ? this.i18n.translate('voting.ballot.confirmProxy', { name, choice: this.choiceLabel(choice) })
+        : this.i18n.translate('voting.ballot.confirmProxyEmpty', { name });
     }
     return choice !== null
-      ? this.i18n.translate("voting.ballot.confirm", {
-          choice: this.choiceLabel(choice),
-        })
-      : this.i18n.translate("voting.ballot.confirmEmpty");
+      ? this.i18n.translate('voting.ballot.confirm', { choice: this.choiceLabel(choice) })
+      : this.i18n.translate('voting.ballot.confirmEmpty');
   });
 
   /**
@@ -363,13 +324,12 @@ export class BallotViewComponent {
   protected readonly confirmAria = computed(() => {
     const row = this.target();
     const choice = row ? this.picked()[row] : null;
-    if (!this.multiSeat() || !Array.isArray(choice) || choice.length === 0)
-      return "";
-    return this.i18n.translate("voting.ballot.confirmNames", {
+    if (!this.multiSeat() || !Array.isArray(choice) || choice.length === 0) return '';
+    return this.i18n.translate('voting.ballot.confirmNames', {
       label: this.confirmLabel(),
       names: candidateNames(this.ballotElection(), choice, (key, params) =>
         this.i18n.translate(key, params),
-      ).join(", "),
+      ).join(', '),
     });
   });
 
@@ -380,22 +340,19 @@ export class BallotViewComponent {
   protected readonly showBar = computed(() => {
     const row = this.target();
     if (row === null) return false;
-    return (
-      !this.columns() || this.picked()[row] !== null || this.pending() !== null
-    );
+    return !this.columns() || this.picked()[row] !== null || this.pending() !== null;
   });
 
   protected readonly canConfirm = computed(() => {
     const row = this.target();
     if (row === null || this.pending() !== null) return false;
     const pick = this.picked()[row];
-    if (this.dateMode())
-      return answersComplete(this.poll()!, isAnswers(pick) ? pick : null);
+    if (this.dateMode()) return answersComplete(this.poll()!, isAnswers(pick) ? pick : null);
     return pick !== null;
   });
 
   /** The pinned bar of the phone layout, measured to keep room for it below the rows. */
-  private readonly bar = viewChild<ElementRef<HTMLElement>>("bar");
+  private readonly bar = viewChild<ElementRef<HTMLElement>>('bar');
   protected readonly barHeight = signal(0);
 
   constructor() {
@@ -404,14 +361,14 @@ export class BallotViewComponent {
       untracked(() => {
         this.picked.set({ own: null, proxy: null });
         this.local.set({ own: null, proxy: null });
-        this.active.set("own");
+        this.active.set('own');
         this.pending.set(null);
       });
     });
     observeElementSize(
       () => this.bar()?.nativeElement,
       (size) => this.barHeight.set(size.height),
-      "border",
+      'border',
     );
   }
 
@@ -422,8 +379,8 @@ export class BallotViewComponent {
   /** The label of a pick: an option, the candidates with the abstentions, or the
    *  chosen options of a poll. */
   protected choiceLabel(pick: BallotPick): string {
-    if (typeof pick === "string") return this.label(pick);
-    if (isAnswers(pick)) return "";
+    if (typeof pick === 'string') return this.label(pick);
+    if (isAnswers(pick)) return '';
     const t: Translate = (key, params) => this.i18n.translate(key, params);
     const poll = this.poll();
     if (poll) return pollChoiceLabel(poll, pick, this.i18n.formatLocale(), t);
@@ -438,24 +395,21 @@ export class BallotViewComponent {
 
   /** "Ja", "Vielleicht", "Nein". */
   protected answerLabel(answer: DateAnswer): string {
-    if (answer === "maybe") return this.i18n.translate("poll.answer.maybe");
-    return this.i18n.translate(
-      answer === "yes" ? "vote.option.yes" : "vote.option.no",
-    );
+    if (answer === 'maybe') return this.i18n.translate('poll.answer.maybe');
+    return this.i18n.translate(answer === 'yes' ? 'vote.option.yes' : 'vote.option.no');
   }
 
   /** The answer of a row for a date: the pick of an open row, or the cast answer. */
   protected answerOf(row: BallotRow, id: string): DateAnswer | null {
-    const state = row === "own" ? this.ownState() : this.proxyState();
-    if (state?.cast)
-      return this.secret() ? null : (state.answers?.[id] ?? null);
+    const state = row === 'own' ? this.ownState() : this.proxyState();
+    if (state?.cast) return this.secret() ? null : (state.answers?.[id] ?? null);
     const pick = this.picked()[row];
     return isAnswers(pick) ? (pick[id] ?? null) : null;
   }
 
   /** Step 1 of a date poll: answer one date of a row. */
   protected answer(row: BallotRow, id: string, value: DateAnswer): void {
-    const state = row === "own" ? this.ownState() : this.proxyState();
+    const state = row === 'own' ? this.ownState() : this.proxyState();
     if (!state || state.cast || this.pending() !== null) return;
     this.picked.update((p) => {
       const current = p[row];
@@ -473,14 +427,14 @@ export class BallotViewComponent {
 
   /** The candidate is chosen: the pick of an open row, or the ballot of a cast row. */
   protected isPicked(row: BallotRow, id: string): boolean {
-    const state = row === "own" ? this.ownState() : this.proxyState();
+    const state = row === 'own' ? this.ownState() : this.proxyState();
     if (state?.cast) return (this.castPicks(row) ?? []).includes(id);
     return this.picks(row).includes(id);
   }
 
   /** The row picked a full abstention (`[]`). */
   protected isAbstain(row: BallotRow): boolean {
-    const state = row === "own" ? this.ownState() : this.proxyState();
+    const state = row === 'own' ? this.ownState() : this.proxyState();
     if (state?.cast) return this.castPicks(row)?.length === 0;
     const pick = this.picked()[row];
     return Array.isArray(pick) && pick.length === 0;
@@ -493,7 +447,7 @@ export class BallotViewComponent {
 
   /** Step 1 of an election: pick (one seat) or toggle (several seats) a candidate. */
   protected toggle(row: BallotRow, id: string): void {
-    const state = row === "own" ? this.ownState() : this.proxyState();
+    const state = row === 'own' ? this.ownState() : this.proxyState();
     if (!state || state.cast || this.pending() !== null) return;
     const next = this.togglePicks(row, id);
     if (next === null) return;
@@ -514,7 +468,7 @@ export class BallotViewComponent {
 
   /** "Enthaltung" / "Ganz enthalten": the row picks no candidate. */
   protected abstainAll(row: BallotRow): void {
-    const state = row === "own" ? this.ownState() : this.proxyState();
+    const state = row === 'own' ? this.ownState() : this.proxyState();
     if (!state || state.cast || this.pending() !== null) return;
     this.picked.update((p) => ({ ...p, [row]: [] }));
     this.active.set(row);
@@ -522,14 +476,14 @@ export class BallotViewComponent {
 
   /** The candidate ids of a cast row, or `null` (secret, or not known). */
   private castPicks(row: BallotRow): readonly string[] | null {
-    const state = row === "own" ? this.ownState() : this.proxyState();
+    const state = row === 'own' ? this.ownState() : this.proxyState();
     if (!state?.cast || this.secret()) return null;
     return state.choices ?? null;
   }
 
   /** Step 1: pick an option of a row. A cast row takes no pick. */
   protected pick(row: BallotRow, option: string): void {
-    const state = row === "own" ? this.ownState() : this.proxyState();
+    const state = row === 'own' ? this.ownState() : this.proxyState();
     if (!state || state.cast || this.pending() !== null) return;
     this.picked.update((p) => ({ ...p, [row]: option }));
     this.active.set(row);
@@ -541,27 +495,22 @@ export class BallotViewComponent {
     if (row === null || this.pending() !== null) return;
     const choice = this.picked()[row];
     if (choice === null) return;
-    const asDelegation = row === "proxy";
+    const asDelegation = row === 'proxy';
     this.pending.set(row);
     this.caster()(choice, asDelegation)
       .pipe(take(1), takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: () => {
-          haptic("success");
+          haptic('success');
           this.lock(row, this.secret() ? null : choice);
           this.pending.set(null);
           this.castDone.emit({ choice, asDelegation });
         },
         error: (error: BallotCastError) => {
           this.pending.set(null);
-          const alreadyVoted =
-            error?.status === 409 && error.error?.code === "already_voted";
+          const alreadyVoted = error?.status === 409 && error.error?.code === 'already_voted';
           if (alreadyVoted) this.lock(row, null);
-          this.castFailed.emit({
-            asDelegation,
-            alreadyVoted,
-            error: error ?? {},
-          });
+          this.castFailed.emit({ asDelegation, alreadyVoted, error: error ?? {} });
         },
       });
   }
@@ -569,14 +518,14 @@ export class BallotViewComponent {
   /** The choice to mark as cast in a row, or `null` (secret, not known, or a date
    *  poll: its rows show the answers). */
   protected castChoice(row: BallotRow): BallotPick | null {
-    const state = row === "own" ? this.ownState() : this.proxyState();
+    const state = row === 'own' ? this.ownState() : this.proxyState();
     if (!state?.cast || this.secret() || this.dateMode()) return null;
     return state.choices ?? state.choice;
   }
 
   /** The option looks chosen: the pick of an open row, or the choice of a cast row. */
   protected isOn(row: BallotRow, option: string): boolean {
-    const state = row === "own" ? this.ownState() : this.proxyState();
+    const state = row === 'own' ? this.ownState() : this.proxyState();
     if (state?.cast) return state.choice === option && !this.secret();
     return this.picked()[row] === option;
   }

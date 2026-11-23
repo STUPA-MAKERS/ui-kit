@@ -1,12 +1,5 @@
-import {
-  ChangeDetectionStrategy,
-  Component,
-  computed,
-  inject,
-  input,
-  output,
-} from "@angular/core";
-import { FormsModule } from "@angular/forms";
+import { ChangeDetectionStrategy, Component, computed, inject, input, output } from '@angular/core';
+import { FormsModule } from '@angular/forms';
 import {
   CellDirective,
   type ColumnDef,
@@ -17,10 +10,10 @@ import {
   StatusTextComponent,
   UI_KIT_INTL,
   UiKitTranslatePipe,
-} from "@stupa-makers/ui-kit";
-import { planMoney, sumDigits } from "./plan-format";
-import { cents, type PlanRow } from "./plan-table.types";
-import { UI_KIT_PLAN_TABLE_TEXTS } from "./plan-table.texts";
+} from '@stupa-makers/ui-kit';
+import { planMoney, sumDigits } from './plan-format';
+import { cents, type PlanRow } from './plan-table.types';
+import { UI_KIT_PLAN_TABLE_TEXTS } from './plan-table.texts';
 
 /** An amount that a person typed in a field of the table. */
 export interface PlanAmountEdit {
@@ -37,7 +30,7 @@ export interface PlanAmountEdit {
  * and the save when the field loses the focus or takes Enter (002256).
  */
 @Component({
-  selector: "app-plan-table-view",
+  selector: 'app-plan-table-view',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
@@ -49,8 +42,8 @@ export interface PlanAmountEdit {
     StatusTextComponent,
     UiKitTranslatePipe,
   ],
-  templateUrl: "./plan-table-view.component.html",
-  styleUrl: "./plan-table-view.component.scss",
+  templateUrl: './plan-table-view.component.html',
+  styleUrl: './plan-table-view.component.scss',
 })
 export class PlanTableViewComponent {
   /** The texts of the view, registered before the first render (002237). */
@@ -74,9 +67,7 @@ export class PlanTableViewComponent {
   /** The version is a Nachtrag: the change compares with the version before, not the year before. */
   readonly nachtrag = input(false);
   /** The amount a field shows: the text a person types, else the saved amount. */
-  readonly fieldValue = input<(row: PlanRow) => string | number>(
-    (row) => row.amount,
-  );
+  readonly fieldValue = input<(row: PlanRow) => string | number>((row) => row.amount);
 
   /** A row was pressed. */
   readonly rowClick = output<PlanRow>();
@@ -111,8 +102,8 @@ export class PlanTableViewComponent {
   changeText(row: PlanRow): string {
     const against = this.nachtrag() ? (row.base ?? 0) : row.prev;
     const change = against === null ? 0 : cents(row.amount) - cents(against);
-    if (change === 0) return "–";
-    return (change > 0 ? "+" : "−") + this.money(Math.abs(change) / 100);
+    if (change === 0) return '–';
+    return (change > 0 ? '+' : '−') + this.money(Math.abs(change) / 100);
   }
 
   onToggle(event: Event, row: PlanRow): void {

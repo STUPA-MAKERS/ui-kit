@@ -1,5 +1,5 @@
-import { EMPTY } from "rxjs";
-import { castRefusalText } from "./ballot-refusal";
+import { EMPTY } from 'rxjs';
+import { castRefusalText } from './ballot-refusal';
 import {
   ChangeDetectionStrategy,
   Component,
@@ -7,15 +7,9 @@ import {
   inject,
   input,
   output,
-} from "@angular/core";
-import type { UiKitTextKey } from "@stupa-makers/ui-kit";
-import type {
-  MeetingStatus,
-  MeetingVote,
-  MyBallot,
-  Uuid,
-  Vote,
-} from "./voting.types";
+} from '@angular/core';
+import type { UiKitTextKey } from '@stupa-makers/ui-kit';
+import type { MeetingStatus, MeetingVote, MyBallot, Uuid, Vote } from './voting.types';
 import {
   ButtonComponent,
   ButtonGroupComponent,
@@ -28,37 +22,33 @@ import {
   ToastService,
   UI_KIT_INTL,
   UiKitTranslatePipe,
-} from "@stupa-makers/ui-kit";
-import {
-  meetingVoteStatus,
-  voteResultStatus,
-  type StatusView,
-} from "./voting-status";
+} from '@stupa-makers/ui-kit';
+import { meetingVoteStatus, voteResultStatus, type StatusView } from './voting-status';
 import {
   BallotViewComponent,
   type BallotCaster,
   type BallotFailure,
-} from "./ballot-view.component";
-import { ElectionResultViewComponent } from "./election-result-view.component";
+} from './ballot-view.component';
+import { ElectionResultViewComponent } from './election-result-view.component';
 import {
   electionCaption,
   electionOf,
   electionStatus,
   lotPending,
   nextRoundOf,
-} from "./election.util";
-import { VoteProgressViewComponent } from "./vote-progress-view.component";
-import { PollResultViewComponent } from "./poll-result-view.component";
-import { pollCaption, pollOf, pollStatus } from "./poll.util";
+} from './election.util';
+import { VoteProgressViewComponent } from './vote-progress-view.component';
+import { PollResultViewComponent } from './poll-result-view.component';
+import { pollCaption, pollOf, pollStatus } from './poll.util';
 import {
   countEntries,
   guestComposition,
   voteMetaLine,
   voteOptionLabel,
   voteOptionsFor,
-} from "./voting-display.util";
-import { problemDetail, VOTING_API } from "./voting-api";
-import { UI_KIT_VOTING_TEXTS } from "./voting.texts";
+} from './voting-display.util';
+import { problemDetail, VOTING_API } from './voting-api';
+import { UI_KIT_VOTING_TEXTS } from './voting.texts';
 
 /**
  * One vote of the open agenda item, as a card beside the sheet.
@@ -92,7 +82,7 @@ import { UI_KIT_VOTING_TEXTS } from "./voting.texts";
  * option. It has no result: it is an opinion, not a decision.
  */
 @Component({
-  selector: "app-vote-card-view",
+  selector: 'app-vote-card-view',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
@@ -107,8 +97,8 @@ import { UI_KIT_VOTING_TEXTS } from "./voting.texts";
     VoteProgressViewComponent,
     StatusTextComponent,
   ],
-  templateUrl: "./vote-card-view.component.html",
-  styleUrl: "./vote-card-view.component.scss",
+  templateUrl: './vote-card-view.component.html',
+  styleUrl: './vote-card-view.component.scss',
 })
 export class VoteCardViewComponent<V extends MeetingVote = MeetingVote> {
   /** The texts of the view, registered before the first render (002237). */
@@ -179,11 +169,7 @@ export class VoteCardViewComponent<V extends MeetingVote = MeetingVote> {
     const poll = this.poll();
     if (poll) return pollCaption(poll, (k, p) => this.i18n.translate(k, p));
     const el = this.election();
-    return el
-      ? electionCaption(el, this.vote().round, (k, p) =>
-          this.i18n.translate(k, p),
-        )
-      : null;
+    return el ? electionCaption(el, this.vote().round, (k, p) => this.i18n.translate(k, p)) : null;
   });
   /** A repeat names its number: "2. Abstimmung", an election "2. Wahlgang". */
   protected readonly attemptCap = computed(() => {
@@ -191,11 +177,9 @@ export class VoteCardViewComponent<V extends MeetingVote = MeetingVote> {
     const attempt = v.attempt ?? 1;
     if (attempt < 2) return null;
     if (this.election()) {
-      return this.i18n.translate("meetings.vote.attemptElection", {
-        n: (v.round ?? 1) + attempt - 1,
-      });
+      return this.i18n.translate('meetings.vote.attemptElection', { n: (v.round ?? 1) + attempt - 1 });
     }
-    return this.i18n.translate("meetings.vote.attempt", { n: attempt });
+    return this.i18n.translate('meetings.vote.attempt', { n: attempt });
   });
   /** The election ballot sends the list of the candidate ids. */
   protected readonly caster: BallotCaster = (choice) =>
@@ -204,79 +188,64 @@ export class VoteCardViewComponent<V extends MeetingVote = MeetingVote> {
 
   protected onBallotFailed(failure: BallotFailure): void {
     const own = castRefusalText(failure);
-    const detail =
-      failure.alreadyVoted || own ? "" : problemDetail(failure.error);
+    const detail = failure.alreadyVoted || own ? '' : problemDetail(failure.error);
     const base = this.i18n.translate(
-      own ??
-        (failure.alreadyVoted
-          ? "voting.cast.toast.alreadyVoted"
-          : "meetings.toast.actionFailed"),
+      own ?? (failure.alreadyVoted ? 'voting.cast.toast.alreadyVoted' : 'meetings.toast.actionFailed'),
     );
-    this.toast.show(detail ? `${base}: ${detail}` : base, "error");
+    this.toast.show(detail ? `${base}: ${detail}` : base, 'error');
   }
 
   protected readonly status = computed<StatusView>(() => {
     const status = this.vote().status;
-    return (
-      (this.poll() ? pollStatus(status) : null) ?? meetingVoteStatus(status)
-    );
+    return (this.poll() ? pollStatus(status) : null) ?? meetingVoteStatus(status);
   });
   /** The caption of the card: "Abstimmung offen", "… geschlossen", "Umfrage offen" and so on. */
   protected readonly capKey = computed(() => {
     const status = this.vote().status;
-    if (this.poll() && (status === "open" || status === "closed"))
-      return this.status().key;
+    if (this.poll() && (status === 'open' || status === 'closed')) return this.status().key;
     return `meetings.vote.card.${status}` as UiKitTextKey;
   });
   /** The result of a closed vote. A tie is a rejection. */
   protected readonly result = computed<StatusView | null>(() => {
     const v = this.vote();
-    if (v.status !== "closed" || this.poll()) return null;
+    if (v.status !== 'closed' || this.poll()) return null;
     if (this.election()) return electionStatus(v.result);
-    return voteResultStatus(v.result === "passed" ? "passed" : "rejected");
+    return voteResultStatus(v.result === 'passed' ? 'passed' : 'rejected');
   });
 
   /** The rules of a vote that is not open: "Absolute Mehrheit · geheime Abstimmung". */
   protected readonly meta = computed(() =>
-    voteMetaLine(
-      this.vote(),
-      (key, params) => this.i18n.translate(key, params),
-      this.i18n.formatLocale(),
-    ),
+    voteMetaLine(this.vote(), (key, params) => this.i18n.translate(key, params), this.i18n.formatLocale()),
   );
 
   /** A vote with guests: "19 Mitglieder + 7 Gäste anwesend" for the closed sum, else `null`. */
   protected readonly composition = computed(() => {
     const v = this.vote();
     if (!v.guestsVote) return null;
-    return guestComposition(v.presentMembers, v.presentGuests, (k, p) =>
-      this.i18n.translate(k, p),
-    );
+    return guestComposition(v.presentMembers, v.presentGuests, (k, p) => this.i18n.translate(k, p));
   });
   /** The closed result of a vote with guests: present, cast, majority of the cast votes. */
   protected readonly guestResult = computed(() => {
     const v = this.vote();
-    if (!v.guestsVote || v.status !== "closed" || this.poll()) return null;
+    if (!v.guestsVote || v.status !== 'closed' || this.poll()) return null;
     const cast = Object.values(v.counts ?? {}).reduce((a, b) => a + b, 0);
     const members = v.presentMembers ?? null;
     const guests = v.presentGuests ?? null;
     return {
       present: members !== null && guests !== null ? members + guests : null,
       cast,
-      passed: v.result === "passed",
+      passed: v.result === 'passed',
     };
   });
 
   /** A closed vote whose result is in the text: the card keeps its head, the text has the counts. */
-  protected readonly folded = computed(
-    () => this.vote().status === "closed" && this.inProtocol(),
-  );
+  protected readonly folded = computed(() => this.vote().status === 'closed' && this.inProtocol());
 
   /** The counts are visible: after the close, or once every present member voted. */
   protected readonly showCounts = computed(() => {
     const v = this.vote();
     if (this.folded()) return false;
-    return v.counts !== null && (v.status === "closed" || v.revealed);
+    return v.counts !== null && (v.status === 'closed' || v.revealed);
   });
 
   protected readonly counts = computed(() => countEntries(this.vote()));
@@ -289,24 +258,20 @@ export class VoteCardViewComponent<V extends MeetingVote = MeetingVote> {
 
   /** Plan, cancel and delete: only while the meeting is planned or live. */
   protected readonly canEdit = computed(
-    () =>
-      this.canManage() && !this.locked() && this.meetingStatus() !== "closed",
+    () => this.canManage() && !this.locked() && this.meetingStatus() !== 'closed',
   );
 
   /** Only a planned or cancelled vote can go; an open or closed one is part of the record. */
   protected readonly canDelete = computed(() => {
     const s = this.vote().status;
-    return this.canEdit() && (s === "draft" || s === "cancelled");
+    return this.canEdit() && (s === 'draft' || s === 'cancelled');
   });
 
   /** The status line: the result of a closed vote, else the state; an open vote has none. */
-  protected readonly headStatus = computed<{
-    kind: StatusView["kind"];
-    key: UiKitTextKey;
-  } | null>(() => {
+  protected readonly headStatus = computed<{ kind: StatusView['kind']; key: UiKitTextKey } | null>(() => {
     const status = this.vote().status;
-    if (status === "open") return null;
-    const r = status === "closed" ? this.result() : null;
+    if (status === 'open') return null;
+    const r = status === 'closed' ? this.result() : null;
     if (r) return r;
     return { kind: this.status().kind, key: this.capKey() };
   });
@@ -317,138 +282,77 @@ export class VoteCardViewComponent<V extends MeetingVote = MeetingVote> {
     const parts = [
       this.attemptCap(),
       folded ? null : this.electionCap(),
-      folded || this.vote().status === "open" ? null : this.meta(),
+      folded || this.vote().status === 'open' ? null : this.meta(),
     ];
-    return parts.filter((p) => !!p).join(" · ");
+    return parts.filter((p) => !!p).join(' · ');
   });
 
   /** A closed election offers its own next step: the lot or the next Wahlgang. */
   private readonly electionStep = computed(() => {
     const v = this.vote();
-    if (
-      v.status !== "closed" ||
-      this.folded() ||
-      !this.canManage() ||
-      this.locked()
-    )
-      return false;
+    if (v.status !== 'closed' || this.folded() || !this.canManage() || this.locked()) return false;
     if (lotPending(v.result, v.electionResult ?? null)) return true;
     return (
-      this.meetingStatus() === "live" &&
+      this.meetingStatus() === 'live' &&
       !this.continued() &&
       nextRoundOf(this.election(), v.result, v.round) !== null
     );
   });
 
   /** The one button below the counts: the next step of the vote, or `null` (§ui-kit:001007). */
-  protected readonly primary = computed<"close" | "open" | "insert" | null>(
-    () => {
-      const v = this.vote();
-      if (v.status === "open" && this.canManage() && this.canRun())
-        return "close";
-      if (
-        v.status === "draft" &&
-        this.canEdit() &&
-        this.canRun() &&
-        this.meetingStatus() === "live"
-      ) {
-        return "open";
-      }
-      if (
-        v.status === "closed" &&
-        this.canInsert() &&
-        !this.inProtocol() &&
-        !this.electionStep()
-      ) {
-        return "insert";
-      }
-      return null;
-    },
-  );
+  protected readonly primary = computed<'close' | 'open' | 'insert' | null>(() => {
+    const v = this.vote();
+    if (v.status === 'open' && this.canManage() && this.canRun()) return 'close';
+    if (v.status === 'draft' && this.canEdit() && this.canRun() && this.meetingStatus() === 'live') {
+      return 'open';
+    }
+    if (v.status === 'closed' && this.canInsert() && !this.inProtocol() && !this.electionStep()) {
+      return 'insert';
+    }
+    return null;
+  });
 
   /** The menu: every action that is not the next step; the danger items in their own section. */
   protected readonly menu = computed<RowMenuSection[]>(() => {
     const v = this.vote();
     const t = (key: UiKitTextKey) => this.i18n.translate(key);
-    const live = this.meetingStatus() === "live";
-    const closed = v.status === "closed";
-    const insert =
-      closed &&
-      this.canInsert() &&
-      !this.inProtocol() &&
-      this.primary() !== "insert";
+    const live = this.meetingStatus() === 'live';
+    const closed = v.status === 'closed';
+    const insert = closed && this.canInsert() && !this.inProtocol() && this.primary() !== 'insert';
     const repeat = closed && this.canRepeat() && this.canEdit() && live;
-    const edit = v.status === "draft" && this.canEdit();
-    const cancel = v.status === "open" && this.canManage() && this.canRun();
-    const repeatKey = this.election()
-      ? "meetings.vote.repeatElection"
-      : "meetings.vote.repeat";
+    const edit = v.status === 'draft' && this.canEdit();
+    const cancel = v.status === 'open' && this.canManage() && this.canRun();
+    const repeatKey = this.election() ? 'meetings.vote.repeatElection' : 'meetings.vote.repeat';
     const items: RowMenuItem[] = [
-      ...(insert
-        ? [
-            {
-              id: "insert",
-              label: t("meetings.dock.insertResult"),
-              icon: "fileplus" as const,
-            },
-          ]
-        : []),
-      ...(repeat
-        ? [{ id: "repeat", label: t(repeatKey), icon: "repeat" as const }]
-        : []),
-      ...(edit
-        ? [
-            {
-              id: "edit",
-              label: t("meetings.vote.edit"),
-              icon: "edit" as const,
-            },
-          ]
-        : []),
+      ...(insert ? [{ id: 'insert', label: t('meetings.dock.insertResult'), icon: 'fileplus' as const }] : []),
+      ...(repeat ? [{ id: 'repeat', label: t(repeatKey), icon: 'repeat' as const }] : []),
+      ...(edit ? [{ id: 'edit', label: t('meetings.vote.edit'), icon: 'edit' as const }] : []),
     ];
     const danger: RowMenuItem[] = [
-      ...(cancel
-        ? [
-            {
-              id: "cancel",
-              label: t("meetings.vote.cancel"),
-              icon: "x" as const,
-              danger: true,
-            },
-          ]
-        : []),
+      ...(cancel ? [{ id: 'cancel', label: t('meetings.vote.cancel'), icon: 'x' as const, danger: true }] : []),
       ...(this.canDelete()
-        ? [
-            {
-              id: "delete",
-              label: t("meetings.vote.delete"),
-              icon: "trash" as const,
-              danger: true,
-            },
-          ]
+        ? [{ id: 'delete', label: t('meetings.vote.delete'), icon: 'trash' as const, danger: true }]
         : []),
     ];
-    return [{ items }, { items: danger }].filter(
-      (section) => section.items.length > 0,
-    );
+    return [{ items }, { items: danger }].filter((section) => section.items.length > 0);
   });
 
   protected onMenu(item: RowMenuItem): void {
     const v = this.vote();
     switch (item.id) {
-      case "insert":
+      case 'insert':
         this.insertResult.emit(v);
         break;
-      case "repeat":
+      case 'repeat':
         this.repeat.emit(v);
         break;
-      case "edit":
+      case 'edit':
         this.edit.emit(v);
         break;
-      case "cancel":
+      case 'cancel':
         this.cancel.emit(v.id);
         break;
-      case "delete":
+      case 'delete':
         if (this.deleting() !== v.id) this.remove.emit(v.id);
         break;
     }

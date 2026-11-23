@@ -1,20 +1,10 @@
-import {
-  DestroyRef,
-  Directive,
-  ElementRef,
-  inject,
-  signal,
-} from "@angular/core";
-import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
-import { from, of } from "rxjs";
-import { catchError, concatMap, finalize, map } from "rxjs/operators";
-import { registerUiKitTexts, UI_KIT_INTL } from "@stupa-makers/ui-kit";
-import {
-  PROTOCOL_API,
-  PROTOCOL_IMAGE_TYPES,
-  protocolImage,
-} from "./protocol-api";
-import { UI_KIT_PROTOCOL_TEXTS } from "./protocol.texts";
+import { DestroyRef, Directive, ElementRef, inject, signal } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { from, of } from 'rxjs';
+import { catchError, concatMap, finalize, map } from 'rxjs/operators';
+import { registerUiKitTexts, UI_KIT_INTL } from '@stupa-makers/ui-kit';
+import { PROTOCOL_API, PROTOCOL_IMAGE_TYPES, protocolImage } from './protocol-api';
+import { UI_KIT_PROTOCOL_TEXTS } from './protocol.texts';
 
 /**
  * Image upload for a Markdown `<textarea>`. A paste or a drop of image files (PNG, JPEG,
@@ -29,13 +19,13 @@ import { UI_KIT_PROTOCOL_TEXTS } from "./protocol.texts";
  * so parallel requests do not trip the rate limit (429). Without the port it uploads nothing.
  */
 @Directive({
-  selector: "textarea[appProtocolImageUpload]",
+  selector: 'textarea[appProtocolImageUpload]',
   standalone: true,
-  exportAs: "protocolImageUpload",
+  exportAs: 'protocolImageUpload',
   host: {
-    "(paste)": "onPaste($event)",
-    "(dragover)": "onDragOver($event)",
-    "(drop)": "onDrop($event)",
+    '(paste)': 'onPaste($event)',
+    '(dragover)': 'onDragOver($event)',
+    '(drop)': 'onDrop($event)',
   },
 })
 export class ProtocolImageUploadDirective {
@@ -56,13 +46,11 @@ export class ProtocolImageUploadDirective {
   /** Open the file dialog of the browser for image files. */
   pick(): void {
     if (this.locked()) return;
-    const input = document.createElement("input");
-    input.setAttribute("type", "file");
-    input.setAttribute("accept", PROTOCOL_IMAGE_TYPES.join(","));
-    input.toggleAttribute("multiple", true);
-    input.addEventListener("change", () =>
-      this.upload(Array.from(input.files ?? [])),
-    );
+    const input = document.createElement('input');
+    input.setAttribute('type', 'file');
+    input.setAttribute('accept', PROTOCOL_IMAGE_TYPES.join(','));
+    input.toggleAttribute('multiple', true);
+    input.addEventListener('change', () => this.upload(Array.from(input.files ?? [])));
     input.click();
   }
 
@@ -74,11 +62,7 @@ export class ProtocolImageUploadDirective {
   }
 
   onDragOver(event: DragEvent): void {
-    if (
-      Array.from(event.dataTransfer?.items ?? []).some((i) =>
-        isImageType(i.type),
-      )
-    ) {
+    if (Array.from(event.dataTransfer?.items ?? []).some((i) => isImageType(i.type))) {
       event.preventDefault();
     }
   }
@@ -104,18 +88,14 @@ export class ProtocolImageUploadDirective {
   private send(picked: readonly { file: File; alt: string }[]): void {
     const api = this.api;
     if (!picked.length || this.locked() || !api) return;
-    const slots = picked.map(({ file, alt }) => ({
-      file,
-      alt,
-      mark: this.insertPlaceholder(),
-    }));
+    const slots = picked.map(({ file, alt }) => ({ file, alt, mark: this.insertPlaceholder() }));
     this.uploading.update((n) => n + slots.length);
     from(slots)
       .pipe(
         concatMap((slot) =>
           from(api.uploadImage(slot.file)).pipe(
             map((src) => protocolImage(slot.alt, src)),
-            catchError(() => of("")),
+            catchError(() => of('')),
             map((text) => this.replace(slot.mark, text)),
             finalize(() => this.uploading.update((n) => n - 1)),
           ),
@@ -135,14 +115,14 @@ export class ProtocolImageUploadDirective {
   private insertPlaceholder(): string {
     const area = this.el.nativeElement;
     this.placeholderSeq = this.placeholderSeq + 1;
-    const mark = `![${this.i18n.translate("markdown.image.uploading")} #${this.placeholderSeq}]()`;
+    const mark = `![${this.i18n.translate('markdown.image.uploading')} #${this.placeholderSeq}]()`;
     const value = area.value;
     const start = area.selectionStart ?? value.length;
     const end = area.selectionEnd ?? start;
     const before = value.slice(0, start);
     const after = value.slice(end);
-    const lead = before && !before.endsWith("\n") ? "\n" : "";
-    const tail = after.startsWith("\n") ? "" : "\n";
+    const lead = before && !before.endsWith('\n') ? '\n' : '';
+    const tail = after.startsWith('\n') ? '' : '\n';
     const text = `${lead}${mark}${tail}`;
     this.write(before + text + after, before.length + text.length);
     return mark;
@@ -159,17 +139,17 @@ export class ProtocolImageUploadDirective {
     const at = value.indexOf(mark);
     if (at < 0) return;
     const after = at + mark.length;
-    const end = !text && value[after] === "\n" ? after + 1 : after;
+    const end = !text && value[after] === '\n' ? after + 1 : after;
     this.write(value.slice(0, at) + text + value.slice(end), at + text.length);
   }
 
   private write(value: string, caret: number | null): void {
     const area = this.el.nativeElement;
-    Reflect.set(area, "value", value);
+    Reflect.set(area, 'value', value);
     if (caret !== null && document.activeElement === area) {
       area.setSelectionRange(caret, caret);
     }
-    area.dispatchEvent(new Event("input", { bubbles: true }));
+    area.dispatchEvent(new Event('input', { bubbles: true }));
   }
 }
 
