@@ -23,13 +23,13 @@ Formular-Editor (`app-form-editor`) of STUPA-Workflow, with the same behaviour:
   "+ Gruppe";
 - the cards of the shown group: the group title and one card per question with its type, key,
   required flag, texts, type options and "Erweiterte Optionen";
-- the card "Formular" (title, description, Mit Budget, signatures, Anhang Pflicht,
+- the card "Formular" (title, description, Mit Budget, signature rows, Anhang Pflicht,
   Vergleichsangebote) and the rules across fields;
 - the preview of the form;
 - the skeleton of the first load.
 
 Inputs: `loading`, `preview`, `budgetOn`. Two-way models: `groups`, `title`, `description`,
-`hasBudget`, `pdfSignatures`, `attachmentRequired`, `cmpRequired`, `cmpMinCount`, `rules`,
+`hasBudget`, `signatureRows`, `attachmentRequired`, `cmpRequired`, `cmpMinCount`, `rules`,
 `activeGroup`, `selected`. The app projects its versions as `[formVersions]` at the end of the side
 column. The parent provides `ContentLangState`.
 

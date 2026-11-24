@@ -19,6 +19,7 @@ import {
   FilePickerComponent,
   HighlightComponent,
   LockedFieldComponent,
+  AddRowComponent,
   MoveButtonsComponent,
   TextareaComponent,
   ButtonComponent,
@@ -180,6 +181,7 @@ class PrimitivesHost {
     HighlightComponent,
     InputComponent,
     LockedFieldComponent,
+    AddRowComponent,
     MoveButtonsComponent,
     TextareaComponent,
   ],
@@ -198,6 +200,7 @@ class PrimitivesHost {
       <app-button (click)="picker.open()">Datei wählen</app-button>
       <p><app-highlight text="Lastenrad im Radhaus" query="rad" /></p>
       <app-locked-field label="Haushaltsjahr">2026</app-locked-field>
+      <app-add-row>Position hinzufügen</app-add-row>
       <app-autocomplete
         inputId="a11y-ac"
         label="Antrag"
