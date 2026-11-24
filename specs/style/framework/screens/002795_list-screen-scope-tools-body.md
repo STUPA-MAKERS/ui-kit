@@ -14,11 +14,11 @@ scope:
 
 # The list/detail screen has a scope, tools and a body in place of the rows
 
-`app-list-detail-screen` must have these optional slots and inputs:
+`app-list-detail-screen` must have these optional inputs and slots:
 
 | Part | Place | Use |
 |---|---|---|
-| `screenScope="<label>"` | a group of chips above the search, named by the label | the chips that pick the source of the whole list, for example repository and ref |
+| `scope: { label, chips }` and the output `scopeChange: { key, value }` | a group of chips above the search, named by the label; each chip is always set and has an icon | the chips that pick the source of the whole list, for example repository and ref; they are not URL filters |
 | `screenFilters` | in the line of the filter chips, after the chips of `filters` | chips that are not a URL filter, for example the view of a drawing |
 | `screenTools` | at the end of the line of the filter chips; on a phone it wraps to the start | a switch of the list, for example drawing or list |
 | `screenBody` | in place of the rows, filling the free height of the column; on a phone at least 60vh | a drawing |

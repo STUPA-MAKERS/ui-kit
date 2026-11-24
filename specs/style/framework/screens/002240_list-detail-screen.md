@@ -27,11 +27,12 @@ selection?: { readonly actions: readonly Action[] } // enables long press and th
 none: { readonly heading: string; readonly icon: IconName } // "Kein … geöffnet" (000665)
 config?: { readonly param?: string; readonly listWidth?: 'normal' | 'wide' | 'fill'; readonly reset?: boolean }
 filtersLabel?: string
+scope?: ScreenScope              // 002795, with the output scopeChange
 ```
 
 The `fill` width is in 002795, `reset` in 002796.
 
-Slots: `screenRow` (optional, replaces the content of a row with kit components), `screenListHead` (optional, a block above the rows, for example the running meeting of STUPA-Workflow:001302), and `screenScope`, `screenFilters`, `screenTools` and `screenBody` of 002795.
+Slots: `screenRow` (optional, replaces the content of a row with kit components), `screenListHead` (optional, a block above the rows, for example the running meeting of STUPA-Workflow:001302), and `screenFilters`, `screenTools` and `screenBody` of 002795.
 
 Outputs: `query: ListQuery`, `action: { key, ids? }`, `more: void`, `refresh: void` (pull to refresh).
 

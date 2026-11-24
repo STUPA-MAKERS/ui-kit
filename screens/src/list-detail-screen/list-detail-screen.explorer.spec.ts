@@ -8,11 +8,7 @@ import type { ListGroup, ListRow, LoadState } from '@stupa-makers/ui-kit';
 import { runAxe } from '../../../testing/a11y';
 import { ScreenBodyDirective } from '../detail-screen/detail-screen.component';
 import { ScreenFiltersDirective } from '../records-screen/records-screen.component';
-import {
-  ListDetailScreenComponent,
-  ScreenScopeDirective,
-  ScreenToolsDirective,
-} from './list-detail-screen.component';
+import { ListDetailScreenComponent, ScreenToolsDirective } from './list-detail-screen.component';
 
 @Component({ changeDetection: ChangeDetectionStrategy.Eager, standalone: true, template: '' })
 class Blank {}
@@ -39,7 +35,6 @@ const ROWS: readonly ListGroup[] = [
   standalone: true,
   imports: [
     ListDetailScreenComponent,
-    ScreenScopeDirective,
     ScreenFiltersDirective,
     ScreenToolsDirective,
     ScreenBodyDirective,
@@ -53,9 +48,10 @@ const ROWS: readonly ListGroup[] = [
       filtersLabel="Filter"
       [none]="{ heading: 'Keine Spec gewählt', icon: 'file' }"
       [config]="{ reset: true, listWidth: 'fill' }"
+      [scope]="{ label: 'Quelle', chips: [{ key: 'repo', label: 'Repo', icon: 'package', value: 'a', options: [{ value: 'a', label: 'Repo A' }, { value: 'b', label: 'Repo B' }] }] }"
+      (scopeChange)="scoped.push($event)"
       (query)="queries.push($event)"
     >
-      <ng-template screenScope="Quelle"><button type="button">Repo</button></ng-template>
       <ng-template screenFilters><button type="button">Ansicht</button></ng-template>
       <ng-template screenTools><button type="button">Diagramm</button></ng-template>
       @if (drawing()) {
@@ -68,6 +64,7 @@ class Host {
   readonly rows: LoadState<readonly ListRow[] | readonly ListGroup[]> = { state: 'ready', data: ROWS };
   readonly drawing = signal(false);
   readonly queries: unknown[] = [];
+  readonly scoped: unknown[] = [];
 }
 
 async function setUp() {
@@ -83,7 +80,7 @@ describe('ListDetailScreenComponent for the spec explorer', () => {
   it('places the scope above the search and the chips and the tools in the filter line', async () => {
     const view = await setUp();
     const scope = screen.getByRole('group', { name: 'Quelle' });
-    expect(scope.textContent).toContain('Repo');
+    expect(scope.textContent).toContain('Repo A');
     const filters = screen.getByRole('group', { name: 'Filter' });
     expect(filters.textContent).toContain('Ansicht');
     expect(filters.querySelector('.lds__tools')?.textContent).toContain('Diagramm');
@@ -92,6 +89,13 @@ describe('ListDetailScreenComponent for the spec explorer', () => {
       scope.compareDocumentPosition(view.container.querySelector('app-search-pill')!) &
         Node.DOCUMENT_POSITION_FOLLOWING,
     ).toBeTruthy();
+  });
+
+  it('emits scopeChange when a chip of the scope gets a new value', async () => {
+    const view = await setUp();
+    await userEvent.click(screen.getByRole('button', { name: /Repo/ }));
+    await userEvent.click(await screen.findByRole('option', { name: 'Repo B' }));
+    expect(view.fixture.componentInstance.scoped).toEqual([{ key: 'repo', value: 'b' }]);
   });
 
   it('shows the body in place of the rows', async () => {

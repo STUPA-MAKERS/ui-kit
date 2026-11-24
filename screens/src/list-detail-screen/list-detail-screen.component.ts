@@ -46,6 +46,7 @@ import {
   placeActions,
   type Action,
   type FilterDef,
+  type FilterOption,
   type IconName,
   LIST_PAGE_STATE,
   type ListGroup,
@@ -92,18 +93,6 @@ export class ScreenListHeadDirective {
 }
 
 /**
- * The chips that pick the source of the whole list, for example the repository and the ref of
- * the spec explorer. They stand above the search, as a group with the label of the directive.
- * §S/framework/screens/002795
- */
-// eslint-disable-next-line @angular-eslint/directive-selector
-@Directive({ selector: 'ng-template[screenScope]', standalone: true })
-export class ScreenScopeDirective {
-  readonly template = inject<TemplateRef<unknown>>(TemplateRef);
-  readonly label = input.required<string>({ alias: 'screenScope' });
-}
-
-/**
  * Controls at the end of the line of the filter chips, for example the switch between a
  * drawing and a list. §S/framework/screens/002795
  */
@@ -111,6 +100,23 @@ export class ScreenScopeDirective {
 @Directive({ selector: 'ng-template[screenTools]', standalone: true })
 export class ScreenToolsDirective {
   readonly template = inject<TemplateRef<unknown>>(TemplateRef);
+}
+
+/** One chip of the scope: a choice that is always set, with an icon and its own text. */
+export interface ScopeChip {
+  readonly key: string;
+  readonly label: string;
+  readonly icon?: IconName;
+  readonly options: readonly FilterOption[];
+  readonly value: string;
+  /** The text of the chip; default the label of the chosen option. */
+  readonly text?: string;
+}
+
+/** The scope of a list: the label of the group and its chips. §S/framework/screens/002795 */
+export interface ScreenScope {
+  readonly label: string;
+  readonly chips: readonly ScopeChip[];
 }
 
 /** What the screen emits for an action: its key, and the ids of the selected rows. */
@@ -210,17 +216,24 @@ export class ListDetailScreenComponent implements ListPageState {
   readonly config = input<ListDetailScreenConfig>({});
   /** The name of the group of the filter chips for a screen reader. */
   readonly filtersLabel = input<string | null>(null);
+  /**
+   * The chips that pick the source of the whole list, for example the repository and the ref
+   * of the spec explorer. They stand above the search as a group with the label; they are not
+   * URL filters, so a change is the output `scopeChange`. §S/framework/screens/002795
+   */
+  readonly scope = input<ScreenScope | null>(null);
 
   /** The search, the filters or the sort changed. */
   readonly query = output<ListQuery>();
   readonly action = output<ScreenAction>();
+  /** A chip of the scope got a new value. */
+  readonly scopeChange = output<{ readonly key: string; readonly value: string }>();
   /** The person asked for the next rows. */
   readonly more = output<void>();
   readonly refresh = output<void>();
 
   protected readonly rowSlot = contentChild(ScreenRowDirective);
   protected readonly listHeadSlot = contentChild(ScreenListHeadDirective);
-  protected readonly scopeSlot = contentChild(ScreenScopeDirective);
   protected readonly chipsSlot = contentChild(ScreenFiltersDirective);
   protected readonly toolsSlot = contentChild(ScreenToolsDirective);
   /** Content in place of the rows, for example a drawing (002795). */

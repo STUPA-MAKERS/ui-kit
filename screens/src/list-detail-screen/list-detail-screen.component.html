@@ -45,11 +45,21 @@
         }
       </app-page-header>
 
-      @if (search() || filters().length || selecting() || scopeSlot() || chipsSlot() || toolsSlot()) {
+      @if (search() || filters().length || selecting() || scope() || chipsSlot() || toolsSlot()) {
         <app-sticky-bar class="ld-pane__filters">
-          @if (scopeSlot(); as scope) {
-            <div class="lds__chips" role="group" [attr.aria-label]="scope.label()">
-              <ng-container [ngTemplateOutlet]="scope.template" />
+          @if (scope(); as sc) {
+            <div class="lds__chips" role="group" [attr.aria-label]="sc.label">
+              @for (c of sc.chips; track c.key) {
+                <app-filter-select
+                  [label]="c.label"
+                  [icon]="c.icon ?? null"
+                  [options]="c.options"
+                  [value]="c.value"
+                  [text]="c.text ?? null"
+                  [active]="true"
+                  (valueChange)="scopeChange.emit({ key: c.key, value: $event })"
+                />
+              }
             </div>
           }
           @if (search(); as s) {
