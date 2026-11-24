@@ -332,7 +332,7 @@ specs/
 | [S/framework/architecture/002200](style/framework/architecture/002200_apps-fill-screens.md) | An app only fills the screens of the kit | approved |
 | [S/framework/architecture/002201](style/framework/architecture/002201_screen-catalogue.md) | The kit has one screen for each page pattern | approved |
 | [S/framework/architecture/002202](style/framework/architecture/002202_data-driven-components.md) | A kit component is driven by its inputs | approved |
-| [S/framework/architecture/002203](style/framework/architecture/002203_domain-views-in-kit.md) | Domain views are kit components | draft |
+| [S/framework/architecture/002203](style/framework/architecture/002203_domain-views-in-kit.md) | Domain views are kit components | approved |
 | [S/framework/architecture/002204](style/framework/architecture/002204_view-models.md) | A kit view model is a typed interface of the kit | approved |
 | [S/framework/architecture/002205](style/framework/architecture/002205_no-app-styles.md) | An app has no stylesheet of its own | approved |
 | [S/framework/architecture/002206](style/framework/architecture/002206_ui-features-everywhere.md) | Every UI feature of the kit is on in every app | approved |
@@ -357,7 +357,7 @@ specs/
 | [S/framework/screens/002216](style/framework/screens/002216_screen-anatomy.md) | A screen has a head, a body and fixed places for the rest | approved |
 | [S/framework/screens/002217](style/framework/screens/002217_screen-inputs.md) | A screen takes its frame as data and its content as slots | approved |
 | [S/framework/screens/002218](style/framework/screens/002218_list-detail-contract.md) | The list/detail screen owns the list, the panes and the URL state | approved |
-| [S/framework/screens/002240](style/framework/screens/002240_list-detail-screen.md) | The list/detail screen has a fixed interface | draft |
+| [S/framework/screens/002240](style/framework/screens/002240_list-detail-screen.md) | The list/detail screen has a fixed interface | approved |
 | [S/framework/screens/002241](style/framework/screens/002241_detail-screen.md) | The detail screen has a fixed interface | approved |
 | [S/framework/screens/002242](style/framework/screens/002242_form-screen.md) | The form screen has a fixed interface | approved |
 | [S/framework/screens/002243](style/framework/screens/002243_wizard-screen.md) | The wizard screen has a fixed interface | approved |

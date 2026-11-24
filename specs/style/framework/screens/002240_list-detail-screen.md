@@ -2,7 +2,7 @@
 id: "002240"
 title: The list/detail screen has a fixed interface
 kind: style
-status: draft
+status: approved
 owner: frederikbeimgraben
 updated: 2026-11-24
 implementation:
