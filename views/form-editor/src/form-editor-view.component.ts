@@ -42,8 +42,9 @@ import {
   type UiKitTextKey,
   UiKitTranslatePipe,
 } from '@stupa-makers/ui-kit';
-import type { FieldType, FormFieldDef } from './form-editor.types';
+import type { ComputedFormat, FieldType, FormFieldDef } from './form-editor.types';
 import {
+  COMPUTED_FORMATS,
   FIELD_TYPES,
   PROMOTE_TARGETS,
   type QuestionGroup,
@@ -220,6 +221,12 @@ export class FormEditorViewComponent {
   protected readonly promoteTargetOptions: SelectOption[] = PROMOTE_TARGETS.map((v) => ({
     value: v,
     label: this.i18n.translate(`admin.form.metric.${v}` as UiKitTextKey),
+  }));
+
+  /** The display formats of a computed field (app spec 002963). */
+  protected readonly formatOptions: SelectOption[] = COMPUTED_FORMATS.map((v) => ({
+    value: v,
+    label: this.i18n.translate(`admin.form.format.${v}` as UiKitTextKey),
   }));
 
   /** Flat view of the question fields, without markers. The key and validation checks use it. */
@@ -607,6 +614,13 @@ export class FormEditorViewComponent {
       checked
         ? { ...f, isPromoted: true, promoteTarget: 'amount' }
         : withoutKey(withoutKey(f, 'isPromoted'), 'promoteTarget'),
+    );
+  }
+
+  /** Format select of a computed field: `number` is the default and removes the key. */
+  protected setFormat(pos: QPos, format: ComputedFormat): void {
+    this.patchQuestion(pos, (f) =>
+      format === 'number' ? withoutKey(f, 'format') : { ...f, format },
     );
   }
 

@@ -19,6 +19,9 @@ export const KEY_PATTERN = /^[a-z][a-z0-9_]*$/;
  */
 export const PROMOTE_TARGETS = ['amount'] as const;
 
+/** The display formats of a `computed` field, the default first (app spec 002962). */
+export const COMPUTED_FORMATS = ['number', 'money', 'percent'] as const;
+
 export const FIELD_TYPES: readonly FieldType[] = [
   'text',
   'textarea',
@@ -181,6 +184,9 @@ export function normalizeFormField(field: FormFieldDef): FormFieldDef {
     ...(field.isPII ? { isPII: true } : {}),
     ...(promoted ? { isPromoted: true } : {}),
     ...(promoted && field.promoteTarget ? { promoteTarget: field.promoteTarget } : {}),
+    ...(field.type === 'computed' && field.format && field.format !== 'number'
+      ? { format: field.format }
+      : {}),
   };
 }
 
