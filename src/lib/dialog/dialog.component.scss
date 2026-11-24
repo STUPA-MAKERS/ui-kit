@@ -114,9 +114,9 @@
   font-size: var(--fs-body);
   line-height: var(--lh-body);
 }
-/* A pick dialog: the search and the list sit closer to the head and the footer (app spec 002905). */
+/* A pick dialog: the search and the list sit directly under the head and above the footer (app spec 002905). */
 .dialog--tight .dialog__body {
-  padding-block: var(--space-2);
+  padding-block: 0;
 }
 .dialog__footer {
   display: flex;
