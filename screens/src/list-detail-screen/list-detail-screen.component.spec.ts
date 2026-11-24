@@ -129,7 +129,7 @@ describe('ListDetailScreenComponent', () => {
     expect(view.container).toBeTruthy();
   });
 
-  // §S/framework/types/002232 §NF/usability/layout/001920
+  // §S/framework/types/002232 §NF/usability/controls/001920
   it('gives a row with actions its ⋮: a route navigates, a key is emitted with the row', async () => {
     const rows: readonly ListRow[] = [
       {
