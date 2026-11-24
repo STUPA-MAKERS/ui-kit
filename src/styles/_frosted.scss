@@ -77,6 +77,36 @@
   }
 }
 
+/* `frosted-pop` as a layer behind a box (a `::before`), not on the box itself. Use it for a
+   fixed box that holds a fixed overlay, such as the phone dock of a meeting with its bottom
+   sheet: a backdrop filter makes its box the frame of every fixed box inside it, so the
+   overlay would open inside the box and be cut off. The box keeps the edge of very high
+   contrast (`--pop-edge`) and must be positioned; `$hide: true` gives no glass, for a box
+   that shows nothing. The arguments are those of `frosted-pop`. */
+@mixin frosted-layer($color, $tint: 92%, $blur: 16px, $lift: null, $hide: false) {
+  @if $hide {
+    outline: none;
+  } @else {
+    outline: var(--pop-edge, none);
+    outline-offset: var(--pop-edge-offset, 0);
+  }
+
+  &::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    border-radius: inherit;
+    pointer-events: none;
+    @if $hide {
+      display: none;
+    } @else {
+      @include frosted-pop($color, $tint, $blur, $lift);
+      outline: none;
+    }
+  }
+}
+
 /* The content of a glass surface (a dialog, a side or bottom sheet, a dock): every
    element with a surface of its own (a field, a row, a chip, a tonal button, a card)
    becomes a neutral overlay of the glass instead of a solid colour, so the glass shows
