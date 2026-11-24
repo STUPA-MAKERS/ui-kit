@@ -143,7 +143,18 @@
   z-index: 1;
   pointer-events: none;
 }
-.li__trail
+/* The body (the title line with its status, and the sub line) lets the pointer through to
+   the title in the same way. A part of the sub line can be positioned (each part after the
+   first of an `app-meta-line` is, for its dot), and a positioned part paints above the
+   stretched title, so without this a tap on the type, the time or the count of a row does
+   nothing. */
+.li__body {
+  pointer-events: none;
+}
+.li__title {
+  pointer-events: auto;
+}
+:is(.li__trail, .li__body)
   ::ng-deep
   :is(
     a[href],

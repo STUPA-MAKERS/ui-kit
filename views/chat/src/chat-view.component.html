@@ -231,10 +231,7 @@
         }
       </ul>
     }
-    <div
-      class="chat__box"
-      [class.chat__box--public]="guarded() && visibility() === 'public'"
-    >
+    <div class="chat__box">
       <ng-container
         *ngTemplateOutlet="mentionList; context: { $implicit: composerMentions, below: false }"
       />
