@@ -455,6 +455,7 @@ export type UiKitFormEditorTextKey =
   | 'admin.form.groupTitlePlaceholder'
   | 'admin.form.isPII'
   | 'admin.form.isPromoted'
+  | 'admin.form.isAmount'
   | 'admin.form.max'
   | 'admin.form.maxLen'
   | 'admin.form.min'
