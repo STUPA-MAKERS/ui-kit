@@ -73,6 +73,11 @@ export class DialogComponent implements OnChanges, OnDestroy {
   @Input() closeLabel = 'Schließen';
   /** The width: 'sm' (35rem, default), 'md' (40rem, a form with two fields side by side), 'lg' (44rem, a chart). */
   @Input() size: 'sm' | 'md' | 'lg' = 'sm';
+  /**
+   * The space above and below the body: 'normal' (16px, a form) or 'tight' (8px, a pick
+   * dialog with a search and a list, app spec 002905).
+   */
+  @Input() body: 'normal' | 'tight' = 'normal';
   @Output() closed = new EventEmitter<void>();
 
   /** The title in the head of the dialog (002251). */
