@@ -42,7 +42,7 @@ import {
   type UiKitTextKey,
   UiKitTranslatePipe,
 } from '@stupa-makers/ui-kit';
-import type { ComputedFormat, FieldType, FormFieldDef, SignatureRow } from './form-editor.types';
+import type { ComputedFormat, FieldHints, FieldType, FormFieldDef, SignatureRow } from './form-editor.types';
 import {
   COMPUTED_FORMATS,
   FIELD_TYPES,
@@ -73,15 +73,19 @@ const TYPE_MENU_HEIGHT = 9 * 36 + 16;
 /** Stable address of a question: group index and question index inside the group. */
 type QPos = QuestionPos;
 
-/** A setting of a field that is on while it is not stored as `false` (app specs 003000-003004). */
-type DefaultOnKey = 'costLine' | 'placeholderWarning' | 'positionFiles' | 'fileReminder' | 'capAtCost';
+/** A setting of a field that is on while it is not stored as `false` (app spec 003004). */
+type DefaultOnKey = 'capAtCost';
 
-/** The switches of a `positions` field that are on by default, in the order of the panel. */
-const POSITION_SWITCHES: readonly { readonly key: DefaultOnKey; readonly label: UiKitTextKey }[] = [
-  { key: 'costLine', label: 'admin.form.costLine' },
-  { key: 'placeholderWarning', label: 'admin.form.placeholderWarning' },
-  { key: 'positionFiles', label: 'admin.form.positionFiles' },
-  { key: 'fileReminder', label: 'admin.form.fileReminder' },
+/** The hint texts of a `positions` field, in the order of the panel (app spec 003010). */
+const POSITION_HINTS: readonly { readonly key: keyof FieldHints; readonly label: UiKitTextKey }[] = [
+  { key: 'below', label: 'admin.form.hint.below' },
+  { key: 'placeholderValue', label: 'admin.form.hint.placeholderValue' },
+  { key: 'placeholderLabel', label: 'admin.form.hint.placeholderLabel' },
+  { key: 'placeholderDuplicate', label: 'admin.form.hint.placeholderDuplicate' },
+  { key: 'useNoOffers', label: 'admin.form.hint.useNoOffers' },
+  { key: 'noOffers', label: 'admin.form.hint.noOffers' },
+  { key: 'noFileTitle', label: 'admin.form.hint.noFileTitle' },
+  { key: 'noFileBody', label: 'admin.form.hint.noFileBody' },
 ];
 
 /**
@@ -806,12 +810,26 @@ export class FormEditorViewComponent {
     });
   }
 
-  /** The switches of a `positions` field that are on by default (app specs 003000-003003). */
-  protected readonly positionSwitches = POSITION_SWITCHES;
+  /** The hint texts of a `positions` field (app spec 003010). */
+  protected readonly positionHints = POSITION_HINTS;
 
   /**
-   * A switch that is on by default (app specs 003000-003004). Only `false` is stored, so a
-   * form without the setting keeps the default.
+   * Set one hint text of a `positions` field (app spec 003010). A text without any language
+   * goes, and so do the hints without any text, so an empty hint stays unset.
+   */
+  protected setHint(pos: QPos, key: keyof FieldHints, text: Record<string, string>): void {
+    this.patchQuestion(pos, (f) => {
+      const current = f.validation ?? {};
+      const filled = Object.values(text).some((t) => t.trim() !== '');
+      const hints = filled ? { ...current.hints, [key]: text } : withoutKey({ ...current.hints }, key);
+      const validation = Object.keys(hints).length > 0 ? { ...current, hints } : withoutKey(current, 'hints');
+      return { ...f, validation: validation as FormFieldDef['validation'] };
+    });
+  }
+
+  /**
+   * A switch that is on by default (app spec 003004). Only `false` is stored, so a form
+   * without the setting keeps the default.
    */
   protected setDefaultOn(pos: QPos, key: DefaultOnKey, on: boolean): void {
     this.patchQuestion(pos, (f) => {

@@ -299,11 +299,16 @@
                     [ngModel]="field.validation?.allowNoOffers !== false"
                     (ngModelChange)="setAllowNoOffers(pos, $event)"
                   >{{ 'admin.form.allowNoOffers' | uiKitT }}</app-checkbox>
-                  @for (s of positionSwitches; track s.key) {
-                    <app-checkbox
-                      [ngModel]="field.validation?.[s.key] !== false"
-                      (ngModelChange)="setDefaultOn(pos, s.key, $event)"
-                    >{{ s.label | uiKitT }}</app-checkbox>
+                </fieldset>
+                <fieldset class="fe__sub">
+                  <legend class="cap fe__cap">{{ 'admin.form.hints' | uiKitT }}</legend>
+                  <p class="fe__muted">{{ 'admin.form.hintsNote' | uiKitT }}</p>
+                  @for (h of positionHints; track h.key) {
+                    <app-i18n-input
+                      [label]="h.label | uiKitT"
+                      [value]="field.validation?.hints?.[h.key] ?? {}"
+                      (valueChange)="setHint(pos, h.key, $event)"
+                    />
                   }
                 </fieldset>
               }

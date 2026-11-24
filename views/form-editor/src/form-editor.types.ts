@@ -37,6 +37,21 @@ export type FieldType =
   | 'section';
 
 /**
+ * The hint texts of a `positions` field (app spec 003010), per language. A text may hold
+ * placeholders: `{key}` for an answer, `{costTotal}`, `{amount}`, `{noOffersSwitch}`.
+ */
+export interface FieldHints {
+  readonly below?: Readonly<Record<string, string>>;
+  readonly placeholderValue?: Readonly<Record<string, string>>;
+  readonly placeholderLabel?: Readonly<Record<string, string>>;
+  readonly placeholderDuplicate?: Readonly<Record<string, string>>;
+  readonly useNoOffers?: Readonly<Record<string, string>>;
+  readonly noOffers?: Readonly<Record<string, string>>;
+  readonly noFileTitle?: Readonly<Record<string, string>>;
+  readonly noFileBody?: Readonly<Record<string, string>>;
+}
+
+/**
  * One option of a select field. The server sets `parentId`, `key` and `color` on the
  * options of `budget_select`, so the form shows the cost centres as a tree.
  */
@@ -70,14 +85,8 @@ export interface FieldValidation {
    *  user ticks a checkbox and must give a reason. Then one offer is enough. If
    *  unset, the opt-out is allowed. */
   readonly allowNoOffers?: boolean;
-  /** `positions`. The cost line below the field (app spec 003000). Unset = on. */
-  readonly costLine?: boolean;
-  /** `positions`. The warnings at placeholder offers (app spec 003001). Unset = on. */
-  readonly placeholderWarning?: boolean;
-  /** `positions`. The upload of files per position (app spec 003002). Unset = on. */
-  readonly positionFiles?: boolean;
-  /** `positions`. The question before a submit without a file (app spec 003003). Unset = on. */
-  readonly fileReminder?: boolean;
+  /** `positions`. The hint texts of the field (app spec 003010); without a text no hint. */
+  readonly hints?: FieldHints;
   /** `funding`. The value must not be above the cost total (app spec 003004). Unset = on. */
   readonly capAtCost?: boolean;
   /** `number`. The field holds the number of participants (spec 001631); at most one
