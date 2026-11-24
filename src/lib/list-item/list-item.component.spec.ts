@@ -303,6 +303,18 @@ describe('ListItemComponent', () => {
     expect(scss).toContain('.li__menu:empty,');
   });
 
+  /**
+   * jsdom does no hit testing, so this reads the source. A part of the sub line can be
+   * positioned (the parts of `app-meta-line` are, for their dots), and a positioned part
+   * paints above the stretched title: the body must let the pointer through to the title.
+   */
+  it('lets a tap on the sub line and the status reach the stretched title', () => {
+    const scss = readFileSync(join(__dirname, 'list-item.component.scss'), 'utf8');
+    expect(scss).toMatch(/\.li__body \{\n {2}pointer-events: none;\n\}/);
+    expect(scss).toMatch(/\.li__title \{\n {2}pointer-events: auto;\n\}/);
+    expect(scss).toContain(':is(.li__trail, .li__body)\n  ::ng-deep');
+  });
+
   it('has no a11y violations', async () => {
     const { container } = await render(HostComponent);
     expect(await runAxe(container)).toHaveNoViolations();
