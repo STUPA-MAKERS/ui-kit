@@ -443,39 +443,33 @@
             (ngModelChange)="hasBudget.set($event)"
           >{{ 'admin.forms.hasBudget' | uiKitT }}</app-checkbox>
         }
-        <app-checkbox
-          [ngModel]="pdfSignatures()"
-          (ngModelChange)="pdfSignatures.set($event)"
-        >{{ 'admin.forms.pdfSignatures' | uiKitT }}</app-checkbox>
-        @if (pdfSignatures()) {
-          <fieldset class="fe__sub fe__sigs">
-            <legend class="cap fe__cap">{{ 'admin.forms.signatureRows' | uiKitT }}</legend>
-            @for (row of signatureRows(); track $index; let ri = $index; let last = $last) {
-              <div class="fe__sig">
-                <app-input
-                  [label]="'admin.forms.signatureLabel' | uiKitT"
-                  [ngModel]="row.label"
-                  (ngModelChange)="setSignatureRow(ri, { label: $event })"
-                />
-                <app-input
-                  [label]="'admin.forms.signatureSigner' | uiKitT"
-                  [ngModel]="row.signer"
-                  (ngModelChange)="setSignatureRow(ri, { signer: $event })"
-                />
-                <app-button-group>
-                  <app-button variant="text" size="sm" [iconOnly]="true" [disabled]="ri === 0" [ariaLabel]="'admin.forms.signatureUp' | uiKitT" [title]="'admin.forms.signatureUp' | uiKitT" (click)="moveSignatureRow(ri, -1)"><app-icon name="chevron-up" /></app-button>
-                  <app-button variant="text" size="sm" [iconOnly]="true" [disabled]="last" [ariaLabel]="'admin.forms.signatureDown' | uiKitT" [title]="'admin.forms.signatureDown' | uiKitT" (click)="moveSignatureRow(ri, 1)"><app-icon name="chevron-down" /></app-button>
-                  <app-button variant="text" size="sm" [iconOnly]="true" [ariaLabel]="'admin.common.remove' | uiKitT" [title]="'admin.common.remove' | uiKitT" (click)="removeSignatureRow(ri)"><app-icon name="trash" /></app-button>
-                </app-button-group>
-              </div>
-            }
-            <app-button-group>
-              <app-button class="fe__inlineAdd" variant="text" size="sm" (click)="addSignatureRow()">
-                <app-icon name="plus" /> {{ 'admin.forms.signatureAdd' | uiKitT }}
-              </app-button>
-            </app-button-group>
-          </fieldset>
-        }
+        <fieldset class="fe__sub">
+          <legend class="cap fe__cap">{{ 'admin.forms.signatureRows' | uiKitT }}</legend>
+          @for (row of signatureRows(); track $index; let ri = $index; let last = $last) {
+            <div class="fe__sig">
+              <app-input
+                [label]="'admin.forms.signatureLabel' | uiKitT"
+                [ngModel]="row.label"
+                (ngModelChange)="setSignatureRow(ri, { label: $event })"
+              />
+              <app-input
+                [label]="'admin.forms.signatureSigner' | uiKitT"
+                [ngModel]="row.signer"
+                (ngModelChange)="setSignatureRow(ri, { signer: $event })"
+              />
+              <app-button-group>
+                <app-button variant="text" size="sm" [iconOnly]="true" [disabled]="ri === 0" [ariaLabel]="'admin.forms.signatureUp' | uiKitT" [title]="'admin.forms.signatureUp' | uiKitT" (click)="moveSignatureRow(ri, -1)"><app-icon name="chevron-up" /></app-button>
+                <app-button variant="text" size="sm" [iconOnly]="true" [disabled]="last" [ariaLabel]="'admin.forms.signatureDown' | uiKitT" [title]="'admin.forms.signatureDown' | uiKitT" (click)="moveSignatureRow(ri, 1)"><app-icon name="chevron-down" /></app-button>
+                <app-button variant="text" size="sm" [iconOnly]="true" [ariaLabel]="'admin.common.remove' | uiKitT" [title]="'admin.common.remove' | uiKitT" (click)="removeSignatureRow(ri)"><app-icon name="trash" /></app-button>
+              </app-button-group>
+            </div>
+          }
+          <app-button-group>
+            <app-button class="fe__inlineAdd" variant="text" size="sm" (click)="addSignatureRow()">
+              <app-icon name="plus" /> {{ 'admin.forms.signatureAdd' | uiKitT }}
+            </app-button>
+          </app-button-group>
+        </fieldset>
         <app-checkbox
           [ngModel]="attachmentRequired()"
           (ngModelChange)="attachmentRequired.set($event)"

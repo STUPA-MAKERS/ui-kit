@@ -499,7 +499,6 @@ export type UiKitFormEditorTextKey =
   | 'admin.forms.help'
   | 'admin.forms.name'
   | 'admin.forms.overviewLoading'
-  | 'admin.forms.pdfSignatures'
   | 'admin.forms.signatureRows'
   | 'admin.forms.signatureLabel'
   | 'admin.forms.signatureSigner'

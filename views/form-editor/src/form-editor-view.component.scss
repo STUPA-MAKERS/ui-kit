@@ -367,10 +367,6 @@
 
 /* A signature row of the side card: the side card is narrow, so the two fields and the
    buttons stack (app spec 003005). */
-.fe__sigs {
-  margin-left: 1.75rem;
-}
-
 .fe__sig {
   display: grid;
   grid-template-columns: minmax(0, 1fr);

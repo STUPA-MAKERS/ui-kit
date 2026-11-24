@@ -170,9 +170,7 @@ export class FormEditorViewComponent {
   readonly description = model<I18nMap>({ de: '', en: '' });
   /** "With budget": the application may select a pot (application_type.has_budget). */
   readonly hasBudget = model(false);
-  /** The Antrag PDF of this type ends with the signature section (app spec 000888). */
-  readonly pdfSignatures = model(false);
-  /** The signature rows of the Antrag PDF, in order (app spec 003005). */
+  /** The signature rows of the Antrag PDF, in order; an empty list gives none (app specs 003005, 003009). */
   readonly signatureRows = model<readonly SignatureRow[]>([]);
   /** "Anhang Pflicht": an Antrag of this type needs a file (app spec 001732). */
   readonly attachmentRequired = model(false);
