@@ -137,6 +137,15 @@ describe('DetailScreenComponent', () => {
     expect(host.onSheet).toHaveBeenCalledWith('comments', true);
   });
 
+  // §S/framework/screens/002241
+  it('keeps the comments in the sheet when they do not sit beside the body', async () => {
+    const { view } = await setUp({ comments: { open: true, beside: false, label: 'Kommentare' } });
+    view.fixture.detectChanges();
+    expect(view.container.querySelector('.ds--beside')).toBeNull();
+    expect(screen.getByRole('dialog', { name: 'Kommentare' })).toBeInTheDocument();
+    expect(view.container.ownerDocument.querySelector('.ds__thread')).not.toBeNull();
+  });
+
   // §NF/accessibility/conformance/000493
   it('has no axe violations', async () => {
     const { view } = await setUp({

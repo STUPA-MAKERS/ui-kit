@@ -203,16 +203,19 @@
 }
 
 @if (comments(); as c) {
-  @if (!roomy()) {
+  @if (!commentsFit()) {
     <app-side-sheet
       [heading]="c.label"
       side="auto"
+      [contentScrolls]="true"
       [open]="commentsOpen()"
       (openChange)="setComments($event)"
     >
       <ng-template sheetBody>
         @if (commentsSlot(); as cs) {
-          <ng-container [ngTemplateOutlet]="cs.template" />
+          <div class="ds__thread" [class.ds__thread--phone]="phone()">
+            <ng-container [ngTemplateOutlet]="cs.template" />
+          </div>
         }
       </ng-template>
     </app-side-sheet>
