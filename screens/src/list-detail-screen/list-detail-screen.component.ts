@@ -442,6 +442,21 @@ export class ListDetailScreenComponent implements ListPageState {
     this.action.emit({ key });
   }
 
+  /** The ⋮ of a row: its actions as one group. */
+  protected rowMenu(row: ListRow): readonly RowMenuSection[] {
+    return [{ items: (row.actions ?? []).map(toMenuItem) }];
+  }
+
+  /** An action of a row with a route navigates; every other one is emitted with the row. */
+  protected runRow(row: ListRow, item: RowMenuItem): void {
+    const def = row.actions?.find((a) => a.key === item.id);
+    if (def?.route) {
+      void this.router.navigate([...def.route.commands], { queryParams: def.route.query });
+      return;
+    }
+    this.action.emit({ key: item.id, ids: [row.id] });
+  }
+
   /** The person in front of a row: the first of several. */
   protected leadPerson(row: ListRow): PersonRef | null {
     const av = row.avatar;

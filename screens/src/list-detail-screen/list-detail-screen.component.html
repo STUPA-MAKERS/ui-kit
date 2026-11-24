@@ -249,6 +249,14 @@
                 }
               </span>
             }
+            @if (!selecting() && row.actions?.length) {
+              <app-row-menu
+                menu
+                [sections]="rowMenu(row)"
+                [label]="('rowMenu.trigger' | uiKitT) + ': ' + row.title"
+                (selected)="runRow(row, $event)"
+              />
+            }
           </app-list-item>
         }
       </div>
