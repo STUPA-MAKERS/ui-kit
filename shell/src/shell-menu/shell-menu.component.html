@@ -33,16 +33,23 @@
       }
     </div>
     <div class="hm__sep" role="separator"></div>
-    <a
-      class="hm__item"
-      [routerLink]="statement.commands"
-      [queryParams]="statement.query"
-      [fragment]="statement.fragment"
-      (click)="onPicked()"
-    >
-      <app-icon name="file" [size]="19" />
-      <span class="hm__text">{{ 'menu.statement' | uiKitT }}</span>
-    </a>
+    @if (statementHref(); as href) {
+      <a class="hm__item" [href]="href" target="_blank" rel="noopener" (click)="onPicked()">
+        <app-icon name="file" [size]="19" />
+        <span class="hm__text">{{ 'menu.statement' | uiKitT }}</span>
+      </a>
+    } @else {
+      <a
+        class="hm__item"
+        [routerLink]="statement.commands"
+        [queryParams]="statement.query"
+        [fragment]="statement.fragment"
+        (click)="onPicked()"
+      >
+        <app-icon name="file" [size]="19" />
+        <span class="hm__text">{{ 'menu.statement' | uiKitT }}</span>
+      </a>
+    }
     @if (reportBarrier()) {
       <button type="button" class="hm__item" (click)="pick('reportBarrier')">
         <app-icon name="alert" [size]="19" />

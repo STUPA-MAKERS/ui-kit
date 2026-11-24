@@ -54,6 +54,7 @@ export type UiKitCoreTextKey =
   | 'rowMenu.loading'
   | 'note.retry'
   | 'screen.more'
+  | 'screen.reset'
   | 'chat.deletedPerson'
   | 'screen.select'
   | 'screen.selectRow'
@@ -510,6 +511,9 @@ export type UiKitGraphTextKey =
   | 'graph.zoom.out'
   | 'graph.zoom.all';
 
+/** The texts only the views of `@stupa-makers/ui-kit/views/uml` use. */
+export type UiKitUmlTextKey = 'uml.zoom.group' | 'uml.zoom.in' | 'uml.zoom.out' | 'uml.zoom.fit';
+
 /** The texts only the views of `@stupa-makers/ui-kit/views/meeting` use. */
 export type UiKitMeetingTextKey =
   | 'action.save'
@@ -832,6 +836,7 @@ export type UiKitTextKey =
   | UiKitMeetingTextKey
   | UiKitPlanTableTextKey
   | UiKitProtocolTextKey
+  | UiKitUmlTextKey
   | UiKitVotingTextKey;
 
 export type UiKitMessages = Record<UiKitTextKey, string>;
@@ -876,6 +881,7 @@ export const UI_KIT_DEFAULT_MESSAGES: UiKitTexts<UiKitCoreTextKey> = {
     'rowMenu.loading': 'Wird geladen …',
     'note.retry': 'Erneut versuchen',
     'screen.more': 'Mehr laden',
+    'screen.reset': 'Zurücksetzen',
     'chat.deletedPerson': 'Gelöschte Person',
     'screen.select': 'Mehrere auswählen',
     'screen.selectRow': '{title} auswählen',
@@ -1107,6 +1113,7 @@ export const UI_KIT_DEFAULT_MESSAGES: UiKitTexts<UiKitCoreTextKey> = {
     'rowMenu.loading': 'Loading …',
     'note.retry': 'Try again',
     'screen.more': 'Load more',
+    'screen.reset': 'Reset',
     'chat.deletedPerson': 'Deleted person',
     'screen.select': 'Select several',
     'screen.selectRow': 'Select {title}',

@@ -52,6 +52,7 @@ export * from './lib/datepicker/date-range.component';
 export * from './lib/icon/icon.component';
 export * from './lib/icon/icons';
 export * from './lib/card/card.component';
+export * from './lib/columns/columns.component';
 export * from './lib/badge/badge.component';
 export * from './lib/config-diff/config-diff.component';
 export * from './lib/config-diff/config-diff.types';

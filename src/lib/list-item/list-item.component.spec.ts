@@ -311,7 +311,7 @@ describe('ListItemComponent', () => {
   it('lets a tap on the sub line and the status reach the stretched title', () => {
     const scss = readFileSync(join(__dirname, 'list-item.component.scss'), 'utf8');
     expect(scss).toMatch(/\.li__body \{\n {2}pointer-events: none;\n\}/);
-    expect(scss).toMatch(/\.li__title \{\n {2}pointer-events: auto;\n\}/);
+    expect(scss).toMatch(/\.li__title \{\n {2}pointer-events: auto;/);
     expect(scss).toContain(':is(.li__trail, .li__body)\n  ::ng-deep');
   });
 

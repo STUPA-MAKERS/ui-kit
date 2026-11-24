@@ -1,0 +1,28 @@
+:host {
+  display: flex;
+  flex: 1 1 auto;
+  flex-wrap: wrap;
+  gap: 18px 28px;
+  align-items: flex-start;
+  min-height: 0;
+}
+.cols__col {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  min-width: 0;
+}
+.cols__col--main {
+  flex: 1.4 1 0;
+  min-width: min(100%, 22.5rem);
+}
+.cols__col--side {
+  flex: 1 1 0;
+  min-width: min(100%, 20rem);
+}
+/* A section in a column keeps its heading close to its rows, as in the detail of the spec
+   explorer. */
+.cols__col > ::ng-deep app-section,
+.cols__col > ::ng-deep app-record-section {
+  --section-gap: var(--space-2);
+}

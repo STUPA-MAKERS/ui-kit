@@ -1,0 +1,125 @@
+/* S/framework/views/002791: only kit tokens, so the drawing follows light, dark and very high
+   contrast like the rest of the page. */
+:host {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  flex: 1 1 auto;
+}
+
+.ud__tools {
+  position: absolute;
+  z-index: 1;
+  top: var(--space-3);
+  right: var(--space-3);
+  display: flex;
+  gap: var(--space-2);
+}
+
+.ud__frame {
+  position: relative;
+  flex: 1 1 auto;
+  min-height: 24rem;
+  overflow: hidden;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-xl);
+  background: var(--color-surface-sunken);
+  cursor: grab;
+  touch-action: none;
+}
+.ud__frame--drag {
+  cursor: grabbing;
+}
+.ud__frame:focus-visible {
+  outline: var(--focus-width, 2px) solid var(--color-focus-ring);
+  outline-offset: 2px;
+}
+
+.ud__svg {
+  position: absolute;
+  inset: 0;
+  display: block;
+  width: 100%;
+  height: 100%;
+  font-family: var(--font-mono);
+  font-size: 12px;
+}
+
+.ud__frame-box rect {
+  fill: var(--color-surface-1);
+  stroke: var(--color-border);
+  stroke-dasharray: 6 4;
+}
+.ud__frame-name {
+  fill: var(--color-text-muted);
+  font-weight: 600;
+}
+
+.ud__box {
+  cursor: pointer;
+}
+.ud__box rect {
+  fill: var(--color-surface-raised);
+  stroke: var(--color-border-strong);
+  stroke-width: 1.2;
+}
+.ud__box:hover rect {
+  stroke: var(--color-primary);
+}
+.ud__box--on rect {
+  fill: var(--color-selected);
+  stroke: var(--color-primary);
+  stroke-width: 2.5;
+}
+.ud__name {
+  fill: var(--color-text);
+  font-weight: 700;
+  text-anchor: middle;
+}
+.ud__box--on .ud__name,
+.ud__box--on .ud__line {
+  fill: var(--color-on-selected);
+}
+.ud__line {
+  fill: var(--color-text-muted);
+}
+.ud__rule {
+  stroke: var(--color-border-strong);
+}
+
+.ud__start {
+  fill: var(--color-text);
+}
+
+.ud__edge path {
+  fill: none;
+  stroke: var(--color-text-subtle);
+  stroke-width: 1.2;
+}
+.ud__edge--on path {
+  stroke: var(--color-primary);
+  stroke-width: 2.5;
+}
+.ud__dash {
+  stroke-dasharray: 6 4;
+}
+.ud__head {
+  fill: none;
+  stroke: var(--color-text-subtle);
+  stroke-width: 1.4;
+}
+.ud__label {
+  fill: var(--color-text-muted);
+  font-size: 11px;
+}
+.ud__edge--on .ud__label {
+  fill: var(--color-text);
+  font-weight: 700;
+}
+.ud__edge--on path {
+  stroke-width: 2.5 !important;
+}
+.ud__edge--off {
+  opacity: 0.12;
+}

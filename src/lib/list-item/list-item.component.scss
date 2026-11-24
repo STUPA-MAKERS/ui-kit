@@ -151,9 +151,6 @@
 .li__body {
   pointer-events: none;
 }
-.li__title {
-  pointer-events: auto;
-}
 :is(.li__trail, .li__body)
   ::ng-deep
   :is(
@@ -249,8 +246,10 @@
   flex: 0 1 auto;
 }
 
-/* The title is the control. Its ::after covers the whole row, so the row is one target. */
+/* The title is the control. Its ::after covers the whole row, so the row is one target. It takes
+   the pointer back from `.li__body`. */
 .li__title {
+  pointer-events: auto;
   display: block;
   min-width: 0;
   margin: 0;
@@ -311,6 +310,16 @@
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+}
+/* `code`: a rule ID, a path or a file name in the monospace font (002792). */
+.li--codeTitle .li__titleText {
+  font-family: var(--font-mono);
+  font-size: var(--fs-small);
+  font-variant-numeric: tabular-nums;
+}
+.li--codeSub .li__sub {
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
 }
 .li--subWrap .li__sub {
   white-space: normal;

@@ -1,0 +1,126 @@
+<div class="ud__tools" role="group" [attr.aria-label]="'uml.zoom.group' | uiKitT">
+  <app-button
+    variant="tonal"
+    size="sm"
+    [iconOnly]="true"
+    [ariaLabel]="'uml.zoom.out' | uiKitT"
+    (click)="zoomBy(1 / step)"
+  >
+    <app-icon name="minus" />
+  </app-button>
+  <app-button
+    variant="tonal"
+    size="sm"
+    [iconOnly]="true"
+    [ariaLabel]="'uml.zoom.in' | uiKitT"
+    (click)="zoomBy(step)"
+  >
+    <app-icon name="plus" />
+  </app-button>
+  <app-button variant="tonal" size="sm" (click)="fit()">{{ 'uml.zoom.fit' | uiKitT }}</app-button>
+</div>
+<div
+  #frame
+  class="ud__frame"
+  tabindex="0"
+  role="img"
+  [attr.aria-label]="label()"
+  [class.ud__frame--drag]="dragging()"
+  (wheel)="onWheel($event)"
+  (pointerdown)="onDown($event)"
+  (pointermove)="onMove($event)"
+  (pointerup)="onUp($event)"
+  (pointercancel)="onUp($event)"
+  (keydown)="onKey($event)"
+>
+  <svg class="ud__svg" aria-hidden="true" focusable="false">
+    <defs>
+      <marker
+        [attr.id]="arrowId"
+        viewBox="0 0 10 10"
+        refX="10"
+        refY="5"
+        markerWidth="9"
+        markerHeight="9"
+        orient="auto-start-reverse"
+      >
+        <path d="M0,0 L10,5 L0,10" class="ud__head" />
+      </marker>
+    </defs>
+    <g [attr.transform]="transform()">
+      @for (b of frames(); track b.id) {
+        <g class="ud__frame-box">
+          <rect [attr.x]="b.x" [attr.y]="b.y" [attr.width]="b.w" [attr.height]="b.h" rx="10" />
+          <text [attr.x]="b.x + 12" [attr.y]="b.y + 20" class="ud__frame-name">{{ b.name }}</text>
+        </g>
+      }
+      @for (l of layout().lines; track l.id) {
+        <g
+          class="ud__edge"
+          [class.ud__edge--on]="l.from === selected() || l.to === selected()"
+          [class.ud__edge--off]="selected() && l.from !== selected() && l.to !== selected()"
+        >
+          <path
+            [attr.d]="path(l)"
+            [class.ud__dash]="l.dashed"
+            [style.stroke-width]="l.weight"
+            [attr.marker-end]="l.ends ? null : arrowRef"
+          />
+          @if (l.label && (!l.curve || l.from === selected() || l.to === selected())) {
+            <text [attr.x]="l.labelX" [attr.y]="l.labelY" class="ud__label">{{ l.label }}</text>
+          }
+          @if (l.ends; as ends) {
+            <text [attr.x]="end(l, false).x" [attr.y]="end(l, false).y" class="ud__label">{{ ends[0] }}</text>
+            <text [attr.x]="end(l, true).x" [attr.y]="end(l, true).y" class="ud__label">{{ ends[1] }}</text>
+          }
+        </g>
+      }
+      @for (b of items(); track b.id) {
+        @if (b.role === 'start') {
+          <circle
+            class="ud__start"
+            [attr.cx]="b.x + b.w / 2"
+            [attr.cy]="b.y + b.h / 2"
+            [attr.r]="b.w / 2"
+          />
+        } @else {
+          <g
+            class="ud__box"
+            [class.ud__box--on]="b.id === selected()"
+            [class.ud__box--state]="state()"
+            (click)="pick.emit(b.id)"
+          >
+            <rect
+              [attr.x]="b.x"
+              [attr.y]="b.y"
+              [attr.width]="b.w"
+              [attr.height]="b.h"
+              [attr.rx]="state() ? 18 : 4"
+            />
+            <text
+              [attr.x]="b.x + b.w / 2"
+              [attr.y]="b.y + (state() ? b.h / 2 + 5 : 20)"
+              class="ud__name"
+            >{{ b.name }}</text>
+            @if (b.lines.length) {
+              <line
+                [attr.x1]="b.x"
+                [attr.x2]="b.x + b.w"
+                [attr.y1]="b.y + headH"
+                [attr.y2]="b.y + headH"
+                class="ud__rule"
+              />
+              @for (l of b.lines; track $index) {
+                <text
+                  [attr.x]="b.x + padX"
+                  [attr.y]="b.y + headH + 18 + $index * lineH"
+                  class="ud__line"
+                >{{ l }}</text>
+              }
+            }
+          </g>
+        }
+      }
+    </g>
+  </svg>
+</div>

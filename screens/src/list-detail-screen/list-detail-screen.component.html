@@ -1,4 +1,9 @@
-<div class="lds" [class.lds--split]="split()" [class.lds--wide]="config().listWidth === 'wide'">
+<div
+  class="lds"
+  [class.lds--split]="split()"
+  [class.lds--wide]="config().listWidth === 'wide'"
+  [class.lds--fill]="config().listWidth === 'fill'"
+>
   <app-list-detail
     [detailOpen]="selectedId() !== null"
     [barTitle]="!!config().barTitle"
@@ -40,8 +45,23 @@
         }
       </app-page-header>
 
-      @if (search() || filters().length || selecting()) {
+      @if (search() || filters().length || selecting() || scope() || chipsSlot() || toolsSlot()) {
         <app-sticky-bar class="ld-pane__filters">
+          @if (scope(); as sc) {
+            <div class="lds__chips" role="group" [attr.aria-label]="sc.label">
+              @for (c of sc.chips; track c.key) {
+                <app-filter-select
+                  [label]="c.label"
+                  [icon]="c.icon ?? null"
+                  [options]="c.options"
+                  [value]="c.value"
+                  [text]="c.text ?? null"
+                  [active]="true"
+                  (valueChange)="scopeChange.emit({ key: c.key, value: $event })"
+                />
+              }
+            </div>
+          }
           @if (search(); as s) {
             <app-search-pill
               [size]="width() === 'phone' ? 'md' : 'lg'"
@@ -52,8 +72,12 @@
               (valueChange)="setSearch($event)"
             />
           }
-          @if (filters().length) {
-            <div class="lds__chips">
+          @if (filters().length || chipsSlot() || toolsSlot() || showReset()) {
+            <div
+              class="lds__chips"
+              [attr.role]="filtersLabel() ? 'group' : null"
+              [attr.aria-label]="filtersLabel()"
+            >
               @for (f of filters(); track f.key) {
                 @if (f.kind === 'multi') {
                   <app-filter-select
@@ -73,6 +97,17 @@
                     filled
                   />
                 }
+              }
+              @if (chipsSlot(); as chips) {
+                <ng-container [ngTemplateOutlet]="chips.template" />
+              }
+              @if (showReset()) {
+                <app-button variant="text" size="sm" (click)="reset()">{{
+                  'screen.reset' | uiKitT
+                }}</app-button>
+              }
+              @if (toolsSlot(); as tools) {
+                <span class="lds__tools"><ng-container [ngTemplateOutlet]="tools.template" /></span>
               }
             </div>
           }
@@ -101,6 +136,9 @@
         </app-sticky-bar>
       }
 
+      @if (bodySlot(); as body) {
+        <div class="lds__body"><ng-container [ngTemplateOutlet]="body.template" /></div>
+      } @else {
       <div class="lds__scroll">
         @if (listHeadSlot(); as h) {
           <ng-container [ngTemplateOutlet]="h.template" />
@@ -137,6 +175,7 @@
           }
         }
       </div>
+      }
 
       @for (a of placed().fab; track a.key) {
         <app-fab
@@ -155,7 +194,7 @@
 
 <ng-template #list>
   @for (group of groups(); track group.key) {
-    <app-list-group [label]="group.label || null">
+    <app-list-group [label]="group.label || null" [tone]="group.tone ?? 'accent'">
       <div class="lds__rows" [class.rowgroup]="!split()" role="list">
         @for (row of group.rows; track row.id) {
           <app-list-item
@@ -163,6 +202,8 @@
             [title]="row.title"
             [sub]="row.meta?.join(' · ') ?? null"
             [link]="!selecting() && row.link ? $any(row.link.commands) : null"
+            [href]="!selecting() ? (row.href ?? null) : null"
+            [code]="row.code === 'meta' ? 'sub' : (row.code ?? null)"
             linkQueryParamsHandling="preserve"
             [selected]="!selecting() && row.id === selectedId()"
             [checked]="selecting() && isSelected(row)"
@@ -194,6 +235,9 @@
             }
             @if (!selecting() && !row.avatar && row.icon) {
               <app-icon lead [name]="row.icon" />
+            }
+            @if (!rowSlot() && row.href && !row.status && !row.trailing) {
+              <app-icon trail name="ext" [size]="16" />
             }
             @if (!rowSlot() && (row.status || row.trailing)) {
               <span trail class="lds__trail">

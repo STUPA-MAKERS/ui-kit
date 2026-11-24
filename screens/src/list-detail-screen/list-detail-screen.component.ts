@@ -15,6 +15,7 @@ import {
   input,
   output,
   signal,
+  untracked,
   viewChild,
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
@@ -46,6 +47,7 @@ import {
   placeActions,
   type Action,
   type FilterDef,
+  type FilterOption,
   type IconName,
   LIST_PAGE_STATE,
   type ListGroup,
@@ -62,7 +64,9 @@ import {
   type SortDef,
 } from '@stupa-makers/ui-kit';
 
+import { ScreenBodyDirective } from '../detail-screen/detail-screen.component';
 import { errorToastOn } from '../error-toast';
+import { ScreenFiltersDirective } from '../records-screen/records-screen.component';
 import { injectWidthClass } from '../width';
 
 /**
@@ -89,6 +93,33 @@ export class ScreenListHeadDirective {
   readonly template = inject<TemplateRef<unknown>>(TemplateRef);
 }
 
+/**
+ * Controls at the end of the line of the filter chips, for example the switch between a
+ * drawing and a list. §S/framework/screens/002795
+ */
+// eslint-disable-next-line @angular-eslint/directive-selector
+@Directive({ selector: 'ng-template[screenTools]', standalone: true })
+export class ScreenToolsDirective {
+  readonly template = inject<TemplateRef<unknown>>(TemplateRef);
+}
+
+/** One chip of the scope: a choice that is always set, with an icon and its own text. */
+export interface ScopeChip {
+  readonly key: string;
+  readonly label: string;
+  readonly icon?: IconName;
+  readonly options: readonly FilterOption[];
+  readonly value: string;
+  /** The text of the chip; default the label of the chosen option. */
+  readonly text?: string;
+}
+
+/** The scope of a list: the label of the group and its chips. §S/framework/screens/002795 */
+export interface ScreenScope {
+  readonly label: string;
+  readonly chips: readonly ScopeChip[];
+}
+
 /** What the screen emits for an action: its key, and the ids of the selected rows. */
 export interface ScreenAction {
   readonly key: string;
@@ -107,7 +138,16 @@ const SELECT_ITEM = '__select';
 export interface ListDetailScreenConfig {
   /** The route parameter of the detail child route. Default `id`. */
   readonly param?: string;
-  readonly listWidth?: 'normal' | 'wide';
+  /**
+   * `fill`: the list column takes the width that the detail leaves, for a drawing in the list
+   * column (the page UML of the spec explorer). §S/framework/screens/002795
+   */
+  readonly listWidth?: 'normal' | 'wide' | 'fill';
+  /**
+   * A text button "Zurücksetzen" after the filter chips, while the search or a filter is set;
+   * it clears them all. §S/framework/screens/002796
+   */
+  readonly reset?: boolean;
   /**
    * The phone bar names the detail from the start (`app-list-detail` `barTitle`), as the
    * administration and Konto of the app do: for details whose page header docks in the bar,
@@ -175,16 +215,30 @@ export class ListDetailScreenComponent implements ListPageState {
     alias: 'none',
   });
   readonly config = input<ListDetailScreenConfig>({});
+  /** The name of the group of the filter chips for a screen reader. */
+  readonly filtersLabel = input<string | null>(null);
+  /**
+   * The chips that pick the source of the whole list, for example the repository and the ref
+   * of the spec explorer. They stand above the search as a group with the label; they are not
+   * URL filters, so a change is the output `scopeChange`. §S/framework/screens/002795
+   */
+  readonly scope = input<ScreenScope | null>(null);
 
   /** The search, the filters or the sort changed. */
   readonly query = output<ListQuery>();
   readonly action = output<ScreenAction>();
+  /** A chip of the scope got a new value. */
+  readonly scopeChange = output<{ readonly key: string; readonly value: string }>();
   /** The person asked for the next rows. */
   readonly more = output<void>();
   readonly refresh = output<void>();
 
   protected readonly rowSlot = contentChild(ScreenRowDirective);
   protected readonly listHeadSlot = contentChild(ScreenListHeadDirective);
+  protected readonly chipsSlot = contentChild(ScreenFiltersDirective);
+  protected readonly toolsSlot = contentChild(ScreenToolsDirective);
+  /** Content in place of the rows, for example a drawing (002795). */
+  protected readonly bodySlot = contentChild(ScreenBodyDirective);
 
   private readonly router = inject(Router);
   private readonly route = inject(ActivatedRoute);
@@ -262,6 +316,12 @@ export class ListDetailScreenComponent implements ListPageState {
       this.params.set(this.route.snapshot.queryParams);
     };
     read();
+    // The inputs are not set yet in the constructor, so a route parameter other than `id`
+    // (`config.param`) is read again once the config is there.
+    effect(() => {
+      this.config();
+      untracked(read);
+    });
     this.router.events
       .pipe(
         filter((e) => e instanceof NavigationEnd),
@@ -296,6 +356,22 @@ export class ListDetailScreenComponent implements ListPageState {
     const raw = this.params()[def.key] ?? def.value;
     if (raw === null || raw === undefined) return [];
     return Array.isArray(raw) ? (raw as string[]) : [String(raw)];
+  }
+
+  /** The search or a filter is set, so "Zurücksetzen" shows (002796). */
+  protected readonly showReset = computed(() => {
+    if (!this.config().reset) return false;
+    const params = this.params();
+    return this.searchText() !== '' || this.filters().some((f) => params[f.key] !== undefined);
+  });
+
+  /** Clear the search and every filter (002796). */
+  protected reset(): void {
+    const def = this.search();
+    this.setParams({
+      ...(def ? { [def.param ?? 'q']: null } : {}),
+      ...Object.fromEntries(this.filters().map((f) => [f.key, null])),
+    });
   }
 
   /** The head toggle: a second press ends the selection (001811). */
