@@ -13,6 +13,7 @@ export type GraphKind =
   | 'gremium'
   | 'invoice'
   | 'expense'
+  | 'order'
   | 'budget'
   | 'ticket'
   | 'todo'

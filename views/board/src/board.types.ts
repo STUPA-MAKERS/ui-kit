@@ -25,6 +25,7 @@ export type TodoLinkKind =
   | 'gremium'
   | 'invoice'
   | 'expense'
+  | 'order'
   | 'budget'
   | 'ticket'
   | 'todo'

@@ -46,6 +46,7 @@ export const LINK_ICON: Record<TodoLinkKind, IconName> = {
   gremium: 'landmark',
   invoice: 'receipt',
   expense: 'swap',
+  order: 'package',
   budget: 'pie',
   ticket: 'chat',
   todo: 'circleok',
@@ -61,6 +62,7 @@ export const LINK_KIND_LABEL: Record<TodoLinkKind, UiKitTextKey> = {
   gremium: 'todos.linkKind.gremium',
   invoice: 'todos.linkKind.invoice',
   expense: 'todos.linkKind.expense',
+  order: 'todos.linkKind.order',
   budget: 'todos.linkKind.budget',
   ticket: 'todos.linkKind.ticket',
   todo: 'todos.linkKind.todo',
@@ -115,7 +117,7 @@ function linkDay(link: TodoLink, today: string, locale: string): string | null {
 export function linkLine(link: TodoLink, today: string, locale: string, t: Translate): string {
   const kind = t(LINK_KIND_LABEL[link.kind]);
   const number = link.kind === 'ticket' && link.detail?.number ? link.detail.number : null;
-  const money = link.kind === 'invoice' || link.kind === 'expense';
+  const money = link.kind === 'invoice' || link.kind === 'expense' || link.kind === 'order';
   const amount = money && link.detail?.amount ? formatMoney(link.detail.amount, locale) : null;
   return !link.accessible || !link.title
     ? linkTitle(link, t)
