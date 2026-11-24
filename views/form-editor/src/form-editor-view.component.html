@@ -325,6 +325,15 @@
                   <span class="fe__codeLabel">{{ 'admin.form.compute' | uiKitT }}</span>
                   <textarea class="mono" rows="2" [ngModel]="logicRaw(gi, qi, 'compute', field.compute)" (ngModelChange)="onLogicInput(pos, 'compute', $event)" placeholder='{"+":[{"var":"a"},{"var":"b"}]}'></textarea>
                 </label>
+                @if (!isAmount(field)) {
+                  <app-select
+                    class="fe__narrow"
+                    [label]="'admin.form.format' | uiKitT"
+                    [options]="formatOptions"
+                    [ngModel]="field.format ?? 'number'"
+                    (ngModelChange)="setFormat(pos, $event)"
+                  />
+                }
               }
 
               <div class="fe__advanced">
