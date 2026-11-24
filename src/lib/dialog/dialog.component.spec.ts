@@ -224,6 +224,26 @@ describe('DialogComponent', () => {
     expect(pane()).not.toHaveClass('dialog--lg');
   });
 
+  it('applies the tight body only when asked (002905)', async () => {
+    await render(
+      `<app-dialog heading="X" [open]="true" body="tight"><ng-template dialogBody>B</ng-template></app-dialog>`,
+      {
+        imports: [DialogComponent, DialogBodyDirective],
+      },
+    );
+    expect(pane()).toHaveClass('dialog--tight');
+  });
+
+  it('keeps the normal body by default', async () => {
+    await render(
+      `<app-dialog heading="X" [open]="true"><ng-template dialogBody>B</ng-template></app-dialog>`,
+      {
+        imports: [DialogComponent, DialogBodyDirective],
+      },
+    );
+    expect(pane()).not.toHaveClass('dialog--tight');
+  });
+
   it('closes on a backdrop click but not on a click inside the pane', async () => {
     const closed = jest.fn();
     await render(
