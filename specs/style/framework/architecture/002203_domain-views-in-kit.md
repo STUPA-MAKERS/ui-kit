@@ -2,7 +2,7 @@
 id: "002203"
 title: Domain views are kit components
 kind: style
-status: draft
+status: approved
 owner: frederikbeimgraben
 updated: 2026-11-24
 implementation: null
