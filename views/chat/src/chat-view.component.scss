@@ -649,12 +649,6 @@
   color: inherit;
 }
 
-// A public draft of the guarded switch shows a solid frame, so it differs from an internal
-// draft without color alone (001692).
-.chat__box--public {
-  outline: 2px solid var(--color-text);
-  outline-offset: 2px;
-}
 // The attach button sits inside the field: a plain icon without the tonal group surface.
 .chat__box .btn-grp.btn-grp ::ng-deep .chat__attach .btn {
   background-color: transparent;
@@ -663,9 +657,8 @@
 // Very high contrast (moved from the app stylesheet): on a wide screen the log is a surface with
 // the edge on every side; on the phone it fills a sheet, so it only ends in the line of a scroll
 // area. Every message has the edge, also an internal one, whose tinted ring has no colour of its
-// own in the mode. A public draft of the guarded switch (001692) gets a white ring outside its
-// edge, because the black ring that every field draws inside its edge looks the same for both
-// choices.
+// own in the mode. The field looks the same for both choices: the switch above it shows the
+// chosen visibility (001692).
 :host-context(:root[data-very-high-contrast='on']):not(.chat--phone) .chat__log {
   border: var(--vh-edge) !important;
 }
@@ -674,9 +667,5 @@
   .chat__row .chat__bubble--internal {
     border: var(--vh-edge);
     box-shadow: none !important;
-  }
-  .chat__box.chat__box--public {
-    outline: 2px solid var(--vh-fg) !important;
-    outline-offset: 3px !important;
   }
 }
