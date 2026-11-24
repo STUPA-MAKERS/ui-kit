@@ -2,7 +2,7 @@
 id: "002792"
 title: A row shows code in the monospace font
 kind: style
-status: draft
+status: approved
 owner: frederikbeimgraben
 updated: 2026-11-24
 implementation:

@@ -2,7 +2,7 @@
 id: "002793"
 title: A row can link to another site
 kind: style
-status: draft
+status: approved
 owner: frederikbeimgraben
 updated: 2026-11-24
 implementation:

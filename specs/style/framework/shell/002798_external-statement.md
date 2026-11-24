@@ -2,7 +2,7 @@
 id: "002798"
 title: The accessibility statement can be on another site
 kind: style
-status: draft
+status: approved
 owner: frederikbeimgraben
 updated: 2026-11-24
 implementation:

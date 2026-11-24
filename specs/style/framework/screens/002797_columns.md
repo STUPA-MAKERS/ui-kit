@@ -2,7 +2,7 @@
 id: "002797"
 title: A detail body can have two columns
 kind: style
-status: draft
+status: approved
 owner: frederikbeimgraben
 updated: 2026-11-24
 implementation:

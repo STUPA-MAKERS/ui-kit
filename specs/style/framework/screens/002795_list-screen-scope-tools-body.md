@@ -2,7 +2,7 @@
 id: "002795"
 title: The list/detail screen has a scope, tools and a body in place of the rows
 kind: style
-status: draft
+status: approved
 owner: frederikbeimgraben
 updated: 2026-11-24
 implementation:

@@ -2,7 +2,7 @@
 id: "002791"
 title: The UML view takes the drawing of the spec explorer
 kind: style
-status: draft
+status: approved
 owner: frederikbeimgraben
 updated: 2026-11-24
 implementation:
