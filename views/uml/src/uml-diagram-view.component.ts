@@ -35,8 +35,6 @@ const STEP = 1.25;
 /** The tools sit over the top end corner, so the fitted drawing starts below them. */
 const FIT_TOP = 64;
 
-let nextId = 0;
-
 /**
  * The SVG drawing of one laid-out UML view, with zoom and move (S/framework/views/002791), a
  * copy of the drawing of the page UML of the spec explorer.
@@ -71,7 +69,7 @@ export class UmlDiagramViewComponent {
   protected readonly lineH = UML_LINE_H;
   protected readonly padX = UML_PAD_X;
   protected readonly step = STEP;
-  protected readonly arrowId = `ud-arrow-${nextId++}`;
+  protected readonly arrowId = `ud-arrow-${Math.random().toString(36).slice(2, 10)}`;
   protected readonly arrowRef = `url(#${this.arrowId})`;
 
   private readonly frame = viewChild.required<ElementRef<HTMLElement>>('frame');
@@ -163,7 +161,7 @@ export class UmlDiagramViewComponent {
     const dy = event.clientY - d.sy;
     if (!d.moved && Math.hypot(dx, dy) < 4) return;
     if (!d.moved) {
-      d.moved = true;
+      this.drag = { ...d, moved: true };
       this.dragging.set(true);
       (event.currentTarget as HTMLElement | null)?.setPointerCapture?.(event.pointerId);
     }
