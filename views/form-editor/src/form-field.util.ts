@@ -147,14 +147,23 @@ export function participantsProblem(
 /**
  * The validation settings that belong to the type of the field. The switch for the number
  * of participants belongs to `number`, the root of the picker to `budget_select`; the
- * server refuses them on another type, so a changed type drops them.
+ * server refuses them on another type, so a changed type drops them. The switches that are
+ * on by default (app specs 003000-003004) belong to `positions` and `funding`; only `false`
+ * is stored.
  */
 function typeValidation(field: FormFieldDef): FormFieldDef['validation'] {
   const v = field.validation;
   if (!v) return v;
-  const { participants, rootPath, ...rest } = v;
+  const { participants, rootPath, costLine, placeholderWarning, positionFiles, fileReminder, capAtCost, ...rest } =
+    v;
+  const positions = field.type === 'positions';
   return {
     ...rest,
+    ...(positions && costLine === false ? { costLine: false } : {}),
+    ...(positions && placeholderWarning === false ? { placeholderWarning: false } : {}),
+    ...(positions && positionFiles === false ? { positionFiles: false } : {}),
+    ...(positions && fileReminder === false ? { fileReminder: false } : {}),
+    ...(field.type === 'funding' && capAtCost === false ? { capAtCost: false } : {}),
     ...(field.type === 'number' && participants ? { participants: true } : {}),
     ...(field.type === 'budget_select' && rootPath?.trim() ? { rootPath: rootPath.trim() } : {}),
   };

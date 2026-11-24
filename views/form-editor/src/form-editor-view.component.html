@@ -299,7 +299,20 @@
                     [ngModel]="field.validation?.allowNoOffers !== false"
                     (ngModelChange)="setAllowNoOffers(pos, $event)"
                   >{{ 'admin.form.allowNoOffers' | uiKitT }}</app-checkbox>
+                  @for (s of positionSwitches; track s.key) {
+                    <app-checkbox
+                      [ngModel]="field.validation?.[s.key] !== false"
+                      (ngModelChange)="setDefaultOn(pos, s.key, $event)"
+                    >{{ s.label | uiKitT }}</app-checkbox>
+                  }
                 </fieldset>
+              }
+
+              @if (field.type === 'funding') {
+                <app-checkbox
+                  [ngModel]="field.validation?.capAtCost !== false"
+                  (ngModelChange)="setDefaultOn(pos, 'capAtCost', $event)"
+                >{{ 'admin.form.capAtCost' | uiKitT }}</app-checkbox>
               }
 
               @if (field.type === 'number') {

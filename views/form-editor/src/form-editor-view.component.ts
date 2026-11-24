@@ -73,6 +73,17 @@ const TYPE_MENU_HEIGHT = 9 * 36 + 16;
 /** Stable address of a question: group index and question index inside the group. */
 type QPos = QuestionPos;
 
+/** A setting of a field that is on while it is not stored as `false` (app specs 003000-003004). */
+type DefaultOnKey = 'costLine' | 'placeholderWarning' | 'positionFiles' | 'fileReminder' | 'capAtCost';
+
+/** The switches of a `positions` field that are on by default, in the order of the panel. */
+const POSITION_SWITCHES: readonly { readonly key: DefaultOnKey; readonly label: UiKitTextKey }[] = [
+  { key: 'costLine', label: 'admin.form.costLine' },
+  { key: 'placeholderWarning', label: 'admin.form.placeholderWarning' },
+  { key: 'positionFiles', label: 'admin.form.positionFiles' },
+  { key: 'fileReminder', label: 'admin.form.fileReminder' },
+];
+
 /**
  * The body of the form editor of STUPA-Workflow, built around explicit **question groups**: a
  * copy of the columns of `app-form-editor` (002278). The app keeps the page: the load, the save,
@@ -767,6 +778,21 @@ export class FormEditorViewComponent {
       const validation = allowed
         ? withoutKey(current, 'allowNoOffers')
         : { ...current, allowNoOffers: false };
+      return { ...f, validation: validation as FormFieldDef['validation'] };
+    });
+  }
+
+  /** The switches of a `positions` field that are on by default (app specs 003000-003003). */
+  protected readonly positionSwitches = POSITION_SWITCHES;
+
+  /**
+   * A switch that is on by default (app specs 003000-003004). Only `false` is stored, so a
+   * form without the setting keeps the default.
+   */
+  protected setDefaultOn(pos: QPos, key: DefaultOnKey, on: boolean): void {
+    this.patchQuestion(pos, (f) => {
+      const current = f.validation ?? {};
+      const validation = on ? withoutKey(current, key) : { ...current, [key]: false };
       return { ...f, validation: validation as FormFieldDef['validation'] };
     });
   }
