@@ -43,7 +43,8 @@ Import the design-system styles once in the app's global stylesheet:
 
 The self-hosted **IBM Plex Sans** (400/500/600/700) and **IBM Plex Mono** (400/500) fonts
 are referenced at the absolute path `/assets/fonts/ibm-plex-*.woff2`, in a `latin` and a
-`latin-ext` subset. Copy the kit's font assets into the app's served assets, e.g. in
+`latin-ext` subset. IBM Plex Sans has an `arrows` subset too, so an arrow in a text (→) comes
+from the same font as the text. Copy the kit's font assets into the app's served assets, e.g. in
 `angular.json`:
 
 ```jsonc
