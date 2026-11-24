@@ -42,7 +42,7 @@ import {
   type UiKitTextKey,
   UiKitTranslatePipe,
 } from '@stupa-makers/ui-kit';
-import type { ComputedFormat, FieldType, FormFieldDef } from './form-editor.types';
+import type { ComputedFormat, FieldType, FormFieldDef, SignatureRow } from './form-editor.types';
 import {
   COMPUTED_FORMATS,
   FIELD_TYPES,
@@ -172,6 +172,8 @@ export class FormEditorViewComponent {
   readonly hasBudget = model(false);
   /** The Antrag PDF of this type ends with the signature section (app spec 000888). */
   readonly pdfSignatures = model(false);
+  /** The signature rows of the Antrag PDF, in order (app spec 003005). */
+  readonly signatureRows = model<readonly SignatureRow[]>([]);
   /** "Anhang Pflicht": an Antrag of this type needs a file (app spec 001732). */
   readonly attachmentRequired = model(false);
   /** Comparison-offers rule: required + minimum count. */
@@ -779,6 +781,30 @@ export class FormEditorViewComponent {
         ? withoutKey(current, 'allowNoOffers')
         : { ...current, allowNoOffers: false };
       return { ...f, validation: validation as FormFieldDef['validation'] };
+    });
+  }
+
+  /** Change one signature row (app spec 003005). */
+  protected setSignatureRow(index: number, patch: Partial<SignatureRow>): void {
+    this.signatureRows.update((rows) => rows.map((r, i) => (i === index ? { ...r, ...patch } : r)));
+  }
+
+  protected addSignatureRow(): void {
+    this.signatureRows.update((rows) => [...rows, { label: '', signer: '' }]);
+  }
+
+  protected removeSignatureRow(index: number): void {
+    this.signatureRows.update((rows) => rows.filter((_, i) => i !== index));
+  }
+
+  /** Move a signature row one place up (-1) or down (1). */
+  protected moveSignatureRow(index: number, by: -1 | 1): void {
+    this.signatureRows.update((rows) => {
+      const to = index + by;
+      if (to < 0 || to >= rows.length) return rows;
+      const next = [...rows];
+      [next[index], next[to]] = [next[to], next[index]];
+      return next;
     });
   }
 

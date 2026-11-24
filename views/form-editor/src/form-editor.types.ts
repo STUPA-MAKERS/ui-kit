@@ -122,3 +122,9 @@ export interface FormFieldDef {
 
 /** The display format of a `computed` field (app spec 002962). */
 export type ComputedFormat = 'number' | 'money' | 'percent';
+
+/** One signature row of the Antrag PDF (app spec 003005): the label and the signer. */
+export interface SignatureRow {
+  readonly label: string;
+  readonly signer: string;
+}
