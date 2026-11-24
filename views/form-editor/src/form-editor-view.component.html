@@ -344,6 +344,9 @@
                     @if (isNumeric(field.type)) {
                       <app-checkbox [ngModel]="field.isPromoted" (ngModelChange)="onPromotedToggle(pos, $event)">{{ 'admin.form.isPromoted' | uiKitT }}</app-checkbox>
                     }
+                    @if (field.type === 'computed') {
+                      <app-checkbox [ngModel]="isAmount(field)" (ngModelChange)="onAmountToggle(pos, $event)">{{ 'admin.form.isAmount' | uiKitT }}</app-checkbox>
+                    }
                   </div>
                   @if (isNumeric(field.type) && field.isPromoted) {
                     <app-select

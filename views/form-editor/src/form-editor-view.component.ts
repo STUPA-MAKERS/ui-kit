@@ -596,6 +596,20 @@ export class FormEditorViewComponent {
     });
   }
 
+  /** A computed field that is the amount of the Antrag (app spec 002843). */
+  protected isAmount(field: FormFieldDef): boolean {
+    return !!field.isPromoted && field.promoteTarget === 'amount';
+  }
+
+  /** Amount switch of a computed field: on sets the amount as its target, off removes both. */
+  protected onAmountToggle(pos: QPos, checked: boolean): void {
+    this.patchQuestion(pos, (f) =>
+      checked
+        ? { ...f, isPromoted: true, promoteTarget: 'amount' }
+        : withoutKey(withoutKey(f, 'isPromoted'), 'promoteTarget'),
+    );
+  }
+
   protected addOption(pos: QPos): void {
     this.patchQuestion(pos, (f) => ({ ...f, options: [...(f.options ?? []), blankOption()] }));
   }
