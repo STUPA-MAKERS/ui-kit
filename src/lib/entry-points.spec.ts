@@ -19,6 +19,7 @@ const EXPECTED = [
   'views/meeting',
   'views/plan-table',
   'views/protocol',
+  'views/uml',
   'views/voting',
 ];
 

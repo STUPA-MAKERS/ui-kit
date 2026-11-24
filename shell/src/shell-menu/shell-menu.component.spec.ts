@@ -27,6 +27,20 @@ async function setUp(menu: ShellMenuKind, items: readonly Action[] = [], reportB
 describe('ShellMenuComponent', () => {
   afterEach(() => localStorage.clear());
 
+  it('opens a statement on another site in a new tab (002798)', async () => {
+    await render(ShellMenuComponent, {
+      inputs: {
+        variant: 'sheet',
+        menu: 'a11y',
+        statementLink: 'https://example.org/barrierefreiheit',
+      },
+      providers: [provideRouter([])],
+    });
+    const link = screen.getByRole('link', { name: /Barrierefreiheit/ });
+    expect(link.getAttribute('href')).toBe('https://example.org/barrierefreiheit');
+    expect(link.getAttribute('target')).toBe('_blank');
+  });
+
   it('shows the display switches and the statement link in the a11y menu', async () => {
     await setUp('a11y');
     for (const name of [

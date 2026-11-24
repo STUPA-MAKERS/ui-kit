@@ -301,6 +301,16 @@
   overflow: hidden;
   text-overflow: ellipsis;
 }
+/* `code`: a rule ID, a path or a file name in the monospace font (002792). */
+.li--codeTitle .li__titleText {
+  font-family: var(--font-mono);
+  font-size: var(--fs-small);
+  font-variant-numeric: tabular-nums;
+}
+.li--codeSub .li__sub {
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+}
 .li--subWrap .li__sub {
   white-space: normal;
   overflow-wrap: anywhere;

@@ -106,6 +106,16 @@ export class ListItemComponent {
    * which must stay whole and selectable.
    */
   readonly subWrap = input(false, { transform: booleanAttribute });
+  /**
+   * The title or the sub line is code (a rule ID, a path, a file name): it shows in the
+   * monospace font. §S/framework/screens/002792
+   */
+  readonly code = input<'title' | 'sub' | null>(null);
+  /**
+   * A link to another site: the title is an `<a href>` that opens in a new tab. A router
+   * `link` wins over it. §S/framework/screens/002793
+   */
+  readonly href = input<string | null>(null);
 
   /** The row menu item that a swipe to the right carries out, if any. */
   readonly swipeRight = input<RowSwipeAction | null>(null);

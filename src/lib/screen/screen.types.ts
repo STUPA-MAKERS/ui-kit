@@ -119,6 +119,10 @@ export interface ListRow {
   readonly trailing?: string;
   readonly mark?: Mark;
   readonly link?: RouteLink;
+  /** A link to another site, opened in a new tab; the row ends in the icon `ext`. (002793) */
+  readonly href?: string;
+  /** The title or the meta line is code and shows in the monospace font. (002792) */
+  readonly code?: 'title' | 'meta';
   readonly actions?: readonly Action[];
   readonly selectable?: boolean;
   readonly swipe?: { readonly start?: Action; readonly end?: Action };
@@ -128,6 +132,8 @@ export interface ListRow {
 export interface ListGroup {
   readonly key: string;
   readonly label: string;
+  /** The colour of the group head; default `accent`. (002794) */
+  readonly tone?: 'accent' | 'warn';
   readonly rows: readonly ListRow[];
 }
 

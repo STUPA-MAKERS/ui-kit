@@ -75,7 +75,8 @@ export interface FrameworkConfig {
   readonly footer?: {
     readonly links: readonly { readonly label: string; readonly link: RouteLink }[];
   };
-  readonly a11yStatement: RouteLink;
+  /** The route of the statement, or the address of a statement on another site (002798). */
+  readonly a11yStatement: RouteLink | string;
   /** Show "Barriere melden" in the accessibility menu; it emits the action `reportBarrier`. §S/framework/shell/002292 */
   readonly reportBarrier?: boolean;
   readonly languages: readonly ShellLanguage[];

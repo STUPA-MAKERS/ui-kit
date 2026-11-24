@@ -1,4 +1,5 @@
 @use '../../../src/styles/list-pane' as lp;
+@use '../../../src/styles/breakpoints' as bp;
 
 // The frame of every list page (000192): the kit mixin, nothing of its own.
 @include lp.frame(lds);
@@ -16,4 +17,32 @@
   display: flex;
   align-items: center;
   gap: var(--space-2);
+}
+
+// `listWidth: 'fill'`: the list column takes the width that the detail column leaves (002795).
+.lds--fill {
+  --ld-list-width: calc(100% - var(--ld-gap, 1rem) - clamp(20rem, 28vw, 26rem));
+}
+// The tools stand at the end of the line of the filter chips; on a phone they wrap to the start.
+.lds__tools {
+  display: flex;
+  margin-inline-start: auto;
+}
+@include bp.phone {
+  .lds__tools {
+    margin-inline-start: 0;
+  }
+}
+// The content in place of the rows fills the free height of the column (002795).
+.lds__body {
+  display: flex;
+  flex: 1 1 auto;
+  flex-direction: column;
+  min-height: 0;
+  padding-block-end: var(--space-4);
+}
+@include bp.phone {
+  .lds__body {
+    min-height: 60vh;
+  }
 }

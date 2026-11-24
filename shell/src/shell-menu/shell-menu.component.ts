@@ -120,8 +120,11 @@ export class ShellMenuComponent {
   readonly menu = input<ShellMenuKind>('help');
   /** The entries of "Hilfe". */
   readonly items = input<readonly Action[]>([]);
-  /** The route of the accessibility statement. */
-  readonly statementLink = input<RouteLink>({ commands: ['/accessibility'] });
+  /**
+   * The route of the accessibility statement, or the address of a statement on another site,
+   * which opens in a new tab. §S/framework/shell/002798
+   */
+  readonly statementLink = input<RouteLink | string>({ commands: ['/accessibility'] });
   /** Show "Barriere melden" after the statement link. §S/framework/shell/002292 */
   readonly reportBarrier = input(false);
 
@@ -238,9 +241,16 @@ export class ShellMenuComponent {
     this.display.reset();
   }
 
-  /** The statement getter for the template. */
+  /** The statement getter for the template: the route. */
   protected get statement(): RouteLink {
-    return this.statementLink();
+    const link = this.statementLink();
+    return typeof link === 'string' ? { commands: [] } : link;
+  }
+
+  /** The address of a statement on another site, or null for a route. */
+  protected statementHref(): string | null {
+    const link = this.statementLink();
+    return typeof link === 'string' ? link : null;
   }
 
   /** The address without the scheme, as the second line of a link: it wraps, it is never cut. */

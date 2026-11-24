@@ -332,7 +332,7 @@ specs/
 | [S/framework/architecture/002200](style/framework/architecture/002200_apps-fill-screens.md) | An app only fills the screens of the kit | approved |
 | [S/framework/architecture/002201](style/framework/architecture/002201_screen-catalogue.md) | The kit has one screen for each page pattern | approved |
 | [S/framework/architecture/002202](style/framework/architecture/002202_data-driven-components.md) | A kit component is driven by its inputs | approved |
-| [S/framework/architecture/002203](style/framework/architecture/002203_domain-views-in-kit.md) | Domain views are kit components | approved |
+| [S/framework/architecture/002203](style/framework/architecture/002203_domain-views-in-kit.md) | Domain views are kit components | draft |
 | [S/framework/architecture/002204](style/framework/architecture/002204_view-models.md) | A kit view model is a typed interface of the kit | approved |
 | [S/framework/architecture/002205](style/framework/architecture/002205_no-app-styles.md) | An app has no stylesheet of its own | approved |
 | [S/framework/architecture/002206](style/framework/architecture/002206_ui-features-everywhere.md) | Every UI feature of the kit is on in every app | approved |
@@ -357,7 +357,7 @@ specs/
 | [S/framework/screens/002216](style/framework/screens/002216_screen-anatomy.md) | A screen has a head, a body and fixed places for the rest | approved |
 | [S/framework/screens/002217](style/framework/screens/002217_screen-inputs.md) | A screen takes its frame as data and its content as slots | approved |
 | [S/framework/screens/002218](style/framework/screens/002218_list-detail-contract.md) | The list/detail screen owns the list, the panes and the URL state | approved |
-| [S/framework/screens/002240](style/framework/screens/002240_list-detail-screen.md) | The list/detail screen has a fixed interface | approved |
+| [S/framework/screens/002240](style/framework/screens/002240_list-detail-screen.md) | The list/detail screen has a fixed interface | draft |
 | [S/framework/screens/002241](style/framework/screens/002241_detail-screen.md) | The detail screen has a fixed interface | approved |
 | [S/framework/screens/002242](style/framework/screens/002242_form-screen.md) | The form screen has a fixed interface | approved |
 | [S/framework/screens/002243](style/framework/screens/002243_wizard-screen.md) | The wizard screen has a fixed interface | approved |
@@ -371,12 +371,19 @@ specs/
 | [S/framework/screens/002257](style/framework/screens/002257_records-screen.md) | The records screen has a fixed interface | approved |
 | [S/framework/screens/002258](style/framework/screens/002258_record-section.md) | The record section has a fixed interface | approved |
 | [S/framework/screens/002259](style/framework/screens/002259_sections-screen.md) | The sections screen has a fixed interface | approved |
+| [S/framework/screens/002792](style/framework/screens/002792_code-rows.md) | A row shows code in the monospace font | draft |
+| [S/framework/screens/002793](style/framework/screens/002793_external-rows.md) | A row can link to another site | draft |
+| [S/framework/screens/002794](style/framework/screens/002794_group-tone.md) | A row group of a list screen can have the warning colour | draft |
+| [S/framework/screens/002795](style/framework/screens/002795_list-screen-scope-tools-body.md) | The list/detail screen has a scope, tools and a body in place of the rows | draft |
+| [S/framework/screens/002796](style/framework/screens/002796_list-screen-reset.md) | The list/detail screen can reset the search and the filters | draft |
+| [S/framework/screens/002797](style/framework/screens/002797_columns.md) | A detail body can have two columns | draft |
 | [S/framework/shell/002260](style/framework/shell/002260_framework-config.md) | provideFramework takes one FrameworkConfig | approved |
 | [S/framework/shell/002261](style/framework/shell/002261_port-types.md) | The ports have fixed types | approved |
 | [S/framework/shell/002262](style/framework/shell/002262_route-helpers.md) | The route helpers have fixed signatures | approved |
 | [S/framework/shell/002263](style/framework/shell/002263_frames.md) | The shell has four frames | approved |
 | [S/framework/shell/002264](style/framework/shell/002264_menus.md) | The help, accessibility and account menus come from the shell | approved |
 | [S/framework/shell/002292](style/framework/shell/002292_barrier-report-entry.md) | The accessibility menu has an entry to report a barrier | approved |
+| [S/framework/shell/002798](style/framework/shell/002798_external-statement.md) | The accessibility statement can be on another site | draft |
 | [S/framework/state/002220](style/framework/state/002220_load-state.md) | A load state is one type for every view | approved |
 | [S/framework/state/002221](style/framework/state/002221_ui-state-in-kit.md) | A kit component holds its UI state and the app holds the data | approved |
 | [S/framework/testing/002228](style/framework/testing/002228_tests-in-kit.md) | The kit tests a view, the app tests its adapter | approved |
@@ -402,6 +409,7 @@ specs/
 | [S/framework/views/002278](style/framework/views/002278_form-editor-view.md) | The form editor view takes the body of the Formular-Editor | approved |
 | [S/framework/views/002279](style/framework/views/002279_plan-table-view.md) | The plan views take the line table, the tree rows and the sums | approved |
 | [S/framework/views/002280](style/framework/views/002280_activity-view.md) | The activity view takes entries | approved |
+| [S/framework/views/002791](style/framework/views/002791_uml-view.md) | The UML view takes the drawing of the spec explorer | draft |
 | [S/frontend/angular/000077](style/frontend/angular/000077_load-bar.md) | Only foreground reads show the load bar | replaced |
 | [S/frontend/angular/000395](style/frontend/angular/000395_semantic-tokens.md) | Components use semantic colour tokens | approved |
 | [S/frontend/angular/000632](style/frontend/angular/000632_admin-load-state.md) | An admin page shows its load states through app-load-state | approved |

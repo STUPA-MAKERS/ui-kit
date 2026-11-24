@@ -25,6 +25,7 @@ export type {
   UiKitMeetingTextKey,
   UiKitPlanTableTextKey,
   UiKitProtocolTextKey,
+  UiKitUmlTextKey,
   UiKitVotingTextKey,
   UiLang,
 } from './intl';

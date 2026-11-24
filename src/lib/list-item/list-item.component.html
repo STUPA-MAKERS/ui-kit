@@ -30,7 +30,16 @@
       <span class="li-sw__label">{{ a.label }}</span><app-icon class="li-sw__icon" [name]="a.icon" [size]="22" />
     </div>
   }
-<div #fg class="li" [class.li--on]="selected() || checked()" [class.li--wrap]="wrap()" [class.li--subWrap]="subWrap()" (pointerenter)="measure()">
+<div
+  #fg
+  class="li"
+  [class.li--on]="selected() || checked()"
+  [class.li--wrap]="wrap()"
+  [class.li--subWrap]="subWrap()"
+  [class.li--codeTitle]="code() === 'title'"
+  [class.li--codeSub]="code() === 'sub'"
+  (pointerenter)="measure()"
+>
   <span class="li__lead"><ng-content select="[lead]" /></span>
   <span class="li__body">
     <span class="li__head">
@@ -42,6 +51,16 @@
           [queryParamsHandling]="linkQueryParamsHandling()"
           [attr.title]="tooltip()"
           [attr.aria-current]="selected() ? 'true' : null"
+          (click)="activate.emit()"
+          ><span #titleText class="li__titleText">{{ title() }}</span></a
+        >
+      } @else if (href(); as url) {
+        <a
+          class="li__title"
+          [href]="url"
+          target="_blank"
+          rel="noopener"
+          [attr.title]="tooltip()"
           (click)="activate.emit()"
           ><span #titleText class="li__titleText">{{ title() }}</span></a
         >

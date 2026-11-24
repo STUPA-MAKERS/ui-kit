@@ -154,3 +154,25 @@ describe('RecordSectionComponent', () => {
     expect(await runAxe(view.container)).toHaveNoViolations();
   });
 });
+
+// §S/framework/screens/002792 §S/framework/screens/002793
+describe('RecordSectionComponent rows of the spec explorer', () => {
+  it('links a row to another site with the icon ext and shows code in the monospace font', async () => {
+    const view = await render(Host, { providers: [provideRouter([])] });
+    view.fixture.componentInstance.rows.set({
+      state: 'ready',
+      data: [
+        { id: 'p', title: 'backend/app/main.py', code: 'title', href: 'https://example.org/main.py' },
+        { id: 'm', title: 'frontend/x.ts', code: 'title', href: 'https://example.org/x.ts', status: { label: 'Fehlt', kind: 'error' } },
+      ],
+    });
+    view.fixture.detectChanges();
+    const link = screen.getByRole('link', { name: 'backend/app/main.py' });
+    expect(link.getAttribute('href')).toBe('https://example.org/main.py');
+    expect(link.getAttribute('rel')).toBe('noopener');
+    const rows = view.container.querySelectorAll('app-list-item');
+    expect(rows[0]!.querySelector('.li--codeTitle app-icon')).not.toBeNull();
+    expect(rows[1]!.textContent).toContain('Fehlt');
+    expect(rows[1]!.querySelector('app-icon')).toBeNull();
+  });
+});

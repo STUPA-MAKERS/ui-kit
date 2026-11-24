@@ -2,9 +2,9 @@
 id: "002203"
 title: Domain views are kit components
 kind: style
-status: approved
+status: draft
 owner: frederikbeimgraben
-updated: 2026-11-20
+updated: 2026-11-24
 implementation: null
 scope:
   - src/lib
@@ -15,9 +15,9 @@ scope:
 
 A view that shows the data of a domain must be a kit component too. This includes the protocol
 editor and its view, the graph, the calendar, the to-do board, the vote card and the ballot, the
-attendance matrix, the agenda, the chat, the flow editor, the form editor, the plan table and the
-activity row. The app must only convert its API models to the view models of the kit and send the
-outputs to its API.
+attendance matrix, the agenda, the chat, the flow editor, the form editor, the plan table, the
+activity row and the UML drawing of the spec explorer. The app must only convert its API models to
+the view models of the kit and send the outputs to its API.
 
 Reason: An app that has only adapters has no own UI that can drift from the kit.
 

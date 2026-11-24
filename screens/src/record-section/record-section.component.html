@@ -40,11 +40,15 @@
               role="listitem"
               [title]="row.title"
               [link]="row.link ? $any(row.link.commands) : null"
+              [href]="row.href ?? null"
+              [code]="row.code === 'meta' ? 'sub' : (row.code ?? null)"
               [subWrap]="true"
               [sub]="row.meta?.join(' · ') ?? null"
             >
               @if (row.status; as st) {
                 <app-status-text status [kind]="st.kind">{{ st.label }}</app-status-text>
+              } @else if (row.href) {
+                <app-icon trail name="ext" [size]="16" />
               }
               @if (row.actions?.length) {
                 <app-row-menu
