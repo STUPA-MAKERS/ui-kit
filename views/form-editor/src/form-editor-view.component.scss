@@ -365,6 +365,24 @@
   gap: var(--space-2);
 }
 
+/* A signature row of the side card: the side card is narrow, so the two fields and the
+   buttons stack (app spec 003005). */
+.fe__sigs {
+  margin-left: 1.75rem;
+}
+
+.fe__sig {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--space-2);
+  padding-bottom: var(--space-3);
+  border-bottom: 1px solid var(--color-border);
+}
+
+.fe__sig > app-button-group {
+  justify-self: end;
+}
+
 .fe__inlineAdd {
   align-self: flex-start;
   margin-left: calc(-1 * var(--space-2));

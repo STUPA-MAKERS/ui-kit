@@ -448,10 +448,10 @@
           (ngModelChange)="pdfSignatures.set($event)"
         >{{ 'admin.forms.pdfSignatures' | uiKitT }}</app-checkbox>
         @if (pdfSignatures()) {
-          <fieldset class="fe__sub fe__indent">
+          <fieldset class="fe__sub fe__sigs">
             <legend class="cap fe__cap">{{ 'admin.forms.signatureRows' | uiKitT }}</legend>
             @for (row of signatureRows(); track $index; let ri = $index; let last = $last) {
-              <div class="fe__opt">
+              <div class="fe__sig">
                 <app-input
                   [label]="'admin.forms.signatureLabel' | uiKitT"
                   [ngModel]="row.label"
