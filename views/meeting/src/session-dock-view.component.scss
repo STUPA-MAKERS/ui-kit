@@ -243,7 +243,9 @@
     overflow-x: auto;
     scrollbar-width: none;
   }
-  .sd__next {
+  // The next arrow sits in its own button group, and the group is the flex item.
+  .sd__next,
+  app-button-group:has(> .sd__next) {
     order: 1;
   }
   .sd__mid {
