@@ -1,5 +1,5 @@
 import { ChangeDetectionStrategy, Component, signal } from '@angular/core';
-import { provideRouter, Router } from '@angular/router';
+import { provideRouter, Router, RouterOutlet } from '@angular/router';
 import { TestBed } from '@angular/core/testing';
 import { render, screen } from '@testing-library/angular';
 import userEvent from '@testing-library/user-event';
@@ -134,5 +134,35 @@ describe('ListDetailScreenComponent for the spec explorer', () => {
   it('has no axe violations', async () => {
     const view = await setUp();
     await runAxe(view.container);
+  });
+});
+
+// §S/framework/screens/002240: a detail route with its own parameter opens on the first load.
+describe('ListDetailScreenComponent with config.param', () => {
+  it('reads the open row from the parameter of the config on the first load', async () => {
+    @Component({
+      changeDetection: ChangeDetectionStrategy.Eager,
+      standalone: true,
+      imports: [ListDetailScreenComponent],
+      template: `<app-list-detail-screen
+        [head]="{ title: 'Verweise' }"
+        [rows]="{ state: 'ready', data: [{ id: '0', title: 'Erster', link: { commands: ['/l', '0'] } }] }"
+        [none]="{ heading: 'Keiner', icon: 'link' }"
+        [config]="{ param: 'n' }"
+      />`,
+    })
+    class Page {}
+    const view = await render('<router-outlet />', {
+      imports: [RouterOutlet],
+      providers: [
+        provideRouter([{ path: 'l', component: Page, children: [{ path: ':n', component: Blank }] }]),
+      ],
+    });
+    await TestBed.inject(Router).navigateByUrl('/l/0');
+    view.detectChanges();
+    await view.fixture.whenStable();
+    view.detectChanges();
+    const row = document.querySelector('app-list-item .li');
+    expect(row?.classList).toContain('li--on');
   });
 });

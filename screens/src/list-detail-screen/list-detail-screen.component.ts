@@ -15,6 +15,7 @@ import {
   input,
   output,
   signal,
+  untracked,
   viewChild,
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
@@ -315,6 +316,12 @@ export class ListDetailScreenComponent implements ListPageState {
       this.params.set(this.route.snapshot.queryParams);
     };
     read();
+    // The inputs are not set yet in the constructor, so a route parameter other than `id`
+    // (`config.param`) is read again once the config is there.
+    effect(() => {
+      this.config();
+      untracked(read);
+    });
     this.router.events
       .pipe(
         filter((e) => e instanceof NavigationEnd),
