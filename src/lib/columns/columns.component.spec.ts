@@ -23,6 +23,6 @@ describe('ColumnsComponent', () => {
     const view = await render(Host);
     expect(view.container.querySelector('.cols__col--main')?.textContent).toBe('Regel');
     expect(view.container.querySelector('.cols__col--side')?.textContent).toBe('Verweise');
-    await runAxe(view.container);
+    expect(await runAxe(view.container)).toHaveNoViolations();
   });
 });
