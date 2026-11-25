@@ -21,6 +21,8 @@ import {
   LockedFieldComponent,
   AddRowComponent,
   MoveButtonsComponent,
+  StepListComponent,
+  StepRowComponent,
   TextareaComponent,
   ButtonComponent,
   CardComponent,
@@ -183,6 +185,8 @@ class PrimitivesHost {
     LockedFieldComponent,
     AddRowComponent,
     MoveButtonsComponent,
+    StepListComponent,
+    StepRowComponent,
     TextareaComponent,
   ],
   template: `
@@ -201,6 +205,14 @@ class PrimitivesHost {
       <p><app-highlight text="Lastenrad im Radhaus" query="rad" /></p>
       <app-locked-field label="Haushaltsjahr">2026</app-locked-field>
       <app-add-row>Position hinzufügen</app-add-row>
+      <app-step-list>
+        <app-step-row [number]="1" [columns]="2">
+          <app-input stepMain label="Name des Status 1" />
+          <span stepActions><app-move-buttons [upDisabled]="true" [downDisabled]="true" /></span>
+          <app-input stepField label="Phase des Status 1" />
+          <app-input stepField label="Farbe des Status 1" />
+        </app-step-row>
+      </app-step-list>
       <app-autocomplete
         inputId="a11y-ac"
         label="Antrag"
