@@ -37,6 +37,11 @@
     transparent
   );
   --mat-slide-toggle-disabled-unselected-handle-color: var(--check-edge, var(--color-text-muted));
+  --mat-slide-toggle-disabled-unselected-track-outline-color: color-mix(
+    in srgb,
+    var(--check-edge, var(--color-border-strong)) 50%,
+    transparent
+  );
   --mat-slide-toggle-disabled-selected-track-color: color-mix(
     in srgb,
     var(--check-on, var(--color-accent)) 50%,
@@ -64,6 +69,10 @@
 }
 .sw__toggle {
   flex: none;
+}
+/* Material draws the edge of a disabled track in both states; a switch that is on has none. */
+.sw--on {
+  --mat-slide-toggle-disabled-unselected-track-outline-color: transparent;
 }
 .sw--disabled .sw__label {
   cursor: not-allowed;
