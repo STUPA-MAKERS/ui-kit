@@ -14,7 +14,7 @@ export interface PersonRef {
   readonly displayName: string | null;
 }
 
-export type TodoBoardKind = 'gremium' | 'free' | 'personal' | 'team';
+export type TodoBoardKind = 'team' | 'free' | 'personal' | 'permission';
 export type TodoLabelColor = 'green' | 'blue' | 'violet' | 'amber' | 'red' | 'gray';
 export type TodoLinkKind =
   | 'application'

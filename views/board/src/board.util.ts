@@ -32,9 +32,9 @@ export function rowDropId(columnId: Uuid): string {
 /** The icon of each board kind. */
 export const BOARD_ICON: Record<TodoBoardKind, IconName> = {
   personal: 'user',
-  gremium: 'landmark',
+  team: 'landmark',
   free: 'kanban',
-  team: 'ticket',
+  permission: 'ticket',
 };
 
 export const LINK_ICON: Record<TodoLinkKind, IconName> = {
@@ -326,7 +326,7 @@ export function insertTile<B extends TileBoard & { readonly id: Uuid }>(
 
 /**
  * Tell if a card may move from a board of kind `from` to a board of kind `to`. A card of a
- * shared board (gremium, team) never moves into a personal board: the server refuses it with
+ * shared board (team, free, permission) never moves into a personal board: the server refuses it with
  * 403 `transfer_to_personal`, because the comments, files and links would then leave the
  * reach of everyone else on the board. The transfer dialog and every drop list ask this.
  */
@@ -354,9 +354,9 @@ export function dropEnter(to: TodoBoardKind): (drag: DragSource) => boolean {
 /** The drop predicate of each board kind, one function per kind (a stable input). */
 export const DROP_ENTER: Record<TodoBoardKind, (drag: DragSource) => boolean> = {
   personal: dropEnter('personal'),
-  gremium: dropEnter('gremium'),
-  free: dropEnter('free'),
   team: dropEnter('team'),
+  free: dropEnter('free'),
+  permission: dropEnter('permission'),
 };
 
 /** Drop a card from the board (archived). */
