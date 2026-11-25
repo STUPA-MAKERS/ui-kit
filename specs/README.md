@@ -151,6 +151,7 @@ specs/
 | [NF/accessibility/settings/000739](requirements/non-functional/accessibility/settings/000739_copy-box-yellow-fill.md) | In very high contrast, a box with a text to copy is a yellow fill | approved |
 | [NF/accessibility/settings/001352](requirements/non-functional/accessibility/settings/001352_very-high-contrast-button-group.md) | In very high contrast, a head group is yellow with black gaps | approved |
 | [NF/accessibility/settings/001980](requirements/non-functional/accessibility/settings/001980_very-high-contrast-tab-bar.md) | In very high contrast, a tab bar is one group with a yellow bar under the open tab | approved |
+| [NF/accessibility/settings/003020](requirements/non-functional/accessibility/settings/003020_disabled-switch-shows-state.md) | A disabled switch still shows whether it is on | approved |
 | [NF/accessibility/statement/002287](requirements/non-functional/accessibility/statement/002287_statement-link-slot.md) | The accessibility menu links to the accessibility statement | approved |
 | [NF/compatibility/pwa/000220](requirements/non-functional/compatibility/pwa/000220_zoom.md) | Zoom is blocked only in the installed app | approved |
 | [NF/compatibility/pwa/000221](requirements/non-functional/compatibility/pwa/000221_android-nav-bar.md) | The Android navigation bar has the manifest colour | approved |

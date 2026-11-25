@@ -563,6 +563,25 @@ describe('switchOffEdgeOnFill (§000620)', () => {
   });
 });
 
+describe('disabledSwitchShowsState (§003020)', () => {
+  const sw = readFileSync(join(STYLES, '../lib/switch/switch.component.scss'), 'utf8');
+  const veryHigh = sw.slice(sw.indexOf('@include d.host-on(veryHigh)'));
+  const token = (css: string, name: string) =>
+    new RegExp(`--mat-slide-toggle-${name}:([^;]+);`).exec(css)?.[1].replace(/\s+/g, ' ').trim();
+
+  it('a disabled switch keeps the colours of its state, faded to half', () => {
+    expect(token(sw, 'disabled-selected-track-color')).toContain('var(--check-on, var(--color-accent)) 50%');
+    expect(token(sw, 'disabled-unselected-track-color')).toContain('var(--check-bg, var(--color-surface-4)) 50%');
+    expect(token(sw, 'disabled-selected-handle-color')).toBe('var(--check-mark, var(--color-on-accent))');
+  });
+
+  it('in very high contrast a disabled switch that is on differs from one that is off', () => {
+    expect(token(veryHigh, 'disabled-selected-track-color')).toBe('#ffffff');
+    expect(token(veryHigh, 'disabled-selected-handle-color')).toBe('#000000');
+    expect(token(veryHigh, 'disabled-unselected-track-color')).toBe('#000000');
+  });
+});
+
 describe('textOnYellowIsBlack (§000621)', () => {
   it('a fill turns the texts, the icons and the edges inside it black', () => {
     expect(FORMS).toMatch(/@mixin fill \{\s*@include ink\(var\(--vh-bg\), var\(--vh-bg\)\);/);

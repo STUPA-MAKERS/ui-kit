@@ -1,4 +1,4 @@
-<span class="sw" [class.sw--disabled]="isDisabled()">
+<span class="sw" [class.sw--disabled]="isDisabled()" [class.sw--on]="checked()">
   <label class="sw__label" [for]="id() + '-button'" [id]="id() + '-label'"><ng-content /></label>
   <mat-slide-toggle
     class="sw__toggle"
