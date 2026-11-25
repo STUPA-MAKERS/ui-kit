@@ -47,6 +47,7 @@ export const LINK_ICON: Record<TodoLinkKind, IconName> = {
   invoice: 'receipt',
   expense: 'swap',
   order: 'package',
+  event: 'cal',
   budget: 'pie',
   ticket: 'chat',
   todo: 'circleok',
@@ -63,6 +64,7 @@ export const LINK_KIND_LABEL: Record<TodoLinkKind, UiKitTextKey> = {
   invoice: 'todos.linkKind.invoice',
   expense: 'todos.linkKind.expense',
   order: 'todos.linkKind.order',
+  event: 'todos.linkKind.event',
   budget: 'todos.linkKind.budget',
   ticket: 'todos.linkKind.ticket',
   todo: 'todos.linkKind.todo',
@@ -132,17 +134,12 @@ export interface BoardFilter {
   readonly labels: readonly string[];
   /** '' all, 'overdue', 'week' (within 7 days, overdue included), 'none' without a date. */
   readonly due: '' | 'overdue' | 'week' | 'none';
-  /**
-   * '' all cards, 'events' only Events, 'archive' the Events with the archived ones
-   * ("Veranstaltungen mit Archiv"); the page reads those from the archive.
-   */
-  readonly kind: '' | 'events' | 'archive';
 }
 
-export const NO_FILTER: BoardFilter = { q: '', assignee: '', labels: [], due: '', kind: '' };
+export const NO_FILTER: BoardFilter = { q: '', assignee: '', labels: [], due: '' };
 
 export function filterActive(f: BoardFilter): boolean {
-  return !!(f.q.trim() || f.assignee || f.labels.length || f.due || f.kind);
+  return !!(f.q.trim() || f.assignee || f.labels.length || f.due);
 }
 
 /** Whether a card passes the filters. `mine` holds the ids of the cards assigned to me. */
@@ -155,7 +152,6 @@ export function matchesFilter(
     readonly labels: ReadonlyMap<Uuid, TodoLabel>;
   },
 ): boolean {
-  if (f.kind && !card.event) return false;
   if (f.assignee === 'me' && !ctx.mine.has(card.id)) return false;
   if (f.assignee === 'none' && card.assignees.length) return false;
   if (f.assignee && f.assignee !== 'me' && f.assignee !== 'none') {

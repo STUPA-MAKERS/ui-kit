@@ -14,6 +14,7 @@ export type GraphKind =
   | 'invoice'
   | 'expense'
   | 'order'
+  | 'event'
   | 'budget'
   | 'ticket'
   | 'todo'
