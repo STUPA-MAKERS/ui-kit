@@ -130,6 +130,16 @@ describe('ListDetailScreenComponent', () => {
   });
 
   // §S/framework/types/002232 §NF/usability/controls/001920
+  it('shows a fab action as a FAB that stays in the list pane beside a detail', async () => {
+    const add: Action = { key: 'new', label: 'Neuer Antrag', icon: 'plus', priority: 'fab' };
+    const { view, action } = await setUp({ state: 'ready', data: LIST_ROWS }, { actions: [add] });
+    const host: HTMLElement = view.fixture.nativeElement;
+    const fab = host.querySelector('app-fab');
+    expect(fab?.classList.contains('fab--contained')).toBe(host.classList.contains('pane-page'));
+    await userEvent.click(screen.getByRole('button', { name: 'Neuer Antrag' }));
+    expect(action).toHaveBeenCalledWith({ key: 'new' });
+  });
+
   it('gives a row with actions its ⋮: a route navigates, a key is emitted with the row', async () => {
     const rows: readonly ListRow[] = [
       {

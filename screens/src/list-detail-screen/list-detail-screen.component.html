@@ -181,6 +181,7 @@
         <app-fab
           [label]="a.label"
           [icon]="a.icon ?? 'plus'"
+          [contained]="split()"
           [disabled]="!!a.disabled"
           [loading]="!!a.busy"
           (activate)="run(a)"
