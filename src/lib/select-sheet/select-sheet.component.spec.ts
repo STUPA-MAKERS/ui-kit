@@ -18,6 +18,7 @@ const OPTIONS: readonly SelectSheetOption[] = [
     <app-select-sheet
       [(open)]="open"
       heading="TOP hinzufügen"
+      subtitle="Sitzung vom 1. Dezember"
       [options]="options()"
       [(value)]="value"
       [(values)]="values"
@@ -64,6 +65,7 @@ describe('SelectSheetComponent', () => {
     expect(rows.map((r) => r.querySelector('.sel__check') !== null)).toEqual([false, true]);
     expect(rows[1].classList).toContain('sel__row--on');
     expect(screen.getByText('Mo., 23.11.')).toBeTruthy();
+    expect(screen.getByText('Sitzung vom 1. Dezember')).toBeTruthy();
   });
 
   it('picks one row and hands it on with the main action', async () => {

@@ -58,6 +58,8 @@ export class SelectSheetComponent {
 
   readonly open = model(false);
   readonly heading = input.required<string>();
+  /** A line below the heading that names the object or the reason of the pick. */
+  readonly subtitle = input('');
   /** The choices; `null` while they load. */
   readonly options = input<readonly SelectSheetOption[] | null>(null);
   /** One choice. */
