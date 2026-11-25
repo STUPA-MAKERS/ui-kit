@@ -26,6 +26,28 @@
   --mat-slide-toggle-selected-hover-handle-color: var(--check-mark, var(--color-on-accent));
   --mat-slide-toggle-selected-focus-handle-color: var(--check-mark, var(--color-on-accent));
   --mat-slide-toggle-selected-pressed-handle-color: var(--check-mark, var(--color-on-accent));
+  /* A disabled switch keeps the colours of its state, faded to half (003020): grey for both
+     states reads "on" as "off". The fade sits in the colours, so the track opacity stays 1. */
+  --mat-slide-toggle-disabled-track-opacity: 1;
+  --mat-slide-toggle-disabled-selected-handle-opacity: 1;
+  --mat-slide-toggle-disabled-unselected-handle-opacity: 0.5;
+  --mat-slide-toggle-disabled-unselected-track-color: color-mix(
+    in srgb,
+    var(--check-bg, var(--color-surface-4)) 50%,
+    transparent
+  );
+  --mat-slide-toggle-disabled-unselected-handle-color: var(--check-edge, var(--color-text-muted));
+  --mat-slide-toggle-disabled-unselected-track-outline-color: color-mix(
+    in srgb,
+    var(--check-edge, var(--color-border-strong)) 50%,
+    transparent
+  );
+  --mat-slide-toggle-disabled-selected-track-color: color-mix(
+    in srgb,
+    var(--check-on, var(--color-accent)) 50%,
+    transparent
+  );
+  --mat-slide-toggle-disabled-selected-handle-color: var(--check-mark, var(--color-on-accent));
 }
 .sw {
   display: flex;
@@ -48,6 +70,10 @@
 .sw__toggle {
   flex: none;
 }
+/* Material draws the edge of a disabled track in both states; a switch that is on has none. */
+.sw--on {
+  --mat-slide-toggle-disabled-unselected-track-outline-color: transparent;
+}
 .sw--disabled .sw__label {
   cursor: not-allowed;
   opacity: 0.5;
@@ -59,7 +85,8 @@
   color: var(--color-text-muted);
 }
 
-/* Very high contrast (app spec 000605): a disabled switch is not faded, its label is white. */
+/* Very high contrast (app spec 000605): a disabled switch is not faded, its label is white. A
+   disabled switch that is on is white with a black knob, so it differs from off (003020). */
 @include d.host-on(veryHigh) {
   .sw--disabled .sw__label {
     opacity: 1;
@@ -71,7 +98,7 @@
     --mat-slide-toggle-disabled-unselected-track-color: #000000;
     --mat-slide-toggle-disabled-unselected-track-outline-color: #ffffff;
     --mat-slide-toggle-disabled-unselected-handle-color: #ffffff;
-    --mat-slide-toggle-disabled-selected-track-color: #000000;
-    --mat-slide-toggle-disabled-selected-handle-color: #ffffff;
+    --mat-slide-toggle-disabled-selected-track-color: #ffffff;
+    --mat-slide-toggle-disabled-selected-handle-color: #000000;
   }
 }
