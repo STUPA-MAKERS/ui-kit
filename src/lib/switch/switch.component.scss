@@ -26,7 +26,7 @@
   --mat-slide-toggle-selected-hover-handle-color: var(--check-mark, var(--color-on-accent));
   --mat-slide-toggle-selected-focus-handle-color: var(--check-mark, var(--color-on-accent));
   --mat-slide-toggle-selected-pressed-handle-color: var(--check-mark, var(--color-on-accent));
-  /* A disabled switch keeps the colours of its state, faded to half (003013): grey for both
+  /* A disabled switch keeps the colours of its state, faded to half (003020): grey for both
      states reads "on" as "off". The fade sits in the colours, so the track opacity stays 1. */
   --mat-slide-toggle-disabled-track-opacity: 1;
   --mat-slide-toggle-disabled-selected-handle-opacity: 1;
@@ -86,7 +86,7 @@
 }
 
 /* Very high contrast (app spec 000605): a disabled switch is not faded, its label is white. A
-   disabled switch that is on is white with a black knob, so it differs from off (003013). */
+   disabled switch that is on is white with a black knob, so it differs from off (003020). */
 @include d.host-on(veryHigh) {
   .sw--disabled .sw__label {
     opacity: 1;

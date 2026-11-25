@@ -563,7 +563,7 @@ describe('switchOffEdgeOnFill (§000620)', () => {
   });
 });
 
-describe('disabledSwitchShowsState (§003013)', () => {
+describe('disabledSwitchShowsState (§003020)', () => {
   const sw = readFileSync(join(STYLES, '../lib/switch/switch.component.scss'), 'utf8');
   const veryHigh = sw.slice(sw.indexOf('@include d.host-on(veryHigh)'));
   const token = (css: string, name: string) =>

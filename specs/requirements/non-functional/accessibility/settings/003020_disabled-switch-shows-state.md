@@ -1,5 +1,5 @@
 ---
-id: "003013"
+id: "003020"
 title: A disabled switch still shows whether it is on
 kind: non-functional
 status: draft
