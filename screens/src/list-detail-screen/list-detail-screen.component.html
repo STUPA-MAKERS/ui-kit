@@ -5,7 +5,7 @@
   [class.lds--fill]="config().listWidth === 'fill'"
 >
   <app-list-detail
-    [detailOpen]="selectedId() !== null"
+    [detailOpen]="paneOpen()"
     [barTitle]="!!config().barTitle"
     (back)="back()"
   >

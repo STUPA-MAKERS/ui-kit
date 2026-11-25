@@ -252,6 +252,11 @@ export class ListDetailScreenComponent implements ListPageState {
   /** The list and the detail sit side by side. */
   readonly split = computed(() => this.layout()?.collapsed() === false);
   protected readonly selectedId = signal<string | null>(null);
+  /**
+   * A child route with a path is open in the detail pane. A form route such as `new` has
+   * no row parameter, so the parameter alone would leave the list on a narrow screen.
+   */
+  protected readonly paneOpen = signal(false);
 
   private readonly params = signal<Params>(this.route.snapshot.queryParams);
   protected readonly searchText = computed(() => {
@@ -312,9 +317,9 @@ export class ListDetailScreenComponent implements ListPageState {
 
   constructor() {
     const read = (): void => {
-      this.selectedId.set(
-        this.route.snapshot.firstChild?.paramMap.get(this.config().param ?? 'id') ?? null,
-      );
+      const child = this.route.snapshot.firstChild;
+      this.selectedId.set(child?.paramMap.get(this.config().param ?? 'id') ?? null);
+      this.paneOpen.set((child?.url.length ?? 0) > 0);
       this.params.set(this.route.snapshot.queryParams);
     };
     read();

@@ -44,7 +44,12 @@ async function setUp(
       selection: extra.selection ? { actions: [SEND] } : null,
     },
     on: { action, query, more },
-    providers: [provideRouter([{ path: ':id', component: StubDetail }])],
+    providers: [
+      provideRouter([
+        { path: 'new', component: StubDetail },
+        { path: ':id', component: StubDetail },
+      ]),
+    ],
   });
   return { view, action, query, more };
 }
@@ -138,6 +143,17 @@ describe('ListDetailScreenComponent', () => {
     expect(fab?.classList.contains('fab--contained')).toBe(host.classList.contains('pane-page'));
     await userEvent.click(screen.getByRole('button', { name: 'Neuer Antrag' }));
     expect(action).toHaveBeenCalledWith({ key: 'new' });
+  });
+
+  it('opens the detail pane for a child route without a row parameter', async () => {
+    const { view } = await setUp({ state: 'ready', data: LIST_ROWS });
+    const open = (): boolean =>
+      (view.fixture.componentInstance as unknown as { paneOpen: () => boolean }).paneOpen();
+    expect(open()).toBe(false);
+    await TestBed.inject(Router).navigateByUrl('/new');
+    expect(open()).toBe(true);
+    await TestBed.inject(Router).navigateByUrl('/');
+    expect(open()).toBe(false);
   });
 
   it('gives a row with actions its ⋮: a route navigates, a key is emitted with the row', async () => {
