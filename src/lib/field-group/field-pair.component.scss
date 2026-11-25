@@ -1,0 +1,8 @@
+/* Two fields side by side in one row of the group; they stack where the row is too narrow
+   for two. The fields align at the top, so a long value of one does not centre the other. */
+:host {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 11rem), 1fr));
+  align-items: start;
+  min-width: 0;
+}

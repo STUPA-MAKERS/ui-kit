@@ -5,7 +5,7 @@
   [class.lds--fill]="config().listWidth === 'fill'"
 >
   <app-list-detail
-    [detailOpen]="selectedId() !== null"
+    [detailOpen]="paneOpen()"
     [barTitle]="!!config().barTitle"
     (back)="back()"
   >
@@ -181,6 +181,7 @@
         <app-fab
           [label]="a.label"
           [icon]="a.icon ?? 'plus'"
+          [contained]="split()"
           [disabled]="!!a.disabled"
           [loading]="!!a.busy"
           (activate)="run(a)"
@@ -200,7 +201,7 @@
           <app-list-item
             role="listitem"
             [title]="row.title"
-            [sub]="row.meta?.join(' · ') ?? null"
+            [sub]="row.status && !rowSlot() ? null : (row.meta?.join(' · ') ?? null)"
             [link]="!selecting() && row.link ? $any(row.link.commands) : null"
             [href]="!selecting() ? (row.href ?? null) : null"
             [code]="row.code === 'meta' ? 'sub' : (row.code ?? null)"
@@ -239,15 +240,26 @@
             @if (!rowSlot() && row.href && !row.status && !row.trailing) {
               <app-icon trail name="ext" [size]="16" />
             }
-            @if (!rowSlot() && (row.status || row.trailing)) {
-              <span trail class="lds__trail">
-                @if (row.trailing) {
-                  <span class="lds__trailing num">{{ row.trailing }}</span>
-                }
-                @if (row.status; as st) {
-                  <app-status-text [kind]="st.kind">{{ st.label }}</app-status-text>
-                }
-              </span>
+            @if (!rowSlot() && row.status; as st) {
+              <span sub
+                ><app-meta-line
+                  ><app-status-text [kind]="st.kind">{{ st.label }}</app-status-text>
+                  @for (part of row.meta ?? []; track $index) {
+                    <span [class.mono]="row.code === 'meta'">{{ part }}</span>
+                  }
+                </app-meta-line></span
+              >
+            }
+            @if (!rowSlot() && row.trailing) {
+              <span trail class="lds__trailing mono num">{{ row.trailing }}</span>
+            }
+            @if (!selecting() && row.actions?.length) {
+              <app-row-menu
+                menu
+                [sections]="rowMenu(row)"
+                [label]="('rowMenu.trigger' | uiKitT) + ': ' + row.title"
+                (selected)="runRow(row, $event)"
+              />
             }
           </app-list-item>
         }

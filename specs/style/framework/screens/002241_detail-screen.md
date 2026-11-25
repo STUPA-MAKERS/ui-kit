@@ -4,7 +4,7 @@ title: The detail screen has a fixed interface
 kind: style
 status: approved
 owner: frederikbeimgraben
-updated: 2026-11-21
+updated: 2026-11-24
 implementation:
   - screens/src/detail-screen/detail-screen.component.ts
 scope:
@@ -22,7 +22,7 @@ state: LoadState<unknown>          // the frame shows the skeleton of a detail w
 tabs?: readonly ScreenTab[]
 actions?: readonly Action[]
 sheets?: readonly SideSheetDef[]   // 001460, 001800: side sheets with an edge tab (001801)
-comments?: { readonly open: boolean; readonly label: string } // 000131, 000215
+comments?: { readonly open: boolean; readonly label: string; readonly beside?: boolean } // 000131, 000215
 ```
 
 A side sheet is a `SideSheetDef`:
@@ -51,6 +51,9 @@ Behaviour:
   tab at the end edge opens it (001801).
 - On a phone an open sheet can take the place of the body (001461) when its def says `replaces`.
 - The comments open from a head button and sit beside the fields on a wide screen (000215).
+  With `beside: false` they open in a side sheet on each screen, as the comments of an Antrag
+  (000131). In the sheet the thread fills the sheet and the field for a new comment stays at
+  its foot.
 
 Reason: Every detail of every app then has the same head, tabs and sheets.
 

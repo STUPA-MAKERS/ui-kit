@@ -13,10 +13,10 @@
 .lds__more {
   @include lp.more;
 }
-.lds__trail {
-  display: flex;
-  align-items: center;
-  gap: var(--space-2);
+/* The amount of a row, as in the list of the Anträge. */
+.lds__trailing {
+  font-size: 0.8125rem;
+  white-space: nowrap;
 }
 
 // `listWidth: 'fill'`: the list column takes the width that the detail column leaves (002795).

@@ -53,3 +53,25 @@ export class FieldRowComponent {
    */
   readonly labelLang = input<string | null>(null);
 }
+
+/**
+ * Two field rows side by side as one row of a field group, for short values such as a date
+ * and an amount. They stack where the row is too narrow for two.
+ *
+ * ```html
+ * <app-field-group>
+ *   <app-field-pair>
+ *     <app-field-row label="Bestellt am" value="12.11.2026" />
+ *     <app-field-row label="Preis" value="381,50 €" />
+ *   </app-field-pair>
+ * </app-field-group>
+ * ```
+ */
+@Component({
+  selector: 'app-field-pair',
+  standalone: true,
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  template: '<ng-content />',
+  styleUrl: './field-pair.component.scss',
+})
+export class FieldPairComponent {}

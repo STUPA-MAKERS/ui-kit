@@ -1,6 +1,6 @@
 import { render, screen } from '@testing-library/angular';
 import { runAxe } from '../../../testing/a11y';
-import { FieldGroupComponent, FieldRowComponent } from './field-group.component';
+import { FieldGroupComponent, FieldPairComponent, FieldRowComponent } from './field-group.component';
 
 describe('FieldGroupComponent and FieldRowComponent', () => {
   const imports = [FieldGroupComponent, FieldRowComponent];
@@ -61,5 +61,22 @@ describe('FieldGroupComponent and FieldRowComponent', () => {
     expect(two).not.toHaveClass('rowgroup--bg3');
     expect(one).toHaveClass('rowgroup', 'rowgroup--bg1');
     expect(three).toHaveClass('rowgroup', 'rowgroup--bg3');
+  });
+
+  it('puts two fields in one row of the group', async () => {
+    const { container } = await render(
+      `<app-field-group>
+         <app-field-pair>
+           <app-field-row label="Bestellt am" value="12.11.2026" />
+           <app-field-row label="Preis" value="381,50 €" />
+         </app-field-pair>
+       </app-field-group>`,
+      { imports: [...imports, FieldPairComponent] },
+    );
+    const group = container.querySelector('app-field-group');
+    expect(group?.children).toHaveLength(1);
+    expect(group?.querySelectorAll('app-field-pair > app-field-row')).toHaveLength(2);
+    expect(screen.getByText('381,50 €')).toBeInTheDocument();
+    expect(await runAxe(container)).toHaveNoViolations();
   });
 });

@@ -3,7 +3,13 @@ import { TestBed } from '@angular/core/testing';
 import { Router, provideRouter } from '@angular/router';
 import { render, screen } from '@testing-library/angular';
 import userEvent from '@testing-library/user-event';
-import { ToastService, type Action, type ListGroup, type ListRow, type LoadState } from '@stupa-makers/ui-kit';
+import {
+  ToastService,
+  type Action,
+  type ListGroup,
+  type ListRow,
+  type LoadState,
+} from '@stupa-makers/ui-kit';
 
 import { runAxe } from '../../../testing/a11y';
 import { LIST_FILTERS, LIST_GROUPS, LIST_ROWS } from '../../../testing/screens';
@@ -38,7 +44,12 @@ async function setUp(
       selection: extra.selection ? { actions: [SEND] } : null,
     },
     on: { action, query, more },
-    providers: [provideRouter([{ path: ':id', component: StubDetail }])],
+    providers: [
+      provideRouter([
+        { path: 'new', component: StubDetail },
+        { path: ':id', component: StubDetail },
+      ]),
+    ],
   });
   return { view, action, query, more };
 }
@@ -75,11 +86,20 @@ describe('ListDetailScreenComponent', () => {
     const { view } = await setUp({ state: 'loading' });
     const toast = jest.spyOn(TestBed.inject(ToastService), 'show');
     const retry = jest.fn();
-    view.fixture.componentRef.setInput('rows', { state: 'error', message: 'Konnte nicht geladen werden.', retry });
+    view.fixture.componentRef.setInput('rows', {
+      state: 'error',
+      message: 'Konnte nicht geladen werden.',
+      retry,
+    });
     view.fixture.detectChanges();
-    expect(view.container.querySelector('app-empty-state')?.textContent).toContain('Konnte nicht geladen werden.');
+    expect(view.container.querySelector('app-empty-state')?.textContent).toContain(
+      'Konnte nicht geladen werden.',
+    );
     expect(screen.queryByRole('button', { name: 'Erneut versuchen' })).toBeNull();
-    const opts = toast.mock.calls[0][0] as { action?: { label: string }; closed?: (how: string) => void };
+    const opts = toast.mock.calls[0][0] as {
+      action?: { label: string };
+      closed?: (how: string) => void;
+    };
     expect(opts.action?.label).toBe('Erneut versuchen');
     opts.closed?.('action');
     expect(retry).toHaveBeenCalledTimes(1);
@@ -112,6 +132,56 @@ describe('ListDetailScreenComponent', () => {
     await userEvent.click(screen.getByRole('button', { name: 'Mehr laden' }));
     expect(more).toHaveBeenCalled();
     expect(view.container).toBeTruthy();
+  });
+
+  // §S/framework/types/002232 §NF/usability/controls/001920
+  it('shows a fab action as a FAB that stays in the list pane beside a detail', async () => {
+    const add: Action = { key: 'new', label: 'Neuer Antrag', icon: 'plus', priority: 'fab' };
+    const { view, action } = await setUp({ state: 'ready', data: LIST_ROWS }, { actions: [add] });
+    const host: HTMLElement = view.fixture.nativeElement;
+    const fab = host.querySelector('app-fab');
+    expect(fab?.classList.contains('fab--contained')).toBe(host.classList.contains('pane-page'));
+    await userEvent.click(screen.getByRole('button', { name: 'Neuer Antrag' }));
+    expect(action).toHaveBeenCalledWith({ key: 'new' });
+  });
+
+  it('opens the detail pane for a child route without a row parameter', async () => {
+    const { view } = await setUp({ state: 'ready', data: LIST_ROWS });
+    const open = (): boolean =>
+      (view.fixture.componentInstance as unknown as { paneOpen: () => boolean }).paneOpen();
+    expect(open()).toBe(false);
+    await TestBed.inject(Router).navigateByUrl('/new');
+    expect(open()).toBe(true);
+    await TestBed.inject(Router).navigateByUrl('/');
+    expect(open()).toBe(false);
+  });
+
+  it('gives a row with actions its ⋮: a route navigates, a key is emitted with the row', async () => {
+    const rows: readonly ListRow[] = [
+      {
+        id: 'r-1',
+        title: 'Beamer',
+        actions: [
+          {
+            key: 'order',
+            label: 'Bestellung anlegen',
+            icon: 'plus',
+            route: { commands: ['/r-9'], query: { a: '1' } },
+          },
+          { key: 'archive', label: 'Archivieren', icon: 'archive' },
+        ],
+      },
+      { id: 'r-2', title: 'Kabel' },
+    ];
+    const { action } = await setUp({ state: 'ready', data: rows });
+    const navigate = jest.spyOn(TestBed.inject(Router), 'navigate').mockResolvedValue(true);
+    expect(screen.queryByRole('button', { name: /: Kabel/ })).toBeNull();
+    await userEvent.click(screen.getByRole('button', { name: /: Beamer/ }));
+    await userEvent.click(await screen.findByRole('menuitem', { name: 'Bestellung anlegen' }));
+    expect(navigate).toHaveBeenCalledWith(['/r-9'], { queryParams: { a: '1' } });
+    await userEvent.click(screen.getByRole('button', { name: /: Beamer/ }));
+    await userEvent.click(await screen.findByRole('menuitem', { name: 'Archivieren' }));
+    expect(action).toHaveBeenCalledWith({ key: 'archive', ids: ['r-1'] });
   });
 
   // §NF/accessibility/conformance/000493

@@ -85,6 +85,25 @@
   align-self: start;
 }
 
+/* The comments in the sheet: the thread fills the sheet and scrolls in its log, and the
+   composer stays at the foot. On a phone the log takes the height of the thread, so the sheet
+   grows with it to its cap. */
+.ds__thread {
+  display: grid;
+  grid-template-rows: minmax(0, 1fr);
+  flex: 1 1 auto;
+  min-height: 0;
+  --chat-log-basis: 0;
+  --chat-log-min: 14rem;
+  --chat-composer-bottom: 0px;
+  --chat-bubble: var(--color-surface-3);
+  --chat-composer-surface: transparent;
+  --chat-composer-bleed: var(--space-4);
+}
+.ds__thread--phone {
+  --chat-log-basis: auto;
+}
+
 /* Small half pills at the end edge of the window, one above the other (001801). */
 .ds__edgeTabs {
   position: fixed;

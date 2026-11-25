@@ -78,10 +78,14 @@ export class ScreenCommentsDirective {
   readonly template = inject<TemplateRef<unknown>>(TemplateRef);
 }
 
-/** The comments of a detail: open at the start, and the name of the head button. */
+/**
+ * The comments of a detail: open at the start, and the name of the head button. `beside: false`
+ * keeps them in the sheet on a wide screen too, as the comments of an Antrag (000131).
+ */
 export interface ScreenComments {
   readonly open: boolean;
   readonly label: string;
+  readonly beside?: boolean;
 }
 
 /** A side sheet (or the comments, key `comments`) opened or closed. */
@@ -179,7 +183,11 @@ export class DetailScreenComponent {
   protected readonly roomy = signal(false);
   /** The comments sit beside the body where there is room, else in a sheet (000215). */
   protected readonly commentsBeside = computed(
-    () => this.roomy() && !!this.comments() && this.commentsOpen(),
+    () => this.commentsFit() && this.commentsOpen(),
+  );
+  /** The comments have their place beside the body: the screen is wide and they do not ask for the sheet. */
+  protected readonly commentsFit = computed(
+    () => this.roomy() && !!this.comments() && this.comments()?.beside !== false,
   );
   /** On a phone an open sheet with `replaces` takes the place of the body (001461). */
   protected readonly replacing = computed(() => {
