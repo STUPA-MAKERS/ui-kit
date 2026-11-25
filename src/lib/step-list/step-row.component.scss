@@ -1,0 +1,40 @@
+:host {
+  display: grid;
+  grid-template-columns: 1.5rem minmax(0, 1fr) auto;
+  gap: var(--space-2);
+  align-items: center;
+}
+
+.steprow__no {
+  color: var(--color-text-muted);
+  text-align: end;
+}
+
+.steprow__main {
+  min-width: 0;
+}
+
+.steprow__actions,
+.steprow__actions > * {
+  display: flex;
+}
+
+.steprow__fields {
+  grid-column: 2 / -1;
+  display: grid;
+  grid-template-columns: repeat(var(--steprow-columns, 1), minmax(0, 1fr));
+  gap: var(--space-2);
+  align-items: start;
+}
+
+.steprow__fields:empty,
+.steprow__actions:empty {
+  display: none;
+}
+
+/* The fields stack at the width at which the fields of a form stack. */
+@container steplist (max-width: 34rem) {
+  .steprow__fields {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
