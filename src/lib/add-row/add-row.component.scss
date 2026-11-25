@@ -1,0 +1,37 @@
+:host {
+  display: block;
+  min-width: 0;
+}
+
+/* The shape of a collapsed row: the padding of the card, the height of its summary. */
+.addrow {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  width: 100%;
+  min-height: calc(2.75rem + 2 * var(--space-2));
+  padding: var(--space-2) var(--space-3) var(--space-2)
+    calc(var(--space-3) + var(--addrow-inset, 6px));
+  border: 1.5px dashed var(--color-border-strong);
+  border-radius: var(--radius-lg);
+  background: transparent;
+  color: var(--color-text-muted);
+  font: inherit;
+  text-align: start;
+  cursor: pointer;
+}
+@media (hover: hover) {
+  .addrow:hover {
+    background: var(--color-surface-2);
+    color: var(--color-text);
+  }
+}
+.addrow:focus-visible {
+  outline: 2px solid var(--color-focus-ring);
+  outline-offset: 2px;
+}
+
+.addrow__text {
+  flex: 1 1 auto;
+  min-width: 0;
+}

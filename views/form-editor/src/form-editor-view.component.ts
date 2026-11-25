@@ -42,7 +42,7 @@ import {
   type UiKitTextKey,
   UiKitTranslatePipe,
 } from '@stupa-makers/ui-kit';
-import type { ComputedFormat, FieldType, FormFieldDef } from './form-editor.types';
+import type { ComputedFormat, FieldHints, FieldType, FormFieldDef, SignatureRow } from './form-editor.types';
 import {
   COMPUTED_FORMATS,
   FIELD_TYPES,
@@ -72,6 +72,21 @@ const TYPE_MENU_HEIGHT = 9 * 36 + 16;
 
 /** Stable address of a question: group index and question index inside the group. */
 type QPos = QuestionPos;
+
+/** A setting of a field that is on while it is not stored as `false` (app spec 003004). */
+type DefaultOnKey = 'capAtCost';
+
+/** The hint texts of a `positions` field, in the order of the panel (app spec 003010). */
+const POSITION_HINTS: readonly { readonly key: keyof FieldHints; readonly label: UiKitTextKey }[] = [
+  { key: 'below', label: 'admin.form.hint.below' },
+  { key: 'placeholderValue', label: 'admin.form.hint.placeholderValue' },
+  { key: 'placeholderLabel', label: 'admin.form.hint.placeholderLabel' },
+  { key: 'placeholderDuplicate', label: 'admin.form.hint.placeholderDuplicate' },
+  { key: 'useNoOffers', label: 'admin.form.hint.useNoOffers' },
+  { key: 'noOffers', label: 'admin.form.hint.noOffers' },
+  { key: 'noFileTitle', label: 'admin.form.hint.noFileTitle' },
+  { key: 'noFileBody', label: 'admin.form.hint.noFileBody' },
+];
 
 /**
  * The body of the form editor of STUPA-Workflow, built around explicit **question groups**: a
@@ -159,8 +174,8 @@ export class FormEditorViewComponent {
   readonly description = model<I18nMap>({ de: '', en: '' });
   /** "With budget": the application may select a pot (application_type.has_budget). */
   readonly hasBudget = model(false);
-  /** The Antrag PDF of this type ends with the signature section (app spec 000888). */
-  readonly pdfSignatures = model(false);
+  /** The signature rows of the Antrag PDF, in order; an empty list gives none (app specs 003005, 003009). */
+  readonly signatureRows = model<readonly SignatureRow[]>([]);
   /** "Anhang Pflicht": an Antrag of this type needs a file (app spec 001732). */
   readonly attachmentRequired = model(false);
   /** Comparison-offers rule: required + minimum count. */
@@ -767,6 +782,59 @@ export class FormEditorViewComponent {
       const validation = allowed
         ? withoutKey(current, 'allowNoOffers')
         : { ...current, allowNoOffers: false };
+      return { ...f, validation: validation as FormFieldDef['validation'] };
+    });
+  }
+
+  /** Change one signature row (app spec 003005). */
+  protected setSignatureRow(index: number, patch: Partial<SignatureRow>): void {
+    this.signatureRows.update((rows) => rows.map((r, i) => (i === index ? { ...r, ...patch } : r)));
+  }
+
+  protected addSignatureRow(): void {
+    this.signatureRows.update((rows) => [...rows, { label: '', signer: '' }]);
+  }
+
+  protected removeSignatureRow(index: number): void {
+    this.signatureRows.update((rows) => rows.filter((_, i) => i !== index));
+  }
+
+  /** Move a signature row one place up (-1) or down (1). */
+  protected moveSignatureRow(index: number, by: -1 | 1): void {
+    this.signatureRows.update((rows) => {
+      const to = index + by;
+      if (to < 0 || to >= rows.length) return rows;
+      const next = [...rows];
+      [next[index], next[to]] = [next[to], next[index]];
+      return next;
+    });
+  }
+
+  /** The hint texts of a `positions` field (app spec 003010). */
+  protected readonly positionHints = POSITION_HINTS;
+
+  /**
+   * Set one hint text of a `positions` field (app spec 003010). A text without any language
+   * goes, and so do the hints without any text, so an empty hint stays unset.
+   */
+  protected setHint(pos: QPos, key: keyof FieldHints, text: Record<string, string>): void {
+    this.patchQuestion(pos, (f) => {
+      const current = f.validation ?? {};
+      const filled = Object.values(text).some((t) => t.trim() !== '');
+      const hints = filled ? { ...current.hints, [key]: text } : withoutKey({ ...current.hints }, key);
+      const validation = Object.keys(hints).length > 0 ? { ...current, hints } : withoutKey(current, 'hints');
+      return { ...f, validation: validation as FormFieldDef['validation'] };
+    });
+  }
+
+  /**
+   * A switch that is on by default (app spec 003004). Only `false` is stored, so a form
+   * without the setting keeps the default.
+   */
+  protected setDefaultOn(pos: QPos, key: DefaultOnKey, on: boolean): void {
+    this.patchQuestion(pos, (f) => {
+      const current = f.validation ?? {};
+      const validation = on ? withoutKey(current, key) : { ...current, [key]: false };
       return { ...f, validation: validation as FormFieldDef['validation'] };
     });
   }

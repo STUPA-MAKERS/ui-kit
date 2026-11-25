@@ -1,6 +1,6 @@
 // The icon set of the design system: line icons on a 24px grid, drawn with
 // `stroke="currentColor"`. The shapes come from the design mockups. The inventory icons
-// (cloud-off, mappin, package, printer, qr, reload, reset, scan, shapes, template, warehouse, wrench) follow Lucide (ISC).
+// (cloud-off, mappin, package, printer, qr, reload, reset, scan, shapes, sigma, template, warehouse, wrench) follow Lucide (ISC).
 
 /** One element of an icon: a path, circle, rect or ellipse with its attributes. */
 export interface IconShape {
@@ -114,6 +114,7 @@ export type IconName =
   | 'shapes'
   | 'shield'
   | 'shieldok'
+  | 'sigma'
   | 'sort'
   | 'square'
   | 'sun'
@@ -254,6 +255,7 @@ const SHAPES: Record<string, readonly IconShape[]> = {
   // centroid sits on the middle of the box. At full size the centroid was 1.8 units right
   // of and above the middle, and the plane looked raised next to a label.
   send: [{ t: 'path', d: 'M19.5 4.5 9.6 14.4' }, { t: 'path', d: 'M19.5 4.5 13.2 22.5l-3.6-8.1-8.1-3.6z' }],
+  sigma: [{ t: 'path', d: 'M18 7V5a1 1 0 0 0-1-1H6.5a.5.5 0 0 0-.4.8l4.5 6a2 2 0 0 1 0 2.4l-4.5 6a.5.5 0 0 0 .4.8H17a1 1 0 0 0 1-1v-2' }],
   shapes: [{ t: 'path', d: 'M8.3 10a.7.7 0 0 1-.63-1.08L11.4 3a.7.7 0 0 1 1.2-.04L16.3 8.9a.7.7 0 0 1-.57 1.1z' }, { t: 'rect', x: '3', y: '14', width: '7', height: '7', rx: '1' }, { t: 'circle', cx: '17.5', cy: '17.5', r: '3.5' }],
   shield: [{ t: 'path', d: 'M12 3 4 6v6c0 5 3.5 8 8 9 4.5-1 8-4 8-9V6z' }],
   shieldok: [{ t: 'path', d: 'M12 3 4 6v6c0 5 3.5 8 8 9 4.5-1 8-4 8-9V6z' }, { t: 'path', d: 'm9 12 2 2 4-4' }],
@@ -404,6 +406,7 @@ export const ICON_NAMES: readonly IconName[] = [
   'shapes',
   'shield',
   'shieldok',
+  'sigma',
   'sort',
   'square',
   'sun',

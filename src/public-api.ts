@@ -82,6 +82,7 @@ export * from './lib/copy/copy-button.component';
 export * from './lib/highlight/highlight.component';
 export * from './lib/highlight/highlight';
 export * from './lib/locked-field/locked-field.component';
+export * from './lib/add-row/add-row.component';
 export * from './lib/infinite-scroll/infinite-scroll.directive';
 export * from './lib/autocomplete/autocomplete.component';
 export * from './lib/textarea/textarea.component';

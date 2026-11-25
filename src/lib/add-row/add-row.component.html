@@ -1,0 +1,4 @@
+<button type="button" class="addrow" [style.--addrow-inset]="inset()" (click)="add.emit()">
+  <app-icon [name]="icon()" [size]="18" />
+  <span class="addrow__text"><ng-content /></span>
+</button>
