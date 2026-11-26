@@ -1,3 +1,5 @@
+import { readFileSync } from 'node:fs';
+import { join } from 'node:path';
 import { ChangeDetectionStrategy, Component } from '@angular/core';
 import { render, screen } from '@testing-library/angular';
 import userEvent from '@testing-library/user-event';
@@ -267,5 +269,13 @@ describe('ButtonComponent', () => {
       });
       expect(screen.getByRole('button', { name: 'Antrag stellen' })).toHaveClass('btn--fab');
     });
+  });
+
+  it('centres the label of a small button and keeps its leading icon on the end cap (003079)', () => {
+    const style = readFileSync(join(__dirname, 'button.component.scss'), 'utf8');
+    expect(style).toMatch(
+      /\.btn--sm > \.btn__label \{\s*padding-block-start: 0\.1em;\s*margin-block-end: -0\.1em;\s*\}/,
+    );
+    expect(style).toMatch(/> app-icon:first-child \{\s*margin-block-start: -0\.1em;\s*\}/);
   });
 });

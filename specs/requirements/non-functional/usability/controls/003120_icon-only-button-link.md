@@ -2,7 +2,7 @@
 id: "003120"
 title: A link with only an icon is drawn as an icon button
 kind: non-functional
-status: draft
+status: approved
 owner: frederikbeimgraben
 updated: 2026-11-26
 implementation: null
