@@ -1,4 +1,6 @@
-<span class="steprow__no mono" aria-hidden="true">{{ number() }}</span>
+@if (number() !== null) {
+  <span class="steprow__no mono" aria-hidden="true">{{ number() }}</span>
+}
 <div class="steprow__main"><ng-content select="[stepMain]" /></div>
 <div class="steprow__actions"><ng-content select="[stepActions]" /></div>
 <div class="steprow__fields" [style.--steprow-columns]="columns()"><ng-content select="[stepField]" /></div>

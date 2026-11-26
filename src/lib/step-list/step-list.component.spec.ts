@@ -34,4 +34,18 @@ describe('StepListComponent', () => {
     expect(list.contains(screen.getByText('Hinweis'))).toBe(false);
     expect(container.querySelector('app-step-list > p')).not.toBeNull();
   });
+
+  it('leaves out the number of a row in a list without an order', async () => {
+    await render(
+      `<app-step-list>
+        <app-step-row>
+          <input stepMain aria-label="Name" />
+        </app-step-row>
+      </app-step-list>`,
+      { imports: [StepListComponent, StepRowComponent] },
+    );
+    const item = screen.getByRole('listitem');
+    expect(item.querySelector('.steprow__no')).toBeNull();
+    expect(item.classList).toContain('steprow--plain');
+  });
 });
