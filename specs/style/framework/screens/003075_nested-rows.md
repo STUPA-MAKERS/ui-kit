@@ -1,6 +1,6 @@
 ---
 id: "003075"
-title: A row of a tree list steps in by its depth
+title: A row of a tree list tells its level
 kind: style
 status: draft
 owner: frederikbeimgraben
@@ -11,16 +11,16 @@ scope:
   - src/lib/list-item
 ---
 
-# A row of a tree list steps in by its depth
+# A row of a tree list tells its level
 
 `app-list-item` must have the input `depth`, a whole number from 0. A row with a depth above 0
-must step in from the start edge by one step of `--li-indent` (default `var(--space-6)`) per
-level, so its lead lines up under the title of its parent row. The row must keep its full width
-for the hover, the selected surface and the click target. The row must not draw a line or an
-arrow for the level. A screen reader must hear the level, because the step is visual only: the
-row (the list item) must carry `aria-level` with the depth plus 1 when the depth is above 0.
+must not step in and must not draw a line or an arrow for the level: it has the same start edge
+as a top row. A screen reader must hear the level: the row (the list item) must carry
+`aria-level` with the depth plus 1 when the depth is above 0. The page names the parent in the
+text of the row, for example in its line below the title.
 
-Reason: A team shows its sub-teams under it in the list of the tab Teams, and the reader must
-see which team a sub-team belongs to.
+Reason: A team shows its sub-teams right under it in the list of the tab Teams. An indent
+made the tree too strong, so the row says its parent in words and the level is only for
+screen readers.
 
 Test: A unit test of `app-list-item` with depth 0 and depth 2.

@@ -94,10 +94,6 @@
   gap: var(--li-gap, var(--space-4));
   min-height: var(--li-min-height, 4rem);
   padding: var(--li-pad-y, 10px) var(--li-pad-x, var(--space-4));
-  /* A row of a tree steps in by its depth; the surface keeps the full width (003075). */
-  padding-inline-start: calc(
-    var(--li-pad-x, var(--space-4)) + var(--li-depth, 0) * var(--li-indent, var(--space-6))
-  );
   border-radius: var(--li-radius, var(--radius-lg));
   background: var(--li-bg, transparent);
   color: var(--li-color, var(--color-text));

@@ -38,7 +38,6 @@
   [class.li--subWrap]="subWrap()"
   [class.li--codeTitle]="code() === 'title'"
   [class.li--codeSub]="code() === 'sub'"
-  [style.--li-depth]="depth()"
   (pointerenter)="measure()"
 >
   <span class="li__lead"><ng-content select="[lead]" /></span>

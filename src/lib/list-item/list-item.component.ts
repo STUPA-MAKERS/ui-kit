@@ -120,8 +120,8 @@ export class ListItemComponent {
 
   /**
    * The level of the row in a tree list (a sub-team under its team): 0 is the top. A row
-   * above 0 steps in by `--li-indent` per level, and the host (a `listitem`) carries
-   * `aria-level`.
+   * above 0 does not step in; the host (a `listitem`) carries `aria-level`, and the row
+   * names its parent in its own text.
    * §S/framework/screens/003075
    */
   readonly depth = input(0);
