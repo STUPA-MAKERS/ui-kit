@@ -21,6 +21,12 @@ export class ButtonLinkComponent {
   /** The look, as the value of the attribute. An empty attribute is `fill`. */
   @Input('appButton') variant: ButtonVariant | '' = 'fill';
   @Input() size: ButtonSize = 'md';
+  /**
+   * A square pill with the glyph in its centre and without padding, as `iconOnly` of the
+   * button (spec 003120). The link then holds only an `app-icon`, so it needs an
+   * `aria-label`.
+   */
+  @Input() iconOnly = false;
   /** Full width of the container. */
   @Input() @HostBinding('class.btn-block') block = false;
   @HostBinding('class.btn-link') protected readonly hostClass = true;
@@ -30,6 +36,6 @@ export class ButtonLinkComponent {
     const variant: ButtonVariant = this.variant || 'fill';
     const look = buttonLook(variant);
     const names = look === variant ? `btn--${look}` : `btn--${look} btn--${variant}`;
-    return `btn ${names} btn--${this.size}`;
+    return `btn ${names} btn--${this.size}${this.iconOnly ? ' btn--icon' : ''}`;
   }
 }

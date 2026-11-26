@@ -33,4 +33,16 @@ describe('ButtonLinkComponent', () => {
     });
     expect(screen.getByRole('link', { name: 'PDF' })).toHaveAttribute('download');
   });
+
+  it('draws an icon-only link as the square pill of an icon button (spec 003120)', async () => {
+    await render(
+      `<a appButton="text" size="sm" [iconOnly]="true" href="/n" aria-label="Neu"><svg></svg></a>
+       <a appButton="text" size="sm" href="/t">Text</a>`,
+      { imports: [ButtonLinkComponent] },
+    );
+    const icon = screen.getByRole('link', { name: 'Neu' }).querySelector('.btn');
+    expect(icon).toHaveClass('btn--text', 'btn--sm', 'btn--icon');
+    const text = screen.getByRole('link', { name: 'Text' }).querySelector('.btn');
+    expect(text).not.toHaveClass('btn--icon');
+  });
 });
