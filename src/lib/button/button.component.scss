@@ -312,6 +312,19 @@
 .btn__label ::ng-deep > app-icon {
   height: 1.3em;
 }
+/* The capitals of the 13px label of a small button sat about 1.5px above the middle of the
+   button, because the font puts more room above its capitals than below its baseline. The
+   label moves its line down by 0.1em (a padding on top, the same negative margin below, so
+   the label keeps its place in the button), and a leading icon moves back up by the same
+   amount, so the icon stays on the middle of the end cap. */
+.btn--sm > .btn__label {
+  padding-block-start: 0.1em;
+  margin-block-end: -0.1em;
+}
+.btn--sm:not(.btn--icon) > .btn__label ::ng-deep > app-icon:first-child,
+.btn--sm:not(.btn--icon) > .btn__label ::ng-deep > :first-child > app-icon:first-child {
+  margin-block-start: -0.1em;
+}
 /* A leading icon has its centre on the centre of the left end cap: half the button height
    from the outer left edge, so the glyph sits in the round end like a dot in a capsule. The
    inset follows from the height and the icon size, not from the padding of the label. The

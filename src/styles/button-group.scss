@@ -142,7 +142,7 @@ $-host: ':is(app-button, a.btn-link, app-row-menu, .btn-grp__seg)';
   aspect-ratio: auto;
 }
 
-// One icon size (18px, in a small group too) and one colour for every button of the group
+// One icon size (18px, 16px in a group of small buttons) and one colour for every button of the group
 // (app spec 002570). A button with only an icon drew its glyph larger (20px) than the
 // leading icon of a button with a label (16px), the trigger of a row menu has its own 19px,
 // and a page can give an icon a `size`. The size of the group therefore goes on the button,
@@ -151,6 +151,11 @@ $-host: ':is(app-button, a.btn-link, app-row-menu, .btn-grp__seg)';
 // icon is an inline style on its host.
 .btn-grp {
   --btn-grp-icon: 18px;
+}
+// A group of small buttons draws its icons at 16px, the leading icon of a small button: an
+// 18px glyph beside the 13px label of a small button looked too large.
+.btn-grp:not(.btn-grp--main):has(.btn--sm) {
+  --btn-grp-icon: 16px;
 }
 .btn-grp.btn-grp.btn-grp :is(.btn, .rm__trigger) {
   --icon-size: var(--btn-grp-icon);
