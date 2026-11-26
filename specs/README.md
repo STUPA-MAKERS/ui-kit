@@ -378,6 +378,7 @@ specs/
 | [S/framework/screens/002795](style/framework/screens/002795_list-screen-scope-tools-body.md) | The list/detail screen has a scope, tools and a body in place of the rows | approved |
 | [S/framework/screens/002796](style/framework/screens/002796_list-screen-reset.md) | The list/detail screen can reset the search and the filters | approved |
 | [S/framework/screens/002797](style/framework/screens/002797_columns.md) | A detail body can have two columns | approved |
+| [S/framework/screens/003075](style/framework/screens/003075_nested-rows.md) | A row of a tree list steps in by its depth | draft |
 | [S/framework/shell/002260](style/framework/shell/002260_framework-config.md) | provideFramework takes one FrameworkConfig | approved |
 | [S/framework/shell/002261](style/framework/shell/002261_port-types.md) | The ports have fixed types | approved |
 | [S/framework/shell/002262](style/framework/shell/002262_route-helpers.md) | The route helpers have fixed signatures | approved |

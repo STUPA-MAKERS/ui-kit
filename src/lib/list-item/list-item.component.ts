@@ -56,6 +56,7 @@ import { type RowSwipeAction, RowSwipeDirective } from '../row-swipe/row-swipe.d
 @Component({
   selector: 'app-list-item',
   standalone: true,
+  host: { '[attr.aria-level]': 'ariaLevel()' },
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [IconComponent, RouterLink, RowSwipeDirective],
   templateUrl: './list-item.component.html',
@@ -116,6 +117,16 @@ export class ListItemComponent {
    * `link` wins over it. §S/framework/screens/002793
    */
   readonly href = input<string | null>(null);
+
+  /**
+   * The level of the row in a tree list (a sub-team under its team): 0 is the top. A row
+   * above 0 steps in by `--li-indent` per level, and the host (a `listitem`) carries
+   * `aria-level`.
+   * §S/framework/screens/003075
+   */
+  readonly depth = input(0);
+  /** The `aria-level` of the row: only for a row in a tree, below the top. */
+  protected readonly ariaLevel = computed(() => (this.depth() > 0 ? this.depth() + 1 : null));
 
   /** The row menu item that a swipe to the right carries out, if any. */
   readonly swipeRight = input<RowSwipeAction | null>(null);
