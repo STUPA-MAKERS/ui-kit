@@ -2,7 +2,7 @@
 id: "003079"
 title: The label of a small button sits on its middle
 kind: non-functional
-status: draft
+status: approved
 owner: frederikbeimgraben
 updated: 2026-11-26
 implementation:
