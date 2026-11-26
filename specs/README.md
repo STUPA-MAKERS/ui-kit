@@ -263,6 +263,7 @@ specs/
 | [NF/usability/controls/002421](requirements/non-functional/usability/controls/002421_check-row.md) | A check box in a row group is a row with an inset | approved |
 | [NF/usability/controls/002650](requirements/non-functional/usability/controls/002650_empty-state-centred-in-tab-and-pane.md) | An empty state that is the content of a page, a tab or a pane is centred in the free area | approved |
 | [NF/usability/controls/002760](requirements/non-functional/usability/controls/002760_search-window.md) | The kit has one search window with the look of the global search | approved |
+| [NF/usability/controls/003120](requirements/non-functional/usability/controls/003120_icon-only-button-link.md) | A link with only an icon is drawn as an icon button | draft |
 | [NF/usability/layout/000192](requirements/non-functional/usability/layout/000192_one-geometry.md) | All list and detail pages share one geometry | approved |
 | [NF/usability/layout/000193](requirements/non-functional/usability/layout/000193_scroll-edges.md) | A scroll area cuts at the edge of a surface | approved |
 | [NF/usability/layout/000194](requirements/non-functional/usability/layout/000194_phone-breakpoint.md) | The phone layout starts below 768 px | approved |
