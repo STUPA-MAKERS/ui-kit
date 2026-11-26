@@ -320,3 +320,24 @@ describe('ListItemComponent', () => {
     expect(await runAxe(container)).toHaveNoViolations();
   });
 });
+
+describe('ListItemComponent depth (003075)', () => {
+  it('a top row has no level', async () => {
+    const { container } = await render(`<div role="list"><app-list-item role="listitem" title="AStA" /></div>`, {
+      imports: [ListItemComponent],
+    });
+    const host = container.querySelector('app-list-item') as HTMLElement;
+    expect(host.getAttribute('aria-level')).toBeNull();
+  });
+
+  it('a row at depth 2 tells its level and does not step in', async () => {
+    const { container } = await render(
+      `<div role="list"><app-list-item role="listitem" title="Party" [depth]="2" /></div>`,
+      { imports: [ListItemComponent] },
+    );
+    const host = container.querySelector('app-list-item') as HTMLElement;
+    expect(host.getAttribute('aria-level')).toBe('3');
+    expect(getComputedStyle(container.querySelector('.li') as HTMLElement).paddingInlineStart).not.toMatch(/calc/);
+    expect(await runAxe(container)).toHaveNoViolations();
+  });
+});

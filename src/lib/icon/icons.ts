@@ -88,6 +88,7 @@ export type IconName =
   | 'menu'
   | 'minus'
   | 'monitor'
+  | 'network'
   | 'moon'
   | 'more'
   | 'package'
@@ -230,6 +231,7 @@ const SHAPES: Record<string, readonly IconShape[]> = {
   monitor: [{ t: 'rect', x: '2', y: '3', width: '20', height: '14', rx: '2' }, { t: 'path', d: 'M8 21h8M12 17v4' }],
   moon: [{ t: 'path', d: 'M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z' }],
   more: [{ t: 'circle', cx: '12', cy: '5', r: '1.3' }, { t: 'circle', cx: '12', cy: '12', r: '1.3' }, { t: 'circle', cx: '12', cy: '19', r: '1.3' }],
+  network: [{ t: 'rect', x: '16', y: '16', width: '6', height: '6', rx: '1' }, { t: 'rect', x: '2', y: '16', width: '6', height: '6', rx: '1' }, { t: 'rect', x: '9', y: '2', width: '6', height: '6', rx: '1' }, { t: 'path', d: 'M5 16v-3a1 1 0 0 1 1-1h12a1 1 0 0 1 1 1v3M12 12V8' }],
   package: [{ t: 'path', d: 'M11 21.73a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73z' }, { t: 'path', d: 'M12 22V12' }, { t: 'path', d: 'm3.3 7 7.7 4.73a2 2 0 0 0 2 0L20.7 7' }, { t: 'path', d: 'm7.5 4.27 9 5.15' }],
   palette: [{ t: 'circle', cx: '12', cy: '12', r: '9' }, { t: 'circle', cx: '7.5', cy: '10.5', r: '1' }, { t: 'circle', cx: '12', cy: '7.5', r: '1' }, { t: 'circle', cx: '16.5', cy: '10.5', r: '1' }, { t: 'path', d: 'M12 21a3 3 0 0 1 0-6h2a3 3 0 0 0 3-3' }],
   pie: [{ t: 'path', d: 'M21 12A9 9 0 1 1 12 3v9z' }, { t: 'path', d: 'M15 3.5A9 9 0 0 1 20.5 9H15z' }],
@@ -381,6 +383,7 @@ export const ICON_NAMES: readonly IconName[] = [
   'menu',
   'minus',
   'monitor',
+  'network',
   'moon',
   'more',
   'package',
