@@ -1,9 +1,9 @@
 import { ChangeDetectionStrategy, Component, input } from '@angular/core';
 
 /**
- * A numbered list of rows that an admin edits in place, such as the steps of a Haushaltsplan
- * or the statuses of a list: per row the number, the main field, the actions (move, delete)
- * and, under the main field, more fields in columns.
+ * A list of rows that an admin edits in place, such as the steps of a Haushaltsplan or the
+ * statuses of a list: per row the number (left out for a list without an order), the main
+ * field, the actions (move, delete) and, under the main field, more fields in columns.
  *
  * ```html
  * <app-step-list>
@@ -37,13 +37,13 @@ export class StepListComponent {}
   selector: 'app-step-row',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  host: { role: 'listitem' },
+  host: { role: 'listitem', '[class.steprow--plain]': 'number() === null' },
   templateUrl: './step-row.component.html',
   styleUrl: './step-row.component.scss',
 })
 export class StepRowComponent {
-  /** The number in front of the row, from 1. */
-  readonly number = input.required<number>();
+  /** The number in front of the row, from 1; `null` leaves it out, for a list without an order. */
+  readonly number = input<number | null>(null);
   /** The columns of the fields under the main field. */
   readonly columns = input(1);
 }

@@ -26,6 +26,7 @@ export type TodoLinkKind =
   | 'invoice'
   | 'expense'
   | 'order'
+  | 'event'
   | 'budget'
   | 'ticket'
   | 'todo'
@@ -87,18 +88,6 @@ export interface TodoLink {
   readonly granted?: boolean;
 }
 
-/** The event data of a card: the card is an Event (`Veranstaltung`). Dates are `YYYY-MM-DD`. */
-export interface TodoEventBrief {
-  readonly startsOn: string | null;
-  readonly endsOn: string | null;
-  readonly startTime: string | null;
-  readonly endTime: string | null;
-  readonly place: string | null;
-  readonly participants: number | null;
-  readonly seriesId: Uuid | null;
-  readonly seriesName: string | null;
-}
-
 export interface TodoCardTile {
   readonly id: Uuid;
   readonly boardId: Uuid;
@@ -114,8 +103,6 @@ export interface TodoCardTile {
   readonly commentCount: number;
   readonly primaryLink: TodoLink | null;
   readonly linkCount: number;
-  /** Set for an Event. */
-  readonly event: TodoEventBrief | null;
   readonly version: number;
   readonly createdAt: IsoDateTime;
   readonly updatedAt: IsoDateTime;

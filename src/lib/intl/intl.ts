@@ -290,6 +290,7 @@ export type UiKitBoardTextKey =
   | 'todos.linkKind.invoice'
   | 'todos.linkKind.meeting'
   | 'todos.linkKind.order'
+  | 'todos.linkKind.event'
   | 'todos.linkKind.paperless'
   | 'todos.linkKind.ticket'
   | 'todos.linkKind.todo'

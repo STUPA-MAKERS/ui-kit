@@ -5,6 +5,14 @@
   align-items: center;
 }
 
+:host(.steprow--plain) {
+  grid-template-columns: minmax(0, 1fr) auto;
+}
+
+:host(.steprow--plain) .steprow__fields {
+  grid-column: 1 / -1;
+}
+
 .steprow__no {
   color: var(--color-text-muted);
   text-align: end;
