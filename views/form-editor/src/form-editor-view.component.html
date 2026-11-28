@@ -76,7 +76,7 @@
       <app-tabs idPrefix="fe" [ariaLabel]="'admin.form.outline' | uiKitT" [tabs]="pageTabs()" [active]="page()" (activeChange)="setPage($event)" />
 
       @if (onQuestions()) {
-      <div class="fe__main">
+      <div class="fe__main" role="tabpanel" id="fe-panel-questions" aria-labelledby="fe-tab-questions">
         @if (duplicates().length > 0) {
           <p class="fe__alert" role="alert">{{ 'admin.form.dupKeys' | uiKitT: { keys: duplicates().join(', ') } }}</p>
         }
@@ -343,7 +343,7 @@
       }
     }
 
-    <aside class="fe__side" [hidden]="preview() || onQuestions()">
+    <aside class="fe__side" role="tabpanel" [attr.id]="onQuestions() ? null : 'fe-panel-' + page()" [attr.aria-labelledby]="onQuestions() ? null : 'fe-tab-' + page()" [hidden]="preview() || onQuestions()">
       @if (page() === 'form') {
       <section class="fe__card fe__meta" [attr.aria-label]="'admin.form.formCard' | uiKitT">
         <h2 class="cap fe__cap">{{ 'admin.form.formCard' | uiKitT }}</h2>
