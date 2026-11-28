@@ -41,8 +41,17 @@ import {
   UI_KIT_INTL,
   type UiKitTextKey,
   UiKitTranslatePipe,
+  type UiKitFormEditorTextKey,
+  type IconName,
 } from '@stupa-makers/ui-kit';
-import type { ComputedFormat, FieldHints, FieldType, FormFieldDef, SignatureRow } from './form-editor.types';
+import type {
+  ComputedFormat,
+  FieldHints,
+  FieldType,
+  FormEditorPage,
+  FormFieldDef,
+  SignatureRow,
+} from './form-editor.types';
 import {
   COMPUTED_FORMATS,
   FIELD_TYPES,
@@ -187,6 +196,20 @@ export class FormEditorViewComponent {
   readonly activeGroup = model(0);
   /** The selected question: outlined card, highlighted outline row. */
   readonly selected = model<QPos | null>(null);
+  /**
+   * What the second column shows (app spec 003132): the questions of the active group, or the
+   * settings of the form, its rules or its versions, chosen by the entries above the groups.
+   */
+  readonly page = model<FormEditorPage>('questions');
+
+  /** The entries of the outline above the groups. */
+  protected readonly pages: readonly { readonly id: FormEditorPage; readonly label: UiKitFormEditorTextKey; readonly icon: IconName }[] = [
+    { id: 'form', label: 'admin.form.formCard', icon: 'gear' },
+    { id: 'rules', label: 'admin.forms.rules.title', icon: 'list' },
+    { id: 'versions', label: 'admin.form.versions', icon: 'history' },
+  ];
+  /** The second column shows the questions. */
+  protected readonly onQuestions = computed(() => this.page() === 'questions');
 
   protected readonly severityOptions: SelectOption[] = (['block', 'warn'] as const).map((v) => ({
     value: v,
@@ -343,6 +366,7 @@ export class FormEditorViewComponent {
 
   /** Show a group in the middle column, without a selected question. */
   protected selectGroup(gi: number): void {
+    this.page.set('questions');
     this.activeGroup.set(gi);
     this.selected.set(null);
   }
@@ -352,6 +376,7 @@ export class FormEditorViewComponent {
    * view (a click in the outline); a click into the card itself does not move the page.
    */
   protected selectQuestion(pos: QPos, scroll = true): void {
+    this.page.set('questions');
     this.activeGroup.set(pos.gi);
     this.selected.set(pos);
     if (scroll) this.scrollToCard(pos);

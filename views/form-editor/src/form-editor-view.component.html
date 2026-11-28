@@ -1,3 +1,4 @@
+<div class="fe__frame">
 @if (loading()) {
   <div class="fe__cols skel-in" aria-busy="true">
     <span class="sr-only" role="status">{{ 'admin.forms.overviewLoading' | uiKitT }}</span>
@@ -29,13 +30,6 @@
           </div>
         </div>
       }
-    </div>
-    <div class="fe__side" aria-hidden="true">
-      <div class="fe__card">
-        <span class="cap fe__cap"><span class="skel-text skel-text--muted fe__skCap"></span></span>
-        <span class="skel-box fe__skField"></span>
-        <span class="skel-box fe__skField fe__skField--tall"></span>
-      </div>
     </div>
   </div>
 } @else {
@@ -97,15 +91,25 @@
       </article>
     } @else {
       <nav class="fe__outline" appScrollFade="y" [attr.aria-label]="'admin.form.outline' | uiKitT">
+        <ol class="fe__list fe__pages">
+          @for (p of pages; track p.id) {
+            <li class="fe__row fe__page" [class.fe__row--on]="page() === p.id">
+              <app-icon class="fe__grip" [name]="p.icon" [size]="16" />
+              <button type="button" class="fe__rowBtn" [attr.aria-current]="page() === p.id ? 'true' : null" (click)="page.set(p.id)">
+                <span class="fe__rowTitle"><span class="ell">{{ p.label | uiKitT }}</span></span>
+              </button>
+            </li>
+          }
+        </ol>
         @for (group of groups(); track $index; let gi = $index) {
           <section
             class="fe__group"
-            [class.fe__group--on]="gi === groupIndex()"
+            [class.fe__group--on]="onQuestions() && gi === groupIndex()"
             (dragover)="onDragOver($event)"
             (drop)="onDrop(gi)"
           >
             <div class="fe__groupHead" draggable="true" (dragstart)="onDragStart(gi)" [attr.title]="'admin.form.dragGroup' | uiKitT">
-              <button type="button" class="fe__groupName ell" [attr.aria-current]="gi === groupIndex() ? 'true' : null" (click)="selectGroup(gi)">
+              <button type="button" class="fe__groupName ell" [attr.aria-current]="onQuestions() && gi === groupIndex() ? 'true' : null" (click)="selectGroup(gi)">
                 {{ groupHeading(group, gi) }}
               </button>
               <app-button-group>
@@ -122,7 +126,7 @@
                 @let bad = errorsFor(gi, qi).length > 0;
                 <li
                   class="fe__row"
-                  [class.fe__row--on]="isSelected(gi, qi)"
+                  [class.fe__row--on]="onQuestions() && isSelected(gi, qi)"
                   [class.fe__row--bad]="bad"
                   draggable="true"
                   (dragstart)="onQuestionDragStart($event, { gi: gi, qi: qi })"
@@ -177,6 +181,7 @@
         </app-button-group>
       </nav>
 
+      @if (onQuestions()) {
       <div class="fe__main" appScrollFade="y">
         @if (duplicates().length > 0) {
           <p class="fe__alert" role="alert">{{ 'admin.form.dupKeys' | uiKitT: { keys: duplicates().join(', ') } }}</p>
@@ -420,9 +425,11 @@
           }
         }
       </div>
+      }
     }
 
-    <aside class="fe__side" appScrollFade="y">
+    <aside class="fe__side" appScrollFade="y" [hidden]="preview() || onQuestions()">
+      @if (page() === 'form') {
       <section class="fe__card fe__meta" [attr.aria-label]="'admin.form.formCard' | uiKitT">
         <h2 class="cap fe__cap">{{ 'admin.form.formCard' | uiKitT }}</h2>
         <app-i18n-input
@@ -493,7 +500,9 @@
           />
         }
       </section>
+      }
 
+      @if (page() === 'rules') {
       <section class="fe__card fe__meta fe__rules" [attr.aria-labelledby]="'fe-rules-h'">
         <h2 id="fe-rules-h" class="cap fe__cap">{{ 'admin.forms.rules.title' | uiKitT }}</h2>
         @for (rule of rules(); track $index; let ri = $index) {
@@ -549,11 +558,16 @@
           </app-button>
         </app-button-group>
       </section>
+      }
 
-      <ng-content select="[formVersions]" />
+      @if (page() === 'versions') {
+        <ng-content select="[formVersions]" />
+      }
     </aside>
   </div>
 }
+
+</div>
 
 @if (typeMenuGroup() !== null && !phone()) {
   @let gi = typeMenuGroup() ?? 0;

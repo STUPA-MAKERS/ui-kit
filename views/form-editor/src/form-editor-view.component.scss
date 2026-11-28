@@ -36,6 +36,17 @@
   height: 6rem;
 }
 
+// The editor follows the width of its pane, not of the window (app spec 003130): the frame is
+// the container of the columns.
+.fe__frame {
+  display: flex;
+  flex: 1 1 0;
+  flex-direction: column;
+  min-width: 0;
+  min-height: 0;
+  container-type: inline-size;
+}
+
 .fe__cols {
   display: grid;
   grid-template-columns: minmax(0, 1fr);
@@ -43,29 +54,18 @@
   min-width: 0;
 }
 
-@include bp.narrow {
-  .fe__cols {
-    grid-template-columns: 17rem minmax(0, 1fr);
-    align-items: start;
-  }
-  .fe__outline {
-    grid-row: span 2;
-  }
-  .fe__cols--preview {
-    grid-template-columns: minmax(0, 1fr);
-  }
-}
-
-@include bp.wide {
+// Two columns (app spec 003132): the outline, and the questions of the group or the settings,
+// the rules or the versions. Each column scrolls inside itself.
+@container (min-width: 40rem) {
   .fe__cols {
     flex: 1 1 0;
-    grid-template-columns: 20rem minmax(0, 1fr) 22.5rem;
+    grid-template-columns: 17rem minmax(0, 1fr);
     grid-template-rows: minmax(0, 1fr);
     gap: var(--space-3);
     min-height: 0;
   }
   .fe__cols--preview {
-    grid-template-columns: minmax(0, 1fr) 22.5rem;
+    grid-template-columns: minmax(0, 1fr);
   }
   .fe__outline,
   .fe__main,
@@ -76,6 +76,17 @@
     overscroll-behavior: contain;
     scrollbar-width: thin;
   }
+}
+
+.fe__side[hidden] {
+  display: none;
+}
+
+.fe__pages {
+  margin-bottom: var(--space-2);
+}
+.fe__page {
+  cursor: pointer;
 }
 
 .fe__outline {
