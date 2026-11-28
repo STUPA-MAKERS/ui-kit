@@ -39,7 +39,7 @@ export interface FlowCanvasNode {
   readonly dots: readonly FlowCanvasDot[];
 }
 
-/** A BPMN start or end event (spec 003133). */
+/** A BPMN start or end event (spec 003173). */
 export interface FlowCanvasEvent {
   readonly id: string;
   readonly kind: 'start' | 'end';

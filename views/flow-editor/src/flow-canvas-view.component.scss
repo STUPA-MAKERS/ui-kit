@@ -20,7 +20,7 @@
 }
 
 // The canvas takes the whole width of the pane; the inspector is a sheet over its right side
-// (spec 003131).
+// (spec 003172).
 .fc {
   position: relative;
   display: flex;
@@ -329,7 +329,7 @@
   pointer-events: none;
 }
 
-// BPMN shapes (app spec 003133): the events, the gateway, the markers and the frame of the open
+// BPMN shapes (app spec 003173): the events, the gateway, the markers and the frame of the open
 // group.
 .fc__event {
   fill: var(--color-surface-2);
@@ -433,7 +433,7 @@
   user-select: none;
 }
 
-// The connector dots of a task or a gateway show only on hover and on the selected one (003133).
+// The connector dots of a task or a gateway show only on hover and on the selected one (003173).
 // They stay in place and keep taking presses, so a drag can start as soon as they show.
 .fc__connector {
   fill: var(--color-surface-3);

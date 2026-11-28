@@ -50,14 +50,14 @@ const PAN_LABEL = {
  * alert, the SVG with the states, the transitions, the closed groups and the outside ends, the
  * pan tongues and the legend (S/framework/views/002277).
  *
- * The shapes follow BPMN 2.0 (app spec 003133): a state is a task, a vote state has the vote
+ * The shapes follow BPMN 2.0 (app spec 003173): a state is a task, a vote state has the vote
  * marker and a gateway after it, the events start and end the flow, a guarded line starts with
  * the conditional marker, a closed group is a collapsed sub-process ([+]) and the open group is
  * the frame of an expanded one. The connector dots of a task show on hover and selection.
  *
  * The view draws what the app computes and reports each press; the app owns the graph, the
  * layout, the zoom and the selection. The canvas takes the whole width; the app opens the
- * inspector in an `app-side-sheet` (spec 003131). Slot: `[canvasState]` covers the canvas while
+ * inspector in an `app-side-sheet` (spec 003172). Slot: `[canvasState]` covers the canvas while
  * it loads or failed.
  */
 @Component({

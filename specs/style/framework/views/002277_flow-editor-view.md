@@ -47,7 +47,7 @@ View models: the flow types of STUPA-Workflow (`StateDef`, `TransitionDef`, `Flo
 The canvas, the page, the toolbar, the save, the version list and the transition detail stay in
 the app. The views have no head: the app shows them in its side sheet, which carries the title
 and the actions ("Status löschen", "Übergang löschen", "Auflösen") beside the close button (app
-spec 003131). The transition detail uses the kit guard editor and the kit inspector styles.
+spec 003172). The transition detail uses the kit guard editor and the kit inspector styles.
 
 App parts: the views know no route, no permission and no server. The app gives the options
 (states, kinds, Gremien, roles) as inputs and applies each output to its draft.
