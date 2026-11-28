@@ -138,5 +138,5 @@ export interface SignatureRow {
   readonly signer: string;
 }
 
-/** What the second column of the form editor shows (app spec 003132). */
+/** The open tab of the form editor (app spec 003171). */
 export type FormEditorPage = 'questions' | 'form' | 'rules' | 'versions';

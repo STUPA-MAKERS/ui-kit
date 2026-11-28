@@ -18,7 +18,7 @@ scope:
 `/views/form-editor` must export `app-form-editor-view`, a copy of the body of the
 Formular-Editor (`app-form-editor`) of STUPA-Workflow, with the same behaviour:
 
-- the tabs "Fragen", "Formular", "Regeln" and "Versionen" (app spec 003132);
+- the tabs "Fragen", "Formular", "Regeln" and "Versionen" (app spec 003171);
 - in "Fragen": every group one below the other, each with its heading, + ("Frage hinzufügen"
   with the menu of the question types, a bottom sheet on a phone) and the ⋮ menu of the group in
   one button group, the group title and one card per question with its type, key, required flag,

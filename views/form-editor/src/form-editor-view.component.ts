@@ -116,7 +116,7 @@ const PAGE_TABS: readonly { readonly id: FormEditorPage; readonly label: UiKitFo
  * Each group is one wizard step. The group title is the step heading. On save the groups
  * serialize back into the flat `fields[]` list, with a leading `section` marker per group.
  *
- * The view has four tabs (app spec 003132):
+ * The view has four tabs (app spec 003171):
  *
  * - "Fragen": every group one below the other. The head of a group ("Abschnitt n · Titel")
  *   holds + (the menu of every question type, a bottom sheet on a phone) and ⋮ (move or
@@ -201,7 +201,7 @@ export class FormEditorViewComponent {
   /** The selected question: its card has an outline. */
   readonly selected = model<QPos | null>(null);
   /**
-   * The open tab (app spec 003132): all groups with their questions, the settings of the form,
+   * The open tab (app spec 003171): all groups with their questions, the settings of the form,
    * its rules or its versions.
    */
   readonly page = model<FormEditorPage>('questions');
