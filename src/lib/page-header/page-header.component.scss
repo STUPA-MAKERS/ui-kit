@@ -49,12 +49,11 @@
   row-gap: var(--space-1);
   min-width: 0;
 }
-// The back arrow sits on the centre of the title line, its icon on the start edge of the title
-// column, so the title moves right by the arrow and the gap.
+// The back arrow sits on the centre of the title line, and the title moves right by the arrow
+// and the gap.
 :host ::ng-deep .ph__heading > [back] {
   display: inline-flex;
   align-self: center;
-  margin-inline-start: calc(-1 * var(--space-2));
 }
 :host ::ng-deep .ph__heading > [back]:empty {
   display: none;
