@@ -704,6 +704,7 @@ export type UiKitProtocolTextKey =
   | 'meetings.protocolBar.send'
   | 'meetings.protocolBar.sendDraft'
   | 'meetings.protocolBar.sendFinal'
+  | 'meetings.protocolBar.sendPending'
   | 'meetings.protocolBar.unapprove'
   | 'meetings.protocolBar.withhold'
   | 'meetings.reopen.body'

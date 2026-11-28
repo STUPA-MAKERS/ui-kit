@@ -64,16 +64,25 @@ describe('protocolActions', () => {
   });
 
   /** STUPA-Workflow:003019 (sendFinal): finalize and send are two actions. */
-  it('makes "Senden" the head action of a final protocol that did not go out', () => {
+  it('puts the PDF and "Senden" in the head of a final protocol that did not go out', () => {
     const p = protocol({ status: 'final', isFinal: true, isSent: false, pdfUrl: '/x.pdf' });
     const a = protocolActions(meeting(), p, true);
     expect(a.canSend).toBe(true);
-    expect(a.unsent).toBe(true);
+    expect([a.unsent, a.sendReady]).toEqual([true, true]);
     expect(ids(meeting(), p, true, true).slice(0, 2)).toEqual(['protocol.send', 'protocol.pdf']);
-    expect(ids(meeting(), p, true, false)[0]).toBe('protocol.pdf');
+    expect(ids(meeting(), p, true, false)).not.toContain('protocol.pdf');
     expect(ids(meeting(), p, true, false)).not.toContain('protocol.send');
     expect(protocolActions(meeting({ canFinalize: false }), p, true).canSend).toBe(false);
     expect(protocolActions(meeting(), p, false).unsent).toBe(false);
+  });
+
+  it('shows "Senden" disabled while the PDF is rendered', () => {
+    const rendering = protocol({ status: 'rendering', isFinal: false, isLocked: true, pdfUrl: null });
+    const a = protocolActions(meeting(), rendering, true);
+    expect([a.unsent, a.sendReady, a.finalPdf]).toEqual([true, false, null]);
+    const [send] = protocolMenuItems(a, rendering, true, (k) => k);
+    expect(send).toMatchObject({ id: 'protocol.send', disabledReason: 'meetings.protocolBar.sendPending' });
+    expect(protocolActions(meeting({ canFinalize: false }), rendering, true).unsent).toBe(false);
   });
 
   it('offers the removal of the mark and "publish" for an approved, withheld protocol', () => {

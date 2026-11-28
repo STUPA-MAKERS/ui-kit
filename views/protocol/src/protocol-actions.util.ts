@@ -26,8 +26,13 @@ export interface ProtocolActions {
   readonly canSendDraft: boolean;
   /** "Protokoll senden": a final protocol and the right to finalize (STUPA-Workflow:003019). */
   readonly canSend: boolean;
-  /** A final protocol that did not go out since its last finalization: the head action is "Senden". */
+  /**
+   * A protocol that did not go out since its last finalization, for a holder of the right: the
+   * head shows the PDF and "Senden". While the PDF is rendered, "Senden" shows disabled.
+   */
   readonly unsent: boolean;
+  /** The PDF of the final protocol is stored, so "Senden" works. */
+  readonly sendReady: boolean;
   /** The mark and its removal: a final protocol and the right to finalize (§ 000924). */
   readonly canApprove: boolean;
   /** "Zurück in Entwurf": a final protocol without the mark and the right (§ 000983). */
@@ -52,13 +57,15 @@ export function protocolActions(m: Meeting, p: Protocol, onPage: boolean): Proto
   const publication = !p.isFinal || !p.gremiumProtocolsPublic ? null : p.publicWithheld ? 'withheld' : 'public';
   const canApprove = !!p.isFinal && !!m.canFinalize && onPage;
   const canSend = canApprove;
+  const rendering = p.status === 'rendering' && !!m.canFinalize && onPage;
   const base = `/api/protocols/${p.id}/draft-pdf`;
   return {
     canFinalize: closed && !!m.canFinalize && draft,
     needsRight: draft && !!m.canWrite && !m.canFinalize,
     canSendDraft: closed && !!m.canWrite && draft && onPage,
     canSend,
-    unsent: canSend && !p.isSent,
+    unsent: rendering || (canSend && !p.isSent),
+    sendReady: canSend && !!p.pdfUrl,
     canApprove,
     canReopen: canApprove && !p.approvedAt,
     publication,
@@ -76,9 +83,9 @@ export function protocolActions(m: Meeting, p: Protocol, onPage: boolean): Proto
 
 /**
  * The "Protokoll" section of the session menu (spec 001304). `compact`: a phone, whose
- * head has no action (spec 000197), so the section starts with the head action: the
- * finalize, "Senden" of a final protocol that did not go out, or the PDF of a final
- * protocol. While "Senden" is the head action, the PDF is an item of the section.
+ * head has no action (spec 000197), so the section starts with the head actions: the
+ * finalize, "Senden" of a protocol that did not go out (disabled until the PDF is stored),
+ * and the PDF of a final protocol.
  */
 export function protocolMenuItems(
   a: ProtocolActions,
@@ -96,8 +103,13 @@ export function protocolMenuItems(
       icon: 'check',
       disabledReason: a.canFinalize ? null : t('meetings.protocolBar.needsRight'),
     }),
-    add(compact && a.unsent, { id: 'protocol.send', label: t('meetings.protocolBar.sendFinal'), icon: 'send' }),
-    add((compact || a.unsent) && a.finalPdf !== null, { id: 'protocol.pdf', label: t(a.finalPdf?.label ?? 'meetings.protocolBar.pdf'), icon: 'file' }),
+    add(compact && a.unsent, {
+      id: 'protocol.send',
+      label: t('meetings.protocolBar.sendFinal'),
+      icon: 'send',
+      disabledReason: a.sendReady ? null : t('meetings.protocolBar.sendPending'),
+    }),
+    add(compact && a.finalPdf !== null, { id: 'protocol.pdf', label: t(a.finalPdf?.label ?? 'meetings.protocolBar.pdf'), icon: 'file' }),
     add(!!p.isFinal && !!p.publicPdfUrl, { id: 'protocol.pdfPublic', label: t('meetings.protocolBar.pdfPublic'), icon: 'file' }),
     add(a.draftPdf !== null, { id: 'protocol.draftPdf', label: t('meetings.protocolBar.pdfInternal'), icon: 'file' }),
     add(a.draftPdf !== null, { id: 'protocol.draftPdfPublic', label: t('meetings.protocolBar.pdfPublic'), icon: 'file' }),

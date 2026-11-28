@@ -44,9 +44,10 @@ export interface ProtocolPdfOpen {
  * - The head action (`headAction`): "Finalisieren" for a draft and a holder of `canFinalize`
  *   (write access plus the gremium right `protocol.finalize`). A writer without the right
  *   sees the button disabled, with the missing right as its reason. The finalization sends
- *   no mail (STUPA-Workflow:003019): a final protocol that did not go out since its last
- *   finalization shows "Senden" to a holder of the right, after a confirmation. Every other
- *   final protocol shows "PDF" (or "PDF intern" when a public variant exists). On a phone
+ *   no mail (STUPA-Workflow:003019): a protocol that did not go out since its last
+ *   finalization shows the PDF and "Senden" to a holder of the right; "Senden" asks first
+ *   and stays disabled until the PDF is stored. Every other final protocol shows "PDF" (or
+ *   "PDF intern" when a public variant exists). On a phone
  *   the head has no action (spec 000197), so the action is the first item of the section.
  * - Draft: "Entwurf senden" sends the PDF with the watermark "Entwurf" to the members,
  *   after a confirmation. The protocol stays a draft (§ 000925). A second send names the
@@ -130,6 +131,7 @@ export class ProtocolBarViewComponent {
   protected readonly canFinalize = computed(() => this.actions().canFinalize);
   protected readonly needsRight = computed(() => this.actions().needsRight);
   protected readonly finalPdf = computed(() => this.actions().finalPdf);
+  protected readonly sendReady = computed(() => this.actions().sendReady);
   private readonly draftPdf = computed(() => this.actions().draftPdf);
   /** The one action of the head; none on a phone (spec 000197). */
   protected readonly headAction = computed((): 'finalize' | 'send' | 'pdf' | null => {

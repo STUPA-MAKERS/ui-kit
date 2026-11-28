@@ -56,6 +56,7 @@ export const UI_KIT_PROTOCOL_TEXTS: UiKitTexts<UiKitProtocolTextKey> = {
     'meetings.protocolBar.send': 'Senden',
     'meetings.protocolBar.sendDraft': 'Entwurf senden',
     'meetings.protocolBar.sendFinal': 'Protokoll senden',
+    'meetings.protocolBar.sendPending': 'Senden geht, sobald das PDF erstellt ist.',
     'meetings.protocolBar.unapprove': 'Genehmigung entfernen',
     'meetings.protocolBar.withhold': 'Nicht veröffentlichen',
     'meetings.reopen.body':
@@ -125,6 +126,7 @@ export const UI_KIT_PROTOCOL_TEXTS: UiKitTexts<UiKitProtocolTextKey> = {
     'meetings.protocolBar.send': 'Send',
     'meetings.protocolBar.sendDraft': 'Send draft',
     'meetings.protocolBar.sendFinal': 'Send minutes',
+    'meetings.protocolBar.sendPending': 'You can send once the PDF is ready.',
     'meetings.protocolBar.unapprove': 'Remove approval',
     'meetings.protocolBar.withhold': 'Do not publish',
     'meetings.reopen.body':
