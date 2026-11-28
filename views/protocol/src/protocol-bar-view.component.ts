@@ -65,10 +65,10 @@ export interface ProtocolPdfOpen {
  *
  * The finalize is a step of its own after the close; a live meeting has no protocol actions.
  *
- * The head action is a segment of the button group of the meeting head (spec 001354): the
- * host carries `btn-grp__seg`, so the action and the ⋮ menu after it form one group, and
- * `btn-grp--main`, so "Finalisieren" and "Senden" keep their accent fill. Without an action the
- * host carries neither class and leaves no gap in the shape.
+ * The head actions are a segment of the button group of the meeting head (spec 001354): the
+ * host carries `btn-grp__seg`, so the actions and the ⋮ menu after them form one group, and
+ * `btn-grp--main` while "Finalisieren" or "Senden" is enabled, so it keeps its accent fill.
+ * Without an action the host carries neither class and leaves no gap in the shape.
  *
  * Copy of `app-protocol-bar` of STUPA-Workflow (S/framework/views/002273). The view saves
  * nothing: it emits `send`, `sendDraft`, `reopen`, `approve`, `publish`, `approvalRequest` and `pdfOpen`,
@@ -87,7 +87,7 @@ export interface ProtocolPdfOpen {
   ],
   host: {
     '[class.btn-grp__seg]': 'hasAction()',
-    '[class.btn-grp--main]': 'hasAction()',
+    '[class.btn-grp--main]': 'mainFill()',
   },
   templateUrl: './protocol-bar-view.component.html',
   styleUrl: './protocol-bar-view.component.scss',
@@ -142,6 +142,15 @@ export class ProtocolBarViewComponent {
     return a.finalPdf !== null ? 'pdf' : null;
   });
   protected readonly hasAction = computed(() => this.headAction() !== null);
+  /**
+   * The head keeps the accent fill of an enabled "Finalisieren" or "Senden". A disabled one
+   * takes the grey disabled look of the head, like "Sitzung eröffnen" before its time.
+   */
+  protected readonly mainFill = computed(() => {
+    const a = this.actions();
+    const action = this.headAction();
+    return (action === 'finalize' && a.canFinalize) || (action === 'send' && a.sendReady);
+  });
 
   private readonly i18n = inject(UI_KIT_INTL);
   /** The confirmation of "Entwurf senden" is open. */
