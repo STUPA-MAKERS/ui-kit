@@ -469,7 +469,7 @@ export type UiKitFormEditorTextKey =
   | 'admin.form.capAtCost'
   | 'admin.form.compute'
   | 'admin.form.deleteGroup'
-  | 'admin.form.dragGroup'
+  | 'admin.form.questions'
   | 'admin.form.dupKeys'
   | 'admin.form.formCard'
   | 'admin.form.format'

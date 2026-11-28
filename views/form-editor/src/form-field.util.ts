@@ -275,32 +275,3 @@ export interface QuestionPos {
   readonly gi: number;
   readonly qi: number;
 }
-
-/**
- * Move a question to another place, also into another group (drag and drop in the
- * outline of the form editor).
- *
- * `to.qi` is an index of the target group after the question left its old place. A drop
- * on a row therefore puts a question from above BELOW that row and a question from below
- * ABOVE it. An index past the end appends the question. The function does not change its
- * input. It returns the new groups and the new place of the question, or `null` when
- * `from` names no question or `to` names no group.
- */
-export function moveQuestionTo(
-  groups: readonly QuestionGroup[],
-  from: QuestionPos,
-  to: QuestionPos,
-): { readonly groups: readonly QuestionGroup[]; readonly pos: QuestionPos } | null {
-  const source = groups[from.gi];
-  if (!source || from.qi < 0 || from.qi >= source.fields.length || !groups[to.gi]) return null;
-  const moved = source.fields[from.qi];
-  const without = groups.map((g, gi) => ({
-    ...g,
-    fields: gi === from.gi ? g.fields.filter((_, i) => i !== from.qi) : [...g.fields],
-  }));
-  const qi = Math.max(0, Math.min(to.qi, without[to.gi].fields.length));
-  const next = without.map((g, gi) =>
-    gi === to.gi ? { ...g, fields: [...g.fields.slice(0, qi), moved, ...g.fields.slice(qi)] } : g,
-  );
-  return { groups: next, pos: { gi: to.gi, qi } };
-}
