@@ -355,6 +355,16 @@ export class BallotViewComponent {
   private readonly bar = viewChild<ElementRef<HTMLElement>>('bar');
   protected readonly barHeight = signal(0);
 
+  protected readonly ballotKind = computed<'date' | 'candidates' | 'compact' | 'options'>(() =>
+    this.dateMode()
+      ? 'date'
+      : this.candidateMode()
+      ? 'candidates'
+      : this.compact()
+      ? 'compact'
+      : 'options',
+  );
+
   constructor() {
     effect(() => {
       this.voteId();

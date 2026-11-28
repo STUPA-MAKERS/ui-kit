@@ -4,7 +4,6 @@
   <span class="av__letters">{{ letters() }}</span>
 }
 @if (src(); as url) {
-  <!-- The name is the accessible name of the host; the image adds nothing to read. -->
   <img
     class="av__img"
     [class.av__img--on]="loaded()"

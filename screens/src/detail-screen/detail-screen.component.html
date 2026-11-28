@@ -48,7 +48,6 @@
 
     @if (head().status || head().kicker || head().meta?.length) {
       <ul class="ds__chips" role="list">
-        <!-- The kicker is the first chip, never a grey line above the title (002230). -->
         @if (head().kicker; as k) {
           <li>
             <span class="ds__chip"
@@ -107,44 +106,52 @@
         }
       }
       @default {
-        @if (replacing(); as r) {
-          <section class="ds__replace" [attr.aria-label]="r.label">
-            <div class="ds__replaceHead">
-              <h2 class="ds__replaceTitle">{{ r.label }}</h2>
-              <app-button
-                variant="text"
-                [iconOnly]="true"
-                [ariaLabel]="'dialog.close' | uiKitT"
-                (click)="setSheet(r.key, false)"
-                ><app-icon name="x"
-              /></app-button>
-            </div>
-            @if (sheetTemplate(r.key); as t) {
-              <ng-container [ngTemplateOutlet]="t" />
+        @switch (bodyKind()) {
+          @case ('replacing') {
+            @if (replacing(); as r) {
+              <section class="ds__replace" [attr.aria-label]="r.label">
+                <div class="ds__replaceHead">
+                  <h2 class="ds__replaceTitle">{{ r.label }}</h2>
+                  <app-button
+                    variant="text"
+                    [iconOnly]="true"
+                    [ariaLabel]="'dialog.close' | uiKitT"
+                    (click)="setSheet(r.key, false)"
+                    ><app-icon name="x"
+                  /></app-button>
+                </div>
+                @if (sheetTemplate(r.key); as t) {
+                  <ng-container [ngTemplateOutlet]="t" />
+                }
+              </section>
             }
-          </section>
-        } @else if (visibleTabs().length) {
-          <app-tabs
-            #t
-            class="ds__tabs"
-            [idPrefix]="tabsId"
-            [ariaLabel]="head().title"
-            [tabs]="tabItems()"
-            [active]="tab()"
-            (activeChange)="selectTab($event)"
-          />
-          <section
-            class="ds__body"
-            role="tabpanel"
-            [id]="t.panelId(tab())"
-            [attr.aria-labelledby]="t.tabId(tab())"
-          >
-            @if (tabTemplate(); as tt) {
-              <ng-container [ngTemplateOutlet]="tt" />
+          }
+          @case ('tabs') {
+            <app-tabs
+              #t
+              class="ds__tabs"
+              [idPrefix]="tabsId"
+              [ariaLabel]="head().title"
+              [tabs]="tabItems()"
+              [active]="tab()"
+              (activeChange)="selectTab($event)"
+            />
+            <section
+              class="ds__body"
+              role="tabpanel"
+              [id]="t.panelId(tab())"
+              [attr.aria-labelledby]="t.tabId(tab())"
+            >
+              @if (tabTemplate(); as tt) {
+                <ng-container [ngTemplateOutlet]="tt" />
+              }
+            </section>
+          }
+          @case ('body') {
+            @if (bodySlot(); as b) {
+              <div class="ds__body"><ng-container [ngTemplateOutlet]="b.template" /></div>
             }
-          </section>
-        } @else if (bodySlot(); as b) {
-          <div class="ds__body"><ng-container [ngTemplateOutlet]="b.template" /></div>
+          }
         }
       }
     }
@@ -159,7 +166,6 @@
   }
 </article>
 
-<!-- The edge tabs open the side sheets above the phone width (001801). -->
 @if (!phone() && sheets().length) {
   <div class="ds__edgeTabs">
     @for (s of sheets(); track s.key) {

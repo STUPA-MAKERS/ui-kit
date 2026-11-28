@@ -33,6 +33,7 @@
         routerLinkActive="is-active"
         ariaCurrentWhenActive="page"
         [routerLinkActiveOptions]="{ exact: item.exact ?? false }"
+        [attr.title]="item.railLabel && item.railLabel !== item.label ? item.label : null"
         (isActiveChange)="$event && reveal(entry)"
       >
         <span class="rail__ind" data-press-surface>
@@ -41,7 +42,7 @@
             <ng-container *ngTemplateOutlet="m; context: { $implicit: item.key, part: 'visual' }" />
           }
         </span>
-        <span class="rail__label">{{ item.label }}</span>
+        <span class="rail__label">{{ item.railLabel ?? item.label }}</span>
         @if (mark(); as m) {
           <ng-container *ngTemplateOutlet="m; context: { $implicit: item.key, part: 'text' }" />
         }
@@ -76,10 +77,11 @@
             routerLinkActive="is-active"
             ariaCurrentWhenActive="page"
             [routerLinkActiveOptions]="{ exact: item.exact ?? false }"
+            [attr.title]="item.railLabel && item.railLabel !== item.label ? item.label : null"
             (isActiveChange)="$event && activeInGroup(group.key, entry)"
           >
             <span class="rail__ind" data-press-surface><app-icon [name]="item.icon" [size]="22" /></span>
-            <span class="rail__label">{{ item.label }}</span>
+            <span class="rail__label">{{ item.railLabel ?? item.label }}</span>
           </a>
         }
       </div>
@@ -97,9 +99,10 @@
       routerLinkActive="is-active"
       ariaCurrentWhenActive="page"
       [routerLinkActiveOptions]="{ exact: item.exact ?? false }"
+      [attr.title]="item.railLabel && item.railLabel !== item.label ? item.label : null"
     >
       <span class="rail__ind" data-press-surface><app-icon [name]="item.icon" [size]="22" /></span>
-      <span class="rail__label">{{ item.label }}</span>
+      <span class="rail__label">{{ item.railLabel ?? item.label }}</span>
     </a>
   }
 

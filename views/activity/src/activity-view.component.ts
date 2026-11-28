@@ -61,6 +61,13 @@ export class ActivityViewComponent {
   protected readonly intl = inject(UI_KIT_INTL);
   protected readonly phone = mediaQuery(MEDIA.phone);
 
+  /** The case of the list: the first load, an error, nothing to show, else the days. */
+  protected readonly listState = computed<'loading' | 'error' | 'empty' | 'list'>(() => {
+    const s = this.entries().state;
+    if (s === 'loading' && !this.days().length) return 'loading';
+    return s === 'error' || s === 'empty' ? s : 'list';
+  });
+
   protected readonly days = computed<readonly ActivityDay[]>(() =>
     activityDays(loadedData(this.entries()) ?? []),
   );

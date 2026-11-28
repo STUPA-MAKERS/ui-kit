@@ -438,6 +438,20 @@ export interface Attendance {
    * while the window is open (§ 000922).
    */
   readonly lateExcuseUntil?: string | null;
+  /**
+   * The members whose voting right this person holds in the meeting (a delegate), in the
+   * order of their names. Empty for a person who represents nobody. An older server
+   * leaves it out.
+   */
+  readonly represents?: readonly AttendancePerson[];
+  /** False for a person who is no member of the Gremium now: a delegate or a former member. */
+  readonly isMember?: boolean;
+}
+
+/** A person named in a row of the attendance list. */
+export interface AttendancePerson {
+  readonly principalId: Uuid;
+  readonly displayName: string | null;
 }
 
 export interface Delegation {

@@ -29,12 +29,18 @@
     </svg>
   }
   <div class="es__msg">
-    @if (code(); as c) {
-      <p class="es__code">{{ c }}</p>
-    } @else if (plain()) {
-      <app-icon class="es__icon" [name]="icon()" [size]="32" />
-    } @else if (face()) {
-      <app-icon class="es__hintIcon" [name]="icon()" [size]="18" />
+    @switch (artKind()) {
+      @case ('code') {
+        @if (code(); as c) {
+          <p class="es__code">{{ c }}</p>
+        }
+      }
+      @case ('plain') {
+        <app-icon class="es__icon" [name]="icon()" [size]="32" />
+      }
+      @case ('face') {
+        <app-icon class="es__hintIcon" [name]="icon()" [size]="18" />
+      }
     }
     @switch (headingLevel()) {
       @case (1) {
@@ -53,7 +59,6 @@
     @if (body(); as text) {
       <p class="es__body">{{ text }}</p>
     }
-    <!-- Projected, so the caller decides whether there is a way forward at all. -->
     <div class="es__action">
       <ng-content />
     </div>

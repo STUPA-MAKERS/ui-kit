@@ -20,8 +20,6 @@
       [attr.aria-labelledby]="titleId"
       [attr.aria-describedby]="subtitle ? subtitleId : null"
     >
-      <!-- Mobile-Sheet: Greifleiste + Header sind die Drag-Zone zum
-           Herunterwischen (Flick schließt). Auf Desktop ausgeblendet (#14). -->
       <div
         class="dialog__drag"
         (touchstart)="onDragStart($event)"

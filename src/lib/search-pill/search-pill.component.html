@@ -6,8 +6,6 @@
       [attr.aria-keyshortcuts]="keys()"
       (click)="activate.emit()"
     >
-      <!-- The name comes from the text, so it holds the visible placeholder (WCAG 2.5.3);
-           the shortcut is in aria-keyshortcuts. -->
       <app-icon class="sp__icon" name="search" [size]="20" />
       <span class="sp__ph">{{ placeholder() }}</span>
       @if (label(); as extra) {
