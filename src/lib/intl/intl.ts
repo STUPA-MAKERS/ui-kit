@@ -384,6 +384,7 @@ export type UiKitChatTextKey =
 
 /** The texts only the views of `@stupa-makers/ui-kit/views/flow-editor` use. */
 export type UiKitFlowEditorTextKey =
+  | 'admin.flow.addState'
   | 'admin.flow.approved'
   | 'admin.flow.automatic'
   | 'admin.flow.branch'
@@ -402,13 +403,17 @@ export type UiKitFlowEditorTextKey =
   | 'admin.flow.compareFieldPh'
   | 'admin.flow.compareOp'
   | 'admin.flow.compareValue'
+  | 'admin.flow.connectHint'
   | 'admin.flow.denied'
+  | 'admin.flow.diagram'
   | 'admin.flow.editAllowed'
   | 'admin.flow.from'
+  | 'admin.flow.group.create'
   | 'admin.flow.group.dissolve'
   | 'admin.flow.group.inspector'
   | 'admin.flow.group.members'
   | 'admin.flow.group.name'
+  | 'admin.flow.group.rootCrumb'
   | 'admin.flow.group.subgroups'
   | 'admin.flow.guardAddChild'
   | 'admin.flow.guardNone'
@@ -417,13 +422,21 @@ export type UiKitFlowEditorTextKey =
   | 'admin.flow.guardRemove'
   | 'admin.flow.guardValue'
   | 'admin.flow.initial'
+  | 'admin.flow.inspector'
   | 'admin.flow.kindLabel'
   | 'admin.flow.legendAutomatic'
   | 'admin.flow.list.empty'
   | 'admin.flow.list.heading'
   | 'admin.flow.list.incoming'
   | 'admin.flow.list.outgoing'
+  | 'admin.flow.loadFailed'
+  | 'admin.flow.nodeGremiumFromBudget'
+  | 'admin.flow.panDown'
+  | 'admin.flow.panLeft'
+  | 'admin.flow.panRight'
+  | 'admin.flow.panUp'
   | 'admin.flow.recipientKind.role'
+  | 'admin.flow.redo'
   | 'admin.flow.removeState'
   | 'admin.flow.removeTransition'
   | 'admin.flow.replacedTarget'
@@ -431,7 +444,14 @@ export type UiKitFlowEditorTextKey =
   | 'admin.flow.stateInspector'
   | 'admin.flow.terminal'
   | 'admin.flow.to'
-  | 'admin.flow.transitionInspector';
+  | 'admin.flow.toolbar'
+  | 'admin.flow.transitionInspector'
+  | 'admin.flow.undo'
+  | 'admin.flow.zoom'
+  | 'admin.flow.zoomIn'
+  | 'admin.flow.zoomOut'
+  | 'admin.flow.zoomReset'
+  | 'admin.flow.zoomValue';
 
 /** The texts only the views of `@stupa-makers/ui-kit/views/form-editor` use. */
 export type UiKitFormEditorTextKey =

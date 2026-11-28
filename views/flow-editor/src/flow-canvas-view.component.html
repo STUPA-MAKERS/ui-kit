@@ -1,0 +1,232 @@
+<div class="fc">
+  <section class="fc__sheet" [attr.aria-label]="'admin.flow.diagram' | uiKitT">
+    <div class="fc__toolbar" role="toolbar" [attr.aria-label]="'admin.flow.toolbar' | uiKitT">
+      <app-button-group>
+        <app-button variant="text" size="sm" (click)="tool.emit('addState')">
+          <app-icon name="plus" /> {{ 'admin.flow.addState' | uiKitT }}
+        </app-button>
+        <app-button variant="text" size="sm" [iconOnly]="true" [disabled]="!canUndo()" [ariaLabel]="'admin.flow.undo' | uiKitT" [title]="'admin.flow.undo' | uiKitT" (click)="tool.emit('undo')">
+          <app-icon name="undo" />
+        </app-button>
+        <app-button variant="text" size="sm" [iconOnly]="true" [disabled]="!canRedo()" [ariaLabel]="'admin.flow.redo' | uiKitT" [title]="'admin.flow.redo' | uiKitT" (click)="tool.emit('redo')">
+          <app-icon name="redo" />
+        </app-button>
+        @if (multiCount() >= 2) {
+          <app-button variant="tonal" size="sm" (click)="tool.emit('group')">
+            {{ 'admin.flow.group.create' | uiKitT }} ({{ multiCount() }})
+          </app-button>
+        }
+      </app-button-group>
+      <span class="fc__zoom" role="group" [attr.aria-label]="'admin.flow.zoom' | uiKitT">
+        <app-button-group>
+          <app-button variant="text" size="sm" [iconOnly]="true" [ariaLabel]="'admin.flow.zoomOut' | uiKitT" [title]="'admin.flow.zoomOut' | uiKitT" (click)="tool.emit('zoomOut')">
+            <app-icon name="minus" />
+          </app-button>
+        </app-button-group>
+        <span class="fc__zoomValue mono" aria-live="polite">{{ 'admin.flow.zoomValue' | uiKitT: { n: zoomPercent() } }}</span>
+        <app-button-group>
+          <app-button variant="text" size="sm" [iconOnly]="true" [ariaLabel]="'admin.flow.zoomIn' | uiKitT" [title]="'admin.flow.zoomIn' | uiKitT" (click)="tool.emit('zoomIn')">
+            <app-icon name="plus" />
+          </app-button>
+          <app-button variant="text" size="sm" (click)="tool.emit('resetView')">{{ 'admin.flow.zoomReset' | uiKitT }}</app-button>
+        </app-button-group>
+      </span>
+    </div>
+
+    @if (crumbs().length) {
+      <nav class="fc__crumbs" [attr.aria-label]="'admin.flow.group.inspector' | uiKitT">
+        <button type="button" class="fc__crumb" (click)="navigate.emit(null)">{{ 'admin.flow.group.rootCrumb' | uiKitT }}</button>
+        @for (c of crumbs(); track c.id; let last = $last) {
+          <app-icon class="fc__crumbSep" name="right" [size]="13" />
+          @if (last) {
+            <span class="fc__crumb fc__crumb--current" aria-current="page">{{ c.name }}</span>
+          } @else {
+            <button type="button" class="fc__crumb" (click)="navigate.emit(c.id)">{{ c.name }}</button>
+          }
+        }
+      </nav>
+    }
+
+    @if (showAlerts()) {
+      <div class="fc__alert" role="alert">
+        <ul>
+          @for (err of alerts(); track err) {
+            <li>{{ err }}</li>
+          }
+        </ul>
+      </div>
+    }
+
+    <div #canvasWrap class="fc__canvas-wrap">
+      <svg
+        #canvas
+        class="fc__canvas"
+        [class.fc__canvas--loading]="pending()"
+        [attr.viewBox]="viewBox()"
+        width="100%"
+        height="100%"
+        preserveAspectRatio="xMidYMid meet"
+        role="application"
+        [attr.aria-label]="'admin.flow.diagram' | uiKitT"
+        (wheel)="canvasWheel.emit($event)"
+        (pointermove)="canvasMove.emit($event)"
+        (pointerup)="canvasUp.emit($event)"
+        (pointerdown)="canvasDown.emit($event)"
+      >
+        <defs>
+          <marker id="fc-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+            <path d="M0,0 L10,5 L0,10 z" class="fc__arrow-head" />
+          </marker>
+        </defs>
+
+        @for (e of edges(); track e.index) {
+          <g class="fc__edge-g" [class.fc__edge-g--sel]="e.selected" [class.fc__dim]="e.dim" [style.--edge-color]="e.color || null" (pointerdown)="$event.stopPropagation(); edgeSelect.emit(e.index)">
+            <path [attr.d]="e.d" class="fc__edge-hit" />
+            <path [attr.d]="e.d" class="fc__edge" [class.fc__edge--auto]="e.automatic" marker-end="url(#fc-arrow)" />
+            @if (e.labeled) {
+              <text [attr.x]="e.mx" [attr.y]="e.my + 4" text-anchor="middle" class="fc__edge-label">
+                @if (e.automatic) {
+                  <tspan class="fc__bolt">⚡&#xFE0E;</tspan>
+                }
+                {{ e.label }}
+              </text>
+            }
+          </g>
+        }
+
+        @if (tempEdge(); as te) {
+          <line [attr.x1]="te.x1" [attr.y1]="te.y1" [attr.x2]="te.x2" [attr.y2]="te.y2" class="fc__edge fc__edge--temp" marker-end="url(#fc-arrow)" />
+        }
+
+        @for (n of nodes(); track n.key) {
+          <g
+            [attr.transform]="'translate(' + n.x + ',' + n.y + ')'"
+            class="fc__node-g"
+            [class.fc__node-g--sel]="n.selected"
+            [class.fc__dim]="n.dim"
+            (pointerenter)="hover.emit(n.key)"
+            (pointerleave)="hover.emit(null)"
+          >
+            @if (n.selected) {
+              <rect x="-4" y="-4" [attr.width]="n.w + 8" [attr.height]="n.h + 8" rx="15" class="fc__node-halo" />
+            }
+            <rect
+              [attr.width]="n.w"
+              [attr.height]="n.h"
+              rx="12"
+              class="fc__node"
+              [class.fc__node--sel]="n.selected"
+              [class.fc__node--multi]="n.multi"
+              [style.stroke]="n.color || null"
+              (pointerdown)="nodeDown.emit({ event: $event, id: n.key })"
+            />
+            @if (n.isInitial) {
+              <circle cx="14" [attr.cy]="n.h / 2" r="4" class="fc__node-initial-dot" />
+            }
+            @if (n.kindLabel) {
+              <text [attr.x]="n.w / 2" y="-8" text-anchor="middle" class="fc__node-kind">{{ n.kindLabel }}</text>
+            }
+            <text [attr.x]="n.w / 2" [attr.y]="n.isTerminal || n.gremiumFromBudget ? n.h / 2 : n.h / 2 + 5" text-anchor="middle" class="fc__node-text">{{ n.label }}</text>
+            @if (n.isTerminal) {
+              <text [attr.x]="n.w / 2" [attr.y]="n.h / 2 + 15" text-anchor="middle" class="fc__node-tag">{{ 'admin.flow.terminal' | uiKitT }}</text>
+            } @else if (n.gremiumFromBudget) {
+              <text [attr.x]="n.w / 2" [attr.y]="n.h / 2 + 15" text-anchor="middle" class="fc__node-tag">{{ 'admin.flow.nodeGremiumFromBudget' | uiKitT }}</text>
+            }
+            @for (d of n.dots; track d.id) {
+              <g>
+                <circle
+                  [attr.cx]="n.w"
+                  [attr.cy]="d.cy"
+                  r="7"
+                  class="fc__connector"
+                  [class.fc__connector--branch]="d.branch"
+                  [class.fc__connector--guard]="d.guarded && !d.branch"
+                  aria-hidden="true"
+                  (pointerdown)="dotDown.emit({ event: $event, id: { key: n.key, dot: d.id } })"
+                >
+                  <title>{{ d.label || ('admin.flow.connectHint' | uiKitT) }}</title>
+                </circle>
+                @if (d.label) {
+                  <text [attr.x]="n.w + 11" [attr.y]="d.cy - 4" class="fc__dot-label">{{ d.label }}</text>
+                }
+              </g>
+            }
+          </g>
+        }
+
+        @for (gb of groups(); track gb.id) {
+          <g class="fc__groupbox-g" [class.fc__groupbox-g--multi]="gb.multi">
+            <rect
+              [attr.x]="gb.x"
+              [attr.y]="gb.y"
+              [attr.width]="gb.w"
+              [attr.height]="gb.h"
+              rx="12"
+              class="fc__groupbox"
+              [style.stroke]="gb.color || null"
+              (pointerdown)="groupDown.emit({ event: $event, id: gb.id })"
+            />
+            <text [attr.x]="gb.x + gb.w / 2" [attr.y]="gb.y + gb.h / 2 - 3" text-anchor="middle" class="fc__groupbox-name">{{ gb.name }}</text>
+            <text [attr.x]="gb.x + gb.w / 2" [attr.y]="gb.y + gb.h / 2 + 14" text-anchor="middle" class="fc__groupbox-count">{{ gb.count }} {{ 'admin.flow.group.members' | uiKitT }}</text>
+            @for (dy of gb.outDotYs; track $index) {
+              <circle [attr.cx]="gb.x + gb.w" [attr.cy]="gb.y + dy" r="5" class="fc__groupbox-dot" />
+            }
+          </g>
+        }
+
+        @for (p of proxiesLeft(); track p.pid) {
+          <ng-container *ngTemplateOutlet="proxy; context: { $implicit: p }" />
+        }
+        @for (p of proxiesRight(); track p.pid) {
+          <ng-container *ngTemplateOutlet="proxy; context: { $implicit: p }" />
+        }
+      </svg>
+      <div class="fc__state">
+        <ng-content select="[canvasState]" />
+      </div>
+
+      @for (side of sides; track side) {
+        <button
+          type="button"
+          class="fc__tongue"
+          [attr.data-side]="side"
+          [class.fc__tongue--on]="hiddenBy()[side] > 0 && !pending()"
+          [class.fc__tongue--held]="heldSide() === side"
+          [disabled]="!hiddenBy()[side]"
+          [attr.aria-hidden]="hiddenBy()[side] ? null : 'true'"
+          [attr.aria-label]="panLabel[side] | uiKitT"
+          (pointerdown)="tonguePress.emit({ event: $event, id: side })"
+          (pointerup)="tongueStop.emit()"
+          (pointerleave)="tongueStop.emit()"
+          (pointercancel)="tongueStop.emit()"
+          (keydown)="tongueKey.emit({ event: $event, side })"
+        >
+          <svg viewBox="0 0 16 16" fill="none" aria-hidden="true">
+            <path d="M10 3L5 8l5 5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+          </svg>
+        </button>
+      }
+
+      <p class="fc__legend">
+        <span class="fc__legendItem"><span class="fc__legendDot" aria-hidden="true"></span>{{ 'admin.flow.initial' | uiKitT }}</span>
+        <span class="fc__legendItem"><span class="fc__legendDash" aria-hidden="true"></span>{{ 'admin.flow.legendAutomatic' | uiKitT }}</span>
+      </p>
+    </div>
+  </section>
+
+  <aside #panel class="fc__panel" appScrollFade="y" [hidden]="!sheetOpen()" [attr.aria-label]="'admin.flow.inspector' | uiKitT">
+    <div class="fc__panelHead">
+      <app-button variant="text" size="sm" [iconOnly]="true" [ariaLabel]="'dialog.close' | uiKitT" [title]="'dialog.close' | uiKitT" (click)="closeSheet.emit()">
+        <app-icon name="x" />
+      </app-button>
+    </div>
+    <ng-content select="[inspector]" />
+  </aside>
+</div>
+
+<ng-template #proxy let-p>
+  <svg:g class="fc__proxy-g" (pointerdown)="$event.stopPropagation()" (click)="proxyClick.emit(p.pid)">
+    <svg:rect [attr.x]="p.x" [attr.y]="p.y" [attr.width]="150" height="44" rx="10" class="fc__proxy" [class.fc__proxy--group]="p.isGroup" />
+    <svg:text [attr.x]="p.x + 75" [attr.y]="p.y + 27" text-anchor="middle" class="fc__proxy-text">{{ p.label }}</svg:text>
+  </svg:g>
+</ng-template>
