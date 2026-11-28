@@ -32,7 +32,7 @@ export function rowDropId(columnId: Uuid): string {
 /** The icon of each board kind. */
 export const BOARD_ICON: Record<TodoBoardKind, IconName> = {
   personal: 'user',
-  team: 'landmark',
+  team: 'network',
   free: 'kanban',
   permission: 'ticket',
 };

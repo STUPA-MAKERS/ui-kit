@@ -320,6 +320,7 @@ export class VoteCardViewComponent<V extends MeetingVote = MeetingVote> {
   /** The menu: every action that is not the next step; the danger items in their own section. */
   protected readonly menu = computed<RowMenuSection[]>(() => {
     const v = this.vote();
+
     const t = (key: UiKitTextKey) => this.i18n.translate(key);
     const live = this.meetingStatus() === 'live';
     const closed = v.status === 'closed';
@@ -366,4 +367,26 @@ export class VoteCardViewComponent<V extends MeetingVote = MeetingVote> {
   protected optionLabel(opt: string): string {
     return voteOptionLabel(opt, (key) => this.i18n.translate(key));
   }
+
+  protected readonly castKind = computed<'poll' | 'election' | 'options' | null>(() =>
+    this.vote().status !== 'open' || !this.canVote()
+      ? null
+      : this.poll()
+        ? 'poll'
+        : this.election()
+          ? 'election'
+          : !this.hasVoted()
+            ? 'options'
+            : null,
+  );
+
+  protected readonly countsKind = computed<'poll' | 'election' | 'bars' | null>(() =>
+    this.showCounts() && this.poll()
+      ? 'poll'
+      : this.showCounts() && this.election()
+      ? 'election'
+      : this.showCounts()
+      ? 'bars'
+      : null,
+  );
 }

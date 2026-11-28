@@ -4,14 +4,16 @@ import { render, screen, within } from '@testing-library/angular';
 import { runAxe } from '../../../testing/a11y';
 import { NavMarkDirective } from '../nav-mark.directive';
 import { RailButtonComponent } from '../nav-item/nav-item-buttons';
-import type { ShellBrand } from '../shell.types';
+import type { ShellBrand, ShellNavItem } from '../shell.types';
 import { BRAND, NAV, TestMarkComponent } from '../../../testing/shell';
 import { NavRailComponent } from './nav-rail.component';
 
 @Component({ changeDetection: ChangeDetectionStrategy.Eager, standalone: true, template: 'page' })
 class StubPage {}
 
-async function renderRail(inputs: { searchable?: boolean; brand?: ShellBrand } = {}) {
+async function renderRail(
+  inputs: { searchable?: boolean; brand?: ShellBrand; nav?: readonly ShellNavItem[] } = {},
+) {
   const searched = jest.fn();
   const view = await render(
     `<ng-template #m appNavMark let-key let-part="part"><app-test-mark [key]="key" [part]="part" /></ng-template>
@@ -24,7 +26,7 @@ async function renderRail(inputs: { searchable?: boolean; brand?: ShellBrand } =
       imports: [NavRailComponent, NavMarkDirective, TestMarkComponent, RailButtonComponent],
       providers: [provideRouter([{ path: '**', component: StubPage }])],
       componentProperties: {
-        nav: NAV,
+        nav: inputs.nav ?? NAV,
         brand: inputs.brand ?? BRAND,
         searchable: inputs.searchable ?? true,
         searched,
@@ -157,6 +159,17 @@ describe('NavRailComponent', () => {
     fixture.detectChanges();
     await fixture.whenStable();
     expect(main.scrollTop).toBe(0);
+  });
+
+  /** § 003133: the rail shows the short label and keeps the full one as the tooltip. */
+  it('shows the rail label of an entry and the full label as its title', async () => {
+    const nav = NAV.map((i) =>
+      i.key === 'tickets' ? { ...i, label: 'Veranstaltungen', railLabel: 'Events' } : i,
+    );
+    await renderRail({ nav });
+    const link = within(rail()).getByRole('link', { name: /^Events/ });
+    expect(link).toHaveAttribute('title', 'Veranstaltungen');
+    expect(within(rail()).getByRole('link', { name: 'Anträge' })).not.toHaveAttribute('title');
   });
 
   it('has no axe violations', async () => {

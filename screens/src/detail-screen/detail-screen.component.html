@@ -106,44 +106,52 @@
         }
       }
       @default {
-        @if (replacing(); as r) {
-          <section class="ds__replace" [attr.aria-label]="r.label">
-            <div class="ds__replaceHead">
-              <h2 class="ds__replaceTitle">{{ r.label }}</h2>
-              <app-button
-                variant="text"
-                [iconOnly]="true"
-                [ariaLabel]="'dialog.close' | uiKitT"
-                (click)="setSheet(r.key, false)"
-                ><app-icon name="x"
-              /></app-button>
-            </div>
-            @if (sheetTemplate(r.key); as t) {
-              <ng-container [ngTemplateOutlet]="t" />
+        @switch (bodyKind()) {
+          @case ('replacing') {
+            @if (replacing(); as r) {
+              <section class="ds__replace" [attr.aria-label]="r.label">
+                <div class="ds__replaceHead">
+                  <h2 class="ds__replaceTitle">{{ r.label }}</h2>
+                  <app-button
+                    variant="text"
+                    [iconOnly]="true"
+                    [ariaLabel]="'dialog.close' | uiKitT"
+                    (click)="setSheet(r.key, false)"
+                    ><app-icon name="x"
+                  /></app-button>
+                </div>
+                @if (sheetTemplate(r.key); as t) {
+                  <ng-container [ngTemplateOutlet]="t" />
+                }
+              </section>
             }
-          </section>
-        } @else if (visibleTabs().length) {
-          <app-tabs
-            #t
-            class="ds__tabs"
-            [idPrefix]="tabsId"
-            [ariaLabel]="head().title"
-            [tabs]="tabItems()"
-            [active]="tab()"
-            (activeChange)="selectTab($event)"
-          />
-          <section
-            class="ds__body"
-            role="tabpanel"
-            [id]="t.panelId(tab())"
-            [attr.aria-labelledby]="t.tabId(tab())"
-          >
-            @if (tabTemplate(); as tt) {
-              <ng-container [ngTemplateOutlet]="tt" />
+          }
+          @case ('tabs') {
+            <app-tabs
+              #t
+              class="ds__tabs"
+              [idPrefix]="tabsId"
+              [ariaLabel]="head().title"
+              [tabs]="tabItems()"
+              [active]="tab()"
+              (activeChange)="selectTab($event)"
+            />
+            <section
+              class="ds__body"
+              role="tabpanel"
+              [id]="t.panelId(tab())"
+              [attr.aria-labelledby]="t.tabId(tab())"
+            >
+              @if (tabTemplate(); as tt) {
+                <ng-container [ngTemplateOutlet]="tt" />
+              }
+            </section>
+          }
+          @case ('body') {
+            @if (bodySlot(); as b) {
+              <div class="ds__body"><ng-container [ngTemplateOutlet]="b.template" /></div>
             }
-          </section>
-        } @else if (bodySlot(); as b) {
-          <div class="ds__body"><ng-container [ngTemplateOutlet]="b.template" /></div>
+          }
         }
       }
     }
