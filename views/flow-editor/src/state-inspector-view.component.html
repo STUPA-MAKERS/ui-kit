@@ -6,7 +6,9 @@
 />
 <app-i18n-input [value]="state().label" (valueChange)="labelChange.emit($event)" />
 
-<app-flow-color-view [value]="state().color" (changed)="colorChange.emit($event)" />
+<div class="rowgroup rowgroup--settings">
+  <app-flow-color-view [value]="state().color" (changed)="colorChange.emit($event)" />
+</div>
 
 <div class="rowgroup rowgroup--settings">
   <app-switch

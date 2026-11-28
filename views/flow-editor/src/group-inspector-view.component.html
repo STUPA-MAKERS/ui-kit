@@ -1,5 +1,7 @@
 <app-input [label]="'admin.flow.group.name' | uiKitT" [ngModel]="group().name" (ngModelChange)="nameChange.emit($event)" />
-<app-flow-color-view [value]="group().color" (changed)="colorChange.emit($event)" />
+<div class="rowgroup rowgroup--settings">
+  <app-flow-color-view [value]="group().color" (changed)="colorChange.emit($event)" />
+</div>
 <p class="ins__hint">
   {{ group().stateKeys.length }} {{ 'admin.flow.group.members' | uiKitT }}@if (group().groupIds?.length) {, {{ group().groupIds?.length }} {{ 'admin.flow.group.subgroups' | uiKitT }}}
 </p>

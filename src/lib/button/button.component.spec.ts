@@ -274,8 +274,14 @@ describe('ButtonComponent', () => {
   it('centres the label of a small button and keeps its leading icon on the end cap (003079)', () => {
     const style = readFileSync(join(__dirname, 'button.component.scss'), 'utf8');
     expect(style).toMatch(
-      /\.btn--sm > \.btn__label \{\s*padding-block-start: 0\.1em;\s*margin-block-end: -0\.1em;\s*\}/,
+      /\.btn--sm:not\(\.btn--icon\) > \.btn__label \{\s*padding-block-start: 0\.1em;\s*margin-block-end: -0\.1em;\s*\}/,
     );
     expect(style).toMatch(/> app-icon:first-child \{\s*margin-block-start: -0\.1em;\s*\}/);
+  });
+
+  it('puts the icon of an icon button on its middle, without the line box of a text (003079)', () => {
+    const style = readFileSync(join(__dirname, 'button.component.scss'), 'utf8');
+    expect(style).toMatch(/\.btn--icon > \.btn__label \{\s*line-height: 0;\s*\}/);
+    expect(style).toMatch(/\.btn--icon > \.btn__label ::ng-deep > app-icon \{\s*height: auto;\s*\}/);
   });
 });

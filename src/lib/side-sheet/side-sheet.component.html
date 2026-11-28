@@ -36,7 +36,7 @@
           @for (a of headActions(); track a.key) {
             @if (a.icon; as icon) {
               <app-button
-                variant="text"
+                [variant]="a.kind === 'danger' ? 'danger' : 'text'"
                 [iconOnly]="true"
                 [ariaLabel]="a.label"
                 [disabled]="!!a.disabled"
@@ -46,7 +46,7 @@
               </app-button>
             } @else {
               <app-button
-                variant="text"
+                [variant]="a.kind === 'danger' ? 'danger' : 'text'"
                 [disabled]="!!a.disabled"
                 (click)="action.emit({ key: a.key })"
                 >{{ a.label }}</app-button

@@ -253,8 +253,8 @@
 .fc__legend {
   position: absolute;
   left: var(--pane-bleed-inset, var(--space-5));
-  right: var(--space-5);
-  bottom: var(--space-3);
+  right: var(--pane-bleed-inset, var(--space-5));
+  bottom: var(--pane-bleed-inset, var(--space-5));
   display: flex;
   flex-wrap: wrap;
   align-items: center;
@@ -583,5 +583,6 @@
   .fc__legend {
     left: var(--space-3);
     right: var(--space-3);
+    bottom: var(--space-3);
   }
 }

@@ -14,7 +14,9 @@
 </div>
 <app-i18n-input [value]="transition().label ?? {}" (valueChange)="labelChange.emit($event)" />
 
-<app-flow-color-view [value]="transition().color" (changed)="colorChange.emit($event)" />
+<div class="rowgroup rowgroup--settings">
+  <app-flow-color-view [value]="transition().color" (changed)="colorChange.emit($event)" />
+</div>
 
 <div class="rowgroup rowgroup--settings">
   <app-switch

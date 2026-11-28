@@ -101,7 +101,8 @@ export class SideSheetComponent {
   /**
    * The actions of the header, before the close button: an action with `priority: 'menu'`
    * goes into a ⋮ menu (sections by `group`), the others are buttons (an icon button when the
-   * action has an icon, its label as the name).
+   * action has an icon, its label as the name); `kind: 'danger'`
+   * gives the button the danger colour).
    */
   readonly actions = input<readonly Action[]>([]);
   /** A header action was pressed. */
