@@ -1,11 +1,8 @@
 import { ChangeDetectionStrategy, Component, computed, inject, input, output } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import {
-  ButtonComponent,
-  ButtonGroupComponent,
   I18nInputComponent,
   type I18nMap,
-  IconComponent,
   InputComponent,
   MoveButtonsComponent,
   registerUiKitTexts,
@@ -41,9 +38,6 @@ export interface GuardPriorityRow {
     TruncatedDirective,
     FormsModule,
     UiKitTranslatePipe,
-    ButtonComponent,
-    ButtonGroupComponent,
-    IconComponent,
     InputComponent,
     SelectFieldComponent,
     SwitchComponent,
@@ -90,5 +84,4 @@ export class StateInspectorViewComponent {
     ];
   }
   readonly guardMove = output<{ sig: string; dir: -1 | 1 }>();
-  readonly remove = output<void>();
 }

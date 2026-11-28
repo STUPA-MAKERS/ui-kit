@@ -10,9 +10,9 @@ import { ChangeDetectionStrategy, Component, input } from '@angular/core';
  * sheet) takes the accent fill and rounds all four corners. A button with only an icon is
  * 48px wide.
  *
- * The buttons of the group are `app-button`, `a[appButton]` and `app-row-menu`. Another
- * control in the group (a content language switch) keeps its own look, and the buttons
- * beside it round their ends towards it. Control flow blocks add no elements, so a button
+ * The buttons of the group are `app-button`, `a[appButton]`, `app-row-menu` and the pair of
+ * `app-move-buttons`. Another control in the group (a content language switch) keeps its own
+ * look, and the buttons beside it round their ends towards it. Control flow blocks add no elements, so a button
  * behind `@if` takes its place in the order of the group.
  *
  * The action slots of `app-sheet-bar`, `app-page-header` and the bar of `app-list-detail`

@@ -12,7 +12,6 @@ import {
   ButtonComponent,
   ButtonGroupComponent,
   IconComponent,
-  ScrollFadeDirective,
   UiKitTranslatePipe,
   registerUiKitTexts,
 } from '@stupa-makers/ui-kit';
@@ -49,7 +48,7 @@ const PAN_LABEL = {
 /**
  * The canvas of the flow editor: the toolbar, the path of the open groups, the validation
  * alert, the SVG with the states, the transitions, the closed groups and the outside ends, the
- * pan tongues, the legend and the inspector sheet (S/framework/views/002277).
+ * pan tongues and the legend (S/framework/views/002277).
  *
  * The shapes follow BPMN 2.0 (app spec 003133): a state is a task, a vote state has the vote
  * marker and a gateway after it, the events start and end the flow, a guarded line starts with
@@ -57,16 +56,15 @@ const PAN_LABEL = {
  * the frame of an expanded one. The connector dots of a task show on hover and selection.
  *
  * The view draws what the app computes and reports each press; the app owns the graph, the
- * layout, the zoom and the selection. The canvas takes the whole width; the inspector is a
- * sheet over its right side while `sheetOpen` is true, and the bottom of the screen on a
- * phone (spec 003131). Slots: `[inspector]` fills the sheet, `[canvasState]` covers the canvas
- * while it loads or failed.
+ * layout, the zoom and the selection. The canvas takes the whole width; the app opens the
+ * inspector in an `app-side-sheet` (spec 003131). Slot: `[canvasState]` covers the canvas while
+ * it loads or failed.
  */
 @Component({
   selector: 'app-flow-canvas-view',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [NgTemplateOutlet, ButtonComponent, ButtonGroupComponent, IconComponent, ScrollFadeDirective, UiKitTranslatePipe],
+  imports: [NgTemplateOutlet, ButtonComponent, ButtonGroupComponent, IconComponent, UiKitTranslatePipe],
   templateUrl: './flow-canvas-view.component.html',
   styleUrl: './flow-canvas-view.component.scss',
 })
@@ -100,7 +98,6 @@ export class FlowCanvasViewComponent {
   /** How much each side hides; a side with more than 0 shows its tongue. */
   readonly hiddenBy = input<Readonly<Record<FlowCanvasSide, number>>>({ left: 0, right: 0, up: 0, down: 0 });
   readonly heldSide = input<FlowCanvasSide | null>(null);
-  readonly sheetOpen = input(false);
 
   readonly tool = output<FlowCanvasTool>();
   readonly navigate = output<string | null>();
@@ -117,14 +114,11 @@ export class FlowCanvasViewComponent {
   readonly tonguePress = output<FlowCanvasPointer<FlowCanvasSide>>();
   readonly tongueStop = output<void>();
   readonly tongueKey = output<{ readonly event: KeyboardEvent; readonly side: FlowCanvasSide }>();
-  readonly closeSheet = output<void>();
 
   /** The SVG: the app maps pointer positions into the world through it. */
   readonly svg = viewChild<ElementRef<SVGSVGElement>>('canvas');
   /** The box around the SVG: its size sets the scale of the fitted view. */
   readonly box = viewChild<ElementRef<HTMLElement>>('canvasWrap');
-  /** The inspector sheet. */
-  readonly sheet = viewChild<ElementRef<HTMLElement>>('panel');
 
   protected readonly sides: readonly FlowCanvasSide[] = ['left', 'right', 'up', 'down'];
   protected readonly panLabel = PAN_LABEL;

@@ -113,6 +113,16 @@
                 {{ groupHeading(group, gi) }}
               </button>
               <app-button-group>
+                <app-button
+                  class="fe__addBtn"
+                  variant="text"
+                  size="sm"
+                  [iconOnly]="true"
+                  [ariaLabel]="'admin.forms.addQuestion' | uiKitT"
+                  [title]="'admin.forms.addQuestion' | uiKitT"
+                  [ariaExpanded]="typeMenuGroup() === gi"
+                  (click)="toggleTypeMenu(gi, $event)"
+                ><app-icon name="plus" /></app-button>
                 <app-row-menu
                   [label]="('admin.form.groupMenu' | uiKitT: { n: gi + 1 })"
                   [sections]="groupMenu(gi)"
@@ -158,20 +168,6 @@
                 </li>
               }
             </ol>
-
-            <div class="fe__add">
-              <app-button-group>
-                <app-button
-                  class="fe__addBtn"
-                  variant="text"
-                  size="sm"
-                  [ariaExpanded]="typeMenuGroup() === gi"
-                  (click)="toggleTypeMenu(gi, $event)"
-                >
-                  <app-icon name="plus" /> {{ 'admin.forms.addQuestion' | uiKitT }}
-                </app-button>
-              </app-button-group>
-            </div>
           </section>
         }
         <app-button-group>
@@ -224,8 +220,8 @@
             >
               <div class="fe__cardHead">
                 <h3 class="cap fe__cardTitle ell">{{ resolved(field.label) || ('admin.forms.untitledQuestion' | uiKitT) }}</h3>
-                <app-move-buttons (click)="$event.stopPropagation()" (move)="moveQuestion(pos, $event)" />
                 <app-button-group>
+                  <app-move-buttons (click)="$event.stopPropagation()" (move)="moveQuestion(pos, $event)" />
                   <app-button variant="text" size="sm" [iconOnly]="true" [ariaLabel]="'admin.forms.duplicate' | uiKitT" [title]="'admin.forms.duplicate' | uiKitT" (click)="$event.stopPropagation(); duplicateQuestion(pos)"><app-icon name="copy" /></app-button>
                   <app-button variant="text" size="sm" [iconOnly]="true" [ariaLabel]="'admin.common.delete' | uiKitT" [title]="'admin.common.delete' | uiKitT" (click)="$event.stopPropagation(); removeQuestion(pos)"><app-icon name="trash" /></app-button>
                 </app-button-group>
@@ -509,12 +505,12 @@
           <div class="fe__rule" [attr.aria-label]="'admin.forms.rules.ruleN' | uiKitT: { n: ri + 1 }" role="group">
             <div class="fe__ruleHead">
               <span class="fe__ruleTitle">{{ 'admin.forms.rules.ruleN' | uiKitT: { n: ri + 1 } }}</span>
-              <app-move-buttons
-                [upDisabled]="ri === 0"
-                [downDisabled]="ri === rules().length - 1"
-                (move)="moveRule(ri, $event)"
-              />
               <app-button-group>
+                <app-move-buttons
+                  [upDisabled]="ri === 0"
+                  [downDisabled]="ri === rules().length - 1"
+                  (move)="moveRule(ri, $event)"
+                />
                 <app-button
                   variant="text"
                   size="sm"

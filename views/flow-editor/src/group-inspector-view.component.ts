@@ -1,8 +1,6 @@
 import { ChangeDetectionStrategy, Component, input, output } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import {
-  ButtonComponent,
-  ButtonGroupComponent,
   InputComponent,
   registerUiKitTexts,
   UiKitTranslatePipe,
@@ -16,7 +14,7 @@ import { UI_KIT_FLOW_EDITOR_TEXTS } from './flow-editor.texts';
   selector: 'app-group-inspector-view',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [FormsModule, UiKitTranslatePipe, ButtonComponent, ButtonGroupComponent, InputComponent, FlowColorViewComponent],
+  imports: [FormsModule, UiKitTranslatePipe, InputComponent, FlowColorViewComponent],
   templateUrl: './group-inspector-view.component.html',
   styleUrl: './group-inspector-view.component.scss',
 })
@@ -28,5 +26,4 @@ export class GroupInspectorViewComponent {
 
   readonly nameChange = output<string>();
   readonly colorChange = output<string>();
-  readonly dissolve = output<void>();
 }

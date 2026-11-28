@@ -248,14 +248,6 @@
     </div>
   </section>
 
-  <aside #panel class="fc__panel" appScrollFade="y" [hidden]="!sheetOpen()" [attr.aria-label]="'admin.flow.inspector' | uiKitT">
-    <div class="fc__panelHead">
-      <app-button variant="text" size="sm" [iconOnly]="true" [ariaLabel]="'dialog.close' | uiKitT" [title]="'dialog.close' | uiKitT" (click)="closeSheet.emit()">
-        <app-icon name="x" />
-      </app-button>
-    </div>
-    <ng-content select="[inspector]" />
-  </aside>
 </div>
 
 <ng-template #proxy let-p>

@@ -78,6 +78,8 @@ const TYPE_MENU: readonly FieldType[] = FIELD_TYPES.filter((t) => t !== 'section
 
 /** The height of the type menu (nine rows of two types), for the side it opens on. */
 const TYPE_MENU_HEIGHT = 9 * 36 + 16;
+/** The width in px of the type menu (27.5rem): it opens to the left of the + of the section. */
+const TYPE_MENU_WIDTH = 440;
 
 /** Stable address of a question: group index and question index inside the group. */
 type QPos = QuestionPos;
@@ -399,10 +401,11 @@ export class FormEditorViewComponent {
     const rect = button?.getBoundingClientRect();
     if (rect) {
       const below = window.innerHeight - rect.bottom;
+      const left = Math.max(8, rect.right - TYPE_MENU_WIDTH);
       this.menuPos.set(
         below < TYPE_MENU_HEIGHT
-          ? { left: rect.left, top: null, bottom: window.innerHeight - rect.top + 4 }
-          : { left: rect.left, top: rect.bottom + 4, bottom: null },
+          ? { left, top: null, bottom: window.innerHeight - rect.top + 4 }
+          : { left, top: rect.bottom + 4, bottom: null },
       );
     }
     this.typeMenuGroup.set(gi);
