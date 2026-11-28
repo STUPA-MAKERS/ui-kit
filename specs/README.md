@@ -331,6 +331,7 @@ specs/
 | [NF/usability/layout/002011](requirements/non-functional/usability/layout/002011_bar-edge-visible.md) | No resting surface at the edge of a bar has the colour of the bar | approved |
 | [NF/usability/layout/002291](requirements/non-functional/usability/layout/002291_footer-on-request.md) | The shell shows the footer only on a screen that asks for it | approved |
 | [NF/usability/layout/002420](requirements/non-functional/usability/layout/002420_head-opaque-before-script.md) | A head is opaque before the page notes that content scrolls under it | approved |
+| [NF/usability/layout/003133](requirements/non-functional/usability/layout/003133_rail-short-labels.md) | A rail label never breaks inside a word, and a long one has a short rail name | draft |
 | [S/framework/actions/002219](style/framework/actions/002219_action-model.md) | An action is data, and the screen places it | approved |
 | [S/framework/architecture/002200](style/framework/architecture/002200_apps-fill-screens.md) | An app only fills the screens of the kit | approved |
 | [S/framework/architecture/002201](style/framework/architecture/002201_screen-catalogue.md) | The kit has one screen for each page pattern | approved |
@@ -414,7 +415,7 @@ specs/
 | [S/framework/views/002279](style/framework/views/002279_plan-table-view.md) | The plan views take the line table, the tree rows and the sums | approved |
 | [S/framework/views/002280](style/framework/views/002280_activity-view.md) | The activity view takes entries | approved |
 | [S/framework/views/002791](style/framework/views/002791_uml-view.md) | The UML view takes the drawing of the spec explorer | approved |
-| [S/framework/views/003131](style/framework/views/003131_team-board-icon.md) | A team board shows the icon of the teams | draft |
+| [S/framework/views/003131](style/framework/views/003131_team-board-icon.md) | A team board shows the icon of the teams | approved |
 | [S/frontend/angular/000077](style/frontend/angular/000077_load-bar.md) | Only foreground reads show the load bar | replaced |
 | [S/frontend/angular/000395](style/frontend/angular/000395_semantic-tokens.md) | Components use semantic colour tokens | approved |
 | [S/frontend/angular/000632](style/frontend/angular/000632_admin-load-state.md) | An admin page shows its load states through app-load-state | approved |
