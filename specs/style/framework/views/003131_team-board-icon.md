@@ -1,7 +1,7 @@
 ---
 id: "003131"
 title: A team board shows the icon of the teams
-kind: functional
+kind: style
 status: draft
 owner: frederikbeimgraben
 updated: 2026-11-28

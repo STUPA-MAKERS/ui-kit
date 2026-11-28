@@ -414,6 +414,7 @@ specs/
 | [S/framework/views/002279](style/framework/views/002279_plan-table-view.md) | The plan views take the line table, the tree rows and the sums | approved |
 | [S/framework/views/002280](style/framework/views/002280_activity-view.md) | The activity view takes entries | approved |
 | [S/framework/views/002791](style/framework/views/002791_uml-view.md) | The UML view takes the drawing of the spec explorer | approved |
+| [S/framework/views/003131](style/framework/views/003131_team-board-icon.md) | A team board shows the icon of the teams | draft |
 | [S/frontend/angular/000077](style/frontend/angular/000077_load-bar.md) | Only foreground reads show the load bar | replaced |
 | [S/frontend/angular/000395](style/frontend/angular/000395_semantic-tokens.md) | Components use semantic colour tokens | approved |
 | [S/frontend/angular/000632](style/frontend/angular/000632_admin-load-state.md) | An admin page shows its load states through app-load-state | approved |
