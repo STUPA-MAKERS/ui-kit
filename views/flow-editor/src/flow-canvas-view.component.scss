@@ -270,15 +270,21 @@
   align-items: center;
   gap: 6px;
 }
-.fc__legendDot {
-  width: 8px;
-  height: 8px;
+.fc__legendEvent {
+  width: 12px;
+  height: 12px;
+  border: 1.5px solid var(--color-text-subtle);
   border-radius: 50%;
-  background: var(--color-accent);
 }
-.fc__legendDash {
-  width: 22px;
-  border-top: 2px dashed var(--color-text-subtle);
+.fc__legendEvent--end {
+  border-width: 3px;
+}
+.fc__legendGateway {
+  width: 10px;
+  height: 10px;
+  margin-inline: 1px;
+  border: 1.5px solid var(--color-text-subtle);
+  transform: rotate(45deg);
 }
 
 .fc__node-g {
@@ -323,9 +329,85 @@
   pointer-events: none;
 }
 
-.fc__node-initial-dot {
-  fill: var(--color-accent);
+// BPMN shapes (app spec 003133): the events, the gateway, the markers and the frame of the open
+// group.
+.fc__event {
+  fill: var(--color-surface-2);
+  stroke: var(--color-text-subtle);
+  stroke-width: 1.6;
   pointer-events: none;
+}
+.fc__event--end {
+  stroke: var(--color-text);
+  stroke-width: 4;
+}
+.fc__event.fc__dim,
+.fc__edge--fixed.fc__dim {
+  opacity: 0.35;
+}
+.fc__edge--fixed {
+  stroke: var(--color-text-subtle);
+}
+
+.fc__gateway-g.fc__dim {
+  opacity: 0.35;
+}
+.fc__gateway {
+  fill: var(--color-surface-2);
+  stroke: var(--color-text-subtle);
+  stroke-width: 2;
+  stroke-linejoin: round;
+}
+.fc__gateway-x {
+  stroke: var(--color-text);
+  stroke-width: 2.5;
+  stroke-linecap: round;
+  pointer-events: none;
+}
+.fc__gateway-arm {
+  stroke: var(--color-text-subtle);
+  stroke-width: 1.6;
+  pointer-events: none;
+}
+
+.fc__vote-mark {
+  fill: none;
+  stroke: var(--color-text-muted);
+  stroke-width: 1.4;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  pointer-events: none;
+}
+
+.fc__collapsed {
+  fill: none;
+  stroke: var(--color-text-muted);
+  stroke-width: 1.4;
+  stroke-linecap: round;
+  pointer-events: none;
+}
+
+.fc__frame {
+  fill: none;
+  stroke: var(--color-text-subtle);
+  stroke-width: 1.6;
+  pointer-events: none;
+}
+.fc__frame-name {
+  fill: var(--color-text-muted);
+  font-size: 12px;
+  font-weight: var(--fw-semibold);
+  pointer-events: none;
+  user-select: none;
+}
+
+.fc__cond {
+  fill: var(--color-surface-1);
+  stroke: var(--edge-color, var(--color-text-subtle));
+  stroke-width: 1.4;
+}
+.fc__edge-g--sel .fc__cond {
+  stroke: var(--color-accent);
 }
 
 .fc__node-text {
@@ -351,12 +433,24 @@
   user-select: none;
 }
 
+// The connector dots of a task or a gateway show only on hover and on the selected one (003133).
+// They stay in place and keep taking presses, so a drag can start as soon as they show.
 .fc__connector {
   fill: var(--color-surface-3);
   stroke: var(--color-text-subtle);
   stroke-width: 2;
   cursor: crosshair;
+  opacity: 0;
+  transition: opacity var(--motion-fast, 120ms) var(--ease-standard, ease);
 }
+.fc__node-g:hover .fc__connector,
+.fc__node-g--sel .fc__connector,
+.fc__gateway-g:hover .fc__connector,
+.fc__gateway-g--sel .fc__connector,
+.fc__connector:focus-visible {
+  opacity: 1;
+}
+
 @media (hover: hover) {
   .fc__connector:hover {
     stroke: var(--color-accent);
@@ -398,10 +492,6 @@
   stroke-width: 2.5;
 }
 
-.fc__edge--auto {
-  stroke-dasharray: 6 5;
-}
-
 .fc__edge--temp {
   stroke: var(--color-accent);
   stroke-dasharray: 4 4;
@@ -427,13 +517,13 @@
 }
 .fc__bolt {
   fill: var(--color-warning);
+  color: var(--color-warning);
 }
 
 .fc__groupbox {
   fill: var(--color-surface-2);
   stroke: var(--color-text-subtle);
   stroke-width: 2;
-  stroke-dasharray: 8 5;
   cursor: pointer;
 }
 .fc__groupbox-g--multi .fc__groupbox {

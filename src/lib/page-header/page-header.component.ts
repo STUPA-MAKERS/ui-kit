@@ -25,6 +25,9 @@ import { ListDetailNav, dockInListDetailBar } from '../list-detail/list-detail-n
  * - `[crumbs]`: the crumb trail of the app (for example its `app-breadcrumbs`). It sits
  *   above the title. A `pane` header and a header below the bar of a one-view page do not
  *   show it.
+ * - `[back]`: the way back to the parent page (for example the back arrow of the app inside a
+ *   frame). It sits before the title, in the title line. Below the bar of a one-view page it is
+ *   left out, because the bar has its own back arrow.
  * - `[heading]`: a status of the page object (for example "Active" next to the name of a
  *   form). It sits on the baseline of the title, as `meta` does, so it does not float away
  *   from the title on a phone the way an entry of the `actions` slot does.

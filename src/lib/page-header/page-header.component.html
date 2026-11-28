@@ -5,6 +5,9 @@
 <div class="ph__bar">
   <div class="ph__text">
     <div class="ph__heading">
+      @if (!docked()) {
+        <ng-content select="[back]" />
+      }
       @if (titleTag() === 'p') {
         <p class="ph__title" [class.sr-only]="docked()" [attr.id]="titleId()">{{ title() }}</p>
       } @else {

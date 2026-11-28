@@ -19,7 +19,11 @@ import {
 import type {
   FlowCanvasCrumb,
   FlowCanvasEdge,
+  FlowCanvasEvent,
+  FlowCanvasFrame,
+  FlowCanvasGateway,
   FlowCanvasGroup,
+  FlowCanvasLink,
   FlowCanvasNode,
   FlowCanvasProxy,
   FlowCanvasSide,
@@ -47,6 +51,11 @@ const PAN_LABEL = {
  * alert, the SVG with the states, the transitions, the closed groups and the outside ends, the
  * pan tongues, the legend and the inspector sheet (S/framework/views/002277).
  *
+ * The shapes follow BPMN 2.0 (app spec 003133): a state is a task, a vote state has the vote
+ * marker and a gateway after it, the events start and end the flow, a guarded line starts with
+ * the conditional marker, a closed group is a collapsed sub-process ([+]) and the open group is
+ * the frame of an expanded one. The connector dots of a task show on hover and selection.
+ *
  * The view draws what the app computes and reports each press; the app owns the graph, the
  * layout, the zoom and the selection. The canvas takes the whole width; the inspector is a
  * sheet over its right side while `sheetOpen` is true, and the bottom of the screen on a
@@ -67,6 +76,12 @@ export class FlowCanvasViewComponent {
 
   readonly nodes = input<readonly FlowCanvasNode[]>([]);
   readonly edges = input<readonly FlowCanvasEdge[]>([]);
+  /** The lines of the notation; they cannot be selected. */
+  readonly links = input<readonly FlowCanvasLink[]>([]);
+  readonly events = input<readonly FlowCanvasEvent[]>([]);
+  readonly gateways = input<readonly FlowCanvasGateway[]>([]);
+  /** The open group, drawn as an expanded sub-process; null on the top level. */
+  readonly frame = input<FlowCanvasFrame | null>(null);
   readonly groups = input<readonly FlowCanvasGroup[]>([]);
   readonly proxiesLeft = input<readonly FlowCanvasProxy[]>([]);
   readonly proxiesRight = input<readonly FlowCanvasProxy[]>([]);
@@ -114,4 +129,20 @@ export class FlowCanvasViewComponent {
   protected readonly sides: readonly FlowCanvasSide[] = ['left', 'right', 'up', 'down'];
   protected readonly panLabel = PAN_LABEL;
   protected readonly showAlerts = computed(() => this.alerts().length > 0);
+
+  /** The points of the diamond of a gateway. */
+  protected diamond(s: number): string {
+    return `${s / 2},0 ${s},${s / 2} ${s / 2},${s} 0,${s / 2}`;
+  }
+
+  /** The X inside a gateway: it marks the gateway as exclusive. */
+  protected cross(s: number): string {
+    const c = s / 2;
+    const a = s / 7;
+    return `M ${c - a} ${c - a} L ${c + a} ${c + a} M ${c + a} ${c - a} L ${c - a} ${c + a}`;
+  }
+
+  protected abs(n: number): number {
+    return Math.abs(n);
+  }
 }

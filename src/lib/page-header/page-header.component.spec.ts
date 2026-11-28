@@ -105,6 +105,16 @@ describe('PageHeaderComponent', () => {
     expect(container.querySelector('.ph__actions')?.textContent).toBe('Save');
   });
 
+  it('shows the back slot before the title, in the title line', async () => {
+    const { container } = await render(
+      `<app-page-header title="Formular"><a back href="/forms">Zurück</a></app-page-header>`,
+      { imports: [PageHeaderComponent] },
+    );
+    const back = container.querySelector('.ph__heading > [back]');
+    expect(back?.textContent).toBe('Zurück');
+    expect(back?.nextElementSibling).toHaveClass('ph__title');
+  });
+
   it('shows the crumbs slot above the title bar', async () => {
     const { container } = await render(
       `<app-page-header title="Invoices"><nav crumbs class="crumbs" aria-label="Breadcrumb">Budget</nav></app-page-header>`,

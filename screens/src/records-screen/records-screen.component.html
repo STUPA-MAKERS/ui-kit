@@ -1,5 +1,6 @@
 <section class="rcs">
   <app-page-header [flush]="true" [title]="head().title">
+    <ng-container ngProjectAs="[back]"><ng-content select="[back]" /></ng-container>
     @if (headToolsSlot(); as t) {
       <div actions class="rcs__headTools">
         @for (a of placed().head; track a.key) {

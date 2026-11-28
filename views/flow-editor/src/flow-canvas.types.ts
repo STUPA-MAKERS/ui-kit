@@ -39,6 +39,46 @@ export interface FlowCanvasNode {
   readonly dots: readonly FlowCanvasDot[];
 }
 
+/** A BPMN start or end event (spec 003133). */
+export interface FlowCanvasEvent {
+  readonly id: string;
+  readonly kind: 'start' | 'end';
+  readonly x: number;
+  readonly y: number;
+  /** The diameter. */
+  readonly size: number;
+  readonly dim: boolean;
+}
+
+/** The exclusive gateway after a vote state; its dots are the branches of the vote. */
+export interface FlowCanvasGateway {
+  /** The key of the vote state. */
+  readonly key: string;
+  readonly x: number;
+  readonly y: number;
+  readonly size: number;
+  /** The vote state is selected: the dots show. */
+  readonly selected: boolean;
+  readonly dim: boolean;
+  readonly dots: readonly FlowCanvasDot[];
+}
+
+/** The open group as an expanded sub-process around the boxes of the level. */
+export interface FlowCanvasFrame {
+  readonly name: string;
+  readonly x: number;
+  readonly y: number;
+  readonly w: number;
+  readonly h: number;
+}
+
+/** A line of the notation: from the start event, to an end event or to a gateway. */
+export interface FlowCanvasLink {
+  readonly id: string;
+  readonly d: string;
+  readonly dim: boolean;
+}
+
 /** A transition on the canvas. */
 export interface FlowCanvasEdge {
   readonly index: number;
@@ -50,6 +90,8 @@ export interface FlowCanvasEdge {
   readonly label: string;
   readonly labeled: boolean;
   readonly automatic: boolean;
+  /** The transition has a guard: the line starts with the conditional marker. */
+  readonly conditional: boolean;
   readonly color: string | null;
   readonly selected: boolean;
   readonly dim: boolean;
