@@ -331,7 +331,7 @@ specs/
 | [NF/usability/layout/002011](requirements/non-functional/usability/layout/002011_bar-edge-visible.md) | No resting surface at the edge of a bar has the colour of the bar | approved |
 | [NF/usability/layout/002291](requirements/non-functional/usability/layout/002291_footer-on-request.md) | The shell shows the footer only on a screen that asks for it | approved |
 | [NF/usability/layout/002420](requirements/non-functional/usability/layout/002420_head-opaque-before-script.md) | A head is opaque before the page notes that content scrolls under it | approved |
-| [NF/usability/layout/003133](requirements/non-functional/usability/layout/003133_rail-short-labels.md) | A rail label never breaks inside a word, and a long one has a short rail name | draft |
+| [NF/usability/layout/003133](requirements/non-functional/usability/layout/003133_rail-short-labels.md) | A rail label never breaks inside a word, and a long one has a short rail name | approved |
 | [S/framework/actions/002219](style/framework/actions/002219_action-model.md) | An action is data, and the screen places it | approved |
 | [S/framework/architecture/002200](style/framework/architecture/002200_apps-fill-screens.md) | An app only fills the screens of the kit | approved |
 | [S/framework/architecture/002201](style/framework/architecture/002201_screen-catalogue.md) | The kit has one screen for each page pattern | approved |
