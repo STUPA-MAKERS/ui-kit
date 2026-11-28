@@ -1,6 +1,3 @@
-<!-- A wide table scrolls inside its own box instead of pushing the page sideways. The
-     cut and the tongues sit on this wrapper rather than on the scroller, so they stay
-     put while the content moves under them. -->
 <div
   #box
   class="dt"
@@ -41,8 +38,6 @@
                 [style.minWidth]="col.width || null"
                 [attr.aria-sort]="ariaSort(col)"
               >
-                <!-- A sortable header is a button, so it is reachable by keyboard and
-                     announced as an action. A plain header stays plain text. -->
                 @if (col.sortable) {
                   <button type="button" class="dt__sort" (click)="toggleSort(col)">
                     <span>{{ col.label }}</span>
@@ -65,10 +60,6 @@
         </thead>
         <tbody>
           @if (loading) {
-            <!-- Skeleton rows keep the header, the column widths and the height of the
-                 box while data loads. Without them the table collapses to its empty
-                 state and the page jumps, which reads as "no results" rather than
-                 "still loading". -->
             @for (row of skeletonRows(); track row) {
               <tr class="dt__skeleton-row" aria-hidden="true">
                 @if (selectable) {
@@ -102,9 +93,6 @@
               >
                 @if (selectable) {
                   <td class="dt__selectCell dt__cell--stickyStart">
-                    <!-- The label is the touch target: in a card it is 44px square around
-                         the box. `onRow` ignores a click in this cell, so a tap on it
-                         selects the row and never opens it. -->
                     <label class="dt__checkHit">
                       <input
                         type="checkbox"
@@ -136,9 +124,6 @@
                 }
               </tr>
 
-              <!-- Child rows repeat the parent's columns with the caller's own cell
-                   templates, so a sub-record lines up column for column instead of
-                   being a panel underneath. `child: true` lets one template render both. -->
               @for (kid of childrenFor(row); track trackRow(kid, $index)) {
                 <tr class="dt__childRow" [class]="classFor(kid, true)">
                   @if (selectable) {
@@ -178,8 +163,6 @@
           }
         </tbody>
 
-        <!-- A totals row belongs to the table, not below it: it has to keep the column
-             widths, or a sum stops sitting under the column it sums. -->
         @if (hasFooter && !loading && rows.length > 0) {
           <tfoot>
             <tr>
@@ -207,10 +190,6 @@
     }
   </div>
 
-  <!-- The cuts: where the scrolling content passes beneath a pinned column. A rule with
-       a short shadow thrown away from the pin, stopping above the scrollbar. Only a
-       pinned column makes a cut — at the table's own outer edge the box border is
-       already the boundary, and a second rule there would be noise. -->
   @if (hasSticky) {
     <div class="dt__cutline" aria-hidden="true"></div>
   }
@@ -218,12 +197,6 @@
     <div class="dt__cutline dt__cutline--start" aria-hidden="true"></div>
   }
 
-  <!-- The tongues: the sideways scroll control for a reader with a plain mouse. Shift+
-       scroll is invisible knowledge and a wheel alone moves nothing sideways, so without
-       these the hidden columns cannot be reached at all.
-
-       Both stay in the DOM and are disabled while their edge hides nothing, so the
-       opacity can carry the change and neither takes a tab stop while invisible. -->
   <button
     type="button"
     class="dt__tongue dt__tongue--start"
@@ -282,8 +255,6 @@
   </button>
 </div>
 
-<!-- Announced separately, because the skeleton rows are aria-hidden: a screen reader
-     otherwise hears nothing at all while the table loads. -->
 @if (loading) {
   <span class="dt__sr-only" role="status">{{ loadingText }}</span>
 }

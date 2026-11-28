@@ -68,8 +68,6 @@
               }
               <span class="rm__text">
                 <span class="rm__label">{{ item.label }}</span>
-                <!-- Visible for a touch user too, who gets no tooltip. Hidden from the
-                     name: the hidden copy below describes the item. -->
                 @if (item.disabledReason) {
                   <span class="rm__reason" aria-hidden="true">{{ item.disabledReason }}</span>
                 }
@@ -81,8 +79,6 @@
           }
         </div>
       }
-      <!-- The reasons of the disabled items. Outside the items, so they describe an item
-           without becoming part of its name. -->
       <div hidden>
         @for (section of visibleSections(); track $index; let si = $index) {
           @for (item of section.items; track item.id; let ii = $index) {

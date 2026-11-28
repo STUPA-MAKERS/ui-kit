@@ -48,7 +48,6 @@
 
     @if (head().status || head().kicker || head().meta?.length) {
       <ul class="ds__chips" role="list">
-        <!-- The kicker is the first chip, never a grey line above the title (002230). -->
         @if (head().kicker; as k) {
           <li>
             <span class="ds__chip"
@@ -159,7 +158,6 @@
   }
 </article>
 
-<!-- The edge tabs open the side sheets above the phone width (001801). -->
 @if (!phone() && sheets().length) {
   <div class="ds__edgeTabs">
     @for (s of sheets(); track s.key) {

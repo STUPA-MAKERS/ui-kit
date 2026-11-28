@@ -5,8 +5,6 @@
     [disabled]="disabled()"
     (click)="pick()"
   >
-    <!-- The action is hidden text before the visible date, not an aria-label: the name must
-         hold the visible text (WCAG 2.5.3). -->
     <span class="sr-only">{{ (text() ? 'todos.due.change' : 'todos.due.set') | uiKitT: { date: '' } }}</span>
     <app-icon name="cal" [size]="15" />
     <span class="chip__text">{{ text() ?? ('todos.due.none' | uiKitT) }}</span>

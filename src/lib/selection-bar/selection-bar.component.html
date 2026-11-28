@@ -1,7 +1,6 @@
 @if (inline() || count() > 0) {
   <div class="selbar" role="toolbar" [attr.aria-label]="'selection.toolbar' | uiKitT">
     @if (allSelected() !== null) {
-      <!-- The box and the count are one label: the whole text toggles the selection. -->
       <app-checkbox
         class="selbar__all"
         [ngModel]="allSelected()"

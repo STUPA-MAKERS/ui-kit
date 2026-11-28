@@ -7,7 +7,6 @@
   @if (variant() === 'bubbles') {
     <ng-container *ngTemplateOutlet="bubbles" />
   } @else if (variant() === 'chat') {
-    <!-- The geometry of `app-chat`: the log (framed on a wide screen), the composer. -->
     <span class="sk__log" [class.sk__log--framed]="framed()" aria-hidden="true">
       <ng-container *ngTemplateOutlet="bubbles" />
     </span>
@@ -17,7 +16,6 @@
   } @else if (variant() === 'panel') {
     <span class="skel skel--panel" aria-hidden="true"></span>
   } @else if (variant() === 'items') {
-    <!-- The geometry of `app-list-item`: a title line and a sub line, a value at the end. -->
     <span class="sk__items" [class.rowgroup]="grouped()" aria-hidden="true">
       @for (_ of items(); track $index) {
         @let w = itemWidths($index);
@@ -61,8 +59,6 @@
   }
 </div>
 
-<!-- Messages in the geometry of `app-chat`: a 32px avatar beside a bubble from someone
-     else, an own bubble at the end. -->
 <ng-template #bubbles>
   <span class="sk__bubbles" aria-hidden="true">
     @for (_ of items(); track $index) {

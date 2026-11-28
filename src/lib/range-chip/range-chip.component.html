@@ -10,7 +10,6 @@
   @if (active()) {
     <app-icon name="check" [size]="15" />
   }
-  <!-- A tooltip only where the text is cut: a full text needs no second copy. -->
   <span
     class="ell"
     [appTruncated]="chipText()"
@@ -66,8 +65,6 @@
   </div>
 </ng-template>
 
-<!-- Desktop: a popover under the chip, with the look of the list of app-filter-select. It
-     sits in the top layer, so a chip row that scrolls or fades does not clip it. -->
 @if (popoverOpen()) {
   <div
     #pop
@@ -86,9 +83,6 @@
   </div>
 }
 
-<!-- Phone: the shared bottom sheet, like the other filter sheets. It exists only while it
-     is open and returns the focus to the chip when it goes. It sits in the top layer
-     (popover), so a chip row that scrolls or fades (overflow, mask) does not clip it. -->
 @if (sheetOpen()) {
   <div #layer class="rc__layer" popover="manual">
     <app-side-sheet
