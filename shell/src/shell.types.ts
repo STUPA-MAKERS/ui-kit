@@ -21,6 +21,12 @@ export interface ShellNavItem {
   readonly path: string;
   /** The visible label, already translated. */
   readonly label: string;
+  /**
+   * A shorter label for the rail, already translated, for a label too wide for one line of
+   * the rail (spec 003133). The rail shows it and keeps `label` as the tooltip; the phone bar
+   * and "More" show `label`.
+   */
+  readonly railLabel?: string;
   readonly icon: IconName;
   /** `end` entries sit at the foot of the rail, after the spacer. */
   readonly place: 'main' | 'end';

@@ -278,4 +278,14 @@ export class VotePanelViewComponent {
     if (v.status === 'closed') return true;
     return v.status === 'open' && v.tally.revealed !== false && Object.keys(v.tally.counts).length > 0;
   });
+
+  protected readonly barsKind = computed<'poll' | 'election' | 'bars' | null>(() =>
+    this.showBars() && this.poll()
+      ? 'poll'
+      : this.showBars() && this.election()
+      ? 'election'
+      : this.showBars()
+      ? 'bars'
+      : null,
+  );
 }

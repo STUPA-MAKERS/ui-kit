@@ -1,0 +1,16 @@
+<app-search-pill
+  size="md"
+  [clearable]="true"
+  [placeholder]="placeholder()"
+  [results]="results()"
+  [value]="value()"
+  (valueChange)="valueChange.emit($event)"
+  (commit)="commit.emit()"
+/>
+<div class="lt__chips">
+  <ng-content />
+  <span class="lt__spacer"></span>
+  @if (count(); as c) {
+    <span class="lt__count" aria-live="polite">{{ c }}</span>
+  }
+</div>

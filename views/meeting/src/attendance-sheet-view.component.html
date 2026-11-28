@@ -44,122 +44,26 @@
           @if (guestsActive() && tab() === 'guests') {
             <ng-container *ngTemplateOutlet="guestList(); context: { $implicit: m, query: query() }" />
           } @else if (rows().length) {
-            <ul class="as__rows rowgroup rowgroup--bg3">
-              @for (row of rows(); track row.a.principalId) {
-                <li class="as__row" [class.as__row--conflict]="row.conflict">
-                  <div class="as__who">
-                    <app-avatar
-                      [name]="row.name"
-                      [principalId]="row.a.principalId"
-                      size="sm"
-                      [decorative]="true"
-                    />
-                    <div class="as__names">
-                      <span
-                        class="as__name ell"
-                        [appTruncated]="row.name"
-                        #cut="appTruncated"
-                        [attr.title]="cut.truncated() ? row.name : null"
-                      >
-                        {{ row.name }}
-                        @if (row.a.isSelf) {
-                          <span class="as__muted">{{ 'meetings.attendance.you' | uiKitT }}</span>
-                        }
-                      </span>
-                      @if (editingNote() === row.a.principalId) {
-                        <input
-                          #note
-                          class="as__note"
-                          type="text"
-                          maxlength="500"
-                          [value]="row.a.note ?? ''"
-                          [attr.aria-label]="'meetings.attendance.note' | uiKitT"
-                          [placeholder]="'meetings.attendance.notePlaceholder' | uiKitT"
-                          [disabled]="saving()"
-                          (keydown.enter)="note.blur()"
-                          (keydown.escape)="cancelNote($event)"
-                          (blur)="saveNote(row.a, note.value)"
-                        />
-                      } @else if (row.sub) {
-                        <span
-                          class="as__sub ell"
-                          [appTruncated]="row.sub"
-                          #cut2="appTruncated"
-                          [attr.title]="cut2.truncated() ? row.sub : null"
-                          >{{ row.sub }}</span
-                        >
-                      }
-                    </div>
-                  </div>
-
-                  <div class="as__ctl" [class.as__ctl--seg]="!!row.options">
-                    @if (row.options; as options) {
-                      <div
-                        class="seg as__seg"
-                        role="radiogroup"
-                        [attr.aria-label]="
-                          'meetings.attendanceSheet.statusOf' | uiKitT: { name: row.name }
-                        "
-                        (focusout)="onFocusOut($event, row)"
-                      >
-                        @for (o of options; track o.value; let i = $index) {
-                          <button
-                            type="button"
-                            role="radio"
-                            class="seg__opt as__opt"
-                            [class.seg__opt--on]="o.value === row.value"
-                            [class.as__opt--on]="o.value === row.value"
-                            [attr.aria-checked]="o.value === row.value"
-                            [attr.aria-disabled]="o.blocked || saving() ? 'true' : null"
-                            [attr.tabindex]="tabStop(row, o)"
-                            [attr.title]="o.blocked ? (o.blocked | uiKitT) : null"
-                            (click)="choose(row, o)"
-                            (keydown)="onKey($event, row, i)"
-                          >
-                            {{ o.label | uiKitT }}
-                          </button>
-                        }
-                      </div>
-                    } @else {
-                      <app-status-text [kind]="row.readOnly.kind">{{
-                        row.readOnly.key | uiKitT
-                      }}</app-status-text>
-                    }
-                    @if (row.menu.length) {
-                      <app-button-group>
-                        <app-row-menu
-                          class="as__menu"
-                          [sections]="row.menu"
-                          [label]="'meetings.attendanceSheet.rowMenu' | uiKitT: { name: row.name }"
-                          (selected)="onMenu(row, $event)"
-                        />
-                      </app-button-group>
-                    } @else if (anyMenu()) {
-                      <span class="as__menuGap" aria-hidden="true"></span>
-                    }
-                  </div>
-
-                  @if (row.conflict; as c) {
-                    <app-error-text class="as__conflict">
-                      <app-icon name="alert" [size]="16" />
-                      <span>{{ 'meetings.attendanceSheet.delegationActive' | uiKitT }}</span>
-                      @if (c !== 'unknown' && c.revocable) {
-                        <app-button-group>
-                          <app-button
-                            variant="text"
-                            size="sm"
-                            [loading]="revoking() === c.id"
-                            (click)="revoke(c)"
-                          >
-                            {{ 'meetings.attendanceSheet.revokeDelegation' | uiKitT }}
-                          </app-button>
-                        </app-button-group>
-                      }
-                    </app-error-text>
+            @if (memberRows().length) {
+              <ul class="as__rows rowgroup rowgroup--bg3">
+                @for (row of memberRows(); track row.a.principalId) {
+                  <ng-container *ngTemplateOutlet="rowTpl; context: { $implicit: row }" />
+                }
+              </ul>
+            }
+            @if (delegateRows().length) {
+              <section
+                class="as__sec"
+                [attr.aria-label]="'meetings.attendanceSheet.delegatesTitle' | uiKitT"
+              >
+                <h3 class="as__cap cap">{{ 'meetings.attendanceSheet.delegatesTitle' | uiKitT }}</h3>
+                <ul class="as__rows rowgroup rowgroup--bg3">
+                  @for (row of delegateRows(); track row.a.principalId) {
+                    <ng-container *ngTemplateOutlet="rowTpl; context: { $implicit: row }" />
                   }
-                </li>
-              }
-            </ul>
+                </ul>
+              </section>
+            }
           } @else {
             <app-empty-state
               [icon]="query() ? 'searchOff' : 'users'"
@@ -257,3 +161,117 @@
   </ng-template>
 </app-side-sheet>
 
+<ng-template #rowTpl let-row>
+  <li class="as__row" [class.as__row--conflict]="row.conflict">
+    <div class="as__who">
+      <app-avatar
+        [name]="row.name"
+        [principalId]="row.a.principalId"
+        size="sm"
+        [decorative]="true"
+      />
+      <div class="as__names">
+        <span
+          class="as__name ell"
+          [appTruncated]="row.name"
+          #cut="appTruncated"
+          [attr.title]="cut.truncated() ? row.name : null"
+        >
+          {{ row.name }}
+          @if (row.a.isSelf) {
+            <span class="as__muted">{{ 'meetings.attendance.you' | uiKitT }}</span>
+          }
+        </span>
+        @if (editingNote() === row.a.principalId) {
+          <input
+            #note
+            class="as__note"
+            type="text"
+            maxlength="500"
+            [value]="row.a.note ?? ''"
+            [attr.aria-label]="'meetings.attendance.note' | uiKitT"
+            [placeholder]="'meetings.attendance.notePlaceholder' | uiKitT"
+            [disabled]="saving()"
+            (keydown.enter)="note.blur()"
+            (keydown.escape)="cancelNote($event)"
+            (blur)="saveNote(row.a, note.value)"
+          />
+        } @else if (row.sub) {
+          <span
+            class="as__sub ell"
+            [appTruncated]="row.sub"
+            #cut2="appTruncated"
+            [attr.title]="cut2.truncated() ? row.sub : null"
+            >{{ row.sub }}</span
+          >
+        }
+      </div>
+    </div>
+
+    <div class="as__ctl" [class.as__ctl--seg]="!!row.options">
+      @if (row.options; as options) {
+        <div
+          class="seg as__seg"
+          role="radiogroup"
+          [attr.aria-label]="
+            'meetings.attendanceSheet.statusOf' | uiKitT: { name: row.name }
+          "
+          (focusout)="onFocusOut($event, row)"
+        >
+          @for (o of options; track o.value; let i = $index) {
+            <button
+              type="button"
+              role="radio"
+              class="seg__opt as__opt"
+              [class.seg__opt--on]="o.value === row.value"
+              [class.as__opt--on]="o.value === row.value"
+              [attr.aria-checked]="o.value === row.value"
+              [attr.aria-disabled]="o.blocked || saving() ? 'true' : null"
+              [attr.tabindex]="tabStop(row, o)"
+              [attr.title]="o.blocked ? (o.blocked | uiKitT) : null"
+              (click)="choose(row, o)"
+              (keydown)="onKey($event, row, i)"
+            >
+              {{ o.label | uiKitT }}
+            </button>
+          }
+        </div>
+      } @else {
+        <app-status-text [kind]="row.readOnly.kind">{{
+          row.readOnly.key | uiKitT
+        }}</app-status-text>
+      }
+      @if (row.menu.length) {
+        <app-button-group>
+          <app-row-menu
+            class="as__menu"
+            [sections]="row.menu"
+            [label]="'meetings.attendanceSheet.rowMenu' | uiKitT: { name: row.name }"
+            (selected)="onMenu(row, $event)"
+          />
+        </app-button-group>
+      } @else if (anyMenu()) {
+        <span class="as__menuGap" aria-hidden="true"></span>
+      }
+    </div>
+
+    @if (row.conflict; as c) {
+      <app-error-text class="as__conflict">
+        <app-icon name="alert" [size]="16" />
+        <span>{{ 'meetings.attendanceSheet.delegationActive' | uiKitT }}</span>
+        @if (c !== 'unknown' && c.revocable) {
+          <app-button-group>
+            <app-button
+              variant="text"
+              size="sm"
+              [loading]="revoking() === c.id"
+              (click)="revoke(c)"
+            >
+              {{ 'meetings.attendanceSheet.revokeDelegation' | uiKitT }}
+            </app-button>
+          </app-button-group>
+        }
+      </app-error-text>
+    }
+  </li>
+</ng-template>

@@ -17,9 +17,6 @@
   <h3 class="vpn__q vpn__q--card">{{ question() }}</h3>
   <p class="vpn__rules vpn__rules--card">{{ rules() }}</p>
 } @else {
-  <!-- `page` and `phone`: the sheet bar hands the title and the actions to the detail bar of
-       the list/detail layout on a phone (§ui-kit:000674). The phone view is a page of its own, so
-       its title is the h1. -->
   <app-sheet-bar class="vpn__bar">
     @if (layout() === 'phone') {
       <h1 appSheetBarTitle class="sheet-title">{{ question() }}</h1>
@@ -80,32 +77,40 @@
   />
 }
 
-@if (showBars() && poll(); as p) {
-  <app-poll-result-view
-    [poll]="p"
-    [result]="v.pollResult ?? null"
-    [counts]="v.tally.counts"
-    [answered]="pollAnswered()"
-    [total]="pollTotal()"
-  />
-} @else if (showBars() && election(); as el) {
-  <app-election-result-view
-    [election]="el"
-    [result]="v.status === 'closed' ? v.result : null"
-    [electionResult]="v.electionResult ?? null"
-    [counts]="v.tally.counts"
-    [voteId]="v.id"
-    [canManage]="!!v.canManage"
-    [round]="v.round ?? 1"
-    (changed)="changed.emit($event)"
-  />
-} @else if (showBars()) {
-  <app-vote-bars-view
-    [options]="options()"
-    [counts]="v.tally.counts"
-    [result]="v.status === 'closed' ? v.result : null"
-    [failedReason]="v.tally.failedReason"
-  />
+@switch (barsKind()) {
+  @case ('poll') {
+    @if (poll(); as p) {
+      <app-poll-result-view
+        [poll]="p"
+        [result]="v.pollResult ?? null"
+        [counts]="v.tally.counts"
+        [answered]="pollAnswered()"
+        [total]="pollTotal()"
+      />
+    }
+  }
+  @case ('election') {
+    @if (election(); as el) {
+      <app-election-result-view
+        [election]="el"
+        [result]="v.status === 'closed' ? v.result : null"
+        [electionResult]="v.electionResult ?? null"
+        [counts]="v.tally.counts"
+        [voteId]="v.id"
+        [canManage]="!!v.canManage"
+        [round]="v.round ?? 1"
+        (changed)="changed.emit($event)"
+      />
+    }
+  }
+  @case ('bars') {
+    <app-vote-bars-view
+      [options]="options()"
+      [counts]="v.tally.counts"
+      [result]="v.status === 'closed' ? v.result : null"
+      [failedReason]="v.tally.failedReason"
+    />
+  }
 }
 
 @if (closedSummary(); as line) {

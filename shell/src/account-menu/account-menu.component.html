@@ -32,8 +32,6 @@
       </span>
     </div>
   }
-  <!-- The sheet has no switch of its own: the "More" sheet that holds it shows the dark
-       design in its display settings, and one setting has one switch on a screen. -->
   @if (look() === 'popover') {
     <div class="am__item am__item--field">
       <app-icon name="moon" [size]="19" />
@@ -59,8 +57,6 @@
     [title]="'account.open' | uiKitT: { name: name() }"
     (click)="toggle()"
   >
-    <!-- The name is text, not aria-label: the initials of the avatar are visible text,
-         and an aria-label without them breaks WCAG 2.5.3 (label in name). -->
     <span class="sr-only">{{ 'account.open' | uiKitT: { name: name() } }}</span>
     <app-avatar [name]="name()" [principalId]="avatarId()" [decorative]="true" />
   </button>

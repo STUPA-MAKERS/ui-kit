@@ -120,6 +120,15 @@ $-host: ':is(app-button, a.btn-link, app-row-menu, app-move-buttons, .btn-grp__s
   --btn-grp-s: inherit;
   --btn-grp-e: inherit;
 }
+// A segment may hold several buttons (the PDF and "Senden" of the protocol head). They touch
+// like the buttons of the group: only the first takes the start of the segment and only the
+// last its end.
+.btn-grp .btn-grp__seg.btn-grp__seg > :is(app-button, a.btn-link, app-row-menu) + :is(app-button, a.btn-link, app-row-menu) {
+  --btn-grp-s: var(--btn-grp-in);
+}
+.btn-grp .btn-grp__seg.btn-grp__seg > :is(app-button, a.btn-link, app-row-menu):has(+ :is(app-button, a.btn-link, app-row-menu)) {
+  --btn-grp-e: var(--btn-grp-in);
+}
 
 // A page may wrap its head actions in an element of its own (a toolbar with a language switch
 // and a button). The buttons in it touch like the buttons of the group, and another control

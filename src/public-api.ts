@@ -79,6 +79,8 @@ export * from './lib/load-bar/load-bar.component';
 export * from './lib/chip/chip.component';
 export * from './lib/chip/chip-group.component';
 export * from './lib/copy/copy-button.component';
+export * from './lib/edit-button/edit-button.component';
+export * from './lib/list-toolbar/list-toolbar.component';
 export * from './lib/highlight/highlight.component';
 export * from './lib/highlight/highlight';
 export * from './lib/locked-field/locked-field.component';

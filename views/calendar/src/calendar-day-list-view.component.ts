@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, inject, input, output } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, input, output, computed } from '@angular/core';
 import {
   EmptyStateComponent,
   IconComponent,
@@ -73,6 +73,16 @@ export class CalendarDayListViewComponent {
   readonly kindKey = kindKey;
   readonly answerKey = answerKey;
   readonly answerKind = answerKind;
+
+  protected readonly listState = computed<'error' | 'loading' | 'empty' | 'list'>(() =>
+    this.error()
+      ? 'error'
+      : this.firstLoad()
+      ? 'loading'
+      : !this.entries().length && !this.loading()
+      ? 'empty'
+      : 'list',
+  );
 
   /** "14:00 – 15:30", or the days of an entry over several days. */
   time(e: CalendarEntry): string {

@@ -33,66 +33,82 @@
     <app-vote-progress-view size="fat" [voted]="v.voted" [total]="v.present" />
   }
 
-  @if (showCounts() && poll(); as p) {
-    <app-poll-result-view
-      [poll]="p"
-      [result]="v.pollResult ?? null"
-      [counts]="v.counts ?? {}"
-      [answered]="v.pollResult?.ballots ?? v.voted"
-      [total]="v.present"
-    />
-  } @else if (showCounts() && election(); as el) {
-    <app-election-result-view
-      [election]="el"
-      [result]="v.status === 'closed' ? v.result : null"
-      [electionResult]="v.electionResult ?? null"
-      [counts]="v.counts ?? {}"
-      [voteId]="v.id"
-      [canManage]="canManage() && !locked()"
-      [round]="v.round ?? 1"
-      [canNextRound]="canManage() && !locked() && meetingStatus() === 'live' && !continued()"
-      [inCard]="true"
-      (changed)="electionChanged.emit($event)"
-    />
-  } @else if (showCounts()) {
-    <dl class="vc__counts" [attr.aria-label]="'meetings.vote.tally' | uiKitT">
-      @for (entry of counts(); track entry.key) {
-        <div class="vc__count" [class.vc__count--lead]="entry.key === v.leading">
-          <dt>{{ optionLabel(entry.key) }}</dt>
-          <dd class="mono">{{ entry.value }}</dd>
-        </div>
+  @switch (countsKind()) {
+    @case ('poll') {
+      @if (poll(); as p) {
+        <app-poll-result-view
+          [poll]="p"
+          [result]="v.pollResult ?? null"
+          [counts]="v.counts ?? {}"
+          [answered]="v.pollResult?.ballots ?? v.voted"
+          [total]="v.present"
+        />
       }
-    </dl>
+    }
+    @case ('election') {
+      @if (election(); as el) {
+        <app-election-result-view
+          [election]="el"
+          [result]="v.status === 'closed' ? v.result : null"
+          [electionResult]="v.electionResult ?? null"
+          [counts]="v.counts ?? {}"
+          [voteId]="v.id"
+          [canManage]="canManage() && !locked()"
+          [round]="v.round ?? 1"
+          [canNextRound]="canManage() && !locked() && meetingStatus() === 'live' && !continued()"
+          [inCard]="true"
+          (changed)="electionChanged.emit($event)"
+        />
+      }
+    }
+    @case ('bars') {
+      <dl class="vc__counts" [attr.aria-label]="'meetings.vote.tally' | uiKitT">
+        @for (entry of counts(); track entry.key) {
+          <div class="vc__count" [class.vc__count--lead]="entry.key === v.leading">
+            <dt>{{ optionLabel(entry.key) }}</dt>
+            <dd class="mono">{{ entry.value }}</dd>
+          </div>
+        }
+      </dl>
+    }
   }
 
-  @if (v.status === 'open' && canVote() && poll(); as p) {
-    <app-ballot-view
-      [voteId]="v.id"
-      [options]="options()"
-      [secret]="!!v.secret"
-      [own]="v.myBallot ?? notCast"
-      [caster]="caster"
-      [compact]="true"
-      [poll]="p"
-      (castFailed)="onBallotFailed($event)"
-    />
-  } @else if (v.status === 'open' && canVote() && election(); as el) {
-    <app-ballot-view
-      [voteId]="v.id"
-      [options]="options()"
-      [secret]="!!v.secret"
-      [own]="v.myBallot ?? notCast"
-      [caster]="caster"
-      [compact]="true"
-      [election]="el"
-      (castFailed)="onBallotFailed($event)"
-    />
-  } @else if (v.status === 'open' && canVote() && !hasVoted()) {
-    <app-button-group class="vc__ballot" [label]="'meetings.dock.yourVote' | uiKitT">
-      @for (opt of options(); track opt) {
-        <app-button variant="outlined" [block]="true" [loading]="casting() === v.id" (click)="cast.emit({ voteId: v.id, choice: opt })">{{ optionLabel(opt) }}</app-button>
+  @switch (castKind()) {
+    @case ('poll') {
+      @if (poll(); as p) {
+        <app-ballot-view
+          [voteId]="v.id"
+          [options]="options()"
+          [secret]="!!v.secret"
+          [own]="v.myBallot ?? notCast"
+          [caster]="caster"
+          [compact]="true"
+          [poll]="p"
+          (castFailed)="onBallotFailed($event)"
+        />
       }
-    </app-button-group>
+    }
+    @case ('election') {
+      @if (election(); as el) {
+        <app-ballot-view
+          [voteId]="v.id"
+          [options]="options()"
+          [secret]="!!v.secret"
+          [own]="v.myBallot ?? notCast"
+          [caster]="caster"
+          [compact]="true"
+          [election]="el"
+          (castFailed)="onBallotFailed($event)"
+        />
+      }
+    }
+    @case ('options') {
+      <app-button-group class="vc__ballot" [label]="'meetings.dock.yourVote' | uiKitT">
+        @for (opt of options(); track opt) {
+          <app-button variant="outlined" [block]="true" [loading]="casting() === v.id" (click)="cast.emit({ voteId: v.id, choice: opt })">{{ optionLabel(opt) }}</app-button>
+        }
+      </app-button-group>
+    }
   }
 
   @if (guestResult(); as gr) {

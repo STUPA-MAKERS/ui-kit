@@ -30,73 +30,80 @@
 
 @if (!phone() || m.status !== 'planned' || topIndex() >= 0) {
   <div #bar class="sd" [class.sd--tight]="tight()">
-    @if ((phone() || compact()) && formatting() && formatTools(); as tools) {
-      <app-button-group>
-        <app-button variant="text" [iconOnly]="true" [ariaLabel]="'meetings.dock.formatBack' | uiKitT" (click)="formatting.set(false)"><app-icon name="back" /></app-button>
-      </app-button-group>
-      <div class="sd__format" role="toolbar" [attr.aria-label]="'meetings.editor.toolbar' | uiKitT">
-        <ng-container [ngTemplateOutlet]="tools" />
-      </div>
-    } @else if (m.status === 'planned' && topIndex() < 0) {
-      @if (!phone()) {
-        <div class="sd__state">
-          <span class="sd__small">{{ 'meetings.dock.notStarted' | uiKitT }}</span>
-          <span class="sd__strong">{{ 'meetings.dock.topsPrepared' | uiKitT: { n: agenda().length } }}</span>
-        </div>
-        <ng-container [ngTemplateOutlet]="deskTools" />
-      } @else {
-        <ng-container [ngTemplateOutlet]="phoneTools" />
-      }
-    } @else if (m.status === 'closed') {
-      <div class="sd__state">
-        <span class="sd__small">{{ closedLine() }}</span>
-        <span class="sd__strong">{{ agenda().length === 1 ? ('meetings.dock.topsOne' | uiKitT) : ('meetings.dock.tops' | uiKitT: { n: agenda().length }) }}</span>
-      </div>
-      @if (phone()) {
-        <ng-container [ngTemplateOutlet]="phoneTools" />
-      } @else {
-        <ng-container [ngTemplateOutlet]="deskTools" />
-      }
-    } @else {
-      <div class="sd__nav">
-        <app-button-group>
-          <app-button variant="text" [iconOnly]="true" [disabled]="!hasPrev()" [ariaLabel]="'meetings.dock.prev' | uiKitT" (click)="step.emit(-1)"><app-icon name="left" /></app-button>
-        </app-button-group>
-        <span class="sd__pos">
-          <span class="sd__small">{{ 'meetings.dock.top' | uiKitT }}</span>
-          <span class="sd__strong num">
-            @if (topIndex() >= 0) {
-              {{ 'meetings.dock.of' | uiKitT: { n: topIndex() + 1, m: agenda().length } }}
-            } @else {
-              {{ 'meetings.dock.none' | uiKitT }}
-            }
-          </span>
-        </span>
-        <app-button-group>
-          <app-button class="sd__next" variant="text" [iconOnly]="true" [disabled]="!hasNext()" [ariaLabel]="'meetings.dock.next' | uiKitT" (click)="step.emit(1)"><app-icon name="right" /></app-button>
-        </app-button-group>
-      </div>
-      @if (phone()) {
-        <ng-container [ngTemplateOutlet]="phoneTools" />
-      } @else {
-        <ng-container [ngTemplateOutlet]="deskTools" />
-      }
-      @if (nowElsewhere() || (!phone() && myVote())) {
-        <span class="sd__vr" aria-hidden="true"></span>
-      }
-      <div class="sd__mid">
-        @if (nowElsewhere(); as now) {
-          <span class="sd__now">{{ 'meetings.dock.nowRunning' | uiKitT: { top: now.label } }}</span>
+    @switch (dockRow()) {
+      @case ('format') {
+        @if (formatTools(); as tools) {
           <app-button-group>
-            <app-button size="sm" variant="tonal" (click)="jumpNow.emit(now.item.id)">{{ 'meetings.dock.backToNow' | uiKitT }}</app-button>
+            <app-button variant="text" [iconOnly]="true" [ariaLabel]="'meetings.dock.formatBack' | uiKitT" (click)="formatting.set(false)"><app-icon name="back" /></app-button>
           </app-button-group>
-        } @else if (!phone() && myVote(); as choice) {
-          <span class="sd__vote">
-            <app-icon name="vote" [size]="18" />
-            <span>{{ 'meetings.dock.yourVote' | uiKitT }}: <strong>{{ choice }}</strong></span>
-          </span>
+          <div class="sd__format" role="toolbar" [attr.aria-label]="'meetings.editor.toolbar' | uiKitT">
+            <ng-container [ngTemplateOutlet]="tools" />
+          </div>
         }
-      </div>
+      }
+      @case ('planned') {
+        @if (!phone()) {
+          <div class="sd__state">
+            <span class="sd__small">{{ 'meetings.dock.notStarted' | uiKitT }}</span>
+            <span class="sd__strong">{{ 'meetings.dock.topsPrepared' | uiKitT: { n: agenda().length } }}</span>
+          </div>
+          <ng-container [ngTemplateOutlet]="deskTools" />
+        } @else {
+          <ng-container [ngTemplateOutlet]="phoneTools" />
+        }
+      }
+      @case ('closed') {
+        <div class="sd__state">
+          <span class="sd__small">{{ closedLine() }}</span>
+          <span class="sd__strong">{{ agenda().length === 1 ? ('meetings.dock.topsOne' | uiKitT) : ('meetings.dock.tops' | uiKitT: { n: agenda().length }) }}</span>
+        </div>
+        @if (phone()) {
+          <ng-container [ngTemplateOutlet]="phoneTools" />
+        } @else {
+          <ng-container [ngTemplateOutlet]="deskTools" />
+        }
+      }
+      @case ('live') {
+        <div class="sd__nav">
+          <app-button-group>
+            <app-button variant="text" [iconOnly]="true" [disabled]="!hasPrev()" [ariaLabel]="'meetings.dock.prev' | uiKitT" (click)="step.emit(-1)"><app-icon name="left" /></app-button>
+          </app-button-group>
+          <span class="sd__pos">
+            <span class="sd__small">{{ 'meetings.dock.top' | uiKitT }}</span>
+            <span class="sd__strong num">
+              @if (topIndex() >= 0) {
+                {{ 'meetings.dock.of' | uiKitT: { n: topIndex() + 1, m: agenda().length } }}
+              } @else {
+                {{ 'meetings.dock.none' | uiKitT }}
+              }
+            </span>
+          </span>
+          <app-button-group>
+            <app-button class="sd__next" variant="text" [iconOnly]="true" [disabled]="!hasNext()" [ariaLabel]="'meetings.dock.next' | uiKitT" (click)="step.emit(1)"><app-icon name="right" /></app-button>
+          </app-button-group>
+        </div>
+        @if (phone()) {
+          <ng-container [ngTemplateOutlet]="phoneTools" />
+        } @else {
+          <ng-container [ngTemplateOutlet]="deskTools" />
+        }
+        @if (nowElsewhere() || (!phone() && myVote())) {
+          <span class="sd__vr" aria-hidden="true"></span>
+        }
+        <div class="sd__mid">
+          @if (nowElsewhere(); as now) {
+            <span class="sd__now">{{ 'meetings.dock.nowRunning' | uiKitT: { top: now.label } }}</span>
+            <app-button-group>
+              <app-button size="sm" variant="tonal" (click)="jumpNow.emit(now.item.id)">{{ 'meetings.dock.backToNow' | uiKitT }}</app-button>
+            </app-button-group>
+          } @else if (!phone() && myVote(); as choice) {
+            <span class="sd__vote">
+              <app-icon name="vote" [size]="18" />
+              <span>{{ 'meetings.dock.yourVote' | uiKitT }}: <strong>{{ choice }}</strong></span>
+            </span>
+          }
+        </div>
+      }
     }
 
     @if (!phone() && !(compact() && formatting())) {
@@ -118,7 +125,6 @@
   </div>
 }
 
-<!-- On a phone: "Erledigt", the attendance and the view switch as icon buttons. -->
 <ng-template #phoneTools>
   <app-button-group class="sd__tools">
       @if (formatTools()) {
@@ -167,9 +173,6 @@
   </app-button-group>
 </ng-template>
 
-<!-- On a wider screen: the format tools of the text (behind "Aa" when the row is too narrow), "Erledigt", the view switch and the
-     icon buttons of the page (QR code, beamer), the icon buttons of the phone dock with the
-     format tools in the row. -->
 <ng-template #deskTools>
   @if (formatTools() || done() !== null || modeToggle() || votes() !== null || extraTools()) {
     <span class="sd__vr" aria-hidden="true"></span>
@@ -243,43 +246,48 @@
 </ng-template>
 
 <ng-template #keeperChip>
-  @if (m.status === 'closed') {
-    <span class="sd__chip sd__chip--static" [title]="closedKeeperTitle()">
-      <app-icon name="lock" [size]="16" />
-      <span class="sd__chipText">{{ keepers() || '—' }}</span>
-    </span>
-  } @else if (canPickKeeper() || canHandOver()) {
-    <button
-      type="button"
-      class="sd__chip"
-      [class.sd__chip--warn]="!m.protokollantId"
-      [class.sd__chip--open]="keeperOpen"
-      [attr.aria-expanded]="keeperOpen"
-      aria-haspopup="dialog"
-      [title]="(canHandOver() ? 'meetings.handover.title' : 'meetings.protokollant.label') | uiKitT"
-      [attr.aria-label]="m.protokollantId ? ('meetings.dock.protokollantIs' | uiKitT: { name: m.protokollantName ?? '' }) : ('meetings.dock.protokollantMissing' | uiKitT)"
-      (click)="togglePanel('protokollant', $any($event.currentTarget))"
-    >
-      <app-icon name="edit" [size]="18" />
-      @if (!tight()) {
-        <span class="sd__chipText">{{ m.protokollantId ? (m.protokollantName ?? '') : ('meetings.dock.protokollantMissing' | uiKitT) }}</span>
-      }
-      @if (m.plannedHandover && !tight()) {
-        <span class="sd__muted">· {{ 'meetings.handover.plannedShort' | uiKitT }}</span>
-      }
-      @if (!tight()) {
-        <app-icon class="sd__chev" name="down" [size]="16" />
-      }
-    </button>
-  } @else if (m.protokollantId) {
-    <span class="sd__chip sd__chip--static" [title]="'meetings.dock.protokollantIs' | uiKitT: { name: m.protokollantName ?? '' }">
-      <app-icon name="edit" [size]="18" />
-      <span class="sd__chipText">{{ m.protokollantName ?? '' }}</span>
-    </span>
-  } @else {
-    <span class="sd__chip sd__chip--static sd__chip--warn">
-      <app-icon name="edit" [size]="18" />
-      <span class="sd__chipText">{{ 'meetings.dock.protokollantMissing' | uiKitT }}</span>
-    </span>
+  @switch (keeperState()) {
+    @case ('closed') {
+      <span class="sd__chip sd__chip--static" [title]="closedKeeperTitle()">
+        <app-icon name="lock" [size]="16" />
+        <span class="sd__chipText">{{ keepers() || '—' }}</span>
+      </span>
+    }
+    @case ('pick') {
+      <button
+        type="button"
+        class="sd__chip"
+        [class.sd__chip--warn]="!m.protokollantId"
+        [class.sd__chip--open]="keeperOpen"
+        [attr.aria-expanded]="keeperOpen"
+        aria-haspopup="dialog"
+        [title]="(canHandOver() ? 'meetings.handover.title' : 'meetings.protokollant.label') | uiKitT"
+        [attr.aria-label]="m.protokollantId ? ('meetings.dock.protokollantIs' | uiKitT: { name: m.protokollantName ?? '' }) : ('meetings.dock.protokollantMissing' | uiKitT)"
+        (click)="togglePanel('protokollant', $any($event.currentTarget))"
+      >
+        <app-icon name="edit" [size]="18" />
+        @if (!tight()) {
+          <span class="sd__chipText">{{ m.protokollantId ? (m.protokollantName ?? '') : ('meetings.dock.protokollantMissing' | uiKitT) }}</span>
+        }
+        @if (m.plannedHandover && !tight()) {
+          <span class="sd__muted">· {{ 'meetings.handover.plannedShort' | uiKitT }}</span>
+        }
+        @if (!tight()) {
+          <app-icon class="sd__chev" name="down" [size]="16" />
+        }
+      </button>
+    }
+    @case ('named') {
+      <span class="sd__chip sd__chip--static" [title]="'meetings.dock.protokollantIs' | uiKitT: { name: m.protokollantName ?? '' }">
+        <app-icon name="edit" [size]="18" />
+        <span class="sd__chipText">{{ m.protokollantName ?? '' }}</span>
+      </span>
+    }
+    @case ('none') {
+      <span class="sd__chip sd__chip--static sd__chip--warn">
+        <app-icon name="edit" [size]="18" />
+        <span class="sd__chipText">{{ 'meetings.dock.protokollantMissing' | uiKitT }}</span>
+      </span>
+    }
   }
 </ng-template>

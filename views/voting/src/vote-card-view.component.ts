@@ -66,8 +66,8 @@ import { UI_KIT_VOTING_TEXTS } from './voting.texts';
  * member voted on an open vote, or after the close. The card then shows them.
  *
  * The vote manager closes or cancels (danger) an open vote, opens a planned one, changes
- * it ("Bearbeiten") and deletes a planned or cancelled one while the meeting is planned
- * or live. In a live meeting a closed vote can be voted on again ("Erneut abstimmen"):
+ * it ("Bearbeiten") while the meeting is planned or live, and deletes every vote but an
+ * open one, a closed one only while the protocol is a draft. In a live meeting a closed vote can be voted on again ("Erneut abstimmen"):
  * the repeat names its number ("2. Abstimmung"), and the closed vote keeps its result and
  * says "Wiederholt" once the repeat opened. Only one
  * vote of the meeting is open at a time, so "Abstimmung öffnen" waits for it. A voter
@@ -261,10 +261,15 @@ export class VoteCardViewComponent<V extends MeetingVote = MeetingVote> {
     () => this.canManage() && !this.locked() && this.meetingStatus() !== 'closed',
   );
 
-  /** Only a planned or cancelled vote can go; an open or closed one is part of the record. */
+  /**
+   * Every vote but an open one can go while the protocol is a draft, also after the
+   * meeting (STUPA-Workflow:003140, STUPA-Workflow:003142). A closed vote stays while a
+   * repeat or a next Wahlgang continues it (STUPA-Workflow:003144).
+   */
   protected readonly canDelete = computed(() => {
     const s = this.vote().status;
-    return this.canEdit() && (s === 'draft' || s === 'cancelled');
+    if (!this.canManage() || this.locked() || s === 'open') return false;
+    return s !== 'closed' || !this.continued();
   });
 
   /** The status line: the result of a closed vote, else the state; an open vote has none. */
@@ -315,6 +320,7 @@ export class VoteCardViewComponent<V extends MeetingVote = MeetingVote> {
   /** The menu: every action that is not the next step; the danger items in their own section. */
   protected readonly menu = computed<RowMenuSection[]>(() => {
     const v = this.vote();
+
     const t = (key: UiKitTextKey) => this.i18n.translate(key);
     const live = this.meetingStatus() === 'live';
     const closed = v.status === 'closed';
@@ -361,4 +367,26 @@ export class VoteCardViewComponent<V extends MeetingVote = MeetingVote> {
   protected optionLabel(opt: string): string {
     return voteOptionLabel(opt, (key) => this.i18n.translate(key));
   }
+
+  protected readonly castKind = computed<'poll' | 'election' | 'options' | null>(() =>
+    this.vote().status !== 'open' || !this.canVote()
+      ? null
+      : this.poll()
+        ? 'poll'
+        : this.election()
+          ? 'election'
+          : !this.hasVoted()
+            ? 'options'
+            : null,
+  );
+
+  protected readonly countsKind = computed<'poll' | 'election' | 'bars' | null>(() =>
+    this.showCounts() && this.poll()
+      ? 'poll'
+      : this.showCounts() && this.election()
+      ? 'election'
+      : this.showCounts()
+      ? 'bars'
+      : null,
+  );
 }

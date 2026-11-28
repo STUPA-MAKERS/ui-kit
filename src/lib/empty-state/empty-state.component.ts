@@ -164,6 +164,16 @@ export class EmptyStateComponent {
 
   private readonly host: ElementRef<HTMLElement> = inject(ElementRef);
 
+  protected readonly artKind = computed<'code' | 'plain' | 'face' | null>(() =>
+    this.code()
+      ? 'code'
+      : this.plain()
+      ? 'plain'
+      : this.face()
+      ? 'face'
+      : null,
+  );
+
   constructor() {
     // A `fill` state takes at least the free height below its own top and centres in it, so a
     // page, a pane or a tab with nothing in it shows the state in the middle of the free area,

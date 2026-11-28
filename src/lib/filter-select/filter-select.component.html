@@ -26,7 +26,6 @@
     <app-icon [name]="lead" [size]="15" />
   }
   @if (!iconOnly()) {
-    <!-- A tooltip only where the text is cut: a full text needs no second copy. -->
     <span
       class="ell fs__text"
       [appTruncated]="chipText()"
@@ -121,9 +120,6 @@
   </div>
 }
 
-<!-- Phone: the shared bottom sheet. It exists only while it is open and returns the focus
-     to the chip when it goes. It sits in the top layer (popover), so a chip row that
-     scrolls or fades (overflow, mask) does not clip it. -->
 @if (sheetOpen()) {
   <div #layer class="fs__layer" popover="manual">
     <app-side-sheet
