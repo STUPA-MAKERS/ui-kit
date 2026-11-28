@@ -26,13 +26,15 @@
     font-family: inherit;
     cursor: pointer;
   }
-  // A long label breaks into a second line, and the item grows, so a user text spacing
-  // (WCAG 1.4.12, app spec 000504) cuts no text.
+  // A label breaks only between words, never inside one with a hyphen (003133); an entry
+  // whose label is too wide brings a short rail label. A single word that is still too wide,
+  // for example under a user text spacing (WCAG 1.4.12, app spec 000504), breaks without a
+  // hyphen, and the item grows, so no text is cut.
   .#{$b}__label {
     // The surface of the rail is 72px wide (001441); the label keeps 4px from its edge.
     max-width: 64px;
-    overflow-wrap: anywhere;
-    hyphens: auto;
+    overflow-wrap: break-word;
+    hyphens: manual;
     text-align: center;
   }
   .#{$b}__ind {
