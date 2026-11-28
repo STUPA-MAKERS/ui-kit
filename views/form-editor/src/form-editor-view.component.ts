@@ -25,6 +25,7 @@ import {
   langFieldLabel,
   MEDIA,
   mediaQuery,
+  ListItemComponent,
   MetaLineComponent,
   MoveButtonsComponent,
   registerUiKitTexts,
@@ -130,6 +131,7 @@ const POSITION_HINTS: readonly { readonly key: keyof FieldHints; readonly label:
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     SheetBodyDirective,
+    ListItemComponent,
     MetaLineComponent,
     MoveButtonsComponent,
     I18nInputComponent,

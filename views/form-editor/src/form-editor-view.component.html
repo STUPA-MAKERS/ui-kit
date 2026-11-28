@@ -355,18 +355,14 @@
                 }
               }
 
-              <div class="fe__advanced">
-                <button
-                  type="button"
-                  class="fe__advToggle"
-                  [attr.aria-expanded]="isExpanded(pos)"
-                  (click)="toggleExpanded(pos)"
-                >
-                  <app-icon class="fe__muted" name="tune" [size]="17" />
-                  <span class="fe__advTitle">{{ 'admin.forms.advanced' | uiKitT }}</span>
-                  <app-icon [name]="isExpanded(pos) ? 'up' : 'down'" [size]="17" />
-                </button>
-                @if (isExpanded(pos)) {
+              <div class="rowgroup">
+                <app-list-item [title]="'admin.forms.advanced' | uiKitT" [expanded]="isExpanded(pos)" (activate)="toggleExpanded(pos)">
+                  <app-icon lead name="tune" [size]="20" />
+                  <app-icon trail [name]="isExpanded(pos) ? 'up' : 'down'" [size]="20" />
+                </app-list-item>
+              </div>
+              @if (isExpanded(pos)) {
+                <div class="fe__advBody">
                   <div class="fe__toggles">
                     <app-checkbox [(ngModel)]="field.isPII" (ngModelChange)="touch()">{{ 'admin.form.isPII' | uiKitT }}</app-checkbox>
                     @if (isNumeric(field.type)) {
@@ -409,8 +405,8 @@
                     <span class="fe__codeLabel">{{ 'admin.form.visibleIf' | uiKitT }}</span>
                     <textarea class="mono" rows="2" [ngModel]="logicRaw(gi, qi, 'visibleIf', field.visibleIf)" (ngModelChange)="onLogicInput(pos, 'visibleIf', $event)" [attr.placeholder]="'admin.form.visibleIfEmpty' | uiKitT"></textarea>
                   </label>
-                }
-              </div>
+                </div>
+              }
 
               @if (errorsFor(gi, qi).length > 0) {
                 <ul class="fe__errors" role="alert">
