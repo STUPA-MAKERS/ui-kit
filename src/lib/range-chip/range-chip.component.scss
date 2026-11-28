@@ -7,11 +7,6 @@
 .rc__chip {
   max-width: 100%;
 }
-/* The top-layer box of the phone sheet: no box of its own. The scrim and the sheet inside
-   are fixed to the viewport. */
-.rc__layer {
-  @include om.layer;
-}
 /* The icon never takes the click: the whole chip is the button. */
 .rc__chip app-icon {
   pointer-events: none;

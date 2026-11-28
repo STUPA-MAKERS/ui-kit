@@ -196,11 +196,11 @@ describe('RangeChipComponent', () => {
     try {
       const { chip, user, view } = await setup({ phone: true });
       // Closed, the sheet is not in the chip row at all.
-      expect(document.querySelector('.rc__layer')).toBeNull();
+      expect(document.querySelector('app-layer-sheet [popover]')).toBeNull();
       await user.click(chip());
       await new Promise((r) => setTimeout(r));
       view.fixture.detectChanges();
-      const layer = document.querySelector('.rc__layer') as HTMLElement;
+      const layer = document.querySelector('app-layer-sheet [popover]') as HTMLElement;
       // A chip row that scrolls clips its children: the sheet goes to the top layer.
       expect(layer.getAttribute('popover')).toBe('manual');
       expect(shown).toContain(layer);
@@ -209,7 +209,7 @@ describe('RangeChipComponent', () => {
 
       await user.keyboard('{Escape}');
       view.fixture.detectChanges();
-      expect(document.querySelector('.rc__layer')).toBeNull();
+      expect(document.querySelector('app-layer-sheet [popover]')).toBeNull();
       expect(chip().getAttribute('aria-expanded')).toBe('false');
     } finally {
       proto.showPopover = real;

@@ -70,10 +70,6 @@
   max-height: min(24rem, calc(100vh - 16px));
 }
 
-.fs__layer {
-  @include om.layer;
-}
-
 .fs__options:focus {
   outline: none;
 }

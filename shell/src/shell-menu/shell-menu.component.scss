@@ -1,6 +1,5 @@
 @use '../../../src/styles/breakpoints' as bp;
 @use '../../../src/styles/frosted' as *;
-@use '../../../src/styles/option-menu' as om;
 @use '../../../src/styles/field' as f;
 @use '../../../src/styles/display' as d;
 
@@ -273,9 +272,6 @@
 
 /* The phone sheet of the public header sits in the top layer, so no glass or scroll box
    of the header clips it. In the sheet the entries need no rule below them. */
-.hm__layer {
-  @include om.layer;
-}
 .hm--inSheet {
   border-bottom: 0;
 }

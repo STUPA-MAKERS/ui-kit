@@ -27,7 +27,8 @@ import { MEDIA } from '../breakpoints/breakpoints';
 import { mediaQuery } from '../signals/media-query';
 import { UiKitTranslatePipe } from '../intl/translate.pipe';
 import { AvatarComponent, type AvatarPerson } from '../avatar/avatar.component';
-import { SheetBodyDirective, SideSheetComponent } from '../side-sheet/side-sheet.component';
+import { LayerSheetComponent } from '../layer-sheet/layer-sheet.component';
+import { SheetBodyDirective } from '../side-sheet/side-sheet.component';
 import { TruncatedDirective } from '../truncated/truncated.directive';
 import type { Action } from '../screen/screen.types';
 
@@ -86,7 +87,7 @@ const TYPEAHEAD_RESET = 600;
     IconComponent,
     NgTemplateOutlet,
     UiKitTranslatePipe,
-    SideSheetComponent,
+    LayerSheetComponent,
     SheetBodyDirective,
     TruncatedDirective,
   ],
@@ -193,7 +194,6 @@ export class FilterSelectComponent {
 
   private readonly trigger = viewChild.required<ElementRef<HTMLButtonElement>>('trigger');
   private readonly list = viewChild<ElementRef<HTMLElement>>('list');
-  private readonly layer = viewChild<ElementRef<HTMLElement>>('layer');
 
   private readonly injector = inject(Injector);
   private timer: ReturnType<typeof setTimeout> | null = null;
@@ -301,7 +301,6 @@ export class FilterSelectComponent {
     if (this.phone()) {
       // The sheet focuses its first control after its render; the current value goes after.
       this.afterRender(() => {
-        showInTopLayer(this.layer()?.nativeElement);
         this.later(() => this.focusItem(focus));
       });
       return;
