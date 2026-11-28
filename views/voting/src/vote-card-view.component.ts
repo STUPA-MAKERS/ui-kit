@@ -262,14 +262,14 @@ export class VoteCardViewComponent<V extends MeetingVote = MeetingVote> {
   );
 
   /**
-   * Every vote but an open one can go, also after the meeting (STUPA-Workflow:003140).
-   * A closed vote stays while the protocol is final or a repeat or a next Wahlgang
-   * continues it (STUPA-Workflow:003142, STUPA-Workflow:003144).
+   * Every vote but an open one can go while the protocol is a draft, also after the
+   * meeting (STUPA-Workflow:003140, STUPA-Workflow:003142). A closed vote stays while a
+   * repeat or a next Wahlgang continues it (STUPA-Workflow:003144).
    */
   protected readonly canDelete = computed(() => {
     const s = this.vote().status;
-    if (!this.canManage() || s === 'open') return false;
-    return s !== 'closed' || (!this.locked() && !this.continued());
+    if (!this.canManage() || this.locked() || s === 'open') return false;
+    return s !== 'closed' || !this.continued();
   });
 
   /** The status line: the result of a closed vote, else the state; an open vote has none. */
