@@ -46,7 +46,7 @@ import {
   ErrorTextComponent,
   SheetBodyDirective,
 } from '@stupa-makers/ui-kit';
-import { eligibleCount, presentCount } from './present-count.util';
+import { eligibleCount, isDelegate, presentCount } from './present-count.util';
 import { SegmentedComponent, type SegmentedOption } from '@stupa-makers/ui-kit';
 import { personLabel } from './person-label.util';
 import { UI_KIT_MEETING_TEXTS } from './meeting.texts';
@@ -137,7 +137,12 @@ const SELF_CHOICES: readonly { readonly value: Choice; readonly label: UiKitText
  * - A member who does not lead reads "abwesend" for an excuse and an absence, in the
  *   rows and in the counts.
  *
- * Below the members: the delegations of the meeting (the lead revokes one while the
+ * - A delegate holds the voting right of a member in the meeting. The row says "vertritt
+ *   …"; the delegates who are no members follow the members as the section
+ *   "Vertretungen". The lead sets their rows and a delegate reports the own row like a
+ *   member (spec 003150).
+ *
+ * Below the members: the vote transfers of the meeting (the lead revokes one while the
  * meeting is live), the own delegation card and the people who have the meeting open.
  *
  * The delegation picker sits outside the side sheet, so that Escape in the picker does not close
@@ -314,6 +319,15 @@ export class AttendanceSheetViewComponent {
       .map((a) => this.row(a, t));
   });
 
+  /** The rows of the members; a delegate who is a member stays here (spec 003150). */
+  protected readonly memberRows = computed(() =>
+    this.rows().filter((r) => !(r.a.isMember === false && isDelegate(r.a))),
+  );
+  /** The rows of the delegates who are no members: the section "Vertretungen" (spec 003150). */
+  protected readonly delegateRows = computed(() =>
+    this.rows().filter((r) => r.a.isMember === false && isDelegate(r.a)),
+  );
+
   /**
    * Some row has a row menu. Only then do the other rows keep a gap at the end, so that
    * all controls line up. Without a menu the control ends at the right inset of the row.
@@ -325,7 +339,9 @@ export class AttendanceSheetViewComponent {
     t: (key: UiKitTextKey, params?: Record<string, string | number>) => string,
   ): Row {
     const delegation = this.delegationOf(a.principalId);
+    const represented = (a.represents ?? []).map((p) => p.displayName ?? '—').join(', ');
     const sub = [
+      ...(represented ? [t('meetings.attendanceSheet.represents', { names: represented })] : []),
       ...(a.note ? [t('meetings.attendanceSheet.reason', { note: a.note })] : []),
       ...(delegation
         ? [t('meetings.attendanceSheet.representedBy', { name: delegation.delegateName ?? '—' })]
