@@ -40,7 +40,7 @@
 // the container of the columns.
 .fe__frame {
   display: flex;
-  flex: 1 1 0;
+  flex: 1 0 auto;
   flex-direction: column;
   min-width: 0;
   min-height: 0;
@@ -55,26 +55,21 @@
 }
 
 // Two columns (app spec 003132): the outline, and the questions of the group or the settings,
-// the rules or the versions. Each column scrolls inside itself.
+// the rules or the versions. The pane scrolls as a whole, so the outline ends at the rounded
+// corner of the pane, and the second column stays in view while the outline scrolls.
 @container (min-width: 40rem) {
   .fe__cols {
-    flex: 1 1 0;
     grid-template-columns: 17rem minmax(0, 1fr);
-    grid-template-rows: minmax(0, 1fr);
+    align-items: start;
     gap: var(--space-3);
-    min-height: 0;
   }
   .fe__cols--preview {
     grid-template-columns: minmax(0, 1fr);
   }
-  .fe__outline,
   .fe__main,
-  .fe__side,
-  .fe__preview {
-    min-height: 0;
-    overflow-y: auto;
-    overscroll-behavior: contain;
-    scrollbar-width: thin;
+  .fe__side {
+    position: sticky;
+    top: 0;
   }
 }
 

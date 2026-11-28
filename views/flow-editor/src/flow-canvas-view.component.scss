@@ -42,7 +42,7 @@
   min-width: 0;
   min-height: 0;
   overflow: hidden;
-  border-radius: var(--radius-2xl);
+  border-radius: var(--pane-bleed-radius, var(--radius-2xl));
   background: var(--color-surface-1);
 }
 
@@ -53,7 +53,7 @@
   align-items: center;
   gap: var(--space-1);
   min-height: 3.5rem;
-  padding: var(--space-2) var(--space-3);
+  padding: var(--space-2) var(--pane-bleed-inset, var(--space-3));
   border-bottom: var(--border-width) solid var(--color-border);
 }
 
@@ -252,7 +252,7 @@
 
 .fc__legend {
   position: absolute;
-  left: var(--space-5);
+  left: var(--pane-bleed-inset, var(--space-5));
   right: var(--space-5);
   bottom: var(--space-3);
   display: flex;
