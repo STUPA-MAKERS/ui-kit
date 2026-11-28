@@ -41,11 +41,13 @@ export interface ProtocolPdfOpen {
  * component draws no state line. It draws the one protocol action of the head and the
  * confirmations, and it gives the session menu its "Protokoll" section (`menuItems`, `select`).
  *
- * - The head action: "Finalisieren & senden" for a draft and a holder of `canFinalize`
+ * - The head action (`headAction`): "Finalisieren" for a draft and a holder of `canFinalize`
  *   (write access plus the gremium right `protocol.finalize`). A writer without the right
- *   sees the button disabled, with the missing right as its reason. A final protocol shows
- *   "PDF" (or "PDF intern" when a public variant exists). On a phone the head has no action
- *   (spec 000197), so the action is the first item of the section.
+ *   sees the button disabled, with the missing right as its reason. The finalization sends
+ *   no mail (STUPA-Workflow:003019): a final protocol that did not go out since its last
+ *   finalization shows "Senden" to a holder of the right, after a confirmation. Every other
+ *   final protocol shows "PDF" (or "PDF intern" when a public variant exists). On a phone
+ *   the head has no action (spec 000197), so the action is the first item of the section.
  * - Draft: "Entwurf senden" sends the PDF with the watermark "Entwurf" to the members,
  *   after a confirmation. The protocol stays a draft (§ 000925). A second send names the
  *   date of the last one in the confirmation (§ 000937). "PDF intern" and "PDF öffentlich"
@@ -54,7 +56,8 @@ export interface ProtocolPdfOpen {
  * - Final: "PDF öffentlich" when an item is non-public. For a holder of `canFinalize`
  *   "Als genehmigt markieren" asks for the meeting that approved the protocol, and with the
  *   mark "Genehmigung entfernen" asks before it removes the mark (§ 000924). Without the
- *   mark "Zurück in Entwurf" asks before it sets the protocol back (§ 000983).
+ *   mark "Zurück in Entwurf" asks before it sets the protocol back (§ 000983). After the
+ *   send "Protokoll senden" sends again; its confirmation names the date of the last send.
  * - Final, gremium publishes its protocols: for a holder of `canFinalize`
  *   "Nicht veröffentlichen" or "Veröffentlichen" (the protocol is held back from the public
  *   protocol page, or published again).
@@ -63,11 +66,11 @@ export interface ProtocolPdfOpen {
  *
  * The head action is a segment of the button group of the meeting head (spec 001354): the
  * host carries `btn-grp__seg`, so the action and the ⋮ menu after it form one group, and
- * `btn-grp--main`, so "Finalisieren & senden" keeps its accent fill. Without an action the
+ * `btn-grp--main`, so "Finalisieren" and "Senden" keep their accent fill. Without an action the
  * host carries neither class and leaves no gap in the shape.
  *
  * Copy of `app-protocol-bar` of STUPA-Workflow (S/framework/views/002273). The view saves
- * nothing: it emits `sendDraft`, `reopen`, `approve`, `publish`, `approvalRequest` and `pdfOpen`,
+ * nothing: it emits `send`, `sendDraft`, `reopen`, `approve`, `publish`, `approvalRequest` and `pdfOpen`,
  * and the app runs them (the approval dialog and the file viewer are the app's).
  */
 @Component({
@@ -95,6 +98,8 @@ export class ProtocolBarViewComponent {
   readonly meeting = input.required<Meeting>();
   readonly protocol = input.required<Protocol>();
   readonly finalizing = input(false);
+  /** The send of the final protocol is on its way. */
+  readonly sending = input(false);
   /** A phone: the head has no action, so the head action is an item of the menu. */
   readonly compact = input(false);
 
@@ -102,6 +107,8 @@ export class ProtocolBarViewComponent {
   readonly hasSession = input(false);
 
   readonly finalize = output<void>();
+  /** "Senden" of a final protocol, after the confirmation (STUPA-Workflow:003019). */
+  readonly send = output<void>();
   /** "Entwurf senden", after the confirmation. */
   readonly sendDraft = output<void>();
   /** "Zurück in Entwurf", after the confirmation. */
@@ -124,10 +131,15 @@ export class ProtocolBarViewComponent {
   protected readonly needsRight = computed(() => this.actions().needsRight);
   protected readonly finalPdf = computed(() => this.actions().finalPdf);
   private readonly draftPdf = computed(() => this.actions().draftPdf);
-  /** The head shows an action: not on a phone, and only when there is one. */
-  protected readonly hasAction = computed(
-    () => !this.compact() && (this.canFinalize() || this.needsRight() || this.finalPdf() !== null),
-  );
+  /** The one action of the head; none on a phone (spec 000197). */
+  protected readonly headAction = computed((): 'finalize' | 'send' | 'pdf' | null => {
+    const a = this.actions();
+    if (this.compact()) return null;
+    if (a.canFinalize || a.needsRight) return 'finalize';
+    if (a.unsent) return 'send';
+    return a.finalPdf !== null ? 'pdf' : null;
+  });
+  protected readonly hasAction = computed(() => this.headAction() !== null);
 
   private readonly i18n = inject(UI_KIT_INTL);
   /** The confirmation of "Entwurf senden" is open. */
@@ -142,6 +154,19 @@ export class ProtocolBarViewComponent {
           ),
         })
       : this.i18n.translate('meetings.draftMail.body');
+  });
+  /** The confirmation of "Senden" is open. */
+  protected readonly confirmSend = signal(false);
+  /** The confirmation text: a repeat names the date of the last send (STUPA-Workflow:003019). */
+  protected readonly sendBody = computed(() => {
+    const last = this.protocol().sentAt;
+    return last
+      ? this.i18n.translate('meetings.sendMail.again', {
+          date: new Intl.DateTimeFormat(this.i18n.formatLocale(), { dateStyle: 'long' }).format(
+            new Date(last),
+          ),
+        })
+      : this.i18n.translate('meetings.sendMail.body');
   });
   /** The confirmation of "Genehmigung entfernen" is open. */
   protected readonly confirmUnapprove = signal(false);
@@ -172,6 +197,11 @@ export class ProtocolBarViewComponent {
   protected confirmSendDraft(): void {
     this.confirmDraft.set(false);
     this.sendDraft.emit();
+  }
+
+  protected confirmSendFinal(): void {
+    this.confirmSend.set(false);
+    this.send.emit();
   }
 
   protected unapprove(): void {
@@ -224,6 +254,9 @@ export class ProtocolBarViewComponent {
       }
       case 'protocol.sendDraft':
         this.confirmDraft.set(true);
+        return true;
+      case 'protocol.send':
+        this.confirmSend.set(true);
         return true;
       case 'protocol.approve':
         this.approvalRequest.emit();

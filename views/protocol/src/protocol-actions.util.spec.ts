@@ -58,9 +58,22 @@ describe('protocolActions', () => {
   });
 
   it('orders the phone section: PDF first, then approve, reopen and withhold', () => {
-    const p = protocol({ status: 'final', isFinal: true, pdfUrl: '/x.pdf', gremiumProtocolsPublic: true, publicWithheld: false });
-    expect(ids(meeting(), p, true, true)).toEqual(['protocol.pdf', 'protocol.approve', 'protocol.reopen', 'protocol.withhold']);
-    expect(ids(meeting(), p, true, false)).toEqual(['protocol.approve', 'protocol.reopen', 'protocol.withhold']);
+    const p = protocol({ status: 'final', isFinal: true, isSent: true, pdfUrl: '/x.pdf', gremiumProtocolsPublic: true, publicWithheld: false });
+    expect(ids(meeting(), p, true, true)).toEqual(['protocol.pdf', 'protocol.send', 'protocol.approve', 'protocol.reopen', 'protocol.withhold']);
+    expect(ids(meeting(), p, true, false)).toEqual(['protocol.send', 'protocol.approve', 'protocol.reopen', 'protocol.withhold']);
+  });
+
+  /** STUPA-Workflow:003019 (sendFinal): finalize and send are two actions. */
+  it('makes "Senden" the head action of a final protocol that did not go out', () => {
+    const p = protocol({ status: 'final', isFinal: true, isSent: false, pdfUrl: '/x.pdf' });
+    const a = protocolActions(meeting(), p, true);
+    expect(a.canSend).toBe(true);
+    expect(a.unsent).toBe(true);
+    expect(ids(meeting(), p, true, true).slice(0, 2)).toEqual(['protocol.send', 'protocol.pdf']);
+    expect(ids(meeting(), p, true, false)[0]).toBe('protocol.pdf');
+    expect(ids(meeting(), p, true, false)).not.toContain('protocol.send');
+    expect(protocolActions(meeting({ canFinalize: false }), p, true).canSend).toBe(false);
+    expect(protocolActions(meeting(), p, false).unsent).toBe(false);
   });
 
   it('offers the removal of the mark and "publish" for an approved, withheld protocol', () => {
@@ -69,13 +82,14 @@ describe('protocolActions', () => {
       isFinal: true,
       pdfUrl: '/x.pdf',
       approvedAt: '2026-11-01T10:00:00Z',
+      isSent: true,
       gremiumProtocolsPublic: true,
       publicWithheld: true,
     });
     const a = protocolActions(meeting(), p, true);
     expect(a.publication).toBe('withheld');
     expect(a.canReopen).toBe(false);
-    expect(ids(meeting(), p, true, false)).toEqual(['protocol.unapprove', 'protocol.publish']);
+    expect(ids(meeting(), p, true, false)).toEqual(['protocol.send', 'protocol.unapprove', 'protocol.publish']);
   });
 
   it('shows the state of publication without the switch to a viewer without the right', () => {

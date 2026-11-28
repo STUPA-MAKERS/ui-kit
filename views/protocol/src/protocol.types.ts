@@ -481,6 +481,8 @@ export interface Protocol {
   /** Redacted public variant for non-public agenda items. Otherwise null. */
   readonly publicPdfUrl: string | null;
   readonly sentAt: IsoDateTime | null;
+  /** The final protocol went out after its last finalization (STUPA-Workflow:003019). */
+  readonly isSent?: boolean;
   /** Held back from the public protocol page (only matters for a public gremium). */
   readonly publicWithheld?: boolean;
   /** The gremium publishes its final protocols on the public protocol page. */

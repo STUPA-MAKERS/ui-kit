@@ -1,5 +1,5 @@
-@if (hasAction()) {
-  @if (canFinalize() || needsRight()) {
+@switch (headAction()) {
+  @case ('finalize') {
     <app-button
       variant="fill"
       [loading]="finalizing()"
@@ -9,22 +9,41 @@
       "
       (click)="finalize.emit()"
     >
-      <app-icon name="send" />
+      <app-icon name="check" />
       {{ 'meetings.protocol.finalize' | uiKitT }}
     </app-button>
-  } @else if (finalPdf(); as pdf) {
-    <a
-      appButton="tonal"
-      [href]="pdf.url"
-      target="_blank"
-      rel="noopener"
-      (click)="openPdf($event, pdf.url, pdf.label)"
-    >
-      <app-icon name="file" />
-      {{ pdf.label | uiKitT }}
-    </a>
+  }
+  @case ('send') {
+    <app-button variant="fill" [loading]="sending()" (click)="confirmSend.set(true)">
+      <app-icon name="send" />
+      {{ 'meetings.protocolBar.send' | uiKitT }}
+    </app-button>
+  }
+  @case ('pdf') {
+    @if (finalPdf(); as pdf) {
+      <a
+        appButton="tonal"
+        [href]="pdf.url"
+        target="_blank"
+        rel="noopener"
+        (click)="openPdf($event, pdf.url, pdf.label)"
+      >
+        <app-icon name="file" />
+        {{ pdf.label | uiKitT }}
+      </a>
+    }
   }
 }
+
+<app-confirm-dialog
+  [open]="confirmSend()"
+  [title]="'meetings.sendMail.title' | uiKitT"
+  [body]="sendBody()"
+  [confirmLabel]="'meetings.sendMail.confirm' | uiKitT"
+  [danger]="false"
+  (confirm)="confirmSendFinal()"
+  (cancel)="confirmSend.set(false)"
+/>
 
 <app-confirm-dialog
   [open]="confirmDraft()"

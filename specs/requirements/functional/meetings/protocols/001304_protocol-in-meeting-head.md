@@ -4,7 +4,7 @@ title: The protocol state and its actions sit in the meeting head
 kind: functional
 status: approved
 owner: frederikbeimgraben
-updated: 2026-11-20
+updated: 2026-11-28
 implementation: null
 scope:
   - views/protocol
@@ -14,8 +14,9 @@ scope:
 
 On the page of a closed meeting, the status of the meeting head must show the state of the
 protocol: "Protokoll-Entwurf", "Protokoll wird erstellt", "Protokoll final", "Protokoll final,
-nicht versandt (keine Empfänger)" (STUPA-Workflow:000997) or "Protokoll genehmigt". The head must hold at most
-one protocol action beside the session menu: "Finalisieren & senden" for a draft, or "PDF" for a
+nicht versandt" (STUPA-Workflow:003019) or "Protokoll genehmigt". The head must hold at most one
+protocol action beside the session menu: "Finalisieren" for a draft, "Senden" for a final protocol
+that did not go out since its last finalization (STUPA-Workflow:003019), or "PDF" for every other
 final protocol ("PDF intern" when a public variant exists). Every other protocol action must be
 an item of the section "Protokoll" at the top of the session menu. The head of an approved
 protocol must link the meeting that approved it. On a phone the head action must be the first
