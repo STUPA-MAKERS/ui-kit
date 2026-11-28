@@ -2,7 +2,7 @@
 id: "003133"
 title: A rail label never breaks inside a word, and a long one has a short rail name
 kind: non-functional
-status: draft
+status: approved
 owner: frederikbeimgraben
 updated: 2026-11-28
 tests:
