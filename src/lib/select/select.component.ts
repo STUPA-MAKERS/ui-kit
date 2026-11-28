@@ -29,7 +29,8 @@ import { MEDIA } from '../breakpoints/breakpoints';
 import { mediaQuery } from '../signals/media-query';
 import { UiKitTranslatePipe } from '../intl/translate.pipe';
 import { AvatarComponent, type AvatarPerson } from '../avatar/avatar.component';
-import { SheetBodyDirective, SideSheetComponent } from '../side-sheet/side-sheet.component';
+import { LayerSheetComponent } from '../layer-sheet/layer-sheet.component';
+import { SheetBodyDirective } from '../side-sheet/side-sheet.component';
 
 /** A plain choice: a value and its label. Every option list of the kit takes it. */
 export interface SelectOption {
@@ -107,7 +108,7 @@ const PAGE = 10;
     AvatarComponent,
     IconComponent,
     NgTemplateOutlet,
-    SideSheetComponent,
+    LayerSheetComponent,
     SheetBodyDirective,
     UiKitTranslatePipe,
   ],
@@ -220,7 +221,6 @@ export class SelectFieldComponent implements ControlValueAccessor {
   private readonly trigger = viewChild.required<ElementRef<HTMLButtonElement>>('trigger');
   private readonly box = viewChild.required<ElementRef<HTMLElement>>('box');
   private readonly menu = viewChild<ElementRef<HTMLElement>>('menu');
-  private readonly layer = viewChild<ElementRef<HTMLElement>>('layer');
 
   private onChange: (value: string) => void = () => undefined;
   private onTouched: () => void = () => undefined;
@@ -494,7 +494,6 @@ export class SelectFieldComponent implements ControlValueAccessor {
     if (this.phone()) {
       // The sheet focuses its first control after its render; the listbox goes after.
       this.afterRender(() => {
-        showInTopLayer(this.layer()?.nativeElement);
         this.later(() => {
           document.getElementById(this.listId())?.focus();
           this.reveal(this.active());

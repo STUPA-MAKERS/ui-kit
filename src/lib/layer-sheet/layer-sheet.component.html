@@ -1,0 +1,12 @@
+<div #layer class="ls" popover="manual">
+  <app-side-sheet
+    side="bottom"
+    [heading]="heading()"
+    [actions]="actions()"
+    [contentScrolls]="contentScrolls()"
+    [(open)]="open"
+    (action)="action.emit($event)"
+  >
+    <ng-template sheetBody><ng-container [ngTemplateOutlet]="body().template" /></ng-template>
+  </app-side-sheet>
+</div>

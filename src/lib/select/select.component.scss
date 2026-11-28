@@ -102,10 +102,6 @@
 .sel__menu--placed {
   visibility: visible;
 }
-.sel__layer {
-  @include om.layer;
-}
-
 .sel__options:focus {
   outline: none;
 }
@@ -174,12 +170,12 @@
   font-size: var(--fs-small);
   font-weight: var(--fw-semibold);
 }
-.sel__layer .sel__group + .sel__group,
-.sel__layer .sel__rows + .sel__group,
-.sel__layer .sel__group + .sel__rows {
+.sel__options--sheet .sel__group + .sel__group,
+.sel__options--sheet .sel__rows + .sel__group,
+.sel__options--sheet .sel__group + .sel__rows {
   margin-top: var(--space-4);
 }
-.sel__layer .sel__groupHead {
+.sel__options--sheet .sel__groupHead {
   padding-inline: var(--space-1);
 }
 

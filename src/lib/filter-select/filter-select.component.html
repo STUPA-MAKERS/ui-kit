@@ -121,21 +121,17 @@
 }
 
 @if (sheetOpen()) {
-  <div #layer class="fs__layer" popover="manual">
-    <app-side-sheet
-      side="bottom"
-      [heading]="label()"
-      [open]="true"
-      [actions]="sheetActions()"
-      (action)="reset()"
-      (openChange)="onSheetOpen($event)"
-    >
-      <ng-template sheetBody>
-        <ng-container
-          [ngTemplateOutlet]="optionList"
-          [ngTemplateOutletContext]="{ $implicit: true }"
-        />
-      </ng-template>
-    </app-side-sheet>
-  </div>
+  <app-layer-sheet
+    [heading]="label()"
+    [actions]="sheetActions()"
+    (action)="reset()"
+    (openChange)="onSheetOpen($event)"
+  >
+    <ng-template sheetBody>
+      <ng-container
+        [ngTemplateOutlet]="optionList"
+        [ngTemplateOutletContext]="{ $implicit: true }"
+      />
+    </ng-template>
+  </app-layer-sheet>
 }

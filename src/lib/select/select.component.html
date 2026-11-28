@@ -104,6 +104,7 @@
     <div
       class="sel__options"
       role="listbox"
+      [class.sel__options--sheet]="inSheet"
       [id]="listId()"
       [attr.aria-labelledby]="label() ? labelId() : null"
       [attr.aria-label]="label() ? null : heading()"
@@ -163,19 +164,12 @@
 }
 
 @if (sheetOpen()) {
-  <div #layer class="sel__layer" popover="manual">
-    <app-side-sheet
-      side="bottom"
-      [heading]="heading()"
-      [open]="true"
-      (openChange)="onSheetOpen($event)"
-    >
-      <ng-template sheetBody>
-        <ng-container
-          [ngTemplateOutlet]="optionList"
-          [ngTemplateOutletContext]="{ $implicit: true }"
-        />
-      </ng-template>
-    </app-side-sheet>
-  </div>
+  <app-layer-sheet [heading]="heading()" (openChange)="onSheetOpen($event)">
+    <ng-template sheetBody>
+      <ng-container
+        [ngTemplateOutlet]="optionList"
+        [ngTemplateOutletContext]="{ $implicit: true }"
+      />
+    </ng-template>
+  </app-layer-sheet>
 }

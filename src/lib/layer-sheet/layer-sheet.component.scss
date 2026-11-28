@@ -1,0 +1,11 @@
+@use '../../styles/option-menu' as om;
+
+:host {
+  display: contents;
+}
+
+/* The top-layer box: no box of its own. The scrim and the sheet inside are fixed to the
+   viewport. */
+.ls {
+  @include om.layer;
+}

@@ -30,7 +30,8 @@ import { FocusDialogDirective } from '../focus/focus-dialog.directive';
 import { IconComponent } from '../icon/icon.component';
 import { MEDIA } from '../breakpoints/breakpoints';
 import { mediaQuery } from '../signals/media-query';
-import { SheetBodyDirective, SideSheetComponent } from '../side-sheet/side-sheet.component';
+import { LayerSheetComponent } from '../layer-sheet/layer-sheet.component';
+import { SheetBodyDirective } from '../side-sheet/side-sheet.component';
 import { TruncatedDirective } from '../truncated/truncated.directive';
 
 /** What a range chip filters: an amount in `currency` or a date (ISO `YYYY-MM-DD`). */
@@ -73,7 +74,7 @@ export interface RangeValue {
     FormsModule,
     IconComponent,
     NgTemplateOutlet,
-    SideSheetComponent,
+    LayerSheetComponent,
     SheetBodyDirective,
     UiKitTranslatePipe,
   ],
@@ -105,7 +106,6 @@ export class RangeChipComponent {
 
   private readonly trigger = viewChild.required<ElementRef<HTMLButtonElement>>('trigger');
   private readonly pop = viewChild<ElementRef<HTMLElement>>('pop');
-  private readonly layer = viewChild<ElementRef<HTMLElement>>('layer');
   private readonly injector = inject(Injector);
   /** The pending step after the next render (top layer, focus). */
   private rendered: AfterRenderRef | null = null;
@@ -169,9 +169,7 @@ export class RangeChipComponent {
     this.draftTo.set(this.to());
     this.open.set(true);
     if (this.phone()) {
-      // The sheet renders in the next change detection; then it goes to the top layer.
-      // The sheet moves the focus into itself.
-      this.afterRender(() => showInTopLayer(this.layer()?.nativeElement));
+      // The sheet goes to the top layer and moves the focus into itself.
       return;
     }
     this.placeBelow();

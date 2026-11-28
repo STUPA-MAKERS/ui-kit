@@ -4,8 +4,6 @@ import {
   Component,
   ElementRef,
   HostListener,
-  Injector,
-  afterNextRender,
   computed,
   inject,
   input,
@@ -17,14 +15,13 @@ import { RouterLink } from '@angular/router';
 import {
   DisplaySettingsService,
   IconComponent,
+  LayerSheetComponent,
   MEDIA,
   SheetBodyDirective,
-  SideSheetComponent,
   SwitchComponent,
   ThemeService,
   UiKitTranslatePipe,
   mediaQuery,
-  showInTopLayer,
   type Action,
   type DisplayChoice,
   type IconName,
@@ -103,7 +100,7 @@ let nextId = 0;
     RouterLink,
     UiKitTranslatePipe,
     IconComponent,
-    SideSheetComponent,
+    LayerSheetComponent,
     SheetBodyDirective,
     SwitchComponent,
   ],
@@ -144,9 +141,6 @@ export class ShellMenuComponent {
   /** The phone sheet of the `header` variant is open. */
   readonly sheetOpen = signal(false);
   protected readonly phone = mediaQuery(MEDIA.phone);
-  private readonly injector = inject(Injector);
-  /** The top-layer box of the phone sheet, so the glass of the header does not clip it. */
-  private readonly layer = viewChild<ElementRef<HTMLElement>>('layer');
   /** Fixed position of the popover. */
   readonly position = signal<{
     left: number | null;
@@ -195,9 +189,6 @@ export class ShellMenuComponent {
   show(): void {
     if (this.variant() === 'header' && this.phone()) {
       this.sheetOpen.set(true);
-      afterNextRender(() => showInTopLayer(this.layer()?.nativeElement), {
-        injector: this.injector,
-      });
       return;
     }
     const trigger = this.trigger()!.nativeElement;
