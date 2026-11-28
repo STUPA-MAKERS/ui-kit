@@ -1002,6 +1002,13 @@ export class ChatViewComponent {
    * "Erneut senden" and "Verwerfen" take away the button that had the focus, so it goes
    * to the composer, or to the log where the thread has none.
    */
+  /** The meta line under a message: sending, failed, the time and the edit mark, or none. */
+  protected metaKind(m: ChatMessage, tail: boolean): 'sending' | 'failed' | 'time' | null {
+    if (m.state === 'sending') return 'sending';
+    if (m.state === 'failed') return 'failed';
+    return tail || m.editedAt ? 'time' : null;
+  }
+
   protected retryFailed(msg: ChatMessage): void {
     this.retry.emit({ id: msg.id });
     this.focusComposer();

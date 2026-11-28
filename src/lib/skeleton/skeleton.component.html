@@ -4,54 +4,61 @@
   [class.sk--chat]="variant() === 'chat'"
   aria-busy="true"
 >
-  @if (variant() === 'bubbles') {
-    <ng-container *ngTemplateOutlet="bubbles" />
-  } @else if (variant() === 'chat') {
-    <span class="sk__log" [class.sk__log--framed]="framed()" aria-hidden="true">
+  @switch (variant()) {
+    @case ('bubbles') {
       <ng-container *ngTemplateOutlet="bubbles" />
-    </span>
-    @if (composer()) {
-      <span class="sk__composer" aria-hidden="true"></span>
     }
-  } @else if (variant() === 'panel') {
-    <span class="skel skel--panel" aria-hidden="true"></span>
-  } @else if (variant() === 'items') {
-    <span class="sk__items" [class.rowgroup]="grouped()" aria-hidden="true">
-      @for (_ of items(); track $index) {
-        @let w = itemWidths($index);
-        <span class="sk__item">
-          @if (lead()) {
-            <span class="skel-box sk__itemLead"></span>
-          }
-          <span class="sk__itemBody">
-            <span class="sk__itemTitle"
-              ><span class="skel-text" [style.width]="w.title"></span
-            ></span>
-            <span class="sk__itemSub">
-              <span class="skel-text skel-text--muted" [style.width]="w.a"></span>
-              <span class="skel-text skel-text--muted" [style.width]="w.b"></span>
-            </span>
-          </span>
-          @if (trail() === 'avatar') {
-            <span class="skel-box sk__itemAvatar"></span>
-          } @else {
-            <span class="sk__itemTrail"
-              ><span class="skel-text skel-text--muted" [style.width]="w.trail"></span
-            ></span>
-          }
-        </span>
+    @case ('chat') {
+      <span class="sk__log" [class.sk__log--framed]="framed()" aria-hidden="true">
+        <ng-container *ngTemplateOutlet="bubbles" />
+      </span>
+      @if (composer()) {
+        <span class="sk__composer" aria-hidden="true"></span>
       }
-    </span>
-  } @else if (variant() === 'rows') {
-    @for (_ of items(); track $index) {
-      <span class="sk__row" [class.sk__row--last]="$last" aria-hidden="true">
-        <span class="skel skel--bar sk__row-lead"></span>
-        <span class="skel skel--bar"></span>
+    }
+    @case ('panel') {
+      <span class="skel skel--panel" aria-hidden="true"></span>
+    }
+    @case ('items') {
+      <span class="sk__items" [class.rowgroup]="grouped()" aria-hidden="true">
+        @for (_ of items(); track $index) {
+          @let w = itemWidths($index);
+          <span class="sk__item">
+            @if (lead()) {
+              <span class="skel-box sk__itemLead"></span>
+            }
+            <span class="sk__itemBody">
+              <span class="sk__itemTitle"
+                ><span class="skel-text" [style.width]="w.title"></span
+              ></span>
+              <span class="sk__itemSub">
+                <span class="skel-text skel-text--muted" [style.width]="w.a"></span>
+                <span class="skel-text skel-text--muted" [style.width]="w.b"></span>
+              </span>
+            </span>
+            @if (trail() === 'avatar') {
+              <span class="skel-box sk__itemAvatar"></span>
+            } @else {
+              <span class="sk__itemTrail"
+                ><span class="skel-text skel-text--muted" [style.width]="w.trail"></span
+              ></span>
+            }
+          </span>
+        }
       </span>
     }
-  } @else {
-    @for (_ of items(); track $index) {
-      <span class="skel skel--line" aria-hidden="true"></span>
+    @case ('rows') {
+      @for (_ of items(); track $index) {
+        <span class="sk__row" [class.sk__row--last]="$last" aria-hidden="true">
+          <span class="skel skel--bar sk__row-lead"></span>
+          <span class="skel skel--bar"></span>
+        </span>
+      }
+    }
+    @default {
+      @for (_ of items(); track $index) {
+        <span class="skel skel--line" aria-hidden="true"></span>
+      }
     }
   }
   @if (label()) {
