@@ -49,6 +49,15 @@
   row-gap: var(--space-1);
   min-width: 0;
 }
+// The back arrow sits on the centre of the title line, and the title moves right by the arrow
+// and the gap.
+:host ::ng-deep .ph__heading > [back] {
+  display: inline-flex;
+  align-self: center;
+}
+:host ::ng-deep .ph__heading > [back]:empty {
+  display: none;
+}
 
 .ph__meta {
   font-size: var(--fs-sm);

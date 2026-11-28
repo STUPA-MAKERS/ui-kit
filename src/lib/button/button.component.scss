@@ -317,9 +317,17 @@
    label moves its line down by 0.1em (a padding on top, the same negative margin below, so
    the label keeps its place in the button), and a leading icon moves back up by the same
    amount, so the icon stays on the middle of the end cap. */
-.btn--sm > .btn__label {
+.btn--sm:not(.btn--icon) > .btn__label {
   padding-block-start: 0.1em;
   margin-block-end: -0.1em;
+}
+/* An icon button has no text: its label is exactly as high as the icon, so the icon sits on
+   the middle of the button and not on the line box of a text. */
+.btn--icon > .btn__label {
+  line-height: 0;
+}
+.btn--icon > .btn__label ::ng-deep > app-icon {
+  height: auto;
 }
 .btn--sm:not(.btn--icon) > .btn__label ::ng-deep > app-icon:first-child,
 .btn--sm:not(.btn--icon) > .btn__label ::ng-deep > :first-child > app-icon:first-child {

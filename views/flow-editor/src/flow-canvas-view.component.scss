@@ -1,0 +1,588 @@
+@use '../../../src/styles/breakpoints' as bp;
+@use '../../../src/styles/press';
+@use '../../../src/styles/display' as d;
+
+:host {
+  display: flex;
+  flex: 1 1 auto;
+  flex-direction: column;
+  min-width: 0;
+  min-height: 0;
+}
+
+.fc__state {
+  position: absolute;
+  inset: var(--space-4);
+  pointer-events: none;
+}
+.fc__state > * {
+  pointer-events: auto;
+}
+
+// The canvas takes the whole width of the pane; the inspector is a sheet over its right side
+// (spec 003172).
+.fc {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+@include bp.wide {
+  .fc {
+    flex: 1 1 0;
+    min-height: 0;
+  }
+}
+
+.fc__sheet {
+  flex: 1 1 auto;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  min-height: 0;
+  overflow: hidden;
+  border-radius: var(--pane-bleed-radius, var(--radius-2xl));
+  background: var(--color-surface-1);
+}
+
+.fc__toolbar {
+  display: flex;
+  flex: none;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-1);
+  min-height: 3.5rem;
+  padding: var(--space-2) var(--pane-bleed-inset, var(--space-3));
+  border-bottom: var(--border-width) solid var(--color-border);
+}
+
+.fc__zoom {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  margin-left: auto;
+}
+.fc__zoomValue {
+  min-width: 3.25rem;
+  font-size: var(--fs-small);
+  text-align: center;
+  color: var(--color-text-muted);
+}
+
+.fc__crumbs {
+  display: flex;
+  flex: none;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-1);
+  padding: var(--space-2) var(--space-4) 0;
+}
+.fc__crumbSep {
+  color: var(--color-text-muted);
+}
+.fc__crumb {
+  padding: 0.15rem 0.45rem;
+  border: none;
+  border-radius: var(--radius-sm);
+  background: none;
+  font: inherit;
+  font-size: var(--fs-sm);
+  color: var(--color-accent-text);
+  cursor: pointer;
+}
+@media (hover: hover) {
+  .fc__crumb:hover {
+    background: var(--color-surface-2);
+  }
+}
+.fc__crumb--current {
+  font-weight: var(--fw-semibold);
+  color: var(--color-text);
+  cursor: default;
+}
+@media (hover: hover) {
+  .fc__crumb--current:hover {
+    background: none;
+  }
+}
+
+.fc__alert {
+  flex: none;
+  margin: var(--space-3) var(--space-3) 0;
+  padding: var(--space-3) var(--space-4);
+  border-radius: var(--radius-lg);
+  background: var(--color-danger-subtle);
+  color: var(--color-danger);
+  font-size: var(--fs-sm);
+}
+.fc__alert ul {
+  margin: 0;
+  padding-left: var(--space-4);
+}
+
+.fc__canvas-wrap {
+  position: relative;
+  flex: 1 1 auto;
+  height: 34rem;
+  min-height: 0;
+  overflow: hidden;
+  background-image: radial-gradient(var(--color-border) 1px, transparent 1.2px);
+  background-size: 22px 22px;
+}
+@include bp.wide {
+  .fc__canvas-wrap {
+    height: auto;
+  }
+}
+
+// The SVG keeps its box while the flow loads, so the canvas measures its real size.
+.fc__canvas--loading {
+  visibility: hidden;
+}
+// touch-action: none stops pen and touch panning from fighting the pan and connect logic.
+.fc__canvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+  touch-action: none;
+  user-select: none;
+  cursor: grab;
+}
+.fc__canvas:active {
+  cursor: grabbing;
+}
+
+// The scroll tongues of the ui-kit data table.
+.fc__tongue {
+  position: absolute;
+  z-index: 2;
+  display: grid;
+  place-items: center;
+  padding: 0;
+  cursor: pointer;
+  background: var(--color-surface-3);
+  color: var(--color-text-muted);
+  border: var(--border-width) solid var(--color-border);
+  box-shadow: var(--shadow-elevated);
+  opacity: 0;
+  pointer-events: none;
+  transition:
+    opacity var(--motion-base, 200ms) var(--ease-standard, ease),
+    background var(--motion-fast, 120ms) var(--ease-standard, ease),
+    color var(--motion-fast, 120ms) var(--ease-standard, ease),
+    border-color var(--motion-fast, 120ms) var(--ease-standard, ease);
+  @include press.press;
+}
+.fc__tongue--on {
+  opacity: 1;
+  pointer-events: auto;
+}
+// The size stays on hover, because a repeat-click target that grows moves its own edge away
+// mid-click.
+.fc__tongue--held {
+  background: var(--color-accent);
+  color: var(--color-on-accent);
+  border-color: var(--color-accent);
+}
+@media (hover: hover) {
+  .fc__tongue:hover {
+    background: var(--color-accent);
+    color: var(--color-on-accent);
+    border-color: var(--color-accent);
+  }
+}
+.fc__tongue:focus-visible {
+  outline: 2px solid var(--color-focus-ring, var(--color-primary));
+  outline-offset: 2px;
+}
+.fc__tongue svg {
+  display: block;
+  width: 13px;
+  height: 13px;
+}
+.fc__tongue[data-side='left'],
+.fc__tongue[data-side='right'] {
+  top: 50%;
+  width: 18px;
+  height: 54px;
+  translate: 0 -50%;
+}
+.fc__tongue[data-side='up'],
+.fc__tongue[data-side='down'] {
+  left: 50%;
+  width: 54px;
+  height: 18px;
+  translate: -50% 0;
+}
+.fc__tongue[data-side='left'] {
+  left: 0;
+  border-left: 0;
+  border-radius: 0 10px 10px 0;
+}
+.fc__tongue[data-side='right'] {
+  right: 0;
+  border-right: 0;
+  border-radius: 10px 0 0 10px;
+}
+.fc__tongue[data-side='right'] svg {
+  rotate: 180deg;
+}
+.fc__tongue[data-side='up'] {
+  top: 0;
+  border-top: 0;
+  border-radius: 0 0 10px 10px;
+}
+.fc__tongue[data-side='up'] svg {
+  rotate: 90deg;
+}
+.fc__tongue[data-side='down'] {
+  bottom: 0;
+  border-bottom: 0;
+  border-radius: 10px 10px 0 0;
+}
+.fc__tongue[data-side='down'] svg {
+  rotate: -90deg;
+}
+@include d.host-on(motion) {
+  .fc__tongue {
+    transition: none;
+  }
+}
+
+.fc__legend {
+  position: absolute;
+  left: var(--pane-bleed-inset, var(--space-5));
+  right: var(--pane-bleed-inset, var(--space-5));
+  bottom: var(--pane-bleed-inset, var(--space-5));
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-1) var(--space-4);
+  margin: 0;
+  font-size: var(--fs-small);
+  line-height: var(--lh-small);
+  color: var(--color-text-muted);
+  pointer-events: none;
+}
+.fc__legendItem {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+.fc__legendEvent {
+  width: 12px;
+  height: 12px;
+  border: 1.5px solid var(--color-text-subtle);
+  border-radius: 50%;
+}
+.fc__legendEvent--end {
+  border-width: 3px;
+}
+.fc__legendGateway {
+  width: 10px;
+  height: 10px;
+  margin-inline: 1px;
+  border: 1.5px solid var(--color-text-subtle);
+  transform: rotate(45deg);
+}
+
+.fc__node-g {
+  cursor: pointer;
+}
+
+.fc__node-g,
+.fc__edge-g {
+  transition: opacity var(--motion-fast, 120ms) var(--ease-standard, ease);
+}
+.fc__node-g.fc__dim {
+  opacity: 0.35;
+}
+.fc__edge-g.fc__dim {
+  opacity: 0.12;
+}
+@include d.host-on(motion) {
+  .fc__node-g,
+  .fc__edge-g {
+    transition: none;
+  }
+}
+
+.fc__node {
+  fill: var(--color-surface-2);
+  stroke: var(--color-text-subtle);
+  stroke-width: 2;
+  cursor: pointer;
+}
+.fc__node--sel {
+  stroke: var(--color-accent);
+}
+.fc__node--multi {
+  stroke: var(--color-accent);
+  stroke-dasharray: 5 3;
+}
+.fc__node-halo {
+  fill: none;
+  stroke: var(--color-accent);
+  stroke-opacity: 0.3;
+  stroke-width: 4;
+  pointer-events: none;
+}
+
+// BPMN shapes (app spec 003173): the events, the gateway, the markers and the frame of the open
+// group.
+.fc__event {
+  fill: var(--color-surface-2);
+  stroke: var(--color-text-subtle);
+  stroke-width: 1.6;
+  pointer-events: none;
+}
+.fc__event--end {
+  stroke: var(--color-text);
+  stroke-width: 4;
+}
+.fc__event.fc__dim,
+.fc__edge--fixed.fc__dim {
+  opacity: 0.35;
+}
+.fc__edge--fixed {
+  stroke: var(--color-text-subtle);
+}
+
+.fc__gateway-g.fc__dim {
+  opacity: 0.35;
+}
+.fc__gateway {
+  fill: var(--color-surface-2);
+  stroke: var(--color-text-subtle);
+  stroke-width: 2;
+  stroke-linejoin: round;
+}
+.fc__gateway-x {
+  stroke: var(--color-text);
+  stroke-width: 2.5;
+  stroke-linecap: round;
+  pointer-events: none;
+}
+.fc__gateway-arm {
+  stroke: var(--color-text-subtle);
+  stroke-width: 1.6;
+  pointer-events: none;
+}
+
+.fc__vote-mark {
+  fill: none;
+  stroke: var(--color-text-muted);
+  stroke-width: 1.4;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  pointer-events: none;
+}
+
+.fc__collapsed {
+  fill: none;
+  stroke: var(--color-text-muted);
+  stroke-width: 1.4;
+  stroke-linecap: round;
+  pointer-events: none;
+}
+
+.fc__frame {
+  fill: none;
+  stroke: var(--color-text-subtle);
+  stroke-width: 1.6;
+  pointer-events: none;
+}
+.fc__frame-name {
+  fill: var(--color-text-muted);
+  font-size: 12px;
+  font-weight: var(--fw-semibold);
+  pointer-events: none;
+  user-select: none;
+}
+
+.fc__cond {
+  fill: var(--color-surface-1);
+  stroke: var(--edge-color, var(--color-text-subtle));
+  stroke-width: 1.4;
+}
+.fc__edge-g--sel .fc__cond {
+  stroke: var(--color-accent);
+}
+
+.fc__node-text {
+  fill: var(--color-text);
+  font-size: 13.5px;
+  font-weight: var(--fw-semibold);
+  pointer-events: none;
+  user-select: none;
+}
+
+.fc__node-tag {
+  fill: var(--color-text-muted);
+  font-size: 11px;
+  pointer-events: none;
+  user-select: none;
+}
+
+.fc__node-kind {
+  fill: var(--color-accent-text);
+  font-size: 11.5px;
+  font-weight: var(--fw-semibold);
+  pointer-events: none;
+  user-select: none;
+}
+
+// The connector dots of a task or a gateway show only on hover and on the selected one (003173).
+// They stay in place and keep taking presses, so a drag can start as soon as they show.
+.fc__connector {
+  fill: var(--color-surface-3);
+  stroke: var(--color-text-subtle);
+  stroke-width: 2;
+  cursor: crosshair;
+  opacity: 0;
+  transition: opacity var(--motion-fast, 120ms) var(--ease-standard, ease);
+}
+.fc__node-g:hover .fc__connector,
+.fc__node-g--sel .fc__connector,
+.fc__gateway-g:hover .fc__connector,
+.fc__gateway-g--sel .fc__connector,
+.fc__connector:focus-visible {
+  opacity: 1;
+}
+
+@media (hover: hover) {
+  .fc__connector:hover {
+    stroke: var(--color-accent);
+  }
+}
+.fc__connector--branch {
+  stroke: var(--color-warning);
+}
+.fc__connector--guard {
+  stroke: var(--color-info, var(--color-accent));
+}
+.fc__dot-label {
+  fill: var(--color-text-muted);
+  font-size: 10.5px;
+  paint-order: stroke;
+  stroke: var(--color-surface-1);
+  stroke-width: 3px;
+  stroke-linejoin: round;
+  pointer-events: none;
+  user-select: none;
+}
+
+.fc__edge {
+  stroke: var(--edge-color, var(--color-text-subtle));
+  stroke-width: 1.6;
+  fill: none;
+  pointer-events: none;
+}
+
+.fc__edge-hit {
+  stroke: transparent;
+  stroke-width: 14;
+  fill: none;
+  cursor: pointer;
+}
+
+.fc__edge-g--sel .fc__edge {
+  stroke: var(--color-accent);
+  stroke-width: 2.5;
+}
+
+.fc__edge--temp {
+  stroke: var(--color-accent);
+  stroke-dasharray: 4 4;
+}
+
+.fc__arrow-head {
+  fill: context-stroke;
+}
+
+.fc__edge-label {
+  fill: var(--color-text-muted);
+  font-size: 11.5px;
+  font-weight: var(--fw-medium);
+  paint-order: stroke;
+  stroke: var(--color-surface-1);
+  stroke-width: 4px;
+  stroke-linejoin: round;
+  pointer-events: none;
+}
+.fc__edge-g--sel .fc__edge-label {
+  fill: var(--color-accent-text);
+  font-weight: var(--fw-semibold);
+}
+.fc__bolt {
+  fill: var(--color-warning);
+  color: var(--color-warning);
+}
+
+.fc__groupbox {
+  fill: var(--color-surface-2);
+  stroke: var(--color-text-subtle);
+  stroke-width: 2;
+  cursor: pointer;
+}
+.fc__groupbox-g--multi .fc__groupbox {
+  stroke: var(--color-accent);
+  stroke-width: 2.5;
+}
+.fc__groupbox-name {
+  fill: var(--color-text);
+  font-size: 13px;
+  font-weight: var(--fw-semibold);
+  pointer-events: none;
+}
+.fc__groupbox-count {
+  fill: var(--color-text-muted);
+  font-size: 11px;
+  pointer-events: none;
+}
+.fc__groupbox-dot {
+  fill: var(--color-surface-3);
+  stroke: var(--color-text-subtle);
+  stroke-width: 1.5;
+  pointer-events: none;
+}
+
+.fc__proxy {
+  fill: var(--color-surface-1);
+  stroke: var(--color-border);
+  stroke-width: 1.5;
+  stroke-dasharray: 4 4;
+  cursor: pointer;
+}
+.fc__proxy--group {
+  stroke-dasharray: 8 5;
+  stroke-width: 2;
+}
+@media (hover: hover) {
+  .fc__proxy-g:hover .fc__proxy {
+    stroke: var(--color-accent);
+  }
+}
+.fc__proxy-text {
+  fill: var(--color-text-muted);
+  font-size: 12px;
+  pointer-events: none;
+}
+
+@include bp.phone {
+  .fc__canvas-wrap {
+    height: 26rem;
+  }
+  .fc__toolbar {
+    padding-inline: var(--space-2);
+  }
+  .fc__zoom {
+    margin-left: 0;
+  }
+  .fc__legend {
+    left: var(--space-3);
+    right: var(--space-3);
+    bottom: var(--space-3);
+  }
+}

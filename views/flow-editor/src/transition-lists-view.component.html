@@ -1,34 +1,24 @@
-<hr class="ins__rule" />
-<section class="tl" [attr.aria-label]="'admin.flow.list.heading' | uiKitT">
-  @for (col of columns(); track col.key) {
-    <div class="tl__col">
-      <h3 class="cap ins__cap">{{ col.title | uiKitT }}</h3>
-      @if (col.rows.length) {
-        <ul class="rowgroup rowgroup--bg3 tl__list">
-          @for (r of col.rows; track r.index) {
-            <li>
-              <button type="button" class="tl__row" (click)="selectTransition.emit(r.index)">
-                <span class="tl__main">
-                  @if (r.automatic) {
-                    <app-icon class="tl__bolt" name="bolt" [size]="13" />
-                    <span class="sr-only">{{ 'admin.flow.legendAutomatic' | uiKitT }}:</span>
-                  }
-                  <span class="ell">{{ r.label || r.from + ' → ' + r.to }}</span>
-                </span>
-                <span class="tl__meta"><app-meta-line>
-                  <span class="mono">{{ r.from }} → {{ r.to }}</span>
-                  @if (r.branch) {
-                    <span>{{ r.branch }}</span>
-                  }
-                  <span>{{ r.guard }}</span>
-                </app-meta-line></span>
-              </button>
-            </li>
-          }
-        </ul>
-      } @else {
-        <app-empty-state icon="flow" rows="1" [heading]="'admin.flow.list.empty' | uiKitT" />
-      }
-    </div>
-  }
-</section>
+@for (col of columns(); track col.key) {
+  <app-section [heading]="col.title | uiKitT">
+    @if (col.rows.length) {
+      <div class="rowgroup" role="list">
+        @for (r of col.rows; track r.index) {
+          <app-list-item role="listitem" [title]="r.label || r.from + ' → ' + r.to" [wrap]="true" (activate)="selectTransition.emit(r.index)">
+            @if (r.automatic) {
+              <app-icon lead class="tl__bolt" name="bolt" role="img" [size]="20" [attr.aria-label]="'admin.flow.legendAutomatic' | uiKitT" />
+            }
+            <app-meta-line sub>
+              <span class="mono">{{ r.from }} → {{ r.to }}</span>
+              @if (r.branch) {
+                <span>{{ r.branch }}</span>
+              }
+              <span>{{ r.guard }}</span>
+            </app-meta-line>
+          </app-list-item>
+        }
+      </div>
+    } @else {
+      <app-empty-state icon="flow" rows="1" [heading]="'admin.flow.list.empty' | uiKitT" />
+    }
+  </app-section>
+}

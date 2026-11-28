@@ -11,3 +11,5 @@ export * from './transition-inspector-view.component';
 export * from './transition-lists-view.component';
 export * from './guard-editor-view.component';
 export * from './flow-editor.texts';
+export * from './flow-canvas.types';
+export * from './flow-canvas-view.component';

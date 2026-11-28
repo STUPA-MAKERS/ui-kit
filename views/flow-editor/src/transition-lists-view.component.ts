@@ -2,7 +2,9 @@ import { ChangeDetectionStrategy, Component, computed, input, output } from '@an
 import {
   EmptyStateComponent,
   IconComponent,
+  ListItemComponent,
   MetaLineComponent,
+  SectionComponent,
   registerUiKitTexts,
   type UiKitTextKey,
   UiKitTranslatePipe,
@@ -12,13 +14,14 @@ import { UI_KIT_FLOW_EDITOR_TEXTS } from './flow-editor.texts';
 
 /**
  * Incoming and outgoing transitions of the selected state, under the state settings in
- * the inspector. A row click selects the transition.
+ * the inspector: a section per direction with the rows of the kit (`app-list-item` in a row
+ * group). A row click selects the transition.
  */
 @Component({
   selector: 'app-transition-lists-view',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [MetaLineComponent, EmptyStateComponent, UiKitTranslatePipe, IconComponent],
+  imports: [MetaLineComponent, EmptyStateComponent, UiKitTranslatePipe, IconComponent, ListItemComponent, SectionComponent],
   templateUrl: './transition-lists-view.component.html',
   styleUrl: './transition-lists-view.component.scss',
 })

@@ -206,8 +206,12 @@
     flex: 1 1 0;
     flex-direction: column;
     min-height: 0;
-    margin: var(--space-6);
-    padding: 0 0 var(--space-2);
+    // The actions of the page header stand out above its title line by half the difference of a
+    // control and the line (`app-page-header`), so the frame starts that much higher and pads it
+    // back, and the scroll edge does not cut the top of the buttons.
+    --ph-overhang: max(0px, calc((var(--control-height) - var(--lh-d2)) / 2));
+    margin: calc(var(--space-6) - var(--ph-overhang)) var(--space-6) var(--space-6);
+    padding: var(--ph-overhang) 0 var(--space-2);
     border-radius: 0 0 var(--radius-field) var(--radius-field);
     overflow-y: auto;
     overscroll-behavior: contain;
@@ -216,6 +220,19 @@
   .#{$b}--split .#{$b}__body[data-scrolled] {
     border-top-left-radius: var(--radius-field);
     border-top-right-radius: var(--radius-field);
+  }
+  // A page that marks itself `data-pane-bleed` (a canvas) reaches the sides and the bottom of the
+  // sheet and is cut at its rounded corners. Its header keeps the inset of the frame
+  // (`--pane-bleed-inset`), and so does every part that reads the property.
+  .#{$b}--split .#{$b}__body:has([data-pane-bleed]) {
+    margin: calc(var(--space-6) - var(--ph-overhang)) 0 0;
+    padding: var(--ph-overhang) 0 0;
+    border-radius: 0;
+    --pane-bleed-inset: var(--space-6);
+    --pane-bleed-radius: 0;
+  }
+  .#{$b}--split .#{$b}__body ::ng-deep [data-pane-bleed] > app-page-header {
+    padding-inline: var(--pane-bleed-inset);
   }
   .#{$b}--split .#{$b}__body > ::ng-deep * {
     flex-shrink: 0;

@@ -4,7 +4,7 @@ title: The form editor view takes the body of the Formular-Editor
 kind: style
 status: approved
 owner: frederikbeimgraben
-updated: 2026-11-23
+updated: 2026-11-28
 implementation:
   - views/form-editor/src/form-editor-view.component.ts
   - views/form-editor/src/form-editor.util.ts
@@ -18,11 +18,11 @@ scope:
 `/views/form-editor` must export `app-form-editor-view`, a copy of the body of the
 Formular-Editor (`app-form-editor`) of STUPA-Workflow, with the same behaviour:
 
-- the outline: the groups with their questions, the drag of a question or a group, the ⋮ menu of
-  a group, "Frage hinzufügen" with the menu of the question types (a bottom sheet on a phone) and
-  "+ Gruppe";
-- the cards of the shown group: the group title and one card per question with its type, key,
-  required flag, texts, type options and "Erweiterte Optionen";
+- the tabs "Fragen", "Formular", "Regeln" and "Versionen" (app spec 003171);
+- in "Fragen": every group one below the other, each with its heading, + ("Frage hinzufügen"
+  with the menu of the question types, a bottom sheet on a phone) and the ⋮ menu of the group in
+  one button group, the group title and one card per question with its type, key, required flag,
+  texts, type options and "Erweiterte Optionen" as an expandable settings row; then "+ Gruppe";
 - the card "Formular" (title, description, Mit Budget, signature rows, Anhang Pflicht,
   Vergleichsangebote) and the rules across fields;
 - the preview of the form;
@@ -30,8 +30,8 @@ Formular-Editor (`app-form-editor`) of STUPA-Workflow, with the same behaviour:
 
 Inputs: `loading`, `preview`, `budgetOn`. Two-way models: `groups`, `title`, `description`,
 `hasBudget`, `signatureRows`, `attachmentRequired`, `cmpRequired`, `cmpMinCount`, `rules`,
-`activeGroup`, `selected`. The app projects its versions as `[formVersions]` at the end of the side
-column. The parent provides `ContentLangState`.
+`selected`, `page`. The app projects its versions as `[formVersions]` into the tab "Versionen".
+The parent provides `ContentLangState`.
 
 View models: the form types of STUPA-Workflow (`FormFieldDef`, `FieldType`, `FormRule`), with the
 same fields, so the app passes its API objects as they are. The form helpers (`form-field.util`:

@@ -4,7 +4,7 @@ title: The flow editor views take the inspectors, the transition lists and the g
 kind: style
 status: approved
 owner: frederikbeimgraben
-updated: 2026-11-23
+updated: 2026-11-28
 implementation:
   - views/flow-editor/src/state-inspector-view.component.ts
   - views/flow-editor/src/group-inspector-view.component.ts
@@ -28,7 +28,7 @@ with the same behaviour:
 | Kit view | Copy of | Shows |
 |---|---|---|
 | `app-state-inspector-view` | `app-state-inspector` | the fields of a state: key, name, colour, kind, Gremium, the flags, the order of the guards |
-| `app-group-inspector-view` | `app-group-inspector` | the name and the colour of a group, and "Auflösen" |
+| `app-group-inspector-view` | `app-group-inspector` | the name and the colour of a group |
 | `app-transition-inspector-view` | `app-transition-inspector` | the fields of a transition: from, to, name, colour, automatic, action, branch |
 | `app-transition-lists-view` | `app-transition-lists` | the incoming and the outgoing transitions of a state as rows |
 | `app-guard-editor-view` | `app-guard-editor` | the conditions of a transition: groups, operators, values |
@@ -45,7 +45,9 @@ View models: the flow types of STUPA-Workflow (`StateDef`, `TransitionDef`, `Flo
 (`flow-guard.util`) move with them. The inputs and outputs are those of the app components.
 
 The canvas, the page, the toolbar, the save, the version list and the transition detail stay in
-the app. The transition detail uses the kit guard editor and the kit inspector styles.
+the app. The views have no head: the app shows them in its side sheet, which carries the title
+and the actions ("Status löschen", "Übergang löschen", "Auflösen") beside the close button (app
+spec 003172). The transition detail uses the kit guard editor and the kit inspector styles.
 
 App parts: the views know no route, no permission and no server. The app gives the options
 (states, kinds, Gremien, roles) as inputs and applies each output to its draft.

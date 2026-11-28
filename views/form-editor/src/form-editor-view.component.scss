@@ -8,17 +8,9 @@
   display: contents;
 }
 
-// The first load: the three columns of the editor with bars where the text goes.
+// The first load: the cards of the editor with bars where the text goes.
 .fe__skCap {
   width: 9em;
-}
-.fe__skRow {
-  flex-direction: column;
-  align-items: stretch;
-  justify-content: center;
-  gap: 4px;
-  padding-left: calc(var(--space-2) + 22px);
-  cursor: default;
 }
 .fe__skSub {
   width: 8em;
@@ -36,190 +28,26 @@
   height: 6rem;
 }
 
+// The editor follows the width of its pane, not of the window (app spec 003170): the frame is
+// the container of the columns.
+.fe__frame {
+  display: flex;
+  flex: 1 0 auto;
+  flex-direction: column;
+  min-width: 0;
+  min-height: 0;
+  container-type: inline-size;
+}
+
 .fe__cols {
   display: grid;
   grid-template-columns: minmax(0, 1fr);
-  gap: var(--space-5);
+  gap: var(--space-4);
   min-width: 0;
 }
 
-@include bp.narrow {
-  .fe__cols {
-    grid-template-columns: 17rem minmax(0, 1fr);
-    align-items: start;
-  }
-  .fe__outline {
-    grid-row: span 2;
-  }
-  .fe__cols--preview {
-    grid-template-columns: minmax(0, 1fr);
-  }
-}
-
-@include bp.wide {
-  .fe__cols {
-    flex: 1 1 0;
-    grid-template-columns: 20rem minmax(0, 1fr) 22.5rem;
-    grid-template-rows: minmax(0, 1fr);
-    gap: var(--space-3);
-    min-height: 0;
-  }
-  .fe__cols--preview {
-    grid-template-columns: minmax(0, 1fr) 22.5rem;
-  }
-  .fe__outline,
-  .fe__main,
-  .fe__side,
-  .fe__preview {
-    min-height: 0;
-    overflow-y: auto;
-    overscroll-behavior: contain;
-    scrollbar-width: thin;
-  }
-}
-
-.fe__outline {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-2);
-  min-width: 0;
-  padding: var(--space-1) var(--space-1) var(--space-4);
-}
-
-.fe__group {
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-  min-width: 0;
-}
-
-.fe__groupHead {
-  display: flex;
-  align-items: center;
-  gap: var(--space-2);
-  min-height: 2.5rem;
-  padding: var(--space-2) 0 0 var(--space-2);
-  cursor: grab;
-}
-
-.fe__groupName {
-  flex: 1 1 auto;
-  min-width: 0;
-  padding: var(--space-1) 0;
-  border: 0;
-  background: none;
-  font: inherit;
-  font-size: var(--fs-small);
-  line-height: var(--lh-cap);
-  font-weight: var(--fw-semibold);
-  text-align: left;
-  color: var(--color-accent-text);
-  cursor: pointer;
-}
-.fe__groupName:focus-visible {
-  outline: 2px solid var(--color-focus-ring);
-  outline-offset: 2px;
-  border-radius: var(--radius-sm);
-}
-
-.fe__list {
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-  margin: 0;
-  padding: 0;
-  list-style: none;
-}
-
-.fe__row {
-  position: relative;
-  display: flex;
-  align-items: center;
-  gap: var(--space-2);
-  min-height: 3rem;
-  padding-left: var(--space-2);
-  border-radius: var(--radius-lg);
-  cursor: grab;
-}
-@media (hover: hover) {
-  .fe__row:hover {
-    background: var(--color-surface-2);
-  }
-}
-.fe__row--on {
-  background: var(--color-selected);
-  @include f.highlight-chosen;
-}
-@media (hover: hover) {
-  .fe__row--on:hover {
-    background: var(--color-selected);
-  }
-}
-
-.fe__grip {
-  flex: none;
-  color: var(--color-text-subtle);
-}
-
-.fe__rowBtn {
-  display: flex;
-  flex: 1 1 auto;
-  flex-direction: column;
-  gap: 1px;
-  min-width: 0;
-  padding: var(--space-2) var(--space-3) var(--space-2) 0;
-  border: 0;
-  background: none;
-  font: inherit;
-  text-align: left;
-  color: var(--color-text);
-  cursor: pointer;
-}
-.fe__rowBtn:focus-visible {
-  outline: 2px solid var(--color-focus-ring);
-  outline-offset: -2px;
-  border-radius: var(--radius-lg);
-}
-
-.fe__rowTitle {
-  display: flex;
-  align-items: center;
-  gap: 2px;
-  min-width: 0;
-  font-weight: var(--fw-medium);
-}
-
-.fe__rowSub {
-  display: flex;
-  align-items: baseline;
-  gap: var(--space-1);
-  min-width: 0;
-  font-size: var(--fs-small);
-  line-height: var(--lh-small);
-  color: var(--color-text-muted);
-}
-.fe__rowSub .mono {
-  flex: 0 1 auto;
-}
-
-.fe__row--bad .fe__rowTitle {
-  color: var(--color-danger);
-}
-.fe__rowAlert {
-  flex: none;
-  margin-left: var(--space-1);
-  color: var(--color-danger);
-}
-
-.fe__req {
-  flex: none;
-  margin-left: 2px;
-  color: var(--color-danger);
-}
-
-.fe__add {
-  position: relative;
-  align-self: flex-start;
+.fe__side[hidden] {
+  display: none;
 }
 
 .fe__menu {
@@ -271,13 +99,20 @@
   min-height: 3rem;
 }
 
-.fe__addGroup {
-  align-self: flex-start;
-  margin: var(--space-3) 0 0 var(--space-2);
-}
-
 .fe__main,
 .fe__side {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  min-width: 0;
+}
+
+// The groups of the questions tab, one below the other: a group and its questions stay
+// closer together than two groups.
+.fe__main {
+  gap: var(--space-6);
+}
+.fe__section {
   display: flex;
   flex-direction: column;
   gap: var(--space-3);
@@ -454,35 +289,31 @@
   font-family: var(--font-mono);
 }
 
-.fe__advanced {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-4);
-  padding-top: var(--space-4);
-  border-top: var(--border-width) solid var(--color-border);
-}
-.fe__advToggle {
+.fe__advRow {
   display: flex;
   align-items: center;
   gap: var(--space-3);
   width: 100%;
-  min-height: 2.25rem;
-  padding: 0;
   border: 0;
-  background: none;
   font: inherit;
+  text-align: left;
   color: var(--color-text);
   cursor: pointer;
 }
-.fe__advToggle:focus-visible {
+.fe__advRow:focus-visible {
   outline: 2px solid var(--color-focus-ring);
-  outline-offset: 2px;
-  border-radius: var(--radius-sm);
+  outline-offset: -2px;
 }
 .fe__advTitle {
   flex: 1 1 auto;
-  font-weight: var(--fw-semibold);
-  text-align: left;
+}
+// The opened options sit in the row group below their row. The fields take surface 1, so they
+// stand out from the surface of the row.
+.fe__advBody {
+  --field-bg: var(--color-surface-1);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
 }
 
 .fe__toggles {

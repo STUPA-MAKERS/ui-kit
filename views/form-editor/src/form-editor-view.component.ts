@@ -41,8 +41,18 @@ import {
   UI_KIT_INTL,
   type UiKitTextKey,
   UiKitTranslatePipe,
+  type UiKitFormEditorTextKey,
+  TabsComponent,
+  type TabItem,
 } from '@stupa-makers/ui-kit';
-import type { ComputedFormat, FieldHints, FieldType, FormFieldDef, SignatureRow } from './form-editor.types';
+import type {
+  ComputedFormat,
+  FieldHints,
+  FieldType,
+  FormEditorPage,
+  FormFieldDef,
+  SignatureRow,
+} from './form-editor.types';
 import {
   COMPUTED_FORMATS,
   FIELD_TYPES,
@@ -53,7 +63,6 @@ import {
   blankOption,
   duplicateKeys,
   fundingProblem,
-  moveQuestionTo,
   participantsProblem,
   validateFormField,
 } from './form-field.util';
@@ -69,6 +78,8 @@ const TYPE_MENU: readonly FieldType[] = FIELD_TYPES.filter((t) => t !== 'section
 
 /** The height of the type menu (nine rows of two types), for the side it opens on. */
 const TYPE_MENU_HEIGHT = 9 * 36 + 16;
+/** The width in px of the type menu (27.5rem): it opens to the left of the + of the section. */
+const TYPE_MENU_WIDTH = 440;
 
 /** Stable address of a question: group index and question index inside the group. */
 type QPos = QuestionPos;
@@ -88,6 +99,14 @@ const POSITION_HINTS: readonly { readonly key: keyof FieldHints; readonly label:
   { key: 'noFileBody', label: 'admin.form.hint.noFileBody' },
 ];
 
+/** The tabs of the editor and their labels, in their order. */
+const PAGE_TABS: readonly { readonly id: FormEditorPage; readonly label: UiKitFormEditorTextKey }[] = [
+  { id: 'questions', label: 'admin.form.questions' },
+  { id: 'form', label: 'admin.form.formCard' },
+  { id: 'rules', label: 'admin.forms.rules.title' },
+  { id: 'versions', label: 'admin.form.versions' },
+];
+
 /**
  * The body of the form editor of STUPA-Workflow, built around explicit **question groups**: a
  * copy of the columns of `app-form-editor` (002278). The app keeps the page: the load, the save,
@@ -97,17 +116,17 @@ const POSITION_HINTS: readonly { readonly key: keyof FieldHints; readonly label:
  * Each group is one wizard step. The group title is the step heading. On save the groups
  * serialize back into the flat `fields[]` list, with a leading `section` marker per group.
  *
- * The view has three columns:
+ * The view has four tabs (app spec 003171):
  *
- * - The outline: every group ("Abschnitt n · Titel") with its questions (label, required
- *   mark, key and type). A click selects a question. A drag moves a question, also into
- *   another group, or a whole group. "Frage hinzufügen" opens the menu of every question
- *   type (a bottom sheet on a phone). The ⋮ menu of a group moves or deletes it.
- * - The cards of the selected group: the group title, then one card per question with
- *   type, key, required, the labels and help texts, the options of its type (choice options,
- *   cost positions, the expression of a computed field) and the "Erweiterte Optionen" (PII,
+ * - "Fragen": every group one below the other. The head of a group ("Abschnitt n · Titel")
+ *   holds + (the menu of every question type, a bottom sheet on a phone) and ⋮ (move or
+ *   delete the group). Under the group title follows one card per question with type, key,
+ *   required, the labels and help texts, the options of its type (choice options, cost
+ *   positions, the expression of a computed field) and the "Erweiterte Optionen" (PII,
  *   metric, validation, visibleIf). The selected question has an accent outline.
- * - The form settings (title, description, budget, comparison offers) and the rules.
+ * - "Formular": the form settings (title, description, budget, comparison offers).
+ * - "Regeln": the rules across fields.
+ * - "Versionen": the versions that the app projects.
  *
  * The actions of a card head stop their click, because a click that reaches the card would select
  * the old place again after a move. The menu of the question types sits outside the scrolling
@@ -119,6 +138,7 @@ const POSITION_HINTS: readonly { readonly key: keyof FieldHints; readonly label:
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     SheetBodyDirective,
+    TabsComponent,
     MetaLineComponent,
     MoveButtonsComponent,
     I18nInputComponent,
@@ -142,11 +162,6 @@ export class FormEditorViewComponent {
   /** The texts of the view, registered before the first render (002237). */
   protected readonly viewTexts = registerUiKitTexts(UI_KIT_FORM_EDITOR_TEXTS);
 
-  /** The groups of the outline the first load draws: the name widths of their rows. */
-  protected readonly skeletonGroups: readonly (readonly number[])[] = [
-    [60, 75, 45, 70, 55],
-    [65, 50, 70, 60],
-  ];
   /** `n` placeholders for the fields of a skeleton card. */
   protected skeletonFields(n: number): number[] {
     return Array.from({ length: n }, (_, i) => i);
@@ -183,10 +198,21 @@ export class FormEditorViewComponent {
   readonly cmpMinCount = model(2);
   /** The rules across fields (app spec 001670); the logic stays text while it is typed. */
   readonly rules = model<readonly RuleDraft[]>([]);
-  /** The group whose cards show in the middle column. */
-  readonly activeGroup = model(0);
-  /** The selected question: outlined card, highlighted outline row. */
+  /** The selected question: its card has an outline. */
   readonly selected = model<QPos | null>(null);
+  /**
+   * The open tab (app spec 003171): all groups with their questions, the settings of the form,
+   * its rules or its versions.
+   */
+  readonly page = model<FormEditorPage>('questions');
+
+  /** The tabs under the title of the page. */
+  protected readonly pageTabs = computed<readonly TabItem[]>(() => {
+    this.i18n.lang();
+    return PAGE_TABS.map((t) => ({ id: t.id, label: this.i18n.translate(t.label) }));
+  });
+  /** The questions tab is open. */
+  protected readonly onQuestions = computed(() => this.page() === 'questions');
 
   protected readonly severityOptions: SelectOption[] = (['block', 'warn'] as const).map((v) => ({
     value: v,
@@ -214,18 +240,6 @@ export class FormEditorViewComponent {
   private menuOpener: HTMLElement | null = null;
   /** Closes the type menu on a scroll. Only one is registered at a time. */
   private readonly closeOnScroll = (): void => this.closeTypeMenu(false);
-  /** Index of the dragged group during a drag-reorder of whole groups. */
-  private dragGroup: number | null = null;
-  /** The dragged question during a drag in the outline. */
-  private dragQuestion: QPos | null = null;
-
-  /** Index of the shown group, kept inside the list. */
-  protected readonly groupIndex = computed(() =>
-    Math.max(0, Math.min(this.activeGroup(), this.groups().length - 1)),
-  );
-  protected readonly currentGroup = computed<QuestionGroup | undefined>(
-    () => this.groups()[this.groupIndex()],
-  );
 
   protected readonly typeMenu = TYPE_MENU;
   protected readonly fieldTypeOptions: SelectOption[] = TYPE_MENU.map((t) => ({
@@ -308,7 +322,8 @@ export class FormEditorViewComponent {
 
   protected addGroup(): void {
     this.groups.update((list) => [...list, { title: { de: '', en: '' }, fields: [] }]);
-    this.selectGroup(this.groups().length - 1);
+    this.page.set('questions');
+    this.selected.set(null);
   }
 
   protected removeGroup(gi: number): void {
@@ -316,8 +331,6 @@ export class FormEditorViewComponent {
     const sel = this.selected();
     if (sel?.gi === gi) this.selected.set(null);
     else if (sel && sel.gi > gi) this.selected.set({ gi: sel.gi - 1, qi: sel.qi });
-    const active = this.activeGroup();
-    if (active > gi || active >= this.groups().length) this.activeGroup.set(Math.max(0, active - 1));
   }
 
   protected moveGroup(gi: number, dir: -1 | 1): void {
@@ -336,23 +349,23 @@ export class FormEditorViewComponent {
       if (from > to && i >= to && i < from) return i + 1;
       return i;
     };
-    this.activeGroup.set(place(this.activeGroup()));
     const sel = this.selected();
     if (sel) this.selected.set({ gi: place(sel.gi), qi: sel.qi });
   }
 
-  /** Show a group in the middle column, without a selected question. */
-  protected selectGroup(gi: number): void {
-    this.activeGroup.set(gi);
-    this.selected.set(null);
+  /** Open a tab of the tab bar. */
+  protected setPage(id: string | null): void {
+    const tab = PAGE_TABS.find((t) => t.id === id);
+    if (tab) this.page.set(tab.id);
   }
 
   /**
-   * Select a question: show its group and outline its card. `scroll` brings the card into
-   * view (a click in the outline); a click into the card itself does not move the page.
+   * Select a question: open the questions tab and outline its card. `scroll` brings the card
+   * into view (after a move or a new question); a click into the card itself does not move the
+   * page.
    */
   protected selectQuestion(pos: QPos, scroll = true): void {
-    this.activeGroup.set(pos.gi);
+    this.page.set('questions');
     this.selected.set(pos);
     if (scroll) this.scrollToCard(pos);
   }
@@ -374,10 +387,11 @@ export class FormEditorViewComponent {
     const rect = button?.getBoundingClientRect();
     if (rect) {
       const below = window.innerHeight - rect.bottom;
+      const left = Math.max(8, rect.right - TYPE_MENU_WIDTH);
       this.menuPos.set(
         below < TYPE_MENU_HEIGHT
-          ? { left: rect.left, top: null, bottom: window.innerHeight - rect.top + 4 }
-          : { left: rect.left, top: rect.bottom + 4, bottom: null },
+          ? { left, top: null, bottom: window.innerHeight - rect.top + 4 }
+          : { left, top: rect.bottom + 4, bottom: null },
       );
     }
     this.typeMenuGroup.set(gi);
@@ -459,7 +473,7 @@ export class FormEditorViewComponent {
     });
   }
 
-  /** An action of the ⋮ menu of a group in the outline. */
+  /** An action of the ⋮ menu of a group. */
   protected onGroupMenu(gi: number, item: RowMenuItem): void {
     if (item.id === 'up') this.moveGroup(gi, -1);
     else if (item.id === 'down') this.moveGroup(gi, 1);
@@ -490,7 +504,7 @@ export class FormEditorViewComponent {
     ];
   }
 
-  /** The heading of a group in the outline and on its card: "Abschnitt 2 · Kosten". */
+  /** The heading of a group on its card: "Abschnitt 2 · Kosten". */
   protected groupHeading(group: QuestionGroup, gi: number): string {
     const step = this.i18n.translate('admin.form.groupStep', { n: gi + 1 });
     const title = this.resolved(group.title);
@@ -697,66 +711,6 @@ export class FormEditorViewComponent {
   /** Text types: the length and pattern validation applies. */
   protected isText(type: FieldType): boolean {
     return type === 'text' || type === 'textarea';
-  }
-
-  protected onDragStart(gi: number): void {
-    this.dragGroup = gi;
-    this.dragQuestion = null;
-  }
-
-  protected onDragOver(event: DragEvent): void {
-    event.preventDefault();
-  }
-
-  /**
-   * A drop on a group: a dragged group takes its place; a dragged question goes to the
-   * end of the group.
-   */
-  protected onDrop(gi: number): void {
-    const q = this.dragQuestion;
-    if (q) {
-      this.dropQuestion(q, { gi, qi: this.groups()[gi]?.fields.length ?? 0 });
-    } else if (this.dragGroup !== null && this.dragGroup !== gi) {
-      this.reorderGroup(this.dragGroup, gi);
-    }
-    this.dragGroup = null;
-    this.dragQuestion = null;
-  }
-
-  /**
-   * Start the drag of a question in the outline.
-   *
-   * The group around the row must not start a group drag.
-   */
-  protected onQuestionDragStart(event: DragEvent, pos: QPos): void {
-    event.stopPropagation();
-    event.dataTransfer?.setData('text/plain', `${pos.gi}:${pos.qi}`);
-    this.dragQuestion = pos;
-    this.dragGroup = null;
-  }
-
-  /** A drop on a question row: the dragged question takes the place of that row. */
-  protected onQuestionDrop(event: DragEvent, pos: QPos): void {
-    const q = this.dragQuestion;
-    if (!q) return;
-    event.preventDefault();
-    event.stopPropagation();
-    this.dropQuestion(q, pos);
-    this.dragQuestion = null;
-  }
-
-  private dropQuestion(from: QPos, to: QPos): void {
-    if (from.gi === to.gi && from.qi === to.qi) return;
-    const sel = this.selected();
-    const selField = sel ? this.groups()[sel.gi]?.fields[sel.qi] : undefined;
-    const moved = moveQuestionTo(this.groups(), from, to);
-    if (!moved) return;
-    this.restructure(() => this.groups.set(moved.groups));
-    if (!selField) return;
-    moved.groups.forEach((g, gi) => {
-      const qi = g.fields.indexOf(selField);
-      if (qi >= 0) this.selectQuestion({ gi, qi }, gi === moved.pos.gi && qi === moved.pos.qi);
-    });
   }
 
   protected setVal(

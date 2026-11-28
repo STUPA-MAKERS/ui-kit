@@ -108,6 +108,17 @@
 .ld__barSub:empty {
   display: none;
 }
+/* The chips of a head (001306) are compact in the bar, so the title and the chips fit its
+   height with a gap between them. */
+.ld__barSub:has(.st--chip) {
+  gap: var(--space-1);
+  margin-top: 2px;
+}
+.ld__barSub ::ng-deep .st--chip {
+  min-height: 20px;
+  padding: 0 var(--space-2);
+  font-size: var(--fs-xs);
+}
 
 :host(.ld__bar--condensed) :is(.ld__barTitle, .ld__barSub) {
   opacity: 1;

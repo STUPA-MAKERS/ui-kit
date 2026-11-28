@@ -3,6 +3,12 @@
 @use '../../styles/frosted' as *;
 @use '../../styles/display' as d;
 
+// The host has no box: the scrim and the pane are fixed, so a sheet in a flex column or a grid
+// of the page adds no item and no gap there.
+:host {
+  display: contents;
+}
+
 .ss__scrim {
   position: fixed;
   inset: 0;

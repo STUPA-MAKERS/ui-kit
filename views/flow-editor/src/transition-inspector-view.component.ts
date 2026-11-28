@@ -1,11 +1,8 @@
 import { ChangeDetectionStrategy, Component, input, output } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import {
-  ButtonComponent,
-  ButtonGroupComponent,
   I18nInputComponent,
   type I18nMap,
-  IconComponent,
   registerUiKitTexts,
   SelectFieldComponent,
   type SelectOption,
@@ -29,9 +26,6 @@ import { UI_KIT_FLOW_EDITOR_TEXTS } from './flow-editor.texts';
     I18nInputComponent,
     FormsModule,
     UiKitTranslatePipe,
-    ButtonComponent,
-    ButtonGroupComponent,
-    IconComponent,
     SelectFieldComponent,
     SwitchComponent,
     FlowColorViewComponent,
@@ -55,5 +49,4 @@ export class TransitionInspectorViewComponent {
   readonly automaticChange = output<boolean>();
   readonly requiresActionChange = output<boolean>();
   readonly branchChange = output<string>();
-  readonly remove = output<void>();
 }

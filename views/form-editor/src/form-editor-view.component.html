@@ -1,23 +1,7 @@
+<div class="fe__frame">
 @if (loading()) {
   <div class="fe__cols skel-in" aria-busy="true">
     <span class="sr-only" role="status">{{ 'admin.forms.overviewLoading' | uiKitT }}</span>
-    <div class="fe__outline" aria-hidden="true">
-      @for (g of skeletonGroups; track $index) {
-        <div class="fe__group">
-          <div class="fe__groupHead">
-            <span class="fe__groupName"><span class="skel-text skel-text--accent fe__skCap"></span></span>
-          </div>
-          <div class="fe__list">
-            @for (w of g; track $index) {
-              <div class="fe__row fe__skRow">
-                <span class="fe__rowTitle"><span class="skel-text" [style.width.%]="w"></span></span>
-                <span class="fe__rowSub"><span class="skel-text skel-text--muted fe__skSub"></span></span>
-              </div>
-            }
-          </div>
-        </div>
-      }
-    </div>
     <div class="fe__main" aria-hidden="true">
       @for (n of [2, 4, 4]; track $index) {
         <div class="fe__card">
@@ -30,16 +14,9 @@
         </div>
       }
     </div>
-    <div class="fe__side" aria-hidden="true">
-      <div class="fe__card">
-        <span class="cap fe__cap"><span class="skel-text skel-text--muted fe__skCap"></span></span>
-        <span class="skel-box fe__skField"></span>
-        <span class="skel-box fe__skField fe__skField--tall"></span>
-      </div>
-    </div>
   </div>
 } @else {
-  <div class="fe__cols" [class.fe__cols--preview]="preview()">
+  <div class="fe__cols">
     @if (preview()) {
       <article class="fe__preview" appScrollFade="y">
         <h2 class="fe__pv-title">{{ resolved(title()) || ('admin.forms.untitled' | uiKitT) }}</h2>
@@ -96,88 +73,10 @@
         }
       </article>
     } @else {
-      <nav class="fe__outline" appScrollFade="y" [attr.aria-label]="'admin.form.outline' | uiKitT">
-        @for (group of groups(); track $index; let gi = $index) {
-          <section
-            class="fe__group"
-            [class.fe__group--on]="gi === groupIndex()"
-            (dragover)="onDragOver($event)"
-            (drop)="onDrop(gi)"
-          >
-            <div class="fe__groupHead" draggable="true" (dragstart)="onDragStart(gi)" [attr.title]="'admin.form.dragGroup' | uiKitT">
-              <button type="button" class="fe__groupName ell" [attr.aria-current]="gi === groupIndex() ? 'true' : null" (click)="selectGroup(gi)">
-                {{ groupHeading(group, gi) }}
-              </button>
-              <app-button-group>
-                <app-row-menu
-                  [label]="('admin.form.groupMenu' | uiKitT: { n: gi + 1 })"
-                  [sections]="groupMenu(gi)"
-                  (selected)="onGroupMenu(gi, $event)"
-                />
-              </app-button-group>
-            </div>
+      <app-tabs idPrefix="fe" [ariaLabel]="'admin.form.outline' | uiKitT" [tabs]="pageTabs()" [active]="page()" (activeChange)="setPage($event)" />
 
-            <ol class="fe__list">
-              @for (field of group.fields; track $index; let qi = $index) {
-                @let bad = errorsFor(gi, qi).length > 0;
-                <li
-                  class="fe__row"
-                  [class.fe__row--on]="isSelected(gi, qi)"
-                  [class.fe__row--bad]="bad"
-                  draggable="true"
-                  (dragstart)="onQuestionDragStart($event, { gi: gi, qi: qi })"
-                  (dragover)="onDragOver($event)"
-                  (drop)="onQuestionDrop($event, { gi: gi, qi: qi })"
-                >
-                  <app-icon class="fe__grip" name="grip" [size]="16" />
-                  <button
-                    type="button"
-                    class="fe__rowBtn"
-                    [attr.aria-current]="isSelected(gi, qi) ? 'true' : null"
-                    (click)="selectQuestion({ gi: gi, qi: qi })"
-                  >
-                    <span class="fe__rowTitle">
-                      <span class="ell" [title]="resolved(field.label) || ('admin.forms.untitledQuestion' | uiKitT)">{{ resolved(field.label) || ('admin.forms.untitledQuestion' | uiKitT) }}</span>
-                      @if (field.required) { <span class="fe__req" [attr.aria-label]="'admin.common.required' | uiKitT">*</span> }
-                      @if (bad) {
-                        <app-icon class="fe__rowAlert" name="alert" [size]="15" />
-                        <span class="sr-only">{{ 'admin.common.errors' | uiKitT }}</span>
-                      }
-                    </span>
-                    <span class="fe__rowSub"><app-meta-line>
-                      @if (field.key) {
-                        <span class="mono ell">{{ field.key }}</span>
-                      }
-                      <span class="ell">{{ typeLabel(field.type) }}</span>
-                    </app-meta-line></span>
-                  </button>
-                </li>
-              }
-            </ol>
-
-            <div class="fe__add">
-              <app-button-group>
-                <app-button
-                  class="fe__addBtn"
-                  variant="text"
-                  size="sm"
-                  [ariaExpanded]="typeMenuGroup() === gi"
-                  (click)="toggleTypeMenu(gi, $event)"
-                >
-                  <app-icon name="plus" /> {{ 'admin.forms.addQuestion' | uiKitT }}
-                </app-button>
-              </app-button-group>
-            </div>
-          </section>
-        }
-        <app-button-group>
-          <app-button class="fe__addGroup" variant="tonal" size="sm" (click)="addGroup()">
-            <app-icon name="plus" /> {{ 'admin.form.addGroup' | uiKitT }}
-          </app-button>
-        </app-button-group>
-      </nav>
-
-      <div class="fe__main" appScrollFade="y">
+      @if (onQuestions()) {
+      <div class="fe__main">
         @if (duplicates().length > 0) {
           <p class="fe__alert" role="alert">{{ 'admin.form.dupKeys' | uiKitT: { keys: duplicates().join(', ') } }}</p>
         }
@@ -187,242 +86,265 @@
         @if (groups().length === 0) {
           <app-empty-state icon="form" [heading]="'admin.forms.empty' | uiKitT" />
         }
-        @if (currentGroup(); as group) {
-          @let gi = groupIndex();
-          <section class="fe__card fe__card--group" [attr.aria-label]="groupHeading(group, gi)">
-            <h2 class="cap fe__cap">{{ 'admin.form.groupStep' | uiKitT: { n: gi + 1 } }}</h2>
-            <div class="fe__pair">
-              <app-i18n-input
-                [label]="'admin.form.groupTitle' | uiKitT"
-                [placeholder]="'admin.form.groupTitlePlaceholder' | uiKitT"
-                [value]="group.title"
-                (valueChange)="setGroupTitle(gi, $event)"
-              />
-            </div>
-          </section>
-
-          @if (group.fields.length === 0) {
-            <app-empty-state icon="form" rows="1" [heading]="'admin.form.groupEmpty' | uiKitT" />
-          }
-
-          @for (field of group.fields; track $index; let qi = $index) {
-            @let pos = { gi: gi, qi: qi };
-            <article
-              class="fe__card"
-              [class.fe__card--sel]="isSelected(gi, qi)"
-              [attr.data-q]="gi + ':' + qi"
-              [attr.aria-label]="resolved(field.label) || ('admin.forms.untitledQuestion' | uiKitT)"
-              tabindex="-1"
-              (focusin)="focusCard(pos)"
-              (click)="focusCard(pos)"
-              (keydown.enter)="focusCard(pos)"
-            >
+        @for (group of groups(); track $index; let gi = $index) {
+          <section class="fe__section" [attr.aria-label]="groupHeading(group, gi)">
+            <div class="fe__card fe__card--group">
               <div class="fe__cardHead">
-                <h3 class="cap fe__cardTitle ell">{{ resolved(field.label) || ('admin.forms.untitledQuestion' | uiKitT) }}</h3>
-                <app-move-buttons (click)="$event.stopPropagation()" (move)="moveQuestion(pos, $event)" />
+                <h2 class="cap fe__cardTitle ell">{{ groupHeading(group, gi) }}</h2>
                 <app-button-group>
-                  <app-button variant="text" size="sm" [iconOnly]="true" [ariaLabel]="'admin.forms.duplicate' | uiKitT" [title]="'admin.forms.duplicate' | uiKitT" (click)="$event.stopPropagation(); duplicateQuestion(pos)"><app-icon name="copy" /></app-button>
-                  <app-button variant="text" size="sm" [iconOnly]="true" [ariaLabel]="'admin.common.delete' | uiKitT" [title]="'admin.common.delete' | uiKitT" (click)="$event.stopPropagation(); removeQuestion(pos)"><app-icon name="trash" /></app-button>
+                  <app-button
+                    class="fe__addBtn"
+                    variant="text"
+                    size="sm"
+                    [iconOnly]="true"
+                    [ariaLabel]="'admin.forms.addQuestion' | uiKitT"
+                    [title]="'admin.forms.addQuestion' | uiKitT"
+                    [ariaExpanded]="typeMenuGroup() === gi"
+                    (click)="toggleTypeMenu(gi, $event)"
+                  ><app-icon name="plus" /></app-button>
+                  <app-row-menu
+                    [label]="('admin.form.groupMenu' | uiKitT: { n: gi + 1 })"
+                    [sections]="groupMenu(gi)"
+                    (selected)="onGroupMenu(gi, $event)"
+                  />
                 </app-button-group>
               </div>
-
-              <div class="fe__base">
-                <app-select
-                  class="fe__type"
-                  [label]="'admin.common.type' | uiKitT"
-                  [options]="fieldTypeOptions"
-                  [ngModel]="field.type"
-                  (ngModelChange)="onTypeChange(pos, $event)"
-                />
-                <app-input
-                  class="fe__key fe__mono"
-                  [label]="'admin.common.key' | uiKitT"
-                  [(ngModel)]="field.key"
-                  (ngModelChange)="touch()"
-                />
-                <app-checkbox class="fe__required" [(ngModel)]="field.required" (ngModelChange)="touch()">{{ 'admin.common.required' | uiKitT }}</app-checkbox>
-              </div>
-
               <div class="fe__pair">
                 <app-i18n-input
-                  [placeholder]="'admin.forms.questionPlaceholder' | uiKitT"
-                  [value]="field.label"
-                  (valueChange)="setQuestion(pos, { label: $event })"
-                />
-                <app-i18n-input
-                  [label]="'admin.forms.help' | uiKitT"
-                  [value]="field.help ?? {}"
-                  (valueChange)="setQuestion(pos, { help: $event })"
+                  [label]="'admin.form.groupTitle' | uiKitT"
+                  [placeholder]="'admin.form.groupTitlePlaceholder' | uiKitT"
+                  [value]="group.title"
+                  (valueChange)="setGroupTitle(gi, $event)"
                 />
               </div>
+            </div>
 
-              @if (isChoice(field.type)) {
-                <fieldset class="fe__sub">
-                  <legend class="cap fe__cap">{{ 'admin.form.options' | uiKitT }}</legend>
-                  @for (opt of field.options ?? []; track $index; let oi = $index) {
-                    <div class="fe__opt">
-                      <app-input class="fe__mono" [label]="'admin.form.optionValue' | uiKitT" [(ngModel)]="opt.value" (ngModelChange)="touch()" />
-                      <app-i18n-input [short]="true" [value]="opt.label" (valueChange)="setOptionLabel(pos, oi, $event)" />
-                      <app-button-group>
-                        <app-button variant="text" size="sm" [iconOnly]="true" [ariaLabel]="'admin.common.remove' | uiKitT" [title]="'admin.common.remove' | uiKitT" (click)="removeOption(pos, oi)"><app-icon name="trash" /></app-button>
-                      </app-button-group>
-                    </div>
-                  }
+            @if (group.fields.length === 0) {
+              <app-empty-state icon="form" rows="1" [heading]="'admin.form.groupEmpty' | uiKitT" />
+            }
+
+            @for (field of group.fields; track $index; let qi = $index) {
+              @let pos = { gi: gi, qi: qi };
+              <article
+                class="fe__card"
+                [class.fe__card--sel]="isSelected(gi, qi)"
+                [attr.data-q]="gi + ':' + qi"
+                [attr.aria-label]="resolved(field.label) || ('admin.forms.untitledQuestion' | uiKitT)"
+                tabindex="-1"
+                (focusin)="focusCard(pos)"
+                (click)="focusCard(pos)"
+                (keydown.enter)="focusCard(pos)"
+              >
+                <div class="fe__cardHead">
+                  <h3 class="cap fe__cardTitle ell">{{ resolved(field.label) || ('admin.forms.untitledQuestion' | uiKitT) }}</h3>
                   <app-button-group>
-                    <app-button class="fe__inlineAdd" variant="text" size="sm" (click)="addOption(pos)">
-                      <app-icon name="plus" /> {{ 'admin.form.addOption' | uiKitT }}
-                    </app-button>
+                    <app-move-buttons (click)="$event.stopPropagation()" (move)="moveQuestion(pos, $event)" />
+                    <app-button variant="text" size="sm" [iconOnly]="true" [ariaLabel]="'admin.forms.duplicate' | uiKitT" [title]="'admin.forms.duplicate' | uiKitT" (click)="$event.stopPropagation(); duplicateQuestion(pos)"><app-icon name="copy" /></app-button>
+                    <app-button variant="text" size="sm" [iconOnly]="true" [ariaLabel]="'admin.common.delete' | uiKitT" [title]="'admin.common.delete' | uiKitT" (click)="$event.stopPropagation(); removeQuestion(pos)"><app-icon name="trash" /></app-button>
                   </app-button-group>
-                </fieldset>
-              }
+                </div>
 
-              @if (isPositions(field.type)) {
-                <fieldset class="fe__sub fe__panel">
-                  <legend class="cap fe__cap">{{ 'admin.form.positions' | uiKitT }}</legend>
-                  <div class="fe__pair">
-                    <app-input
-                      type="number"
-                      [label]="'admin.form.minOffers' | uiKitT"
-                      placeholder="3"
-                      [ngModel]="field.validation?.minOffers"
-                      (ngModelChange)="setVal(pos, 'minOffers', $event)"
-                    />
-                    <app-input
-                      type="number"
-                      [label]="'admin.form.minPositions' | uiKitT"
-                      placeholder="1"
-                      [ngModel]="field.validation?.minPositions"
-                      (ngModelChange)="setVal(pos, 'minPositions', $event)"
-                    />
-                  </div>
-                  <app-checkbox
-                    [ngModel]="field.validation?.allowNoOffers !== false"
-                    (ngModelChange)="setAllowNoOffers(pos, $event)"
-                  >{{ 'admin.form.allowNoOffers' | uiKitT }}</app-checkbox>
-                </fieldset>
-                <fieldset class="fe__sub">
-                  <legend class="cap fe__cap">{{ 'admin.form.hints' | uiKitT }}</legend>
-                  <p class="fe__muted">{{ 'admin.form.hintsNote' | uiKitT }}</p>
-                  @for (h of positionHints; track h.key) {
-                    <app-i18n-input
-                      [label]="h.label | uiKitT"
-                      [value]="field.validation?.hints?.[h.key] ?? {}"
-                      (valueChange)="setHint(pos, h.key, $event)"
-                    />
-                  }
-                </fieldset>
-              }
-
-              @if (field.type === 'funding') {
-                <app-checkbox
-                  [ngModel]="field.validation?.capAtCost !== false"
-                  (ngModelChange)="setDefaultOn(pos, 'capAtCost', $event)"
-                >{{ 'admin.form.capAtCost' | uiKitT }}</app-checkbox>
-              }
-
-              @if (field.type === 'number') {
-                <app-checkbox
-                  [ngModel]="field.validation?.participants === true"
-                  [disabled]="field.validation?.participants !== true && participantsTaken(field)"
-                  (ngModelChange)="setParticipants(pos, $event)"
-                >{{ 'admin.form.participants' | uiKitT }}</app-checkbox>
-              }
-
-              @if (field.type === 'budget_select') {
-                <app-input
-                  class="fe__mono"
-                  [label]="'admin.form.rootPath' | uiKitT"
-                  placeholder="QSM"
-                  [ngModel]="field.validation?.rootPath ?? ''"
-                  (ngModelChange)="setRootPath(pos, $event)"
-                />
-              }
-
-              @if (field.type === 'computed') {
-                <label class="fe__code">
-                  <span class="fe__codeLabel">{{ 'admin.form.compute' | uiKitT }}</span>
-                  <textarea class="mono" rows="2" [ngModel]="logicRaw(gi, qi, 'compute', field.compute)" (ngModelChange)="onLogicInput(pos, 'compute', $event)" placeholder='{"+":[{"var":"a"},{"var":"b"}]}'></textarea>
-                </label>
-                @if (!isAmount(field)) {
+                <div class="fe__base">
                   <app-select
-                    class="fe__narrow"
-                    [label]="'admin.form.format' | uiKitT"
-                    [options]="formatOptions"
-                    [ngModel]="field.format ?? 'number'"
-                    (ngModelChange)="setFormat(pos, $event)"
+                    class="fe__type"
+                    [label]="'admin.common.type' | uiKitT"
+                    [options]="fieldTypeOptions"
+                    [ngModel]="field.type"
+                    (ngModelChange)="onTypeChange(pos, $event)"
+                  />
+                  <app-input
+                    class="fe__key fe__mono"
+                    [label]="'admin.common.key' | uiKitT"
+                    [(ngModel)]="field.key"
+                    (ngModelChange)="touch()"
+                  />
+                  <app-checkbox class="fe__required" [(ngModel)]="field.required" (ngModelChange)="touch()">{{ 'admin.common.required' | uiKitT }}</app-checkbox>
+                </div>
+
+                <div class="fe__pair">
+                  <app-i18n-input
+                    [placeholder]="'admin.forms.questionPlaceholder' | uiKitT"
+                    [value]="field.label"
+                    (valueChange)="setQuestion(pos, { label: $event })"
+                  />
+                  <app-i18n-input
+                    [label]="'admin.forms.help' | uiKitT"
+                    [value]="field.help ?? {}"
+                    (valueChange)="setQuestion(pos, { help: $event })"
+                  />
+                </div>
+
+                @if (isChoice(field.type)) {
+                  <fieldset class="fe__sub">
+                    <legend class="cap fe__cap">{{ 'admin.form.options' | uiKitT }}</legend>
+                    @for (opt of field.options ?? []; track $index; let oi = $index) {
+                      <div class="fe__opt">
+                        <app-input class="fe__mono" [label]="'admin.form.optionValue' | uiKitT" [(ngModel)]="opt.value" (ngModelChange)="touch()" />
+                        <app-i18n-input [short]="true" [value]="opt.label" (valueChange)="setOptionLabel(pos, oi, $event)" />
+                        <app-button-group>
+                          <app-button variant="text" size="sm" [iconOnly]="true" [ariaLabel]="'admin.common.remove' | uiKitT" [title]="'admin.common.remove' | uiKitT" (click)="removeOption(pos, oi)"><app-icon name="trash" /></app-button>
+                        </app-button-group>
+                      </div>
+                    }
+                    <app-button-group>
+                      <app-button class="fe__inlineAdd" variant="text" size="sm" (click)="addOption(pos)">
+                        <app-icon name="plus" /> {{ 'admin.form.addOption' | uiKitT }}
+                      </app-button>
+                    </app-button-group>
+                  </fieldset>
+                }
+
+                @if (isPositions(field.type)) {
+                  <fieldset class="fe__sub fe__panel">
+                    <legend class="cap fe__cap">{{ 'admin.form.positions' | uiKitT }}</legend>
+                    <div class="fe__pair">
+                      <app-input
+                        type="number"
+                        [label]="'admin.form.minOffers' | uiKitT"
+                        placeholder="3"
+                        [ngModel]="field.validation?.minOffers"
+                        (ngModelChange)="setVal(pos, 'minOffers', $event)"
+                      />
+                      <app-input
+                        type="number"
+                        [label]="'admin.form.minPositions' | uiKitT"
+                        placeholder="1"
+                        [ngModel]="field.validation?.minPositions"
+                        (ngModelChange)="setVal(pos, 'minPositions', $event)"
+                      />
+                    </div>
+                    <app-checkbox
+                      [ngModel]="field.validation?.allowNoOffers !== false"
+                      (ngModelChange)="setAllowNoOffers(pos, $event)"
+                    >{{ 'admin.form.allowNoOffers' | uiKitT }}</app-checkbox>
+                  </fieldset>
+                  <fieldset class="fe__sub">
+                    <legend class="cap fe__cap">{{ 'admin.form.hints' | uiKitT }}</legend>
+                    <p class="fe__muted">{{ 'admin.form.hintsNote' | uiKitT }}</p>
+                    @for (h of positionHints; track h.key) {
+                      <app-i18n-input
+                        [label]="h.label | uiKitT"
+                        [value]="field.validation?.hints?.[h.key] ?? {}"
+                        (valueChange)="setHint(pos, h.key, $event)"
+                      />
+                    }
+                  </fieldset>
+                }
+
+                @if (field.type === 'funding') {
+                  <app-checkbox
+                    [ngModel]="field.validation?.capAtCost !== false"
+                    (ngModelChange)="setDefaultOn(pos, 'capAtCost', $event)"
+                  >{{ 'admin.form.capAtCost' | uiKitT }}</app-checkbox>
+                }
+
+                @if (field.type === 'number') {
+                  <app-checkbox
+                    [ngModel]="field.validation?.participants === true"
+                    [disabled]="field.validation?.participants !== true && participantsTaken(field)"
+                    (ngModelChange)="setParticipants(pos, $event)"
+                  >{{ 'admin.form.participants' | uiKitT }}</app-checkbox>
+                }
+
+                @if (field.type === 'budget_select') {
+                  <app-input
+                    class="fe__mono"
+                    [label]="'admin.form.rootPath' | uiKitT"
+                    placeholder="QSM"
+                    [ngModel]="field.validation?.rootPath ?? ''"
+                    (ngModelChange)="setRootPath(pos, $event)"
                   />
                 }
-              }
 
-              <div class="fe__advanced">
-                <button
-                  type="button"
-                  class="fe__advToggle"
-                  [attr.aria-expanded]="isExpanded(pos)"
-                  (click)="toggleExpanded(pos)"
-                >
-                  <app-icon class="fe__muted" name="tune" [size]="17" />
-                  <span class="fe__advTitle">{{ 'admin.forms.advanced' | uiKitT }}</span>
-                  <app-icon [name]="isExpanded(pos) ? 'up' : 'down'" [size]="17" />
-                </button>
-                @if (isExpanded(pos)) {
-                  <div class="fe__toggles">
-                    <app-checkbox [(ngModel)]="field.isPII" (ngModelChange)="touch()">{{ 'admin.form.isPII' | uiKitT }}</app-checkbox>
-                    @if (isNumeric(field.type)) {
-                      <app-checkbox [ngModel]="field.isPromoted" (ngModelChange)="onPromotedToggle(pos, $event)">{{ 'admin.form.isPromoted' | uiKitT }}</app-checkbox>
-                    }
-                    @if (field.type === 'computed') {
-                      <app-checkbox [ngModel]="isAmount(field)" (ngModelChange)="onAmountToggle(pos, $event)">{{ 'admin.form.isAmount' | uiKitT }}</app-checkbox>
-                    }
-                  </div>
-                  @if (isNumeric(field.type) && field.isPromoted) {
+                @if (field.type === 'computed') {
+                  <label class="fe__code">
+                    <span class="fe__codeLabel">{{ 'admin.form.compute' | uiKitT }}</span>
+                    <textarea class="mono" rows="2" [ngModel]="logicRaw(gi, qi, 'compute', field.compute)" (ngModelChange)="onLogicInput(pos, 'compute', $event)" placeholder='{"+":[{"var":"a"},{"var":"b"}]}'></textarea>
+                  </label>
+                  @if (!isAmount(field)) {
                     <app-select
                       class="fe__narrow"
-                      [label]="'admin.form.promoteTarget' | uiKitT"
-                      [options]="promoteTargetOptions"
-                      [ngModel]="field.promoteTarget"
-                      (ngModelChange)="setQuestion(pos, { promoteTarget: $event })"
+                      [label]="'admin.form.format' | uiKitT"
+                      [options]="formatOptions"
+                      [ngModel]="field.format ?? 'number'"
+                      (ngModelChange)="setFormat(pos, $event)"
                     />
                   }
-
-                  @if (isNumeric(field.type) || isText(field.type)) {
-                    <fieldset class="fe__sub">
-                      <legend class="cap fe__cap">{{ 'admin.form.validation' | uiKitT }}</legend>
-                      @if (isNumeric(field.type)) {
-                        <div class="fe__pair">
-                          <app-input type="number" [label]="'admin.form.min' | uiKitT" [ngModel]="field.validation?.min" (ngModelChange)="setVal(pos, 'min', $event)" />
-                          <app-input type="number" [label]="'admin.form.max' | uiKitT" [ngModel]="field.validation?.max" (ngModelChange)="setVal(pos, 'max', $event)" />
-                        </div>
-                      }
-                      @if (isText(field.type)) {
-                        <div class="fe__pair">
-                          <app-input type="number" [label]="'admin.form.minLen' | uiKitT" [ngModel]="field.validation?.minLen" (ngModelChange)="setVal(pos, 'minLen', $event)" />
-                          <app-input type="number" [label]="'admin.form.maxLen' | uiKitT" [ngModel]="field.validation?.maxLen" (ngModelChange)="setVal(pos, 'maxLen', $event)" />
-                        </div>
-                        <app-input class="fe__mono" [label]="'admin.form.pattern' | uiKitT" [ngModel]="field.validation?.pattern" (ngModelChange)="setVal(pos, 'pattern', $event)" />
-                      }
-                    </fieldset>
-                  }
-
-                  <label class="fe__code">
-                    <span class="fe__codeLabel">{{ 'admin.form.visibleIf' | uiKitT }}</span>
-                    <textarea class="mono" rows="2" [ngModel]="logicRaw(gi, qi, 'visibleIf', field.visibleIf)" (ngModelChange)="onLogicInput(pos, 'visibleIf', $event)" [attr.placeholder]="'admin.form.visibleIfEmpty' | uiKitT"></textarea>
-                  </label>
                 }
-              </div>
 
-              @if (errorsFor(gi, qi).length > 0) {
-                <ul class="fe__errors" role="alert">
-                  @for (err of errorsFor(gi, qi); track err) { <li>{{ err }}</li> }
-                </ul>
-              }
-            </article>
-          }
+                <div class="rowgroup rowgroup--settings">
+                  <button type="button" class="fe__advRow" [attr.aria-expanded]="isExpanded(pos)" (click)="toggleExpanded(pos)">
+                    <span class="fe__advTitle">{{ 'admin.forms.advanced' | uiKitT }}</span>
+                    <app-icon [name]="isExpanded(pos) ? 'up' : 'down'" [size]="20" />
+                  </button>
+                  @if (isExpanded(pos)) {
+                    <div class="fe__advBody">
+                      <div class="fe__toggles">
+                        <app-checkbox [(ngModel)]="field.isPII" (ngModelChange)="touch()">{{ 'admin.form.isPII' | uiKitT }}</app-checkbox>
+                        @if (isNumeric(field.type)) {
+                          <app-checkbox [ngModel]="field.isPromoted" (ngModelChange)="onPromotedToggle(pos, $event)">{{ 'admin.form.isPromoted' | uiKitT }}</app-checkbox>
+                        }
+                        @if (field.type === 'computed') {
+                          <app-checkbox [ngModel]="isAmount(field)" (ngModelChange)="onAmountToggle(pos, $event)">{{ 'admin.form.isAmount' | uiKitT }}</app-checkbox>
+                        }
+                      </div>
+                      @if (isNumeric(field.type) && field.isPromoted) {
+                        <app-select
+                          class="fe__narrow"
+                          [label]="'admin.form.promoteTarget' | uiKitT"
+                          [options]="promoteTargetOptions"
+                          [ngModel]="field.promoteTarget"
+                          (ngModelChange)="setQuestion(pos, { promoteTarget: $event })"
+                        />
+                      }
+
+                      @if (isNumeric(field.type) || isText(field.type)) {
+                        <fieldset class="fe__sub">
+                          <legend class="cap fe__cap">{{ 'admin.form.validation' | uiKitT }}</legend>
+                          @if (isNumeric(field.type)) {
+                            <div class="fe__pair">
+                              <app-input type="number" [label]="'admin.form.min' | uiKitT" [ngModel]="field.validation?.min" (ngModelChange)="setVal(pos, 'min', $event)" />
+                              <app-input type="number" [label]="'admin.form.max' | uiKitT" [ngModel]="field.validation?.max" (ngModelChange)="setVal(pos, 'max', $event)" />
+                            </div>
+                          }
+                          @if (isText(field.type)) {
+                            <div class="fe__pair">
+                              <app-input type="number" [label]="'admin.form.minLen' | uiKitT" [ngModel]="field.validation?.minLen" (ngModelChange)="setVal(pos, 'minLen', $event)" />
+                              <app-input type="number" [label]="'admin.form.maxLen' | uiKitT" [ngModel]="field.validation?.maxLen" (ngModelChange)="setVal(pos, 'maxLen', $event)" />
+                            </div>
+                            <app-input class="fe__mono" [label]="'admin.form.pattern' | uiKitT" [ngModel]="field.validation?.pattern" (ngModelChange)="setVal(pos, 'pattern', $event)" />
+                          }
+                        </fieldset>
+                      }
+
+                      <label class="fe__code">
+                        <span class="fe__codeLabel">{{ 'admin.form.visibleIf' | uiKitT }}</span>
+                        <textarea class="mono" rows="2" [ngModel]="logicRaw(gi, qi, 'visibleIf', field.visibleIf)" (ngModelChange)="onLogicInput(pos, 'visibleIf', $event)" [attr.placeholder]="'admin.form.visibleIfEmpty' | uiKitT"></textarea>
+                      </label>
+                    </div>
+                  }
+                </div>
+
+                @if (errorsFor(gi, qi).length > 0) {
+                  <ul class="fe__errors" role="alert">
+                    @for (err of errorsFor(gi, qi); track err) { <li>{{ err }}</li> }
+                  </ul>
+                }
+              </article>
+            }
+          </section>
         }
+        <app-button-group>
+          <app-button class="fe__addGroup" variant="tonal" size="sm" (click)="addGroup()">
+            <app-icon name="plus" /> {{ 'admin.form.addGroup' | uiKitT }}
+          </app-button>
+        </app-button-group>
       </div>
+      }
     }
 
-    <aside class="fe__side" appScrollFade="y">
+    <aside class="fe__side" [hidden]="preview() || onQuestions()">
+      @if (page() === 'form') {
       <section class="fe__card fe__meta" [attr.aria-label]="'admin.form.formCard' | uiKitT">
         <h2 class="cap fe__cap">{{ 'admin.form.formCard' | uiKitT }}</h2>
         <app-i18n-input
@@ -493,19 +415,21 @@
           />
         }
       </section>
+      }
 
+      @if (page() === 'rules') {
       <section class="fe__card fe__meta fe__rules" [attr.aria-labelledby]="'fe-rules-h'">
         <h2 id="fe-rules-h" class="cap fe__cap">{{ 'admin.forms.rules.title' | uiKitT }}</h2>
         @for (rule of rules(); track $index; let ri = $index) {
           <div class="fe__rule" [attr.aria-label]="'admin.forms.rules.ruleN' | uiKitT: { n: ri + 1 }" role="group">
             <div class="fe__ruleHead">
               <span class="fe__ruleTitle">{{ 'admin.forms.rules.ruleN' | uiKitT: { n: ri + 1 } }}</span>
-              <app-move-buttons
-                [upDisabled]="ri === 0"
-                [downDisabled]="ri === rules().length - 1"
-                (move)="moveRule(ri, $event)"
-              />
               <app-button-group>
+                <app-move-buttons
+                  [upDisabled]="ri === 0"
+                  [downDisabled]="ri === rules().length - 1"
+                  (move)="moveRule(ri, $event)"
+                />
                 <app-button
                   variant="text"
                   size="sm"
@@ -549,11 +473,16 @@
           </app-button>
         </app-button-group>
       </section>
+      }
 
-      <ng-content select="[formVersions]" />
+      @if (page() === 'versions') {
+        <ng-content select="[formVersions]" />
+      }
     </aside>
   </div>
 }
+
+</div>
 
 @if (typeMenuGroup() !== null && !phone()) {
   @let gi = typeMenuGroup() ?? 0;

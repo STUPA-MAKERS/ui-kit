@@ -83,8 +83,9 @@
 // follows right after it. So a button between two other controls (a language switch, a
 // search field) is a pill of its own, and a block behind `@if` that renders nothing leaves
 // no gap in the shape. The hosts are the elements that hold a button: `app-button`,
-// `a[appButton]` (`.btn-link`), `app-row-menu` and a segment of the page (`.btn-grp__seg`).
-$-host: ':is(app-button, a.btn-link, app-row-menu, .btn-grp__seg)';
+// `a[appButton]` (`.btn-link`), `app-row-menu`, `app-move-buttons` and a segment of the page
+// (`.btn-grp__seg`).
+$-host: ':is(app-button, a.btn-link, app-row-menu, app-move-buttons, .btn-grp__seg)';
 .btn-grp #{$-host} {
   --btn-grp-s: var(--btn-grp-in);
   --btn-grp-e: var(--btn-grp-in);
@@ -93,6 +94,22 @@ $-host: ':is(app-button, a.btn-link, app-row-menu, .btn-grp__seg)';
   --btn-grp-s: var(--btn-grp-out);
 }
 .btn-grp #{$-host}:not(:has(+ #{$-host})) {
+  --btn-grp-e: var(--btn-grp-out);
+}
+
+// The pair of `app-move-buttons` (a host without a box) joins the group like two buttons: its
+// first button rounds its start only at the start of the group, its last button its end only at
+// the end. The group class is doubled, because the rules above weigh three classes.
+.btn-grp.btn-grp app-move-buttons > app-button:first-child {
+  --btn-grp-s: var(--btn-grp-in);
+}
+.btn-grp.btn-grp app-move-buttons:not(#{$-host} + *) > app-button:first-child {
+  --btn-grp-s: var(--btn-grp-out);
+}
+.btn-grp.btn-grp app-move-buttons > app-button:last-child {
+  --btn-grp-e: var(--btn-grp-in);
+}
+.btn-grp.btn-grp app-move-buttons:not(:has(+ #{$-host})) > app-button:last-child {
   --btn-grp-e: var(--btn-grp-out);
 }
 
