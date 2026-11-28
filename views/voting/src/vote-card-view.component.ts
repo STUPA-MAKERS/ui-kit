@@ -66,8 +66,8 @@ import { UI_KIT_VOTING_TEXTS } from './voting.texts';
  * member voted on an open vote, or after the close. The card then shows them.
  *
  * The vote manager closes or cancels (danger) an open vote, opens a planned one, changes
- * it ("Bearbeiten") and deletes a planned or cancelled one while the meeting is planned
- * or live. In a live meeting a closed vote can be voted on again ("Erneut abstimmen"):
+ * it ("Bearbeiten") while the meeting is planned or live, and deletes every vote but an
+ * open one, a closed one only while the protocol is a draft. In a live meeting a closed vote can be voted on again ("Erneut abstimmen"):
  * the repeat names its number ("2. Abstimmung"), and the closed vote keeps its result and
  * says "Wiederholt" once the repeat opened. Only one
  * vote of the meeting is open at a time, so "Abstimmung öffnen" waits for it. A voter
@@ -261,10 +261,15 @@ export class VoteCardViewComponent<V extends MeetingVote = MeetingVote> {
     () => this.canManage() && !this.locked() && this.meetingStatus() !== 'closed',
   );
 
-  /** Only a planned or cancelled vote can go; an open or closed one is part of the record. */
+  /**
+   * Every vote but an open one can go, also after the meeting (STUPA-Workflow:003140).
+   * A closed vote stays while the protocol is final or a repeat or a next Wahlgang
+   * continues it (STUPA-Workflow:003142, STUPA-Workflow:003144).
+   */
   protected readonly canDelete = computed(() => {
     const s = this.vote().status;
-    return this.canEdit() && (s === 'draft' || s === 'cancelled');
+    if (!this.canManage() || s === 'open') return false;
+    return s !== 'closed' || (!this.locked() && !this.continued());
   });
 
   /** The status line: the result of a closed vote, else the state; an open vote has none. */

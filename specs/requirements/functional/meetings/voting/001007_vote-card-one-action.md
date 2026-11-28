@@ -4,7 +4,7 @@ title: The vote card has one main action and a menu
 kind: functional
 status: approved
 owner: frederikbeimgraben
-updated: 2026-11-20
+updated: 2026-11-28
 implementation: null
 scope:
   - views/voting
@@ -20,8 +20,8 @@ the vote.
    for a prepared vote in a live meeting, "Ins Protokoll übernehmen" for a closed vote.
 2. Every other action must be in the menu (⋮) beside the question: "Ins Protokoll
    übernehmen" when it is not the next step, "Erneut abstimmen" or "Wahlgang wiederholen",
-   "Bearbeiten", "Abstimmung abbrechen" and "Beschlussfrage löschen". The last two are danger
-   items in their own section.
+   "Bearbeiten", "Abstimmung abbrechen" and "Abstimmung löschen" (STUPA-Workflow:003140). The
+   last two are danger items in their own section.
 3. The menu must show only the actions that the person may do now. Without such an action the
    card must show no menu.
 4. The voting buttons of an open vote are not actions of the card and stay as they are.
