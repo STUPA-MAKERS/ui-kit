@@ -4,8 +4,9 @@ title: The meta line in the head of a detail is a list of chips
 kind: non-functional
 status: approved
 owner: frederikbeimgraben
-updated: 2026-11-20
-implementation: null
+updated: 2026-11-28
+implementation:
+  - src/lib/list-detail/list-detail-bar.component.scss
 scope:
   - src/lib
 ---
@@ -25,6 +26,8 @@ Buchung, an Umbuchung, a selection of Buchungen, a Haushalt sheet, a Ticket and 
    does not look like a choice (000615) or a state (000605).
 5. A list row keeps its dots. The phone bar of the meeting head keeps its dots, because the bar
    has one small line below the title.
+6. In the phone bar of a detail, the chips must be compact: 20 px high, in the extra-small font,
+   2 px below the title. The title and the chips then fit the bar together.
 
 Reason: A long line of facts with dots between them reads as one sentence. Chips show where one
 fact ends and the next one starts, and they look like the status chip beside them.
