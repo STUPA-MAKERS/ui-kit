@@ -118,7 +118,6 @@
   </div>
 }
 
-<!-- On a phone: "Erledigt", the attendance and the view switch as icon buttons. -->
 <ng-template #phoneTools>
   <app-button-group class="sd__tools">
       @if (formatTools()) {
@@ -167,9 +166,6 @@
   </app-button-group>
 </ng-template>
 
-<!-- On a wider screen: the format tools of the text (behind "Aa" when the row is too narrow), "Erledigt", the view switch and the
-     icon buttons of the page (QR code, beamer), the icon buttons of the phone dock with the
-     format tools in the row. -->
 <ng-template #deskTools>
   @if (formatTools() || done() !== null || modeToggle() || votes() !== null || extraTools()) {
     <span class="sd__vr" aria-hidden="true"></span>

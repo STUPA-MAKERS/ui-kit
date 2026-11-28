@@ -67,7 +67,6 @@
   }
 </section>
 
-<!-- One group: with a label a section with its heading, else the rows alone. -->
 <ng-template #block let-group let-body="body" let-foot="foot">
   @if (group.label) {
     <app-section class="sts__sec" [level]="2" [heading]="group.label">
@@ -78,7 +77,6 @@
   }
 </ng-template>
 
-<!-- The body, and under it the foot line of a ready group, 20px apart. -->
 <ng-template #footed let-group let-body="body" let-foot="foot">
   @if (foot && group.foot) {
     <div class="sts__footed">
@@ -152,7 +150,6 @@
   </span>
 </ng-template>
 
-<!-- The first load: the real labels with a grey switch, as the Funktionen page shows it. -->
 <ng-template #skeletonRows let-group>
   <div class="rowgroup rowgroup--settings">
     @for (row of $any(group).rows; track row.key) {

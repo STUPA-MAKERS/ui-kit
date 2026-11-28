@@ -17,9 +17,6 @@
   <h3 class="vpn__q vpn__q--card">{{ question() }}</h3>
   <p class="vpn__rules vpn__rules--card">{{ rules() }}</p>
 } @else {
-  <!-- `page` and `phone`: the sheet bar hands the title and the actions to the detail bar of
-       the list/detail layout on a phone (§ui-kit:000674). The phone view is a page of its own, so
-       its title is the h1. -->
   <app-sheet-bar class="vpn__bar">
     @if (layout() === 'phone') {
       <h1 appSheetBarTitle class="sheet-title">{{ question() }}</h1>
