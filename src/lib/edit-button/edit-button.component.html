@@ -1,0 +1,13 @@
+@if (phone()) {
+  <app-button variant="tonal" (click)="pressed.emit()">
+    <span class="eb__text"><app-icon name="edit" />{{ text() }}</span>
+  </app-button>
+} @else {
+  <app-button
+    variant="text"
+    [iconOnly]="true"
+    [ariaLabel]="label()"
+    [title]="label()"
+    (click)="pressed.emit()"
+  ><app-icon name="edit" /></app-button>
+}
