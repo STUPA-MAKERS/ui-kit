@@ -12,158 +12,167 @@
       <app-skeleton class="chat__skel skel-in" variant="bubbles" [count]="5" [label]="'chat.loading' | uiKitT" />
     } @else {
       @for (item of items(); track item.key) {
-        @if (item.kind === 'day') {
-          <div class="chat__sep">
-            <span class="chat__sepText">{{ item.label }}</span>
-          </div>
-        } @else if (item.kind === 'new') {
-          <div class="chat__sep chat__sep--new">
-            <span class="chat__sepText">{{ 'chat.newCount' | uiKitT: { count: item.count } }}</span>
-          </div>
-        } @else if (item.kind === 'event') {
-          <p class="chat__event"><app-meta-line>
-            <span>{{ item.text }}</span><time [attr.datetime]="item.at">{{ time(item.at) }}</time>
-          </app-meta-line></p>
-        } @else {
-          @let m = item.msg;
-          <div
-            class="chat__row"
-            animate.enter="motion-rise-in"
-            [attr.data-msg-id]="m.id"
-            [class.chat__row--own]="m.own"
-            [class.chat__row--head]="item.head"
-            [class.chat__row--tail]="item.tail"
-          >
-            @if (!m.own) {
-              @if (item.tail && m.author) {
-                <app-avatar
-                  class="chat__av"
-                  size="sm"
-                  [decorative]="true"
-                  [name]="item.name ?? ''"
-                  [principalId]="m.author.principalId"
-                />
-              } @else if (m.author) {
-                <span class="chat__avSpace" aria-hidden="true"></span>
-              }
-            }
-            <div class="chat__col">
-              @if (item.head && item.name) {
-                <span class="chat__name">{{ item.name }}</span>
-              }
-              <div class="chat__line">
-                @if (canAct(m) && !touchMenu() && editingId() !== m.id) {
-                  <span class="chat__acts">
-                    <app-button-group>
-                      <app-button
-                        variant="text"
-                        size="sm"
-                        [iconOnly]="true"
-                        [ariaLabel]="'chat.edit' | uiKitT"
-                        (click)="startEdit(m)"
-                      ><app-icon name="edit" /></app-button>
-                      <app-button
-                        variant="text"
-                        size="sm"
-                        [iconOnly]="true"
-                        [ariaLabel]="'chat.delete' | uiKitT"
-                        (click)="askDelete(m)"
-                      ><app-icon name="trash" /></app-button>
-                    </app-button-group>
-                  </span>
+        @switch (item.kind) {
+          @case ('day') {
+            <div class="chat__sep">
+              <span class="chat__sepText">{{ item.label }}</span>
+            </div>
+          }
+          @case ('new') {
+            <div class="chat__sep chat__sep--new">
+              <span class="chat__sepText">{{ 'chat.newCount' | uiKitT: { count: item.count } }}</span>
+            </div>
+          }
+          @case ('event') {
+            <p class="chat__event"><app-meta-line>
+              <span>{{ item.text }}</span><time [attr.datetime]="item.at">{{ time(item.at) }}</time>
+            </app-meta-line></p>
+          }
+          @default {
+            @let m = item.msg;
+            <div
+              class="chat__row"
+              animate.enter="motion-rise-in"
+              [attr.data-msg-id]="m.id"
+              [class.chat__row--own]="m.own"
+              [class.chat__row--head]="item.head"
+              [class.chat__row--tail]="item.tail"
+            >
+              @if (!m.own) {
+                @if (item.tail && m.author) {
+                  <app-avatar
+                    class="chat__av"
+                    size="sm"
+                    [decorative]="true"
+                    [name]="item.name ?? ''"
+                    [principalId]="m.author.principalId"
+                  />
+                } @else if (m.author) {
+                  <span class="chat__avSpace" aria-hidden="true"></span>
                 }
-                @if (editingId() === m.id) {
-                  <form class="chat__edit" (submit)="saveEdit($event)">
-                    <div class="chat__mentionAnchor">
-                      <textarea
-                        class="chat__editInput"
-                        rows="1"
-                        name="chatEdit"
-                        [attr.maxlength]="maxLength"
-                        [value]="editDraft()"
-                        (input)="
-                          editDraft.set($any($event.target).value);
-                          readMention(editMentions, $event)
-                        "
-                        (keydown)="onEditKey($event)"
-                        (click)="readMention(editMentions, $event)"
-                        (keyup)="readMention(editMentions, $event)"
-                        (blur)="editMentions.close()"
-                        [attr.aria-label]="'chat.edit' | uiKitT"
-                        aria-autocomplete="list"
-                        [attr.aria-controls]="editMentions.open() ? editMentions.listId : null"
-                        [attr.aria-activedescendant]="
-                          editMentions.open() ? editMentions.optionId(editMentions.active()) : null
-                        "
-                      ></textarea>
-                      <ng-container
-                        *ngTemplateOutlet="
-                          mentionList;
-                          context: { $implicit: editMentions, below: true }
-                        "
-                      />
+              }
+              <div class="chat__col">
+                @if (item.head && item.name) {
+                  <span class="chat__name">{{ item.name }}</span>
+                }
+                <div class="chat__line">
+                  @if (canAct(m) && !touchMenu() && editingId() !== m.id) {
+                    <span class="chat__acts">
+                      <app-button-group>
+                        <app-button
+                          variant="text"
+                          size="sm"
+                          [iconOnly]="true"
+                          [ariaLabel]="'chat.edit' | uiKitT"
+                          (click)="startEdit(m)"
+                        ><app-icon name="edit" /></app-button>
+                        <app-button
+                          variant="text"
+                          size="sm"
+                          [iconOnly]="true"
+                          [ariaLabel]="'chat.delete' | uiKitT"
+                          (click)="askDelete(m)"
+                        ><app-icon name="trash" /></app-button>
+                      </app-button-group>
+                    </span>
+                  }
+                  @if (editingId() === m.id) {
+                    <form class="chat__edit" (submit)="saveEdit($event)">
+                      <div class="chat__mentionAnchor">
+                        <textarea
+                          class="chat__editInput"
+                          rows="1"
+                          name="chatEdit"
+                          [attr.maxlength]="maxLength"
+                          [value]="editDraft()"
+                          (input)="
+                            editDraft.set($any($event.target).value);
+                            readMention(editMentions, $event)
+                          "
+                          (keydown)="onEditKey($event)"
+                          (click)="readMention(editMentions, $event)"
+                          (keyup)="readMention(editMentions, $event)"
+                          (blur)="editMentions.close()"
+                          [attr.aria-label]="'chat.edit' | uiKitT"
+                          aria-autocomplete="list"
+                          [attr.aria-controls]="editMentions.open() ? editMentions.listId : null"
+                          [attr.aria-activedescendant]="
+                            editMentions.open() ? editMentions.optionId(editMentions.active()) : null
+                          "
+                        ></textarea>
+                        <ng-container
+                          *ngTemplateOutlet="
+                            mentionList;
+                            context: { $implicit: editMentions, below: true }
+                          "
+                        />
+                      </div>
+                      <ng-container *ngTemplateOutlet="msgFiles; context: { $implicit: m }" />
+                      <app-button-group class="chat__editActions" [main]="true">
+                        <app-button variant="text" (click)="cancelEdit()">{{ 'chat.cancel' | uiKitT }}</app-button>
+                        <app-button type="submit" variant="fill" [disabled]="!editDraft().trim()">{{
+                          'chat.save' | uiKitT
+                        }}</app-button>
+                      </app-button-group>
+                    </form>
+                  } @else {
+                    <div
+                      class="chat__bubble"
+                      [class.chat__bubble--internal]="item.mark === 'internal'"
+                      [class.chat__bubble--failed]="m.state === 'failed'"
+                      appPressSelect
+                      [appPressSelectEnabled]="canAct(m) && touchMenu()"
+                      [appPressSelectActive]="true"
+                      (appPressSelectToggle)="openMenu(m)"
+                    >
+                      @if (item.markLabel && item.mark === 'internal') {
+                        <span class="chat__mark chat__mark--internal">
+                          <app-icon name="lock" [size]="13" />{{ 'chat.internal' | uiKitT }}
+                        </span>
+                      } @else if (item.markLabel && item.mark === 'public') {
+                        <span class="chat__mark chat__mark--public">
+                          <app-icon name="globe" [size]="13" />{{ 'chat.public' | uiKitT }}
+                        </span>
+                      }
+                      <div class="chat__text" [innerHTML]="m.body | chatBody: m.mentions"></div>
+                      <ng-container *ngTemplateOutlet="msgFiles; context: { $implicit: m }" />
                     </div>
-                    <ng-container *ngTemplateOutlet="msgFiles; context: { $implicit: m }" />
-                    <app-button-group class="chat__editActions" [main]="true">
-                      <app-button variant="text" (click)="cancelEdit()">{{ 'chat.cancel' | uiKitT }}</app-button>
-                      <app-button type="submit" variant="fill" [disabled]="!editDraft().trim()">{{
-                        'chat.save' | uiKitT
-                      }}</app-button>
-                    </app-button-group>
-                  </form>
-                } @else {
-                  <div
-                    class="chat__bubble"
-                    [class.chat__bubble--internal]="item.mark === 'internal'"
-                    [class.chat__bubble--failed]="m.state === 'failed'"
-                    appPressSelect
-                    [appPressSelectEnabled]="canAct(m) && touchMenu()"
-                    [appPressSelectActive]="true"
-                    (appPressSelectToggle)="openMenu(m)"
-                  >
-                    @if (item.markLabel && item.mark === 'internal') {
-                      <span class="chat__mark chat__mark--internal">
-                        <app-icon name="lock" [size]="13" />{{ 'chat.internal' | uiKitT }}
-                      </span>
-                    } @else if (item.markLabel && item.mark === 'public') {
-                      <span class="chat__mark chat__mark--public">
-                        <app-icon name="globe" [size]="13" />{{ 'chat.public' | uiKitT }}
-                      </span>
-                    }
-                    <div class="chat__text" [innerHTML]="m.body | chatBody: m.mentions"></div>
-                    <ng-container *ngTemplateOutlet="msgFiles; context: { $implicit: m }" />
-                  </div>
+                  }
+                </div>
+                @switch (metaKind(m, item.tail)) {
+                  @case ('sending') {
+                    <span class="chat__meta">{{ 'chat.sending' | uiKitT }}</span>
+                  }
+                  @case ('failed') {
+                    <span class="chat__meta chat__meta--failed">
+                      <span class="chat__failed"><app-icon name="alert" [size]="13" />{{ 'chat.failed' | uiKitT }}</span>
+                      <button type="button" class="chat__retry" (click)="retryFailed(m)">
+                        {{ 'chat.retry' | uiKitT }}
+                      </button>
+                      @if (canEditFailed(m)) {
+                        <button type="button" class="chat__retry" (click)="editFailed(m)">
+                          {{ 'chat.editShort' | uiKitT }}
+                        </button>
+                      }
+                      <button type="button" class="chat__retry" (click)="discardFailed(m)">
+                        {{ 'chat.discard' | uiKitT }}
+                      </button>
+                    </span>
+                  }
+                  @case ('time') {
+                    <span class="chat__meta"><app-meta-line>
+                      @if (item.tail) {
+                        <time [attr.datetime]="m.at">{{ time(m.at) }}</time>
+                      }
+                      @if (m.editedAt) {
+                        <span>{{ 'chat.edited' | uiKitT }}</span>
+                      }
+                    </app-meta-line></span>
+                  }
                 }
               </div>
-              @if (m.state === 'sending') {
-                <span class="chat__meta">{{ 'chat.sending' | uiKitT }}</span>
-              } @else if (m.state === 'failed') {
-                <span class="chat__meta chat__meta--failed">
-                  <span class="chat__failed"><app-icon name="alert" [size]="13" />{{ 'chat.failed' | uiKitT }}</span>
-                  <button type="button" class="chat__retry" (click)="retryFailed(m)">
-                    {{ 'chat.retry' | uiKitT }}
-                  </button>
-                  @if (canEditFailed(m)) {
-                    <button type="button" class="chat__retry" (click)="editFailed(m)">
-                      {{ 'chat.editShort' | uiKitT }}
-                    </button>
-                  }
-                  <button type="button" class="chat__retry" (click)="discardFailed(m)">
-                    {{ 'chat.discard' | uiKitT }}
-                  </button>
-                </span>
-              } @else if (item.tail || m.editedAt) {
-                <span class="chat__meta"><app-meta-line>
-                  @if (item.tail) {
-                    <time [attr.datetime]="m.at">{{ time(m.at) }}</time>
-                  }
-                  @if (m.editedAt) {
-                    <span>{{ 'chat.edited' | uiKitT }}</span>
-                  }
-                </app-meta-line></span>
-              }
             </div>
-          </div>
+          }
         }
       } @empty {
         <app-empty-state icon="chat" shape="chat" class="chat__empty" rows="3" [heading]="'chat.empty' | uiKitT" />

@@ -218,6 +218,16 @@ export class DetailScreenComponent {
   });
   protected readonly loadingLabel = computed(() => this.intl.translate('loading'));
 
+  protected readonly bodyKind = computed<'replacing' | 'tabs' | 'body' | null>(() =>
+    this.replacing()
+      ? 'replacing'
+      : this.visibleTabs().length
+      ? 'tabs'
+      : this.bodySlot()
+      ? 'body'
+      : null,
+  );
+
   constructor() {
     errorToastOn(() => this.state());
     const host = inject<ElementRef<HTMLElement>>(ElementRef).nativeElement;

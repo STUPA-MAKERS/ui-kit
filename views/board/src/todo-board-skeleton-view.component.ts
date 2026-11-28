@@ -156,4 +156,14 @@ export class TodoBoardSkeletonViewComponent {
   protected readonly phoneTiles = PHONE_TILES;
   protected readonly groups = LIST_GROUPS;
   protected readonly sections = SECTIONS;
+
+  protected readonly layout = computed<'rows' | 'list' | 'phone' | 'board'>(() =>
+    this.view() === 'rows'
+      ? 'rows'
+      : this.view() === 'list'
+      ? 'list'
+      : this.phone()
+      ? 'phone'
+      : 'board',
+  );
 }

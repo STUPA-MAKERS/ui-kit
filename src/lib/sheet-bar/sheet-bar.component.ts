@@ -8,8 +8,7 @@ import {
   contentChild,
   inject,
   input,
-  viewChild,
-} from '@angular/core';
+  viewChild, computed } from '@angular/core';
 import { dockInListDetailBar } from '../list-detail/list-detail-nav';
 
 /**
@@ -127,4 +126,14 @@ export class SheetBarComponent {
     titled: () => !!this.slotTitle(),
     title: () => this.host.nativeElement.querySelector('.sheet-bar__title'),
   });
+
+  protected readonly kickerKind = computed<'title' | 'kicker' | 'id' | 'none'>(() =>
+    this.slotTitle()
+      ? 'title'
+      : this.slotKicker()
+      ? 'kicker'
+      : this.kickerId()
+      ? 'id'
+      : 'none',
+  );
 }

@@ -9,56 +9,61 @@
 
 @if (own) {
   <app-section class="ballot__row" [level]="2" [heading]="ownHeading()" [hideHeading]="!named()">
-    @if (dateMode()) {
-      <ng-container
-        [ngTemplateOutlet]="dates"
-        [ngTemplateOutletContext]="{ row: 'own', cast: own.cast, label: ownHeading() }"
-      />
-    } @else if (candidateMode()) {
-      <ng-container
-        [ngTemplateOutlet]="cands"
-        [ngTemplateOutletContext]="{ row: 'own', cast: own.cast, label: ownHeading() }"
-      />
-    } @else if (compact()) {
-      <div class="ballot__proxy">
-        @for (opt of options(); track opt) {
-          @let on = isOn('own', opt);
-          <button
-            type="button"
-            class="pchoice"
-            [class.pchoice--on]="on"
-            [attr.aria-pressed]="on"
-            [disabled]="own.cast || busy"
-            (click)="pick('own', opt)"
-          >
-            @if (on) {
-              <app-icon name="check" [size]="15" />
-            }
-            {{ label(opt) }}
-          </button>
-        }
-      </div>
-    } @else {
-      <div class="ballot__choices">
-        @for (opt of options(); track opt) {
-          @let on = isOn('own', opt);
-          <button
-            type="button"
-            class="choice"
-            [class.choice--on]="on"
-            [attr.aria-pressed]="on"
-            [disabled]="own.cast || busy"
-            (click)="pick('own', opt)"
-          >
-            <span class="choice__mark" aria-hidden="true">
+    @switch (ballotKind()) {
+      @case ('date') {
+        <ng-container
+          [ngTemplateOutlet]="dates"
+          [ngTemplateOutletContext]="{ row: 'own', cast: own.cast, label: ownHeading() }"
+        />
+      }
+      @case ('candidates') {
+        <ng-container
+          [ngTemplateOutlet]="cands"
+          [ngTemplateOutletContext]="{ row: 'own', cast: own.cast, label: ownHeading() }"
+        />
+      }
+      @case ('compact') {
+        <div class="ballot__proxy">
+          @for (opt of options(); track opt) {
+            @let on = isOn('own', opt);
+            <button
+              type="button"
+              class="pchoice"
+              [class.pchoice--on]="on"
+              [attr.aria-pressed]="on"
+              [disabled]="own.cast || busy"
+              (click)="pick('own', opt)"
+            >
               @if (on) {
-                <app-icon name="check" [size]="18" />
+                <app-icon name="check" [size]="15" />
               }
-            </span>
-            <span class="choice__label">{{ label(opt) }}</span>
-          </button>
-        }
-      </div>
+              {{ label(opt) }}
+            </button>
+          }
+        </div>
+      }
+      @case ('options') {
+        <div class="ballot__choices">
+          @for (opt of options(); track opt) {
+            @let on = isOn('own', opt);
+            <button
+              type="button"
+              class="choice"
+              [class.choice--on]="on"
+              [attr.aria-pressed]="on"
+              [disabled]="own.cast || busy"
+              (click)="pick('own', opt)"
+            >
+              <span class="choice__mark" aria-hidden="true">
+                @if (on) {
+                  <app-icon name="check" [size]="18" />
+                }
+              </span>
+              <span class="choice__label">{{ label(opt) }}</span>
+            </button>
+          }
+        </div>
+      }
     }
     @if (own.cast) {
       @let choice = castChoice('own');

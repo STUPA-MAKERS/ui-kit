@@ -157,6 +157,22 @@ export class SessionDockViewComponent {
   /** The width the row needed at each fold, measured when it overflowed there. */
   private need: readonly number[] = [0, 0, 0];
 
+  /** The main row of the dock: the format tools, the planned meeting, the closed one, else the live one. */
+  protected readonly dockRow = computed<'format' | 'planned' | 'closed' | 'live'>(() => {
+    const m = this.meeting();
+    if ((this.phone() || this.compact()) && this.formatting() && this.formatTools()) return 'format';
+    if (m.status === 'planned' && this.topIndex() < 0) return 'planned';
+    return m.status === 'closed' ? 'closed' : 'live';
+  });
+
+  /** The keeper chip: closed, a chip to pick or hand over, the named keeper, or none. */
+  protected readonly keeperState = computed<'closed' | 'pick' | 'named' | 'none'>(() => {
+    const m = this.meeting();
+    if (m.status === 'closed') return 'closed';
+    if (this.canPickKeeper() || this.canHandOver()) return 'pick';
+    return m.protokollantId ? 'named' : 'none';
+  });
+
   constructor() {
     // Without tools (another item, a locked text) the row returns to the navigation.
     effect(() => {
